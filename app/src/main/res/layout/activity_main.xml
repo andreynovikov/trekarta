@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <org.oscim.android.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true" />
+
+    <LinearLayout
+        android:id="@+id/gaugePanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="24dp"
+        android:background="#99ffffff"
+        android:orientation="vertical"
+        android:padding="4dp"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="2"
+            android:gravity="end"
+            android:lines="1"
+            android:text="--"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/speedUnit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="kmh"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/satellites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:background="#99ffffff"
+        android:elevation="@dimen/panel_elevation"
+        android:padding="4dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:translationY="-200dp" />
+
+    <ImageButton
+        android:id="@+id/compass"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:layout_gravity="top|end"
+        android:background="?android:attr/selectableItemBackground"
+        android:elevation="2dp"
+        android:onClick="onCompassClicked"
+        android:padding="4dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_compass"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/actionPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#99ffffff"
+            android:elevation="@dimen/panel_elevation"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/locationButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="onLocationClicked"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_navigation_north" />
+
+            <ImageButton
+                android:id="@+id/recordButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="onRecordClicked"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_record"
+                android:tint="@color/colorPrimaryDark" />
+
+            <ImageButton
+                android:id="@+id/placesButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_place"
+                android:tint="@color/colorPrimaryDark" />
+
+            <ImageButton
+                android:id="@+id/layersButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_layers"
+                android:tint="@color/colorPrimaryDark" />
+
+            <ImageButton
+                android:id="@+id/moreButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="onMoreClicked"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_menu"
+                android:tint="@color/colorPrimaryDark" />
+
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.Material.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-6dp"
+            android:layout_above="@id/actionPanel"
+            android:progressTint="@color/colorAccent"
+            android:visibility="gone" />
+    </RelativeLayout>
+</FrameLayout>
