@@ -33,8 +33,6 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,16 +43,15 @@ import java.util.Set;
 
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
+import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.util.FileUtils;
-import mobi.maptrek.util.GpxFiles;
-import mobi.maptrek.util.ProgressHandler;
+import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.StringFormatter;
 
 public class LocationService extends BaseLocationService implements LocationListener, NmeaListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
     private static final String TAG = "Location";
 
-    private static final long TOO_SMALL_PERIOD = 0; //DateUtils.MINUTE_IN_MILLIS; // 1 minute
+    private static final long TOO_SMALL_PERIOD = DateUtils.MINUTE_IN_MILLIS; // 1 minute
     private static final float TOO_SMALL_DISTANCE = 100f; // 100 meters
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
 
@@ -62,7 +59,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private static final boolean DEBUG_ERRORS = false;
 
     // Fake locations used for test purposes
-    private static final boolean enableMockLocations = true;
+    private static final boolean enableMockLocations = false;
     private Handler mMockCallback = new Handler();
     private int mMockLocationTicker = 0;
 
@@ -102,7 +99,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private final Binder mBinder = new LocalBinder();
     private final Set<ILocationListener> mLocationCallbacks = new HashSet<>();
     private final Set<ITrackingListener> mTrackingCallbacks = new HashSet<>();
-    private ProgressHandler mProgressHandler;
+    private Manager.ProgressListener mProgressListener;
 
     private static final String PREF_TRACKING_MIN_TIME = "tracking_min_time";
     private static final String PREF_TRACKING_MIN_DISTANCE = "tracking_min_distance";
@@ -430,6 +427,9 @@ public class LocationService extends BaseLocationService implements LocationList
 
     public void tryToSaveTrack() {
         mLastTrack = getTrack();
+        if (mLastTrack.getPointCount() == 0)
+            return;
+
         mLastTrack.color = getColor(R.color.trackColor);
         mLastTrack.width = getResources().getInteger(R.integer.trackWidth);
 
@@ -473,9 +473,21 @@ public class LocationService extends BaseLocationService implements LocationList
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
             return;
         }
-        String fileName = TIME_FORMAT.format(new Date(mLastTrack.getPoint(0).time)) + ".gpx";
-        File file = new File(dataDir, FileUtils.sanitizeFilename(fileName));
-        new Thread(new SaveTrackRunnable(file)).start();
+        //FIXME Not UTC time!
+        DataSource source = new DataSource(TIME_FORMAT.format(new Date(mLastTrack.getPoint(0).time)));
+        source.tracks.add(mLastTrack);
+        Manager.save(this, source, new Manager.OnSaveListener() {
+            @Override
+            public void onSaved(DataSource source) {
+                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true).putExtra("path", source.path));
+                mLastTrack = null;
+            }
+
+            @Override
+            public void onError(DataSource source, Exception e) {
+                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
+            }
+        }, mProgressListener);
     }
 
     public void addPoint(boolean continuous, double latitude, double longitude, double elevation, float speed, float bearing, float accuracy, long time) {
@@ -503,28 +515,6 @@ public class LocationService extends BaseLocationService implements LocationList
             mErrorTime = System.currentTimeMillis();
             updateNotification();
             closeDatabase();
-        }
-    }
-
-    private class SaveTrackRunnable implements Runnable {
-        private final File mFile;
-
-        SaveTrackRunnable(final File file) {
-            this.mFile = file;
-        }
-
-        @Override
-        public void run() {
-            try {
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-                Log.i(TAG, "Saving track...");
-                GpxFiles.saveTrackToFile(new FileOutputStream(mFile, false), mLastTrack, mProgressHandler);
-                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true).putExtra("file", mFile.getAbsolutePath()));
-                Log.i(TAG, "Done");
-            } catch (IOException e) {
-                Log.e(TAG, "Can not save track", e);
-                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
-            }
         }
     }
 
@@ -808,8 +798,8 @@ public class LocationService extends BaseLocationService implements LocationList
         }
 
         @Override
-        public void setProgressHandler(ProgressHandler handler) {
-            mProgressHandler = handler;
+        public void setProgressListener(Manager.ProgressListener listener) {
+            mProgressListener = listener;
         }
 
         @Override
@@ -910,7 +900,7 @@ public class LocationService extends BaseLocationService implements LocationList
             //mLastKnownLocation.setLongitude(32.351646);
             mLastKnownLocation.setBearing((System.currentTimeMillis() / 166) % 360);
             //mLastKnownLocation.setAltitude(169);
-            mLastKnownLocation.setLatitude(55.813557 + mMockLocationTicker * 0.0001);
+            mLastKnownLocation.setLatitude(55.813557);// + mMockLocationTicker * 0.0001);
             mLastKnownLocation.setLongitude(37.645524);
             mNmeaGeoidHeight = 0;
 
