@@ -70,6 +70,15 @@ public class TrackLayer extends Layer {
 
 	GeometryBuffer mGeom;
 
+	public Track getTrack() {
+		return mTrack;
+	}
+
+	public void setColor(int color) {
+		mLineStyle = new LineStyle(color, mLineStyle.width, mLineStyle.cap);
+        mWorker.submit(10);
+	}
+
 	/***
 	 * everything below runs on GL- and Worker-Thread
 	 ***/
