@@ -8,21 +8,26 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-import mobi.maptrek.data.Track;
+import mobi.maptrek.data.DataSource;
+import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.DataFilenameFilter;
-import mobi.maptrek.util.GpxFiles;
-import mobi.maptrek.util.KmlFiles;
 import mobi.maptrek.util.MonitoredInputStream;
-import mobi.maptrek.util.ProgressHandler;
 
-//TODO Encapsulate different data types into one container
-public class DataLoader extends AsyncTaskLoader<List<Track>> {
+// http://www.androiddesignpatterns.com/2012/08/implementing-loaders.html
+
+public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
 
     // We hold a reference to the Loader’s data here.
-    private List<Track> mData;
-    private ProgressHandler mProgressHandler;
+    private List<DataSource> mData;
+    private final Set<String> mFiles = new HashSet<>();
+
+    private Manager.ProgressListener mProgressListener;
+    private FileObserver mObserver;
 
     public DataLoader(Context ctx) {
         // Loaders may be used across multiple Activities (assuming they aren't
@@ -33,12 +38,12 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
         super(ctx);
     }
 
-    public void setProgressHandler(ProgressHandler handler) {
-        mProgressHandler = handler;
+    public void setProgressHandler(Manager.ProgressListener listener) {
+        mProgressListener = listener;
     }
 
     @Override
-    public List<Track> loadInBackground() {
+    public List<DataSource> loadInBackground() {
         // This method is called on a background thread and should generate a
         // new set of data to be delivered back to the client.
         Log.i("DataLoader", "loadInBackground()");
@@ -49,19 +54,26 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
         File[] files = dataDir.listFiles(new DataFilenameFilter());
         if (files == null)
             return null;
-        List<Track> data = new ArrayList<>();
+        List<DataSource> data = new ArrayList<>();
+        List<File> loadFiles = new ArrayList<>();
 
         int maxProgress = 0;
         for (File file : files) {
-            maxProgress += file.length();
+            String path = file.getAbsolutePath();
+            synchronized (mFiles) {
+                if (!mFiles.contains(path)) {
+                    maxProgress += file.length();
+                    loadFiles.add(file);
+                }
+            }
         }
 
-        if (mProgressHandler != null)
-            mProgressHandler.onProgressStarted(maxProgress);
+        if (mProgressListener != null)
+            mProgressListener.onProgressStarted(maxProgress);
 
         int progress = 0;
 
-        for (File file : files) {
+        for (File file : loadFiles) {
             if (isLoadInBackgroundCanceled()) {
                 Log.i("DataLoader", "loadInBackgroundCanceled");
                 return null;
@@ -74,22 +86,18 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
                 inputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
                     @Override
                     public void stateChanged(long location) {
-                        if (mProgressHandler != null) {
+                        if (mProgressListener != null) {
                             //TODO Divide progress by 1024
-                            mProgressHandler.onProgressChanged(finalProgress + (int) location);
+                            mProgressListener.onProgressChanged(finalProgress + (int) location);
                         }
                     }
                 });
-                List<Track> tracks = null;
-                //TODO Refactor to use factory
-                if (file.getName().toLowerCase().endsWith(".kml")) {
-                    tracks = KmlFiles.loadTracksFromFile(inputStream, file.getName());
+                Manager manager = Manager.getDataManager(getContext(), file.getName());
+                if (manager != null) {
+                    DataSource source = manager.loadData(inputStream, file.getName());
+                    source.path = file.getAbsolutePath();
+                    data.add(source);
                 }
-                if (file.getName().toLowerCase().endsWith(".gpx")) {
-                    tracks = GpxFiles.loadTracksFromFile(inputStream, file.getName());
-                }
-                if (tracks != null)
-                    data.addAll(tracks);
             } catch (Exception e) {
                 //TODO Notify user about a problem
                 e.printStackTrace();
@@ -100,33 +108,30 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
     }
 
     @Override
-    public void deliverResult(List<Track> data) {
+    public void deliverResult(List<DataSource> data) {
         Log.i("DataLoader", "deliverResult()");
 
-        if (mProgressHandler != null) {
-            mProgressHandler.onProgressFinished();
+        if (mProgressListener != null) {
+            mProgressListener.onProgressFinished();
         }
 
         if (isReset()) {
-            // The Loader has been reset; ignore the result and invalidate the data.
-            releaseResources(data);
             return;
         }
 
-        // Hold a reference to the old data so it doesn't get garbage collected.
-        // We must protect it until the new data has been delivered.
-        List<Track> oldData = mData;
-        mData = data;
+        synchronized (mFiles) {
+            if (mData == null)
+                mData = data;
+            else
+                mData.addAll(data);
 
-        if (isStarted()) {
-            // If the Loader is in a started state, deliver the results to the
-            // client. The superclass method does this for us.
-            super.deliverResult(data);
+            for (DataSource source : data) {
+                mFiles.add(source.path);
+            }
         }
 
-        // Invalidate the old data as we don't need it any more.
-        if (oldData != null && oldData != data) {
-            releaseResources(oldData);
+        if (isStarted()) {
+            super.deliverResult(data);
         }
     }
 
@@ -140,7 +145,7 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
 
         // Begin monitoring the underlying data source.
         if (mObserver == null) {
-            File dir = getContext().getExternalFilesDir("data");
+            final File dir = getContext().getExternalFilesDir("data");
             if (dir == null)
                 return;
 
@@ -149,8 +154,17 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
                 public void onEvent(int event, String path) {
                     if (event == 0x8000) // Undocumented, sent on stop watching
                         return;
-                    DataLoader.this.onContentChanged();
+                    path = dir.getAbsolutePath() + File.separator + path;
                     Log.i("DataLoader", path + ": " + event);
+                    synchronized (mFiles) {
+                        mFiles.remove(path);
+                        for(Iterator<DataSource> i = mData.iterator(); i.hasNext();) {
+                            DataSource source = i.next();
+                            if (source.path.equals(path))
+                                i.remove();
+                        }
+                    }
+                    DataLoader.this.onContentChanged();
                 }
             };
             mObserver.startWatching();
@@ -184,10 +198,10 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
         onStopLoading();
 
         // At this point we can release the resources associated with 'mData'.
-        if (mData != null) {
-            releaseResources(mData);
-            mData = null;
-        }
+        mFiles.clear();
+        if (mData != null)
+            mData.clear();
+        mData = null;
 
         // The Loader is being reset, so we should stop monitoring for changes.
         if (mObserver != null) {
@@ -197,21 +211,9 @@ public class DataLoader extends AsyncTaskLoader<List<Track>> {
     }
 
     @Override
-    public void onCanceled(List<Track> data) {
+    public void onCanceled(List<DataSource> data) {
         Log.i("DataLoader", "onCanceled()");
         // Attempt to cancel the current asynchronous load.
         super.onCanceled(data);
-
-        // The load has been canceled, so we should release the resources
-        // associated with 'data'.
-        releaseResources(data);
     }
-
-    private void releaseResources(@SuppressWarnings("UnusedParameters") List<Track> data) {
-        // For a simple List, there is nothing to do. For something like a Cursor, we
-        // would close it in this method. All resources associated with the Loader
-        // should be released here.
-    }
-
-    private FileObserver mObserver;
 }
