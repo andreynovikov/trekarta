@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/panelSolidBackground"
+    android:orientation="horizontal"
+    android:padding="@dimen/fragment_padding"
+    tools:context=".fragments.TrackProperties">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/nameWrapper"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <EditText
+            android:id="@+id/nameEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:hint="@string/name"
+            android:inputType="text"
+            android:maxLines="1"
+            android:scrollHorizontally="true" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <mobi.maptrek.view.ColorSwatch
+        android:id="@+id/colorSwatch"
+        android:layout_width="@dimen/color_swatch_small"
+        android:layout_height="@dimen/color_swatch_small"
+        android:layout_margin="@dimen/color_swatch_margins_small" />
+</LinearLayout>
+

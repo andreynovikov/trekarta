@@ -3,7 +3,14 @@ package mobi.maptrek;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -29,10 +36,18 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.transition.Slide;
+import android.transition.TransitionSet;
+import android.transition.TransitionValues;
+import android.transition.Visibility;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -47,28 +62,36 @@ import org.oscim.android.MapView;
 import org.oscim.android.cache.TileCache;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
-import org.oscim.backend.canvas.Color;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
+import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.marker.ItemizedLayer;
 import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.marker.MarkerSymbol;
 import org.oscim.layers.tile.buildings.BuildingLayer;
+import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.theme.VtmThemes;
-import org.oscim.tiling.TileSource;
+import org.oscim.tiling.CombinedTileSource;
+import org.oscim.tiling.source.UrlTileSource;
+import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.fragments.LocationInformation;
+import mobi.maptrek.fragments.TrackProperties;
+import mobi.maptrek.io.Manager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.TrackLayer;
@@ -80,7 +103,12 @@ import mobi.maptrek.util.ProgressHandler;
 
 import static org.oscim.android.canvas.AndroidGraphics.drawableToBitmap;
 
-public class MainActivity extends Activity implements ILocationListener, Map.UpdateListener, ItemizedLayer.OnItemGestureListener<MarkerItem>, PopupMenu.OnMenuItemClickListener, LoaderManager.LoaderCallbacks<List<Track>> {
+public class MainActivity extends Activity implements ILocationListener,
+        Map.UpdateListener,
+        TrackProperties.OnTrackPropertiesChangedListener,
+        ItemizedLayer.OnItemGestureListener<MarkerItem>,
+        PopupMenu.OnMenuItemClickListener,
+        LoaderManager.LoaderCallbacks<List<DataSource>> {
     private static final String TAG = "MailActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
@@ -129,6 +157,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
     private View mCompassView;
     private View mGaugePanelView;
     private ProgressBar mProgressBar;
+    private CoordinatorLayout mCoordinatorLayout;
 
     private long mLastLocationMilliseconds = 0;
     private int mMovementAnimationDuration = BaseLocationService.LOCATION_DELAY;
@@ -145,6 +174,14 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
 
     private TileCache mCache;
 
+    //private DataFragment mDataFragment;
+    private int mExtendState = 0;
+
+    //private MapIndex mMapIndex;
+    //TODO Should we store it here?
+    private List<DataSource> mData;
+    private Track mEditedTrack;
+
     private static final boolean BILLBOARDS = true;
     //private MarkerSymbol mFocusMarker;
 
@@ -154,9 +191,31 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         Log.e(TAG, "onCreate()");
         setContentView(R.layout.activity_main);
 
+        /*
+        // find the retained fragment on activity restarts
+        FragmentManager fm = getFragmentManager();
+        mDataFragment = (DataFragment) fm.findFragmentByTag("data");
+
+        // create the fragment and data the first time
+        if (mDataFragment == null) {
+            // add the fragment
+            mDataFragment = new DataFragment();
+            fm.beginTransaction().add(mDataFragment, "data").commit();
+            // load the data from the web
+            File mapsDir = getExternalFilesDir("maps");
+            if (mapsDir != null) {
+                mMapIndex = new MapIndex(mapsDir.getAbsolutePath());
+                mDataFragment.setMapIndex(mMapIndex);
+            }
+        } else {
+            mMapIndex = mDataFragment.getMapIndex();
+        }
+        */
+
         mLocationState = LOCATION_STATE.DISABLED;
         mSavedLocationState = LOCATION_STATE.DISABLED;
 
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
@@ -177,15 +236,28 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         mMyLocationDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_my_location, theme);
         mLocationSearchingDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_location_searching, theme);
 
-        TileSource tileSource = new OSciMap4TileSource();
-
+        UrlTileSource urlTileSource = new OSciMap4TileSource();
         File cacheDir = getExternalCacheDir();
         if (cacheDir != null) {
             mCache = new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db");
             mCache.setCacheSize(512 * (1 << 10));
-            tileSource.setCache(mCache);
+            urlTileSource.setCache(mCache);
         }
-        VectorTileLayer baseLayer = mMap.setBaseMap(tileSource);
+
+        VectorTileLayer baseLayer = new OsmTileLayer(mMap);
+
+        File mapsDir = getExternalFilesDir("maps");
+        if (mapsDir != null) {
+            MultiMapFileTileSource mapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
+            CombinedTileSource tileSource = new CombinedTileSource(mapFileSource, urlTileSource);
+            baseLayer.setTileSource(tileSource);
+        } else {
+            baseLayer.setTileSource(urlTileSource);
+        }
+
+        mMap.setBaseMap(baseLayer);
+        mMap.setTheme(VtmThemes.DEFAULT);
+
         mGridLayer = new TileGridLayer(mMap);
         mLocationOverlay = new LocationOverlay(mMap);
 
@@ -198,12 +270,13 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         Layers layers = mMap.layers();
 
         //BitmapTileLayer mBitmapLayer = new BitmapTileLayer(mMap, DefaultSources.OPENSTREETMAP.build());
-        //mMap.layers().add(mBitmapLayer);
+        //mMap.setBaseMap(mBitmapLayer);
 
         layers.add(new BuildingLayer(mMap, baseLayer));
         layers.add(new LabelLayer(mMap, baseLayer));
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
+        //layers.add(mGridLayer);
 
         Bitmap bitmap = drawableToBitmap(getResources(), R.drawable.marker_poi);
 
@@ -235,13 +308,28 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
 
         markerLayer.addItems(pts);
 
-        mMap.setTheme(VtmThemes.DEFAULT);
-
         if (BuildConfig.DEBUG)
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
         mProgressHandler = new ProgressHandler(mProgressBar);
 
+        // Initialize UI event handlers
+        mLocationButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                onLocationClicked();
+            }
+        });
+
+        mLocationButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                onLocationLongClicked();
+                return true;
+            }
+        });
+
+        getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+
+        // Initialize data loader
         getLoaderManager();
     }
 
@@ -315,9 +403,9 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         if (mLocationService != null)
             disableLocations();
 
-        Loader<List<Track>> loader = getLoaderManager().getLoader(0);
+        Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null) {
-            ((DataLoader)loader).setProgressHandler(null);
+            ((DataLoader) loader).setProgressHandler(null);
         }
     }
 
@@ -325,11 +413,21 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
     protected void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
+
+        getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
+
+        //mDataFragment.setMapIndex(mMapIndex);
         mMap.destroy();
         if (mCache != null)
             mCache.dispose();
 
         mProgressHandler = null;
+
+        /*
+        if (this.isFinishing()) {
+            mMapIndex.clear();
+        }
+        */
     }
 
     @Override
@@ -462,7 +560,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         }
     }
 
-    public void onLocationClicked(View view) {
+    public void onLocationClicked() {
         switch (mLocationState) {
             case DISABLED:
                 askForPermission();
@@ -506,6 +604,14 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         updateLocationDrawable();
     }
 
+    public void onLocationLongClicked() {
+        mMap.getMapPosition(mMapPosition);
+        Bundle args = new Bundle(2);
+        args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
+        args.putDouble(LocationInformation.ARG_LONGITUDE, mMapPosition.getLongitude());
+        showExtendPanel("locationInformation", LocationInformation.class.getName(), args);
+    }
+
     public void onRecordClicked(View view) {
         if (mLocationState == LOCATION_STATE.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
@@ -517,6 +623,9 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         } else {
             enableTracking();
         }
+    }
+
+    public void onPlacesClicked(View view) {
     }
 
     public void onMoreClicked(View view) {
@@ -565,7 +674,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         Log.e(TAG, "disableLocations()");
         if (mLocationService != null) {
             mLocationService.unregisterLocationCallback(this);
-            mLocationService.setProgressHandler(null);
+            mLocationService.setProgressListener(null);
         }
         if (mIsBound) {
             unbindService(mLocationConnection);
@@ -581,7 +690,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mLocationService = (ILocationService) binder;
             mLocationService.registerLocationCallback(MainActivity.this);
-            mLocationService.setProgressHandler(mProgressHandler);
+            mLocationService.setProgressListener(mProgressHandler);
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -591,7 +700,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
 
     private void enableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
-        mCurrentTrackLayer = new CurrentTrackLayer(mMap, Color.fade(getColor(R.color.trackColor), 0.7), getResources().getInteger(R.integer.trackWidth), getApplicationContext());
+        mCurrentTrackLayer = new CurrentTrackLayer(mMap, org.oscim.backend.canvas.Color.fade(getColor(R.color.trackColor), 0.7), getResources().getInteger(R.integer.trackWidth), getApplicationContext());
         mMap.layers().add(mCurrentTrackLayer);
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.TRACKING;
@@ -620,6 +729,25 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
             }
         }
         adjustCompass(mapPosition.bearing);
+        /*
+        List<MapFile> maps = mMapIndex.getMaps(mapPosition.getGeoPoint());
+        if (maps.isEmpty()) {
+            if (mOverlayMapLayer != null) {
+                mMap.setBaseMap(mBaseLayer);
+                mMap.updateMap(true);
+                mOverlayMapLayer.onDetach();
+                mOverlayMapLayer = null;
+            }
+        } else {
+            if (mOverlayMapLayer == null) {
+                MapFile mapFile = maps.get(0);
+                mOverlayMapLayer = new VectorTileLayer(mMap, mapFile.tileSource);
+                ((VectorTileLayer) mOverlayMapLayer).setRenderTheme(mBaseLayer.getTheme());
+                mMap.setBaseMap(mOverlayMapLayer);
+                mMap.updateMap(true);
+            }
+        }
+        */
     }
 
     public void adjustCompass(float bearing) {
@@ -701,6 +829,45 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         mSpeedText.setText(String.format("%.0f", location.getSpeed() * 3.6));
     }
 
+    private void onTrackProperties(String path) {
+        //TODO Think of better way to find appropriate track
+        for (DataSource source : mData) {
+            if (source.path.equals(path)) {
+                mEditedTrack = source.tracks.get(0);
+                break;
+            }
+        }
+        if (mEditedTrack == null)
+            return;
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
+        Bundle args = new Bundle(2);
+        args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
+        args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.color);
+        Fragment fragment = Fragment.instantiate(this, TrackProperties.class.getName(), args);
+        ft.replace(R.id.contentPanel, fragment, "trackProperties");
+        ft.addToBackStack("trackProperties");
+        ft.commit();
+    }
+
+    @Override
+    public void onTrackPropertiesChanged(String name, int color) {
+        mEditedTrack.name = name;
+        mEditedTrack.color = color;
+        for (Layer layer : mMap.layers()) {
+            if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(mEditedTrack)) {
+                ((TrackLayer) layer).setColor(mEditedTrack.color);
+            }
+        }
+        if (mEditedTrack.source.isSingleTrack())
+            mEditedTrack.source.rename(name);
+
+        Manager.save(getApplicationContext(), mEditedTrack.source);
+        mEditedTrack = null;
+    }
+
     /**
      * This method is called once by each MapView during its setup process.
      *
@@ -735,6 +902,110 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
         state = sharedPreferences.getInt(PREF_TRACKING_STATE, 0);
         mTrackingState = TRACKING_STATE.values()[state];
     }
+
+    private void showExtendPanel(String name, String fragmentName, Bundle args) {
+        FragmentManager fm = getFragmentManager();
+
+        if (mExtendState > 0) {
+            FragmentManager.BackStackEntry bse = fm.getBackStackEntryAt(0);
+            fm.popBackStack();
+            if (name.equals(bse.getName()))
+                return;
+        }
+
+        final View mLBB = findViewById(R.id.locationButtonBackground);
+        final View mRBB = findViewById(R.id.recordButtonBackground);
+        final View mPBB = findViewById(R.id.placesButtonBackground);
+        final View mOBB = findViewById(R.id.layersButtonBackground);
+        final View mMBB = findViewById(R.id.moreButtonBackground);
+
+        FragmentTransaction ft = fm.beginTransaction();
+        Fragment fragment = Fragment.instantiate(this, fragmentName, args);
+        fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
+            @Override
+            public Animator onAppear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
+                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
+            }
+        }));
+        //TODO Find out why exit transition do not work
+        /*
+        fragment.setExitTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
+            @Override
+            public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
+                Log.e("MA", "ExitTransaction");
+                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
+            }
+        }));
+        */
+        ft.replace(R.id.extendPanel, fragment, name);
+        ft.addToBackStack(name);
+        ft.commit();
+        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelExtendedBackground));
+        ObjectAnimator thisColorAnimation = ObjectAnimator.ofObject(mLBB, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
+        otherColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                int color = (Integer) animator.getAnimatedValue();
+                mRBB.setBackgroundColor(color);
+                mPBB.setBackgroundColor(color);
+                mOBB.setBackgroundColor(color);
+                mMBB.setBackgroundColor(color);
+            }
+
+        });
+        AnimatorSet s = new AnimatorSet();
+        s.play(thisColorAnimation).with(otherColorAnimation);
+        s.start();
+
+        mExtendState++;
+    }
+
+    private void animateHideExtendPanel() {
+        final View mLBB = findViewById(R.id.locationButtonBackground);
+        final View mRBB = findViewById(R.id.recordButtonBackground);
+        final View mPBB = findViewById(R.id.placesButtonBackground);
+        final View mOBB = findViewById(R.id.layersButtonBackground);
+        final View mMBB = findViewById(R.id.moreButtonBackground);
+
+        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelExtendedBackground), getColor(R.color.panelBackground));
+        ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
+        thisColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                int color = (Integer) animator.getAnimatedValue();
+                mLBB.setBackgroundColor(color);
+            }
+
+        });
+        otherColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                int color = (Integer) animator.getAnimatedValue();
+                mRBB.setBackgroundColor(color);
+                mPBB.setBackgroundColor(color);
+                mOBB.setBackgroundColor(color);
+                mMBB.setBackgroundColor(color);
+            }
+
+        });
+        AnimatorSet s = new AnimatorSet();
+        s.play(thisColorAnimation).with(otherColorAnimation);
+        s.start();
+    }
+
+    private FragmentManager.OnBackStackChangedListener mBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+        @Override
+        public void onBackStackChanged() {
+            if (getFragmentManager().getBackStackEntryCount() == 0 && mExtendState > 0) {
+                //TODO Do we actually need a counter?
+                mExtendState = 0;
+                animateHideExtendPanel();
+            }
+        }
+    };
 
     private void updateMapViewArea() {
         final ViewTreeObserver vto = mMapView.getViewTreeObserver();
@@ -792,7 +1063,7 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
             // Should we show an explanation?
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
-                // Show an expanation to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
@@ -825,50 +1096,89 @@ public class MainActivity extends Activity implements ILocationListener, Map.Upd
     }
 
     @Override
-    public Loader<List<Track>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<DataSource>> onCreateLoader(int id, Bundle args) {
         Log.e(TAG, "onCreateLoader(" + id + ")");
         return new DataLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Track>> loader, List<Track> data) {
+    public void onLoadFinished(Loader<List<DataSource>> loader, List<DataSource> data) {
         Log.e(TAG, "onLoadFinished()");
         if (data == null)
             return;
-        for (Track track : data) {
-            if (track.color == -1)
-                track.color = getColor(R.color.trackColor);
-            if (track.width == -1)
-                track.width = getResources().getInteger(R.integer.trackWidth);
-            TrackLayer trackLayer = new TrackLayer(mMap, track, track.color, track.width);
-            mMap.layers().add(trackLayer);
+        mData = data;
+        for (DataSource source : mData) {
+            for (Track track : source.tracks) {
+                if (track.color == -1)
+                    track.color = getColor(R.color.trackColor);
+                if (track.width == -1)
+                    track.width = getResources().getInteger(R.integer.trackWidth);
+                for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
+                    Layer layer = i.next();
+                    if (!(layer instanceof TrackLayer))
+                        continue;
+                    DataSource src = ((TrackLayer) layer).getTrack().source;
+                    if (src == null)
+                        continue;
+                    if (src.path.equals(source.path)) {
+                        i.remove();
+                        layer.onDetach();
+                    }
+                }
+                TrackLayer trackLayer = new TrackLayer(mMap, track, track.color, track.width);
+                mMap.layers().add(trackLayer);
+            }
         }
+        mMap.updateMap(true);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Track>> loader) {
+    public void onLoaderReset(Loader<List<DataSource>> loader) {
 
     }
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Broadcast: " + action);
-            if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE))
-            {
-                Bundle extras = intent.getExtras();
+            if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
+                final Bundle extras = intent.getExtras();
                 boolean saved = extras.getBoolean("saved");
                 if (saved) {
-                    Log.e(TAG, "Track saved: " + extras.getString("file"));
+                    Log.e(TAG, "Track saved: " + extras.getString("path"));
+                    Snackbar snackbar = Snackbar
+                            .make(mCoordinatorLayout, R.string.msg_track_saved, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.action_customize, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    onTrackProperties(extras.getString("path"));
+                                }
+                            });
+                    snackbar.show();
                     return;
                 }
                 String reason = extras.getString("reason");
                 Log.e(TAG, "Track not saved: " + reason);
+                if ("period".equals(reason) || "distance".equals(reason)) {
+                    int msg = "period".equals(reason) ? R.string.msg_track_not_saved_period : R.string.msg_track_not_saved_distance;
+                    Snackbar snackbar = Snackbar
+                            .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.action_save, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mLocationService.saveTrack();
+                                }
+                            });
+                    snackbar.show();
+                }
             }
         }
     };
+
+    public Map getMap() {
+        return mMap;
+    }
 
     private double movingAverage(double current, double previous) {
         return 0.2 * previous + 0.8 * current;

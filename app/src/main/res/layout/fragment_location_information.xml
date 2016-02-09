@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/panelSolidBackground"
+    android:padding="@dimen/fragment_padding"
+    tools:context=".fragments.LocationInformation">
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/degrees" />
+
+        <TextView
+            android:id="@+id/coordinate_degree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/table_padding"
+            android:textColor="?android:textColorPrimary"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/coordinate_degmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/table_padding"
+            android:textColor="?android:textColorPrimary"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/coordinate_degminsec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/table_padding"
+            android:textColor="?android:textColorPrimary"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/coordinate_utmups" />
+
+        <TextView
+            android:id="@+id/coordinate_utmups"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/table_padding"
+            android:textColor="?android:textColorPrimary"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/coordinate_mgrs" />
+
+        <TextView
+            android:id="@+id/coordinate_mgrs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/table_padding"
+            android:textColor="?android:textColorPrimary"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow android:paddingTop="@dimen/table_padding">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:layout_span="2">
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sunrise" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
+                    android:text="@string/sunset" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
+                    android:text="@string/declination" />
+
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:id="@+id/sunrise"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="--"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sunset"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
+                    android:text="--"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/declination"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
+                    android:text="--"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold" />
+
+            </TableRow>
+        </TableLayout>
+    </TableRow>
+
+</TableLayout>
+

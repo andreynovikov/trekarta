@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -70,15 +72,59 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:elevation="@dimen/panel_elevation"
+        app:layout_behavior="mobi.maptrek.ui.BottomPanelBehavior">
+
+        <LinearLayout
+            android:id="@+id/actionPanelBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/locationButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
+
+            <View
+                android:id="@+id/recordButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
+
+            <View
+                android:id="@+id/placesButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
+
+            <View
+                android:id="@+id/layersButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
+
+            <View
+                android:id="@+id/moreButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/actionPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="#99ffffff"
-            android:elevation="@dimen/panel_elevation"
             android:orientation="horizontal">
 
             <ImageButton
@@ -86,8 +132,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="onLocationClicked"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_navigation_north" />
@@ -97,7 +142,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:onClick="onRecordClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
@@ -109,7 +154,8 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:onClick="onPlacesClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_place"
@@ -120,7 +166,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_layers"
@@ -131,7 +177,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:onClick="onMoreClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
@@ -139,14 +185,30 @@
                 android:tint="@color/colorPrimaryDark" />
 
         </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/extendPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/actionPanel"
+            android:clickable="true" />
+
         <ProgressBar
             android:id="@+id/progressBar"
             style="@android:style/Widget.Material.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="-6dp"
             android:layout_above="@id/actionPanel"
+            android:layout_marginBottom="-6dp"
             android:progressTint="@color/colorAccent"
             android:visibility="gone" />
     </RelativeLayout>
-</FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:elevation="@dimen/fragment_elevation"
+        android:clickable="true" />
+</android.support.design.widget.CoordinatorLayout>
