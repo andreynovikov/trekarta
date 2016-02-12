@@ -143,7 +143,6 @@
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:onClick="onRecordClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_record"
@@ -155,9 +154,9 @@
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:onClick="onPlacesClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
+                android:onClick="onPlacesClicked"
                 android:src="@drawable/ic_place"
                 android:tint="@color/colorPrimaryDark" />
 
@@ -188,15 +187,16 @@
 
         <FrameLayout
             android:id="@+id/extendPanel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/actionPanel"
+            android:layout_marginTop="@dimen/panel_top_margin"
             android:clickable="true" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="@android:style/Widget.Material.ProgressBar.Horizontal"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/actionPanel"
             android:layout_marginBottom="-6dp"
