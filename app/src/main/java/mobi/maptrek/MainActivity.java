@@ -7,6 +7,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -31,8 +32,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.StrictMode;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -52,10 +53,12 @@ import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.oscim.android.MapScaleBar;
 import org.oscim.android.MapView;
@@ -89,6 +92,7 @@ import java.util.List;
 
 import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.io.Manager;
@@ -138,6 +142,15 @@ public class MainActivity extends Activity implements ILocationListener,
         TRACKING
     }
 
+    public enum PANEL_STATE {
+        NONE,
+        LOCATION,
+        RECORD,
+        PLACES,
+        LAYERS,
+        MORE
+    }
+
     private ProgressHandler mProgressHandler;
 
     private ILocationService mLocationService = null;
@@ -175,7 +188,9 @@ public class MainActivity extends Activity implements ILocationListener,
     private TileCache mCache;
 
     //private DataFragment mDataFragment;
-    private int mExtendState = 0;
+    private PANEL_STATE mPanelState;
+    private boolean secondBack;
+    private Toast mBackToast;
 
     //private MapIndex mMapIndex;
     //TODO Should we store it here?
@@ -185,6 +200,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final boolean BILLBOARDS = true;
     //private MarkerSymbol mFocusMarker;
 
+    @SuppressLint("ShowToast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,10 +231,13 @@ public class MainActivity extends Activity implements ILocationListener,
         mLocationState = LOCATION_STATE.DISABLED;
         mSavedLocationState = LOCATION_STATE.DISABLED;
 
+        mPanelState = PANEL_STATE.NONE;
+
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
+
         mSatellitesText = (TextView) findViewById(R.id.satellites);
         mSpeedText = (TextView) findViewById(R.id.speed);
 
@@ -308,9 +327,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
         markerLayer.addItems(pts);
 
-        if (BuildConfig.DEBUG)
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+        //if (BuildConfig.DEBUG)
+        //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
+        mBackToast = Toast.makeText(this, R.string.msg_back_quit, Toast.LENGTH_SHORT);
         mProgressHandler = new ProgressHandler(mProgressBar);
 
         // Initialize UI event handlers
@@ -319,15 +339,24 @@ public class MainActivity extends Activity implements ILocationListener,
                 onLocationClicked();
             }
         });
-
         mLocationButton.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
                 onLocationLongClicked();
                 return true;
             }
         });
-
-        getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+        mRecordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRecordClicked();
+            }
+        });
+        mRecordButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                onRecordLongClicked();
+                return true;
+            }
+        });
 
         // Initialize data loader
         getLoaderManager();
@@ -414,8 +443,6 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
 
-        getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
-
         //mDataFragment.setMapIndex(mMapIndex);
         mMap.destroy();
         if (mCache != null)
@@ -439,6 +466,7 @@ public class MainActivity extends Activity implements ILocationListener,
         savedInstanceState.putInt("movementAnimationDuration", mMovementAnimationDuration);
         if (mProgressBar.getVisibility() == View.VISIBLE)
             savedInstanceState.putInt("progressBar", mProgressBar.getMax());
+        savedInstanceState.putSerializable("panelState", mPanelState);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -454,6 +482,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.setMax(savedInstanceState.getInt("progressBar"));
         }
+        setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
     @Override
@@ -609,10 +638,10 @@ public class MainActivity extends Activity implements ILocationListener,
         Bundle args = new Bundle(2);
         args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(LocationInformation.ARG_LONGITUDE, mMapPosition.getLongitude());
-        showExtendPanel("locationInformation", LocationInformation.class.getName(), args);
+        showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", LocationInformation.class.getName(), args);
     }
 
-    public void onRecordClicked(View view) {
+    public void onRecordClicked() {
         if (mLocationState == LOCATION_STATE.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission();
@@ -623,6 +652,10 @@ public class MainActivity extends Activity implements ILocationListener,
         } else {
             enableTracking();
         }
+    }
+
+    public void onRecordLongClicked() {
+        showExtendPanel(PANEL_STATE.RECORD, "trackList", DataSourceList.class.getName(), null);
     }
 
     public void onPlacesClicked(View view) {
@@ -903,21 +936,17 @@ public class MainActivity extends Activity implements ILocationListener,
         mTrackingState = TRACKING_STATE.values()[state];
     }
 
-    private void showExtendPanel(String name, String fragmentName, Bundle args) {
+    private void showExtendPanel(PANEL_STATE panel, String name, String fragmentName, Bundle args) {
         FragmentManager fm = getFragmentManager();
 
-        if (mExtendState > 0) {
+        if (mPanelState != PANEL_STATE.NONE) {
             FragmentManager.BackStackEntry bse = fm.getBackStackEntryAt(0);
-            fm.popBackStack();
-            if (name.equals(bse.getName()))
+            fm.popBackStackImmediate();
+            if (name.equals(bse.getName())) {
+                setPanelState(PANEL_STATE.NONE);
                 return;
+            }
         }
-
-        final View mLBB = findViewById(R.id.locationButtonBackground);
-        final View mRBB = findViewById(R.id.recordButtonBackground);
-        final View mPBB = findViewById(R.id.placesButtonBackground);
-        final View mOBB = findViewById(R.id.layersButtonBackground);
-        final View mMBB = findViewById(R.id.moreButtonBackground);
 
         FragmentTransaction ft = fm.beginTransaction();
         Fragment fragment = Fragment.instantiate(this, fragmentName, args);
@@ -940,72 +969,144 @@ public class MainActivity extends Activity implements ILocationListener,
         ft.replace(R.id.extendPanel, fragment, name);
         ft.addToBackStack(name);
         ft.commit();
-        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelExtendedBackground));
-        ObjectAnimator thisColorAnimation = ObjectAnimator.ofObject(mLBB, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
-        otherColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                int color = (Integer) animator.getAnimatedValue();
-                mRBB.setBackgroundColor(color);
-                mPBB.setBackgroundColor(color);
-                mOBB.setBackgroundColor(color);
-                mMBB.setBackgroundColor(color);
-            }
-
-        });
-        AnimatorSet s = new AnimatorSet();
-        s.play(thisColorAnimation).with(otherColorAnimation);
-        s.start();
-
-        mExtendState++;
+        setPanelState(panel);
     }
 
-    private void animateHideExtendPanel() {
-        final View mLBB = findViewById(R.id.locationButtonBackground);
-        final View mRBB = findViewById(R.id.recordButtonBackground);
-        final View mPBB = findViewById(R.id.placesButtonBackground);
-        final View mOBB = findViewById(R.id.layersButtonBackground);
-        final View mMBB = findViewById(R.id.moreButtonBackground);
+    private void setPanelState(PANEL_STATE state) {
+        if (mPanelState == state)
+            return;
 
-        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelExtendedBackground), getColor(R.color.panelBackground));
-        ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
+        View mLBB = findViewById(R.id.locationButtonBackground);
+        View mRBB = findViewById(R.id.recordButtonBackground);
+        View mPBB = findViewById(R.id.placesButtonBackground);
+        View mOBB = findViewById(R.id.layersButtonBackground);
+        View mMBB = findViewById(R.id.moreButtonBackground);
+
+        //TODO Search for view state animation
+        // View that gains active state
+        final View thisView;
+        final ArrayList<View> otherViews = new ArrayList<>();
+
+        if (mPanelState == PANEL_STATE.NONE || state == PANEL_STATE.NONE) {
+            otherViews.add(mLBB);
+            otherViews.add(mRBB);
+            otherViews.add(mPBB);
+            otherViews.add(mOBB);
+            otherViews.add(mMBB);
+        } else {
+            // If switching from one view to another animate only that view
+            switch (mPanelState) {
+                case LOCATION:
+                    otherViews.add(mLBB);
+                    break;
+                case RECORD:
+                    otherViews.add(mRBB);
+                    break;
+                case PLACES:
+                    otherViews.add(mPBB);
+                    break;
+                case LAYERS:
+                    otherViews.add(mOBB);
+                    break;
+                case MORE:
+                    otherViews.add(mMBB);
+                    break;
+            }
+        }
+
+        PANEL_STATE thisState = state == PANEL_STATE.NONE ? mPanelState : state;
+        switch (thisState) {
+            case LOCATION:
+                thisView = mLBB;
+                break;
+            case RECORD:
+                thisView = mRBB;
+                break;
+            case PLACES:
+                thisView = mPBB;
+                break;
+            case LAYERS:
+                thisView = mOBB;
+                break;
+            case MORE:
+                thisView = mMBB;
+                break;
+            default:
+                return;
+        }
+        otherViews.remove(thisView);
+
+        int thisFrom, thisTo, otherFrom, otherTo;
+        if (state == PANEL_STATE.NONE) {
+            thisFrom = R.color.panelSolidBackground;
+            thisTo = R.color.panelBackground;
+            otherFrom = R.color.panelExtendedBackground;
+            otherTo = R.color.panelBackground;
+        } else {
+            if (mPanelState == PANEL_STATE.NONE)
+                thisFrom = R.color.panelBackground;
+            else
+                thisFrom = R.color.panelExtendedBackground;
+            thisTo = R.color.panelSolidBackground;
+            if (mPanelState == PANEL_STATE.NONE)
+                otherFrom = R.color.panelBackground;
+            else
+                otherFrom = R.color.panelSolidBackground;
+            otherTo = R.color.panelExtendedBackground;
+        }
+        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(otherFrom), getColor(otherTo));
+        ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(thisFrom), getColor(thisTo));
         thisColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 int color = (Integer) animator.getAnimatedValue();
-                mLBB.setBackgroundColor(color);
+                thisView.setBackgroundColor(color);
             }
 
         });
         otherColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 int color = (Integer) animator.getAnimatedValue();
-                mRBB.setBackgroundColor(color);
-                mPBB.setBackgroundColor(color);
-                mOBB.setBackgroundColor(color);
-                mMBB.setBackgroundColor(color);
+                for (View otherView : otherViews)
+                    otherView.setBackgroundColor(color);
             }
-
         });
         AnimatorSet s = new AnimatorSet();
         s.play(thisColorAnimation).with(otherColorAnimation);
         s.start();
+
+        mPanelState = state;
     }
 
-    private FragmentManager.OnBackStackChangedListener mBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
-        @Override
-        public void onBackStackChanged() {
-            if (getFragmentManager().getBackStackEntryCount() == 0 && mExtendState > 0) {
-                //TODO Do we actually need a counter?
-                mExtendState = 0;
-                animateHideExtendPanel();
-            }
+    final Handler mBackHandler = new Handler();
+
+    @Override
+    public void onBackPressed() {
+        int count = getFragmentManager().getBackStackEntryCount();
+        if (count > 0) {
+            super.onBackPressed();
+            if (count == 1 && mPanelState != PANEL_STATE.NONE)
+                setPanelState(PANEL_STATE.NONE);
+            return;
         }
-    };
+
+        if (count == 0 || secondBack) {
+            //mBackToast.cancel();
+            finish();
+        } else {
+            secondBack = true;
+            mBackToast.show();
+            mBackHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    secondBack = false;
+                }
+            }, 2000);
+        }
+    }
 
     private void updateMapViewArea() {
         final ViewTreeObserver vto = mMapView.getViewTreeObserver();
@@ -1129,6 +1230,9 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.layers().add(trackLayer);
             }
         }
+        Fragment trackList = getFragmentManager().findFragmentByTag("trackList");
+        if (trackList != null)
+            ((DataSourceList) trackList).initData();
         mMap.updateMap(true);
     }
 
@@ -1178,6 +1282,43 @@ public class MainActivity extends Activity implements ILocationListener,
 
     public Map getMap() {
         return mMap;
+    }
+
+    public List<DataSource> getData() {
+        return mData;
+    }
+
+    public void setDataSourceAvailability(DataSource source, boolean available) {
+        if (available) {
+            if (source.isLoaded()) {
+                for (Track track : source.tracks) {
+                    if (track.color == -1)
+                        track.color = getColor(R.color.trackColor);
+                    if (track.width == -1)
+                        track.width = getResources().getInteger(R.integer.trackWidth);
+                    TrackLayer trackLayer = new TrackLayer(mMap, track, track.color, track.width);
+                    mMap.layers().add(trackLayer);
+                }
+            }
+        } else {
+            for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
+                Layer layer = i.next();
+                if (!(layer instanceof TrackLayer))
+                    continue;
+                DataSource src = ((TrackLayer) layer).getTrack().source;
+                if (src == null)
+                    continue;
+                if (src.equals(source)) {
+                    i.remove();
+                    layer.onDetach();
+                }
+            }
+        }
+        source.setVisible(available);
+        Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
+        if (loader != null)
+            ((DataLoader) loader).markDataSourceLoadable(source, available);
+        mMap.updateMap(true);
     }
 
     private double movingAverage(double current, double previous) {

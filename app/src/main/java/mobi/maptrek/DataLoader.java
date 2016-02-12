@@ -4,9 +4,11 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.FileObserver;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,9 +20,11 @@ import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.DataFilenameFilter;
 import mobi.maptrek.util.MonitoredInputStream;
 
+//TODO Document class
 // http://www.androiddesignpatterns.com/2012/08/implementing-loaders.html
 
 public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
+    private static final String DO_NOT_LOAD_FLAG = ".do_not_load";
 
     // We hold a reference to the Loader’s data here.
     private List<DataSource> mData;
@@ -42,6 +46,20 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
         mProgressListener = listener;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public void markDataSourceLoadable(DataSource source, boolean loadable) {
+        // Actual data changes will be performed by FileObserver which will detect flag change
+        File flag = new File(source.path + DO_NOT_LOAD_FLAG);
+        if (loadable)
+            flag.delete();
+        else
+            try {
+                flag.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
     @Override
     public List<DataSource> loadInBackground() {
         // This method is called on a background thread and should generate a
@@ -55,15 +73,18 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
         if (files == null)
             return null;
         List<DataSource> data = new ArrayList<>();
-        List<File> loadFiles = new ArrayList<>();
+        List<Pair<File, Boolean>> loadFiles = new ArrayList<>();
 
         int maxProgress = 0;
         for (File file : files) {
             String path = file.getAbsolutePath();
             synchronized (mFiles) {
                 if (!mFiles.contains(path)) {
-                    maxProgress += file.length();
-                    loadFiles.add(file);
+                    File loadFlagFile = new File(path + DO_NOT_LOAD_FLAG);
+                    boolean loadFlag = loadFlagFile.exists();
+                    if (!loadFlag)
+                        maxProgress += file.length();
+                    loadFiles.add(new Pair<>(file, loadFlag));
                 }
             }
         }
@@ -73,36 +94,47 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
 
         int progress = 0;
 
-        for (File file : loadFiles) {
+        for (Pair<File,Boolean> pair: loadFiles) {
             if (isLoadInBackgroundCanceled()) {
                 Log.i("DataLoader", "loadInBackgroundCanceled");
                 return null;
             }
-            Log.d("DataLoader", "  load -> " + file.getName());
+            File file = pair.first;
+            boolean loadFlag = pair.second;
 
-            try {
-                MonitoredInputStream inputStream = new MonitoredInputStream(new FileInputStream(file));
-                final int finalProgress = progress;
-                inputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
-                    @Override
-                    public void stateChanged(long location) {
-                        if (mProgressListener != null) {
-                            //TODO Divide progress by 1024
-                            mProgressListener.onProgressChanged(finalProgress + (int) location);
+            Log.d("DataLoader", "  " + (loadFlag ? "skip" : "load") + " -> " + file.getName());
+
+            if (loadFlag) {
+                DataSource source = new DataSource();
+                source.name = file.getName().substring(0, file.getName().lastIndexOf("."));
+                source.path = file.getAbsolutePath();
+                data.add(source);
+            } else {
+                try {
+                    MonitoredInputStream inputStream = new MonitoredInputStream(new FileInputStream(file));
+                    final int finalProgress = progress;
+                    inputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
+                        @Override
+                        public void stateChanged(long location) {
+                            if (mProgressListener != null) {
+                                //TODO Divide progress by 1024
+                                mProgressListener.onProgressChanged(finalProgress + (int) location);
+                            }
                         }
+                    });
+                    Manager manager = Manager.getDataManager(getContext(), file.getName());
+                    if (manager != null) {
+                        DataSource source = manager.loadData(inputStream, file.getName());
+                        source.path = file.getAbsolutePath();
+                        source.setLoaded();
+                        data.add(source);
                     }
-                });
-                Manager manager = Manager.getDataManager(getContext(), file.getName());
-                if (manager != null) {
-                    DataSource source = manager.loadData(inputStream, file.getName());
-                    source.path = file.getAbsolutePath();
-                    data.add(source);
+                } catch (Exception e) {
+                    //TODO Notify user about a problem
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                //TODO Notify user about a problem
-                e.printStackTrace();
+                progress += file.length();
             }
-            progress += file.length();
         }
         return data;
     }
@@ -120,19 +152,24 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
         }
 
         synchronized (mFiles) {
-            if (mData == null)
+            if (mData == null) {
                 mData = data;
-            else
-                mData.addAll(data);
+            } else {
+                // Somewhere under the hood it looks if the data has changed by comparing
+                // object instances, so we need a new object
+                ArrayList<DataSource> newData = new ArrayList<>(mData.size());
+                newData.addAll(mData);
+                newData.addAll(data);
+                mData = newData;
+            }
 
             for (DataSource source : data) {
                 mFiles.add(source.path);
             }
         }
 
-        if (isStarted()) {
-            super.deliverResult(data);
-        }
+        if (isStarted())
+            super.deliverResult(mData);
     }
 
     @Override
@@ -140,7 +177,7 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
         Log.i("DataLoader", "onStartLoading()");
         if (mData != null) {
             // Deliver any previously loaded data immediately.
-            deliverResult(mData);
+            deliverResult(new ArrayList<DataSource>());
         }
 
         // Begin monitoring the underlying data source.
@@ -154,17 +191,33 @@ public class DataLoader extends AsyncTaskLoader<List<DataSource>> {
                 public void onEvent(int event, String path) {
                     if (event == 0x8000) // Undocumented, sent on stop watching
                         return;
+                    if (path == null) // Undocumented, unexplainable
+                        return;
                     path = dir.getAbsolutePath() + File.separator + path;
                     Log.i("DataLoader", path + ": " + event);
+                    boolean loadFlag = false;
+                    if (path.endsWith(DO_NOT_LOAD_FLAG)) {
+                        if (event == FileObserver.CLOSE_WRITE)
+                            return;
+                        path = path.substring(0, path.indexOf(DO_NOT_LOAD_FLAG));
+                        loadFlag = true;
+                    }
                     synchronized (mFiles) {
-                        mFiles.remove(path);
-                        for(Iterator<DataSource> i = mData.iterator(); i.hasNext();) {
+                        boolean loadedSource = false;
+                        for (Iterator<DataSource> i = mData.iterator(); i.hasNext(); ) {
                             DataSource source = i.next();
-                            if (source.path.equals(path))
-                                i.remove();
+                            if (source.path.equals(path)) {
+                                if (loadFlag && source.isLoaded())
+                                    loadedSource = true;
+                                else
+                                    i.remove();
+                            }
+                        }
+                        if (!loadedSource) {
+                            mFiles.remove(path);
+                            DataLoader.this.onContentChanged();
                         }
                     }
-                    DataLoader.this.onContentChanged();
                 }
             };
             mObserver.startWatching();

@@ -22,6 +22,8 @@ public class GPXManager extends Manager {
         for (Track track : tracks)
             track.source = source;
         source.tracks.addAll(tracks);
+        //FIXME Temporary!
+        source.name = fileName.substring(0, fileName.lastIndexOf("."));
         return source;
     }
 
