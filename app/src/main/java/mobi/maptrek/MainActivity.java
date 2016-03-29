@@ -24,11 +24,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -53,20 +50,24 @@ import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
+
 import org.oscim.android.MapScaleBar;
 import org.oscim.android.MapView;
-import org.oscim.android.cache.TileCache;
+import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
+import org.oscim.android.canvas.AndroidSvgBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
+import org.oscim.core.MercatorProjection;
+import org.oscim.core.Tile;
 import org.oscim.event.Event;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
@@ -86,6 +87,7 @@ import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -104,8 +106,6 @@ import mobi.maptrek.location.ILocationListener;
 import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.ProgressHandler;
-
-import static org.oscim.android.canvas.AndroidGraphics.drawableToBitmap;
 
 public class MainActivity extends Activity implements ILocationListener,
         Map.UpdateListener,
@@ -159,6 +159,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private LOCATION_STATE mSavedLocationState;
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
+    private int mTrackingOffset = 0;
+    private int mMovingOffset = 0;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -185,7 +187,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private CurrentTrackLayer mCurrentTrackLayer;
     private LocationOverlay mLocationOverlay;
 
-    private TileCache mCache;
+    private PreCachedTileCache mCache;
 
     //private DataFragment mDataFragment;
     private PANEL_STATE mPanelState;
@@ -256,12 +258,15 @@ public class MainActivity extends Activity implements ILocationListener,
         mLocationSearchingDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_location_searching, theme);
 
         UrlTileSource urlTileSource = new OSciMap4TileSource();
+        SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
+
         File cacheDir = getExternalCacheDir();
         if (cacheDir != null) {
-            mCache = new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db");
+            mCache = new PreCachedTileCache(this, preCachedDatabaseHelper.getReadableDatabase(), cacheDir.getAbsolutePath(), "tile_cache.db");
             mCache.setCacheSize(512 * (1 << 10));
             urlTileSource.setCache(mCache);
         }
+        //new Thread(new TilePreloader(urlTileSource.getDataSource())).start();
 
         VectorTileLayer baseLayer = new OsmTileLayer(mMap);
 
@@ -297,35 +302,41 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(mLocationOverlay);
         //layers.add(mGridLayer);
 
-        Bitmap bitmap = drawableToBitmap(getResources(), R.drawable.marker_poi);
+        MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
 
-        MarkerSymbol symbol;
-        if (BILLBOARDS)
-            symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-        else
-            symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
+        List<MarkerItem> pts = new ArrayList<>();
+        pts.add(marker);
 
-        ItemizedLayer<MarkerItem> markerLayer =
-                new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
+        Bitmap bitmap = null;
+        try {
+            bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 100, 100);
+            //drawableToBitmap(getResources(), R.drawable.marker_poi);
+            MarkerSymbol symbol;
+            if (BILLBOARDS)
+                symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
+            else
+                symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
 
-        mMap.layers().add(markerLayer);
+            //marker.setMarker(new MarkerSymbol(new AndroidBitmap(image), MarkerItem.HotspotPlace.BOTTOM_CENTER));
+            ItemizedLayer<MarkerItem> markerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
+
+            markerLayer.addItems(pts);
+            mMap.layers().add(markerLayer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         android.graphics.Bitmap pin = BitmapFactory.decodeResource(resources, R.mipmap.marker_pin_1);
         android.graphics.Bitmap image = android.graphics.Bitmap.createBitmap(pin.getWidth(), pin.getHeight(), android.graphics.Bitmap.Config.ARGB_8888);
 
+        /*
         Paint paint = new Paint();
         paint.setColorFilter(new PorterDuffColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY));
 
         Canvas bc = new Canvas(image);
         bc.drawBitmap(pin, 0f, 0f, paint);
+        */
 
-        MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
-        marker.setMarker(new MarkerSymbol(new AndroidBitmap(image), MarkerItem.HotspotPlace.BOTTOM_CENTER));
-
-        List<MarkerItem> pts = new ArrayList<>();
-        pts.add(marker);
-
-        markerLayer.addItems(pts);
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -360,6 +371,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
         // Initialize data loader
         getLoaderManager();
+
+        // Remove splash from background
+        getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.colorBackground)));
     }
 
     @Override
@@ -554,9 +568,27 @@ public class MainActivity extends Activity implements ILocationListener,
             mMovementAnimationDuration = (int) movingAverage(duration, mMovementAnimationDuration);
             // Update map position
             mMap.getMapPosition(mMapPosition);
-            mMapPosition.setPosition(lat, lon);
+
+            double offset;
+            if (mLocationState == LOCATION_STATE.TRACK) {
+                //TODO Recalculate only on tilt change
+                offset = mTrackingOffset / Math.cos(Math.toRadians(mMapPosition.tilt) * 0.9);
+            } else {
+                offset = mMovingOffset;
+            }
+            offset = offset / (mMapPosition.scale * Tile.SIZE);
+            mLocationOverlay.setLocationOffset(offset, mAveragedBearing, mLocationState == LOCATION_STATE.TRACK);
+
+            double rad = Math.toRadians(mAveragedBearing);
+            double dx = offset * Math.sin(rad);
+            double dy = offset * Math.cos(rad);
+
+            mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
+            mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
+            //mMapPosition.setPosition(lat, lon);
             mMapPosition.setBearing(-mAveragedBearing);
-            if (shouldBePinned) {
+            /*
+            if (! mLocationOverlay.isPinned()) {
                 mMovementAnimationDuration = (int) (mMovementAnimationDuration * 0.9);
                 mMap.animator().setListener(new org.oscim.map.Animator.MapAnimationListener() {
                     @Override
@@ -566,6 +598,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     }
                 });
             }
+            */
             mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LOCATION_STATE.TRACK);
         }
 
@@ -1079,6 +1112,7 @@ public class MainActivity extends Activity implements ILocationListener,
         s.start();
 
         mPanelState = state;
+        updateMapViewArea();
     }
 
     final Handler mBackHandler = new Handler();
@@ -1109,16 +1143,26 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void updateMapViewArea() {
+        Log.e(TAG, "updateMapViewArea()");
         final ViewTreeObserver vto = mMapView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
+                Log.e(TAG, "onGlobalLayout()");
                 Rect area = new Rect();
                 mMapView.getLocalVisibleRect(area);
+                int mapWidth = area.width();
+                int mapHeight = area.height();
+
                 if (mGaugePanelView != null)
                     area.top = mGaugePanelView.getBottom();
                 View v = findViewById(R.id.actionPanel);
                 if (v != null)
                     area.bottom = v.getTop();
+                if (mPanelState != PANEL_STATE.NONE) {
+                    v = findViewById(R.id.extendPanel);
+                    if (v != null)
+                        area.bottom = v.getTop();
+                }
                 /*
                 if (mapLicense.isShown())
                 {
@@ -1141,10 +1185,23 @@ public class MainActivity extends Activity implements ILocationListener,
                         area.right = mapButtons.getLeft();
                 }
                 */
-                /*
-                if (!area.isEmpty())
-                    map.updateViewArea(area);
-                */
+
+                if (!area.isEmpty()) {
+                    int pointerOffset = (int) (LocationOverlay.LocationIndicator.POINTER_SIZE * 2);
+                    int centerX = mapWidth / 2;
+                    int centerY = mapHeight / 2;
+                    mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
+                    mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
+                    mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
+                    mMovingOffset -= pointerOffset;
+                    if (mMovingOffset < 0)
+                        mMovingOffset = 0;
+
+                    mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset;
+                    mLocationOverlay.setPinned(false);
+                    Log.w(TAG, "TO: " + mTrackingOffset);
+                }
+
                 ViewTreeObserver ob;
                 if (vto.isAlive())
                     ob = vto;

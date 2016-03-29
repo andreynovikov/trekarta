@@ -37,11 +37,14 @@ import org.oscim.utils.math.Interpolation;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class LocationOverlay extends Layer {
-	//private final int SHOW_ACCURACY_ZOOM = 18;
+	private final int SHOW_ACCURACY_ZOOM = 18;
 
 	private final Point mLocation = new Point();
     private float mBearing;
 	private double mRadius;
+	private double mLocationOffset;
+    private float mAveragedBearing;
+    private boolean mTrackMode;
 
     public LocationOverlay(Map map) {
 		super(map);
@@ -64,24 +67,35 @@ public class LocationOverlay extends Layer {
 
 		super.setEnabled(enabled);
 
-		if (!enabled)
-			((LocationIndicator) mRenderer).animate(false);
+		//if (!enabled)
+			((LocationIndicator) mRenderer).animate(enabled);
 	}
 
     public void setPinned(boolean pinned) {
         Log.e("LO", "setPinned(" + pinned + ")");
-        ((LocationIndicator) mRenderer).setPinned(pinned);
+        //((LocationIndicator) mRenderer).setPinned(pinned);
     }
 
-	public class LocationIndicator extends LayerRenderer {
+    public boolean isPinned() {
+        return ((LocationIndicator) mRenderer).mPinned;
+    }
+
+	public void setLocationOffset(double offset, float averagedBearing, boolean trackMode) {
+		mLocationOffset = offset;
+        mAveragedBearing = averagedBearing;
+        mTrackMode = trackMode;
+	}
+
+    public class LocationIndicator extends LayerRenderer {
 		private int mShaderProgram;
 		private int hVertexPosition;
 		private int hMatrixPosition;
 		private int hScale;
 		private int hPhase;
 		private int hDirection;
+		private int hType;
 
-		private final float CIRCLE_SIZE = 60;
+		public final static float POINTER_SIZE = 100;
 
 		private final static long ANIM_RATE = 50;
 		private final static long INTERVAL = 8000;
@@ -156,10 +170,13 @@ public class LocationOverlay extends Layer {
 
 			setReady(true);
 
-            if (mPinned)
-            {
-                mIndicatorPosition.x = v.pos.x;
-                mIndicatorPosition.y = v.pos.y;
+            if (mPinned) {
+                double bearing = mTrackMode ? v.pos.bearing : mAveragedBearing;
+				double rad = Math.toRadians(bearing);
+				double dx = mLocationOffset * Math.sin(rad);
+				double dy = mLocationOffset * Math.cos(rad);
+				mIndicatorPosition.x = v.pos.x - dx;
+                mIndicatorPosition.y = v.pos.y + dy;
                 return;
             }
 
@@ -209,12 +226,6 @@ public class LocationOverlay extends Layer {
 
 			// set location indicator position
 			v.fromScreenPoint(x, y, mIndicatorPosition);
-
-            //FIXME Workaround for broken getDepth()
-            if (v.pos.tilt > 0) {
-                mIndicatorPosition.x = mLocation.x;
-                mIndicatorPosition.y = mLocation.y;
-            }
 		}
 
 		@Override
@@ -227,7 +238,7 @@ public class LocationOverlay extends Layer {
 			GLState.enableVertexArrays(hVertexPosition, -1);
 			MapRenderer.bindQuadVertexVBO(hVertexPosition);
 
-			float radius = CIRCLE_SIZE;
+			float radius = POINTER_SIZE;
 
 			animate(true);
 			boolean viewShed = false;
@@ -235,8 +246,8 @@ public class LocationOverlay extends Layer {
 				//animate(true);
 			} else {
 				float r = (float) (mRadius * v.pos.scale);
-                if (r > radius) // || v.pos.zoomLevel >= SHOW_ACCURACY_ZOOM)
-                    radius = r;
+                //if (r > radius) // || v.pos.zoomLevel >= SHOW_ACCURACY_ZOOM)
+                //    radius = r;
 				viewShed = true;
 				//animate(false);
 			}
@@ -274,11 +285,14 @@ public class LocationOverlay extends Layer {
                 gl.uniform2f(hDirection, 0, 0);
 			}
 
+			// Pointer type
+			gl.uniform1f(hType, 0);
+
 			gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
 		}
 
 		private boolean init() {
-			int shader = GLShader.createProgram(vShaderStr, fShaderStr);
+			int shader = GLShader.loadShader("location_pointer");
 			if (shader == 0)
 				return false;
 
@@ -288,76 +302,9 @@ public class LocationOverlay extends Layer {
 			hPhase = gl.getUniformLocation(shader, "u_phase");
 			hScale = gl.getUniformLocation(shader, "u_scale");
 			hDirection = gl.getUniformLocation(shader, "u_dir");
+			hType = gl.getUniformLocation(shader, "u_type");
 
 			return true;
 		}
-
-		private final static String vShaderStr = ""
-		        + "precision mediump float;"
-		        + "uniform mat4 u_mvp;"
-		        + "uniform float u_phase;"
-		        + "uniform float u_scale;"
-		        + "attribute vec2 a_pos;"
-		        + "varying vec2 v_tex;"
-		        + "void main() {"
-		        + "  gl_Position = u_mvp * vec4(a_pos * u_scale * u_phase, 0.0, 1.0);"
-		        + "  v_tex = a_pos;"
-		        + "}";
-
-		private final static String fShaderStr = ""
-		        + "precision mediump float;"
-		        + "varying vec2 v_tex;"
-		        + "uniform float u_scale;"
-		        + "uniform float u_phase;"
-		        + "uniform vec2 u_dir;"
-
-		        + "void main() {"
-		        + "  float len = 1.0 - length(v_tex);"
-		        + "  if (u_dir.x == 0.0 && u_dir.y == 0.0){"
-		        + "  gl_FragColor = vec4(1.0, 0.34, 0.13, 1.0) * len;"
-		        + "  } else {"
-		        ///  outer ring
-		        + "  float a = smoothstep(0.0, 2.0 / u_scale, len);"
-		        ///  inner ring
-		        + "  float b = 0.5 * smoothstep(4.0 / u_scale, 5.0 / u_scale, len);"
-		        ///  center point
-		        + "  float c = 0.5 * (1.0 - smoothstep(14.0 / u_scale, 16.0 / u_scale, 1.0 - len));"
-		        + "  vec2 dir = normalize(v_tex);"
-		        + "  float d = 1.0 - dot(dir, u_dir); "
-		        ///  0.5 width of viewshed
-		        + "  d = clamp(step(0.5, d), 0.4, 0.7);"
-		        ///  - subtract inner from outer to create the outline
-		        ///  - multiply by viewshed
-		        ///  - add center point
-		        + "  a = d * (a - (b + c)) + c;"
-		        ///+ "  gl_FragColor = vec4(0.2, 0.2, 0.8, 1.0) * a;"
-                + "  gl_FragColor = vec4(1.0, 0.34, 0.13, 1.0) * a;"
-		        + "}}";
-
-		//private final static String fShaderStr = ""
-		//		+ "precision mediump float;"
-		//		+ "varying vec2 v_tex;"
-		//		+ "uniform float u_scale;"
-		//		+ "uniform float u_phase;"
-		//		+ "uniform vec2 u_dir;"
-		//		+ "void main() {"
-		//		+ "  float len = 1.0 - length(v_tex);"
-		//		///  outer ring
-		//		+ "  float a = smoothstep(0.0, 2.0 / u_scale, len);"
-		//		///  inner ring
-		//		+ "  float b = 0.8 * smoothstep(3.0 / u_scale, 4.0 / u_scale, len);"
-		//		///  center point
-		//		+ "  float c = 0.5 * (1.0 - smoothstep(14.0 / u_scale, 16.0 / u_scale, 1.0 - len));"
-		//		+ "  vec2 dir = normalize(v_tex);"
-		//		+ "  float d = dot(dir, u_dir); "
-		//		///  0.5 width of viewshed
-		//		+ "  d = clamp(smoothstep(0.7, 0.7 + 2.0/u_scale, d) * len, 0.0, 1.0);"
-		//		///  - subtract inner from outer to create the outline
-		//		///  - multiply by viewshed
-		//		///  - add center point
-		//		+ "  a = max(d, (a - (b + c)) + c);"
-		//		+ "  gl_FragColor = vec4(0.2, 0.2, 0.8, 1.0) * a;"
-		//		+ "}";
-
 	}
 }
