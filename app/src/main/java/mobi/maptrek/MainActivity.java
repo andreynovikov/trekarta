@@ -23,7 +23,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.VectorDrawable;
@@ -40,6 +39,7 @@ import android.transition.Slide;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -61,14 +61,15 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import org.oscim.android.MapScaleBar;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
-import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.android.canvas.AndroidSvgBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
+import org.oscim.core.Point;
 import org.oscim.core.Tile;
 import org.oscim.event.Event;
+import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.marker.ItemizedLayer;
@@ -89,11 +90,14 @@ import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.WaypointDataSource;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.TrackProperties;
@@ -108,6 +112,7 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.ProgressHandler;
 
 public class MainActivity extends Activity implements ILocationListener,
+        Map.InputListener,
         Map.UpdateListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
@@ -151,6 +156,8 @@ public class MainActivity extends Activity implements ILocationListener,
         MORE
     }
 
+    private float mFingerTipSize;
+
     private ProgressHandler mProgressHandler;
 
     private ILocationService mLocationService = null;
@@ -167,6 +174,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private TextView mSatellitesText;
     private TextView mSpeedText;
     private ImageButton mLocationButton;
+    private ImageButton mPlacesButton;
     private ImageButton mRecordButton;
     private ImageButton mMoreButton;
     private View mCompassView;
@@ -185,7 +193,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private TileGridLayer mGridLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
+    private ItemizedLayer<MarkerItem> mMarkerLayer;
     private LocationOverlay mLocationOverlay;
+    private MarkerItem mActiveMarker;
 
     private PreCachedTileCache mCache;
 
@@ -196,6 +206,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     //private MapIndex mMapIndex;
     //TODO Should we store it here?
+    private WaypointDataSource mWaypointDataSource;
     private List<DataSource> mData;
     private Track mEditedTrack;
 
@@ -208,6 +219,11 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate()");
         setContentView(R.layout.activity_main);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        // Estimate finger tip height (0.25 inch is obtained from experiments)
+        mFingerTipSize = (float) (metrics.ydpi * 0.25);
 
         /*
         // find the retained fragment on activity restarts
@@ -238,6 +254,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
+        mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
 
         mSatellitesText = (TextView) findViewById(R.id.satellites);
@@ -302,14 +319,13 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(mLocationOverlay);
         //layers.add(mGridLayer);
 
-        MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
+        //noinspection SpellCheckingInspection
+        File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
+        mWaypointDataSource = new WaypointDataSource(this, waypointsFile);
+        //MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
 
-        List<MarkerItem> pts = new ArrayList<>();
-        pts.add(marker);
-
-        Bitmap bitmap = null;
         try {
-            bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 100, 100);
+            Bitmap bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 100, 100);
             //drawableToBitmap(getResources(), R.drawable.marker_poi);
             MarkerSymbol symbol;
             if (BILLBOARDS)
@@ -318,18 +334,26 @@ public class MainActivity extends Activity implements ILocationListener,
                 symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
 
             //marker.setMarker(new MarkerSymbol(new AndroidBitmap(image), MarkerItem.HotspotPlace.BOTTOM_CENTER));
-            ItemizedLayer<MarkerItem> markerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
-
-            markerLayer.addItems(pts);
-            mMap.layers().add(markerLayer);
+            //TODO We should not skip initialization on bitmap creation failure
+            mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
+            mMap.layers().add(mMarkerLayer);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // Load waypoints
+        mWaypointDataSource.open();
+        List<Waypoint> waypoints = mWaypointDataSource.getWaypoints();
+        for (Waypoint waypoint : waypoints) {
+            GeoPoint geoPoint = new GeoPoint(waypoint.latitude, waypoint.longitude);
+            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, geoPoint);
+            mMarkerLayer.addItem(marker);
+        }
+
+        /*
         android.graphics.Bitmap pin = BitmapFactory.decodeResource(resources, R.mipmap.marker_pin_1);
         android.graphics.Bitmap image = android.graphics.Bitmap.createBitmap(pin.getWidth(), pin.getHeight(), android.graphics.Bitmap.Config.ARGB_8888);
 
-        /*
         Paint paint = new Paint();
         paint.setColorFilter(new PorterDuffColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY));
 
@@ -368,6 +392,18 @@ public class MainActivity extends Activity implements ILocationListener,
                 return true;
             }
         });
+        mPlacesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPlacesClicked();
+            }
+        });
+        mPlacesButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                onPlacesLongClicked();
+                return true;
+            }
+        });
 
         // Initialize data loader
         getLoaderManager();
@@ -402,6 +438,7 @@ public class MainActivity extends Activity implements ILocationListener,
         updateMapViewArea();
 
         mMap.events.bind(this);
+        mMap.input.bind(this);
         mMapView.onResume();
         updateLocationDrawable();
         adjustCompass(mMap.getMapPosition().bearing);
@@ -456,6 +493,8 @@ public class MainActivity extends Activity implements ILocationListener,
     protected void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
+
+        mWaypointDataSource.close();
 
         //mDataFragment.setMapIndex(mMapIndex);
         mMap.destroy();
@@ -539,12 +578,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onLocationChanged() {
-        boolean shouldBePinned = false;
         if (mLocationState == LOCATION_STATE.SEARCHING) {
             mLocationState = mSavedLocationState;
             mMap.getEventLayer().setFixOnCenter(true);
             updateLocationDrawable();
-            shouldBePinned = true;
             mLocationOverlay.setEnabled(true);
             mMap.updateMap(true);
         }
@@ -585,20 +622,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
             mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
             mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
-            //mMapPosition.setPosition(lat, lon);
             mMapPosition.setBearing(-mAveragedBearing);
-            /*
-            if (! mLocationOverlay.isPinned()) {
-                mMovementAnimationDuration = (int) (mMovementAnimationDuration * 0.9);
-                mMap.animator().setListener(new org.oscim.map.Animator.MapAnimationListener() {
-                    @Override
-                    public void onMapAnimationEnd() {
-                        Log.e(TAG, "from onLocationChanged()");
-                        mLocationOverlay.setPinned(true);
-                    }
-                });
-            }
-            */
             mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LOCATION_STATE.TRACK);
         }
 
@@ -691,7 +715,20 @@ public class MainActivity extends Activity implements ILocationListener,
         showExtendPanel(PANEL_STATE.RECORD, "trackList", DataSourceList.class.getName(), null);
     }
 
-    public void onPlacesClicked(View view) {
+    public void onPlacesClicked() {
+    }
+
+    public void onPlacesLongClicked() {
+        MapPosition position = mMap.getMapPosition();
+        int size = mMarkerLayer.size();
+        //TODO Localize!
+        String name = "Place #" + (size + 1);
+        Waypoint waypoint = new Waypoint(name, position.getLatitude(), position.getLongitude());
+        waypoint.date = new Date();
+        mWaypointDataSource.saveWaypoint(waypoint);
+        MarkerItem marker = new MarkerItem(name, "", position.getGeoPoint());
+        mMarkerLayer.addItem(marker);
+        mMap.updateMap(true);
     }
 
     public void onMoreClicked(View view) {
@@ -723,7 +760,23 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public boolean onItemLongPress(int index, MarkerItem item) {
-        return false;
+        if (mLocationState != LOCATION_STATE.DISABLED && mLocationState != LOCATION_STATE.ENABLED)
+            return false;
+        mActiveMarker = item;
+        // For better experience get delta from marker position and finger press
+        // and consider it when moving marker
+        MapPosition position = mMap.getMapPosition();
+        Point point = new Point();
+        mMap.viewport().toScreenPoint(item.getPoint(), point);
+        deltaX = (float) (downX - point.x);
+        deltaY = (float) (downY - point.y);
+        // Shift map to reveal marker tip position
+        mMap.viewport().toScreenPoint(position.getGeoPoint(), point);
+        point.y = point.y + mFingerTipSize;
+        position.setPosition(mMap.viewport().fromScreenPoint((float) point.x, (float) point.y));
+        mMap.getEventLayer().enableMove(false);
+        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, position);
+        return true;
     }
 
     private void enableLocations() {
@@ -783,6 +836,41 @@ public class MainActivity extends Activity implements ILocationListener,
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.DISABLED;
         updateLocationDrawable();
+    }
+
+    private float downX, downY, deltaX, deltaY;
+
+    @Override
+    public void onInputEvent(Event e, MotionEvent motionEvent) {
+        int action = motionEvent.getAction();
+        if (action == MotionEvent.ACTION_DOWN) {
+            downX = motionEvent.getX() - mMap.getWidth() / 2;
+            downY = motionEvent.getY() - mMap.getHeight() / 2;
+        }
+        if (mActiveMarker == null)
+            return;
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            // Update corresponding waypoint
+            Waypoint waypoint = (Waypoint) mActiveMarker.getUid();
+            waypoint.latitude = mActiveMarker.getPoint().getLatitude();
+            waypoint.longitude = mActiveMarker.getPoint().getLongitude();
+            mWaypointDataSource.saveWaypoint(waypoint);
+            mActiveMarker = null;
+            // Unshift map to its original position
+            MapPosition position = mMap.getMapPosition();
+            Point point = new Point();
+            mMap.viewport().toScreenPoint(position.getGeoPoint(), point);
+            point.y = point.y - mFingerTipSize;
+            position.setPosition(mMap.viewport().fromScreenPoint((float) point.x, (float) point.y));
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, position);
+            mMap.getEventLayer().enableMove(true);
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            float eventX = motionEvent.getX() - deltaX - mMap.getWidth() / 2;
+            float eventY = motionEvent.getY() - deltaY - mMap.getHeight() / 2 - mFingerTipSize;
+            mActiveMarker.setPoint(mMap.viewport().fromScreenPoint(eventX, eventY));
+            mMarkerLayer.updateItems();
+            mMap.updateMap(true);
+        }
     }
 
     @Override

@@ -25,6 +25,9 @@ import java.util.Date;
 //TODO Refactor
 public class Waypoint extends MapObject
 {
+    /**
+     * Date and time in GMT
+     */
 	public Date date;
 
 	public Waypoint()
@@ -37,10 +40,9 @@ public class Waypoint extends MapObject
 		super(latitude, longitude);
 	}
 
-	public Waypoint(String name, String description, double lat, double lon)
+	public Waypoint(String name, double lat, double lon)
 	{
 		super(lat, lon);
 		this.name = name;
-		this.description = description;
 	}
 }

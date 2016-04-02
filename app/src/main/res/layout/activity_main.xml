@@ -156,7 +156,6 @@
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
-                android:onClick="onPlacesClicked"
                 android:src="@drawable/ic_place"
                 android:tint="@color/colorPrimaryDark" />
 
