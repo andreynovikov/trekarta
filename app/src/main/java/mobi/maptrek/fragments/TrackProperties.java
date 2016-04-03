@@ -21,7 +21,6 @@ public class TrackProperties extends Fragment {
     public static final String ARG_NAME = "name";
     public static final String ARG_COLOR = "color";
 
-    private ViewGroup mRootView;
     private EditText mNameEdit;
     private ColorSwatch mColorSwatch;
     private String mName;
@@ -33,10 +32,10 @@ public class TrackProperties extends Fragment {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_track_properties, container, false);
-        mNameEdit = (EditText) mRootView.findViewById(R.id.nameEdit);
-        mColorSwatch = (ColorSwatch) mRootView.findViewById(R.id.colorSwatch);
-        return mRootView;
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_track_properties, container, false);
+        mNameEdit = (EditText) rootView.findViewById(R.id.nameEdit);
+        mColorSwatch = (ColorSwatch) rootView.findViewById(R.id.colorSwatch);
+        return rootView;
     }
 
     @Override
@@ -102,7 +101,6 @@ public class TrackProperties extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         returnResult();
-        mRootView = null;
     }
 
     @Override

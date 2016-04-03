@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -100,7 +101,9 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDataSource;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
+import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.TrackProperties;
+import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
@@ -112,9 +115,11 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.ProgressHandler;
 
 public class MainActivity extends Activity implements ILocationListener,
+        MapHolder,
         Map.InputListener,
         Map.UpdateListener,
         TrackProperties.OnTrackPropertiesChangedListener,
+        OnWaypointActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<DataSource>> {
@@ -325,7 +330,7 @@ public class MainActivity extends Activity implements ILocationListener,
         //MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
 
         try {
-            Bitmap bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 100, 100);
+            Bitmap bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 70, 70);
             //drawableToBitmap(getResources(), R.drawable.marker_poi);
             MarkerSymbol symbol;
             if (BILLBOARDS)
@@ -410,6 +415,54 @@ public class MainActivity extends Activity implements ILocationListener,
 
         // Remove splash from background
         getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.colorBackground)));
+
+        onNewIntent(getIntent());
+    }
+
+    protected void onNewIntent(Intent intent) {
+        String action = intent.getAction();
+        Log.w(TAG, "New intent: " + action);
+
+        if ("geo".equals(intent.getScheme())) {
+            Uri uri = intent.getData();
+            String data = uri.getSchemeSpecificPart();
+            String query = uri.getQuery();
+            // geo:latitude,longitude
+            // geo:latitude,longitude?z=zoom
+            // geo:0,0?q=lat,lng(label)
+            int zoom = 0;
+            if (query != null) {
+                data = data.substring(0, data.indexOf(query) - 1);
+                if (query.startsWith("z="))
+                    try {
+                        zoom = Integer.parseInt(query.substring(2));
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+            }
+            try {
+                String[] ll = data.split(",");
+                double lat = Double.parseDouble(ll[0]);
+                double lon = Double.parseDouble(ll[1]);
+                if (lat == 0d && lon == 0d && query != null) {
+                    // Parse query string
+                    data = query.substring(2, query.indexOf("("));
+                    ll = data.split(",");
+                    lat = Double.parseDouble(ll[0]);
+                    lon = Double.parseDouble(ll[1]);
+                    //TODO Show marker (in any case)
+                    //noinspection unused
+                    String marker = query.substring(query.indexOf("(") + 1, query.indexOf(")"));
+                }
+                MapPosition position = mMap.getMapPosition();
+                position.setPosition(lat, lon);
+                if (zoom > 0)
+                    position.setZoomLevel(zoom);
+                mMap.setMapPosition(position);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -726,7 +779,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Waypoint waypoint = new Waypoint(name, position.getLatitude(), position.getLongitude());
         waypoint.date = new Date();
         mWaypointDataSource.saveWaypoint(waypoint);
-        MarkerItem marker = new MarkerItem(name, "", position.getGeoPoint());
+        MarkerItem marker = new MarkerItem(waypoint, name, null, position.getGeoPoint());
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
     }
@@ -754,7 +807,20 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public boolean onItemSingleTapUp(int index, MarkerItem item) {
-        Log.e(TAG, item.getTitle());
+        MapPosition position = mMap.getMapPosition();
+        Waypoint waypoint = (Waypoint) item.getUid();
+        Bundle args = new Bundle(2);
+        args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
+        args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
+        WaypointInformation fragment = (WaypointInformation) Fragment.instantiate(this, WaypointInformation.class.getName(), args);
+        fragment.setWaypoint(waypoint);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
+        ft.replace(R.id.contentPanel, fragment, "waypointInformation");
+        ft.addToBackStack("waypointInformation");
+        ft.commit();
         return false;
     }
 
@@ -983,6 +1049,63 @@ public class MainActivity extends Activity implements ILocationListener,
         mSpeedText.setText(String.format("%.0f", location.getSpeed() * 3.6));
     }
 
+    @Override
+    public void onWaypointView(Waypoint waypoint) {
+
+    }
+
+    @Override
+    public void onWaypointDetails(Waypoint waypoint) {
+
+    }
+
+    @Override
+    public void onWaypointNavigate(Waypoint waypoint) {
+
+    }
+
+    @Override
+    public void onWaypointShare(Waypoint waypoint) {
+        String location = waypoint.name + " @ " + waypoint.latitude + " " + waypoint.longitude;
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, location);
+        startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
+    }
+
+    @Override
+    public void onWaypointRemove(final Waypoint waypoint) {
+        // Remove marker to indicate action to user
+        MarkerItem marker = mMarkerLayer.getByUid(waypoint);
+        mMarkerLayer.removeItem(marker);
+        mMap.updateMap(true);
+
+        // Show undo snackbar
+        Snackbar snackbar = Snackbar
+                .make(mCoordinatorLayout, R.string.msg_waypoint_removed, Snackbar.LENGTH_LONG)
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event == DISMISS_EVENT_ACTION)
+                            return;
+                        // If dismissed, actually remove waypoint
+                        mWaypointDataSource.deleteWaypoint(waypoint);
+                    }
+                })
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // If undo pressed, restore the marker
+                        GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
+                        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
+                        mMarkerLayer.addItem(marker);
+                        mMap.updateMap(true);
+                   }
+                });
+        snackbar.show();
+    }
+
     private void onTrackProperties(String path) {
         //TODO Think of better way to find appropriate track
         for (DataSource source : mData) {
@@ -994,13 +1117,14 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mEditedTrack == null)
             return;
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
         Bundle args = new Bundle(2);
         args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
         args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.color);
         Fragment fragment = Fragment.instantiate(this, TrackProperties.class.getName(), args);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
         ft.addToBackStack("trackProperties");
         ft.commit();
@@ -1425,6 +1549,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     };
 
+    @Override
     public Map getMap() {
         return mMap;
     }

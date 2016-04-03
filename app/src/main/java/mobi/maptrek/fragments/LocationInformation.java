@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import mobi.maptrek.MainActivity;
+import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.util.Astro;
 import mobi.maptrek.util.StringFormatter;
@@ -30,7 +30,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
 
     private ViewGroup mRootView;
 
-    MainActivity mActivity;
+    MapHolder mMapHolder;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e("LocationInformation", "onCreateView()");
@@ -58,14 +58,14 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
     public void onResume() {
         super.onResume();
         Log.e("LocationInformation", "onResume()");
-        mActivity.getMap().events.bind(this);
+        mMapHolder.getMap().events.bind(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.e("LocationInformation", "onPause()");
-        mActivity.getMap().events.unbind(this);
+        mMapHolder.getMap().events.unbind(this);
     }
 
     @Override
@@ -73,9 +73,9 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         super.onAttach(context);
         Log.e("LocationInformation", "onAttach()");
         try {
-            mActivity = (MainActivity) context;
+            mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must be MainActivity");
+            throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
     }
 
@@ -83,7 +83,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
     public void onDetach() {
         super.onDetach();
         Log.e("LocationInformation", "onDetach()");
-        mActivity = null;
+        mMapHolder = null;
     }
 
     private void updateLocation(double latitude, double longitude) {
