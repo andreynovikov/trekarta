@@ -87,6 +87,7 @@ import org.oscim.tiling.CombinedTileSource;
 import org.oscim.tiling.source.UrlTileSource;
 import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
+import org.oscim.utils.Osm;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,6 +180,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private TextView mSatellitesText;
     private TextView mSpeedText;
     private ImageButton mLocationButton;
+    //TODO Temporary fix
+    @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mPlacesButton;
     private ImageButton mRecordButton;
     private ImageButton mMoreButton;
@@ -461,6 +464,16 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.setMapPosition(position);
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        } else if ("http".equals(intent.getScheme()) || "https".equals(intent.getScheme())) {
+            Uri uri = intent.getData();
+            List<String> path = uri.getPathSegments();
+            if ("go".equals(path.get(0))) {
+                MapPosition position = Osm.decodeShortLink(path.get(1));
+                //TODO Show marker (in any case)
+                //noinspection unused
+                String marker = uri.getQueryParameter("m");
+                mMap.setMapPosition(position);
             }
         }
     }
@@ -1066,7 +1079,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointShare(Waypoint waypoint) {
-        String location = waypoint.name + " @ " + waypoint.latitude + " " + waypoint.longitude;
+        int zoom = mMap.getMapPosition().getZoomLevel();
+        String location = waypoint.name + " @ " + waypoint.latitude + " " + waypoint.longitude +
+                " <" + Osm.makeShortLink(waypoint.latitude, waypoint.longitude, zoom) + ">";
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, location);
