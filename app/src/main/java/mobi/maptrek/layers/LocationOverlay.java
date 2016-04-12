@@ -60,7 +60,11 @@ public class LocationOverlay extends Layer {
 		((LocationIndicator) mRenderer).animate(true);
 	}
 
-    @Override
+	public Point getPosition() {
+		return new Point(mLocation.x, mLocation.y);
+	}
+
+	@Override
 	public void setEnabled(boolean enabled) {
 		if (enabled == isEnabled())
 			return;

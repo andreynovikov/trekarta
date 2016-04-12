@@ -1,14 +1,18 @@
 package mobi.maptrek.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.format.DateFormat;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -31,13 +35,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
     final int SWIPE_MAX_OFF_PATH = 50;
     final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-    private TextView mNameView;
-    private TextView mSourceView;
-    private TextView mDestinationView;
-    private ImageButton mNavigateButton;
-    private ImageButton mShareButton;
-    private ImageButton mDeleteButton;
-
     private Waypoint mWaypoint;
     private double mLatitude;
     private double mLongitude;
@@ -50,29 +47,42 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_waypoint_information, container, false);
-        mNameView = (TextView) rootView.findViewById(R.id.nameView);
-        mSourceView = (TextView) rootView.findViewById(R.id.sourceView);
-        mDestinationView = (TextView) rootView.findViewById(R.id.destinationView);
-        mNavigateButton = (ImageButton) rootView.findViewById(R.id.navigateButton);
-        mShareButton = (ImageButton) rootView.findViewById(R.id.shareButton);
-        mDeleteButton = (ImageButton) rootView.findViewById(R.id.deleteButton);
+        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_waypoint_information, container, false);
+        final ImageButton saveButton = (ImageButton) rootView.findViewById(R.id.saveButton);
+        final ImageButton editButton = (ImageButton) rootView.findViewById(R.id.editButton);
+        final ImageButton navigateButton = (ImageButton) rootView.findViewById(R.id.navigateButton);
+        final ImageButton shareButton = (ImageButton) rootView.findViewById(R.id.shareButton);
+        final ImageButton deleteButton = (ImageButton) rootView.findViewById(R.id.deleteButton);
 
-        mNavigateButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                mListener.onWaypointSave(mWaypoint);
+                setEditorMode(false);
+            }
+        });
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setEditorMode(true);
+            }
+        });
+        navigateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getFragmentManager().popBackStack();
                 mListener.onWaypointNavigate(mWaypoint);
             }
         });
-        mShareButton.setOnClickListener(new View.OnClickListener() {
+        shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getFragmentManager().popBackStack();
                 mListener.onWaypointShare(mWaypoint);
             }
         });
-        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getFragmentManager().popBackStack();
@@ -82,6 +92,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
 
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
+                    private boolean mExpanded = false;
 
                     @Override
                     public boolean onDown(MotionEvent e) {
@@ -92,9 +103,45 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                         if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH)
                             return false;
-                        if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
+                        if (!mExpanded && e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
                                 && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-                            Log.i("WI", "Bottom to Top");
+
+                            //ChangeBounds changeBounds = new ChangeBounds();
+                            //changeBounds.setReparent(true);
+                            //changeBounds.excludeTarget(rootView, true);
+                            //changeBounds.excludeTarget(R.id.action_buttons, true);
+                            //changeBounds.addTarget(R.id.source);
+
+                            //TransitionSet set = new TransitionSet();
+                            //set.addTransition(new Fade());
+                            //set.addTransition(changeBounds);
+                            //set.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+                            //set.excludeTarget(R.id.extend_table, true);
+                            //set.setDuration(3000);
+
+                            //TextView destination = ((TextView) rootView.findViewById(R.id.destination));
+                            //String dst = destination.getText().toString();
+                            //TransitionManager.beginDelayedTransition(rootView, set);
+                            rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
+                            rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
+                            rootView.findViewById(R.id.source).setVisibility(View.GONE);
+                            rootView.findViewById(R.id.destination).setVisibility(View.GONE);
+
+                            navigateButton.setVisibility(View.GONE);
+                            editButton.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
+
+                            updateWaypointInformation(mLatitude, mLongitude);
+
+                            //destination = new TextView(getContext());
+                            //destination.setText(dst);
+                            //destination.setId(R.id.destination);
+                            //ViewGroup row = (ViewGroup) rootView.findViewById(R.id.destination_row);
+                            //row.addView(destination);
+                            //changeBounds.addTarget(destination);
+
+                            mMapHolder.updateMapViewArea();
+                            mExpanded = true;
+
                         } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
                                 && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                             getFragmentManager().popBackStack();
@@ -177,16 +224,146 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
     }
 
     private void updateWaypointInformation(double latitude, double longitude) {
-        mNameView.setText(mWaypoint.name);
-        mSourceView.setText("My places");
+        Activity activity = getActivity();
+        View view = getView();
 
         double dist = GeoPoint.distance(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
         double bearing = GeoPoint.bearing(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
         String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-        mDestinationView.setText(distance);
+
+        TextView nameView = (TextView) view.findViewById(R.id.name);
+        if (nameView != null)
+            nameView.setText(mWaypoint.name);
+
+        TextView sourceView = (TextView) view.findViewById(R.id.source);
+        if (sourceView != null)
+            sourceView.setText("My places");
+        sourceView = (TextView) view.findViewById(R.id.sourceExtended);
+        if (sourceView != null)
+            sourceView.setText("My places");
+
+        TextView destinationView = (TextView) view.findViewById(R.id.destination);
+        if (destinationView != null)
+            destinationView.setText(distance);
+        destinationView = (TextView) view.findViewById(R.id.destinationExtended);
+        if (destinationView != null)
+            destinationView.setText(distance);
+
+        final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
+        if (coordsView != null) {
+            coordsView.requestFocus();
+            coordsView.setTag(StringFormatter.coordinateFormat);
+            coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.latitude, mWaypoint.longitude));
+            coordsView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int format = (Integer) coordsView.getTag() + 1;
+                    if (format == 5)
+                        format = 0;
+                    coordsView.setText(StringFormatter.coordinates(format, " ", mWaypoint.latitude, mWaypoint.longitude));
+                    coordsView.setTag(format);
+                }
+            });
+        }
+
+        TextView altitudeView = (TextView) view.findViewById(R.id.altitude);
+        if (altitudeView != null) {
+            if (mWaypoint.altitude != Integer.MIN_VALUE) {
+                altitudeView.setText("\u2336 " + StringFormatter.elevationH(mWaypoint.altitude));
+                altitudeView.setVisibility(View.VISIBLE);
+            } else {
+                altitudeView.setVisibility(View.GONE);
+            }
+        }
+
+        TextView proximityView = (TextView) view.findViewById(R.id.proximity);
+        if (proximityView != null) {
+            if (mWaypoint.proximity > 0) {
+                proximityView.setText("~ " + StringFormatter.distanceH(mWaypoint.proximity));
+                proximityView.setVisibility(View.VISIBLE);
+            } else {
+                proximityView.setVisibility(View.GONE);
+            }
+        }
+
+        TextView dateView = (TextView) view.findViewById(R.id.date);
+        if (dateView != null) {
+            if (mWaypoint.date != null) {
+                String date = DateFormat.getDateFormat(activity).format(mWaypoint.date);
+                String time = DateFormat.getTimeFormat(activity).format(mWaypoint.date);
+                dateView.setText(getString(R.string.datetime, date, time));
+                view.findViewById(R.id.dateRow).setVisibility(View.VISIBLE);
+            } else {
+                view.findViewById(R.id.dateRow).setVisibility(View.GONE);
+            }
+        }
+
+        View row = view.findViewById(R.id.descriptionRow);
+        if (row != null) {
+            if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
+                view.findViewById(R.id.descriptionRow).setVisibility(View.GONE);
+            } else {
+                /*
+                WebView description = (WebView) view.findViewById(R.id.description);
+                String descriptionHtml;
+                try {
+                    TypedValue tv = new TypedValue();
+                    Resources.Theme theme = activity.getTheme();
+                    Resources resources = getResources();
+                    theme.resolveAttribute(android.R.attr.textColorPrimary, tv, true);
+                    int secondaryColor = resources.getColor(tv.resourceId, theme);
+                    String css = String.format("<style type=\"text/css\">html,body{margin:0;background:transparent} *{color:#%06X}</style>\n", (secondaryColor & 0x00FFFFFF));
+                    descriptionHtml = css + mWaypoint.description;
+                    description.setWebViewClient(new WebViewClient() {
+                        @Override
+                        public void onPageFinished(WebView view, String url) {
+                            view.setBackgroundColor(Color.TRANSPARENT);
+                            view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                        }
+                    });
+                    description.setBackgroundColor(Color.TRANSPARENT);
+                    description.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                } catch (Resources.NotFoundException e) {
+                    description.setBackgroundColor(Color.LTGRAY);
+                    descriptionHtml = mWaypoint.description;
+                }
+
+                WebSettings settings = description.getSettings();
+                settings.setDefaultTextEncodingName("utf-8");
+                settings.setAllowFileAccess(true);
+                Uri baseUrl = Uri.fromFile(activity.getExternalFilesDir("data"));
+                description.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
+                */
+                view.findViewById(R.id.descriptionRow).setVisibility(View.VISIBLE);
+            }
+        }
 
         mLatitude = latitude;
         mLongitude = longitude;
+    }
+
+    private void setEditorMode(boolean enabled) {
+        ViewGroup rootView = (ViewGroup) getView();
+
+        int viewsState, editsState;
+        if (enabled) {
+            ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
+            viewsState = View.GONE;
+            editsState = View.VISIBLE;
+        } else {
+            ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
+            viewsState = View.VISIBLE;
+            editsState = View.GONE;
+        }
+        TransitionManager.beginDelayedTransition(rootView, new Fade());
+        rootView.findViewById(R.id.name).setVisibility(viewsState);
+        rootView.findViewById(R.id.nameWrapper).setVisibility(editsState);
+
+        rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
+
+        rootView.findViewById(R.id.editButton).setVisibility(viewsState);
+        rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
+        rootView.findViewById(R.id.saveButton).setVisibility(editsState);
     }
 
     @Override

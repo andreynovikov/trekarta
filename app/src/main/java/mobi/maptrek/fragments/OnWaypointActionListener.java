@@ -11,5 +11,6 @@ public interface OnWaypointActionListener
 	void onWaypointDetails(Waypoint waypoint);
 	void onWaypointNavigate(Waypoint waypoint);
 	void onWaypointShare(Waypoint waypoint);
+	void onWaypointSave(Waypoint waypoint);
 	void onWaypointRemove(Waypoint waypoint);
 }
