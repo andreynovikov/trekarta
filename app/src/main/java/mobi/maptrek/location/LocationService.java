@@ -877,8 +877,11 @@ public class LocationService extends BaseLocationService implements LocationList
             mMockCallback.postDelayed(this, LOCATION_DELAY);
             mMockLocationTicker++;
 
+            //TODO Why 200?
+            int ddd = mMockLocationTicker % 200;
+
             // Search for satellites for first 3 seconds and each 1 minute
-            if (mMockLocationTicker % 200 >= 0 && mMockLocationTicker % 200 < 3) {
+            if (ddd >= 0 && ddd < 3) {
                 mGpsStatus = GPS_SEARCHING;
                 mFSats = mMockLocationTicker % 10;
                 mTSats = 25;
@@ -893,15 +896,33 @@ public class LocationService extends BaseLocationService implements LocationList
 
             mLastKnownLocation = new Location(LocationManager.GPS_PROVIDER);
             mLastKnownLocation.setTime(System.currentTimeMillis());
+            mLastKnownLocation.setAccuracy(3 + mMockLocationTicker % 100);
             mLastKnownLocation.setSpeed(20);
             mLastKnownLocation.setBearing(323);
             mLastKnownLocation.setAltitude(39);
             //mLastKnownLocation.setLatitude(34.865792);
             //mLastKnownLocation.setLongitude(32.351646);
-            mLastKnownLocation.setBearing((System.currentTimeMillis() / 166) % 360);
+            //mLastKnownLocation.setBearing((System.currentTimeMillis() / 166) % 360);
             //mLastKnownLocation.setAltitude(169);
-            mLastKnownLocation.setLatitude(55.813557);// + mMockLocationTicker * 0.0001);
-            mLastKnownLocation.setLongitude(37.645524);
+            double lat = 55.813557;
+            double lon = 37.645524;
+            if (ddd < 50) {
+                lat += ddd * 0.0001;
+                mLastKnownLocation.setBearing(0);
+            } else if (ddd < 100) {
+                lat += 0.005;
+                lon += (ddd - 50) * 0.0001;
+                mLastKnownLocation.setBearing(90);
+            } else if (ddd < 150) {
+                lat += (150 - ddd) * 0.0001;
+                lon += 0.005;
+                mLastKnownLocation.setBearing(180);
+            } else {
+                lon += (200 - ddd) * 0.0001;
+                mLastKnownLocation.setBearing(270);
+            }
+            mLastKnownLocation.setLatitude(lat);
+            mLastKnownLocation.setLongitude(lon);
             mNmeaGeoidHeight = 0;
 
             updateLocation();
