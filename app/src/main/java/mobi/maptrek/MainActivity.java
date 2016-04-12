@@ -114,6 +114,8 @@ import mobi.maptrek.location.ILocationListener;
 import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.ProgressHandler;
+import mobi.maptrek.view.Gauge;
+import mobi.maptrek.view.GaugePanel;
 
 public class MainActivity extends Activity implements ILocationListener,
         MapHolder,
@@ -133,8 +135,10 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String PREF_MAP_SCALE = "map_scale";
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
+    private static final String PREF_POINT_COUNT = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
     public static final String PREF_TRACKING_STATE = "tracking_state";
+    private static final String PREF_GAUGES = "gauges";
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
@@ -177,8 +181,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
     protected Map mMap;
     protected MapView mMapView;
+    private GaugePanel mGaugePanel;
     private TextView mSatellitesText;
-    private TextView mSpeedText;
     private ImageButton mLocationButton;
     //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
@@ -186,7 +190,6 @@ public class MainActivity extends Activity implements ILocationListener,
     private ImageButton mRecordButton;
     private ImageButton mMoreButton;
     private View mCompassView;
-    private View mGaugePanelView;
     private ProgressBar mProgressBar;
     private CoordinatorLayout mCoordinatorLayout;
 
@@ -217,6 +220,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private WaypointDataSource mWaypointDataSource;
     private List<DataSource> mData;
     private Track mEditedTrack;
+    private int mPointCount;
 
     private static final boolean BILLBOARDS = true;
     //private MarkerSymbol mFocusMarker;
@@ -265,11 +269,11 @@ public class MainActivity extends Activity implements ILocationListener,
         mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
 
+        mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
+        mGaugePanel.setMapHolder(this);
+        
         mSatellitesText = (TextView) findViewById(R.id.satellites);
-        mSpeedText = (TextView) findViewById(R.id.speed);
-
         mCompassView = findViewById(R.id.compass);
-        mGaugePanelView = findViewById(R.id.gaugePanel);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mMapView = (MapView) findViewById(R.id.mapView);
@@ -531,8 +535,10 @@ public class MainActivity extends Activity implements ILocationListener,
         editor.putFloat(PREF_MAP_SCALE, (float) mapPosition.scale);
         editor.putFloat(PREF_MAP_BEARING, mapPosition.bearing);
         editor.putFloat(PREF_MAP_TILT, mapPosition.tilt);
+        editor.putInt(PREF_POINT_COUNT, mPointCount);
         editor.putInt(PREF_LOCATION_STATE, mSavedLocationState.ordinal());
         editor.putInt(PREF_TRACKING_STATE, mTrackingState.ordinal());
+        editor.putString(PREF_GAUGES, mGaugePanel.getGaugeSettings());
         editor.apply();
     }
 
@@ -785,14 +791,19 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     public void onPlacesLongClicked() {
-        MapPosition position = mMap.getMapPosition();
-        int size = mMarkerLayer.size();
-        //TODO Localize!
-        String name = "Place #" + (size + 1);
-        Waypoint waypoint = new Waypoint(name, position.getLatitude(), position.getLongitude());
+        GeoPoint geoPoint;
+        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+            Point point = mLocationOverlay.getPosition();
+            geoPoint = new GeoPoint(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
+        } else {
+            geoPoint = mMap.getMapPosition().getGeoPoint();
+        }
+        mPointCount++;
+        String name = getString(R.string.waypoint_name, mPointCount);
+        Waypoint waypoint = new Waypoint(name, geoPoint.getLatitude(), geoPoint.getLongitude());
         waypoint.date = new Date();
         mWaypointDataSource.saveWaypoint(waypoint);
-        MarkerItem marker = new MarkerItem(waypoint, name, null, position.getGeoPoint());
+        MarkerItem marker = new MarkerItem(waypoint, name, null, geoPoint);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
     }
@@ -825,16 +836,20 @@ public class MainActivity extends Activity implements ILocationListener,
         Bundle args = new Bundle(2);
         args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
         args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
-        WaypointInformation fragment = (WaypointInformation) Fragment.instantiate(this, WaypointInformation.class.getName(), args);
-        fragment.setWaypoint(waypoint);
 
         FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
-        ft.replace(R.id.contentPanel, fragment, "waypointInformation");
-        ft.addToBackStack("waypointInformation");
-        ft.commit();
-        return false;
+        Fragment fragment = fm.findFragmentByTag("waypointInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
+            ft.replace(R.id.contentPanel, fragment, "waypointInformation");
+            ft.addToBackStack("waypointInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((WaypointInformation) fragment).setWaypoint(waypoint);
+        return true;
     }
 
     @Override
@@ -1026,15 +1041,15 @@ public class MainActivity extends Activity implements ILocationListener,
                 rotation.setRepeatCount(Animation.INFINITE);
                 rotation.setDuration(1000);
                 mLocationButton.startAnimation(rotation);
-                if (mGaugePanelView.getVisibility() == View.INVISIBLE) {
+                if (mGaugePanel.getVisibility() == View.INVISIBLE) {
                     mSatellitesText.animate().translationY(8);
                 } else {
-                    mGaugePanelView.animate().translationX(-mGaugePanelView.getWidth()).setListener(new AnimatorListenerAdapter() {
+                    mGaugePanel.animate().translationX(-mGaugePanel.getWidth()).setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             if (mLocationState == LOCATION_STATE.SEARCHING)
                                 mSatellitesText.animate().translationY(8);
-                            mGaugePanelView.animate().setListener(null);
+                            mGaugePanel.animate().setListener(null);
                         }
                     });
                 }
@@ -1042,24 +1057,26 @@ public class MainActivity extends Activity implements ILocationListener,
             case ENABLED:
                 mMyLocationDrawable.setTint(getColor(R.color.colorPrimaryDark));
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
-                mGaugePanelView.animate().translationX(-mGaugePanelView.getWidth());
+                mGaugePanel.animate().translationX(-mGaugePanel.getWidth());
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(getColor(R.color.colorAccent));
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
-                mGaugePanelView.animate().translationX(0);
+                mGaugePanel.animate().translationX(0);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(getColor(R.color.colorAccent));
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
-                mGaugePanelView.animate().translationX(0);
+                mGaugePanel.animate().translationX(0);
         }
         mLocationButton.setTag(mLocationState);
     }
 
     private void updateGauges() {
         Location location = mLocationService.getLocation();
-        mSpeedText.setText(String.format("%.0f", location.getSpeed() * 3.6));
+        mGaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed() * 3.6f);
+        mGaugePanel.setValue(Gauge.TYPE_TRACK, (int) location.getBearing());
+        mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (int) location.getAltitude());
     }
 
     @Override
@@ -1086,6 +1103,11 @@ public class MainActivity extends Activity implements ILocationListener,
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, location);
         startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
+    }
+
+    @Override
+    public void onWaypointSave(final Waypoint waypoint) {
+        mWaypointDataSource.saveWaypoint(waypoint);
     }
 
     @Override
@@ -1143,6 +1165,7 @@ public class MainActivity extends Activity implements ILocationListener,
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
         ft.addToBackStack("trackProperties");
         ft.commit();
+        updateMapViewArea();
     }
 
     @Override
@@ -1189,11 +1212,15 @@ public class MainActivity extends Activity implements ILocationListener,
 
             mMap.setMapPosition(mapPosition);
         }
+        //TODO Not a good place for that
+        mPointCount = sharedPreferences.getInt(PREF_POINT_COUNT, 0);
         int state = sharedPreferences.getInt(PREF_LOCATION_STATE, 0);
         if (state >= LOCATION_STATE.NORTH.ordinal())
             mSavedLocationState = LOCATION_STATE.values()[state];
         state = sharedPreferences.getInt(PREF_TRACKING_STATE, 0);
         mTrackingState = TRACKING_STATE.values()[state];
+
+        mGaugePanel.initializeGauges(sharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET));
     }
 
     private void showExtendPanel(PANEL_STATE panel, String name, String fragmentName, Bundle args) {
@@ -1369,7 +1396,8 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     }
 
-    private void updateMapViewArea() {
+    @Override
+    public void updateMapViewArea() {
         Log.e(TAG, "updateMapViewArea()");
         final ViewTreeObserver vto = mMapView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -1380,8 +1408,10 @@ public class MainActivity extends Activity implements ILocationListener,
                 int mapWidth = area.width();
                 int mapHeight = area.height();
 
-                if (mGaugePanelView != null)
-                    area.top = mGaugePanelView.getBottom();
+                /*
+                if (mGaugePanel != null)
+                    area.left = mGaugePanel.getRight();
+                */
                 View v = findViewById(R.id.actionPanel);
                 if (v != null)
                     area.bottom = v.getTop();
@@ -1390,6 +1420,9 @@ public class MainActivity extends Activity implements ILocationListener,
                     if (v != null)
                         area.bottom = v.getTop();
                 }
+                v = findViewById(R.id.contentPanel);
+                if (v != null)
+                    area.bottom = Math.min(area.bottom, v.getTop());
                 /*
                 if (mapLicense.isShown())
                 {
@@ -1437,8 +1470,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
                 ob.removeOnGlobalLayoutListener(this);
 
-                mGaugePanelView.setTranslationX(-mGaugePanelView.getWidth());
-                mGaugePanelView.setVisibility(View.VISIBLE);
+                mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
+                mGaugePanel.setVisibility(View.VISIBLE);
             }
         });
     }
