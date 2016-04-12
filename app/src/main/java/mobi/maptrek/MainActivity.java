@@ -91,6 +91,7 @@ import org.oscim.utils.Osm;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -100,8 +101,10 @@ import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDataSource;
+import mobi.maptrek.fragments.BackButtonHandler;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
+import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -121,6 +124,7 @@ public class MainActivity extends Activity implements ILocationListener,
         MapHolder,
         Map.InputListener,
         Map.UpdateListener,
+        BackButtonHandler,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
@@ -271,7 +275,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
         mGaugePanel.setMapHolder(this);
-        
+
         mSatellitesText = (TextView) findViewById(R.id.satellites);
         mCompassView = findViewById(R.id.compass);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -1138,7 +1142,7 @@ public class MainActivity extends Activity implements ILocationListener,
                         MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
                         mMarkerLayer.addItem(marker);
                         mMap.updateMap(true);
-                   }
+                    }
                 });
         snackbar.show();
     }
@@ -1369,10 +1373,44 @@ public class MainActivity extends Activity implements ILocationListener,
         updateMapViewArea();
     }
 
+    private ArrayList<WeakReference<OnBackPressedListener>> mBackListeners = new ArrayList<>();
+
+    @Override
+    public void addBackClickListener(OnBackPressedListener listener) {
+        mBackListeners.add(new WeakReference<>(listener));
+    }
+
+    @Override
+    public void removeBackClickListener(OnBackPressedListener listener) {
+        for (Iterator<WeakReference<OnBackPressedListener>> iterator = mBackListeners.iterator();
+             iterator.hasNext(); ) {
+            WeakReference<OnBackPressedListener> weakRef = iterator.next();
+            if (weakRef.get() == listener) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private boolean backKeyIntercepted() {
+        boolean intercepted = false;
+        for (WeakReference<OnBackPressedListener> weakRef : mBackListeners) {
+            OnBackPressedListener onBackClickListener = weakRef.get();
+            if (onBackClickListener != null) {
+                boolean isFragmIntercept = onBackClickListener.onBackClick();
+                if (!intercepted)
+                    intercepted = isFragmIntercept;
+            }
+        }
+        return intercepted;
+    }
+
     final Handler mBackHandler = new Handler();
 
     @Override
     public void onBackPressed() {
+        if (backKeyIntercepted())
+            return;
+
         int count = getFragmentManager().getBackStackEntryCount();
         if (count > 0) {
             super.onBackPressed();

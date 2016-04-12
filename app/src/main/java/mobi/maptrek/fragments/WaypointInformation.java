@@ -26,7 +26,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.util.StringFormatter;
 
-public class WaypointInformation extends Fragment implements Map.UpdateListener {
+public class WaypointInformation extends Fragment implements Map.UpdateListener, OnBackPressedListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
 
@@ -39,6 +39,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
     private double mLatitude;
     private double mLongitude;
 
+    private BackButtonHandler mBackButtonHandler;
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
 
@@ -200,11 +201,15 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
+        mBackButtonHandler = (BackButtonHandler) context;
+        mBackButtonHandler.addBackClickListener(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackButtonHandler.removeBackClickListener(this);
+        mBackButtonHandler = null;
         mListener = null;
         mMapHolder = null;
     }
@@ -370,6 +375,17 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener 
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.POSITION_EVENT) {
             updateWaypointInformation(mapPosition.getLatitude(), mapPosition.getLongitude());
+        }
+    }
+
+    @Override
+    public boolean onBackClick() {
+        ViewGroup rootView = (ViewGroup) getView();
+        if (rootView.findViewById(R.id.saveButton).getVisibility() == View.VISIBLE) {
+            setEditorMode(false);
+            return true;
+        } else {
+            return false;
         }
     }
 }
