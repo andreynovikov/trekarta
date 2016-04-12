@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class WaypointDataSource {
@@ -63,6 +64,8 @@ public class WaypointDataSource {
         if (id == -1) {
             mDatabase.update(WaypointDbHelper.TABLE_NAME, values, WaypointDbHelper.COLUMN_ID + "=?",
                     new String[]{String.valueOf(waypoint._id)});
+        } else {
+            waypoint._id = id;
         }
     }
 
@@ -96,6 +99,8 @@ public class WaypointDataSource {
             waypoint.proximity = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_PROXIMITY));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DESCRIPTION)))
             waypoint.description = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DESCRIPTION));
+        if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DATE)))
+            waypoint.date = new Date(cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DATE)));
         waypoint.color = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_COLOR));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON)))
             waypoint.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));

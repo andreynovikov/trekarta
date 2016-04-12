@@ -32,7 +32,7 @@ public class WaypointDbHelper extends SQLiteOpenHelper {
                     + COLUMN_ALTITUDE + " INTEGER,"
                     + COLUMN_PROXIMITY + " INTEGER,"
                     + COLUMN_DESCRIPTION + " TEXT,"
-                    + COLUMN_DATE + " INTEGER,"
+                    + COLUMN_DATE + " LONG,"
                     + COLUMN_COLOR + " INTEGER,"
                     + COLUMN_ICON + " TEXT"
                     + ");";
