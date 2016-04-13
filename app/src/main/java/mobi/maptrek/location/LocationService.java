@@ -106,15 +106,12 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onCreate() {
-        super.onCreate();
-
         mLastKnownLocation = new Location("unknown");
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // Tracking preferences
         onSharedPreferenceChanged(sharedPreferences, PREF_TRACKING_MIN_TIME);
         onSharedPreferenceChanged(sharedPreferences, PREF_TRACKING_MIN_DISTANCE);
-
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         Log.i(TAG, "Service started");
@@ -125,8 +122,9 @@ public class LocationService extends BaseLocationService implements LocationList
         if (intent == null || intent.getAction() == null)
             return 0;
 
-        Log.i(TAG, "Command: " + intent.getAction());
-        if (intent.getAction().equals(ENABLE_TRACK) || intent.getAction().equals(ENABLE_BACKGROUND_TRACK) && !mTrackingEnabled) {
+        String action = intent.getAction();
+        Log.i(TAG, "Command: " + action);
+        if (action.equals(ENABLE_TRACK) || action.equals(ENABLE_BACKGROUND_TRACK) && !mTrackingEnabled) {
             mErrorMsg = "";
             mErrorTime = 0;
             mTrackingEnabled = true;
@@ -138,12 +136,12 @@ public class LocationService extends BaseLocationService implements LocationList
             mDistanceNotified = 0f;
             openDatabase();
         }
-        if (intent.getAction().equals(DISABLE_TRACK) || intent.getAction().equals(PAUSE_TRACK) && mTrackingEnabled) {
+        if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
             mForeground = false;
             closeDatabase();
             stopForeground(true);
-            if (intent.getAction().equals(DISABLE_TRACK)) {
+            if (action.equals(DISABLE_TRACK)) {
                 if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
                     editor.putInt(MainActivity.PREF_TRACKING_STATE, MainActivity.TRACKING_STATE.DISABLED.ordinal());
@@ -154,11 +152,11 @@ public class LocationService extends BaseLocationService implements LocationList
             }
             stopSelf();
         }
-        if (intent.getAction().equals(ENABLE_BACKGROUND_TRACK)) {
+        if (action.equals(ENABLE_BACKGROUND_TRACK)) {
             mForeground = true;
             startForeground(NOTIFICATION_ID, getNotification());
         }
-        if (intent.getAction().equals(DISABLE_BACKGROUND_TRACK)) {
+        if (action.equals(DISABLE_BACKGROUND_TRACK)) {
             mForeground = false;
             stopForeground(true);
         }
@@ -169,7 +167,6 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
         disconnect();
         closeDatabase();
@@ -258,7 +255,7 @@ public class LocationService extends BaseLocationService implements LocationList
         String distanceTracked = StringFormatter.distanceH(mDistanceTracked);
 
         StringBuilder sb = new StringBuilder(40);
-        sb.append(String.format(getString(R.string.msg_tracked), distanceTracked, timeTracked));
+        sb.append(getString(R.string.msg_tracked, distanceTracked, timeTracked));
         String message = sb.toString();
         sb.insert(0, ". ");
         sb.insert(0, getString(R.string.msg_tracking));
