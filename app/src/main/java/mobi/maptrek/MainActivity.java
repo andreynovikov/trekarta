@@ -96,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
@@ -113,9 +114,12 @@ import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.location.BaseLocationService;
+import mobi.maptrek.location.BaseNavigationService;
 import mobi.maptrek.location.ILocationListener;
 import mobi.maptrek.location.ILocationService;
+import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
+import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
@@ -142,6 +146,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String PREF_POINT_COUNT = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
     public static final String PREF_TRACKING_STATE = "tracking_state";
+    public static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
     private static final String PREF_GAUGES = "gauges";
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
@@ -175,7 +180,9 @@ public class MainActivity extends Activity implements ILocationListener,
     private ProgressHandler mProgressHandler;
 
     private ILocationService mLocationService = null;
-    private boolean mIsBound = false;
+    private boolean mIsLocationBound = false;
+    private INavigationService mNavigationService = null;
+    private boolean mIsNavigationBound = false;
     private LOCATION_STATE mLocationState;
     private LOCATION_STATE mSavedLocationState;
     private TRACKING_STATE mTrackingState;
@@ -194,6 +201,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private ImageButton mRecordButton;
     private ImageButton mMoreButton;
     private View mCompassView;
+    private View mNavigationArrowView;
     private ProgressBar mProgressBar;
     private CoordinatorLayout mCoordinatorLayout;
 
@@ -274,10 +282,19 @@ public class MainActivity extends Activity implements ILocationListener,
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
+        mGaugePanel.setTag(Boolean.TRUE);
         mGaugePanel.setMapHolder(this);
 
         mSatellitesText = (TextView) findViewById(R.id.satellites);
         mCompassView = findViewById(R.id.compass);
+        mNavigationArrowView = findViewById(R.id.navigationArrow);
+        mNavigationArrowView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showNavigationMenu();
+                return true;
+            }
+        });
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mMapView = (MapView) findViewById(R.id.mapView);
@@ -559,6 +576,9 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mLocationService != null)
             disableLocations();
 
+        if (mNavigationService != null)
+            disableNavigation();
+
         Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null) {
             ((DataLoader) loader).setProgressHandler(null);
@@ -647,6 +667,10 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
                 mMap.updateMap(true);
                 return true;
+
+            case R.id.action_stop_navigation:
+                stopNavigation();
+                return true;
         }
 
         return false;
@@ -710,7 +734,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onGpsStatusChanged() {
         if (mLocationService.getStatus() == LocationService.GPS_SEARCHING) {
             int satellites = mLocationService.getSatellites();
-            mSatellitesText.setText(String.format("%d / %s", satellites >> 7, satellites & 0x7f));
+            mSatellitesText.setText(String.format(Locale.getDefault(), "%d / %s", satellites >> 7, satellites & 0x7f));
             if (mLocationState != LOCATION_STATE.SEARCHING) {
                 mSavedLocationState = mLocationState;
                 mLocationState = LOCATION_STATE.SEARCHING;
@@ -878,7 +902,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void enableLocations() {
-        mIsBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
+        mIsLocationBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
         mLocationState = LOCATION_STATE.SEARCHING;
         if (mSavedLocationState == LOCATION_STATE.DISABLED)
             mSavedLocationState = LOCATION_STATE.NORTH;
@@ -893,9 +917,9 @@ public class MainActivity extends Activity implements ILocationListener,
             mLocationService.unregisterLocationCallback(this);
             mLocationService.setProgressListener(null);
         }
-        if (mIsBound) {
+        if (mIsLocationBound) {
             unbindService(mLocationConnection);
-            mIsBound = false;
+            mIsLocationBound = false;
             mLocationOverlay.setEnabled(false);
             mMap.updateMap(true);
         }
@@ -914,6 +938,82 @@ public class MainActivity extends Activity implements ILocationListener,
             mLocationService = null;
         }
     };
+
+    private void enableNavigation() {
+        mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
+        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
+        /*
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String navWpt = settings.getString(getString(R.string.nav_wpt), "");
+        if (!"".equals(navWpt))
+        {
+            Waypoint waypoint = new Waypoint();
+            waypoint.name = navWpt;
+            waypoint.latitude = (double) settings.getFloat(getString(R.string.nav_wpt_lat), 0);
+            waypoint.longitude = (double) settings.getFloat(getString(R.string.nav_wpt_lon), 0);
+            waypoint.proximity = settings.getInt(getString(R.string.nav_wpt_prx), 0);
+            startNavigation(waypoint);
+        }
+        */
+    }
+
+    private void disableNavigation() {
+        /*
+        if (mNavigationService != null) {
+            if (mNavigationService.isNavigatingViaRoute() && mNavigationService.navRoute.filepath != null)
+            {
+                // save active route point
+                editor.putInt(getString(R.string.nav_route_wpt), navigationService.navCurrentRoutePoint);
+                editor.commit();
+            }
+        }
+        */
+        if (mIsNavigationBound) {
+            unbindService(mNavigationConnection);
+            mIsNavigationBound = false;
+        }
+    }
+
+    private ServiceConnection mNavigationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            mNavigationService = (INavigationService) binder;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            mNavigationService = null;
+        }
+    };
+
+    private void startNavigation(Waypoint waypoint) {
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_MAP_OBJECT);
+        i.putExtra(NavigationService.EXTRA_NAME, waypoint.name);
+        i.putExtra(NavigationService.EXTRA_LATITUDE, waypoint.latitude);
+        i.putExtra(NavigationService.EXTRA_LONGITUDE, waypoint.longitude);
+        i.putExtra(NavigationService.EXTRA_PROXIMITY, waypoint.proximity);
+        startService(i);
+        /*
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putString(getString(R.string.nav_route), "");
+        editor.putString(PREF_NAVIGATION_WAYPOINT, waypoint.name);
+        editor.putInt(getString(R.string.nav_wpt_prx), waypoint.proximity);
+        editor.putFloat(getString(R.string.nav_wpt_lat), (float) waypoint.latitude);
+        editor.putFloat(getString(R.string.nav_wpt_lon), (float) waypoint.longitude);
+        editor.commit();
+        */
+    }
+
+    public void stopNavigation() {
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.STOP_NAVIGATION);
+        startService(i);
+        /*
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putString(getString(R.string.nav_wpt), "");
+        editor.putString(getString(R.string.nav_route), "");
+        editor.commit();
+        */
+    }
 
     private void enableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
@@ -1002,7 +1102,7 @@ public class MainActivity extends Activity implements ILocationListener,
         */
     }
 
-    public void adjustCompass(float bearing) {
+    private void adjustCompass(float bearing) {
         if (mCompassView.getRotation() == bearing)
             return;
         mCompassView.setRotation(bearing);
@@ -1018,6 +1118,36 @@ public class MainActivity extends Activity implements ILocationListener,
             mCompassView.setVisibility(View.VISIBLE);
             mCompassView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
         }
+    }
+
+    private void adjustNavigationUI(boolean enabled) {
+        mGaugePanel.setNavigationMode(enabled);
+        if (enabled && mNavigationArrowView.getVisibility() == View.GONE) {
+            mNavigationArrowView.setAlpha(0f);
+            mNavigationArrowView.setVisibility(View.VISIBLE);
+            mNavigationArrowView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
+        } else if (mNavigationArrowView.getAlpha() == 1f) {
+            mNavigationArrowView.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mNavigationArrowView.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private void adjustNavigationArrow(float bearing) {
+        if (mNavigationArrowView.getRotation() == bearing)
+            return;
+        mNavigationArrowView.setRotation(bearing);
+    }
+
+    private void showNavigationMenu() {
+        PopupMenu popup = new PopupMenu(this, mNavigationArrowView);
+        Menu menu = popup.getMenu();
+        menu.add(0, R.id.action_stop_navigation, Menu.NONE, getString(R.string.action_stop_navigation));
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
     }
 
     private void updateLocationDrawable() {
@@ -1095,7 +1225,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointNavigate(Waypoint waypoint) {
-
+        startNavigation(waypoint);
     }
 
     @Override
@@ -1274,7 +1404,6 @@ public class MainActivity extends Activity implements ILocationListener,
         View mOBB = findViewById(R.id.layersButtonBackground);
         View mMBB = findViewById(R.id.moreButtonBackground);
 
-        //TODO Search for view state animation
         // View that gains active state
         final View thisView;
         final ArrayList<View> otherViews = new ArrayList<>();
@@ -1508,8 +1637,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
                 ob.removeOnGlobalLayoutListener(this);
 
-                mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
-                mGaugePanel.setVisibility(View.VISIBLE);
+                if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
+                    mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
+                    mGaugePanel.setVisibility(View.VISIBLE);
+                    mGaugePanel.setTag(null);
+                }
             }
         });
     }
@@ -1631,6 +1763,23 @@ public class MainActivity extends Activity implements ILocationListener,
                             });
                     snackbar.show();
                 }
+            }
+            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATE)) {
+                int state = intent.getIntExtra("state", 0);
+                if (state == BaseNavigationService.STATE_STOPPED || state == BaseNavigationService.STATE_REACHED) {
+                    adjustNavigationUI(false);
+                } else if (state == BaseNavigationService.STATE_STARTED) {
+                    adjustNavigationUI(true);
+                }
+            }
+            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATUS)) {
+                mGaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
+                mGaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
+                mGaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
+                mGaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
+                mGaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
+                mGaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
+                adjustNavigationArrow(mNavigationService.getBearing());
             }
         }
     };
