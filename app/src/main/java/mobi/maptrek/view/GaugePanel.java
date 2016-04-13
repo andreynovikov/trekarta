@@ -22,6 +22,7 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
     private ArrayList<Gauge> mGauges = new ArrayList<>();
     private HashMap<Integer, Gauge> mGaugeMap = new HashMap<>();
     private MapHolder mMapHolder;
+    private boolean mNavigationMode = false;
 
     public GaugePanel(Context context) {
         super(context);
@@ -61,6 +62,14 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
                 return context.getString(R.string.gauge_distance);
             case Gauge.TYPE_BEARING:
                 return context.getString(R.string.gauge_bearing);
+            case Gauge.TYPE_TURN:
+                return context.getString(R.string.gauge_turn);
+            case Gauge.TYPE_VMG:
+                return context.getString(R.string.gauge_vmg);
+            case Gauge.TYPE_XTK:
+                return context.getString(R.string.gauge_xtk);
+            case Gauge.TYPE_ETE:
+                return context.getString(R.string.gauge_ete);
             default:
                 return "";
         }
@@ -69,13 +78,18 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
     private String getGaugeUnit(int type) {
         switch (type) {
             case Gauge.TYPE_SPEED:
+            case Gauge.TYPE_VMG:
                 return "kmh";
             case Gauge.TYPE_TRACK:
             case Gauge.TYPE_BEARING:
+            case Gauge.TYPE_TURN:
                 return "deg";
             case Gauge.TYPE_ALTITUDE:
             case Gauge.TYPE_DISTANCE:
+            case Gauge.TYPE_XTK:
                 return "m";
+            case Gauge.TYPE_ETE:
+                return "min";
             default:
                 return "";
         }
@@ -83,10 +97,17 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
 
     private void addGauge(int type) {
         Gauge gauge = new Gauge(getContext(), type, getGaugeUnit(type));
-        addView(gauge);
-        gauge.setOnLongClickListener(this);
-        mGauges.add(gauge);
+        if (isNavigationGauge(type)) {
+            addView(gauge);
+            mGauges.add(gauge);
+        } else {
+            int i = 0;
+            while (i < mGauges.size() && ! isNavigationGauge(mGauges.get(i).getType())) i++;
+            addView(gauge, i);
+            mGauges.add(i, gauge);
+        }
         mGaugeMap.put(type, gauge);
+        gauge.setOnLongClickListener(this);
     }
 
     private void removeGauge(int type) {
@@ -134,6 +155,7 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
     }
 
     public void setNavigationMode(boolean mode) {
+        mNavigationMode = mode;
         int visibility = mode ? View.VISIBLE : View.GONE;
         TransitionManager.beginDelayedTransition(this);
         for (Gauge gauge : mGauges) {
@@ -148,13 +170,13 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
 
     private ArrayList<Integer> getAvailableGauges(int type) {
         ArrayList<Integer> gauges = new ArrayList<>();
-        if (isNavigationGauge(type)) {
+        gauges.add(Gauge.TYPE_SPEED);
+        gauges.add(Gauge.TYPE_TRACK);
+        gauges.add(Gauge.TYPE_ALTITUDE);
+        if (mNavigationMode) {
             gauges.add(Gauge.TYPE_DISTANCE);
             gauges.add(Gauge.TYPE_BEARING);
-        } else {
-            gauges.add(Gauge.TYPE_SPEED);
-            gauges.add(Gauge.TYPE_TRACK);
-            gauges.add(Gauge.TYPE_ALTITUDE);
+            gauges.add(Gauge.TYPE_TURN);
         }
         for (int gauge : mGaugeMap.keySet())
             gauges.remove(Integer.valueOf(gauge));

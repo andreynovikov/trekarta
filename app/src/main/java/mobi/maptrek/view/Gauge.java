@@ -13,6 +13,10 @@ public class Gauge extends RelativeLayout {
     public static final int TYPE_ALTITUDE = 0x00004;
     public static final int TYPE_DISTANCE = 0x10000;
     public static final int TYPE_BEARING = 0x20000;
+    public static final int TYPE_TURN = 0x40000;
+    public static final int TYPE_VMG = 0x80000;
+    public static final int TYPE_XTK = 0x100000;
+    public static final int TYPE_ETE = 0x200000;
 
     private int mType;
     private TextView mValue;
