@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mobi.maptrek.ui.SlidingRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:background="@color/panelSolidBackground"
+    android:paddingEnd="@dimen/fragment_padding"
+    android:paddingStart="@dimen/fragment_padding"
+    tools:context=".fragments.WaypointInformation">
+
+    <View
+        android:id="@+id/topLine"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:id="@+id/dottedLine"
+        android:layout_width="30dp"
+        android:layout_height="10dp"
+        android:layout_below="@id/topLine"
+        android:layout_centerHorizontal="true"
+        android:scaleType="center"
+        android:src="@drawable/dots"
+        android:tint="@color/colorPrimaryDark" />
+
+    <TextView
+        android:id="@+id/destination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/extendTable"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/dottedLine"
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <FrameLayout
+        android:id="@+id/namePlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/dottedLine"
+        android:layout_toStartOf="@id/destination">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/nameWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/nameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:hint="@string/name"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:scrollHorizontally="true" />
+
+        </android.support.design.widget.TextInputLayout>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/namePlaceholder"
+        android:layout_toStartOf="@id/destination"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <ViewStub
+        android:id="@id/extendTable"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/source"
+        android:layout_marginTop="16dp"
+        android:layout="@layout/fragment_waypoint_details" />
+
+    <LinearLayout
+        android:id="@+id/actionButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/extendTable"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/image_button_padding"
+        android:paddingTop="@dimen/panel_padding">
+
+        <ImageButton
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_done"
+            android:tint="@color/colorPrimaryDark"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/editButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mode_edit"
+            android:tint="@color/colorPrimaryDark"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/navigateButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_navigate"
+            android:tint="@color/colorPrimaryDark" />
+
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_share"
+            android:tint="@color/colorPrimaryDark" />
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/colorPrimaryDark" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/toolbar_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:elevation="6dp"
+        android:src="@drawable/ic_navigate"
+        android:tint="@color/colorBackground"
+        android:visibility="gone"
+        app:borderWidth="0dp"
+        app:layout_anchor="@id/topLine"
+        app:layout_anchorGravity="top|right|end"
+        app:pressedTranslationZ="12dp" />
+
+</mobi.maptrek.ui.SlidingRelativeLayout>
