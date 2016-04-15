@@ -188,6 +188,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
 
         @Override
+        public MapObject getWaypoint() {
+            return navWaypoint;
+        }
+
+        @Override
         public float getDistance() {
             return (float) navDistance;
         }
@@ -252,8 +257,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
         StringBuilder sb = new StringBuilder(40);
         sb.append(getString(R.string.msg_navigation_progress, distance, bearing));
         String message = sb.toString();
-        sb.insert(0, ". ");
-        sb.insert(0, getString(R.string.msg_navigating));
         sb.append(". ");
         sb.append(getString(R.string.msg_navigation_actions));
         sb.append(".");
@@ -267,6 +270,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         Intent iStop = new Intent(this, NavigationService.class);
         iStop.setAction(STOP_NAVIGATION);
+        iStop.putExtra("self", true);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent iPause = new Intent(this, NavigationService.class);
@@ -596,6 +600,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void updateNavigationStatus() {
+        updateNotification();
         sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS));
         Log.d(TAG, "Status dispatched");
     }

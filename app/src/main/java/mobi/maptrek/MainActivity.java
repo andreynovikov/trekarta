@@ -99,6 +99,7 @@ import java.util.List;
 import java.util.Locale;
 
 import mobi.maptrek.data.DataSource;
+import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDataSource;
@@ -112,6 +113,7 @@ import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
+import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.location.BaseLocationService;
 import mobi.maptrek.location.BaseNavigationService;
@@ -147,6 +149,9 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String PREF_LOCATION_STATE = "location_state";
     public static final String PREF_TRACKING_STATE = "tracking_state";
     public static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
+    public static final String PREF_NAVIGATION_LATITUDE = "navigation_latitude";
+    public static final String PREF_NAVIGATION_LONGITUDE = "navigation_longitude";
+    public static final String PREF_NAVIGATION_PROXIMITY = "navigation_proximity";
     private static final String PREF_GAUGES = "gauges";
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
@@ -215,6 +220,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mLocationSearchingDrawable;
 
     private TileGridLayer mGridLayer;
+    private NavigationLayer mNavigationLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
     private ItemizedLayer<MarkerItem> mMarkerLayer;
     private LocationOverlay mLocationOverlay;
@@ -438,6 +444,28 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         });
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mPointCount = sharedPreferences.getInt(PREF_POINT_COUNT, 0);
+        // Resume state
+        int state = sharedPreferences.getInt(PREF_LOCATION_STATE, 0);
+        if (state >= LOCATION_STATE.NORTH.ordinal())
+            mSavedLocationState = LOCATION_STATE.values()[state];
+        state = sharedPreferences.getInt(PREF_TRACKING_STATE, 0);
+        mTrackingState = TRACKING_STATE.values()[state];
+
+        mGaugePanel.initializeGauges(sharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET));
+        // Resume navigation
+        String navWpt = sharedPreferences.getString(PREF_NAVIGATION_WAYPOINT, null);
+        if (navWpt != null)
+        {
+            Waypoint waypoint = new Waypoint();
+            waypoint.name = navWpt;
+            waypoint.latitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0);
+            waypoint.longitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0);
+            waypoint.proximity = sharedPreferences.getInt(PREF_NAVIGATION_PROXIMITY, 0);
+            startNavigation(waypoint);
+        }
+
         // Initialize data loader
         getLoaderManager();
 
@@ -525,6 +553,7 @@ public class MainActivity extends Activity implements ILocationListener,
             enableTracking();
             startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_TRACK));
         }
+        startService(new Intent(getApplicationContext(), NavigationService.class).setAction(BaseNavigationService.DISABLE_BACKGROUND_NAVIGATION));
 
         updateMapViewArea();
 
@@ -560,6 +589,13 @@ public class MainActivity extends Activity implements ILocationListener,
         editor.putInt(PREF_LOCATION_STATE, mSavedLocationState.ordinal());
         editor.putInt(PREF_TRACKING_STATE, mTrackingState.ordinal());
         editor.putString(PREF_GAUGES, mGaugePanel.getGaugeSettings());
+        if (mNavigationService != null && mNavigationService.isNavigating()) {
+            MapObject waypoint = mNavigationService.getWaypoint();
+            editor.putString(PREF_NAVIGATION_WAYPOINT, waypoint.name);
+            editor.putFloat(PREF_NAVIGATION_LATITUDE, (float) waypoint.latitude);
+            editor.putFloat(PREF_NAVIGATION_LONGITUDE, (float) waypoint.longitude);
+            editor.putInt(PREF_NAVIGATION_PROXIMITY, waypoint.proximity);
+        }
         editor.apply();
     }
 
@@ -576,8 +612,12 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mLocationService != null)
             disableLocations();
 
-        if (mNavigationService != null)
+        if (mNavigationService != null) {
+            if (isFinishing() && mNavigationService.isNavigating()) {
+                startService(new Intent(getApplicationContext(), NavigationService.class).setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+            }
             disableNavigation();
+        }
 
         Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null) {
@@ -727,6 +767,8 @@ public class MainActivity extends Activity implements ILocationListener,
         }
 
         mLocationOverlay.setPosition(lat, lon, bearing, location.getAccuracy());
+        if (mNavigationLayer != null)
+            mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
     }
 
@@ -969,6 +1011,10 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
         */
+        if (mNavigationLayer != null) {
+            mMap.layers().remove(mNavigationLayer);
+            mNavigationLayer = null;
+        }
         if (mIsNavigationBound) {
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
@@ -978,9 +1024,11 @@ public class MainActivity extends Activity implements ILocationListener,
     private ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mNavigationService = (INavigationService) binder;
+            adjustNavigationUI(mNavigationService.isNavigating());
         }
 
         public void onServiceDisconnected(ComponentName className) {
+            adjustNavigationUI(false);
             mNavigationService = null;
         }
     };
@@ -1002,6 +1050,8 @@ public class MainActivity extends Activity implements ILocationListener,
         editor.putFloat(getString(R.string.nav_wpt_lon), (float) waypoint.longitude);
         editor.commit();
         */
+        if (mLocationState == LOCATION_STATE.DISABLED)
+            enableLocations();
     }
 
     public void stopNavigation() {
@@ -1121,12 +1171,12 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void adjustNavigationUI(boolean enabled) {
-        mGaugePanel.setNavigationMode(enabled);
+        enabled = enabled && mNavigationService != null && mNavigationService.isNavigating();
         if (enabled && mNavigationArrowView.getVisibility() == View.GONE) {
             mNavigationArrowView.setAlpha(0f);
             mNavigationArrowView.setVisibility(View.VISIBLE);
             mNavigationArrowView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
-        } else if (mNavigationArrowView.getAlpha() == 1f) {
+        } else if (!enabled && mNavigationArrowView.getAlpha() == 1f) {
             mNavigationArrowView.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -1134,12 +1184,20 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
             });
         }
+        if (enabled && mNavigationLayer == null) {
+            MapObject mapObject = mNavigationService.getWaypoint();
+            GeoPoint destination = new GeoPoint(mapObject.latitude, mapObject.longitude);
+            mNavigationLayer = new NavigationLayer(mMap, destination, 0x66ffff00, 8);
+            Point point = mLocationOverlay.getPosition();
+            mNavigationLayer.setPosition(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
+            mMap.layers().add(mNavigationLayer);
+        }
     }
 
-    private void adjustNavigationArrow(float bearing) {
-        if (mNavigationArrowView.getRotation() == bearing)
+    private void adjustNavigationArrow(float turn) {
+        if (mNavigationArrowView.getRotation() == turn)
             return;
-        mNavigationArrowView.setRotation(bearing);
+        mNavigationArrowView.setRotation(turn);
     }
 
     private void showNavigationMenu() {
@@ -1187,21 +1245,25 @@ public class MainActivity extends Activity implements ILocationListener,
                         }
                     });
                 }
+                adjustNavigationUI(false);
                 break;
             case ENABLED:
                 mMyLocationDrawable.setTint(getColor(R.color.colorPrimaryDark));
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
                 mGaugePanel.animate().translationX(-mGaugePanel.getWidth());
+                adjustNavigationUI(true);
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(getColor(R.color.colorAccent));
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 mGaugePanel.animate().translationX(0);
+                adjustNavigationUI(true);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(getColor(R.color.colorAccent));
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
                 mGaugePanel.animate().translationX(0);
+                adjustNavigationUI(true);
         }
         mLocationButton.setTag(mLocationState);
     }
@@ -1346,15 +1408,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
             mMap.setMapPosition(mapPosition);
         }
-        //TODO Not a good place for that
-        mPointCount = sharedPreferences.getInt(PREF_POINT_COUNT, 0);
-        int state = sharedPreferences.getInt(PREF_LOCATION_STATE, 0);
-        if (state >= LOCATION_STATE.NORTH.ordinal())
-            mSavedLocationState = LOCATION_STATE.values()[state];
-        state = sharedPreferences.getInt(PREF_TRACKING_STATE, 0);
-        mTrackingState = TRACKING_STATE.values()[state];
-
-        mGaugePanel.initializeGauges(sharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET));
     }
 
     private void showExtendPanel(PANEL_STATE panel, String name, String fragmentName, Bundle args) {
@@ -1767,9 +1820,12 @@ public class MainActivity extends Activity implements ILocationListener,
             if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATE)) {
                 int state = intent.getIntExtra("state", 0);
                 if (state == BaseNavigationService.STATE_STOPPED || state == BaseNavigationService.STATE_REACHED) {
+                    mGaugePanel.setNavigationMode(false);
                     adjustNavigationUI(false);
+                    mMap.layers().remove(mNavigationLayer);
+                    mNavigationLayer = null;
                 } else if (state == BaseNavigationService.STATE_STARTED) {
-                    adjustNavigationUI(true);
+                    mGaugePanel.setNavigationMode(true);
                 }
             }
             if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATUS)) {
@@ -1779,7 +1835,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mGaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
                 mGaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
                 mGaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
-                adjustNavigationArrow(mNavigationService.getBearing());
+                adjustNavigationArrow(mNavigationService.getTurn());
             }
         }
     };
