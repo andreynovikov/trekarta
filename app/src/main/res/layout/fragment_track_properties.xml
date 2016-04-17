@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:hint="@string/name"
-            android:inputType="text"
+            android:inputType="textCapSentences"
             android:maxLines="1"
             android:scrollHorizontally="true" />
 

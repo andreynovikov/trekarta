@@ -62,7 +62,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import org.oscim.android.MapScaleBar;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
-import org.oscim.android.canvas.AndroidSvgBitmap;
+import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
@@ -90,7 +90,6 @@ import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 import org.oscim.utils.Osm;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
@@ -110,6 +109,7 @@ import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
+import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
@@ -122,6 +122,7 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
@@ -131,6 +132,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Map.InputListener,
         Map.UpdateListener,
         BackButtonHandler,
+        WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
@@ -228,7 +230,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private PreCachedTileCache mCache;
 
-    //private DataFragment mDataFragment;
+    private DataFragment mDataFragment;
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
@@ -237,6 +239,7 @@ public class MainActivity extends Activity implements ILocationListener,
     //TODO Should we store it here?
     private WaypointDataSource mWaypointDataSource;
     private List<DataSource> mData;
+    private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
     private int mPointCount;
 
@@ -255,7 +258,6 @@ public class MainActivity extends Activity implements ILocationListener,
         // Estimate finger tip height (0.25 inch is obtained from experiments)
         mFingerTipSize = (float) (metrics.ydpi * 0.25);
 
-        /*
         // find the retained fragment on activity restarts
         FragmentManager fm = getFragmentManager();
         mDataFragment = (DataFragment) fm.findFragmentByTag("data");
@@ -265,16 +267,9 @@ public class MainActivity extends Activity implements ILocationListener,
             // add the fragment
             mDataFragment = new DataFragment();
             fm.beginTransaction().add(mDataFragment, "data").commit();
-            // load the data from the web
-            File mapsDir = getExternalFilesDir("maps");
-            if (mapsDir != null) {
-                mMapIndex = new MapIndex(mapsDir.getAbsolutePath());
-                mDataFragment.setMapIndex(mMapIndex);
-            }
         } else {
-            mMapIndex = mDataFragment.getMapIndex();
+            mEditedWaypoint = mDataFragment.getEditedWaypoint();
         }
-        */
 
         mLocationState = LOCATION_STATE.DISABLED;
         mSavedLocationState = LOCATION_STATE.DISABLED;
@@ -356,50 +351,35 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(new LabelLayer(mMap, baseLayer));
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
-        //layers.add(mGridLayer);
 
         //noinspection SpellCheckingInspection
         File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
         mWaypointDataSource = new WaypointDataSource(this, waypointsFile);
-        //MarkerItem marker = new MarkerItem("Home", "", new GeoPoint(55.813557, 37.645524));
 
-        try {
-            Bitmap bitmap = new AndroidSvgBitmap(this, "assets:markers/marker.svg", 70, 70);
-            //drawableToBitmap(getResources(), R.drawable.marker_poi);
-            MarkerSymbol symbol;
-            if (BILLBOARDS)
-                symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-            else
-                symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
+        MarkerSymbol symbol;
+        if (BILLBOARDS)
+            symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
+        else
+            symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
 
-            //marker.setMarker(new MarkerSymbol(new AndroidBitmap(image), MarkerItem.HotspotPlace.BOTTOM_CENTER));
-            //TODO We should not skip initialization on bitmap creation failure
-            mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
-            mMap.layers().add(mMarkerLayer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
+        mMap.layers().add(mMarkerLayer);
 
         // Load waypoints
         mWaypointDataSource.open();
         List<Waypoint> waypoints = mWaypointDataSource.getWaypoints();
         for (Waypoint waypoint : waypoints) {
+            if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
+                mEditedWaypoint = waypoint;
             GeoPoint geoPoint = new GeoPoint(waypoint.latitude, waypoint.longitude);
             MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, geoPoint);
+            if (waypoint.color != 0 && waypoint.color != MarkerFactory.DEFAULT_COLOR) {
+                bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.color));
+                marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
+            }
             mMarkerLayer.addItem(marker);
         }
-
-        /*
-        android.graphics.Bitmap pin = BitmapFactory.decodeResource(resources, R.mipmap.marker_pin_1);
-        android.graphics.Bitmap image = android.graphics.Bitmap.createBitmap(pin.getWidth(), pin.getHeight(), android.graphics.Bitmap.Config.ARGB_8888);
-
-        Paint paint = new Paint();
-        paint.setColorFilter(new PorterDuffColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY));
-
-        Canvas bc = new Canvas(image);
-        bc.drawBitmap(pin, 0f, 0f, paint);
-        */
-
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -456,14 +436,16 @@ public class MainActivity extends Activity implements ILocationListener,
         mGaugePanel.initializeGauges(sharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET));
         // Resume navigation
         String navWpt = sharedPreferences.getString(PREF_NAVIGATION_WAYPOINT, null);
-        if (navWpt != null)
-        {
+        if (navWpt != null) {
             Waypoint waypoint = new Waypoint();
             waypoint.name = navWpt;
             waypoint.latitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0);
             waypoint.longitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0);
             waypoint.proximity = sharedPreferences.getInt(PREF_NAVIGATION_PROXIMITY, 0);
             startNavigation(waypoint);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(PREF_NAVIGATION_WAYPOINT, null);
+            editor.apply();
         }
 
         // Initialize data loader
@@ -632,7 +614,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mWaypointDataSource.close();
 
-        //mDataFragment.setMapIndex(mMapIndex);
         mMap.destroy();
         if (mCache != null)
             mCache.dispose();
@@ -649,6 +630,9 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.e(TAG, "onSaveInstanceState()");
+
+        mDataFragment.setEditedWaypoint(mEditedWaypoint);
+
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putLong("lastLocationMilliseconds", mLastLocationMilliseconds);
         savedInstanceState.putFloat("averagedBearing", mAveragedBearing);
@@ -870,12 +854,22 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mPointCount++;
         String name = getString(R.string.waypoint_name, mPointCount);
-        Waypoint waypoint = new Waypoint(name, geoPoint.getLatitude(), geoPoint.getLongitude());
+        final Waypoint waypoint = new Waypoint(name, geoPoint.getLatitude(), geoPoint.getLongitude());
         waypoint.date = new Date();
         mWaypointDataSource.saveWaypoint(waypoint);
         MarkerItem marker = new MarkerItem(waypoint, name, null, geoPoint);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
+        Snackbar snackbar = Snackbar
+                .make(mCoordinatorLayout, R.string.msg_waypoint_saved, Snackbar.LENGTH_LONG)
+                .setAction(R.string.action_customize, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onWaypointProperties(waypoint);
+                    }
+                });
+        snackbar.show();
+
     }
 
     public void onMoreClicked(View view) {
@@ -1275,6 +1269,23 @@ public class MainActivity extends Activity implements ILocationListener,
         mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (int) location.getAltitude());
     }
 
+    private void onWaypointProperties(Waypoint waypoint) {
+        mEditedWaypoint = waypoint;
+
+        Bundle args = new Bundle(2);
+        args.putString(WaypointProperties.ARG_NAME, mEditedWaypoint.name);
+        args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.color);
+        Fragment fragment = Fragment.instantiate(this, WaypointProperties.class.getName(), args);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
+        ft.replace(R.id.contentPanel, fragment, "waypointProperties");
+        ft.addToBackStack("waypointProperties");
+        ft.commit();
+        updateMapViewArea();
+    }
+
     @Override
     public void onWaypointView(Waypoint waypoint) {
 
@@ -1323,7 +1334,14 @@ public class MainActivity extends Activity implements ILocationListener,
                         if (event == DISMISS_EVENT_ACTION)
                             return;
                         // If dismissed, actually remove waypoint
-                        mWaypointDataSource.deleteWaypoint(waypoint);
+                        if (mWaypointDataSource.isOpen()) {
+                            mWaypointDataSource.deleteWaypoint(waypoint);
+                        } else {
+                            // We need this when screen is rotated but snackbar is still shown
+                            mWaypointDataSource.open();
+                            mWaypointDataSource.deleteWaypoint(waypoint);
+                            mWaypointDataSource.close();
+                        }
                     }
                 })
                 .setAction(R.string.action_undo, new View.OnClickListener() {
@@ -1337,6 +1355,23 @@ public class MainActivity extends Activity implements ILocationListener,
                     }
                 });
         snackbar.show();
+    }
+
+    @Override
+    public void onWaypointPropertiesChanged(String name, int color) {
+        boolean colorChanged = mEditedWaypoint.color != color;
+        mEditedWaypoint.name = name;
+        mEditedWaypoint.color = color;
+        MarkerItem item = mMarkerLayer.getByUid(mEditedWaypoint);
+        item.title = name;
+        if (colorChanged) {
+            AndroidBitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, color));
+            item.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
+        }
+        mMarkerLayer.updateItems();
+        mMap.updateMap(true);
+        mWaypointDataSource.saveWaypoint(mEditedWaypoint);
+        mEditedWaypoint = null;
     }
 
     private void onTrackProperties(String path) {
@@ -1578,9 +1613,9 @@ public class MainActivity extends Activity implements ILocationListener,
         for (WeakReference<OnBackPressedListener> weakRef : mBackListeners) {
             OnBackPressedListener onBackClickListener = weakRef.get();
             if (onBackClickListener != null) {
-                boolean isFragmIntercept = onBackClickListener.onBackClick();
+                boolean isFragIntercept = onBackClickListener.onBackClick();
                 if (!intercepted)
-                    intercepted = isFragmIntercept;
+                    intercepted = isFragIntercept;
             }
         }
         return intercepted;

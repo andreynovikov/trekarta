@@ -40,6 +40,10 @@ public class WaypointDataSource {
         mDbHelper.close();
     }
 
+    public boolean isOpen() {
+        return mDatabase.isOpen();
+    }
+
     public void saveWaypoint(Waypoint waypoint) {
         ContentValues values = new ContentValues();
         if (waypoint._id > 0)

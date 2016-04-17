@@ -42,6 +42,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     private BackButtonHandler mBackButtonHandler;
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
+    private boolean mEditorMode;
 
     public WaypointInformation() {
 
@@ -158,6 +159,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             }
         });
 
+        mEditorMode = false;
+
         return rootView;
     }
 
@@ -231,6 +234,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     private void updateWaypointInformation(double latitude, double longitude) {
         Activity activity = getActivity();
         View view = getView();
+        assert view != null;
 
         double dist = GeoPoint.distance(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
         double bearing = GeoPoint.bearing(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
@@ -242,10 +246,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         TextView sourceView = (TextView) view.findViewById(R.id.source);
         if (sourceView != null)
-            sourceView.setText("My places");
+            sourceView.setText(R.string.waypoint_store_name);
         sourceView = (TextView) view.findViewById(R.id.sourceExtended);
         if (sourceView != null)
-            sourceView.setText("My places");
+            sourceView.setText(R.string.waypoint_store_name);
 
         TextView destinationView = (TextView) view.findViewById(R.id.destination);
         if (destinationView != null)
@@ -274,7 +278,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         TextView altitudeView = (TextView) view.findViewById(R.id.altitude);
         if (altitudeView != null) {
             if (mWaypoint.altitude != Integer.MIN_VALUE) {
-                altitudeView.setText("\u2336 " + StringFormatter.elevationH(mWaypoint.altitude));
+                altitudeView.setText(getString(R.string.waypoint_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
                 altitudeView.setVisibility(View.VISIBLE);
             } else {
                 altitudeView.setVisibility(View.GONE);
@@ -284,7 +288,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         TextView proximityView = (TextView) view.findViewById(R.id.proximity);
         if (proximityView != null) {
             if (mWaypoint.proximity > 0) {
-                proximityView.setText("~ " + StringFormatter.distanceH(mWaypoint.proximity));
+                proximityView.setText(getString(R.string.waypoint_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
                 proximityView.setVisibility(View.VISIBLE);
             } else {
                 proximityView.setVisibility(View.GONE);
@@ -349,6 +353,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
     private void setEditorMode(boolean enabled) {
         ViewGroup rootView = (ViewGroup) getView();
+        assert rootView != null;
 
         int viewsState, editsState;
         if (enabled) {
@@ -369,11 +374,13 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         rootView.findViewById(R.id.editButton).setVisibility(viewsState);
         rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
         rootView.findViewById(R.id.saveButton).setVisibility(editsState);
+
+        mEditorMode = enabled;
     }
 
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
-        if (e == Map.POSITION_EVENT) {
+        if (e == Map.POSITION_EVENT && !mEditorMode) {
             updateWaypointInformation(mapPosition.getLatitude(), mapPosition.getLongitude());
         }
     }
@@ -381,7 +388,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     @Override
     public boolean onBackClick() {
         ViewGroup rootView = (ViewGroup) getView();
-        if (rootView.findViewById(R.id.saveButton).getVisibility() == View.VISIBLE) {
+        assert rootView != null;
+        if (mEditorMode) {
             setEditorMode(false);
             return true;
         } else {
