@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
+import mobi.maptrek.util.StringFormatter;
 
 public class GaugePanel extends LinearLayout implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener {
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
@@ -150,8 +151,17 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
 
     public void setValue(int type, float value) {
         Gauge gauge = mGaugeMap.get(type);
-        if (gauge != null)
-            gauge.setValue(value);
+        if (gauge == null)
+            return;
+        switch (type) {
+            case Gauge.TYPE_DISTANCE:
+                String[] indication = StringFormatter.distanceC(value);
+                gauge.setValue(indication[0]);
+                gauge.setUnit(indication[1]);
+                break;
+            default:
+                gauge.setValue(value);
+        }
     }
 
     public void setNavigationMode(boolean mode) {

@@ -20,6 +20,7 @@ public class Gauge extends RelativeLayout {
 
     private int mType;
     private TextView mValue;
+    private TextView mUnit;
 
     public Gauge(Context context) {
         super(context);
@@ -30,12 +31,16 @@ public class Gauge extends RelativeLayout {
         mType = type;
         inflate(getContext(), R.layout.gauge, this);
         mValue = (TextView) findViewById(R.id.gaugeValue);
-        TextView unitView = (TextView) findViewById(R.id.gaugeUnit);
-        unitView.setText(unit);
+        mUnit = (TextView) findViewById(R.id.gaugeUnit);
+        mUnit.setText(unit);
     }
 
     public int getType() {
         return mType;
+    }
+
+    public void setUnit(String unit) {
+        mUnit.setText(unit);
     }
 
     public void setValue(int value) {
@@ -44,5 +49,9 @@ public class Gauge extends RelativeLayout {
 
     public void setValue(float value) {
         mValue.setText(String.format(StringFormatter.precisionFormat, value));
+    }
+
+    public void setValue(String value) {
+        mValue.setText(value);
     }
 }
