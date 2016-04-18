@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
@@ -45,7 +46,7 @@ import mobi.maptrek.util.StringFormatter;
 
 public class NavigationService extends BaseNavigationService implements OnSharedPreferenceChangeListener {
     private static final String TAG = "Navigation";
-    private static final int NOTIFICATION_ID = 24163;
+    private static final int NOTIFICATION_ID = 25502;
 
     private ILocationService mLocationService = null;
     private Location mLastKnownLocation;
@@ -94,6 +95,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_proximity";
     private static final String PREF_NAVIGATION_TRAVERSE = "navigation_traverse";
+    public static final String PREF_NAVIGATION_BACKGROUND = "navigation_background";
 
     @Override
     public void onCreate() {
@@ -146,23 +148,34 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (action.equals(STOP_NAVIGATION) || action.equals(PAUSE_NAVIGATION)) {
             mForeground = false;
             stopForeground(true);
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             if (action.equals(STOP_NAVIGATION)) {
                 if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
                     editor.putString(MainActivity.PREF_NAVIGATION_WAYPOINT, null);
-                    editor.apply();
                 }
                 stopNavigation();
+            } else {
+                editor.putString(MainActivity.PREF_NAVIGATION_WAYPOINT, navWaypoint.name);
+                editor.putFloat(MainActivity.PREF_NAVIGATION_LATITUDE, (float) navWaypoint.latitude);
+                editor.putFloat(MainActivity.PREF_NAVIGATION_LONGITUDE, (float) navWaypoint.longitude);
+                editor.putInt(MainActivity.PREF_NAVIGATION_PROXIMITY, navWaypoint.proximity);
             }
+            editor.apply();
             stopSelf();
         }
         if (action.equals(ENABLE_BACKGROUND_NAVIGATION)) {
             mForeground = true;
             startForeground(NOTIFICATION_ID, getNotification());
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putBoolean(PREF_NAVIGATION_BACKGROUND, true);
+            editor.apply();
         }
         if (action.equals(DISABLE_BACKGROUND_NAVIGATION)) {
             mForeground = false;
             stopForeground(true);
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putBoolean(PREF_NAVIGATION_BACKGROUND, false);
+            editor.apply();
         }
         updateNotification();
 
@@ -272,13 +285,15 @@ public class NavigationService extends BaseNavigationService implements OnShared
         iStop.setAction(STOP_NAVIGATION);
         iStop.putExtra("self", true);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
+        Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel_black);
 
         Intent iPause = new Intent(this, NavigationService.class);
         iPause.setAction(PAUSE_NAVIGATION);
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
+        Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
-        Notification.Action actionStop = new Notification.Action.Builder(R.drawable.ic_cancel_black, getString(R.string.action_stop), piStop).build();
-        Notification.Action actionPause = new Notification.Action.Builder(R.drawable.ic_pause, getString(R.string.action_pause), piPause).build();
+        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.action_stop), piStop).build();
+        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.action_pause), piPause).build();
 
         Notification.Builder builder = new Notification.Builder(this);
         builder.setSmallIcon(R.mipmap.ic_stat_navigation);
@@ -301,13 +316,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private void updateNotification() {
         if (mForeground) {
-            Log.e(TAG, "updateNotification()");
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, getNotification());
         }
     }
 
     public void stopNavigation() {
+        Log.i(TAG, "Stop navigation");
         updateNavigationState(STATE_STOPPED);
         stopForeground(true);
         clearNavigation();
@@ -336,7 +351,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void navigateTo(final MapObject waypoint) {
-        clearNavigation();
+        if (navWaypoint != null)
+            stopNavigation();
+
         connect();
 
         vmgav = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -349,7 +366,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void navigateTo(final Route route, final int direction) {
-        clearNavigation();
+        if (navWaypoint != null)
+            stopNavigation();
+
         connect();
 
         vmgav = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

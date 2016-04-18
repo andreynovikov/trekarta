@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.drawable.Icon;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.GpsStatus.NmeaListener;
@@ -274,15 +275,17 @@ public class LocationService extends BaseLocationService implements LocationList
         iStop.setAction(DISABLE_TRACK);
         iStop.putExtra("self", true);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
+        Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_stop);
 
         Intent iPause = new Intent(this, LocationService.class);
         iPause.setAction(PAUSE_TRACK);
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
+        Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
-        Notification.Action actionStop = new Notification.Action.Builder(R.drawable.ic_stop, getString(R.string.action_stop), piStop).build();
-        Notification.Action actionPause = new Notification.Action.Builder(R.drawable.ic_pause, getString(R.string.action_pause), piPause).build();
+        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.action_stop), piStop).build();
+        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.action_pause), piPause).build();
+
         Notification.Builder builder = new Notification.Builder(this);
-
         builder.setWhen(mErrorTime);
         builder.setSmallIcon(ntfId);
         builder.setContentIntent(piResult);
