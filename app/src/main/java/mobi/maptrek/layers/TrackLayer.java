@@ -59,10 +59,6 @@ public class TrackLayer extends Layer {
         updatePoints();
 	}
 
-	public TrackLayer(Map map, Track track, int lineColor) {
-		this(map, track, lineColor, 2);
-	}
-
 	protected void updatePoints() {
 		mWorker.submit(10);
 		mUpdatePoints = true;
@@ -236,6 +232,7 @@ public class TrackLayer extends Layer {
 			float[] segment = null;
 
 			for (int j = 2; j < size * 2; j += 2) {
+				//noinspection PointlessArithmeticExpression
 				x = (int) ((mPreprojected[j + 0] - mx) * scale);
 				y = (int) ((mPreprojected[j + 1] - my) * scale);
 
