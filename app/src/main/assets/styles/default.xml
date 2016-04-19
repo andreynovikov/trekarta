@@ -1011,9 +1011,11 @@
     <!--<m k="boundary" v="administrative"> -->
     <m k="admin_level">
       <m k="admin_level" v="4">
+        <line stroke="#ffcccc" width="3" fix="true" fade="7" cap="butt" blur="0.9" />
         <line stroke="#dadada" width="1.3" fix="true" stipple-width="1.0" stipple="4" stipple-stroke="#888888" />
       </m>
       <m k="admin_level" v="2">
+        <line stroke="#ffcccc" width="5" fix="true" fade="3" cap="butt" blur="0.9" />
         <line stroke="#dadada" width="1.6" fix="true" stipple-width="1.0" stipple="6" stipple-stroke="#647b9c" />
       </m>
     </m>
