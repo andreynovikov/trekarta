@@ -29,6 +29,7 @@ import mobi.maptrek.util.StringFormatter;
 public class WaypointInformation extends Fragment implements Map.UpdateListener, OnBackPressedListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
+    public static final String ARG_DETAILS = "details";
 
     //TODO Honor dpi
     final int SWIPE_MIN_DISTANCE = 120;
@@ -42,6 +43,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     private BackButtonHandler mBackButtonHandler;
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
+    private boolean mExpanded;
     private boolean mEditorMode;
 
     public WaypointInformation() {
@@ -92,9 +94,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             }
         });
 
+        mExpanded = false;
+
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
-                    private boolean mExpanded = false;
 
                     @Override
                     public boolean onDown(MotionEvent e) {
@@ -105,47 +108,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                         if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH)
                             return false;
-                        if (!mExpanded && e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
-                                && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-
-                            //ChangeBounds changeBounds = new ChangeBounds();
-                            //changeBounds.setReparent(true);
-                            //changeBounds.excludeTarget(rootView, true);
-                            //changeBounds.excludeTarget(R.id.action_buttons, true);
-                            //changeBounds.addTarget(R.id.source);
-
-                            //TransitionSet set = new TransitionSet();
-                            //set.addTransition(new Fade());
-                            //set.addTransition(changeBounds);
-                            //set.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
-                            //set.excludeTarget(R.id.extend_table, true);
-                            //set.setDuration(3000);
-
-                            //TextView destination = ((TextView) rootView.findViewById(R.id.destination));
-                            //String dst = destination.getText().toString();
-                            //TransitionManager.beginDelayedTransition(rootView, set);
-                            rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
-                            rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
-                            rootView.findViewById(R.id.source).setVisibility(View.GONE);
-                            rootView.findViewById(R.id.destination).setVisibility(View.GONE);
-
-                            navigateButton.setVisibility(View.GONE);
-                            editButton.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
-
+                        if (!mExpanded && e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                            expand();
                             updateWaypointInformation(mLatitude, mLongitude);
-
-                            //destination = new TextView(getContext());
-                            //destination.setText(dst);
-                            //destination.setId(R.id.destination);
-                            //ViewGroup row = (ViewGroup) rootView.findViewById(R.id.destination_row);
-                            //row.addView(destination);
-                            //changeBounds.addTarget(destination);
-
-                            mMapHolder.updateMapViewArea();
-                            mExpanded = true;
-
-                        } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
-                                && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                        } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                             getFragmentManager().popBackStack();
                         }
                         return super.onFling(e1, e2, velocityX, velocityY);
@@ -170,11 +136,15 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         double latitude = getArguments().getDouble(ARG_LATITUDE);
         double longitude = getArguments().getDouble(ARG_LONGITUDE);
+        boolean full = getArguments().getBoolean(ARG_DETAILS);
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
+            full = savedInstanceState.getBoolean(ARG_DETAILS);
         }
+        if (full)
+            expand();
 
         updateWaypointInformation(latitude, longitude);
     }
@@ -222,6 +192,48 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
+        outState.putBoolean(ARG_DETAILS, mExpanded);
+    }
+
+    private void expand() {
+        ViewGroup rootView = (ViewGroup) getView();
+        assert rootView != null;
+
+        //ChangeBounds changeBounds = new ChangeBounds();
+        //changeBounds.setReparent(true);
+        //changeBounds.excludeTarget(rootView, true);
+        //changeBounds.excludeTarget(R.id.action_buttons, true);
+        //changeBounds.addTarget(R.id.source);
+
+        //TransitionSet set = new TransitionSet();
+        //set.addTransition(new Fade());
+        //set.addTransition(changeBounds);
+        //set.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+        //set.excludeTarget(R.id.extend_table, true);
+        //set.setDuration(3000);
+
+        //TextView destination = ((TextView) rootView.findViewById(R.id.destination));
+        //String dst = destination.getText().toString();
+        //TransitionManager.beginDelayedTransition(rootView, set);
+
+        rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
+        rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
+        rootView.findViewById(R.id.source).setVisibility(View.GONE);
+        rootView.findViewById(R.id.destination).setVisibility(View.GONE);
+
+        rootView.findViewById(R.id.navigateButton).setVisibility(View.GONE);
+        rootView.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
+
+        //destination = new TextView(getContext());
+        //destination.setText(dst);
+        //destination.setId(R.id.destination);
+        //ViewGroup row = (ViewGroup) rootView.findViewById(R.id.destination_row);
+        //row.addView(destination);
+        //changeBounds.addTarget(destination);
+
+        mMapHolder.updateMapViewArea();
+
+        mExpanded = true;
     }
 
     public void setWaypoint(Waypoint waypoint) {
@@ -255,8 +267,16 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         if (destinationView != null)
             destinationView.setText(distance);
         destinationView = (TextView) view.findViewById(R.id.destinationExtended);
-        if (destinationView != null)
+        if (destinationView != null) {
             destinationView.setText(distance);
+            destinationView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getFragmentManager().popBackStack();
+                    mListener.onWaypointNavigate(mWaypoint);
+                }
+            });
+        }
 
         final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
         if (coordsView != null) {

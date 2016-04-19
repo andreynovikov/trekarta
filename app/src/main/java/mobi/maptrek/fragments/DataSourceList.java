@@ -53,6 +53,7 @@ public class DataSourceList extends ListFragment {
         mAdapter = new DataSourceListAdapter(getActivity());
         //mAdapter = new SwipeActionAdapter(new DataSourceListAdapter(getActivity()));
         setListAdapter(mAdapter);
+        getListView().setVerticalFadingEdgeEnabled(true);
         //mAdapter.setListView(getListView());
     }
 
@@ -88,6 +89,8 @@ public class DataSourceList extends ListFragment {
     public void initData() {
         mData.clear();
         List<DataSource> data = mActivity.getData();
+        if (data == null)
+            return;
         for (DataSource source : data) {
             if (source.isSingleTrack())
                 mData.add(source);

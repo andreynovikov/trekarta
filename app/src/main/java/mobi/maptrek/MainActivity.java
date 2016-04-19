@@ -101,7 +101,7 @@ import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.data.WaypointDataSource;
+import mobi.maptrek.data.WaypointDbDataSource;
 import mobi.maptrek.fragments.BackButtonHandler;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
@@ -109,6 +109,7 @@ import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
+import mobi.maptrek.fragments.WaypointList;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.layers.CurrentTrackLayer;
@@ -137,7 +138,7 @@ public class MainActivity extends Activity implements ILocationListener,
         OnWaypointActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
-        LoaderManager.LoaderCallbacks<List<DataSource>> {
+        LoaderManager.LoaderCallbacks<List<DataSource>>, FragmentManager.OnBackStackChangedListener {
     private static final String TAG = "MailActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
@@ -237,7 +238,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     //private MapIndex mMapIndex;
     //TODO Should we store it here?
-    private WaypointDataSource mWaypointDataSource;
+    private WaypointDbDataSource mWaypointDbDataSource;
     private List<DataSource> mData;
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
@@ -260,6 +261,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         // find the retained fragment on activity restarts
         FragmentManager fm = getFragmentManager();
+        fm.addOnBackStackChangedListener(this);
         mDataFragment = (DataFragment) fm.findFragmentByTag("data");
 
         // create the fragment and data the first time
@@ -354,7 +356,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         //noinspection SpellCheckingInspection
         File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
-        mWaypointDataSource = new WaypointDataSource(this, waypointsFile);
+        mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol;
@@ -367,8 +369,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mMap.layers().add(mMarkerLayer);
 
         // Load waypoints
-        mWaypointDataSource.open();
-        List<Waypoint> waypoints = mWaypointDataSource.getWaypoints();
+        mWaypointDbDataSource.open();
+        List<Waypoint> waypoints = mWaypointDbDataSource.getWaypoints();
         for (Waypoint waypoint : waypoints) {
             if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
                 mEditedWaypoint = waypoint;
@@ -610,7 +612,7 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
 
-        mWaypointDataSource.close();
+        mWaypointDbDataSource.close();
 
         mMap.destroy();
         if (mCache != null)
@@ -820,7 +822,8 @@ public class MainActivity extends Activity implements ILocationListener,
         Bundle args = new Bundle(2);
         args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(LocationInformation.ARG_LONGITUDE, mMapPosition.getLongitude());
-        showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", LocationInformation.class.getName(), args);
+        Fragment fragment = Fragment.instantiate(this, LocationInformation.class.getName(), args);
+        showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
 
     public void onRecordClicked() {
@@ -837,10 +840,18 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     public void onRecordLongClicked() {
-        showExtendPanel(PANEL_STATE.RECORD, "trackList", DataSourceList.class.getName(), null);
+        Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), null);
+        showExtendPanel(PANEL_STATE.RECORD, "trackList", fragment);
     }
 
     public void onPlacesClicked() {
+        mMap.getMapPosition(mMapPosition);
+        Bundle args = new Bundle(2);
+        args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
+        args.putDouble(WaypointList.ARG_LONGITUDE, mMapPosition.getLongitude());
+        WaypointList fragment = (WaypointList) Fragment.instantiate(this, WaypointList.class.getName(), args);
+        fragment.setDataSource(mWaypointDbDataSource);
+        showExtendPanel(PANEL_STATE.PLACES, "placesList", fragment);
     }
 
     public void onPlacesLongClicked() {
@@ -855,7 +866,7 @@ public class MainActivity extends Activity implements ILocationListener,
         String name = getString(R.string.waypoint_name, mPointCount);
         final Waypoint waypoint = new Waypoint(name, geoPoint.getLatitude(), geoPoint.getLongitude());
         waypoint.date = new Date();
-        mWaypointDataSource.saveWaypoint(waypoint);
+        mWaypointDbDataSource.saveWaypoint(waypoint);
         MarkerItem marker = new MarkerItem(waypoint, name, null, geoPoint);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
@@ -894,24 +905,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public boolean onItemSingleTapUp(int index, MarkerItem item) {
-        MapPosition position = mMap.getMapPosition();
         Waypoint waypoint = (Waypoint) item.getUid();
-        Bundle args = new Bundle(2);
-        args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
-        args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
-
-        FragmentManager fm = getFragmentManager();
-        Fragment fragment = fm.findFragmentByTag("waypointInformation");
-        if (fragment == null) {
-            fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
-            ft.replace(R.id.contentPanel, fragment, "waypointInformation");
-            ft.addToBackStack("waypointInformation");
-            ft.commit();
-            updateMapViewArea();
-        }
-        ((WaypointInformation) fragment).setWaypoint(waypoint);
+        onWaypointDetails(waypoint, false);
         return true;
     }
 
@@ -1055,7 +1050,7 @@ public class MainActivity extends Activity implements ILocationListener,
             Waypoint waypoint = (Waypoint) mActiveMarker.getUid();
             waypoint.latitude = mActiveMarker.getPoint().getLatitude();
             waypoint.longitude = mActiveMarker.getPoint().getLongitude();
-            mWaypointDataSource.saveWaypoint(waypoint);
+            mWaypointDbDataSource.saveWaypoint(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
             MapPosition position = mMap.getMapPosition();
@@ -1259,12 +1254,36 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointView(Waypoint waypoint) {
-
+        //TODO Make Waypoint inherit GeoPoint
+        mMap.animator().animateTo(new GeoPoint(waypoint.latitude, waypoint.longitude));
     }
 
     @Override
-    public void onWaypointDetails(Waypoint waypoint) {
+    public void onWaypointDetails(Waypoint waypoint, boolean full) {
+        MapPosition position = mMap.getMapPosition();
+        Bundle args = new Bundle(2);
+        args.putBoolean(WaypointInformation.ARG_DETAILS, full);
+        args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
+        args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
 
+        FragmentManager fm = getFragmentManager();
+        Fragment fragment = fm.findFragmentByTag("waypointInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
+            ft.replace(R.id.contentPanel, fragment, "waypointInformation");
+            ft.addToBackStack("waypointInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((WaypointInformation) fragment).setWaypoint(waypoint);
+        ViewGroup extendPanel = (ViewGroup) findViewById(R.id.extendPanel);
+        extendPanel.setForeground(getDrawable(R.drawable.dim));
+        extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override
@@ -1285,7 +1304,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointSave(final Waypoint waypoint) {
-        mWaypointDataSource.saveWaypoint(waypoint);
+        mWaypointDbDataSource.saveWaypoint(waypoint);
     }
 
     @Override
@@ -1305,13 +1324,13 @@ public class MainActivity extends Activity implements ILocationListener,
                         if (event == DISMISS_EVENT_ACTION)
                             return;
                         // If dismissed, actually remove waypoint
-                        if (mWaypointDataSource.isOpen()) {
-                            mWaypointDataSource.deleteWaypoint(waypoint);
+                        if (mWaypointDbDataSource.isOpen()) {
+                            mWaypointDbDataSource.deleteWaypoint(waypoint);
                         } else {
                             // We need this when screen is rotated but snackbar is still shown
-                            mWaypointDataSource.open();
-                            mWaypointDataSource.deleteWaypoint(waypoint);
-                            mWaypointDataSource.close();
+                            mWaypointDbDataSource.open();
+                            mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            mWaypointDbDataSource.close();
                         }
                     }
                 })
@@ -1341,7 +1360,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mMarkerLayer.updateItems();
         mMap.updateMap(true);
-        mWaypointDataSource.saveWaypoint(mEditedWaypoint);
+        mWaypointDbDataSource.saveWaypoint(mEditedWaypoint);
         mEditedWaypoint = null;
     }
 
@@ -1416,7 +1435,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     }
 
-    private void showExtendPanel(PANEL_STATE panel, String name, String fragmentName, Bundle args) {
+    private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
         FragmentManager fm = getFragmentManager();
 
         if (mPanelState != PANEL_STATE.NONE) {
@@ -1429,7 +1448,6 @@ public class MainActivity extends Activity implements ILocationListener,
         }
 
         FragmentTransaction ft = fm.beginTransaction();
-        Fragment fragment = Fragment.instantiate(this, fragmentName, args);
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
             @Override
             public Animator onAppear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
@@ -1619,6 +1637,48 @@ public class MainActivity extends Activity implements ILocationListener,
                     secondBack = false;
                 }
             }, 2000);
+        }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        FragmentManager fmm = getFragmentManager();
+        int count = fmm.getBackStackEntryCount();
+        if (count == 0)
+            return;
+        FragmentManager.BackStackEntry bse = fmm.getBackStackEntryAt(count - 1);
+        Fragment f = fmm.findFragmentByTag(bse.getName());
+        if (f == null)
+            return;
+        View v = f.getView();
+        if (v == null)
+            return;
+        final ViewGroup p = (ViewGroup) v.getParent();
+        if (p.getForeground() != null) {
+            p.setForeground(getDrawable(R.drawable.dim));
+            p.getForeground().setAlpha(0);
+            ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
+            anim.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    p.setForeground(null);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    p.setForeground(null);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                }
+            });
+            anim.setDuration(500);
+            anim.start();
         }
     }
 
