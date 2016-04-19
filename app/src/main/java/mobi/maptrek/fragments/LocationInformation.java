@@ -17,6 +17,7 @@ import org.oscim.map.Map;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import mobi.maptrek.MapHolder;
@@ -101,24 +102,18 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         double sunrise = Astro.computeSunriseTime(Astro.Zenith.OFFICIAL, loc, now);
         double sunset = Astro.computeSunsetTime(Astro.Zenith.OFFICIAL, loc, now);
 
-        if (Double.isNaN(sunrise))
-        {
+        if (Double.isNaN(sunrise)) {
             ((TextView) mRootView.findViewById(R.id.sunrise)).setText(R.string.never);
-        }
-        else
-        {
+        } else {
             ((TextView) mRootView.findViewById(R.id.sunrise)).setText(Astro.getLocalTimeAsString(sunrise));
         }
-        if (Double.isNaN(sunset))
-        {
+        if (Double.isNaN(sunset)) {
             ((TextView) mRootView.findViewById(R.id.sunset)).setText(R.string.never);
-        }
-        else
-        {
+        } else {
             ((TextView) mRootView.findViewById(R.id.sunset)).setText(Astro.getLocalTimeAsString(sunset));
         }
         GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
-        ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format("%+.1f\u00B0", mag.getDeclination()));
+        ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
     }
 
     @Override
