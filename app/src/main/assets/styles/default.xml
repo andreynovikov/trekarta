@@ -15,7 +15,6 @@
 
   <style-area id="railway|industrial" fill="#e6e3e5" fade="10" />
 
-
   <!-- fade out at z=7, blend over to 'blend-fill' in z=11 -->
   <!-- src="textures/wood.png" -->
   <!-- <style-area id="wood" fill="#d1dbc7" fade="8" blend="11" blend-fill="#9ac56e" /> -->
@@ -57,7 +56,7 @@
   <style-line id="residential" stroke="#ffffff" width="1.3" />
   <style-line id="residential:bridge" use="residential" cap="square" />
 
-  <!-- when inheriting another style with 'from' then 'witdth' is relative to the parent -->
+  <!-- when inheriting another style with 'use' then 'width' is relative to the parent -->
   <style-line id="pedestrian" use="residential" width="-0.4" />
   <style-line id="pedestrian:bridge" use="pedestrian" cap="square" />
   <style-line id="highway:z11" stroke="#fcba5a" width="1.8" />
@@ -70,11 +69,16 @@
   <style-line id="construction" stroke="#e0e0e0" width="1.2" />
   <style-line id="highway-service" use="residential" width="-0.6" />
 
-  <!-- track|footway|path|cycleway -->
+  <!-- footway|path|cycleway -->
   <style-line id="footway" stroke="#aaffffff" width="1.8" cap="butt" fix="true" stipple="2" stipple-width="0.6" stipple-stroke="#d35c48" />
   <style-line id="highway:cycleway" use="footway" width="0.1" stipple-stroke="#4040ee" />
-  <style-line id="highway:track" use="footway" width="0.1" stipple="3" stipple-stroke="#a39b68" />
   <style-line id="highway:path" use="footway" width="0.1" stipple="2" stipple-stroke="#837b58" />
+  <!-- track -->
+  <style-line id="highway:track:g1" stroke="#99807040" width="0.6" cap="butt" />
+  <style-line id="highway:track:g2" stroke="#00ffffff" width="0.6" cap="butt" stipple="8" stipple-stroke="#bb807040" />
+  <style-line id="highway:track:g3" use="highway:track:g2" stipple="12" />
+  <style-line id="highway:track:g4" use="highway:track:g2" width="-0.1" stipple="15" />
+  <style-line id="highway:track:g5" use="highway:track:g3" stipple="18" stroke="#44ff8888" />
 
   <!-- <style-line id="footway:z16" use="footway" width="-0.95" fixed="false" fade="-1"/> -->
   <style-line id="footway:z17" stroke="#faf8f5" width="0.3" />
@@ -384,6 +388,7 @@
     </m>
     <m v="canal">
       <line use="river" width="-0.3" />
+      <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="10" />
     </m>
     <m v="stream" zoom-min="13">
       <line use="water" width="0.5" fade="13" />
@@ -391,34 +396,48 @@
     <m v="river" select="first">
       <m zoom-min="12">
         <line use="river" width="0.3" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="3" />
       </m>
       <!-- zoom <= 11 -->
-      <m k="rank" v="~|-1" zoom-min="9">
-        <line use="water" width="0.2" fade="9" />
-      </m>
       <m k="rank" v="0|1|2">
         <line use="water" width="0.3" fade="2" />
+        <text k="name" style="bold" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="1" />
       </m>
       <m k="rank" v="3" zoom-min="3">
         <line use="water" width="0.3" fade="3" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="2" />
       </m>
       <m k="rank" v="4" zoom-min="4">
         <line use="water" width="0.3" fade="4" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="5" />
       </m>
       <m k="rank" v="5" zoom-min="5">
         <line use="water" width="0.3" fade="5" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="6" />
       </m>
       <m k="rank" v="6" zoom-min="6">
         <line use="water" width="0.2" fade="6" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="7" />
       </m>
       <m k="rank" v="7" zoom-min="7">
         <line use="water" width="0.2" fade="7" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="8" />
       </m>
       <m k="rank" v="8" zoom-min="8">
         <line use="water" width="0.1" fade="8" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="9" />
       </m>
       <m k="rank" v="9" zoom-min="9">
         <line use="water" width="0.1" fade="9" />
+        <text k="name" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="10" />
+      </m>
+      <m k="motorboat" v="yes|true|1" zoom-min="3">
+        <line use="water" width="0.3" fade="3" />
+        <text k="name" style="bold" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="3" />
+      </m>
+      <m k="rank" v="~|-1" zoom-min="9">
+        <line use="water" width="0.2" fade="9" />
+        <text k="name" style="italic" size="16" fill="#3D59AB" stroke="#CAE1FF" stroke-width="2.0" priority="10" />
       </m>
     </m>
     <m v="riverbank|dock">
@@ -466,7 +485,7 @@
                 <line use="steps" />
               <!-- <outline use="0"/> -->
               </m>
-            <!-- <m v="track|footway|path|cycleway" zoom-min="16">
+            <!-- <m v="footway|path|cycleway" zoom-min="16">
               <line use="footway:z16"/>
               </m> -->
             </m>
@@ -476,9 +495,6 @@
               </m>
               <m v="cycleway">
                 <line use="highway:cycleway" />
-              </m>
-              <m v="track">
-                <line use="highway:track" />
               </m>
               <m v="path">
                 <line use="highway:path" />
@@ -494,6 +510,11 @@
                 <m k="service" v="~|parking_aisle">
                   <line use="highway-service" outline="0" />
                 </m>
+              </m>
+            </m>
+            <m zoom-min="12">
+              <m v="track">
+                <line use="highway:track" outline="0" />
               </m>
             </m>
             <m v="trunk_link|motorway_link">
@@ -739,10 +760,10 @@
                 <line use="steps" />
                 <!-- <outline use="2"/> -->
               </m>
-              <!-- <m v="track|footway|path|cycleway" zoom-min="16" zoom-max="16">
+              <!-- <m v="footway|path|cycleway" zoom-min="16" zoom-max="16">
                 <line use="footway:z16"/>
                 </m> -->
-              <m v="track|footway|path|cycleway" zoom-min="17">
+              <m v="footway|path|cycleway" zoom-min="17">
                 <line use="footway:z17" outline="1" />
               </m>
             </m>
@@ -752,9 +773,6 @@
               </m>
               <m v="cycleway">
                 <line use="highway:cycleway" />
-              </m>
-              <m v="track">
-                <line use="highway:track" />
               </m>
               <m v="path">
                 <line use="highway:path" />
@@ -772,6 +790,25 @@
                 </m>
                 <m k="service" v="parking_aisle" zoom-min="16">
                   <line use="highway-service" width="-0.4" outline="1" />
+                </m>
+              </m>
+            </m>
+            <m zoom-min="12">
+              <m v="track">
+                <m k="tracktype" v="~|grade1">
+                  <line use="highway:track:g1" />
+                </m>
+                <m k="tracktype" v="grade2">
+                  <line use="highway:track:g2" />
+                </m>
+                <m k="tracktype" v="grade3">
+                  <line use="highway:track:g3" />
+                </m>
+                <m k="tracktype" v="grade4">
+                  <line use="highway:track:g4" />
+                </m>
+                <m k="tracktype" v="grade5">
+                  <line use="highway:track:g5" />
                 </m>
               </m>
             </m>
@@ -814,7 +851,7 @@
         </m><!-- end tunnel|bridge=~|no|false -->
 
         <!-- Bridge casings should be above other roads -->
-        <outline-layer id="bridge" stroke="#aa202020" width="0.08" />
+        <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
 
         <!-- muse contain bridge -->
         <m k="bridge">
@@ -957,13 +994,13 @@
         <m zoom-min="14">
           <m k="bridge" v="yes|true">
             <m k="railway" v="tram">
-              <line stroke="#777777" width="0.9" cap="butt" fix="true" />
+              <line stroke="#ddffffff" width="1.0" cap="square" fix="true" outline="bridge" />
             </m>
             <m k="railway" v="subway|light_rail|narrow_gauge">
-              <line stroke="#777777" width="0.9" cap="butt" fix="true" />
+              <line stroke="#ddffffff" width="1.2" cap="square" fix="true" outline="bridge" />
             </m>
-            <m k="railway" v="rail">
-              <line stroke="#777777" width="0.9" cap="butt" fix="true" />
+            <m k="railway" v="rail" zoom-min="15">
+              <line stroke="#ddffffff" width="5.0" cap="square" fix="true" outline="bridge" />
             </m>
           </m>
         </m>
@@ -976,10 +1013,10 @@
           <line stroke="#a0a0a0" width="0.9" cap="butt" fix="true" />
         </m>
         <m k="railway" v="rail|turntable" zoom-max="14">
-          <line stroke="#ddaa9988" width="1.0" cap="butt" fix="true" fade="12" />
+          <line stroke="#999999" width="1.2" cap="butt" fix="true" fade="12" />
         </m>
         <m k="railway" v="rail|turntable" zoom-min="15">
-          <line stroke="#aaa6a4" width="2.0" cap="butt" fix="true" fade="12" stipple="10" stipple-width="0.8" stipple-stroke="#ffffff" />
+          <line stroke="#999999" width="3.0" cap="butt" fix="true" fade="12" stipple="10" stipple-width="0.8" stipple-stroke="#ffffff" />
         </m>
 
         <!-- <m k="railway" v="rail" zoom-max="14" zoom-min="13">
@@ -1033,7 +1070,7 @@
     </m>
 
     <m k="highway" v="track">
-      <m k="areay" v="yes">
+      <m k="area" v="yes">
         <area fill="#aaff0000" />
       </m>
     </m>
