@@ -830,6 +830,9 @@
             <m v="tertiary|secondary_link">
               <line use="tertiary" outline="1" />
               <text use="road" />
+              <m k="surface" value="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
+                <line use="tertiary" stroke="#fdf6ed" cap="square" />
+              </m>
             </m>
             <m v="secondary|primary_link">
               <line use="secondary:z11" outline="primary" />
@@ -1072,6 +1075,68 @@
     <m k="highway" v="track">
       <m k="area" v="yes">
         <area fill="#aaff0000" />
+      </m>
+    </m>
+
+    <!-- Contour lines from AndroMaps -->
+
+    <m k="contour_ext" zoom-max="9">
+      <m k="contour_ext" v="elevation_major">
+        <line stroke="#8E8072" stroke-width="0.3" fix="true" />
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="10" zoom-max="12">
+      <m k="contour_ext" v="elevation_medium">
+        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+      </m>
+      <m k="contour_ext" v="elevation_major">
+        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="13" zoom-max="13">
+      <m k="contour_ext" v="elevation_minor">
+        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+      </m>
+      <m k="contour_ext" v="elevation_medium|elevation_major">
+        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="14" zoom-max="14">
+      <m k="contour_ext" v="elevation_minor">
+        <line stroke="#998E8072" stroke-width="0.15" fix="true" />
+      </m>
+      <m k="contour_ext" v="elevation_medium|elevation_major">
+        <line stroke="#998E8072" stroke-width="0.4" fix="true" />
+        <m k="contour_ext" v="elevation_major">
+          <text k="ele" style="bold" size="10" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="1.0" />
+        </m>
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="15" zoom-max="15">
+      <m k="contour_ext" v="elevation_minor" zoom-max="15">
+        <line stroke="#998E8072" stroke-width="0.12" fix="true" />
+      </m>
+      <m k="contour_ext" v="elevation_medium|elevation_major">
+        <line stroke="#998E8072" stroke-width="0.3" fix="true" />
+        <text k="ele" style="bold" size="10" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="1.0" />
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="16" zoom-max="16">
+      <m k="contour_ext" v="elevation_minor">
+        <line stroke="#998E8072" stroke-width="0.08" fix="true" />
+      </m>
+      <m k="contour_ext" v="elevation_medium|elevation_major">
+        <line stroke="#998E8072" stroke-width="0.2" fix="true"  />
+        <text k="ele" style="bold" size="11" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="2.0" />
+      </m>
+    </m>
+    <m k="contour_ext" zoom-min="17">
+      <m v="elevation_minor">
+        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+      </m>
+      <m v="elevation_medium|elevation_major">
+        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+        <text k="ele" style="bold" size="11" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="2.0" />
       </m>
     </m>
 
