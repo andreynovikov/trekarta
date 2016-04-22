@@ -98,7 +98,7 @@
                 android:background="@color/panelBackground" />
 
             <View
-                android:id="@+id/layersButtonBackground"
+                android:id="@+id/mapsButtonBackground"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
@@ -153,7 +153,7 @@
                 android:tint="@color/colorPrimaryDark" />
 
             <ImageButton
-                android:id="@+id/layersButton"
+                android:id="@+id/mapsButton"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"

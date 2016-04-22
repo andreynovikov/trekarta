@@ -57,6 +57,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -106,10 +107,12 @@ import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDbDataSource;
-import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.DataSourceList;
+import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.LocationInformation;
+import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.OnBackPressedListener;
+import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -142,6 +145,7 @@ public class MainActivity extends Activity implements ILocationListener,
         WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
+        OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<DataSource>>, FragmentManager.OnBackStackChangedListener {
@@ -185,7 +189,7 @@ public class MainActivity extends Activity implements ILocationListener,
         LOCATION,
         RECORD,
         PLACES,
-        LAYERS,
+        MAPS,
         MORE
     }
 
@@ -209,13 +213,16 @@ public class MainActivity extends Activity implements ILocationListener,
     private GaugePanel mGaugePanel;
     private TextView mSatellitesText;
     private ImageButton mLocationButton;
+    private ImageButton mRecordButton;
     //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mPlacesButton;
-    private ImageButton mRecordButton;
+    @SuppressWarnings("FieldCanBeLocal")
+    private ImageButton mMapsButton;
     private ImageButton mMoreButton;
     private View mCompassView;
     private View mNavigationArrowView;
+    private View mExtendPanel;
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
     private CoordinatorLayout mCoordinatorLayout;
@@ -244,6 +251,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private Toast mBackToast;
 
     private MapIndex mMapIndex;
+    //TODO Preserve it in DataFragment for rotation
+    private MapFile mBitmapLayerMap;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<DataSource> mData;
@@ -295,6 +304,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
+        mMapsButton = (ImageButton) findViewById(R.id.mapsButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
@@ -311,6 +321,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 return true;
             }
         });
+        mExtendPanel = findViewById(R.id.extendPanel);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mMapView = (MapView) findViewById(R.id.mapView);
@@ -357,13 +368,6 @@ public class MainActivity extends Activity implements ILocationListener,
             mMap.setMapPosition(55.8194, 37.6676, 1 << 16);
 
         Layers layers = mMap.layers();
-
-        for (MapFile mapFile : mMapIndex.getMaps()) {
-            Log.w(TAG, mapFile.name);
-            mapFile.tileSource.open();
-            BitmapTileLayer bitmapLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-            layers.add(bitmapLayer);
-        }
 
         layers.add(new BuildingLayer(mMap, baseLayer));
         layers.add(new LabelLayer(mMap, baseLayer));
@@ -439,6 +443,12 @@ public class MainActivity extends Activity implements ILocationListener,
             public boolean onLongClick(View v) {
                 onPlacesLongClicked();
                 return true;
+            }
+        });
+        mMapsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMapsClicked();
             }
         });
 
@@ -895,6 +905,16 @@ public class MainActivity extends Activity implements ILocationListener,
                 });
         snackbar.show();
 
+    }
+
+    public void onMapsClicked() {
+        mMap.getMapPosition(mMapPosition);
+        Bundle args = new Bundle(2);
+        args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
+        args.putDouble(WaypointList.ARG_LONGITUDE, mMapPosition.getLongitude());
+        MapList fragment = (MapList) Fragment.instantiate(this, MapList.class.getName(), args);
+        fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMap);
+        showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
     }
 
     public void onMoreClicked(View view) {
@@ -1420,13 +1440,44 @@ public class MainActivity extends Activity implements ILocationListener,
         mEditedTrack = null;
     }
 
+    @Override
+    public void onMapSelected(MapFile mapFile) {
+        Log.w(TAG, mapFile.name);
+        if (mBitmapLayerMap != null) {
+            mMap.layers().remove(mBitmapLayerMap.tileLayer);
+            mBitmapLayerMap.tileSource.close();
+        }
+        mapFile.tileSource.open();
+        mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
+        //TODO Absolute positioning is a hack
+        mMap.layers().add(2, mapFile.tileLayer);
+        mBitmapLayerMap = mapFile;
+        MapPosition position = mMap.getMapPosition();
+        boolean shouldZoom = false;
+        if (position.getZoomLevel() > mapFile.tileSource.getZoomLevelMax()) {
+            position.setScale((1 << mapFile.tileSource.getZoomLevelMax()) - 5);
+            shouldZoom = true;
+        }
+        if (position.getZoomLevel() < mapFile.tileSource.getZoomLevelMin()) {
+            position.setScale((1 << mapFile.tileSource.getZoomLevelMin()) + 5);
+            shouldZoom = true;
+        }
+        if (shouldZoom)
+            mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, position);
+        else
+            //TODO Should respond to update map (see TileLayer)
+            mMap.clearMap();
+        //TODO We assume that it is called only from MapList here
+        getFragmentManager().popBackStack();
+        setPanelState(PANEL_STATE.NONE);
+    }
+
     /**
      * This method is called once by each MapView during its setup process.
      *
      * @param mapView the calling MapView.
      */
     public final void registerMapView(MapView mapView) {
-        mMapView = mapView;
         mMap = mapView.map();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1462,6 +1513,21 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
 
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mExtendPanel.getLayoutParams();
+        switch (panel) {
+            case LOCATION:
+            case RECORD:
+            case PLACES:
+                params.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                break;
+            case MAPS:
+            case MORE:
+                params.removeRule(RelativeLayout.ALIGN_PARENT_START);
+                params.addRule(RelativeLayout.ALIGN_PARENT_END);
+        }
+        mExtendPanel.setLayoutParams(params);
+
         FragmentTransaction ft = fm.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
             @Override
@@ -1493,7 +1559,7 @@ public class MainActivity extends Activity implements ILocationListener,
         View mLBB = findViewById(R.id.locationButtonBackground);
         View mRBB = findViewById(R.id.recordButtonBackground);
         View mPBB = findViewById(R.id.placesButtonBackground);
-        View mOBB = findViewById(R.id.layersButtonBackground);
+        View mOBB = findViewById(R.id.mapsButtonBackground);
         View mMBB = findViewById(R.id.moreButtonBackground);
 
         // View that gains active state
@@ -1518,7 +1584,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 case PLACES:
                     otherViews.add(mPBB);
                     break;
-                case LAYERS:
+                case MAPS:
                     otherViews.add(mOBB);
                     break;
                 case MORE:
@@ -1538,7 +1604,7 @@ public class MainActivity extends Activity implements ILocationListener,
             case PLACES:
                 thisView = mPBB;
                 break;
-            case LAYERS:
+            case MAPS:
                 thisView = mOBB;
                 break;
             case MORE:
