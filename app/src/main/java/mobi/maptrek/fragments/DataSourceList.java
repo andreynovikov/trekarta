@@ -53,7 +53,6 @@ public class DataSourceList extends ListFragment {
         mAdapter = new DataSourceListAdapter(getActivity());
         //mAdapter = new SwipeActionAdapter(new DataSourceListAdapter(getActivity()));
         setListAdapter(mAdapter);
-        getListView().setVerticalFadingEdgeEnabled(true);
         //mAdapter.setListView(getListView());
     }
 

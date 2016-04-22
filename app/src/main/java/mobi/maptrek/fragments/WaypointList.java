@@ -64,7 +64,6 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
 
         mAdapter = new WaypointListAdapter(getActivity(), mDataSource.getCursor(), 0);
         setListAdapter(mAdapter);
-        getListView().setVerticalFadingEdgeEnabled(true);
     }
 
     @Override
