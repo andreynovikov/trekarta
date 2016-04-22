@@ -201,7 +201,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:elevation="@dimen/fragment_elevation"
-        android:clickable="true" />
+        android:clickable="true"
+        android:elevation="@dimen/fragment_elevation" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/actionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fragment_padding"
+        android:clickable="true"
+        android:src="@drawable/ic_done"
+        android:tint="@color/colorBackground"
+        android:visibility="gone"
+        app:layout_anchor="@id/contentPanel"
+        app:layout_anchorGravity="top|end" />
 
 </android.support.design.widget.CoordinatorLayout>

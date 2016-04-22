@@ -27,7 +27,7 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
     private int mColor;
 
     private OnWaypointPropertiesChangedListener mListener;
-    private BackButtonHandler mBackButtonHandler;
+    private FragmentHolder mFragmentHolder;
 
     public WaypointProperties() {
     }
@@ -93,15 +93,15 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnWaypointPropertiesChangedListener");
         }
-        mBackButtonHandler = (BackButtonHandler) context;
-        mBackButtonHandler.addBackClickListener(this);
+        mFragmentHolder = (FragmentHolder) context;
+        mFragmentHolder.addBackClickListener(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mBackButtonHandler.removeBackClickListener(this);
-        mBackButtonHandler = null;
+        mFragmentHolder.removeBackClickListener(this);
+        mFragmentHolder = null;
         mListener = null;
     }
 

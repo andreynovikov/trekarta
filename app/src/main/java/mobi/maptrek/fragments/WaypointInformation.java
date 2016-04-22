@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.text.format.DateFormat;
 import android.transition.Fade;
 import android.transition.TransitionManager;
@@ -12,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -40,7 +43,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     private double mLatitude;
     private double mLongitude;
 
-    private BackButtonHandler mBackButtonHandler;
+    private FloatingActionButton mFloatingButton;
+    private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
     private boolean mExpanded;
@@ -82,6 +86,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mFragmentHolder.disableActionButton();
                 getFragmentManager().popBackStack();
                 mListener.onWaypointShare(mWaypoint);
             }
@@ -89,8 +94,17 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+                v.startAnimation(shake);
+            }
+        });
+        deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mFragmentHolder.disableActionButton();
                 getFragmentManager().popBackStack();
                 mListener.onWaypointRemove(mWaypoint);
+                return true;
             }
         });
 
@@ -112,6 +126,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                             expand();
                             updateWaypointInformation(mLatitude, mLongitude);
                         } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                            mFragmentHolder.disableActionButton();
                             getFragmentManager().popBackStack();
                         }
                         return super.onFling(e1, e2, velocityX, velocityY);
@@ -174,15 +189,15 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
-        mBackButtonHandler = (BackButtonHandler) context;
-        mBackButtonHandler.addBackClickListener(this);
+        mFragmentHolder = (FragmentHolder) context;
+        mFragmentHolder.addBackClickListener(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mBackButtonHandler.removeBackClickListener(this);
-        mBackButtonHandler = null;
+        mFragmentHolder.removeBackClickListener(this);
+        mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
     }
@@ -196,7 +211,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     }
 
     private void expand() {
-        ViewGroup rootView = (ViewGroup) getView();
+        final ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
         //ChangeBounds changeBounds = new ChangeBounds();
@@ -230,6 +245,23 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         //ViewGroup row = (ViewGroup) rootView.findViewById(R.id.destination_row);
         //row.addView(destination);
         //changeBounds.addTarget(destination);
+
+        mFloatingButton = mFragmentHolder.enableActionButton();
+        mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
+        mFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mEditorMode) {
+                    mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                    mListener.onWaypointSave(mWaypoint);
+                    setEditorMode(false);
+                } else {
+                    mFragmentHolder.disableActionButton();
+                    getFragmentManager().popBackStack();
+                    mListener.onWaypointNavigate(mWaypoint);
+                }
+            }
+        });
 
         mMapHolder.updateMapViewArea();
 
@@ -267,16 +299,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         if (destinationView != null)
             destinationView.setText(distance);
         destinationView = (TextView) view.findViewById(R.id.destinationExtended);
-        if (destinationView != null) {
+        if (destinationView != null)
             destinationView.setText(distance);
-            destinationView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getFragmentManager().popBackStack();
-                    mListener.onWaypointNavigate(mWaypoint);
-                }
-            });
-        }
 
         final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
         if (coordsView != null) {
@@ -377,10 +401,12 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         int viewsState, editsState;
         if (enabled) {
+            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
             viewsState = View.GONE;
             editsState = View.VISIBLE;
         } else {
+            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
@@ -393,7 +419,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         rootView.findViewById(R.id.editButton).setVisibility(viewsState);
         rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
-        rootView.findViewById(R.id.saveButton).setVisibility(editsState);
+        //rootView.findViewById(R.id.saveButton).setVisibility(editsState);
 
         mEditorMode = enabled;
     }
@@ -413,6 +439,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             setEditorMode(false);
             return true;
         } else {
+            mFragmentHolder.disableActionButton();
             return false;
         }
     }

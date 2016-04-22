@@ -35,8 +35,11 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.transition.Fade;
 import android.transition.Slide;
+import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
@@ -76,6 +79,7 @@ import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.marker.ItemizedLayer;
 import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.marker.MarkerSymbol;
+import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
@@ -102,7 +106,7 @@ import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDbDataSource;
-import mobi.maptrek.fragments.BackButtonHandler;
+import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
@@ -123,6 +127,8 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.map.MapFile;
+import mobi.maptrek.map.MapIndex;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
@@ -132,7 +138,7 @@ public class MainActivity extends Activity implements ILocationListener,
         MapHolder,
         Map.InputListener,
         Map.UpdateListener,
-        BackButtonHandler,
+        FragmentHolder,
         WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
@@ -211,6 +217,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private View mCompassView;
     private View mNavigationArrowView;
     private ProgressBar mProgressBar;
+    private FloatingActionButton mActionButton;
     private CoordinatorLayout mCoordinatorLayout;
 
     private long mLastLocationMilliseconds = 0;
@@ -236,7 +243,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private boolean secondBack;
     private Toast mBackToast;
 
-    //private MapIndex mMapIndex;
+    private MapIndex mMapIndex;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<DataSource> mData;
@@ -259,6 +266,8 @@ public class MainActivity extends Activity implements ILocationListener,
         // Estimate finger tip height (0.25 inch is obtained from experiments)
         mFingerTipSize = (float) (metrics.ydpi * 0.25);
 
+        File mapsDir = getExternalFilesDir("maps");
+
         // find the retained fragment on activity restarts
         FragmentManager fm = getFragmentManager();
         fm.addOnBackStackChangedListener(this);
@@ -269,7 +278,10 @@ public class MainActivity extends Activity implements ILocationListener,
             // add the fragment
             mDataFragment = new DataFragment();
             fm.beginTransaction().add(mDataFragment, "data").commit();
+
+            mMapIndex = new MapIndex(mapsDir);
         } else {
+            mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
         }
 
@@ -279,6 +291,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mPanelState = PANEL_STATE.NONE;
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        mActionButton = (FloatingActionButton) findViewById(R.id.actionButton);
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
@@ -323,7 +336,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
         VectorTileLayer baseLayer = new OsmTileLayer(mMap);
 
-        File mapsDir = getExternalFilesDir("maps");
         if (mapsDir != null) {
             MultiMapFileTileSource mapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
             CombinedTileSource tileSource = new CombinedTileSource(mapFileSource, urlTileSource);
@@ -342,12 +354,16 @@ public class MainActivity extends Activity implements ILocationListener,
         MapPosition pos = new MapPosition();
         mMap.getMapPosition(pos);
         if (pos.x == 0.5 && pos.y == 0.5)
-            mMap.setMapPosition(55.8194, 37.6676, Math.pow(2, 16));
+            mMap.setMapPosition(55.8194, 37.6676, 1 << 16);
 
         Layers layers = mMap.layers();
 
-        //BitmapTileLayer mBitmapLayer = new BitmapTileLayer(mMap, DefaultSources.OPENSTREETMAP.build());
-        //mMap.setBaseMap(mBitmapLayer);
+        for (MapFile mapFile : mMapIndex.getMaps()) {
+            Log.w(TAG, mapFile.name);
+            mapFile.tileSource.open();
+            BitmapTileLayer bitmapLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
+            layers.add(bitmapLayer);
+        }
 
         layers.add(new BuildingLayer(mMap, baseLayer));
         layers.add(new LabelLayer(mMap, baseLayer));
@@ -620,17 +636,16 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mProgressHandler = null;
 
-        /*
-        if (this.isFinishing()) {
+        if (isFinishing()) {
             mMapIndex.clear();
         }
-        */
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.e(TAG, "onSaveInstanceState()");
 
+        mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
@@ -1580,6 +1595,18 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private ArrayList<WeakReference<OnBackPressedListener>> mBackListeners = new ArrayList<>();
+
+    @Override
+    public FloatingActionButton enableActionButton() {
+        TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
+        mActionButton.setVisibility(View.VISIBLE);
+        return mActionButton;
+    }
+
+    @Override
+    public void disableActionButton() {
+        mActionButton.setVisibility(View.GONE);
+    }
 
     @Override
     public void addBackClickListener(OnBackPressedListener listener) {
