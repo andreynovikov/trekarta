@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@android:integer/config_mediumAnimTime"
+    android:interpolator="@android:anim/accelerate_interpolator"
+    android:propertyName="alpha"
+    android:repeatCount="0"
+    android:valueFrom="1.0"
+    android:valueTo="0.0" />
