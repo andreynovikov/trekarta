@@ -1442,34 +1442,44 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onMapSelected(MapFile mapFile) {
-        Log.w(TAG, mapFile.name);
+        //TODO We assume that it is called only from MapList here
+        // We do it immediately because map preview closes data source, may be there is a better way to handle this
+        getFragmentManager().popBackStackImmediate();
+        setPanelState(PANEL_STATE.NONE);
+
         if (mBitmapLayerMap != null) {
             mMap.layers().remove(mBitmapLayerMap.tileLayer);
             mBitmapLayerMap.tileSource.close();
+            if (mapFile == mBitmapLayerMap) {
+                mBitmapLayerMap = null;
+                return;
+            }
         }
+        Log.e(TAG, mapFile.name);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
         //TODO Absolute positioning is a hack
         mMap.layers().add(2, mapFile.tileLayer);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
-        boolean shouldZoom = false;
+        boolean positionChanged = false;
+        if (! mapFile.boundingBox.contains(position.getGeoPoint())) {
+            position.setPosition(mapFile.boundingBox.getCenterPoint());
+            positionChanged = true;
+        }
         if (position.getZoomLevel() > mapFile.tileSource.getZoomLevelMax()) {
             position.setScale((1 << mapFile.tileSource.getZoomLevelMax()) - 5);
-            shouldZoom = true;
+            positionChanged = true;
         }
         if (position.getZoomLevel() < mapFile.tileSource.getZoomLevelMin()) {
             position.setScale((1 << mapFile.tileSource.getZoomLevelMin()) + 5);
-            shouldZoom = true;
+            positionChanged = true;
         }
-        if (shouldZoom)
-            mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, position);
+        if (positionChanged)
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, position);
         else
-            //TODO Should respond to update map (see TileLayer)
+            //TODO Bitmap layer should respond to update map (see TileLayer)
             mMap.clearMap();
-        //TODO We assume that it is called only from MapList here
-        getFragmentManager().popBackStack();
-        setPanelState(PANEL_STATE.NONE);
     }
 
     /**

@@ -2,9 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/menuListWidth"
-    android:layout_height="?android:attr/listPreferredItemHeightLarge">
+    android:layout_height="@dimen/mapListItemHeight"
+    android:paddingEnd="4dp"
+    android:paddingStart="4dp"
+    android:paddingTop="4dp">
 
-    <ImageView
+    <mobi.maptrek.view.BitmapTileMapPreviewView
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,8 +21,8 @@
         android:background="@color/panelBackground"
         android:padding="2dp"
         android:paddingStart="8dp"
-        tools:ignore="RtlSymmetry"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:ignore="RtlSymmetry" />
 
     <View
         android:id="@+id/indicator"

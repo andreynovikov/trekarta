@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,6 +21,7 @@ import java.util.Comparator;
 
 import mobi.maptrek.R;
 import mobi.maptrek.map.MapFile;
+import mobi.maptrek.view.BitmapTileMapPreviewView;
 
 public class MapList extends ListFragment {
     public static final String ARG_LATITUDE = "lat";
@@ -134,7 +134,7 @@ public class MapList extends ListFragment {
                 itemHolder = new MapListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_map, parent, false);
                 itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.map = (ImageView) convertView.findViewById(R.id.map);
+                itemHolder.map = (BitmapTileMapPreviewView) convertView.findViewById(R.id.map);
                 itemHolder.indicator = convertView.findViewById(R.id.indicator);
                 convertView.setTag(itemHolder);
             } else {
@@ -142,6 +142,12 @@ public class MapList extends ListFragment {
             }
 
             itemHolder.name.setText(mapFile.name);
+            itemHolder.map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
+            if (mapFile.boundingBox.contains(mLocation)) {
+                itemHolder.map.setLocation(mLocation);
+            } else {
+                itemHolder.map.setLocation(mapFile.boundingBox.getCenterPoint());
+            }
 
             if (mapFile == mActiveMap) {
                 itemHolder.indicator.setBackgroundColor(getResources().getColor(R.color.colorAccent, getContext().getTheme()));
@@ -164,7 +170,7 @@ public class MapList extends ListFragment {
 
     private static class MapListItemHolder {
         TextView name;
-        ImageView map;
+        BitmapTileMapPreviewView map;
         View indicator;
     }
 
