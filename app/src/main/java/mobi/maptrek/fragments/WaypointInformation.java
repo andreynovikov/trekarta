@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -410,6 +411,9 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
+            // Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         }
         TransitionManager.beginDelayedTransition(rootView, new Fade());
         rootView.findViewById(R.id.name).setVisibility(viewsState);
