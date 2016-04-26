@@ -107,6 +107,7 @@ import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDbDataSource;
+import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.LocationInformation;
@@ -114,6 +115,8 @@ import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
+import mobi.maptrek.fragments.PanelMenu;
+import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointList;
@@ -217,8 +220,11 @@ public class MainActivity extends Activity implements ILocationListener,
     //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mPlacesButton;
+    //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mMapsButton;
+    //TODO Temporary fix
+    @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mMoreButton;
     private View mCompassView;
     private View mNavigationArrowView;
@@ -236,6 +242,10 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mMyLocationDrawable;
     private VectorDrawable mLocationSearchingDrawable;
 
+    private BuildingLayer mBuildingsLayer;
+    //TODO Temporary fix
+    @SuppressWarnings("FieldCanBeLocal")
+    private LabelLayer mLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
@@ -369,8 +379,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Layers layers = mMap.layers();
 
-        layers.add(new BuildingLayer(mMap, baseLayer));
-        layers.add(new LabelLayer(mMap, baseLayer));
+        mBuildingsLayer = new BuildingLayer(mMap, baseLayer);
+        layers.add(mBuildingsLayer);
+        mLabelsLayer = new LabelLayer(mMap, baseLayer);
+        layers.add(mLabelsLayer);
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
 
@@ -449,6 +461,18 @@ public class MainActivity extends Activity implements ILocationListener,
             @Override
             public void onClick(View v) {
                 onMapsClicked();
+            }
+        });
+        mMapsButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                onMapsLongClicked();
+                return true;
+            }
+        });
+        mMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMoreClicked();
             }
         });
 
@@ -688,30 +712,32 @@ public class MainActivity extends Activity implements ILocationListener,
         switch (item.getItemId()) {
             case R.id.theme_default:
                 mMap.setTheme(VtmThemes.DEFAULT);
-                item.setChecked(true);
                 return true;
 
             case R.id.theme_tubes:
                 mMap.setTheme(VtmThemes.TRONRENDER);
-                item.setChecked(true);
                 return true;
 
             case R.id.theme_osmarender:
                 mMap.setTheme(VtmThemes.OSMARENDER);
-                item.setChecked(true);
                 return true;
 
             case R.id.theme_newtron:
                 mMap.setTheme(VtmThemes.NEWTRON);
-                item.setChecked(true);
                 return true;
 
+            case R.id.action_3dbuildings:
+                if (item.isChecked()) {
+                    mMap.layers().remove(mBuildingsLayer);
+                } else {
+                    mMap.layers().add(mBuildingsLayer);
+                }
+                mMap.updateMap(true);
+                return true;
             case R.id.action_grid:
                 if (item.isChecked()) {
-                    item.setChecked(false);
                     mMap.layers().remove(mGridLayer);
                 } else {
-                    item.setChecked(true);
                     mMap.layers().add(mGridLayer);
                 }
                 mMap.updateMap(true);
@@ -719,6 +745,16 @@ public class MainActivity extends Activity implements ILocationListener,
 
             case R.id.action_stop_navigation:
                 stopNavigation();
+                return true;
+
+            case R.id.action_about:
+                FragmentManager fm = getFragmentManager();
+                Fragment fragment = Fragment.instantiate(this, About.class.getName());
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
+                ft.replace(R.id.contentPanel, fragment, "about");
+                ft.addToBackStack("about");
+                ft.commit();
                 return true;
         }
 
@@ -798,7 +834,7 @@ public class MainActivity extends Activity implements ILocationListener,
         updateNavigationUI();
     }
 
-    public void onLocationClicked() {
+    private void onLocationClicked() {
         switch (mLocationState) {
             case DISABLED:
                 askForPermission();
@@ -842,7 +878,7 @@ public class MainActivity extends Activity implements ILocationListener,
         updateLocationDrawable();
     }
 
-    public void onLocationLongClicked() {
+    private void onLocationLongClicked() {
         mMap.getMapPosition(mMapPosition);
         Bundle args = new Bundle(2);
         args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
@@ -851,7 +887,7 @@ public class MainActivity extends Activity implements ILocationListener,
         showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
 
-    public void onRecordClicked() {
+    private void onRecordClicked() {
         if (mLocationState == LOCATION_STATE.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission();
@@ -864,12 +900,12 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     }
 
-    public void onRecordLongClicked() {
+    private void onRecordLongClicked() {
         Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), null);
         showExtendPanel(PANEL_STATE.RECORD, "trackList", fragment);
     }
 
-    public void onPlacesClicked() {
+    private void onPlacesClicked() {
         mMap.getMapPosition(mMapPosition);
         Bundle args = new Bundle(2);
         args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
@@ -879,7 +915,7 @@ public class MainActivity extends Activity implements ILocationListener,
         showExtendPanel(PANEL_STATE.PLACES, "placesList", fragment);
     }
 
-    public void onPlacesLongClicked() {
+    private void onPlacesLongClicked() {
         GeoPoint geoPoint;
         if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
             Point point = mLocationOverlay.getPosition();
@@ -907,7 +943,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     }
 
-    public void onMapsClicked() {
+    private void onMapsClicked() {
         mMap.getMapPosition(mMapPosition);
         Bundle args = new Bundle(2);
         args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
@@ -917,14 +953,41 @@ public class MainActivity extends Activity implements ILocationListener,
         showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
     }
 
-    public void onMoreClicked(View view) {
-        PopupMenu popup = new PopupMenu(this, mMoreButton);
-        mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
-        popup.inflate(R.menu.menu_map);
-        Menu menu = popup.getMenu();
-        menu.findItem(R.id.action_grid).setChecked(mMap.layers().contains(mGridLayer));
-        popup.setOnMenuItemClickListener(this);
-        popup.show();
+    private void onMapsLongClicked() {
+        PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
+        fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
+            @Override
+            public void onPrepareMenu(List<PanelMenuItem> menu) {
+                for (PanelMenuItem item : menu) {
+                    switch (item.getItemId()) {
+                        case R.id.action_3dbuildings:
+                            Log.e(TAG, "B: " + mMap.layers().contains(mBuildingsLayer));
+                            item.setChecked(mMap.layers().contains(mBuildingsLayer));
+                            break;
+                        case R.id.action_grid:
+                            item.setChecked(mMap.layers().contains(mGridLayer));
+                            break;
+                    }
+                }
+            }
+        });
+        showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
+    }
+
+    private void onMoreClicked() {
+        PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
+        fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
+            @Override
+            public void onPrepareMenu(List<PanelMenuItem> menu) {
+                for (PanelMenuItem item : menu) {
+                    switch (item.getItemId()) {
+                        case R.id.action_grid:
+                            item.setChecked(mMap.layers().contains(mGridLayer));
+                    }
+                }
+            }
+        });
+        showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
     }
 
     public void onCompassClicked(View view) {
@@ -1289,6 +1352,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointView(Waypoint waypoint) {
+        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+            mLocationState = LOCATION_STATE.ENABLED;
+            mLocationOverlay.setPinned(false);
+            updateLocationDrawable();
+        }
         //TODO Make Waypoint inherit GeoPoint
         mMap.animator().animateTo(new GeoPoint(waypoint.latitude, waypoint.longitude));
     }
@@ -1442,11 +1510,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onMapSelected(MapFile mapFile) {
-        //TODO We assume that it is called only from MapList here
-        // We do it immediately because map preview closes data source, may be there is a better way to handle this
-        getFragmentManager().popBackStackImmediate();
-        setPanelState(PANEL_STATE.NONE);
-
         if (mBitmapLayerMap != null) {
             mMap.layers().remove(mBitmapLayerMap.tileLayer);
             mBitmapLayerMap.tileSource.close();
@@ -1463,7 +1526,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
         boolean positionChanged = false;
-        if (! mapFile.boundingBox.contains(position.getGeoPoint())) {
+        if (!mapFile.boundingBox.contains(position.getGeoPoint())) {
             position.setPosition(mapFile.boundingBox.getCenterPoint());
             positionChanged = true;
         }
@@ -1717,6 +1780,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onBackPressed() {
+        Log.e(TAG, "onBackPressed()");
         if (backKeyIntercepted())
             return;
 
@@ -1745,10 +1809,14 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onBackStackChanged() {
+        Log.e(TAG, "onBackStackChanged()");
         FragmentManager fmm = getFragmentManager();
         int count = fmm.getBackStackEntryCount();
-        if (count == 0)
+        if (count == 0) {
+            if (mPanelState != PANEL_STATE.NONE)
+                setPanelState(PANEL_STATE.NONE);
             return;
+        }
         FragmentManager.BackStackEntry bse = fmm.getBackStackEntryAt(count - 1);
         Fragment f = fmm.findFragmentByTag(bse.getName());
         if (f == null)

@@ -87,12 +87,16 @@ public class MapList extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mMaps.clear();
-        mListener = null;
+        //TODO Think how to better handle pop back stack
+        //mListener = null;
     }
 
     @Override
     public void onListItemClick(ListView lv, View v, int position, long id) {
+        // We get map first, otherwise adapter is destroyed
         MapFile map = mAdapter.getItem(position);
+        // We do it immediately because map preview closes data source, may be there is a better way to handle this
+        getFragmentManager().popBackStackImmediate();
         mListener.onMapSelected(map);
     }
 

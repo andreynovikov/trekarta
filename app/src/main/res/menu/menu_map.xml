@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/theme_default"
+        android:title="@string/theme_default" />
+    <item
+        android:id="@+id/theme_tubes"
+        android:title="@string/theme_tubes" />
+    <item
+        android:id="@+id/theme_osmarender"
+        android:title="@string/theme_osmarender" />
+
+    <item
+        android:id="@+id/action_3dbuildings"
+        android:checkable="true"
+        android:title="@string/action_show_3dbuildings" />
+
+    <item
+        android:id="@+id/action_grid"
+        android:checkable="true"
+        android:title="@string/action_show_grid" />
+
+</menu>

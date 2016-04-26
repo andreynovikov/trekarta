@@ -169,7 +169,6 @@
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:onClick="onMoreClicked"
                 android:padding="@dimen/image_button_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_menu"
