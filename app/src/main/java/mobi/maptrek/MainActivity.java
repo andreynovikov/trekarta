@@ -161,6 +161,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String PREF_MAP_SCALE = "map_scale";
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
+    private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
     private static final String PREF_POINT_COUNT = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
     public static final String PREF_TRACKING_STATE = "tracking_state";
@@ -210,6 +211,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapPosition mMapPosition = new MapPosition();
     private int mTrackingOffset = 0;
     private int mMovingOffset = 0;
+    private boolean mBuildingsLayerEnabled = false;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -242,9 +244,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mMyLocationDrawable;
     private VectorDrawable mLocationSearchingDrawable;
 
+    private VectorTileLayer mBaseLayer;
     private BuildingLayer mBuildingsLayer;
-    //TODO Temporary fix
-    @SuppressWarnings("FieldCanBeLocal")
     private LabelLayer mLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
@@ -271,7 +272,6 @@ public class MainActivity extends Activity implements ILocationListener,
     private int mPointCount;
 
     private static final boolean BILLBOARDS = true;
-    //private MarkerSymbol mFocusMarker;
 
     @SuppressLint("ShowToast")
     @Override
@@ -355,17 +355,17 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         //new Thread(new TilePreloader(urlTileSource.getDataSource())).start();
 
-        VectorTileLayer baseLayer = new OsmTileLayer(mMap);
+        mBaseLayer = new OsmTileLayer(mMap);
 
         if (mapsDir != null) {
             MultiMapFileTileSource mapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
             CombinedTileSource tileSource = new CombinedTileSource(mapFileSource, urlTileSource);
-            baseLayer.setTileSource(tileSource);
+            mBaseLayer.setTileSource(tileSource);
         } else {
-            baseLayer.setTileSource(urlTileSource);
+            mBaseLayer.setTileSource(urlTileSource);
         }
 
-        mMap.setBaseMap(baseLayer);
+        mMap.setBaseMap(mBaseLayer);
         mMap.setTheme(VtmThemes.DEFAULT);
 
         mGridLayer = new TileGridLayer(mMap);
@@ -379,9 +379,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Layers layers = mMap.layers();
 
-        mBuildingsLayer = new BuildingLayer(mMap, baseLayer);
-        layers.add(mBuildingsLayer);
-        mLabelsLayer = new LabelLayer(mMap, baseLayer);
+        if (mBuildingsLayerEnabled) {
+            mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
+            layers.add(mBuildingsLayer);
+        }
+        mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
@@ -624,6 +626,7 @@ public class MainActivity extends Activity implements ILocationListener,
         editor.putFloat(PREF_MAP_SCALE, (float) mapPosition.scale);
         editor.putFloat(PREF_MAP_BEARING, mapPosition.bearing);
         editor.putFloat(PREF_MAP_TILT, mapPosition.tilt);
+        editor.putBoolean(PREF_MAP_3D_BUILDINGS, mBuildingsLayerEnabled);
         editor.putInt(PREF_POINT_COUNT, mPointCount);
         editor.putInt(PREF_LOCATION_STATE, mSavedLocationState.ordinal());
         editor.putInt(PREF_TRACKING_STATE, mTrackingState.ordinal());
@@ -727,18 +730,23 @@ public class MainActivity extends Activity implements ILocationListener,
                 return true;
 
             case R.id.action_3dbuildings:
-                if (item.isChecked()) {
-                    mMap.layers().remove(mBuildingsLayer);
-                } else {
+                mBuildingsLayerEnabled = item.isChecked();
+                if (mBuildingsLayerEnabled) {
+                    mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
                     mMap.layers().add(mBuildingsLayer);
+                    // Buildings should be fetched from base layer
+                    mMap.clearMap();
+                } else {
+                    mMap.layers().remove(mBuildingsLayer);
+                    mBuildingsLayer = null;
                 }
                 mMap.updateMap(true);
                 return true;
             case R.id.action_grid:
                 if (item.isChecked()) {
-                    mMap.layers().remove(mGridLayer);
-                } else {
                     mMap.layers().add(mGridLayer);
+                } else {
+                    mMap.layers().remove(mGridLayer);
                 }
                 mMap.updateMap(true);
                 return true;
@@ -961,8 +969,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 for (PanelMenuItem item : menu) {
                     switch (item.getItemId()) {
                         case R.id.action_3dbuildings:
-                            Log.e(TAG, "B: " + mMap.layers().contains(mBuildingsLayer));
-                            item.setChecked(mMap.layers().contains(mBuildingsLayer));
+                            item.setChecked(mBuildingsLayerEnabled);
                             break;
                         case R.id.action_grid:
                             item.setChecked(mMap.layers().contains(mGridLayer));
@@ -1510,19 +1517,26 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onMapSelected(MapFile mapFile) {
+        Layers layers = mMap.layers();
         if (mBitmapLayerMap != null) {
-            mMap.layers().remove(mBitmapLayerMap.tileLayer);
+            layers.remove(mBitmapLayerMap.tileLayer);
             mBitmapLayerMap.tileSource.close();
             if (mapFile == mBitmapLayerMap) {
+                if (mBuildingsLayerEnabled)
+                    layers.add(mBuildingsLayer);
+                layers.add(mLabelsLayer);
                 mBitmapLayerMap = null;
                 return;
             }
         }
         Log.e(TAG, mapFile.name);
+        if (mBuildingsLayerEnabled)
+            layers.remove(mBuildingsLayer);
+        layers.remove(mLabelsLayer);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
         //TODO Absolute positioning is a hack
-        mMap.layers().add(2, mapFile.tileLayer);
+        layers.add(2, mapFile.tileLayer);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
         boolean positionChanged = false;
@@ -1563,6 +1577,7 @@ public class MainActivity extends Activity implements ILocationListener,
             float scale = sharedPreferences.getFloat(PREF_MAP_SCALE, 1);
             float bearing = sharedPreferences.getFloat(PREF_MAP_BEARING, 0);
             float tilt = sharedPreferences.getFloat(PREF_MAP_TILT, 0);
+            mBuildingsLayerEnabled = sharedPreferences.getBoolean(PREF_MAP_3D_BUILDINGS, true);
 
             MapPosition mapPosition = new MapPosition();
             mapPosition.setPosition(latitudeE6 / 1E6, longitudeE6 / 1E6);

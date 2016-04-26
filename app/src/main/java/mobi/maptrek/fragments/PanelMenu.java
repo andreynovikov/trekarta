@@ -177,7 +177,7 @@ public class PanelMenu extends ListFragment {
 
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
-            MenuItemHolder itemHolder;
+            final MenuItemHolder itemHolder;
             final PanelMenuItem item = getItem(position);
 
             if (convertView == null) {
@@ -204,6 +204,7 @@ public class PanelMenu extends ListFragment {
                 itemHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        item.setChecked(itemHolder.check.isChecked());
                         onListItemClick(getListView(), view, position, getItemId(position));
                     }
                 });
@@ -211,6 +212,7 @@ public class PanelMenu extends ListFragment {
                 convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        item.setChecked(! itemHolder.check.isChecked());
                         onListItemClick(getListView(), view, position, getItemId(position));
                     }
                 });

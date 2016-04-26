@@ -35,7 +35,7 @@ public class Osm {
      *
      * @param s encoded location string
      * @return decoded {@link org.oscim.core.MapPosition}
-     */ 
+     */
     public static MapPosition decodeShortLink(String s) {
         int i;
         long x = 0;
