@@ -101,6 +101,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.MapObject;
@@ -211,7 +212,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapPosition mMapPosition = new MapPosition();
     private int mTrackingOffset = 0;
     private int mMovingOffset = 0;
-    private boolean mBuildingsLayerEnabled = false;
+    private boolean mBuildingsLayerEnabled = true;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -1418,7 +1419,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onWaypointRemove(final Waypoint waypoint) {
+    public void onWaypointDelete(final Waypoint waypoint) {
         // Remove marker to indicate action to user
         MarkerItem marker = mMarkerLayer.getByUid(waypoint);
         mMarkerLayer.removeItem(marker);
@@ -1426,7 +1427,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         // Show undo snackbar
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msg_waypoint_removed, Snackbar.LENGTH_LONG)
+                .make(mCoordinatorLayout, R.string.msg_waypoint_deleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -1451,6 +1452,56 @@ public class MainActivity extends Activity implements ILocationListener,
                         GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
                         MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
                         mMarkerLayer.addItem(marker);
+                        mMap.updateMap(true);
+                    }
+                });
+        snackbar.show();
+    }
+
+    @Override
+    public void onWaypointsDelete(final Set<Waypoint> waypoints) {
+        // Remove markers to indicate action to user
+        for (Waypoint waypoint : waypoints) {
+            MarkerItem marker = mMarkerLayer.getByUid(waypoint);
+            mMarkerLayer.removeItem(marker);
+        }
+        mMap.updateMap(true);
+
+        // Show undo snackbar
+        int count = waypoints.size();
+        String msg = getResources().getQuantityString(R.plurals.waypointsDeleted, count, count);
+        Snackbar snackbar = Snackbar
+                .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event == DISMISS_EVENT_ACTION)
+                            return;
+                        // If dismissed, actually remove waypoint
+                        if (mWaypointDbDataSource.isOpen()) {
+                            for (Waypoint waypoint : waypoints) {
+                                mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            }
+                        } else {
+                            // We need this when screen is rotated but snackbar is still shown
+                            mWaypointDbDataSource.open();
+                            for (Waypoint waypoint : waypoints) {
+                                mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            }
+                            mWaypointDbDataSource.close();
+                        }
+                    }
+                })
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // If undo pressed, restore the marker
+                        for (Waypoint waypoint : waypoints) {
+                            GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
+                            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
+                            mMarkerLayer.addItem(marker);
+                        }
                         mMap.updateMap(true);
                     }
                 });

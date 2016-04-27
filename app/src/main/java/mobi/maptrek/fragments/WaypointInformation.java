@@ -104,7 +104,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             public boolean onLongClick(View v) {
                 mFragmentHolder.disableActionButton();
                 getFragmentManager().popBackStack();
-                mListener.onWaypointRemove(mWaypoint);
+                mListener.onWaypointDelete(mWaypoint);
                 return true;
             }
         });

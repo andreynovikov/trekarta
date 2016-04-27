@@ -7,15 +7,23 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
+
+import java.util.HashSet;
 
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
@@ -64,6 +72,10 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
 
         mAdapter = new WaypointListAdapter(getActivity(), mDataSource.getCursor(), 0);
         setListAdapter(mAdapter);
+
+        ListView listView = getListView();
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setMultiChoiceModeListener(mMultiChoiceModeListener);
     }
 
     @Override
@@ -102,6 +114,19 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
         if (mAdapter != null) {
             mAdapter.changeCursor(mDataSource.getCursor());
         }
+    }
+
+    private void deleteSelectedItems() {
+        SparseBooleanArray positions = getListView().getCheckedItemPositions();
+        HashSet<Waypoint> waypoints = new HashSet<>();
+        for (int position = 0; position < mAdapter.getCount(); position++) {
+            if (positions.get(position)) {
+                Cursor cursor = (Cursor) mAdapter.getItem(position);
+                Waypoint waypoint = mDataSource.cursorToWaypoint(cursor);
+                waypoints.add(waypoint);
+            }
+        }
+        mListener.onWaypointsDelete(waypoints);
     }
 
     public class WaypointListAdapter extends CursorAdapter {
@@ -168,4 +193,42 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
         ImageView viewButton;
         ImageView navigateButton;
     }
+
+    private AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+            ListView listView = getListView();
+            int count = listView.getCheckedItemCount();
+            mode.setTitle(getResources().getQuantityString(R.plurals.waypointsSelected, count, count));
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    deleteSelectedItems();
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu_waypoint_list, menu);
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+    };
 }
