@@ -236,7 +236,7 @@
       <m k="landuse" zoom-min="11">
         <!-- how about 'leisure' for this one? -->
         <m v="cemetery">
-          <area use="park" />
+          <area use="park" src="patterns/cemetery.png" />
           <m zoom-min="14">
             <line use="park" />
           </m>
@@ -680,6 +680,9 @@
         </m>
       </m>
       <m zoom-min="17">
+        <m closed="yes">
+          <area fill="#eaf9f8f6" />
+        </m>
         <extrusion side-color="#eaecebe9" top-color="#eaf9f8f6" line-color="#ffd9d8d6" />
       </m>
       <m zoom-min="17">
