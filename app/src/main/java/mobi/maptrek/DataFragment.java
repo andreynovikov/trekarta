@@ -4,7 +4,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.map.MapIndex;
+import mobi.maptrek.maps.MapIndex;
 
 public class DataFragment extends Fragment {
 

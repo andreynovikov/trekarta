@@ -1,4 +1,4 @@
-package mobi.maptrek.map;
+package mobi.maptrek.maps;
 
 import android.util.Log;
 
@@ -23,8 +23,11 @@ import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
 
 public class MapIndex implements Serializable {
+    private static final String TAG = "MapIndex";
+
     private static final long serialVersionUID = 1L;
 
+    private File mRootDir;
     private HashSet<MapFile> mMaps;
     private int mHashCode;
     private transient Comparator<MapFile> mComparator = new MapComparator();
@@ -34,8 +37,9 @@ public class MapIndex implements Serializable {
     }
 
     public MapIndex(File root) {
+        mRootDir = root;
         mMaps = new HashSet<>();
-        List<File> files = FileList.getFileListing(root, new MapFilenameFilter());
+        List<File> files = FileList.getFileListing(mRootDir, new MapFilenameFilter());
         for (File file : files) {
             load(file);
         }
@@ -94,7 +98,13 @@ public class MapIndex implements Serializable {
     }
 
     private void load(File file) {
-        Log.e("MAPS", "load(" + file.getAbsolutePath() + ")");
+        String fileName = file.getName();
+        Log.e(TAG, "load(" + fileName + ")");
+        if (NativeMaps.files.containsKey(fileName)) {
+            Log.w(TAG, "  marked");
+            NativeMaps.files.get(fileName).downloaded = true;
+            return;
+        }
         byte[] buffer = new byte[13];
         try {
             FileInputStream is = new FileInputStream(file);
@@ -133,7 +143,7 @@ public class MapIndex implements Serializable {
         if (mapFile.tileSource == null)
             return;
 
-        Log.e("MAPS", "  added " + mapFile.boundingBox.toString());
+        Log.w(TAG, "  added " + mapFile.boundingBox.toString());
         mMaps.add(mapFile);
     }
 
@@ -155,6 +165,16 @@ public class MapIndex implements Serializable {
         return mapList;
     }
 
+    public MapFile getNativeMap(double x, double y) {
+        for (MapFile mapFile : NativeMaps.set) {
+            if (mapFile.downloaded || mapFile.downloading != 0)
+                continue;
+            if (mapFile.contains(x, y))
+                return mapFile;
+        }
+        return null;
+    }
+
     public Collection<MapFile> getMaps() {
         return mMaps;
     }
@@ -164,6 +184,12 @@ public class MapIndex implements Serializable {
             map.tileSource.close();
         mMaps.clear();
         mMaps = null;
+    }
+
+    public void markDownloaded(String filePath) {
+        String fileName = filePath.replace(mRootDir.getAbsolutePath() + File.separator, "");
+        if (NativeMaps.files.containsKey(fileName))
+            NativeMaps.files.get(fileName).downloaded = true;
     }
 
     private class MapComparator implements Comparator<MapFile>, Serializable {

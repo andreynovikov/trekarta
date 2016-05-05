@@ -9,6 +9,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -23,6 +24,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.VectorDrawable;
@@ -30,13 +32,17 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.format.Formatter;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionManager;
@@ -54,6 +60,7 @@ import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -80,6 +87,7 @@ import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.marker.ItemizedLayer;
 import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.marker.MarkerSymbol;
+import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -89,6 +97,7 @@ import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.CombinedTileSource;
+import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.source.UrlTileSource;
 import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
@@ -134,8 +143,8 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
-import mobi.maptrek.map.MapFile;
-import mobi.maptrek.map.MapIndex;
+import mobi.maptrek.maps.MapFile;
+import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
@@ -152,7 +161,9 @@ public class MainActivity extends Activity implements ILocationListener,
         OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
-        LoaderManager.LoaderCallbacks<List<DataSource>>, FragmentManager.OnBackStackChangedListener {
+        LoaderManager.LoaderCallbacks<List<DataSource>>,
+        FragmentManager.OnBackStackChangedListener,
+        OnDataMissingListener {
     private static final String TAG = "MailActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
@@ -229,6 +240,7 @@ public class MainActivity extends Activity implements ILocationListener,
     //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mMoreButton;
+    private Button mMapDownloadButton;
     private View mCompassView;
     private View mNavigationArrowView;
     private View mExtendPanel;
@@ -264,6 +276,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private MapIndex mMapIndex;
     //TODO Preserve it in DataFragment for rotation
+    private MultiMapFileTileSource mMapFileSource;
+    //TODO Preserve it in DataFragment for rotation
     private MapFile mBitmapLayerMap;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
@@ -271,6 +285,10 @@ public class MainActivity extends Activity implements ILocationListener,
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
     private int mPointCount;
+
+    private HandlerThread mBackgroundThread;
+    private Handler mBackgroundHandler;
+    private Handler mMainHandler;
 
     private static final boolean BILLBOARDS = true;
 
@@ -280,6 +298,12 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate()");
         setContentView(R.layout.activity_main);
+
+        mMainHandler = new Handler(Looper.getMainLooper());
+        mBackgroundThread = new HandlerThread("BackgroundThread");
+        mBackgroundThread.setPriority(Thread.MIN_PRIORITY);
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -317,6 +341,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
         mMapsButton = (ImageButton) findViewById(R.id.mapsButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
+        mMapDownloadButton = (Button) findViewById(R.id.mapDownloadButton);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
         mGaugePanel.setTag(Boolean.TRUE);
@@ -359,8 +384,9 @@ public class MainActivity extends Activity implements ILocationListener,
         mBaseLayer = new OsmTileLayer(mMap);
 
         if (mapsDir != null) {
-            MultiMapFileTileSource mapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
-            CombinedTileSource tileSource = new CombinedTileSource(mapFileSource, urlTileSource);
+            mMapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
+            CombinedTileSource tileSource = new CombinedTileSource(mMapFileSource, urlTileSource);
+            tileSource.setOnDataMissingListener(this);
             mBaseLayer.setTileSource(tileSource);
         } else {
             mBaseLayer.setTileSource(urlTileSource);
@@ -386,6 +412,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
+        //layers.add(new MapCoverageLayer(mMap));
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
 
@@ -476,6 +503,12 @@ public class MainActivity extends Activity implements ILocationListener,
             @Override
             public void onClick(View v) {
                 onMoreClicked();
+            }
+        });
+        mMapDownloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMapDownloadClicked();
             }
         });
 
@@ -577,6 +610,8 @@ public class MainActivity extends Activity implements ILocationListener,
         // Start loading user data
         DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
+
+        registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     @Override
@@ -674,6 +709,14 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mProgressHandler = null;
 
+        Log.w(TAG, "  stopping threads...");
+        mBackgroundThread.interrupt();
+        mBackgroundHandler.removeCallbacksAndMessages(null);
+        mBackgroundThread.quit();
+        mBackgroundThread = null;
+
+        mMainHandler = null;
+
         if (isFinishing()) {
             mMapIndex.clear();
         }
@@ -752,7 +795,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.updateMap(true);
                 return true;
 
-            case R.id.action_stop_navigation:
+            case R.id.actionStopNavigation:
                 stopNavigation();
                 return true;
 
@@ -998,6 +1041,20 @@ public class MainActivity extends Activity implements ILocationListener,
         showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
     }
 
+    private void onMapDownloadClicked() {
+        MapFile mapFile = (MapFile) mMapDownloadButton.getTag();
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse(mapFile.downloadPath);
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setTitle(getString(R.string.mapTitle, mapFile.name));
+        request.setDescription(getString(R.string.app_name));
+        request.setDestinationInExternalFilesDir(this, "maps", mapFile.fileName);
+        request.setVisibleInDownloadsUi(false);
+        mapFile.downloading = downloadManager.enqueue(request);
+        mMapDownloadButton.setVisibility(View.GONE);
+        mMapDownloadButton.setTag(null);
+    }
+
     public void onCompassClicked(View view) {
         if (mLocationState == LOCATION_STATE.TRACK) {
             mLocationState = LOCATION_STATE.NORTH;
@@ -1185,25 +1242,22 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
         adjustCompass(mapPosition.bearing);
-        /*
-        List<MapFile> maps = mMapIndex.getMaps(mapPosition.getGeoPoint());
-        if (maps.isEmpty()) {
-            if (mOverlayMapLayer != null) {
-                mMap.setBaseMap(mBaseLayer);
-                mMap.updateMap(true);
-                mOverlayMapLayer.onDetach();
-                mOverlayMapLayer = null;
-            }
-        } else {
-            if (mOverlayMapLayer == null) {
-                MapFile mapFile = maps.get(0);
-                mOverlayMapLayer = new VectorTileLayer(mMap, mapFile.tileSource);
-                ((VectorTileLayer) mOverlayMapLayer).setRenderTheme(mBaseLayer.getTheme());
-                mMap.setBaseMap(mOverlayMapLayer);
-                mMap.updateMap(true);
+        if (mMapDownloadButton.getVisibility() != View.GONE) {
+            if (mapPosition.zoomLevel < 8) {
+                mMapDownloadButton.setVisibility(View.GONE);
+                mMapDownloadButton.setTag(null);
+            } else if (e == Map.MOVE_EVENT) {
+                final Message m = Message.obtain(mMainHandler, new Runnable() {
+                    @Override
+                    public void run() {
+                        mMapDownloadButton.setVisibility(View.GONE);
+                        mMapDownloadButton.setTag(null);
+                    }
+                });
+                m.what = R.id.msgRemoveMapDownloadButton;
+                mMainHandler.sendMessageDelayed(m, 3000);
             }
         }
-        */
     }
 
     private void adjustCompass(float bearing) {
@@ -1233,7 +1287,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void showNavigationMenu() {
         PopupMenu popup = new PopupMenu(this, mNavigationArrowView);
         Menu menu = popup.getMenu();
-        menu.add(0, R.id.action_stop_navigation, Menu.NONE, getString(R.string.action_stop_navigation));
+        menu.add(0, R.id.actionStopNavigation, Menu.NONE, getString(R.string.action_stop_navigation));
         popup.setOnMenuItemClickListener(this);
         popup.show();
     }
@@ -1919,6 +1973,45 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     }
 
+    // Called by tile manager, so it's on separate thread - do not block and do not update UI
+    @Override
+    public void onDataMissing(final MapTile tile) {
+        // Consider only center tile
+        if (tile.distance > 0d)
+            return;
+
+        mBackgroundHandler.removeMessages(R.id.msgFindMissingMap);
+
+        // It appears to be fast enough but I will live it in separate background thread
+        final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
+            @Override
+            public void run() {
+                double halfTileSize = 1d / (1 << (tile.zoomLevel + 1));
+                final MapFile mapFile = mMapIndex.getNativeMap(tile.x + halfTileSize, tile.y + halfTileSize);
+                if (mapFile == null)
+                    return;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMapDownloadButton.getVisibility() == View.GONE) {
+                            String size = Formatter.formatShortFileSize(MainActivity.this, mapFile.downloadSize);
+                            mMapDownloadButton.setTag(mapFile);
+                            mMapDownloadButton.setText(getString(R.string.mapDownloadText, mapFile.name, size));
+                            mMapDownloadButton.setVisibility(View.VISIBLE);
+                        } else if (!mapFile.downloadPath.equals(((MapFile) mMapDownloadButton.getTag()).downloadPath)) {
+                            String size = Formatter.formatShortFileSize(MainActivity.this, mapFile.downloadSize);
+                            mMapDownloadButton.setTag(mapFile);
+                            mMapDownloadButton.setText(getString(R.string.mapDownloadText, mapFile.name, size));
+                        }
+                        mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
+                    }
+                });
+            }
+        });
+        m.what = R.id.msgFindMissingMap;
+        mBackgroundHandler.sendMessage(m);
+    }
+
     @Override
     public void updateMapViewArea() {
         Log.e(TAG, "updateMapViewArea()");
@@ -2089,6 +2182,25 @@ public class MainActivity extends Activity implements ILocationListener,
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Broadcast: " + action);
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                long ref = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(ref);
+                Cursor cursor = downloadManager.query(query);
+                if (cursor.moveToFirst()) {
+                    int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
+                    Log.e(TAG, "Downloaded: " + fileName);
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        mMapIndex.markDownloaded(fileName);
+                        if (mMapFileSource != null) {
+                            mMapFileSource.openFile(new File(fileName));
+                            mMap.clearMap();
+                        }
+                    }
+                }
+            }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
                 final Bundle extras = intent.getExtras();
                 boolean saved = extras.getBoolean("saved");

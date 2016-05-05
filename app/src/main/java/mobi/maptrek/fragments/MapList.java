@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import mobi.maptrek.R;
-import mobi.maptrek.map.MapFile;
+import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.view.BitmapTileMapPreviewView;
 
 public class MapList extends ListFragment {
