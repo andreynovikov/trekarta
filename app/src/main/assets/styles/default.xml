@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme xmlns="http://opensciencemap.org/rendertheme" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://opensciencemap.org/rendertheme ../../rendertheme.xsd" version="1" map-background="#fffcfa" base-text-scale="1.25">
+  xsi:schemaLocation="http://opensciencemap.org/rendertheme ../rendertheme.xsd" version="1" map-background="#fffcfa" base-text-scale="1.25">
 
   <!-- base style for fixed width lines -->
   <style-line id="fix" width="1.0" cap="butt" fix="true" />
@@ -70,9 +70,9 @@
   <style-line id="highway-service" use="residential" width="-0.6" />
 
   <!-- footway|path|cycleway -->
-  <style-line id="footway" stroke="#aaffffff" width="1.8" cap="butt" fix="true" stipple="2" stipple-width="0.6" stipple-stroke="#d35c48" />
+  <style-line id="footway" stroke="#00ffffff" width="1.8" cap="butt" fix="true" stipple="4" stipple-width="1.8" stipple-stroke="#d37c58" />
   <style-line id="highway:cycleway" use="footway" width="0.1" stipple-stroke="#4040ee" />
-  <style-line id="highway:path" use="footway" width="0.1" stipple="2" stipple-stroke="#837b58" />
+  <style-line id="highway:path" use="footway" width="0.1" stipple="4" stipple-stroke="#837b58" />
   <!-- track -->
   <style-line id="highway:track:g1" stroke="#99807040" width="0.6" cap="butt" />
   <style-line id="highway:track:g2" stroke="#00ffffff" width="0.6" cap="butt" stipple="8" stipple-stroke="#bb807040" />
@@ -81,11 +81,11 @@
   <style-line id="highway:track:g5" use="highway:track:g3" stipple="18" stroke="#44ff8888" />
 
   <!-- <style-line id="footway:z16" use="footway" width="-0.95" fixed="false" fade="-1"/> -->
-  <style-line id="footway:z17" stroke="#faf8f5" width="0.3" />
+  <style-line id="footway:z17" stroke="#faf8f5" width="0.2" />
 
   <!-- de: ein Weg der für Reiter vorgeshen ist.. -->
   <style-line id="bridleway" use="footway" stroke="#d3cb98" width="0.1" cap="butt" stipple-stroke="#837b58" />
-  <style-line id="steps" stroke="#aaffffff" width="4.2" cap="butt" fix="true" stipple="2" stipple-width="1.0" stipple-stroke="#be6253" />
+  <style-line id="steps" stroke="#aaffffff" width="4.2" cap="butt" fix="true" stipple="3" stipple-width="1.0" stipple-stroke="#be6253" />
   <style-line id="water:outline" stroke="#a4bbcc" width="1.0" fix="true" cap="butt" />
 
   <style-line id="water" stroke="#a4bbcc" width="1.0" cap="butt" fix="true" />
@@ -96,7 +96,7 @@
   <style-area id="water" fill="#99badf" use="tex1" fade="-1" />
 
   <!-- no-go area boundary -->
-  <style-line id="fence" stroke="#444444" width="1.2" fix="true" cap="butt" />
+  <style-line id="fence" stroke="#888888" width="1.4" fix="true" cap="butt" />
   <style-line id="aeroway:runway" stroke="#c8ccbe" width="1.8" cap="butt" />
 
   <!-- <style-line id="building" stroke="#c9c3c1" width="1.0" fix="true" cap="butt" fade="15"/> -->
@@ -106,7 +106,67 @@
   <style-line id="building" use="fix" stroke="#eeb7b6b3" fade="15" />
   <style-area id="building" fill="#f2f0eb" fade="15" stroke="#b7b6b3" stroke-width="1.0" />
 
-
+  <atlas img="styles/osmarender.png">
+    <rect id="airport" pos="226 38 24 24" />
+    <rect id="alpine_hut" pos="198 41 26 21" />
+    <rect id="atm" pos="279 2 14 16" />
+    <rect id="bakery" pos="305 46 22 16" />
+    <rect id="bank" pos="395 43 19 19" />
+    <rect id="bench" pos="213 29 8 10" />
+    <rect id="bicycle_rental" pos="295 2 13 16" />
+    <rect id="bus" pos="130 32 23 9" />
+    <rect id="bus_sta" pos="36 30 31 32" />
+    <rect id="cable_car" pos="2 2 29 26" />
+    <rect id="cafe" pos="216 2 14 14" />
+    <rect id="campSite" pos="329 42 20 20" />
+    <rect id="cave_entrance" pos="297 23 16 10" />
+    <rect id="chair_lift" pos="130 2 13 28" />
+    <rect id="church" pos="61 9 9 19" />
+    <rect id="cinema" pos="145 8 16 22" />
+    <rect id="drinking_water" pos="416 43 19 19" />
+    <rect id="fastfood" pos="351 42 20 20" />
+    <rect id="firebrigade" pos="130 43 36 19" />
+    <rect id="florist" pos="342 24 12 16" />
+    <rect id="fountain" pos="500 46 10 16" />
+    <rect id="gondola" pos="252 38 21 24" />
+    <rect id="helipad" pos="69 31 31 31" />
+    <rect id="hospital" pos="437 43 19 19" />
+    <rect id="hostel" pos="168 44 28 18" />
+    <rect id="hotel" pos="93 11 18 17" />
+    <rect id="information" pos="458 43 19 19" />
+    <rect id="kindergarten" pos="184 2 14 19" />
+    <rect id="library" pos="372 22 9 18" />
+    <rect id="mosque" pos="248 2 17 15" />
+    <rect id="oneway" pos="275 38 25 7" />
+    <rect id="parking" pos="373 42 20 20" />
+    <rect id="peak" pos="267 9 9 8" />
+    <rect id="petrolStation" pos="263 19 14 17" />
+    <rect id="pharmacy" pos="479 43 19 19" />
+    <rect id="playground" pos="223 18 18 18" />
+    <rect id="postbox" pos="232 2 14 14" />
+    <rect id="postoffice" pos="172 23 19 19" />
+    <rect id="pub" pos="326 26 14 14" />
+    <rect id="railway-crossing" pos="275 47 28 15" />
+    <rect id="railway-crossing-small" pos="155 32 15 9" />
+    <rect id="recycling" pos="72 11 19 18" />
+    <rect id="restaurant" pos="356 28 14 12" />
+    <rect id="school" pos="200 2 14 19" />
+    <rect id="shelter" pos="33 4 26 24" />
+    <rect id="soccer-borderless" pos="102 30 26 32" />
+    <rect id="supermarket" pos="193 23 18 16" />
+    <rect id="synagogue" pos="113 11 15 17" />
+    <rect id="telephone" pos="383 21 7 19" />
+    <rect id="tennis" pos="2 30 32 32" />
+    <rect id="theatre" pos="243 19 18 17" />
+    <rect id="toilets" pos="163 2 19 19" />
+    <rect id="traffic_signal" pos="392 21 7 19" />
+    <rect id="tree" pos="145 2 4 4" />
+    <rect id="university" pos="302 35 19 9" />
+    <rect id="viewpoint" pos="279 20 16 16" />
+    <rect id="vulcan" pos="315 25 9 8" />
+    <rect id="windmill" pos="310 2 13 19" />
+  </atlas>
+<!--
   <atlas img="styles/osm.png">
     <rect id="airport" pos="1 40 16 16" />
     <rect id="atm" pos="19 40 16 16" />
@@ -151,7 +211,7 @@
     <rect id="volcano" pos="55 1 9 8" />
     <rect id="windmill" pos="55 23 10 15" />
   </atlas>
-
+-->
   <!-- all closed ways that are not 'highway' or 'building' -->
 
   <m e="way" k="highway|building" v="~" closed="yes">
@@ -324,8 +384,11 @@
         <m v="beach">
           <area fill="#f7f5c8" />
         </m>
-        <m v="marsh|wetland|mud">
+        <m v="mud">
           <area use="greens2" />
+        </m>
+        <m v="marsh|wetland">
+          <area src="patterns/marsh.png" />
         </m>
       </m>
 
@@ -361,13 +424,14 @@
 
       <!-- area outlines need to be above to avoid uggly pixelation where
         not aliased polygon overlaps the lines... -->
-      <m k="leisure|landuse" zoom-min="14">
+      <m k="leisure|landuse" zoom-min="11">
 
         <m v="nature_reserve">
           <line stroke="#abe29c" width="1.0" fix="true" cap="butt" />
         </m>
         <m v="military">
           <line use="fence" />
+          <area src="patterns/military.png" stroke-width="0.2" fade="11" />
         </m>
       </m>
       <m k="landuse" v="reservoir|basin">
@@ -489,15 +553,17 @@
               <line use="footway:z16"/>
               </m> -->
             </m>
-            <m zoom-min="14">
+            <m zoom-min="15">
               <m v="footway">
                 <line use="footway" />
               </m>
-              <m v="cycleway">
-                <line use="highway:cycleway" />
-              </m>
               <m v="path">
                 <line use="highway:path" />
+              </m>
+            </m>
+            <m zoom-min="14">
+              <m v="cycleway">
+                <line use="highway:cycleway" />
               </m>
               <m v="bridleway">
                 <line use="bridleway" />
@@ -581,6 +647,9 @@
     <m k="aeroway">
       <m v="aerodrome" closed="yes">
         <area fill="#e8ecde" />
+        <m zoom-max="17">
+          <symbol src="airport" />
+        </m>
       </m>
       <!-- A place where planes are parked -->
       <m v="apron">
@@ -596,13 +665,13 @@
       <line stroke="#202020" width="0.8" cap="butt" />
       <line stroke="#00000000" width="2" stipple="5" stipple-width="2" stipple-stroke="#202020" cap="butt" />
       <m k="aerialway" v="cable_car">
-        <lineSymbol src="cable_car" />
+        <symbol src="cable_car" />
       </m>
       <m k="aerialway" v="chair_lift">
-        <lineSymbol src="chair_lift_2" />
+        <symbol src="chair_lift_2" />
       </m>
       <m k="aerialway" v="gondola">
-        <lineSymbol src="gondola" />
+        <symbol src="gondola" />
       </m>
       <m zoom-min="14">
         <text k="name" style="bold" size="16" fill="#606060" stroke="#ffffff" stroke-width="2.0" />
@@ -636,38 +705,33 @@
     <!-- piste ways -->
     <m k="piste:type" v="downhill" closed="no" zoom-min="13">
       <m k="piste:difficulty" v="novice">
-        <line stroke="#5540ff40" stroke-width="3.0" />
+        <line stroke="#5540ff40" width="3.0" />
       </m>
       <m k="piste:difficulty" v="easy">
-        <line stroke="#554040ff" stroke-width="3.0" />
+        <line stroke="#554040ff" width="3.0" />
       </m>
       <m k="piste:difficulty" v="intermediate">
-        <line stroke="#55ff4040" stroke-width="3.0" />
+        <line stroke="#55ff4040" width="3.0" />
       </m>
       <m k="piste:difficulty" v="advanced">
-        <line stroke="#55000000" stroke-width="3.0" />
+        <line stroke="#55000000" width="3.0" />
       </m>
       <m k="piste:difficulty" v="expert">
-        <line stroke="#55f6800a" stroke-width="3.0" />
+        <line stroke="#55f6800a" width="3.0" />
       </m>
       <m k="piste:difficulty" v="freeride">
-        <line stroke="#55f6dd0a" stroke-width="3.0" />
+        <line stroke="#55f6dd0a" width="3.0" />
       </m>
       <m k="piste:difficulty" v="~">
-        <line stroke="#55505050" stroke-width="3.0" />
+        <line stroke="#55505050" width="3.0" />
       </m>
     </m>
     <m k="piste:type" v="sled">
-      <line stroke="#8098F5FF" stroke-width="1.2" stroke-dasharray="0,5,5,5" stroke-linecap="butt" />
+      <line stroke="#8098F5FF" width="1.2" dasharray="0,5,5,5" cap="butt" />
     </m>
     <m k="piste:type" v="nordic">
-      <line stroke="#5598F5FF" stroke-width="0.6" stroke-dasharray="20,15" stroke-linecap="butt" />
+      <line stroke="#5598F5FF" width="0.6" dasharray="20,15" cap="butt" />
     </m>
-
-    <!-- turning circles -->
-    <!-- <m k="highway" v="turning_circle"> <circle r="1.5" scale-radius="true"
-      fill="#707070" />
-      </m> -->
 
     <!-- building -->
     <m k="building">
@@ -692,11 +756,11 @@
     </m>
 
     <!-- outline 1 - 4 -->
-    <outline-layer id="1" stroke="#aa807040" width="0.1" />
+    <outline-layer id="1" stroke="#807040" width="0.1" />
     <!-- <outline-layer id="1" stroke="#404030"/> -->
     <outline-layer id="2" stroke="#c0c0c0" width="0.1" />
-    <outline-layer id="primary" stroke="#aa7f7700" width="0.1" />
-    <outline-layer id="motorway" stroke="#aa805f2e" width="0.1" />
+    <outline-layer id="primary" stroke="#7f7700" width="0.1" />
+    <outline-layer id="motorway" stroke="#805f2e" width="0.1" />
 
     <!-- highway -->
     <m k="highway">
@@ -767,18 +831,20 @@
                 <line use="footway:z16"/>
                 </m> -->
               <m v="footway|path|cycleway" zoom-min="17">
-                <line use="footway:z17" outline="1" />
+                <line use="footway:z17" />
               </m>
             </m>
-            <m zoom-min="14">
+            <m zoom-min="15">
               <m v="footway">
                 <line use="footway" />
               </m>
-              <m v="cycleway">
-                <line use="highway:cycleway" />
-              </m>
               <m v="path">
                 <line use="highway:path" />
+              </m>
+            </m>
+            <m zoom-min="14">
+              <m v="cycleway">
+                <line use="highway:cycleway" />
               </m>
               <m v="bridleway">
                 <line use="bridleway" />
@@ -833,7 +899,7 @@
             <m v="tertiary|secondary_link">
               <line use="tertiary" outline="1" />
               <text use="road" />
-              <m k="surface" value="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
+              <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
                 <line use="tertiary" stroke="#fdf6ed" cap="square" />
               </m>
             </m>
@@ -961,6 +1027,7 @@
     <m k="aeroway">
       <m v="runway">
         <line use="aeroway:runway" />
+        <symbol src="airport" />
       </m>
       <m v="taxiway">
         <line use="aeroway:runway" width="-0.8" />
@@ -980,13 +1047,13 @@
 
     <!-- barriers -->
     <m k="barrier">
-      <!-- <m v="fence|wall|city_wall" zoom-min="15"> <line
-        stroke="#909090" width="0.1" cap="butt" /> </m> -->
+      <m v="fence|wall|city_wall" zoom-min="15">
+        <line use="fence" />
+      </m>
       <m v="retaining_wall" zoom-min="15">
         <line stroke="#888888" width="1.1" fix="true" cap="butt" />
       </m>
     </m>
-
 
     <!-- railway (no tunnel) -->
     <m k="railway" zoom-min="12">
@@ -1085,31 +1152,31 @@
 
     <m k="contour_ext" zoom-max="9">
       <m k="contour_ext" v="elevation_major">
-        <line stroke="#8E8072" stroke-width="0.3" fix="true" />
+        <line stroke="#8E8072" width="0.3" fix="true" />
       </m>
     </m>
     <m k="contour_ext" zoom-min="10" zoom-max="12">
       <m k="contour_ext" v="elevation_medium">
-        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+        <line stroke="#998E8072" width="0.2" fix="true" />
       </m>
       <m k="contour_ext" v="elevation_major">
-        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+        <line stroke="#998E8072" width="0.5" fix="true" />
       </m>
     </m>
     <m k="contour_ext" zoom-min="13" zoom-max="13">
       <m k="contour_ext" v="elevation_minor">
-        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+        <line stroke="#998E8072" width="0.2" fix="true" />
       </m>
       <m k="contour_ext" v="elevation_medium|elevation_major">
-        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+        <line stroke="#998E8072" width="0.5" fix="true" />
       </m>
     </m>
     <m k="contour_ext" zoom-min="14" zoom-max="14">
       <m k="contour_ext" v="elevation_minor">
-        <line stroke="#998E8072" stroke-width="0.15" fix="true" />
+        <line stroke="#998E8072" width="0.15" fix="true" />
       </m>
       <m k="contour_ext" v="elevation_medium|elevation_major">
-        <line stroke="#998E8072" stroke-width="0.4" fix="true" />
+        <line stroke="#998E8072" width="0.4" fix="true" />
         <m k="contour_ext" v="elevation_major">
           <text k="ele" style="bold" size="10" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="1.0" />
         </m>
@@ -1117,28 +1184,28 @@
     </m>
     <m k="contour_ext" zoom-min="15" zoom-max="15">
       <m k="contour_ext" v="elevation_minor" zoom-max="15">
-        <line stroke="#998E8072" stroke-width="0.12" fix="true" />
+        <line stroke="#998E8072" width="0.12" fix="true" />
       </m>
       <m k="contour_ext" v="elevation_medium|elevation_major">
-        <line stroke="#998E8072" stroke-width="0.3" fix="true" />
+        <line stroke="#998E8072" width="0.3" fix="true" />
         <text k="ele" style="bold" size="10" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="1.0" />
       </m>
     </m>
     <m k="contour_ext" zoom-min="16" zoom-max="16">
       <m k="contour_ext" v="elevation_minor">
-        <line stroke="#998E8072" stroke-width="0.08" fix="true" />
+        <line stroke="#998E8072" width="0.08" fix="true" />
       </m>
       <m k="contour_ext" v="elevation_medium|elevation_major">
-        <line stroke="#998E8072" stroke-width="0.2" fix="true"  />
+        <line stroke="#998E8072" width="0.2" fix="true"  />
         <text k="ele" style="bold" size="11" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="2.0" />
       </m>
     </m>
     <m k="contour_ext" zoom-min="17">
       <m v="elevation_minor">
-        <line stroke="#998E8072" stroke-width="0.2" fix="true" />
+        <line stroke="#998E8072" width="0.2" fix="true" />
       </m>
       <m v="elevation_medium|elevation_major">
-        <line stroke="#998E8072" stroke-width="0.5" fix="true" />
+        <line stroke="#998E8072" width="0.5" fix="true" />
         <text k="ele" style="bold" size="11" fill="#6E5A46" stroke="#E5FFFFFF" stroke-width="2.0" />
       </m>
     </m>
@@ -1150,29 +1217,29 @@
     <m k="barrier">
       <m zoom-min="10">
         <m v="bollard">
-          <circle r="1.5" fill="#909090" />
+          <circle radius="1.5" fill="#909090" />
         </m>
         <m v="block">
-          <circle r="1.5" fill="#909090" />
+          <circle radius="1.5" fill="#909090" />
         </m>
         <m v="gate">
-          <circle r="1.5" fill="#909090" />
+          <circle radius="1.5" fill="#909090" />
         </m>
         <m v="lift_gate">
-          <circle r="1.5" fill="#909090" />
+          <circle radius="1.5" fill="#909090" />
         </m>
       </m>
     </m>
 
     <m k="highway">
       <m v="traffic_signals">
-        <circle r="1.5" fill="#ff0000" />
+        <circle radius="15.5" fill="#ff0000" />
       </m>
       <m v="bus_stop">
-        <circle r="1.5" fill="#ff0000" />
+        <circle radius="1.5" fill="#ff0000" />
       </m>
       <m v="turning_circle">
-        <circle r="1.4" scale-radius="true" fill="#ffffff" />
+        <circle radius="1.4" scale-radius="true" fill="#707070" />
       </m>
     </m>
 
@@ -1217,16 +1284,16 @@
     <!-- railway -->
     <m k="railway">
       <m v="station" zoom-min="14">
-        <circle r="6" fill="#ec2d2d" stroke="#606060" stroke-width="1.5" />
+        <circle radius="6" fill="#ec2d2d" stroke="#606060" stroke-width="1.5" />
         <caption k="name" dy="-10" style="bold" size="13" fill="#ec2d2d" stroke="#ffffff" stroke-width="2.0" />
       </m>
 
       <m v="halt|tram_stop">
-        <circle r="4" fill="#ec2d2d" stroke="#606060" stroke-width="1.5" />
+        <circle radius="4" fill="#ec2d2d" stroke="#606060" stroke-width="1.5" />
         <caption k="name" dy="-15" style="bold" size="11" fill="#ec2d2d" stroke="#ffffff" stroke-width="2.0" />
       </m>
       <m v="level_crossing">
-        <circle r="1.5" fill="#ff0000" />
+        <circle radius="1.5" fill="#ff0000" />
       </m>
     </m>
 
@@ -1430,7 +1497,7 @@
     </m>
 
     <m k="natural" v="tree" zoom-min="15">
-      <circle r="10" />
+      <circle radius="10" />
     </m>
   </m>
 
