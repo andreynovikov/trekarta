@@ -65,14 +65,10 @@
   <style-line id="trunk" stroke="#fedb52" width="1.6" />
   <style-line id="primary:z11" stroke="#f4d26e" width="1.5" />
   <style-line id="secondary:z11" use="primary:z11" width="-0.1" />
-  <style-line id="tertiary" use="residential" stroke="#fefefa" width="0.2" />
+  <style-line id="tertiary" use="residential" stroke="#f4f3ae" width="0.2" />
   <style-line id="construction" stroke="#e0e0e0" width="1.2" />
   <style-line id="highway-service" use="residential" width="-0.6" />
 
-  <!-- footway|path|cycleway -->
-  <style-line id="footway" stroke="#00ffffff" width="1.8" cap="butt" fix="true" stipple="4" stipple-width="1.8" stipple-stroke="#d37c58" />
-  <style-line id="highway:cycleway" use="footway" width="0.1" stipple-stroke="#4040ee" />
-  <style-line id="highway:path" use="footway" width="0.1" stipple="4" stipple-stroke="#837b58" />
   <!-- track -->
   <style-line id="highway:track:g1" stroke="#99807040" width="0.6" cap="butt" />
   <style-line id="highway:track:g2" stroke="#00ffffff" width="0.6" cap="butt" stipple="8" stipple-stroke="#bb807040" />
@@ -80,8 +76,12 @@
   <style-line id="highway:track:g4" use="highway:track:g2" width="-0.1" stipple="15" />
   <style-line id="highway:track:g5" use="highway:track:g3" stipple="18" stroke="#44ff8888" />
 
-  <!-- <style-line id="footway:z16" use="footway" width="-0.95" fixed="false" fade="-1"/> -->
-  <style-line id="footway:z17" stroke="#faf8f5" width="0.2" />
+  <!-- footway|path|cycleway -->
+  <style-line id="footway" stroke="#00ffffff" width="1.8" cap="butt" fix="true" stipple="4" stipple-width="1.8" stipple-stroke="#d37c58" />
+  <style-line id="highway:cycleway" use="footway" width="0.1" stipple-stroke="#4040ee" />
+  <style-line id="highway:path" use="footway" width="0.1" stipple="4" stipple-stroke="#837b58" />
+
+  <style-line id="footway:z18" stroke="#faf8f5" width="0.2" />
 
   <!-- de: ein Weg der für Reiter vorgeshen ist.. -->
   <style-line id="bridleway" use="footway" stroke="#d3cb98" width="0.1" cap="butt" stipple-stroke="#837b58" />
@@ -555,10 +555,10 @@
             </m>
             <m zoom-min="15">
               <m v="footway">
-                <line use="footway" />
+                <line use="footway" fade="15" />
               </m>
               <m v="path">
-                <line use="highway:path" />
+                <line use="highway:path" fade="15" />
               </m>
             </m>
             <m zoom-min="14">
@@ -830,8 +830,8 @@
               <!-- <m v="footway|path|cycleway" zoom-min="16" zoom-max="16">
                 <line use="footway:z16"/>
                 </m> -->
-              <m v="footway|path|cycleway" zoom-min="17">
-                <line use="footway:z17" />
+              <m v="footway|path|cycleway" zoom-min="18">
+                <line use="footway:z18" />
               </m>
             </m>
             <m zoom-min="15">
@@ -925,7 +925,7 @@
         <!-- Bridge casings should be above other roads -->
         <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
 
-        <!-- muse contain bridge -->
+        <!-- must contain bridge -->
         <m k="bridge">
           <!-- except bridge=no|false -->
           <m k="bridge" v="-|no|false">
@@ -941,7 +941,7 @@
               </m>
 
               <m zoom-min="15" v="track|footway|path|cycleway">
-                <line use="footway:z17" cap="butt" outline="bridge" />
+                <line use="footway:z17" cap="square" outline="bridge" />
               </m>
 
               <m zoom-min="14" select="first">
@@ -976,6 +976,12 @@
                 <m v="residential|road|unclassified|living_street">
                   <line use="residential:bridge" outline="bridge" />
                   <text use="road" />
+                </m>
+              </m>
+
+              <m zoom-min="12">
+                <m v="track">
+                  <line use="highway:track:g1" cap="square" outline="bridge" />
                 </m>
               </m>
 
@@ -1085,10 +1091,10 @@
         <m k="railway" v="light_rail|subway|narrow_gauge" zoom-min="14">
           <line stroke="#a0a0a0" width="0.9" cap="butt" fix="true" />
         </m>
-        <m k="railway" v="rail|turntable" zoom-max="14">
+        <m k="railway" v="rail|turntable" zoom-max="13">
           <line stroke="#999999" width="1.2" cap="butt" fix="true" fade="12" />
         </m>
-        <m k="railway" v="rail|turntable" zoom-min="15">
+        <m k="railway" v="rail|turntable" zoom-min="14">
           <line stroke="#999999" width="3.0" cap="butt" fix="true" fade="12" stipple="10" stipple-width="0.8" stipple-stroke="#ffffff" />
         </m>
 
@@ -1226,7 +1232,7 @@
           <circle radius="1.5" fill="#909090" />
         </m>
         <m v="lift_gate">
-          <circle radius="1.5" fill="#909090" />
+          <symbol src="vulcan" />
         </m>
       </m>
     </m>
