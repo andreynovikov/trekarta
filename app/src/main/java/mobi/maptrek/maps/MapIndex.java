@@ -2,7 +2,6 @@ package mobi.maptrek.maps;
 
 import android.util.Log;
 
-import org.oscim.core.GeoPoint;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.sqlite.SQLiteMapInfo;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -11,11 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -30,7 +26,6 @@ public class MapIndex implements Serializable {
     private File mRootDir;
     private HashSet<MapFile> mMaps;
     private int mHashCode;
-    private transient Comparator<MapFile> mComparator = new MapComparator();
 
     @SuppressWarnings("unused")
     MapIndex() {
@@ -152,19 +147,6 @@ public class MapIndex implements Serializable {
         map.tileSource.close();
     }
 
-    public List<MapFile> getMaps(GeoPoint geoPoint) {
-        List<MapFile> mapList = new ArrayList<>();
-
-        for (MapFile map : mMaps) {
-            if (!mapList.contains(map) && map.boundingBox.contains(geoPoint))
-                mapList.add(map);
-        }
-
-        Collections.sort(mapList, mComparator);
-
-        return mapList;
-    }
-
     public MapFile getNativeMap(double x, double y) {
         for (MapFile mapFile : NativeMaps.set) {
             if (mapFile.downloaded || mapFile.downloading != 0)
@@ -190,23 +172,5 @@ public class MapIndex implements Serializable {
         String fileName = filePath.replace(mRootDir.getAbsolutePath() + File.separator, "");
         if (NativeMaps.files.containsKey(fileName))
             NativeMaps.files.get(fileName).downloaded = true;
-    }
-
-    private class MapComparator implements Comparator<MapFile>, Serializable {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public int compare(MapFile o1, MapFile o2) {
-            // Larger max zoom is better
-            int res = Integer.compare(o1.tileSource.getZoomLevelMax(), o2.tileSource.getZoomLevelMax());
-            if (res != 0)
-                return res;
-            // Larger min zoom is "better" too
-            res = Integer.compare(o1.tileSource.getZoomLevelMin(), o2.tileSource.getZoomLevelMin());
-            if (res != 0)
-                return res;
-            //TODO Compare covering area - smaller is better
-            return 0;
-        }
     }
 }

@@ -1,13 +1,11 @@
 package org.oscim.tiling.source.mapfile;
 
-import android.util.Log;
-
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
-import org.oscim.core.Tag;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
 
 import java.io.File;
@@ -24,7 +22,10 @@ public class MultiMapFileTileSource extends TileSource {
 
     //TODO Should we combine tile sources in one to optimize cache?
     private HashSet<MapFileTileSource> mMapFileTileSources;
+    private CombinedMapDatabase mCombinedMapDatabase;
     private String mRootDir;
+
+    private OnDataMissingListener onDataMissingListener;
 
     public MultiMapFileTileSource(String rootDir) {
         mMapFileTileSources = new HashSet<>();
@@ -58,37 +59,17 @@ public class MultiMapFileTileSource extends TileSource {
         for (MapFileTileSource tileSource : mMapFileTileSources) {
             tileDataSources.add(tileSource.getDataSource());
         }
-        return new CombinedMapDatabase(tileDataSources);
+        mCombinedMapDatabase = new CombinedMapDatabase(tileDataSources);
+        return mCombinedMapDatabase;
     }
 
     @Override
     public OpenResult open() {
         boolean opened = false;
-        byte[] buffer = new byte[20];
 
         List<File> files = getFileListing(new File(mRootDir));
         for (File file : files) {
-
-            try {
-                FileInputStream is = new FileInputStream(file);
-                int s = is.read(buffer);
-                is.close();
-                if (s != buffer.length || !Arrays.equals(FORGEMAP_MAGIC, buffer))
-                    continue;
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-
-            MapFileTileSource tileSource = new MapFileTileSource();
-            if (tileSource.setMapFile(file.getAbsolutePath())) {
-                if (tileSource.open().isSuccess()) {
-                    mMapFileTileSources.add(tileSource);
-                    opened = true;
-                } else {
-                    tileSource.close();
-                }
-            }
+            opened |= openFile(file);
         }
         return opened ? OpenResult.SUCCESS : new OpenResult("No suitable map files");
     }
@@ -101,6 +82,37 @@ public class MultiMapFileTileSource extends TileSource {
         mMapFileTileSources.clear();
     }
 
+    public boolean openFile(File file) {
+        byte[] buffer = new byte[20];
+        try {
+            FileInputStream is = new FileInputStream(file);
+            int s = is.read(buffer);
+            is.close();
+            if (s != buffer.length || !Arrays.equals(FORGEMAP_MAGIC, buffer))
+                return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        MapFileTileSource tileSource = new MapFileTileSource();
+        if (tileSource.setMapFile(file.getAbsolutePath())) {
+            if (tileSource.open().isSuccess()) {
+                mMapFileTileSources.add(tileSource);
+                if (mCombinedMapDatabase != null)
+                    mCombinedMapDatabase.add(tileSource.getDataSource());
+                return true;
+            } else {
+                tileSource.close();
+            }
+        }
+        return false;
+    }
+
+    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
+        this.onDataMissingListener = onDataMissingListener;
+    }
+
     class CombinedMapDatabase implements ITileDataSource {
         HashSet<ITileDataSource> mTileDataSources;
 
@@ -110,13 +122,13 @@ public class MultiMapFileTileSource extends TileSource {
 
         @Override
         public void query(MapTile tile, ITileDataSink mapDataSink) {
-            //Log.e("MMFTS", tile.x + " " + tile.y + " " + tile.zoomLevel);
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             for (ITileDataSource tileDataSource : mTileDataSources) {
-                //proxyDataSink.newDataSource();
                 tileDataSource.query(tile, proxyDataSink);
-                //proxyDataSink.processDelayed();
             }
+            if (!proxyDataSink.hasNonSeaElements && onDataMissingListener != null)
+                onDataMissingListener.onDataMissing(tile);
+
             mapDataSink.completed(proxyDataSink.result);
         }
 
@@ -128,43 +140,25 @@ public class MultiMapFileTileSource extends TileSource {
 
         @Override
         public void cancel() {
-                for (ITileDataSource tileDataSource : mTileDataSources)
+            for (ITileDataSource tileDataSource : mTileDataSources)
                 tileDataSource.cancel();
+        }
+
+        public void add(ITileDataSource dataSource) {
+            mTileDataSources.add(dataSource);
         }
     }
 
     class ProxyTileDataSink implements ITileDataSink {
         ITileDataSink mapDataSink;
         QueryResult result;
-        float[] points;
-        String type;
         HashSet<Integer> elements;
+        boolean hasNonSeaElements;
 
         public ProxyTileDataSink(ITileDataSink mapDataSink) {
             this.mapDataSink = mapDataSink;
             elements = new HashSet<>();
-        }
-
-        public void newDataSource() {
-            points = null;
-            type = null;
-        }
-
-        public void processDelayed() {
-            if (type == null || points == null)
-                return;
-            MapElement delayed = new MapElement(4, 1);
-            delayed.startPolygon();
-            delayed.addPoint(points[0], points[1]);
-            delayed.addPoint(points[2], points[3]);
-            delayed.addPoint(points[4], points[5]);
-            delayed.addPoint(points[6], points[7]);
-            delayed.tags.add(new Tag("natural", type));
-            delayed.tags.add(new Tag("mapsforge", "yes"));
-            delayed.setLayer("land".equals(type) ? 1 : 0);
-            //Log.w("MMFTS", delayed.toString());
-            mapDataSink.process(delayed);
-            type = null;
+            hasNonSeaElements = false;
         }
 
         @Override
@@ -172,52 +166,15 @@ public class MultiMapFileTileSource extends TileSource {
             // Dirty workaround for sea/nosea issue
             // https://groups.google.com/forum/#!topic/mapsforge-dev/x54kHlyKiBM
             if (element.tags.contains("natural", "sea") || element.tags.contains("natural", "nosea")) {
-                /*
-                if (element.tags.contains("natural", "sea")) {
-                    element.tags.clear();
-                    element.tags.add(new Tag("natural", "water"));
-                    element.tags.add(new Tag("mapsforge", "sea"));
-                }
-                if (element.tags.contains("natural", "nosea")) {
-                    element.tags.clear();
-                    element.tags.add(new Tag("natural", "land"));
-                    element.tags.add(new Tag("mapsforge", "nosea"));
-                }
-                */
-                // We need to drop empty tiles covered only with sea/nosea
-                /*
-                if (element.getNumPoints() == 4) {
-                    if (type == null) {
-                        type = element.tags.getValue("natural");
-                        points = Arrays.copyOf(element.points, 8);
-                        //Log.w("MMFTS", element.toString());
-                        //Log.w("MMFTS", "delay");
-                        return;
-                    } else {
-                        float[] other = Arrays.copyOf(element.points, 8);
-                        if (Arrays.equals(points, other)) {
-                            //Log.w("MMFTS", element.toString());
-                            //Log.w("MMFTS", "skip");
-                            type = null;
-                            return;
-                        } else {
-                            processDelayed();
-                        }
-                    }
-                }
-                */
                 element.setLayer("nosea".equals(element.tags.getValue("natural")) ? 1 : 0);
-                //Log.w("MMFTS", element.toString());
-                //Log.w("MMFTS", "process");
+            } else {
+                hasNonSeaElements = true;
             }
             if (element.isPoly()) {
-                //Log.w("MMFTS", element.toString());
                 int hash = element.hashCode();
-                //Log.w("MMFTS", "h: " + hash);
                 if (elements.contains(hash))
                     return;
                 elements.add(hash);
-                //Log.w("MMFTS", "process");
             }
             mapDataSink.process(element);
         }
