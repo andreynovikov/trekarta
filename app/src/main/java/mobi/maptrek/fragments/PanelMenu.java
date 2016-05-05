@@ -194,33 +194,33 @@ public class PanelMenu extends ListFragment {
             itemHolder.title.setText(item.getTitle());
             itemHolder.icon.setImageDrawable(item.getIcon());
             itemHolder.check.setVisibility(item.isCheckable() ? View.VISIBLE : View.GONE);
+            final View view = convertView;
+            final ListView listView = getListView();
             if (item.isCheckable()) {
                 //TODO Strange situation: clicked listener is set
                 itemHolder.check.setOnCheckedChangeListener(null);
                 itemHolder.check.setChecked(item.isChecked());
                 itemHolder.check.setVisibility(View.VISIBLE);
-                final View view = convertView;
                 // Make switch emulate item selection
                 itemHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         item.setChecked(itemHolder.check.isChecked());
-                        onListItemClick(getListView(), view, position, getItemId(position));
-                    }
-                });
-                // Make hole item still clickable
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        item.setChecked(! itemHolder.check.isChecked());
-                        onListItemClick(getListView(), view, position, getItemId(position));
+                        onListItemClick(listView, view, position, getItemId(position));
                     }
                 });
             } else {
                 itemHolder.check.setVisibility(View.GONE);
                 itemHolder.check.setOnCheckedChangeListener(null);
             }
-
+            // Make hole item clickable in any case
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    item.setChecked(!itemHolder.check.isChecked());
+                    onListItemClick(listView, view, position, getItemId(position));
+                }
+            });
             return convertView;
         }
 
