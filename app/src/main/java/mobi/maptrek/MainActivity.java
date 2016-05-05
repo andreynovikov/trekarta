@@ -556,6 +556,7 @@ public class MainActivity extends Activity implements ILocationListener,
             // geo:latitude,longitude
             // geo:latitude,longitude?z=zoom
             // geo:0,0?q=lat,lng(label)
+            // geo:0,0?q=lat, lng - buggy Instagram
             int zoom = 0;
             if (query != null) {
                 data = data.substring(0, data.indexOf(query) - 1);
@@ -572,13 +573,19 @@ public class MainActivity extends Activity implements ILocationListener,
                 double lon = Double.parseDouble(ll[1]);
                 if (lat == 0d && lon == 0d && query != null) {
                     // Parse query string
-                    data = query.substring(2, query.indexOf("("));
-                    ll = data.split(",");
+                    int bracket = query.indexOf("(");
+                    if (bracket > -1)
+                        data = query.substring(2, query.indexOf("("));
+                    else
+                        data = query.substring(2);
+                    ll = data.split(",\\s*");
                     lat = Double.parseDouble(ll[0]);
                     lon = Double.parseDouble(ll[1]);
                     //TODO Show marker (in any case)
-                    //noinspection unused
-                    String marker = query.substring(query.indexOf("(") + 1, query.indexOf(")"));
+                    if (bracket > -1) {
+                        //noinspection unused
+                        String marker = query.substring(query.indexOf("(") + 1, query.indexOf(")"));
+                    }
                 }
                 MapPosition position = mMap.getMapPosition();
                 position.setPosition(lat, lon);
