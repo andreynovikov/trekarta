@@ -22,13 +22,14 @@ public class MultiMapFileTileSource extends TileSource {
 
     //TODO Should we combine tile sources in one to optimize cache?
     private HashSet<MapFileTileSource> mMapFileTileSources;
-    private CombinedMapDatabase mCombinedMapDatabase;
+    private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
     private String mRootDir;
 
     private OnDataMissingListener onDataMissingListener;
 
     public MultiMapFileTileSource(String rootDir) {
         mMapFileTileSources = new HashSet<>();
+        mCombinedMapDatabases = new HashSet<>();
         mRootDir = rootDir;
     }
 
@@ -59,8 +60,9 @@ public class MultiMapFileTileSource extends TileSource {
         for (MapFileTileSource tileSource : mMapFileTileSources) {
             tileDataSources.add(tileSource.getDataSource());
         }
-        mCombinedMapDatabase = new CombinedMapDatabase(tileDataSources);
-        return mCombinedMapDatabase;
+        CombinedMapDatabase combinedMapDatabase = new CombinedMapDatabase(tileDataSources);
+        mCombinedMapDatabases.add(combinedMapDatabase);
+        return combinedMapDatabase;
     }
 
     @Override
@@ -99,8 +101,8 @@ public class MultiMapFileTileSource extends TileSource {
         if (tileSource.setMapFile(file.getAbsolutePath())) {
             if (tileSource.open().isSuccess()) {
                 mMapFileTileSources.add(tileSource);
-                if (mCombinedMapDatabase != null)
-                    mCombinedMapDatabase.add(tileSource.getDataSource());
+                for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
+                    combinedMapDatabase.add(tileSource.getDataSource());
                 return true;
             } else {
                 tileSource.close();
