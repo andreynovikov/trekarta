@@ -34,268 +34,271 @@ import org.oscim.utils.FastMath;
 import org.oscim.utils.async.SimpleWorker;
 import org.oscim.utils.geom.LineClipper;
 
-import java.util.List;
-
 import mobi.maptrek.data.Track;
 
-/** This class draws a path line in given color. */
+/**
+ * This class draws a path line in given color.
+ */
 public class TrackLayer extends Layer {
 
-	/** Stores points, converted to the map projection. */
-	protected final Track mTrack;
-	protected boolean mUpdatePoints;
+    /**
+     * Stores points, converted to the map projection.
+     */
+    protected final Track mTrack;
+    protected boolean mUpdatePoints;
 
-	/** Line style */
-	LineStyle mLineStyle;
+    /**
+     * Line style
+     */
+    LineStyle mLineStyle;
 
-	final Worker mWorker;
+    final Worker mWorker;
 
-	public TrackLayer(Map map, Track track, int lineColor, float lineWidth) {
-		super(map);
-		mWorker = new Worker(map);
-		mLineStyle = new LineStyle(lineColor, lineWidth, Cap.BUTT);
-		mRenderer = new RenderPath();
-		mTrack = track;
+    public TrackLayer(Map map, Track track) {
+        super(map);
+        mWorker = new Worker(map);
+        mLineStyle = new LineStyle(track.style.color, track.style.width, Cap.BUTT);
+        mRenderer = new RenderPath();
+        mTrack = track;
         updatePoints();
-	}
+    }
 
-	protected void updatePoints() {
-		mWorker.submit(10);
-		mUpdatePoints = true;
-	}
-
-	GeometryBuffer mGeom;
-
-	public Track getTrack() {
-		return mTrack;
-	}
-
-	public void setColor(int color) {
-		mLineStyle = new LineStyle(color, mLineStyle.width, mLineStyle.cap);
+    protected void updatePoints() {
         mWorker.submit(10);
-	}
+        mUpdatePoints = true;
+    }
 
-	/***
-	 * everything below runs on GL- and Worker-Thread
-	 ***/
-	final class RenderPath extends BucketRenderer {
+    GeometryBuffer mGeom;
 
-		public RenderPath() {
+    public Track getTrack() {
+        return mTrack;
+    }
 
-			buckets.addLineBucket(0, mLineStyle);
-		}
+    public void setColor(int color) {
+        mLineStyle = new LineStyle(color, mLineStyle.width, mLineStyle.cap);
+        mWorker.submit(10);
+    }
 
-		private int mCurX = -1;
-		private int mCurY = -1;
-		private int mCurZ = -1;
+    /***
+     * everything below runs on GL- and Worker-Thread
+     ***/
+    final class RenderPath extends BucketRenderer {
 
-		@Override
-		public synchronized void update(GLViewport v) {
-			int tz = 1 << v.pos.zoomLevel;
-			int tx = (int) (v.pos.x * tz);
-			int ty = (int) (v.pos.y * tz);
+        public RenderPath() {
 
-			// update layers when map moved by at least one tile
-			if ((tx != mCurX || ty != mCurY || tz != mCurZ)) {
-				mWorker.submit(100);
-				mCurX = tx;
-				mCurY = ty;
-				mCurZ = tz;
-			}
+            buckets.addLineBucket(0, mLineStyle);
+        }
 
-			Task t = mWorker.poll();
-			if (t == null)
-				return;
+        private int mCurX = -1;
+        private int mCurY = -1;
+        private int mCurZ = -1;
 
-			// keep position to render relative to current state
-			mMapPosition.copy(t.pos);
+        @Override
+        public synchronized void update(GLViewport v) {
+            int tz = 1 << v.pos.zoomLevel;
+            int tx = (int) (v.pos.x * tz);
+            int ty = (int) (v.pos.y * tz);
 
-			// compile new layers
-			buckets.set(t.bucket.get());
-			compile();
-		}
-	}
+            // update layers when map moved by at least one tile
+            if ((tx != mCurX || ty != mCurY || tz != mCurZ)) {
+                mWorker.submit(100);
+                mCurX = tx;
+                mCurY = ty;
+                mCurZ = tz;
+            }
 
-	final static class Task {
-		RenderBuckets bucket = new RenderBuckets();
-		MapPosition pos = new MapPosition();
-	}
+            Task t = mWorker.poll();
+            if (t == null)
+                return;
 
-	final class Worker extends SimpleWorker<Task> {
+            // keep position to render relative to current state
+            mMapPosition.copy(t.pos);
 
-		// limit coords
-		private final int max = 2048;
+            // compile new layers
+            buckets.set(t.bucket.get());
+            compile();
+        }
+    }
 
-		public Worker(Map map) {
-			super(map, 0, new Task(), new Task());
-			mClipper = new LineClipper(-max, -max, max, max);
-			mPPoints = new float[0];
-		}
+    final static class Task {
+        RenderBuckets bucket = new RenderBuckets();
+        MapPosition pos = new MapPosition();
+    }
 
-		private static final int MIN_DIST = 3;
+    final class Worker extends SimpleWorker<Task> {
 
-		// pre-projected points
-		private double[] mPreprojected = new double[2];
+        // limit coords
+        private final int max = 2048;
 
-		// projected points
-		private float[] mPPoints;
-		private final LineClipper mClipper;
-		private int mNumPoints;
+        public Worker(Map map) {
+            super(map, 0, new Task(), new Task());
+            mClipper = new LineClipper(-max, -max, max, max);
+            mPPoints = new float[0];
+        }
 
-		@Override
-		public boolean doWork(Task task) {
+        private static final int MIN_DIST = 3;
 
-			int size = mNumPoints;
+        // pre-projected points
+        private double[] mPreprojected = new double[2];
 
-			if (mUpdatePoints) {
-				synchronized (mTrack) {
-					mUpdatePoints = false;
-					mNumPoints = size = mTrack.getPointCount();
+        // projected points
+        private float[] mPPoints;
+        private final LineClipper mClipper;
+        private int mNumPoints;
 
-					List<Track.TrackPoint> trackPoints = mTrack.getAllPoints();
-					double[] points = mPreprojected;
+        @Override
+        public boolean doWork(Task task) {
 
-					if (size * 2 >= points.length) {
-						points = mPreprojected = new double[size * 2];
-						mPPoints = new float[size * 2];
-					}
+            int size = mNumPoints;
 
-					for (int i = 0; i < size; i++)
-                        MercatorProjection.project(trackPoints.get(i), points, i);
-				}
+            if (mUpdatePoints) {
+                synchronized (mTrack) {
+                    mUpdatePoints = false;
+                    mNumPoints = size = mTrack.points.size();
 
-			} else if (mGeom != null) {
-				GeometryBuffer geom = mGeom;
-				mGeom = null;
-				size = geom.index[0];
+                    double[] points = mPreprojected;
 
-				double[] points = mPreprojected;
+                    if (size * 2 >= points.length) {
+                        points = mPreprojected = new double[size * 2];
+                        mPPoints = new float[size * 2];
+                    }
 
-				if (size > points.length) {
-					points = mPreprojected = new double[size * 2];
-					mPPoints = new float[size * 2];
-				}
+                    for (int i = 0; i < size; i++)
+                        MercatorProjection.project(mTrack.points.get(i), points, i);
+                }
 
-				for (int i = 0; i < size; i += 2)
-					MercatorProjection.project(geom.points[i + 1],
-					                           geom.points[i], points,
-					                           i >> 1);
-				mNumPoints = size = size >> 1;
+            } else if (mGeom != null) {
+                GeometryBuffer geom = mGeom;
+                mGeom = null;
+                size = geom.index[0];
 
-			}
-			if (size == 0) {
-				if (task.bucket.get() != null) {
-					task.bucket.clear();
-					mMap.render();
-				}
-				return true;
-			}
+                double[] points = mPreprojected;
 
-			RenderBuckets layers = task.bucket;
+                if (size > points.length) {
+                    points = mPreprojected = new double[size * 2];
+                    mPPoints = new float[size * 2];
+                }
 
-			LineBucket ll = layers.getLineBucket(0);
-			ll.line = mLineStyle;
-			ll.scale = ll.line.width;
+                for (int i = 0; i < size; i += 2)
+                    MercatorProjection.project(geom.points[i + 1],
+                            geom.points[i], points,
+                            i >> 1);
+                mNumPoints = size = size >> 1;
 
-			mMap.getMapPosition(task.pos);
+            }
+            if (size == 0) {
+                if (task.bucket.get() != null) {
+                    task.bucket.clear();
+                    mMap.render();
+                }
+                return true;
+            }
 
-			int zoomlevel = task.pos.zoomLevel;
-			task.pos.scale = 1 << zoomlevel;
+            RenderBuckets layers = task.bucket;
 
-			double mx = task.pos.x;
-			double my = task.pos.y;
-			double scale = Tile.SIZE * task.pos.scale;
+            LineBucket ll = layers.getLineBucket(0);
+            ll.line = mLineStyle;
+            ll.scale = ll.line.width;
 
-			// flip around dateline
-			int flip = 0;
-			int maxx = Tile.SIZE << (zoomlevel - 1);
+            mMap.getMapPosition(task.pos);
 
-			int x = (int) ((mPreprojected[0] - mx) * scale);
-			int y = (int) ((mPreprojected[1] - my) * scale);
+            int zoomlevel = task.pos.zoomLevel;
+            task.pos.scale = 1 << zoomlevel;
 
-			if (x > maxx) {
-				x -= (maxx * 2);
-				flip = -1;
-			} else if (x < -maxx) {
-				x += (maxx * 2);
-				flip = 1;
-			}
+            double mx = task.pos.x;
+            double my = task.pos.y;
+            double scale = Tile.SIZE * task.pos.scale;
 
-			mClipper.clipStart(x, y);
+            // flip around dateline
+            int flip = 0;
+            int maxx = Tile.SIZE << (zoomlevel - 1);
 
-			float[] projected = mPPoints;
-			int i = addPoint(projected, 0, x, y);
+            int x = (int) ((mPreprojected[0] - mx) * scale);
+            int y = (int) ((mPreprojected[1] - my) * scale);
 
-			float prevX = x;
-			float prevY = y;
+            if (x > maxx) {
+                x -= (maxx * 2);
+                flip = -1;
+            } else if (x < -maxx) {
+                x += (maxx * 2);
+                flip = 1;
+            }
 
-			float[] segment = null;
+            mClipper.clipStart(x, y);
 
-			for (int j = 2; j < size * 2; j += 2) {
-				//noinspection PointlessArithmeticExpression
-				x = (int) ((mPreprojected[j + 0] - mx) * scale);
-				y = (int) ((mPreprojected[j + 1] - my) * scale);
+            float[] projected = mPPoints;
+            int i = addPoint(projected, 0, x, y);
 
-				int flipDirection = 0;
-				if (x > maxx) {
-					x -= maxx * 2;
-					flipDirection = -1;
-				} else if (x < -maxx) {
-					x += maxx * 2;
-					flipDirection = 1;
-				}
+            float prevX = x;
+            float prevY = y;
 
-				if (flip != flipDirection) {
-					flip = flipDirection;
-					if (i > 2)
-						ll.addLine(projected, i, false);
+            float[] segment = null;
 
-					mClipper.clipStart(x, y);
-					i = addPoint(projected, 0, x, y);
-					continue;
-				}
+            for (int j = 2; j < size * 2; j += 2) {
+                //noinspection PointlessArithmeticExpression
+                x = (int) ((mPreprojected[j + 0] - mx) * scale);
+                y = (int) ((mPreprojected[j + 1] - my) * scale);
 
-				int clip = mClipper.clipNext(x, y);
-				if (clip < 1) {
-					if (i > 2)
-						ll.addLine(projected, i, false);
+                int flipDirection = 0;
+                if (x > maxx) {
+                    x -= maxx * 2;
+                    flipDirection = -1;
+                } else if (x < -maxx) {
+                    x += maxx * 2;
+                    flipDirection = 1;
+                }
 
-					if (clip < 0) {
-						/* add line segment */
-						segment = mClipper.getLine(segment, 0);
-						ll.addLine(segment, 4, false);
-						prevX = mClipper.outX2;
-						prevY = mClipper.outY2;
-					}
-					i = 0;
-					continue;
-				}
+                if (flip != flipDirection) {
+                    flip = flipDirection;
+                    if (i > 2)
+                        ll.addLine(projected, i, false);
 
-				float dx = x - prevX;
-				float dy = y - prevY;
-				if ((i == 0) || FastMath.absMaxCmp(dx, dy, MIN_DIST)) {
-					projected[i++] = prevX = x;
-					projected[i++] = prevY = y;
-				}
-			}
-			if (i > 2)
-				ll.addLine(projected, i, false);
+                    mClipper.clipStart(x, y);
+                    i = addPoint(projected, 0, x, y);
+                    continue;
+                }
 
-			// trigger redraw to let renderer fetch the result.
-			mMap.render();
+                int clip = mClipper.clipNext(x, y);
+                if (clip < 1) {
+                    if (i > 2)
+                        ll.addLine(projected, i, false);
 
-			return true;
-		}
+                    if (clip < 0) {
+                        /* add line segment */
+                        segment = mClipper.getLine(segment, 0);
+                        ll.addLine(segment, 4, false);
+                        prevX = mClipper.outX2;
+                        prevY = mClipper.outY2;
+                    }
+                    i = 0;
+                    continue;
+                }
 
-		@Override
-		public void cleanup(Task task) {
-			task.bucket.clear();
-		}
+                float dx = x - prevX;
+                float dy = y - prevY;
+                if ((i == 0) || FastMath.absMaxCmp(dx, dy, MIN_DIST)) {
+                    projected[i++] = prevX = x;
+                    projected[i++] = prevY = y;
+                }
+            }
+            if (i > 2)
+                ll.addLine(projected, i, false);
 
-		private int addPoint(float[] points, int i, int x, int y) {
-			points[i++] = x;
-			points[i++] = y;
-			return i;
-		}
-	}
+            // trigger redraw to let renderer fetch the result.
+            mMap.render();
+
+            return true;
+        }
+
+        @Override
+        public void cleanup(Task task) {
+            task.bucket.clear();
+        }
+
+        private int addPoint(float[] points, int i, int x, int y) {
+            points[i++] = x;
+            points[i++] = y;
+            return i;
+        }
+    }
 }

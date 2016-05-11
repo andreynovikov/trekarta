@@ -29,7 +29,6 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.WaypointDataSource;
 import mobi.maptrek.data.WaypointDataSourceUpdateListener;
-import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.StringFormatter;
 
 public class WaypointList extends ListFragment implements WaypointDataSourceUpdateListener {
@@ -158,16 +157,13 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
             double dist = GeoPoint.distance(mLatitude, mLongitude, waypoint.latitude, waypoint.longitude);
             double bearing = GeoPoint.bearing(mLatitude, mLongitude, waypoint.latitude, waypoint.longitude);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            int color = waypoint.color;
-            if (color == 0)
-                color = MarkerFactory.DEFAULT_COLOR;
             holder.name.setText(waypoint.name);
             holder.distance.setText(distance);
             Drawable background = holder.icon.getBackground().mutate();
             if (background instanceof ShapeDrawable) {
-                ((ShapeDrawable) background).getPaint().setColor(color);
+                ((ShapeDrawable) background).getPaint().setColor(waypoint.style.color);
             } else if (background instanceof GradientDrawable) {
-                ((GradientDrawable) background).setColor(color);
+                ((GradientDrawable) background).setColor(waypoint.style.color);
             }
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override

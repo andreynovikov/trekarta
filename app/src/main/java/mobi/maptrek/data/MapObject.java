@@ -1,5 +1,7 @@
 package mobi.maptrek.data;
 
+import mobi.maptrek.data.style.MarkerStyle;
+
 //TODO Refactor
 public class MapObject {
     public long _id = 0;
@@ -12,9 +14,7 @@ public class MapObject {
      */
     public int altitude = Integer.MIN_VALUE;
     public int proximity = 0;
-    public int color;
-    public String icon;
-    public String style;
+    public MarkerStyle style = new MarkerStyle();
 
     public MapObject() {
     }

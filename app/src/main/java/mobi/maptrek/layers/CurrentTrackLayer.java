@@ -18,10 +18,11 @@ public class CurrentTrackLayer extends TrackLayer {
     private ILocationService mTrackingService;
     private Context mContext;
 
-    public CurrentTrackLayer(Map map, int lineColor, float lineWidth, Context context) {
-        super(map, new Track(), lineColor, lineWidth);
+    public CurrentTrackLayer(Map map, Context context) {
+        super(map, new Track());
         mContext = context;
         mBound = mContext.bindService(new Intent(mContext, LocationService.class), mTrackingConnection, 0);
+        setColor(org.oscim.backend.canvas.Color.fade(mLineStyle.color, 0.7));
     }
 
     @Override
@@ -58,9 +59,9 @@ public class CurrentTrackLayer extends TrackLayer {
     Track.TrackPoint point = null;
 
     private ITrackingListener mTrackingListener = new ITrackingListener() {
-        public void onNewPoint(boolean continuous, double lat, double lon, double elev, double speed, double trk, double accuracy, long time) {
+        public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
             if (point != null) {
-                mTrack.addPoint(point.continuous, point.getLatitude(), point.getLongitude(), point.elevation, point.speed, point.bearing, point.accuracy, point.time);
+                mTrack.addPoint(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
                 updatePoints();
             }
             point = mTrack.new TrackPoint(continuous, (int)(lat * 1E6), (int)(lon * 1E6), elev, speed, trk, accuracy, time);
