@@ -23,6 +23,7 @@ public class ProgressHandler extends Handler implements Manager.ProgressListener
         mProgressBar = progressBar;
     }
 
+    // TODO Handle simultaneous operations
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BEGIN_PROGRESS:

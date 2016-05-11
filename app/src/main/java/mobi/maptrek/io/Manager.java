@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import mobi.maptrek.data.DataSource;
+import mobi.maptrek.data.FileDataSource;
 import mobi.maptrek.util.FileUtils;
 
 public abstract class Manager {
@@ -44,28 +44,28 @@ public abstract class Manager {
      * @return File read and write manager
      */
     @Nullable
-    private static Manager getDataManager(Context context, DataSource source) {
-        // GPX is the default manager
+    private static Manager getDataManager(Context context, FileDataSource source) {
+        // FIXME Not suitable for exporting data
         if (source.path == null)
+            return new TrackManager().setContext(context);
+        if (source.path.toLowerCase().endsWith(GPXManager.EXTENSION))
             return new GPXManager().setContext(context);
-        if (source.path.toLowerCase().endsWith(GPXManager.EXTENSION)) {
-            return new GPXManager().setContext(context);
-        }
-        if (source.path.toLowerCase().endsWith(KMLManager.EXTENSION)) {
+        if (source.path.toLowerCase().endsWith(KMLManager.EXTENSION))
             return new KMLManager().setContext(context);
-        }
+        if (source.path.toLowerCase().endsWith(TrackManager.EXTENSION))
+            return new TrackManager().setContext(context);
         return null;
     }
 
-    public static void save(Context context, DataSource source) {
+    public static void save(Context context, FileDataSource source) {
         save(context, source, null);
     }
 
-    public static void save(Context context, DataSource source, OnSaveListener saveListener) {
+    public static void save(Context context, FileDataSource source, OnSaveListener saveListener) {
         save(context, source, saveListener, null);
     }
 
-    public static void save(Context context, DataSource source, OnSaveListener saveListener, ProgressListener progressListener) {
+    public static void save(Context context, FileDataSource source, OnSaveListener saveListener, ProgressListener progressListener) {
         Manager manager = Manager.getDataManager(context, source);
         assert manager != null : "Failed to get IO manager for " + source.path;
         manager.saveData(source, saveListener, progressListener);
@@ -74,14 +74,14 @@ public abstract class Manager {
     /**
      * Loads data from file (input stream). File name is used only for reference.
      * @param inputStream <code>InputStream</code> with waypoints
-     * @param fileName File name associated with that <code>InputStream</code>
+     * @param filePath File path associated with that <code>InputStream</code>
      * @return <code>DataSource</code> filled with file data
      * @throws Exception if IO or parsing error occurred
      */
     @NonNull
-    public abstract DataSource loadData(InputStream inputStream, String fileName) throws Exception;
+    public abstract FileDataSource loadData(InputStream inputStream, String filePath) throws Exception;
 
-    public abstract void saveData(OutputStream outputStream, DataSource source, @Nullable ProgressListener progressHandler) throws Exception;
+    public abstract void saveData(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws Exception;
 
     /**
      * Returns file extension with leading dot.
@@ -89,11 +89,12 @@ public abstract class Manager {
     @NonNull
     public abstract String getExtension();
 
-    protected final void saveData(DataSource source, @Nullable OnSaveListener saveListener, @Nullable ProgressListener progressListener) {
+    protected final void saveData(FileDataSource source, @Nullable OnSaveListener saveListener, @Nullable ProgressListener progressListener) {
         File file;
         if (source.path == null) {
+            String name = source.name != null && !"".equals(source.name) ? source.name : "data_source_" + System.currentTimeMillis();
             file = mContext.getExternalFilesDir("data");
-            file = new File(file, "data_source_" + System.currentTimeMillis() + getExtension());
+            file = new File(file, FileUtils.sanitizeFilename(name) + getExtension());
         } else {
             file = new File(source.path);
         }
@@ -102,15 +103,15 @@ public abstract class Manager {
 
     private class SaveRunnable implements Runnable {
         private final File mFile;
-        private final DataSource mDataSource;
+        private final FileDataSource mDataSource;
         private final OnSaveListener mSaveListener;
         private final ProgressListener mProgressListener;
 
-        SaveRunnable(final File file, final DataSource source, @Nullable final OnSaveListener saveListener, @Nullable final ProgressListener progressListener) {
-            this.mFile = file;
-            this.mDataSource = source;
-            this.mSaveListener = saveListener;
-            this.mProgressListener = progressListener;
+        SaveRunnable(final File file, final FileDataSource source, @Nullable final OnSaveListener saveListener, @Nullable final ProgressListener progressListener) {
+            mFile = file;
+            mDataSource = source;
+            mSaveListener = saveListener;
+            mProgressListener = progressListener;
         }
 
         @Override
@@ -124,14 +125,20 @@ public abstract class Manager {
                 Manager.this.saveData(new FileOutputStream(newFile, false), mDataSource, mProgressListener);
                 String newName = mDataSource.getNewName();
                 File saveFile = mFile;
-                if (newName != null)
+                File renamedFile = null;
+                if (newName != null) {
+                    if (mDataSource.path != null)
+                        renamedFile = mFile;
                     saveFile = new File(mFile.getParent(), FileUtils.sanitizeFilename(newName) + Manager.this.getExtension());
+                }
                 if (saveFile.exists() && !saveFile.delete() || !newFile.renameTo(saveFile)) {
                     Log.e(TAG, "Can not rename data source file after save");
                     if (mSaveListener != null)
                         mSaveListener.onError(mDataSource, new Exception("Can not rename data source file after save"));
                 } else {
                     mDataSource.path = saveFile.getAbsolutePath();
+                    if (renamedFile != null && !renamedFile.delete())
+                        Log.e(TAG, "Failed to remove renamed file");
                     if (mSaveListener != null)
                         mSaveListener.onSaved(mDataSource);
                     Log.i(TAG, "Done");
@@ -150,8 +157,8 @@ public abstract class Manager {
     }
 
     public interface OnSaveListener {
-        void onSaved(DataSource source);
-        void onError(DataSource source, Exception e);
+        void onSaved(FileDataSource source);
+        void onError(FileDataSource source, Exception e);
     }
     /**
      * Callback interface for progress monitoring.
