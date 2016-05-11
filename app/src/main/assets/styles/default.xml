@@ -13,6 +13,8 @@
 
   <style-area id="residential" fill="#e8e7e3" fade="11" />
 
+  <style-area id="pedestrian" fill="#e0e0e0"  />
+
   <style-area id="railway|industrial" fill="#e6e3e5" fade="10" />
 
   <!-- fade out at z=7, blend over to 'blend-fill' in z=11 -->
@@ -57,7 +59,7 @@
   <style-line id="residential:bridge" use="residential" cap="square" />
 
   <!-- when inheriting another style with 'use' then 'width' is relative to the parent -->
-  <style-line id="pedestrian" use="residential" width="-0.4" />
+  <style-line id="pedestrian" use="residential" stroke="#e0e0e0" width="-0.4" />
   <style-line id="pedestrian:bridge" use="pedestrian" cap="square" />
   <style-line id="highway:z11" stroke="#fcba5a" width="1.8" />
   <!-- <style-line id="highway:z11:bridge" use="highway:z11" cap="butt" /> -->
@@ -428,6 +430,7 @@
 
         <m v="nature_reserve">
           <line stroke="#abe29c" width="1.0" fix="true" cap="butt" />
+          <area src="patterns/nature-reserve.png" stroke-width="0.2" fade="11" />
         </m>
         <m v="military">
           <line use="fence" />
@@ -579,7 +582,7 @@
               </m>
             </m>
             <m zoom-min="12">
-              <m v="track">
+              <m v="byway|track">
                 <line use="highway:track" outline="0" />
               </m>
             </m>
@@ -588,7 +591,7 @@
               <text use="major-road" />
             </m>
             <m zoom-min="13">
-              <m v="byway|pedestrian">
+              <m v="pedestrian">
                 <line use="pedestrian" outline="0" />
                 <text use="road" />
               </m>
@@ -811,9 +814,13 @@
               <line stroke="#c0c0c0" width="1.0" fix="true" cap="butt" />
             </m>
 
-            <m zoom-min="13" v="pedestrian|service|unclassified|residential|road|living_street">
+            <m zoom-min="13" v="service|unclassified|residential|road|living_street">
               <area fill="#ffffff" />
               <line stroke="#d0d0d0" width="1.0" fix="true" cap="butt" />
+            </m>
+
+            <m v="pedestrian">
+              <area use="pedestrian" />
             </m>
 
             <!-- <m v="path" zoom-min="14">
@@ -863,7 +870,7 @@
               </m>
             </m>
             <m zoom-min="12">
-              <m v="track">
+              <m v="byway|track">
                 <m k="tracktype" v="~|grade1">
                   <line use="highway:track:g1" />
                 </m>
@@ -886,8 +893,8 @@
               <text use="major-road" />
             </m>
             <m zoom-min="13">
-              <m v="byway|pedestrian">
-                <line use="residential" width="-0.4" outline="1" />
+              <m v="pedestrian">
+                <line use="pedestrian" width="-0.4" outline="0" />
                 <text use="road" />
               </m>
 
@@ -969,7 +976,7 @@
               </m>
 
               <m zoom-min="13" select="first">
-                <m v="byway|pedestrian">
+                <m v="pedestrian">
                   <line use="pedestrian:bridge" outline="bridge" />
                   <text use="road" />
                 </m>
@@ -980,7 +987,7 @@
               </m>
 
               <m zoom-min="12">
-                <m v="track">
+                <m v="byway|track">
                   <line use="highway:track:g1" cap="square" outline="bridge" />
                 </m>
               </m>
@@ -1019,7 +1026,7 @@
                 <area fill="#fefefe" />
                 <line stroke="#c0c0c0" width="0.15" cap="butt" />
               </m>
-              <m zoom-min="13" v="pedestrian|service|unclassified|residential|road|living_street">
+              <m zoom-min="13" v="service|unclassified|residential|road|living_street">
                 <area fill="#eeffffff" />
                 <line stroke="#c0c0c0" width="1.0" fix="true" cap="butt" />
               </m>
