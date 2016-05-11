@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;

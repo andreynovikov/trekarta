@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.io.kml.KmlParser;

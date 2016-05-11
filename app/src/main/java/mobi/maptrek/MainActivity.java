@@ -112,11 +112,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import mobi.maptrek.data.DataSource;
+import mobi.maptrek.data.source.DataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.data.WaypointDbDataSource;
+import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.style.TrackStyle;
+import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
@@ -132,6 +135,7 @@ import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointList;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
+import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.NavigationLayer;
@@ -145,6 +149,7 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
@@ -161,10 +166,10 @@ public class MainActivity extends Activity implements ILocationListener,
         OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
-        LoaderManager.LoaderCallbacks<List<DataSource>>,
+        LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
         OnDataMissingListener {
-    private static final String TAG = "MailActivity";
+    private static final String TAG = "MainActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     //TODO Put them in separate class
@@ -281,7 +286,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapFile mBitmapLayerMap;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
-    private List<DataSource> mData;
+    private List<FileDataSource> mData;
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
     private int mPointCount;
@@ -309,6 +314,10 @@ public class MainActivity extends Activity implements ILocationListener,
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         // Estimate finger tip height (0.25 inch is obtained from experiments)
         mFingerTipSize = (float) (metrics.ydpi * 0.25);
+
+        // Apply default styles at start
+        TrackStyle.DEFAULT_COLOR = getColor(R.color.trackColor);
+        TrackStyle.DEFAULT_WIDTH = getResources().getInteger(R.integer.trackWidth);
 
         File mapsDir = getExternalFilesDir("maps");
 
@@ -436,13 +445,7 @@ public class MainActivity extends Activity implements ILocationListener,
         for (Waypoint waypoint : waypoints) {
             if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
                 mEditedWaypoint = waypoint;
-            GeoPoint geoPoint = new GeoPoint(waypoint.latitude, waypoint.longitude);
-            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, geoPoint);
-            if (waypoint.color != 0 && waypoint.color != MarkerFactory.DEFAULT_COLOR) {
-                bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.color));
-                marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
-            }
-            mMarkerLayer.addItem(marker);
+            addWaypointMarker(waypoint);
         }
 
         //if (BuildConfig.DEBUG)
@@ -697,7 +700,7 @@ public class MainActivity extends Activity implements ILocationListener,
             disableNavigation();
         }
 
-        Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null) {
             ((DataLoader) loader).setProgressHandler(null);
         }
@@ -1185,7 +1188,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void enableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
-        mCurrentTrackLayer = new CurrentTrackLayer(mMap, org.oscim.backend.canvas.Color.fade(getColor(R.color.trackColor), 0.7), getResources().getInteger(R.integer.trackWidth), getApplicationContext());
+        mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
         mMap.layers().add(mCurrentTrackLayer);
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.TRACKING;
@@ -1407,7 +1410,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Bundle args = new Bundle(2);
         args.putString(WaypointProperties.ARG_NAME, mEditedWaypoint.name);
-        args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.color);
+        args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.style.color);
         Fragment fragment = Fragment.instantiate(this, WaypointProperties.class.getName(), args);
 
         FragmentManager fm = getFragmentManager();
@@ -1571,9 +1574,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointPropertiesChanged(String name, int color) {
-        boolean colorChanged = mEditedWaypoint.color != color;
+        boolean colorChanged = mEditedWaypoint.style.color != color;
         mEditedWaypoint.name = name;
-        mEditedWaypoint.color = color;
+        mEditedWaypoint.style.color = color;
         MarkerItem item = mMarkerLayer.getByUid(mEditedWaypoint);
         item.title = name;
         if (colorChanged) {
@@ -1587,8 +1590,9 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onTrackProperties(String path) {
+        Log.e(TAG, "onTrackProperties(" + path + ")");
         //TODO Think of better way to find appropriate track
-        for (DataSource source : mData) {
+        for (FileDataSource source : mData) {
             if (source.path.equals(path)) {
                 mEditedTrack = source.tracks.get(0);
                 break;
@@ -1599,7 +1603,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Bundle args = new Bundle(2);
         args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
-        args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.color);
+        args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.style.color);
         Fragment fragment = Fragment.instantiate(this, TrackProperties.class.getName(), args);
 
         FragmentManager fm = getFragmentManager();
@@ -1613,17 +1617,41 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onTrackPropertiesChanged(String name, int color) {
+        Log.e(TAG, "onTrackPropertiesChanged()");
         mEditedTrack.name = name;
-        mEditedTrack.color = color;
+        mEditedTrack.style.color = color;
         for (Layer layer : mMap.layers()) {
             if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(mEditedTrack)) {
-                ((TrackLayer) layer).setColor(mEditedTrack.color);
+                ((TrackLayer) layer).setColor(mEditedTrack.style.color);
             }
         }
-        if (mEditedTrack.source.isSingleTrack())
+        FileDataSource fileSource = (FileDataSource) mEditedTrack.source;
+        Manager manager = Manager.getDataManager(getApplicationContext(), fileSource.path);
+        if (manager instanceof TrackManager) {
+            try {
+                ((TrackManager)manager).saveProperties(fileSource);
+                // Rename file if name changed
+                File thisFile = new File(fileSource.path);
+                File thatFile = new File(thisFile.getParent(), FileUtils.sanitizeFilename(mEditedTrack.name) + TrackManager.EXTENSION);
+                if (!thisFile.equals(thatFile)) {
+                    Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+                    if (loader != null) {
+                        // Let loader do the task if it is available
+                        ((DataLoader) loader).renameSource(fileSource, thatFile);
+                        // otherwise do it manually (this normally should not happen)
+                    } else if (thisFile.renameTo(thatFile)) {
+                        fileSource.path = thatFile.getAbsolutePath();
+                    }
+                }
+            } catch (Exception e) {
+                // TODO Notify user about a problem
+                e.printStackTrace();
+            }
+        } else if (mEditedTrack.source.isSingleTrack()) {
+            // TODO Do we need this any more?
             mEditedTrack.source.rename(name);
-
-        Manager.save(getApplicationContext(), mEditedTrack.source);
+            Manager.save(getApplicationContext(), (FileDataSource) mEditedTrack.source);
+        }
         mEditedTrack = null;
     }
 
@@ -1980,9 +2008,22 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     }
 
+    private void addWaypointMarker(Waypoint waypoint) {
+        GeoPoint geoPoint = new GeoPoint(waypoint.latitude, waypoint.longitude);
+        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, geoPoint);
+        if (waypoint.style.color != 0 && waypoint.style.color != MarkerStyle.DEFAULT_COLOR) {
+            Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.style.color));
+            marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
+        }
+        mMarkerLayer.addItem(marker);
+    }
+
     // Called by tile manager, so it's on separate thread - do not block and do not update UI
     @Override
     public void onDataMissing(final MapTile tile) {
+        // Do not check "intermediate" maps - TODO: Should we consider movement when locked to location?
+        if (mMap.animator().isAnimating())
+            return;
         // Consider only center tile
         if (tile.distance > 0d)
             return;
@@ -2082,7 +2123,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset;
                     mLocationOverlay.setPinned(false);
-                    Log.w(TAG, "TO: " + mTrackingOffset);
                 }
 
                 ViewTreeObserver ob;
@@ -2140,23 +2180,23 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public Loader<List<DataSource>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<FileDataSource>> onCreateLoader(int id, Bundle args) {
         Log.e(TAG, "onCreateLoader(" + id + ")");
         return new DataLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<DataSource>> loader, List<DataSource> data) {
+    public void onLoadFinished(Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
         Log.e(TAG, "onLoadFinished()");
         if (data == null)
             return;
         mData = data;
-        for (DataSource source : mData) {
+        for (FileDataSource source : mData) {
+            for (Waypoint waypoint : source.waypoints) {
+                addWaypointMarker(waypoint);
+            }
             for (Track track : source.tracks) {
-                if (track.color == -1)
-                    track.color = getColor(R.color.trackColor);
-                if (track.width == -1)
-                    track.width = getResources().getInteger(R.integer.trackWidth);
+                /*
                 for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
                     Layer layer = i.next();
                     if (!(layer instanceof TrackLayer))
@@ -2169,7 +2209,8 @@ public class MainActivity extends Activity implements ILocationListener,
                         layer.onDetach();
                     }
                 }
-                TrackLayer trackLayer = new TrackLayer(mMap, track, track.color, track.width);
+                */
+                TrackLayer trackLayer = new TrackLayer(mMap, track);
                 mMap.layers().add(trackLayer);
             }
         }
@@ -2180,7 +2221,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onLoaderReset(Loader<List<DataSource>> loader) {
+    public void onLoaderReset(Loader<List<FileDataSource>> loader) {
 
     }
 
@@ -2260,19 +2301,15 @@ public class MainActivity extends Activity implements ILocationListener,
         return mMap;
     }
 
-    public List<DataSource> getData() {
+    public List<FileDataSource> getData() {
         return mData;
     }
 
-    public void setDataSourceAvailability(DataSource source, boolean available) {
+    public void setDataSourceAvailability(FileDataSource source, boolean available) {
         if (available) {
             if (source.isLoaded()) {
                 for (Track track : source.tracks) {
-                    if (track.color == -1)
-                        track.color = getColor(R.color.trackColor);
-                    if (track.width == -1)
-                        track.width = getResources().getInteger(R.integer.trackWidth);
-                    TrackLayer trackLayer = new TrackLayer(mMap, track, track.color, track.width);
+                    TrackLayer trackLayer = new TrackLayer(mMap, track);
                     mMap.layers().add(trackLayer);
                 }
             }
@@ -2291,7 +2328,7 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
         source.setVisible(available);
-        Loader<List<DataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null)
             ((DataLoader) loader).markDataSourceLoadable(source, available);
         mMap.updateMap(true);

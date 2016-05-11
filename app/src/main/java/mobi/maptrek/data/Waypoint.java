@@ -22,6 +22,8 @@ package mobi.maptrek.data;
 
 import java.util.Date;
 
+import mobi.maptrek.data.source.DataSource;
+
 //TODO Refactor
 public class Waypoint extends MapObject
 {
@@ -29,6 +31,7 @@ public class Waypoint extends MapObject
      * Date and time in GMT
      */
 	public Date date;
+	public DataSource source;
 
 	public Waypoint()
 	{

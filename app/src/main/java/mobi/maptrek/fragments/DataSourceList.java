@@ -22,14 +22,14 @@ import java.util.List;
 
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
-import mobi.maptrek.data.DataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.util.StringFormatter;
 
 public class DataSourceList extends ListFragment {
     private DataSourceListAdapter mAdapter;
     private MainActivity mActivity;
-    private List<DataSource> mData = new ArrayList<>();
+    private List<FileDataSource> mData = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,17 +87,17 @@ public class DataSourceList extends ListFragment {
 
     public void initData() {
         mData.clear();
-        List<DataSource> data = mActivity.getData();
+        List<FileDataSource> data = mActivity.getData();
         if (data == null)
             return;
-        for (DataSource source : data) {
+        for (FileDataSource source : data) {
             if (source.isSingleTrack())
                 mData.add(source);
         }
         //TODO Sort by record time (modification time?)
-        Collections.sort(mData, new Comparator<DataSource>() {
+        Collections.sort(mData, new Comparator<FileDataSource>() {
             @Override
-            public int compare(DataSource lhs, DataSource rhs) {
+            public int compare(FileDataSource lhs, FileDataSource rhs) {
                 return lhs.name.compareTo(rhs.name);
             }
         });
@@ -112,7 +112,7 @@ public class DataSourceList extends ListFragment {
         }
 
         @Override
-        public DataSource getItem(int position) {
+        public FileDataSource getItem(int position) {
             return mData.get(position);
         }
 
@@ -129,7 +129,7 @@ public class DataSourceList extends ListFragment {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             DataSourceListItemHolder itemHolder;
-            final DataSource dataSource = getItem(position);
+            final FileDataSource dataSource = getItem(position);
 
             if (convertView == null) {
                 itemHolder = new DataSourceListItemHolder();
@@ -148,14 +148,14 @@ public class DataSourceList extends ListFragment {
 
             if (dataSource.isLoaded()) {
                 Track track = dataSource.tracks.get(0);
-                String distance = StringFormatter.distanceH(track.distance);
+                String distance = StringFormatter.distanceH(track.getDistance());
                 itemHolder.description.setText(distance);
-                if (track.color != -1) {
+                if (track.style.color != -1) {
                     Drawable background = itemHolder.icon.getBackground().mutate();
                     if (background instanceof ShapeDrawable) {
-                        ((ShapeDrawable) background).getPaint().setColor(track.color);
+                        ((ShapeDrawable) background).getPaint().setColor(track.style.color);
                     } else if (background instanceof GradientDrawable) {
-                        ((GradientDrawable) background).setColor(track.color);
+                        ((GradientDrawable) background).setColor(track.style.color);
                     }
                 }
             } else {

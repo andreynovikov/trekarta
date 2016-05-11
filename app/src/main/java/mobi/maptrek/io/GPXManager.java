@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.io.gpx.GpxParser;
@@ -30,9 +30,6 @@ public class GPXManager extends Manager {
             track.id = 31 * (hash + track.name.hashCode()) + i;
             i++;
         }
-        //FIXME Temporary!
-        if (dataSource.name == null || "".equals(dataSource.name))
-            dataSource.name = filePath.substring(0, filePath.lastIndexOf("."));
         return dataSource;
     }
 

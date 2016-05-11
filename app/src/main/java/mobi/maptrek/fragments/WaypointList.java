@@ -27,8 +27,8 @@ import java.util.HashSet;
 
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.data.WaypointDataSource;
-import mobi.maptrek.data.WaypointDataSourceUpdateListener;
+import mobi.maptrek.data.source.WaypointDataSource;
+import mobi.maptrek.data.source.WaypointDataSourceUpdateListener;
 import mobi.maptrek.util.StringFormatter;
 
 public class WaypointList extends ListFragment implements WaypointDataSourceUpdateListener {

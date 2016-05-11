@@ -5,6 +5,7 @@ import org.oscim.core.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.style.TrackStyle;
 
 public class Track {
@@ -14,11 +15,11 @@ public class Track {
     public boolean show;
     public TrackStyle style = new TrackStyle();
     public DataSource source; // back reference to it's source
-    public float distance;
     public boolean removed = false;
 
     public final List<TrackPoint> points = new ArrayList<>();
     private TrackPoint mLastTrackPoint;
+    private float mDistance = Float.NaN;
 
     public class TrackPoint extends GeoPoint {
         //TODO Refactor path readers to make fields final
@@ -48,7 +49,6 @@ public class Track {
     public Track(String name, boolean show) {
         this.name = name;
         this.show = show;
-        distance = 0;
     }
 
     public synchronized void copyFrom(Track track) {
@@ -58,23 +58,53 @@ public class Track {
         name = track.name;
         description = track.description;
         track.style.copy(style);
-        distance = track.distance;
+        mDistance = track.mDistance;
     }
 
     public void addPoint(boolean continuous, int latE6, int lonE6, float elev, float speed, float bearing, float accuracy, long time) {
-        if (mLastTrackPoint != null) {
-            distance += GeoPoint.distance(mLastTrackPoint.latitudeE6 / 1E6, mLastTrackPoint.longitudeE6 / 1E6, latE6  / 1E6, lonE6  / 1E6);
+        TrackPoint previous = mLastTrackPoint;
+        if (mLastTrackPoint == null)
+            mDistance = 0f;
+        mLastTrackPoint = new TrackPoint(continuous, latE6, lonE6, elev, speed, bearing, accuracy, time);
+        if (previous != null)
+            mDistance += previous.distanceTo(mLastTrackPoint);
+        synchronized (points) {
+            points.add(mLastTrackPoint);
         }
+    }
+
+    /**
+     * Adds point without calculating distance, suitable for loading track from file. Should not be
+     * mixed with addPoint.
+     */
+    public void addPointFast(boolean continuous, int latE6, int lonE6, float elev, float speed, float bearing, float accuracy, long time) {
         mLastTrackPoint = new TrackPoint(continuous, latE6, lonE6, elev, speed, bearing, accuracy, time);
         synchronized (points) {
             points.add(mLastTrackPoint);
         }
     }
 
+    public float getDistance() {
+        if (Float.isNaN(mDistance)) {
+            mDistance = 0f;
+            synchronized (points) {
+                TrackPoint previous = mLastTrackPoint;
+                if (points.size() > 1) {
+                    for (int i = points.size() - 2; i >= 0; i--) {
+                        TrackPoint current = points.get(i);
+                        mDistance += previous.distanceTo(current);
+                        previous = current;
+                    }
+                }
+            }
+        }
+        return mDistance;
+    }
+
     public synchronized void clear() {
         points.clear();
         mLastTrackPoint = null;
-        distance = 0;
+        mDistance = Float.NaN;
     }
 
     public TrackPoint getLastPoint() {

@@ -1,4 +1,4 @@
-package mobi.maptrek.data;
+package mobi.maptrek.data.source;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.maptrek.data.Track;
+import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.io.TrackManager;
 
 public class FileDataSource extends DataSource implements WaypointDataSource, TrackDataSource {

@@ -44,8 +44,8 @@ import java.util.Set;
 
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
-import mobi.maptrek.data.DataSource;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.StringFormatter;
 
@@ -131,8 +131,9 @@ public class LocationService extends BaseLocationService implements LocationList
             mTrackingEnabled = true;
             mContinuous = false;
             Track leftTrack = getTrack();
-            mDistanceTracked = leftTrack.distance;
-            Track.TrackPoint firstPoint = leftTrack.getPointCount() > 0 ? leftTrack.getPoint(0) : null;
+            // TODO Optimize: save distance in a cache
+            mDistanceTracked = leftTrack.getDistance();
+            Track.TrackPoint firstPoint = leftTrack.points.size() > 0 ? leftTrack.points.get(0) : null;
             mTrackingStarted = firstPoint != null ? firstPoint.time : System.currentTimeMillis();
             mDistanceNotified = 0f;
             openDatabase();
@@ -190,7 +191,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void connect() {
-        Log.e(TAG, "connect()");
+        Log.i(TAG, "connect()");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationManager != null) {
             mLastLocationMillis = 0;
@@ -204,7 +205,7 @@ public class LocationService extends BaseLocationService implements LocationList
                     mLocationsEnabled = true;
                     Log.d(TAG, "Gps provider set");
                 } catch (IllegalArgumentException e) {
-                    Log.d(TAG, "Cannot set gps provider, likely no gps on device");
+                    Log.w(TAG, "Cannot set gps provider, likely no gps on device");
                 }
             } else {
                 Log.e(TAG, "Missing ACCESS_FINE_LOCATION permission");
@@ -218,7 +219,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void disconnect() {
-        Log.e(TAG, "disconnect()");
+        Log.i(TAG, "disconnect()");
         if (mLocationManager != null) {
             mLocationsEnabled = false;
             mLocationManager.removeNmeaListener(this);
@@ -324,7 +325,7 @@ public class LocationService extends BaseLocationService implements LocationList
             //noinspection SpellCheckingInspection
             Cursor cursor = mTrackDB.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = 'track'", null);
             if (cursor.getCount() == 0) {
-                mTrackDB.execSQL("CREATE TABLE track (_id INTEGER PRIMARY KEY, latitude REAL, longitude REAL, code INTEGER, elevation REAL, speed REAL, track REAL, accuracy REAL, datetime INTEGER)");
+                mTrackDB.execSQL("CREATE TABLE track (_id INTEGER PRIMARY KEY, latitude INTEGER, longitude INTEGER, code INTEGER, elevation REAL, speed REAL, track REAL, accuracy REAL, datetime INTEGER)");
             }
             cursor.close();
         } catch (SQLiteException e) {
@@ -356,15 +357,15 @@ public class LocationService extends BaseLocationService implements LocationList
         String limitStr = limit > 0 ? " LIMIT " + limit : "";
         Cursor cursor = mTrackDB.rawQuery("SELECT * FROM track ORDER BY _id DESC" + limitStr, null);
         for (boolean hasItem = cursor.moveToLast(); hasItem; hasItem = cursor.moveToPrevious()) {
-            double latitude = cursor.getDouble(cursor.getColumnIndex("latitude"));
-            double longitude = cursor.getDouble(cursor.getColumnIndex("longitude"));
-            double elevation = cursor.getDouble(cursor.getColumnIndex("elevation"));
-            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
-            double bearing = cursor.getDouble(cursor.getColumnIndex("track"));
-            double accuracy = cursor.getDouble(cursor.getColumnIndex("accuracy"));
+            int latitudeE6 = cursor.getInt(cursor.getColumnIndex("latitude"));
+            int longitudeE6 = cursor.getInt(cursor.getColumnIndex("longitude"));
+            float elevation = cursor.getFloat(cursor.getColumnIndex("elevation"));
+            float speed = cursor.getFloat(cursor.getColumnIndex("speed"));
+            float bearing = cursor.getFloat(cursor.getColumnIndex("track"));
+            float accuracy = cursor.getFloat(cursor.getColumnIndex("accuracy"));
             int code = cursor.getInt(cursor.getColumnIndex("code"));
             long time = cursor.getLong(cursor.getColumnIndex("datetime"));
-            track.addPoint(code == 0, latitude, longitude, elevation, speed, bearing, accuracy, time);
+            track.addPoint(code == 0, latitudeE6, longitudeE6, elevation, speed, bearing, accuracy, time);
         }
         cursor.close();
         return track;
@@ -378,15 +379,15 @@ public class LocationService extends BaseLocationService implements LocationList
             return track;
         Cursor cursor = mTrackDB.rawQuery("SELECT * FROM track WHERE datetime >= ? AND datetime <= ? ORDER BY _id DESC", new String[]{String.valueOf(start), String.valueOf(end)});
         for (boolean hasItem = cursor.moveToLast(); hasItem; hasItem = cursor.moveToPrevious()) {
-            double latitude = cursor.getDouble(cursor.getColumnIndex("latitude"));
-            double longitude = cursor.getDouble(cursor.getColumnIndex("longitude"));
-            double elevation = cursor.getDouble(cursor.getColumnIndex("elevation"));
-            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
-            double bearing = cursor.getDouble(cursor.getColumnIndex("track"));
-            double accuracy = cursor.getDouble(cursor.getColumnIndex("accuracy"));
+            int latitudeE6 = cursor.getInt(cursor.getColumnIndex("latitude"));
+            int longitudeE6 = cursor.getInt(cursor.getColumnIndex("longitude"));
+            float elevation = cursor.getFloat(cursor.getColumnIndex("elevation"));
+            float speed = cursor.getFloat(cursor.getColumnIndex("speed"));
+            float bearing = cursor.getFloat(cursor.getColumnIndex("track"));
+            float accuracy = cursor.getFloat(cursor.getColumnIndex("accuracy"));
             int code = cursor.getInt(cursor.getColumnIndex("code"));
             long time = cursor.getLong(cursor.getColumnIndex("datetime"));
-            track.addPoint(code == 0, latitude, longitude, elevation, speed, bearing, accuracy, time);
+            track.addPoint(code == 0, latitudeE6, longitudeE6, elevation, speed, bearing, accuracy, time);
         }
         cursor.close();
         return track;
@@ -427,13 +428,10 @@ public class LocationService extends BaseLocationService implements LocationList
 
     public void tryToSaveTrack() {
         mLastTrack = getTrack();
-        if (mLastTrack.getPointCount() == 0)
+        if (mLastTrack.points.size() == 0)
             return;
 
-        mLastTrack.color = getColor(R.color.trackColor);
-        mLastTrack.width = getResources().getInteger(R.integer.trackWidth);
-
-        long startTime = mLastTrack.getPoint(0).time;
+        long startTime = mLastTrack.points.get(0).time;
         long stopTime = mLastTrack.getLastPoint().time;
         long period = stopTime - startTime;
         int flags = DateUtils.FORMAT_NO_NOON | DateUtils.FORMAT_NO_MIDNIGHT;
@@ -446,7 +444,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
         //TODO Try to 'guess' starting and ending location name
         mLastTrack.description = DateUtils.formatDateRange(this, startTime, stopTime, flags) +
-                " \u2014 " + StringFormatter.distanceH(mLastTrack.distance);
+                " \u2014 " + StringFormatter.distanceH(mLastTrack.getDistance());
         flags |= DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_DATE;
         mLastTrack.name = DateUtils.formatDateRange(this, startTime, stopTime, flags);
 
@@ -455,7 +453,7 @@ public class LocationService extends BaseLocationService implements LocationList
             return;
         }
 
-        if (mLastTrack.distance < TOO_SMALL_DISTANCE) {
+        if (mLastTrack.getDistance() < TOO_SMALL_DISTANCE) {
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "distance"));
             return;
         }
@@ -473,24 +471,25 @@ public class LocationService extends BaseLocationService implements LocationList
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
             return;
         }
+        FileDataSource source = new FileDataSource();
         //FIXME Not UTC time!
-        DataSource source = new DataSource(TIME_FORMAT.format(new Date(mLastTrack.getPoint(0).time)));
+        source.name = TIME_FORMAT.format(new Date(mLastTrack.points.get(0).time));
         source.tracks.add(mLastTrack);
         Manager.save(this, source, new Manager.OnSaveListener() {
             @Override
-            public void onSaved(DataSource source) {
+            public void onSaved(FileDataSource source) {
                 sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true).putExtra("path", source.path));
                 mLastTrack = null;
             }
 
             @Override
-            public void onError(DataSource source, Exception e) {
+            public void onError(FileDataSource source, Exception e) {
                 sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
             }
         }, mProgressListener);
     }
 
-    public void addPoint(boolean continuous, double latitude, double longitude, double elevation, float speed, float bearing, float accuracy, long time) {
+    public void addPoint(boolean continuous, double latitude, double longitude, float elevation, float speed, float bearing, float accuracy, long time) {
         if (mTrackDB == null) {
             openDatabase();
             if (mTrackDB == null)
@@ -498,8 +497,8 @@ public class LocationService extends BaseLocationService implements LocationList
         }
 
         ContentValues values = new ContentValues();
-        values.put("latitude", latitude);
-        values.put("longitude", longitude);
+        values.put("latitude", (int) (latitude * 1E6));
+        values.put("longitude", (int) (longitude * 1E6));
         values.put("code", continuous ? 0 : 1);
         values.put("elevation", elevation);
         values.put("speed", speed);
@@ -519,8 +518,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void writeTrackPoint(final Location loc, final float distance, final boolean continuous) {
-        Log.d(TAG, "Fix needs writing");
-        addPoint(continuous, loc.getLatitude(), loc.getLongitude(), loc.getAltitude(), loc.getSpeed(), loc.getBearing(), loc.getAccuracy(), loc.getTime());
+        addPoint(continuous, loc.getLatitude(), loc.getLongitude(), (float) loc.getAltitude(), loc.getSpeed(), loc.getBearing(), loc.getAccuracy(), loc.getTime());
         mDistanceTracked += distance;
         mDistanceNotified += distance;
         if (mDistanceNotified > mDistanceTracked / 100) {
@@ -530,7 +528,7 @@ public class LocationService extends BaseLocationService implements LocationList
         mLastWrittenLocation = loc;
 
         for (ITrackingListener callback : mTrackingCallbacks) {
-            callback.onNewPoint(continuous, loc.getLatitude(), loc.getLongitude(), loc.getAltitude(), loc.getSpeed(), loc.getBearing(), loc.getAccuracy(), loc.getTime());
+            callback.onNewPoint(continuous, loc.getLatitude(), loc.getLongitude(), (float) loc.getAltitude(), loc.getSpeed(), loc.getBearing(), loc.getAccuracy(), loc.getTime());
         }
     }
 
@@ -577,7 +575,6 @@ public class LocationService extends BaseLocationService implements LocationList
                 }
             });
         }
-        Log.d(TAG, "Location dispatched: " + mLocationCallbacks.size());
     }
 
     private void updateLocation(final ILocationListener callback) {
@@ -598,7 +595,6 @@ public class LocationService extends BaseLocationService implements LocationList
                 }
             });
         }
-        Log.d(TAG, "GPS status dispatched: " + mLocationCallbacks.size());
     }
 
     private void updateGpsStatus(final ILocationListener callback) {
@@ -612,10 +608,6 @@ public class LocationService extends BaseLocationService implements LocationList
             return;
 
         long time = SystemClock.elapsedRealtime();
-
-        // Log.i(TAG, "Location arrived: "+location.toString());
-
-        Log.d(TAG, "Fix arrived");
 
         long prevLocationMillis = mLastLocationMillis;
         float prevSpeed = mLastKnownLocation.getSpeed();

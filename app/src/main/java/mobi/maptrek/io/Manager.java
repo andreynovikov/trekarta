@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.util.FileUtils;
 
 public abstract class Manager {
@@ -26,6 +26,9 @@ public abstract class Manager {
      */
     @Nullable
     public static Manager getDataManager(Context context, String file) {
+        if (file.toLowerCase().endsWith(TrackManager.EXTENSION)) {
+            return new TrackManager().setContext(context);
+        }
         if (file.toLowerCase().endsWith(GPXManager.EXTENSION)) {
             return new GPXManager().setContext(context);
         }
@@ -45,7 +48,7 @@ public abstract class Manager {
      */
     @Nullable
     private static Manager getDataManager(Context context, FileDataSource source) {
-        // FIXME Not suitable for exporting data
+        // FIXME Method not suitable for exporting data
         if (source.path == null)
             return new TrackManager().setContext(context);
         if (source.path.toLowerCase().endsWith(GPXManager.EXTENSION))

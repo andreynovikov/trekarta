@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 
@@ -289,7 +289,7 @@ public class KmlParser {
                 float altitude = 0f;
                 if (coordinates.length == 3)
                     altitude = (float) Double.parseDouble(coordinates[2]);
-                track.addPoint(continuous, latitudeE6, longitudeE6, altitude, Float.NaN, Float.NaN, Float.NaN, 0L);
+                track.addPointFast(continuous, latitudeE6, longitudeE6, altitude, Float.NaN, Float.NaN, Float.NaN, 0L);
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                 throw new XmlPullParserException("Wrong coordinates format: " + point, parser, e);
             }

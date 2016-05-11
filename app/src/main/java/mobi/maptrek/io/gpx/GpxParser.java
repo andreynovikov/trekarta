@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
-import mobi.maptrek.data.FileDataSource;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 
@@ -186,7 +186,7 @@ public class GpxParser {
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_TRKPT);
-        track.addPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), altitude, Float.NaN, Float.NaN, Float.NaN, time);
+        track.addPointFast(continuous, (int) (lat * 1E6), (int) (lon * 1E6), altitude, Float.NaN, Float.NaN, Float.NaN, time);
     }
 
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {

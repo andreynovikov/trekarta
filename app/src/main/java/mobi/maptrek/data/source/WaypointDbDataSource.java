@@ -1,4 +1,4 @@
-package mobi.maptrek.data;
+package mobi.maptrek.data.source;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,9 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import mobi.maptrek.location.ILocationListener;
+import mobi.maptrek.R;
+import mobi.maptrek.data.Waypoint;
 
-public class WaypointDbDataSource implements WaypointDataSource {
+public class WaypointDbDataSource extends DataSource implements WaypointDataSource {
     private SQLiteDatabase mDatabase;
     private WaypointDbHelper mDbHelper;
 
@@ -34,10 +35,12 @@ public class WaypointDbDataSource implements WaypointDataSource {
 
     public WaypointDbDataSource(Context context, File file) {
         mDbHelper = new WaypointDbHelper(context, file);
+        name = context.getString(R.string.waypointStoreName);
     }
 
     public void open() throws SQLException {
         mDatabase = mDbHelper.getWritableDatabase();
+        setLoaded();
     }
 
     public void close() {
@@ -64,9 +67,9 @@ public class WaypointDbDataSource implements WaypointDataSource {
             values.put(WaypointDbHelper.COLUMN_DESCRIPTION, waypoint.description);
         if (waypoint.date != null)
             values.put(WaypointDbHelper.COLUMN_DATE, waypoint.date.getTime());
-        values.put(WaypointDbHelper.COLUMN_COLOR, waypoint.color);
-        if (waypoint.icon != null)
-            values.put(WaypointDbHelper.COLUMN_ICON, waypoint.icon);
+        values.put(WaypointDbHelper.COLUMN_COLOR, waypoint.style.color);
+        if (waypoint.style.icon != null)
+            values.put(WaypointDbHelper.COLUMN_ICON, waypoint.style.icon);
 
         int id = (int) mDatabase.insertWithOnConflict(WaypointDbHelper.TABLE_NAME, null, values,
                 SQLiteDatabase.CONFLICT_IGNORE);
@@ -97,6 +100,7 @@ public class WaypointDbDataSource implements WaypointDataSource {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Waypoint waypoint = cursorToWaypoint(cursor);
+            waypoint.source = this;
             waypoints.add(waypoint);
             cursor.moveToNext();
         }
@@ -124,9 +128,9 @@ public class WaypointDbDataSource implements WaypointDataSource {
             waypoint.description = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DESCRIPTION));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DATE)))
             waypoint.date = new Date(cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_DATE)));
-        waypoint.color = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_COLOR));
+        waypoint.style.color = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_COLOR));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON)))
-            waypoint.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));
+            waypoint.style.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));
         return waypoint;
     }
 
@@ -140,5 +144,10 @@ public class WaypointDbDataSource implements WaypointDataSource {
     @Override
     public void removeListener(WaypointDataSourceUpdateListener listener) {
         mListeners.remove(listener);
+    }
+
+    @Override
+    public boolean isSingleTrack() {
+        return false;
     }
 }

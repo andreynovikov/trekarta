@@ -3,6 +3,9 @@ package mobi.maptrek.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.text.format.DateFormat;
@@ -16,6 +19,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -291,10 +296,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         TextView sourceView = (TextView) view.findViewById(R.id.source);
         if (sourceView != null)
-            sourceView.setText(R.string.waypoint_store_name);
+            sourceView.setText(mWaypoint.source.name);
         sourceView = (TextView) view.findViewById(R.id.sourceExtended);
         if (sourceView != null)
-            sourceView.setText(R.string.waypoint_store_name);
+            sourceView.setText(mWaypoint.source.name);
 
         TextView destinationView = (TextView) view.findViewById(R.id.destination);
         if (destinationView != null)
@@ -352,43 +357,37 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             }
         }
 
-        View row = view.findViewById(R.id.descriptionRow);
+        final ViewGroup row = (ViewGroup) view.findViewById(R.id.descriptionRow);
         if (row != null) {
             if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
-                view.findViewById(R.id.descriptionRow).setVisibility(View.GONE);
+                row.setVisibility(View.GONE);
             } else {
-                /*
-                WebView description = (WebView) view.findViewById(R.id.description);
+                final WebView description = (WebView) view.findViewById(R.id.description);
                 String descriptionHtml;
                 try {
+                    /*
                     TypedValue tv = new TypedValue();
                     Resources.Theme theme = activity.getTheme();
                     Resources resources = getResources();
                     theme.resolveAttribute(android.R.attr.textColorPrimary, tv, true);
                     int secondaryColor = resources.getColor(tv.resourceId, theme);
                     String css = String.format("<style type=\"text/css\">html,body{margin:0;background:transparent} *{color:#%06X}</style>\n", (secondaryColor & 0x00FFFFFF));
+                    */
+                    String css = "<style type=\"text/css\">html,body{margin:0}</style>\n";
                     descriptionHtml = css + mWaypoint.description;
-                    description.setWebViewClient(new WebViewClient() {
-                        @Override
-                        public void onPageFinished(WebView view, String url) {
-                            view.setBackgroundColor(Color.TRANSPARENT);
-                            view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-                        }
-                    });
                     description.setBackgroundColor(Color.TRANSPARENT);
-                    description.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                    description.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // flicker workaround
                 } catch (Resources.NotFoundException e) {
+                    // TODO If theme will be switching correctly, simplify
                     description.setBackgroundColor(Color.LTGRAY);
                     descriptionHtml = mWaypoint.description;
                 }
-
                 WebSettings settings = description.getSettings();
                 settings.setDefaultTextEncodingName("utf-8");
                 settings.setAllowFileAccess(true);
                 Uri baseUrl = Uri.fromFile(activity.getExternalFilesDir("data"));
                 description.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
-                */
-                view.findViewById(R.id.descriptionRow).setVisibility(View.VISIBLE);
+                row.setVisibility(View.VISIBLE);
             }
         }
 
