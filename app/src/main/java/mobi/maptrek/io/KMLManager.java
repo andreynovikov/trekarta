@@ -6,9 +6,11 @@ import android.support.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.io.kml.KmlParser;
 import mobi.maptrek.io.kml.KmlSerializer;
 
@@ -24,10 +26,16 @@ public class KMLManager extends Manager {
         // TODO - Generate names if they are missing
         for (Waypoint waypoint : dataSource.waypoints) {
             waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
+            if (waypoint.style.color == 0)
+                waypoint.style.color = MarkerStyle.DEFAULT_COLOR;
             i++;
         }
         for (Track track : dataSource.tracks) {
             track.id = 31 * (hash + track.name.hashCode()) + i;
+            if (track.style.color == 0)
+                track.style.color = TrackStyle.DEFAULT_COLOR;
+            if (track.style.width == 0f)
+                track.style.width = TrackStyle.DEFAULT_WIDTH;
             i++;
         }
         return dataSource;
