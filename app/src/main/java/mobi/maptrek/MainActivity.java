@@ -2210,7 +2210,7 @@ public class MainActivity extends Activity implements ILocationListener,
             return;
         mData = data;
         for (FileDataSource source : mData) {
-            if (!source.isVisible()) {
+            if (source.isLoaded() && !source.isVisible()) {
                 addSourceToMap(source);
                 source.setVisible(true);
             }
@@ -2366,7 +2366,7 @@ public class MainActivity extends Activity implements ILocationListener,
         } else {
             removeSourceFromMap(source);
         }
-        source.setVisible(available);
+        source.setVisible(available); // Set visibility for UI response, it does not affect other parts as source is replaced by loader
         Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null)
             ((DataLoader) loader).markDataSourceLoadable(source, available);

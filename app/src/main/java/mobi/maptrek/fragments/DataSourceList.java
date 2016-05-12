@@ -107,7 +107,8 @@ public class DataSourceList extends ListFragment {
             mAdapter.notifyDataSetChanged();
             return;
         }
-        Collections.sort(mData, new Comparator<DataSource>() {
+        // TODO Preserve position after source is loaded and name changes
+        Collections.sort(data, new Comparator<DataSource>() {
             @Override
             public int compare(DataSource lhs, DataSource rhs) {
                 return lhs.name.compareTo(rhs.name);
@@ -205,7 +206,7 @@ public class DataSourceList extends ListFragment {
                     itemHolder.description.setText(size);
                     color = mDisabledColor;
                 }
-                final boolean shown = dataSource.isLoaded() && dataSource.isVisible();
+                final boolean shown = dataSource.isVisible();
                 if (shown)
                     itemHolder.action.setImageResource(R.drawable.ic_visibility);
                 else
