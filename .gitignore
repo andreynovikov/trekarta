@@ -29,3 +29,7 @@ proguard/
 
 # Log Files
 *.log
+
+# Generated files
+app/src/main/java/mobi/maptrek/maps/NativeMaps.java
+app/src/main/java/mobi/maptrek/maps/forge/
