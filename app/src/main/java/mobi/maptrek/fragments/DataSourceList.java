@@ -1,11 +1,14 @@
 package mobi.maptrek.fragments;
 
+import android.app.Activity;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,21 +18,28 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import mobi.maptrek.MainActivity;
+import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
-import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.data.source.DataSource;
+import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.source.WaypointDataSource;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.util.StringFormatter;
 
 public class DataSourceList extends ListFragment {
+    public static final String ARG_NATIVE_TRACKS = "nativeTracks";
+
     private DataSourceListAdapter mAdapter;
-    private MainActivity mActivity;
-    private List<FileDataSource> mData = new ArrayList<>();
+    private DataHolder mDataHolder;
+    private List<DataSource> mData = new ArrayList<>();
+    private boolean mNativeTracks;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,23 +56,25 @@ public class DataSourceList extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        TextView emptyView = (TextView) getListView().getEmptyView();
-        if (emptyView != null)
-            emptyView.setText(R.string.msg_empty_track_list);
+        mNativeTracks = getArguments().getBoolean(ARG_NATIVE_TRACKS);
+
+        if (mNativeTracks) {
+            TextView emptyView = (TextView) getListView().getEmptyView();
+            if (emptyView != null)
+                emptyView.setText(R.string.msg_empty_track_list);
+        }
 
         mAdapter = new DataSourceListAdapter(getActivity());
-        //mAdapter = new SwipeActionAdapter(new DataSourceListAdapter(getActivity()));
         setListAdapter(mAdapter);
-        //mAdapter.setListView(getListView());
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mActivity = (MainActivity) context;
+            mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must be MainActivity");
+            throw new ClassCastException(context.toString() + " must implement DataHolder");
         }
     }
 
@@ -70,55 +82,66 @@ public class DataSourceList extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mData.clear();
-        mActivity = null;
+        mDataHolder = null;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initData();
+        updateData();
     }
 
     @Override
     public void onListItemClick(ListView lv, View v, int position, long id) {
-        //final Track track = application.getTrack(position);
-        //trackActionsCallback.onTrackDetails(track);
+        mDataHolder.onDataSourceSelected(mAdapter.getItem(position));
     }
 
-    public void initData() {
+    public void updateData() {
         mData.clear();
-        List<FileDataSource> data = mActivity.getData();
-        if (data == null)
+
+        if (!mNativeTracks)
+            mData.add(mDataHolder.getWaypointDataSource());
+
+        List<FileDataSource> data = mDataHolder.getData();
+        if (data == null) {
+            mAdapter.notifyDataSetChanged();
             return;
-        for (FileDataSource source : data) {
-            if (source.isSingleTrack())
-                mData.add(source);
         }
-        //TODO Sort by record time (modification time?)
-        Collections.sort(mData, new Comparator<FileDataSource>() {
+        Collections.sort(mData, new Comparator<DataSource>() {
             @Override
-            public int compare(FileDataSource lhs, FileDataSource rhs) {
+            public int compare(DataSource lhs, DataSource rhs) {
                 return lhs.name.compareTo(rhs.name);
             }
         });
+        for (FileDataSource source : data) {
+            if (mNativeTracks ^ !source.isNativeTrack()) {
+                mData.add(source);
+            }
+        }
+
         mAdapter.notifyDataSetChanged();
     }
 
     public class DataSourceListAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
+        private int mAccentColor;
+        private int mDisabledColor;
 
         public DataSourceListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            Activity activity = getActivity();
+            mAccentColor = activity.getColor(R.color.colorAccent);
+            mDisabledColor = activity.getColor(R.color.colorPrimary);
         }
 
         @Override
-        public FileDataSource getItem(int position) {
+        public DataSource getItem(int position) {
             return mData.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return mData.get(position).path.hashCode();
+            return mData.get(position).hashCode();
         }
 
         @Override
@@ -129,7 +152,7 @@ public class DataSourceList extends ListFragment {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             DataSourceListItemHolder itemHolder;
-            final FileDataSource dataSource = getItem(position);
+            final DataSource dataSource = getItem(position);
 
             if (convertView == null) {
                 itemHolder = new DataSourceListItemHolder();
@@ -145,42 +168,66 @@ public class DataSourceList extends ListFragment {
             }
 
             itemHolder.name.setText(dataSource.name);
+            Resources resources = getResources();
 
-            if (dataSource.isLoaded()) {
-                Track track = dataSource.tracks.get(0);
-                String distance = StringFormatter.distanceH(track.getDistance());
-                itemHolder.description.setText(distance);
-                if (track.style.color != -1) {
-                    Drawable background = itemHolder.icon.getBackground().mutate();
-                    if (background instanceof ShapeDrawable) {
-                        ((ShapeDrawable) background).getPaint().setColor(track.style.color);
-                    } else if (background instanceof GradientDrawable) {
-                        ((GradientDrawable) background).setColor(track.style.color);
-                    }
-                }
+            int color = mAccentColor;
+            if (dataSource instanceof WaypointDbDataSource) {
+                int count = ((WaypointDataSource)dataSource).getWaypointsCount();
+                itemHolder.description.setText(resources.getQuantityString(R.plurals.waypointsCount, count, count));
+                itemHolder.filename.setText("");
+                itemHolder.action.setVisibility(View.GONE);
+                itemHolder.action.setOnClickListener(null);
             } else {
-                itemHolder.description.setText(R.string.unknown);
-                Drawable background = itemHolder.icon.getBackground().mutate();
-                int color = getActivity().getColor(R.color.colorPrimary);
-                if (background instanceof ShapeDrawable) {
-                    ((ShapeDrawable) background).getPaint().setColor(color);
-                } else if (background instanceof GradientDrawable) {
-                    ((GradientDrawable) background).setColor(color);
+                File file = new File(((FileDataSource) dataSource).path);
+                itemHolder.filename.setText(file.getName());
+                if (dataSource.isLoaded()) {
+                    if (mNativeTracks) {
+                        Track track = ((FileDataSource) dataSource).tracks.get(0);
+                        String distance = StringFormatter.distanceH(track.getDistance());
+                        itemHolder.description.setText(distance);
+                        color = track.style.color;
+                    } else {
+                        int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
+                        int tracksCount = ((FileDataSource) dataSource).tracks.size();
+                        StringBuilder sb = new StringBuilder();
+                        if (waypointsCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.waypointsCount, waypointsCount, waypointsCount));
+                            if (tracksCount > 0)
+                                sb.append(", ");
+                        }
+                        if (tracksCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
+                        }
+                        itemHolder.description.setText(sb);
+                    }
+                } else {
+                    String size = Formatter.formatShortFileSize(getContext(), file.length());
+                    itemHolder.description.setText(size);
+                    color = mDisabledColor;
                 }
+                final boolean shown = dataSource.isLoaded() && dataSource.isVisible();
+                if (shown)
+                    itemHolder.action.setImageResource(R.drawable.ic_visibility);
+                else
+                    itemHolder.action.setImageResource(R.drawable.ic_visibility_off);
+                itemHolder.action.setVisibility(View.VISIBLE);
+                itemHolder.action.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.w("DSL", "Pos: " + position + " l: " + shown);
+                        mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
+                        notifyDataSetChanged();
+                    }
+                });
             }
-            final boolean shown = dataSource.isLoaded() && dataSource.isVisible();
-            if (shown)
-                itemHolder.action.setImageResource(R.drawable.ic_visibility);
-            else
-                itemHolder.action.setImageResource(R.drawable.ic_visibility_off);
-            itemHolder.action.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.w("DSL", "Pos: " + position + " l: " + shown);
-                    mActivity.setDataSourceAvailability(getItem(position), !shown);
-                    notifyDataSetChanged();
-                }
-            });
+
+            //TODO Set appropriate icons: track, waypoints, file format, etc
+            Drawable background = itemHolder.icon.getBackground().mutate();
+            if (background instanceof ShapeDrawable) {
+                ((ShapeDrawable) background).getPaint().setColor(color);
+            } else if (background instanceof GradientDrawable) {
+                ((GradientDrawable) background).setColor(color);
+            }
 
             return convertView;
         }

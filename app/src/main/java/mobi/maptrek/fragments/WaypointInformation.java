@@ -85,7 +85,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         navigateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragmentManager().popBackStack();
+                mFragmentHolder.popAll();
                 mListener.onWaypointNavigate(mWaypoint);
             }
         });
@@ -93,7 +93,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             @Override
             public void onClick(View v) {
                 mFragmentHolder.disableActionButton();
-                getFragmentManager().popBackStack();
+                mFragmentHolder.popCurrent();
                 mListener.onWaypointShare(mWaypoint);
             }
         });
@@ -108,7 +108,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             @Override
             public boolean onLongClick(View v) {
                 mFragmentHolder.disableActionButton();
-                getFragmentManager().popBackStack();
+                mFragmentHolder.popCurrent();
                 mListener.onWaypointDelete(mWaypoint);
                 return true;
             }
@@ -133,7 +133,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                             updateWaypointInformation(mLatitude, mLongitude);
                         } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                             mFragmentHolder.disableActionButton();
-                            getFragmentManager().popBackStack();
+                            mFragmentHolder.popCurrent();
                         }
                         return super.onFling(e1, e2, velocityX, velocityY);
                     }
@@ -263,8 +263,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                     setEditorMode(false);
                 } else {
                     mFragmentHolder.disableActionButton();
-                    getFragmentManager().popBackStack();
                     mListener.onWaypointNavigate(mWaypoint);
+                    mFragmentHolder.popAll();
                 }
             }
         });

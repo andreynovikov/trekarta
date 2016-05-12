@@ -7,4 +7,6 @@ public interface FragmentHolder {
     void disableActionButton();
     void addBackClickListener(OnBackPressedListener listener);
     void removeBackClickListener(OnBackPressedListener listener);
+    void popCurrent();
+    void popAll();
 }

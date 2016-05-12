@@ -31,6 +31,7 @@ public class MapList extends ListFragment {
     private ArrayList<MapFile> mMaps;
     private MapFile mActiveMap;
     private OnMapActionListener mListener;
+    private FragmentHolder mFragmentHolder;
 
     private GeoPoint mLocation;
 
@@ -75,6 +76,7 @@ public class MapList extends ListFragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnMapActionListener");
         }
+        mFragmentHolder = (FragmentHolder) context;
     }
 
     @Override
@@ -87,6 +89,7 @@ public class MapList extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mMaps.clear();
+        mFragmentHolder = null;
         //TODO Think how to better handle pop back stack
         //mListener = null;
     }
@@ -96,7 +99,7 @@ public class MapList extends ListFragment {
         // We get map first, otherwise adapter is destroyed
         MapFile map = mAdapter.getItem(position);
         // We do it immediately because map preview closes data source, may be there is a better way to handle this
-        getFragmentManager().popBackStackImmediate();
+        mFragmentHolder.popCurrent();
         mListener.onMapSelected(map);
     }
 

@@ -35,6 +35,7 @@ public class PanelMenu extends ListFragment {
     private MenuListAdapter mAdapter;
     private ArrayList<PanelMenuItem> mMenuItems;
     private OnPrepareMenuListener mOnPrepareMenuListener;
+    private FragmentHolder mFragmentHolder;
     private int mMenuId;
 
     @Override
@@ -57,9 +58,21 @@ public class PanelMenu extends ListFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mFragmentHolder = (FragmentHolder) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mFragmentHolder = null;
+    }
+
+    @Override
     public void onListItemClick(ListView lv, View v, int position, long id) {
-        getFragmentManager().popBackStack();
         PopupMenu.OnMenuItemClickListener listener = (PopupMenu.OnMenuItemClickListener) getActivity();
+        mFragmentHolder.popCurrent();
         listener.onMenuItemClick(mMenuItems.get(position));
     }
 

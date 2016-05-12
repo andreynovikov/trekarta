@@ -9,7 +9,7 @@ public abstract class DataSource {
     public String name;
     private String mNewName;
     private boolean loaded = false;
-    private boolean visible = true;
+    private boolean visible = false;
 
     public DataSource() {
     }
@@ -19,7 +19,7 @@ public abstract class DataSource {
      *
      * @return <code>true</code> if this is single track source, <code>false</code> otherwise.
      */
-    public abstract boolean isSingleTrack();
+    public abstract boolean isNativeTrack();
 
     /**
      * Marks source to be renamed on next save, does not actually save the source.

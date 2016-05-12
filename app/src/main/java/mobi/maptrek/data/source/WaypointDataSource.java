@@ -8,10 +8,18 @@ import mobi.maptrek.data.Waypoint;
 
 public interface WaypointDataSource {
     void saveWaypoint(Waypoint waypoint);
+
     void deleteWaypoint(Waypoint waypoint);
+
     List<Waypoint> getWaypoints();
+
+    int getWaypointsCount();
+
     Cursor getCursor();
+
     Waypoint cursorToWaypoint(Cursor cursor);
+
     void addListener(WaypointDataSourceUpdateListener listener);
+
     void removeListener(WaypointDataSourceUpdateListener listener);
 }

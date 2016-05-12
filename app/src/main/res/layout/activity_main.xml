@@ -189,7 +189,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/actionPanel"
-            android:layout_marginTop="@dimen/panel_top_margin"
+            android:layout_marginTop="@dimen/panelTopMargin"
+            android:elevation="@dimen/panel_elevation"
             android:clickable="true" />
 
         <ProgressBar

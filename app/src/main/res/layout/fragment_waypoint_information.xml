@@ -36,7 +36,9 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/dottedLine"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:paddingStart="@dimen/textPadding"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:ignore="RtlSymmetry" />
 
     <FrameLayout
         android:id="@+id/namePlaceholder"

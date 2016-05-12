@@ -27,6 +27,7 @@ public class TrackProperties extends Fragment {
     private int mColor;
 
     private OnTrackPropertiesChangedListener mListener;
+    private FragmentHolder mFragmentHolder;
 
     public TrackProperties() {
     }
@@ -60,7 +61,7 @@ public class TrackProperties extends Fragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     returnResult();
-                    getFragmentManager().popBackStack();
+                    mFragmentHolder.popCurrent();
                 }
                 return false;
             }
@@ -95,6 +96,14 @@ public class TrackProperties extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTrackPropertiesChangedListener");
         }
+        mFragmentHolder = (FragmentHolder) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+        mFragmentHolder = null;
     }
 
     @Override

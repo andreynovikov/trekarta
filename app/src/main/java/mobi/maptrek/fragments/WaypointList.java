@@ -31,6 +31,7 @@ import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDataSourceUpdateListener;
 import mobi.maptrek.util.StringFormatter;
 
+// TODO Add section titles - http://cyrilmottier.com/2011/07/05/listview-tips-tricks-2-section-your-listview/
 public class WaypointList extends ListFragment implements WaypointDataSourceUpdateListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
@@ -38,6 +39,7 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
     private WaypointListAdapter mAdapter;
     private WaypointDataSource mDataSource;
     private OnWaypointActionListener mListener;
+    private FragmentHolder mFragmentHolder;
 
     private double mLatitude;
     private double mLongitude;
@@ -75,6 +77,11 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
         ListView listView = getListView();
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setMultiChoiceModeListener(mMultiChoiceModeListener);
+
+        /*
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false));
+        */
     }
 
     @Override
@@ -85,6 +92,7 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnWaypointActionListener");
         }
+        mFragmentHolder = (FragmentHolder) context;
     }
 
     @Override
@@ -93,6 +101,7 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
         mDataSource.removeListener(this);
         mDataSource = null;
         mListener = null;
+        mFragmentHolder = null;
     }
 
     @Override
@@ -169,14 +178,14 @@ public class WaypointList extends ListFragment implements WaypointDataSourceUpda
                 @Override
                 public void onClick(View v) {
                     mListener.onWaypointView(waypoint);
-                    getActivity().onBackPressed();
+                    mFragmentHolder.popAll();
                 }
             });
             holder.navigateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mListener.onWaypointNavigate(waypoint);
-                    getActivity().onBackPressed();
+                    mFragmentHolder.popAll();
                 }
             });
         }

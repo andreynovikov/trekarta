@@ -16,10 +16,12 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
     public List<Waypoint> waypoints = new ArrayList<>();
     @NonNull
     public List<Track> tracks = new ArrayList<>();
+    // Native format helper data
+    public long propertiesOffset;
 
-    public boolean isSingleTrack() {
-        return (!isLoaded() && path.endsWith(TrackManager.EXTENSION)) ||
-                (waypoints.isEmpty() && tracks.size() == 1);
+    @Override
+    public boolean isNativeTrack() {
+        return (path != null && path.endsWith(TrackManager.EXTENSION)) || (path == null && waypoints.isEmpty() && tracks.size() == 1);
     }
 
     @Override
@@ -36,6 +38,11 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
     @Override
     public List<Waypoint> getWaypoints() {
         return waypoints;
+    }
+
+    @Override
+    public int getWaypointsCount() {
+        return waypoints.size();
     }
 
     @Override

@@ -96,7 +96,7 @@ public class TrackManager extends Manager {
 
     @Override
     public void saveData(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws Exception {
-        if (!source.isSingleTrack())
+        if (!source.isNativeTrack())
             throw new Exception("Only single track can be saved in mtrack format");
         Track track = source.tracks.get(0);
         if (progressListener != null)

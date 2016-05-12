@@ -78,6 +78,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
                     new String[]{String.valueOf(waypoint._id)});
         } else {
             waypoint._id = id;
+            waypoint.source = this;
         }
         for (WaypointDataSourceUpdateListener listener : mListeners) {
             listener.onDataSourceUpdated();
@@ -100,12 +101,17 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Waypoint waypoint = cursorToWaypoint(cursor);
-            waypoint.source = this;
             waypoints.add(waypoint);
             cursor.moveToNext();
         }
         cursor.close();
         return waypoints;
+    }
+
+    @Override
+    public int getWaypointsCount() {
+        Cursor cursor = getCursor();
+        return cursor.getCount();
     }
 
     @Override
@@ -131,6 +137,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         waypoint.style.color = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_COLOR));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON)))
             waypoint.style.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));
+        waypoint.source = this;
         return waypoint;
     }
 
@@ -147,7 +154,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     }
 
     @Override
-    public boolean isSingleTrack() {
+    public boolean isNativeTrack() {
         return false;
     }
 }

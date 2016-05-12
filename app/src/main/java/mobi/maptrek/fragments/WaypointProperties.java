@@ -60,7 +60,7 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     returnResult();
-                    getFragmentManager().popBackStack();
+                    mFragmentHolder.popCurrent();
                 }
                 return false;
             }
