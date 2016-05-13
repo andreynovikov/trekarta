@@ -1502,6 +1502,8 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onWaypointSave(final Waypoint waypoint) {
         mWaypointDbDataSource.saveWaypoint(waypoint);
+        removeWaypointMarker(waypoint);
+        addWaypointMarker(waypoint);
     }
 
     @Override

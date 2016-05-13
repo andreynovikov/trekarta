@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone">
 
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/nameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@id/source"
         android:layout_marginTop="16dp"
-        android:layout="@layout/fragment_waypoint_details" />
+        android:layout="@layout/include_waypoint_details" />
 
     <LinearLayout
         android:id="@+id/actionButtons"

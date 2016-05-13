@@ -3,14 +3,15 @@ package mobi.maptrek.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.text.format.DateFormat;
+import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
 import android.transition.TransitionManager;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,18 +23,27 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.android.colorpicker.ColorPickerDialog;
+import com.android.colorpicker.ColorPickerSwatch;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
 import org.oscim.map.Map;
 
+import java.util.ArrayList;
+
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.view.ColorSwatch;
+import mobi.maptrek.view.LimitedWebView;
 
 public class WaypointInformation extends Fragment implements Map.UpdateListener, OnBackPressedListener {
     public static final String ARG_LATITUDE = "lat";
@@ -41,8 +51,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     public static final String ARG_DETAILS = "details";
 
     //TODO Honor dpi
-    final int SWIPE_MIN_DISTANCE = 120;
-    final int SWIPE_MAX_OFF_PATH = 50;
+    final int SWIPE_MIN_DISTANCE = 120; // vertical distance
+    final int SWIPE_MAX_OFF_PATH = 100; // horizontal displacement during fling
     final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private Waypoint mWaypoint;
@@ -131,7 +141,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                         if (!mExpanded && e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                             expand();
                             updateWaypointInformation(mLatitude, mLongitude);
-                        } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                        } else if (!mEditorMode && e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                             mFragmentHolder.disableActionButton();
                             mFragmentHolder.popCurrent();
                         }
@@ -220,23 +230,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         final ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
-        //ChangeBounds changeBounds = new ChangeBounds();
-        //changeBounds.setReparent(true);
-        //changeBounds.excludeTarget(rootView, true);
-        //changeBounds.excludeTarget(R.id.action_buttons, true);
-        //changeBounds.addTarget(R.id.source);
-
-        //TransitionSet set = new TransitionSet();
-        //set.addTransition(new Fade());
-        //set.addTransition(changeBounds);
-        //set.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
-        //set.excludeTarget(R.id.extend_table, true);
-        //set.setDuration(3000);
-
-        //TextView destination = ((TextView) rootView.findViewById(R.id.destination));
-        //String dst = destination.getText().toString();
-        //TransitionManager.beginDelayedTransition(rootView, set);
-
         rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
         rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.source).setVisibility(View.GONE);
@@ -245,13 +238,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         rootView.findViewById(R.id.navigateButton).setVisibility(View.GONE);
         rootView.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
 
-        //destination = new TextView(getContext());
-        //destination.setText(dst);
-        //destination.setId(R.id.destination);
-        //ViewGroup row = (ViewGroup) rootView.findViewById(R.id.destination_row);
-        //row.addView(destination);
-        //changeBounds.addTarget(destination);
-
         mFloatingButton = mFragmentHolder.enableActionButton();
         mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
@@ -259,6 +245,9 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             public void onClick(View v) {
                 if (mEditorMode) {
                     mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                    mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
+                    mWaypoint.style.color = ((ColorSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+
                     mListener.onWaypointSave(mWaypoint);
                     setEditorMode(false);
                 } else {
@@ -310,7 +299,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
         if (coordsView != null) {
-            coordsView.requestFocus();
             coordsView.setTag(StringFormatter.coordinateFormat);
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.latitude, mWaypoint.longitude));
             coordsView.setOnClickListener(new View.OnClickListener() {
@@ -362,31 +350,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
                 row.setVisibility(View.GONE);
             } else {
-                final WebView description = (WebView) view.findViewById(R.id.description);
-                String descriptionHtml;
-                try {
-                    /*
-                    TypedValue tv = new TypedValue();
-                    Resources.Theme theme = activity.getTheme();
-                    Resources resources = getResources();
-                    theme.resolveAttribute(android.R.attr.textColorPrimary, tv, true);
-                    int secondaryColor = resources.getColor(tv.resourceId, theme);
-                    String css = String.format("<style type=\"text/css\">html,body{margin:0;background:transparent} *{color:#%06X}</style>\n", (secondaryColor & 0x00FFFFFF));
-                    */
-                    String css = "<style type=\"text/css\">html,body{margin:0}</style>\n";
-                    descriptionHtml = css + mWaypoint.description;
-                    description.setBackgroundColor(Color.TRANSPARENT);
-                    description.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // flicker workaround
-                } catch (Resources.NotFoundException e) {
-                    // TODO If theme will be switching correctly, simplify
-                    description.setBackgroundColor(Color.LTGRAY);
-                    descriptionHtml = mWaypoint.description;
-                }
-                WebSettings settings = description.getSettings();
-                settings.setDefaultTextEncodingName("utf-8");
-                settings.setAllowFileAccess(true);
-                Uri baseUrl = Uri.fromFile(activity.getExternalFilesDir("data"));
-                description.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
+                setDescription(view);
                 row.setVisibility(View.VISIBLE);
             }
         }
@@ -399,32 +363,114 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
+        final ColorSwatch colorSwatch = (ColorSwatch) rootView.findViewById(R.id.colorSwatch);
+
         int viewsState, editsState;
         if (enabled) {
             mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
+            ((EditText) rootView.findViewById(R.id.descriptionEdit)).setText(mWaypoint.description);
+            colorSwatch.setColor(mWaypoint.style.color);
+            colorSwatch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO Implement class that hides this behaviour
+                    ArrayList<Integer> colorList = new ArrayList<>(7);
+                    colorList.add(0xffff0000);
+                    colorList.add(0xff00ff00);
+                    colorList.add(0xff0000ff);
+                    colorList.add(0xffffff00);
+                    colorList.add(0xff00ffff);
+                    colorList.add(0xff000000);
+                    colorList.add(0xffff00ff);
+                    if (!colorList.contains(mWaypoint.style.color))
+                        colorList.add(mWaypoint.style.color);
+                    if (!colorList.contains(MarkerStyle.DEFAULT_COLOR))
+                        colorList.add(MarkerStyle.DEFAULT_COLOR);
+                    int[] colors = new int[colorList.size()];
+                    int i = 0;
+                    for (Integer integer : colorList)
+                        colors[i++] = integer;
+                    ColorPickerDialog dialog = new ColorPickerDialog();
+                    dialog.setColors(colors, mWaypoint.style.color);
+                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                    dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int color) {
+                            colorSwatch.setColor(color);
+                        }
+                    });
+                    dialog.show(getFragmentManager(), "ColorPickerDialog");
+                }
+            });
             viewsState = View.GONE;
             editsState = View.VISIBLE;
         } else {
             mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
+            setDescription(rootView);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         }
+        // TODO Optimize view findings
         TransitionManager.beginDelayedTransition(rootView, new Fade());
         rootView.findViewById(R.id.name).setVisibility(viewsState);
         rootView.findViewById(R.id.nameWrapper).setVisibility(editsState);
+        if (enabled || mWaypoint.description != null && !"".equals(mWaypoint.description))
+            rootView.findViewById(R.id.descriptionRow).setVisibility(View.VISIBLE);
+        else
+            rootView.findViewById(R.id.descriptionRow).setVisibility(View.GONE);
+        rootView.findViewById(R.id.description).setVisibility(viewsState);
+        rootView.findViewById(R.id.descriptionWrapper).setVisibility(editsState);
+        colorSwatch.setVisibility(editsState);
 
         rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
+        rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
 
         rootView.findViewById(R.id.editButton).setVisibility(viewsState);
         rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
-        //rootView.findViewById(R.id.saveButton).setVisibility(editsState);
 
         mEditorMode = enabled;
+    }
+
+    // WebView is very heavy to initialize. That's why it is used only on demand.
+    private void setDescription(View rootView) {
+        View description = rootView.findViewById(R.id.description);
+        // TODO Use better approach (http://stackoverflow.com/a/22581832/488489)
+        if (description instanceof LimitedWebView) {
+            setWebViewText((LimitedWebView) description);
+        } else if (mWaypoint.description.contains("<") && mWaypoint.description.contains(">")) {
+            // Replace TextView with WebView
+            ViewGroup parent = (ViewGroup) description.getParent();
+            int index = parent.indexOfChild(description);
+            parent.removeView(description);
+            LimitedWebView webView = new LimitedWebView(getContext());
+            webView.setId(R.id.description);
+            int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+            webView.setMaxHeight(px);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            webView.setLayoutParams(params);
+            parent.addView(webView, index);
+            setWebViewText(webView);
+        } else {
+            ((TextView) description).setText(mWaypoint.description);
+            ((TextView) description).setMovementMethod(new ScrollingMovementMethod());
+        }
+    }
+
+    private void setWebViewText(LimitedWebView webView) {
+        String css = "<style type=\"text/css\">html,body{margin:0}</style>\n";
+        String descriptionHtml = css + mWaypoint.description;
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // flicker workaround
+        WebSettings settings = webView.getSettings();
+        settings.setDefaultTextEncodingName("utf-8");
+        settings.setAllowFileAccess(true);
+        Uri baseUrl = Uri.fromFile(getContext().getExternalFilesDir("data"));
+        webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
     @Override
