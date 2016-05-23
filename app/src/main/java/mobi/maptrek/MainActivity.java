@@ -76,6 +76,7 @@ import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
+import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
@@ -118,23 +119,23 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
-import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
+import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnMapActionListener;
+import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenu;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
-import mobi.maptrek.fragments.WaypointList;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
@@ -166,6 +167,7 @@ public class MainActivity extends Activity implements ILocationListener,
         WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
+        OnTrackActionListener,
         OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
@@ -817,8 +819,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
             case R.id.action_about:
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
+                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                fragment.setReturnTransition(new Slide(Gravity.BOTTOM));
                 FragmentTransaction ft = mFragmentManager.beginTransaction();
-                ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
+                //ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
                 ft.replace(R.id.contentPanel, fragment, "about");
                 ft.addToBackStack("about");
                 ft.commit();
@@ -993,11 +997,12 @@ public class MainActivity extends Activity implements ILocationListener,
         } else {
             mMap.getMapPosition(mMapPosition);
             Bundle args = new Bundle(2);
-            args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
-            args.putDouble(WaypointList.ARG_LONGITUDE, mMapPosition.getLongitude());
-            WaypointList fragment = (WaypointList) Fragment.instantiate(this, WaypointList.class.getName(), args);
+            args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
+            args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
+            args.putBoolean(DataList.ARG_EMPTY_MESSAGE, true);
+            DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
             fragment.setDataSource(mWaypointDbDataSource);
-            showExtendPanel(PANEL_STATE.PLACES, "placesList", fragment);
+            showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
         }
     }
 
@@ -1431,14 +1436,12 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onWaypointProperties(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
-
         Bundle args = new Bundle(2);
         args.putString(WaypointProperties.ARG_NAME, mEditedWaypoint.name);
         args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.style.color);
         Fragment fragment = Fragment.instantiate(this, WaypointProperties.class.getName(), args);
-
+        fragment.setEnterTransition(new Fade());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
         ft.replace(R.id.contentPanel, fragment, "waypointProperties");
         ft.addToBackStack("waypointProperties");
         ft.commit();
@@ -1467,8 +1470,12 @@ public class MainActivity extends Activity implements ILocationListener,
         Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
         if (fragment == null) {
             fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
+            Slide slide = new Slide(Gravity.BOTTOM);
+            //slide.setInterpolator(new AccelerateDecelerateInterpolator());
+            // Required to sync with FloatingActionButton
+            slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            fragment.setEnterTransition(slide);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
             ft.replace(R.id.contentPanel, fragment, "waypointInformation");
             ft.addToBackStack("waypointInformation");
             ft.commit();
@@ -1504,6 +1511,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mWaypointDbDataSource.saveWaypoint(waypoint);
         removeWaypointMarker(waypoint);
         addWaypointMarker(waypoint);
+        mMap.updateMap(true);
     }
 
     @Override
@@ -1549,8 +1557,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onWaypointsDelete(final Set<Waypoint> waypoints) {
         // Remove markers to indicate action to user
         for (Waypoint waypoint : waypoints) {
-            MarkerItem marker = mMarkerLayer.getByUid(waypoint);
-            mMarkerLayer.removeItem(marker);
+            removeWaypointMarker(waypoint);
         }
         mMap.updateMap(true);
 
@@ -1585,9 +1592,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     public void onClick(View view) {
                         // If undo pressed, restore the marker
                         for (Waypoint waypoint : waypoints) {
-                            GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
-                            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
-                            mMarkerLayer.addItem(marker);
+                            addWaypointMarker(waypoint);
                         }
                         mMap.updateMap(true);
                     }
@@ -1628,9 +1633,8 @@ public class MainActivity extends Activity implements ILocationListener,
         args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
         args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.style.color);
         Fragment fragment = Fragment.instantiate(this, TrackProperties.class.getName(), args);
-
+        fragment.setEnterTransition(new Fade());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setCustomAnimations(R.animator.fadein, R.animator.fadeout, R.animator.fadeout, R.animator.fadein);
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
         ft.addToBackStack("trackProperties");
         ft.commit();
@@ -1675,6 +1679,76 @@ public class MainActivity extends Activity implements ILocationListener,
             Manager.save(getApplicationContext(), (FileDataSource) mEditedTrack.source);
         }
         mEditedTrack = null;
+    }
+
+    @Override
+    public void onTrackView(Track track) {
+        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+            mLocationState = LOCATION_STATE.ENABLED;
+            mLocationOverlay.setPinned(false);
+            updateLocationDrawable();
+        }
+        BoundingBox box = track.getBoundingBox();
+        box.expand(0.05);
+        mMap.animator().animateTo(box);
+    }
+
+    @Override
+    public void onTrackDetails(Track track) {
+    }
+
+    @Override
+    public void onTracksDelete(final Set<Track> tracks) {
+        // Remove markers to indicate action to user
+        /*
+        for (Waypoint waypoint : waypoints) {
+            MarkerItem marker = mMarkerLayer.getByUid(waypoint);
+            mMarkerLayer.removeItem(marker);
+        }
+        mMap.updateMap(true);
+        */
+
+        // Show undo snackbar
+        /*
+        int count = waypoints.size();
+        String msg = getResources().getQuantityString(R.plurals.waypointsDeleted, count, count);
+        Snackbar snackbar = Snackbar
+                .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event == DISMISS_EVENT_ACTION)
+                            return;
+                        // If dismissed, actually remove waypoint
+                        if (mWaypointDbDataSource.isOpen()) {
+                            for (Waypoint waypoint : waypoints) {
+                                mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            }
+                        } else {
+                            // We need this when screen is rotated but snackbar is still shown
+                            mWaypointDbDataSource.open();
+                            for (Waypoint waypoint : waypoints) {
+                                mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            }
+                            mWaypointDbDataSource.close();
+                        }
+                    }
+                })
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // If undo pressed, restore the marker
+                        for (Waypoint waypoint : waypoints) {
+                            GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
+                            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
+                            mMarkerLayer.addItem(marker);
+                        }
+                        mMap.updateMap(true);
+                    }
+                });
+        snackbar.show();
+        */
     }
 
     @Override
@@ -1783,16 +1857,14 @@ public class MainActivity extends Activity implements ILocationListener,
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
             }
         }));
-        //TODO Find out why exit transition do not work
-        /*
-        fragment.setExitTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
+        //TODO Find out why exit transition does not work
+        fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
             @Override
             public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
                 Log.e("MA", "ExitTransaction");
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
             }
         }));
-        */
         ft.replace(R.id.extendPanel, fragment, name);
         ft.addToBackStack(name);
         ft.commit();
@@ -2320,7 +2392,7 @@ public class MainActivity extends Activity implements ILocationListener,
             Layer layer = i.next();
             if (!(layer instanceof TrackLayer))
                 continue;
-            if (source.tracks.contains(((TrackLayer)layer).getTrack())) {
+            if (source.tracks.contains(((TrackLayer) layer).getTrack())) {
                 i.remove();
                 layer.onDetach();
             }
@@ -2377,18 +2449,18 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onDataSourceSelected(DataSource source) {
-        if (source instanceof WaypointDbDataSource) {
-            mMap.getMapPosition(mMapPosition);
-            Bundle args = new Bundle(2);
-            args.putDouble(WaypointList.ARG_LATITUDE, mMapPosition.getLatitude());
-            args.putDouble(WaypointList.ARG_LONGITUDE, mMapPosition.getLongitude());
-            WaypointList fragment = (WaypointList) Fragment.instantiate(this, WaypointList.class.getName(), args);
-            fragment.setDataSource((WaypointDataSource) source);
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.extendPanel, fragment, "waypointList");
-            ft.addToBackStack("waypointList");
-            ft.commit();
-        }
+        mMap.getMapPosition(mMapPosition);
+        Bundle args = new Bundle(2);
+        args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
+        args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
+        args.putInt(DataList.ARG_HEIGHT, findViewById(R.id.extendPanel).getHeight());
+        DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
+        fragment.setDataSource(source);
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        fragment.setEnterTransition(new Fade());
+        ft.add(R.id.extendPanel, fragment, "dataList");
+        ft.addToBackStack("dataList");
+        ft.commit();
     }
 
     private double movingAverage(double current, double previous) {

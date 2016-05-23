@@ -1,5 +1,5 @@
 package mobi.maptrek.data.source;
 
-public interface WaypointDataSourceUpdateListener {
+public interface DataSourceUpdateListener {
     void onDataSourceUpdated();
 }

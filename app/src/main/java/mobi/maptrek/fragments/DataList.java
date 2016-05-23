@@ -32,7 +32,7 @@ import mobi.maptrek.data.source.WaypointDataSourceUpdateListener;
 import mobi.maptrek.util.StringFormatter;
 
 // TODO Add section titles - http://cyrilmottier.com/2011/07/05/listview-tips-tricks-2-section-your-listview/
-public class WaypointList extends ListFragment implements WaypointDataSourceUpdateListener {
+public class DataList extends ListFragment implements WaypointDataSourceUpdateListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
 

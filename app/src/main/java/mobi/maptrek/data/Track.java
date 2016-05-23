@@ -1,5 +1,6 @@
 package mobi.maptrek.data;
 
+import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 
 import java.util.ArrayList;
@@ -20,6 +21,19 @@ public class Track {
     public final List<TrackPoint> points = new ArrayList<>();
     private TrackPoint mLastTrackPoint;
     private float mDistance = Float.NaN;
+    private BoundingBox mBox = null;
+
+    public BoundingBox getBoundingBox() {
+        //TODO Honor empty track
+        if (mBox == null) {
+            mBox = new BoundingBox();
+            synchronized (points) {
+                for (TrackPoint point : points)
+                    mBox.extend(point.latitudeE6, point.longitudeE6);
+            }
+        }
+        return mBox;
+    }
 
     public class TrackPoint extends GeoPoint {
         //TODO Refactor path readers to make fields final

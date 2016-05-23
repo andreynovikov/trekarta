@@ -151,6 +151,12 @@ public class DataSourceList extends ListFragment {
         }
 
         @Override
+        public boolean isEnabled(int position) {
+            DataSource dataSource = getItem(position);
+            return dataSource.isLoaded();
+        }
+
+        @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             DataSourceListItemHolder itemHolder;
             final DataSource dataSource = getItem(position);

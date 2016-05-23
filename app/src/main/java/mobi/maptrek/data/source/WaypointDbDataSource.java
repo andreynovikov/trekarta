@@ -9,9 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
@@ -80,18 +78,14 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
             waypoint._id = id;
             waypoint.source = this;
         }
-        for (WaypointDataSourceUpdateListener listener : mListeners) {
-            listener.onDataSourceUpdated();
-        }
+        notifyListeners();
     }
 
     @Override
     public void deleteWaypoint(Waypoint waypoint) {
         long id = waypoint._id;
         mDatabase.delete(WaypointDbHelper.TABLE_NAME, WaypointDbHelper.COLUMN_ID + " = " + id, null);
-        for (WaypointDataSourceUpdateListener listener : mListeners) {
-            listener.onDataSourceUpdated();
-        }
+        notifyListeners();
     }
 
     @Override
@@ -120,6 +114,11 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     }
 
     @Override
+    public int getDataType(int position) {
+        return TYPE_WAYPOINT;
+    }
+
+    @Override
     public Waypoint cursorToWaypoint(Cursor cursor) {
         Waypoint waypoint = new Waypoint();
         waypoint._id = cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ID));
@@ -139,18 +138,6 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
             waypoint.style.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));
         waypoint.source = this;
         return waypoint;
-    }
-
-    private final Set<WaypointDataSourceUpdateListener> mListeners = new HashSet<>();
-
-    @Override
-    public void addListener(WaypointDataSourceUpdateListener listener) {
-        mListeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(WaypointDataSourceUpdateListener listener) {
-        mListeners.remove(listener);
     }
 
     @Override

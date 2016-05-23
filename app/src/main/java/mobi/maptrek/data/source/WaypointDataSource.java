@@ -15,11 +15,5 @@ public interface WaypointDataSource {
 
     int getWaypointsCount();
 
-    Cursor getCursor();
-
     Waypoint cursorToWaypoint(Cursor cursor);
-
-    void addListener(WaypointDataSourceUpdateListener listener);
-
-    void removeListener(WaypointDataSourceUpdateListener listener);
 }
