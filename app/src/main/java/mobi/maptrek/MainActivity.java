@@ -1828,6 +1828,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
         if (mPanelState != PANEL_STATE.NONE) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
+            //TODO Make it properly work without "immediate" - this is because exit transactions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
             if (name.equals(bse.getName())) {
                 setPanelState(PANEL_STATE.NONE);
@@ -1857,11 +1858,9 @@ public class MainActivity extends Activity implements ILocationListener,
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
             }
         }));
-        //TODO Find out why exit transition does not work
         fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
             @Override
             public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
-                Log.e("MA", "ExitTransaction");
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
             }
         }));
@@ -2012,13 +2011,13 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void popCurrent() {
-        mFragmentManager.popBackStackImmediate();
+        mFragmentManager.popBackStack();
     }
 
     @Override
     public void popAll() {
         FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
-        mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        mFragmentManager.popBackStack(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     private boolean backKeyIntercepted() {
