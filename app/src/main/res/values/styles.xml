@@ -13,9 +13,16 @@
     </style>
 
     <style name="DialogContent">
-        <item name="android:paddingStart">@dimen/dialogContentPadding</item>
-        <item name="android:paddingEnd">@dimen/dialogContentPadding</item>
-        <item name="android:paddingBottom">@dimen/dialogContentPadding</item>
-        <item name="android:paddingTop">@dimen/dialogTitlePadding</item>
+        <item name="android:layout_marginStart">@dimen/dialogContentMargin</item>
+        <item name="android:layout_marginEnd">@dimen/dialogContentMargin</item>
+        <item name="android:layout_marginBottom">@dimen/dialogContentMargin</item>
+        <item name="android:layout_marginTop">@dimen/dialogTitleMargin</item>
+    </style>
+
+    <style name="DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
+        <item name="android:layout_marginStart">@dimen/dialogButtonMargin</item>
+        <item name="android:layout_marginEnd">@dimen/dialogButtonMargin</item>
+        <item name="android:paddingStart">@dimen/dialogButtonMargin</item>
+        <item name="android:paddingEnd">@dimen/dialogButtonMargin</item>
     </style>
 </resources>
