@@ -18,13 +18,13 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.Style;
-import mobi.maptrek.io.Manager;
+import mobi.maptrek.util.ProgressListener;
 
 // TODO Localize strings
 public class KmlSerializer {
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
 
-    public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable Manager.ProgressListener progressListener) throws IOException {
+    public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws IOException {
 
         int progress = 0;
         if (progressListener != null) {
@@ -70,7 +70,7 @@ public class KmlSerializer {
             progressListener.onProgressFinished();
     }
 
-    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, Manager.ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_PLACEMARK);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         serializer.text(waypoint.name);
@@ -100,7 +100,7 @@ public class KmlSerializer {
         return progress;
     }
 
-    private static int serializeTrack(XmlSerializer serializer, Track track, Manager.ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializeTrack(XmlSerializer serializer, Track track, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_FOLDER);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         serializer.text(track.name);

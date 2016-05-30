@@ -47,6 +47,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.io.Manager;
+import mobi.maptrek.util.ProgressListener;
 import mobi.maptrek.util.StringFormatter;
 
 public class LocationService extends BaseLocationService implements LocationListener, NmeaListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
@@ -100,7 +101,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private final Binder mBinder = new LocalBinder();
     private final Set<ILocationListener> mLocationCallbacks = new HashSet<>();
     private final Set<ITrackingListener> mTrackingCallbacks = new HashSet<>();
-    private Manager.ProgressListener mProgressListener;
+    private ProgressListener mProgressListener;
 
     private static final String PREF_TRACKING_MIN_TIME = "tracking_min_time";
     private static final String PREF_TRACKING_MIN_DISTANCE = "tracking_min_distance";
@@ -790,7 +791,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
 
         @Override
-        public void setProgressListener(Manager.ProgressListener listener) {
+        public void setProgressListener(ProgressListener listener) {
             mProgressListener = listener;
         }
 

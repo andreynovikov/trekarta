@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.util.ProgressListener;
 
 public class TrackManager extends Manager {
     public static final String EXTENSION = ".mtrack";

@@ -2,16 +2,15 @@ package mobi.maptrek.util;
 
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.CallSuper;
 import android.view.View;
 import android.widget.ProgressBar;
-
-import mobi.maptrek.io.Manager;
 
 /**
  * Handler for interaction with ProgressBar. Manages visibility state and progress of the
  * ProgressBar.
  */
-public class ProgressHandler extends Handler implements Manager.ProgressListener {
+public class ProgressHandler extends Handler implements ProgressListener {
     public final static int BEGIN_PROGRESS = 1;
     public final static int UPDATE_PROGRESS = 2;
     public final static int STOP_PROGRESS = 3;
@@ -24,6 +23,7 @@ public class ProgressHandler extends Handler implements Manager.ProgressListener
     }
 
     // TODO Handle simultaneous operations
+    @CallSuper
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BEGIN_PROGRESS:
@@ -40,20 +40,30 @@ public class ProgressHandler extends Handler implements Manager.ProgressListener
     }
 
     @Override
-    public void onProgressStarted(int length) {
+    public final void onProgressStarted(int length) {
         Message msg = obtainMessage(BEGIN_PROGRESS, length, 0);
         sendMessage(msg);
     }
 
     @Override
-    public void onProgressChanged(int progress) {
+    public final void onProgressChanged(int progress) {
         Message msg = obtainMessage(UPDATE_PROGRESS, progress, 0);
         sendMessage(msg);
     }
 
     @Override
-    public void onProgressFinished() {
+    public final void onProgressFinished() {
         Message msg = obtainMessage(STOP_PROGRESS);
         sendMessage(msg);
+    }
+
+    /**
+     * Called when progress step is annotated. Does nothing. If overridden care should be taken, as
+     * it is called not on UI thread.
+     *
+     * @param annotation Annotation of a step.
+     */
+    @Override
+    public void onProgressAnnotated(String annotation) {
     }
 }

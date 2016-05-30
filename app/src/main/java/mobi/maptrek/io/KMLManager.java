@@ -13,6 +13,7 @@ import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.io.kml.KmlParser;
 import mobi.maptrek.io.kml.KmlSerializer;
+import mobi.maptrek.util.ProgressListener;
 
 public class KMLManager extends Manager {
     public static final String EXTENSION = ".kml";

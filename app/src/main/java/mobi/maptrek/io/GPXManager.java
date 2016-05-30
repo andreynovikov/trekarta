@@ -11,6 +11,7 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.io.gpx.GpxParser;
 import mobi.maptrek.io.gpx.GpxSerializer;
+import mobi.maptrek.util.ProgressListener;
 
 public class GPXManager extends Manager {
     public static final String EXTENSION = ".gpx";

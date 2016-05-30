@@ -12,6 +12,7 @@ import java.io.OutputStream;
 
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.util.FileUtils;
+import mobi.maptrek.util.ProgressListener;
 
 public abstract class Manager {
     private static final String TAG = "IO Manager";
@@ -162,26 +163,5 @@ public abstract class Manager {
     public interface OnSaveListener {
         void onSaved(FileDataSource source);
         void onError(FileDataSource source, Exception e);
-    }
-    /**
-     * Callback interface for progress monitoring.
-     */
-    public interface ProgressListener {
-        /**
-         * Called when operation is about to start and maximum progress is known.
-         * @param length Maximum progress
-         */
-        void onProgressStarted(int length);
-
-        /**
-         * Called on operation progress.
-         * @param progress Current progress
-         */
-        void onProgressChanged(int progress);
-
-        /**
-         * Called when operation has ended, is not called if error (exception) has occurred.
-         */
-        void onProgressFinished();
     }
 }

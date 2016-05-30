@@ -16,9 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 import mobi.maptrek.data.source.FileDataSource;
-import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.DataFilenameFilter;
+import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.MonitoredInputStream;
+import mobi.maptrek.util.ProgressListener;
 
 //TODO Document class
 // http://www.androiddesignpatterns.com/2012/08/implementing-loaders.html
@@ -31,7 +32,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
     private List<FileDataSource> mData;
     private final Set<String> mFiles = new HashSet<>();
 
-    private Manager.ProgressListener mProgressListener;
+    private ProgressListener mProgressListener;
     private FileObserver mObserver;
 
     public DataLoader(Context ctx) {
@@ -43,10 +44,9 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         super(ctx);
     }
 
-    public void setProgressHandler(Manager.ProgressListener listener) {
+    public void setProgressHandler(ProgressListener listener) {
         mProgressListener = listener;
     }
-
 
     public void renameSource(FileDataSource source, File thatFile) {
         File thisFile = new File(source.path);
@@ -106,7 +106,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
         int progress = 0;
 
-        for (Pair<File,Boolean> pair: loadFiles) {
+        for (Pair<File, Boolean> pair : loadFiles) {
             if (isLoadInBackgroundCanceled()) {
                 Log.i(TAG, "loadInBackgroundCanceled");
                 return null;

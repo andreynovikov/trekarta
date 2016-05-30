@@ -11,13 +11,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Date;
 
-import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.io.Manager;
+import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.util.ProgressListener;
 
 public class GpxSerializer {
-    public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable Manager.ProgressListener progressListener) throws IOException {
+    public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws IOException {
 
         int progress = 0;
         if (progressListener != null) {
@@ -55,7 +55,7 @@ public class GpxSerializer {
             progressListener.onProgressFinished();
     }
 
-    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, Manager.ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_WPT);
         serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(waypoint.latitude));
         serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(waypoint.longitude));
@@ -83,7 +83,7 @@ public class GpxSerializer {
         return progress;
     }
 
-    private static int serializeTrack(XmlSerializer serializer, Track track, Manager.ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializeTrack(XmlSerializer serializer, Track track, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_TRK);
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(track.name);
@@ -94,10 +94,8 @@ public class GpxSerializer {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_TRKSEG);
 
         boolean first = true;
-        for (Track.TrackPoint tp : track.points)
-        {
-            if (!tp.continuous && !first)
-            {
+        for (Track.TrackPoint tp : track.points) {
+            if (!tp.continuous && !first) {
                 serializer.endTag(GpxFile.NS, GpxFile.TAG_TRKSEG);
                 serializer.startTag(GpxFile.NS, GpxFile.TAG_TRKSEG);
             }
