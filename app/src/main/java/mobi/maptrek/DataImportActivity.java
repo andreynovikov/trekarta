@@ -157,7 +157,7 @@ public class DataImportActivity extends Activity {
 
             setRetainInstance(true);
 
-            mBackgroundThread = new HandlerThread("BackgroundThread");
+            mBackgroundThread = new HandlerThread("DataImportThread");
             mBackgroundThread.setPriority(Thread.MIN_PRIORITY);
             mBackgroundThread.start();
             mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
