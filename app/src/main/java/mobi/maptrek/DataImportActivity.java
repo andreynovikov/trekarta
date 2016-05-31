@@ -178,6 +178,15 @@ public class DataImportActivity extends Activity {
             mProgressListener = null;
         }
 
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            mBackgroundThread.interrupt();
+            mBackgroundHandler.removeCallbacksAndMessages(null);
+            mBackgroundThread.quit();
+            mBackgroundThread = null;
+        }
+
         public void setIntent(Intent intent) {
             mIntent = intent;
         }
@@ -197,16 +206,16 @@ public class DataImportActivity extends Activity {
                     Log.e(TAG, "Type: " + type);
 
                     if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action)) {
-                        handleSendImage(intent);
+                        handleSendOrView(intent);
                     } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-                        handleSendMultipleImages(intent);
+                        handleSendMultiple(intent);
                     }
                 }
             });
             mBackgroundHandler.sendMessage(m);
         }
 
-        private void handleSendImage(Intent intent) {
+        private void handleSendOrView(Intent intent) {
             Uri streamUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (streamUri != null) {
                 readFile(streamUri);
@@ -215,10 +224,12 @@ public class DataImportActivity extends Activity {
             }
         }
 
-        private void handleSendMultipleImages(Intent intent) {
-            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (imageUris != null) {
-                // Update UI to reflect multiple images being shared
+        private void handleSendMultiple(Intent intent) {
+            ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            //FIXME Not tested at all!
+            if (uris != null) {
+                for (Uri uri : uris)
+                    readFile(uri);
             }
         }
 
