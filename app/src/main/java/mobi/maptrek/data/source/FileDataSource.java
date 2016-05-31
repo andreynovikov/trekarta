@@ -63,16 +63,6 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
         return tracks.get(cursor.getInt(1));
     }
 
-    @Override
-    public void addListener(DataSourceUpdateListener listener) {
-
-    }
-
-    @Override
-    public void removeListener(DataSourceUpdateListener listener) {
-
-    }
-
     @NonNull
     @Override
     public List<Track> getTracks() {

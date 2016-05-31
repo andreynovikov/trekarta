@@ -13,7 +13,7 @@ public interface DataHolder {
     @NonNull
     WaypointDbDataSource getWaypointDataSource();
 
-    @Nullable
+    @NonNull
     List<FileDataSource> getData();
 
     void setDataSourceAvailability(FileDataSource source, boolean available);

@@ -153,6 +153,10 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     public void onDataSourceUpdated() {
         if (mAdapter != null) {
             mAdapter.changeCursor(mDataSource.getCursor());
+            mIsMultiDataSource = mDataSource instanceof WaypointDataSource &&
+                    mDataSource instanceof TrackDataSource &&
+                    ((WaypointDataSource) mDataSource).getWaypointsCount() > 0 &&
+                    ((TrackDataSource) mDataSource).getTracksCount() > 0;
         }
     }
 
@@ -183,7 +187,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         private static final int STATE_UNKNOWN = 0;
         private static final int STATE_SECTIONED_CELL = 1;
         private static final int STATE_REGULAR_CELL = 2;
-        @ColorInt private int mAccentColor;
+        @ColorInt
+        private int mAccentColor;
         private int[] mCellStates;
 
         private LayoutInflater mInflater;

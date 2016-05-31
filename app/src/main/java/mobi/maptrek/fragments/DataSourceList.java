@@ -103,10 +103,6 @@ public class DataSourceList extends ListFragment {
             mData.add(mDataHolder.getWaypointDataSource());
 
         List<FileDataSource> data = mDataHolder.getData();
-        if (data == null) {
-            mAdapter.notifyDataSetChanged();
-            return;
-        }
         // TODO Preserve position after source is loaded and name changes
         Collections.sort(data, new Comparator<DataSource>() {
             @Override

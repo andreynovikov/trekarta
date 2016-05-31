@@ -39,7 +39,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -293,7 +292,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapFile mBitmapLayerMap;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
-    private List<FileDataSource> mData;
+    private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
     private int mPointCount;
@@ -982,13 +981,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onPlacesClicked() {
         boolean hasExtraSources = false;
-        // TODO Initialize mData to stop checking it for null
-        if (mData != null) {
-            for (FileDataSource source : mData) {
-                if (!source.isNativeTrack()) {
-                    hasExtraSources = true;
-                    break;
-                }
+        for (FileDataSource source : mData) {
+            if (!source.isNativeTrack()) {
+                hasExtraSources = true;
+                break;
             }
         }
         if (hasExtraSources) {
@@ -1516,6 +1512,12 @@ public class MainActivity extends Activity implements ILocationListener,
             Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            waypoint.source.notifyListeners();
+                        }
+                    });
                 }
 
                 @Override
@@ -1553,6 +1555,12 @@ public class MainActivity extends Activity implements ILocationListener,
                             Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                                 @Override
                                 public void onSaved(FileDataSource source) {
+                                    mMainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            waypoint.source.notifyListeners();
+                                        }
+                                    });
                                 }
 
                                 @Override
@@ -1606,7 +1614,13 @@ public class MainActivity extends Activity implements ILocationListener,
                         for (FileDataSource source : sources) {
                             Manager.save(getApplicationContext(), source, new Manager.OnSaveListener() {
                                 @Override
-                                public void onSaved(FileDataSource source) {
+                                public void onSaved(final FileDataSource source) {
+                                    mMainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            source.notifyListeners();
+                                        }
+                                    });
                                 }
 
                                 @Override
@@ -1802,7 +1816,7 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.remove(mLabelsLayer);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-        //TODO Absolute positioning is a hack
+        //FIXME Absolute positioning is a hack
         layers.add(2, mapFile.tileLayer);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
@@ -1859,7 +1873,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
         if (mPanelState != PANEL_STATE.NONE) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
-            //TODO Make it properly work without "immediate" - this is because exit transactions do not work
+            //TODO Make it properly work without "immediate" - that is why exit transactions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
             if (name.equals(bse.getName())) {
                 setPanelState(PANEL_STATE.NONE);
@@ -2455,7 +2469,7 @@ public class MainActivity extends Activity implements ILocationListener,
         return mWaypointDbDataSource;
     }
 
-    @Nullable
+    @NonNull
     @Override
     public List<FileDataSource> getData() {
         return mData;
