@@ -49,7 +49,6 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         return mDatabase.isOpen();
     }
 
-    @Override
     public void saveWaypoint(Waypoint waypoint) {
         ContentValues values = new ContentValues();
         if (waypoint._id > 0)
@@ -81,7 +80,6 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         notifyListeners();
     }
 
-    @Override
     public void deleteWaypoint(Waypoint waypoint) {
         long id = waypoint._id;
         mDatabase.delete(WaypointDbHelper.TABLE_NAME, WaypointDbHelper.COLUMN_ID + " = " + id, null);

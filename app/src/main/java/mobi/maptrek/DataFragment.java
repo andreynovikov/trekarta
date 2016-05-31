@@ -4,12 +4,14 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapIndex;
 
 public class DataFragment extends Fragment {
 
     private MapIndex mMapIndex;
     private Waypoint mEditedWaypoint;
+    private WaypointDbDataSource mWaypointDbDataSource;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -18,19 +20,27 @@ public class DataFragment extends Fragment {
         setRetainInstance(true);
     }
 
+    public MapIndex getMapIndex() {
+        return mMapIndex;
+    }
+
     public void setMapIndex(MapIndex mapIndex) {
         mMapIndex = mapIndex;
     }
 
-    public MapIndex getMapIndex() {
-        return mMapIndex;
+    public Waypoint getEditedWaypoint() {
+        return mEditedWaypoint;
     }
 
     public void setEditedWaypoint(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
     }
 
-    public Waypoint getEditedWaypoint() {
-        return mEditedWaypoint;
+    public WaypointDbDataSource getWaypointDbDataSource() {
+        return mWaypointDbDataSource;
+    }
+
+    public void setWaypointDbDataSource(WaypointDbDataSource waypointDbDataSource) {
+        mWaypointDbDataSource = waypointDbDataSource;
     }
 }

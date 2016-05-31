@@ -109,6 +109,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -339,9 +340,14 @@ public class MainActivity extends Activity implements ILocationListener,
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
             mMapIndex = new MapIndex(mapsDir);
+
+            //noinspection SpellCheckingInspection
+            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
+            mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
+            mWaypointDbDataSource = mDataFragment.getWaypointDbDataSource();
         }
 
         mLocationState = LOCATION_STATE.DISABLED;
@@ -430,10 +436,6 @@ public class MainActivity extends Activity implements ILocationListener,
         //layers.add(new MapCoverageLayer(mMap));
         layers.add(new MapScaleBar(mMapView));
         layers.add(mLocationOverlay);
-
-        //noinspection SpellCheckingInspection
-        File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
-        mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol;
@@ -717,8 +719,6 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
 
-        mWaypointDbDataSource.close();
-
         mMap.destroy();
         if (mCache != null)
             mCache.dispose();
@@ -735,6 +735,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         if (isFinishing()) {
             mMapIndex.clear();
+            mWaypointDbDataSource.close();
         }
 
         mFragmentManager = null;
@@ -746,6 +747,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
+        mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putLong("lastLocationMilliseconds", mLastLocationMilliseconds);
@@ -1252,7 +1254,7 @@ public class MainActivity extends Activity implements ILocationListener,
             Waypoint waypoint = (Waypoint) mActiveMarker.getUid();
             waypoint.latitude = mActiveMarker.getPoint().getLatitude();
             waypoint.longitude = mActiveMarker.getPoint().getLongitude();
-            mWaypointDbDataSource.saveWaypoint(waypoint);
+            onWaypointSave(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
             MapPosition position = mMap.getMapPosition();
@@ -1508,7 +1510,21 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointSave(final Waypoint waypoint) {
-        mWaypointDbDataSource.saveWaypoint(waypoint);
+        if (waypoint.source instanceof WaypointDbDataSource) {
+            mWaypointDbDataSource.saveWaypoint(waypoint);
+        } else {
+            Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
+                @Override
+                public void onSaved(FileDataSource source) {
+                }
+
+                @Override
+                public void onError(FileDataSource source, Exception e) {
+                    //TODO Show error message
+                }
+            }, mProgressHandler);
+        }
+        // Markers are immutable so simply recreate it
         removeWaypointMarker(waypoint);
         addWaypointMarker(waypoint);
         mMap.updateMap(true);
@@ -1530,13 +1546,20 @@ public class MainActivity extends Activity implements ILocationListener,
                         if (event == DISMISS_EVENT_ACTION)
                             return;
                         // If dismissed, actually remove waypoint
-                        if (mWaypointDbDataSource.isOpen()) {
+                        if (waypoint.source instanceof WaypointDbDataSource) {
                             mWaypointDbDataSource.deleteWaypoint(waypoint);
                         } else {
-                            // We need this when screen is rotated but snackbar is still shown
-                            mWaypointDbDataSource.open();
-                            mWaypointDbDataSource.deleteWaypoint(waypoint);
-                            mWaypointDbDataSource.close();
+                            ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
+                            Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
+                                @Override
+                                public void onSaved(FileDataSource source) {
+                                }
+
+                                @Override
+                                public void onError(FileDataSource source, Exception e) {
+                                    //TODO Show error message
+                                }
+                            }, mProgressHandler);
                         }
                     }
                 })
@@ -1544,9 +1567,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     @Override
                     public void onClick(View view) {
                         // If undo pressed, restore the marker
-                        GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
-                        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
-                        mMarkerLayer.addItem(marker);
+                        addWaypointMarker(waypoint);
                         mMap.updateMap(true);
                     }
                 });
@@ -1572,18 +1593,27 @@ public class MainActivity extends Activity implements ILocationListener,
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
-                        // If dismissed, actually remove waypoint
-                        if (mWaypointDbDataSource.isOpen()) {
-                            for (Waypoint waypoint : waypoints) {
+                        // If dismissed, actually remove waypoints
+                        HashSet<FileDataSource> sources = new HashSet<>();
+                        for (Waypoint waypoint : waypoints) {
+                            if (waypoint.source instanceof WaypointDbDataSource) {
                                 mWaypointDbDataSource.deleteWaypoint(waypoint);
+                            } else {
+                                ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
+                                sources.add((FileDataSource) waypoint.source);
                             }
-                        } else {
-                            // We need this when screen is rotated but snackbar is still shown
-                            mWaypointDbDataSource.open();
-                            for (Waypoint waypoint : waypoints) {
-                                mWaypointDbDataSource.deleteWaypoint(waypoint);
-                            }
-                            mWaypointDbDataSource.close();
+                        }
+                        for (FileDataSource source : sources) {
+                            Manager.save(getApplicationContext(), source, new Manager.OnSaveListener() {
+                                @Override
+                                public void onSaved(FileDataSource source) {
+                                }
+
+                                @Override
+                                public void onError(FileDataSource source, Exception e) {
+                                    //TODO Show error message
+                                }
+                            }, mProgressHandler);
                         }
                     }
                 })
@@ -1613,6 +1643,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mMarkerLayer.updateItems();
         mMap.updateMap(true);
+        // This event is relevant only to internal data source
         mWaypointDbDataSource.saveWaypoint(mEditedWaypoint);
         mEditedWaypoint = null;
     }

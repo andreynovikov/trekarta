@@ -122,30 +122,33 @@ public abstract class Manager {
         public void run() {
             try {
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-                Log.i(TAG, "Saving data source...");
-                // Save to temporary file for two reasons: to preserve original file in case of error
-                // and to hide it from data loader until it is completely saved
-                File newFile = new File(mFile.getParent(), System.currentTimeMillis() + ".tmp");
-                Manager.this.saveData(new FileOutputStream(newFile, false), mDataSource, mProgressListener);
-                String newName = mDataSource.getNewName();
-                File saveFile = mFile;
-                File renamedFile = null;
-                if (newName != null) {
-                    if (mDataSource.path != null)
-                        renamedFile = mFile;
-                    saveFile = new File(mFile.getParent(), FileUtils.sanitizeFilename(newName) + Manager.this.getExtension());
-                }
-                if (saveFile.exists() && !saveFile.delete() || !newFile.renameTo(saveFile)) {
-                    Log.e(TAG, "Can not rename data source file after save");
-                    if (mSaveListener != null)
-                        mSaveListener.onError(mDataSource, new Exception("Can not rename data source file after save"));
-                } else {
-                    mDataSource.path = saveFile.getAbsolutePath();
-                    if (renamedFile != null && !renamedFile.delete())
-                        Log.e(TAG, "Failed to remove renamed file");
-                    if (mSaveListener != null)
-                        mSaveListener.onSaved(mDataSource);
-                    Log.i(TAG, "Done");
+                // Do not allow simultaneous operations on one source
+                synchronized (mDataSource) {
+                    Log.i(TAG, "Saving data source...");
+                    // Save to temporary file for two reasons: to preserve original file in case of error
+                    // and to hide it from data loader until it is completely saved
+                    File newFile = new File(mFile.getParent(), System.currentTimeMillis() + ".tmp");
+                    Manager.this.saveData(new FileOutputStream(newFile, false), mDataSource, mProgressListener);
+                    String newName = mDataSource.getNewName();
+                    File saveFile = mFile;
+                    File renamedFile = null;
+                    if (newName != null) {
+                        if (mDataSource.path != null)
+                            renamedFile = mFile;
+                        saveFile = new File(mFile.getParent(), FileUtils.sanitizeFilename(newName) + Manager.this.getExtension());
+                    }
+                    if (saveFile.exists() && !saveFile.delete() || !newFile.renameTo(saveFile)) {
+                        Log.e(TAG, "Can not rename data source file after save");
+                        if (mSaveListener != null)
+                            mSaveListener.onError(mDataSource, new Exception("Can not rename data source file after save"));
+                    } else {
+                        mDataSource.path = saveFile.getAbsolutePath();
+                        if (renamedFile != null && !renamedFile.delete())
+                            Log.e(TAG, "Failed to remove renamed file");
+                        if (mSaveListener != null)
+                            mSaveListener.onSaved(mDataSource);
+                        Log.i(TAG, "Done");
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Can not save data source", e);

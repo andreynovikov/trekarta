@@ -25,16 +25,6 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
         return (path != null && path.endsWith(TrackManager.EXTENSION)) || (path == null && waypoints.isEmpty() && tracks.size() == 1);
     }
 
-    @Override
-    public void saveWaypoint(Waypoint waypoint) {
-
-    }
-
-    @Override
-    public void deleteWaypoint(Waypoint waypoint) {
-
-    }
-
     @NonNull
     @Override
     public List<Waypoint> getWaypoints() {
@@ -80,16 +70,6 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
 
     @Override
     public void removeListener(DataSourceUpdateListener listener) {
-
-    }
-
-    @Override
-    public void saveTrack(Track track) {
-
-    }
-
-    @Override
-    public void deleteTrack(Track track) {
 
     }
 
