@@ -285,6 +285,10 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         mTilesCount++;
     }
 
+    public void setShouldNotCloseDataSource() {
+        mActive = true;
+    }
+
     class DrawThread extends Thread {
 
         private boolean mRun = false;

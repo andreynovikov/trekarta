@@ -90,17 +90,16 @@ public class MapList extends ListFragment {
         super.onDetach();
         mMaps.clear();
         mFragmentHolder = null;
-        //TODO Think how to better handle pop back stack
-        //mListener = null;
+        mListener = null;
     }
 
     @Override
     public void onListItemClick(ListView lv, View v, int position, long id) {
-        // We get map first, otherwise adapter is destroyed
+        BitmapTileMapPreviewView mapView = (BitmapTileMapPreviewView) v.findViewById(R.id.map);
+        mapView.setShouldNotCloseDataSource();
         MapFile map = mAdapter.getItem(position);
-        // We do it immediately because map preview closes data source, may be there is a better way to handle this
-        mFragmentHolder.popCurrent();
         mListener.onMapSelected(map);
+        mFragmentHolder.popCurrent();
     }
 
     public void setMaps(Collection<MapFile> maps, MapFile active) {
@@ -161,10 +160,6 @@ public class MapList extends ListFragment {
             } else {
                 itemHolder.indicator.setBackgroundColor(Color.TRANSPARENT);
             }
-            //if (mapFile != mActiveMap)
-            //    mapFile.tileSource.open();
-
-            //map.setBaseMap(new BitmapTileLayer(map, mapFile.tileSource));
 
             return convertView;
         }

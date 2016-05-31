@@ -1806,6 +1806,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 if (mBuildingsLayerEnabled)
                     layers.add(mBuildingsLayer);
                 layers.add(mLabelsLayer);
+                mMap.updateMap(true);
                 mBitmapLayerMap = null;
                 return;
             }
