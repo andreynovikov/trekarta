@@ -153,6 +153,7 @@ import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.util.FileUtils;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.view.Gauge;
@@ -176,22 +177,6 @@ public class MainActivity extends Activity implements ILocationListener,
         OnDataMissingListener {
     private static final String TAG = "MainActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
-
-    //TODO Put them in separate class
-    private static final String PREF_LATITUDE = "latitude";
-    private static final String PREF_LONGITUDE = "longitude";
-    private static final String PREF_MAP_SCALE = "map_scale";
-    private static final String PREF_MAP_BEARING = "map_bearing";
-    private static final String PREF_MAP_TILT = "map_tilt";
-    private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
-    private static final String PREF_POINT_COUNT = "wpt_counter";
-    private static final String PREF_LOCATION_STATE = "location_state";
-    public static final String PREF_TRACKING_STATE = "tracking_state";
-    public static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
-    public static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
-    public static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
-    public static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
-    private static final String PREF_GAUGES = "gauges";
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
@@ -286,16 +271,13 @@ public class MainActivity extends Activity implements ILocationListener,
     private Toast mBackToast;
 
     private MapIndex mMapIndex;
-    //TODO Preserve it in DataFragment for rotation
     private MultiMapFileTileSource mMapFileSource;
-    //TODO Preserve it in DataFragment for rotation
     private MapFile mBitmapLayerMap;
     //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
-    private int mPointCount;
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -316,6 +298,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
+        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         // Estimate finger tip height (0.25 inch is obtained from experiments)
@@ -332,7 +316,6 @@ public class MainActivity extends Activity implements ILocationListener,
         mFragmentManager.addOnBackStackChangedListener(this);
         mDataFragment = (DataFragment) mFragmentManager.findFragmentByTag("data");
 
-        // create the fragment and data the first time
         if (mDataFragment == null) {
             // add the fragment
             mDataFragment = new DataFragment();
@@ -343,10 +326,17 @@ public class MainActivity extends Activity implements ILocationListener,
             //noinspection SpellCheckingInspection
             File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
             mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
+
+            mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
+
+            if (mapsDir != null)
+                mMapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
             mWaypointDbDataSource = mDataFragment.getWaypointDbDataSource();
+            mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
+            mMapFileSource = mDataFragment.getMapFileSource();
         }
 
         mLocationState = LOCATION_STATE.DISABLED;
@@ -381,7 +371,9 @@ public class MainActivity extends Activity implements ILocationListener,
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mMapView = (MapView) findViewById(R.id.mapView);
-        registerMapView(mMapView);
+        mMap = mMapView.map();
+        MapPosition mapPosition = Configuration.getPosition();
+        mMap.setMapPosition(mapPosition);
 
         Resources resources = getResources();
         Resources.Theme theme = getTheme();
@@ -403,8 +395,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mBaseLayer = new OsmTileLayer(mMap);
 
-        if (mapsDir != null) {
-            mMapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
+        if (mMapFileSource != null) {
             CombinedTileSource tileSource = new CombinedTileSource(mMapFileSource, urlTileSource);
             tileSource.setOnDataMissingListener(this);
             mBaseLayer.setTileSource(tileSource);
@@ -422,10 +413,12 @@ public class MainActivity extends Activity implements ILocationListener,
         MapPosition pos = new MapPosition();
         mMap.getMapPosition(pos);
         if (pos.x == 0.5 && pos.y == 0.5)
+            // TODO Try to guess user location
             mMap.setMapPosition(55.8194, 37.6676, 1 << 16);
 
         Layers layers = mMap.layers();
 
+        mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
             mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
             layers.add(mBuildingsLayer);
@@ -454,6 +447,9 @@ public class MainActivity extends Activity implements ILocationListener,
                 mEditedWaypoint = waypoint;
             addWaypointMarker(waypoint);
         }
+
+        if (mBitmapLayerMap != null)
+            showBitmapMap(mBitmapLayerMap);
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -522,29 +518,19 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         });
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mPointCount = sharedPreferences.getInt(PREF_POINT_COUNT, 0);
         // Resume state
-        int state = sharedPreferences.getInt(PREF_LOCATION_STATE, 0);
+        int state = Configuration.getLocationState();
         if (state >= LOCATION_STATE.NORTH.ordinal())
             mSavedLocationState = LOCATION_STATE.values()[state];
-        state = sharedPreferences.getInt(PREF_TRACKING_STATE, 0);
+        state = Configuration.getTrackingState();
         mTrackingState = TRACKING_STATE.values()[state];
 
-        mGaugePanel.initializeGauges(sharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET));
+        mGaugePanel.initializeGauges(Configuration.getGauges());
+
         // Resume navigation
-        String navWpt = sharedPreferences.getString(PREF_NAVIGATION_WAYPOINT, null);
-        if (navWpt != null) {
-            Waypoint waypoint = new Waypoint();
-            waypoint.name = navWpt;
-            waypoint.latitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0);
-            waypoint.longitude = (double) sharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0);
-            waypoint.proximity = sharedPreferences.getInt(PREF_NAVIGATION_PROXIMITY, 0);
-            startNavigation(waypoint);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(PREF_NAVIGATION_WAYPOINT, null);
-            editor.apply();
-        }
+        MapObject mapObject = Configuration.getNavigationPoint();
+        if (mapObject != null)
+            startNavigation(mapObject);
 
         // Initialize data loader
         getLoaderManager();
@@ -558,15 +544,16 @@ public class MainActivity extends Activity implements ILocationListener,
     protected void onNewIntent(Intent intent) {
         String action = intent.getAction();
         Log.w(TAG, "New intent: " + action);
+        String scheme = intent.getScheme();
 
-        if ("geo".equals(intent.getScheme())) {
+        if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
             String data = uri.getSchemeSpecificPart();
             String query = uri.getQuery();
             // geo:latitude,longitude
             // geo:latitude,longitude?z=zoom
             // geo:0,0?q=lat,lng(label)
-            // geo:0,0?q=lat, lng - buggy Instagram
+            // geo:0,0?q=lat, lng - buggy Instagram (with space)
             int zoom = 0;
             if (query != null) {
                 data = data.substring(0, data.indexOf(query) - 1);
@@ -605,7 +592,7 @@ public class MainActivity extends Activity implements ILocationListener,
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if ("http".equals(intent.getScheme()) || "https".equals(intent.getScheme())) {
+        } else if ("http".equals(scheme) || "https".equals(scheme)) {
             Uri uri = intent.getData();
             List<String> path = uri.getPathSegments();
             if ("go".equals(path.get(0))) {
@@ -669,22 +656,12 @@ public class MainActivity extends Activity implements ILocationListener,
         mMapView.onPause();
         mMap.events.unbind(this);
 
-        // save the map position
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        MapPosition mapPosition = new MapPosition();
-        mMap.viewport().getMapPosition(mapPosition);
-        GeoPoint geoPoint = mapPosition.getGeoPoint();
-        editor.putInt(PREF_LATITUDE, geoPoint.latitudeE6);
-        editor.putInt(PREF_LONGITUDE, geoPoint.longitudeE6);
-        editor.putFloat(PREF_MAP_SCALE, (float) mapPosition.scale);
-        editor.putFloat(PREF_MAP_BEARING, mapPosition.bearing);
-        editor.putFloat(PREF_MAP_TILT, mapPosition.tilt);
-        editor.putBoolean(PREF_MAP_3D_BUILDINGS, mBuildingsLayerEnabled);
-        editor.putInt(PREF_POINT_COUNT, mPointCount);
-        editor.putInt(PREF_LOCATION_STATE, mSavedLocationState.ordinal());
-        editor.putInt(PREF_TRACKING_STATE, mTrackingState.ordinal());
-        editor.putString(PREF_GAUGES, mGaugePanel.getGaugeSettings());
-        editor.apply();
+        // save the map position and state
+        Configuration.setPosition(mMap.getMapPosition());
+        Configuration.setBitmapMap(mBitmapLayerMap);
+        Configuration.setLocationState(mSavedLocationState.ordinal());
+        Configuration.setTrackingState(mTrackingState.ordinal());
+        Configuration.setGauges(mGaugePanel.getGaugeSettings());
     }
 
     @Override
@@ -722,6 +699,9 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mCache != null)
             mCache.dispose();
 
+        for (FileDataSource source : mData)
+            source.setVisible(false);
+
         mProgressHandler = null;
 
         Log.w(TAG, "  stopping threads...");
@@ -747,6 +727,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
         mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
+        mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
+        mDataFragment.setMapFileSource(mMapFileSource);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putLong("lastLocationMilliseconds", mLastLocationMilliseconds);
@@ -803,6 +785,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     mMap.layers().remove(mBuildingsLayer);
                     mBuildingsLayer = null;
                 }
+                Configuration.setBuildingsLayerEnabled(mBuildingsLayerEnabled);
                 mMap.updateMap(true);
                 return true;
             case R.id.action_grid:
@@ -1012,8 +995,7 @@ public class MainActivity extends Activity implements ILocationListener,
         } else {
             geoPoint = mMap.getMapPosition().getGeoPoint();
         }
-        mPointCount++;
-        String name = getString(R.string.waypoint_name, mPointCount);
+        String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
         final Waypoint waypoint = new Waypoint(name, geoPoint.getLatitude(), geoPoint.getLongitude());
         waypoint.date = new Date();
         mWaypointDbDataSource.saveWaypoint(waypoint);
@@ -1196,13 +1178,13 @@ public class MainActivity extends Activity implements ILocationListener,
         }
     };
 
-    private void startNavigation(Waypoint waypoint) {
+    private void startNavigation(MapObject mapObject) {
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_MAP_OBJECT);
-        i.putExtra(NavigationService.EXTRA_NAME, waypoint.name);
-        i.putExtra(NavigationService.EXTRA_LATITUDE, waypoint.latitude);
-        i.putExtra(NavigationService.EXTRA_LONGITUDE, waypoint.longitude);
-        i.putExtra(NavigationService.EXTRA_PROXIMITY, waypoint.proximity);
+        i.putExtra(NavigationService.EXTRA_NAME, mapObject.name);
+        i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.latitude);
+        i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.longitude);
+        i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
         startService(i);
         if (mLocationState == LOCATION_STATE.DISABLED)
             enableLocations();
@@ -1225,7 +1207,6 @@ public class MainActivity extends Activity implements ILocationListener,
     private void disableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_TRACK));
         boolean r = mMap.layers().remove(mCurrentTrackLayer);
-        Log.e(TAG, "r: " + r);
         if (mCurrentTrackLayer != null) // Can be null if called by intent
             mCurrentTrackLayer.onDetach();
         mCurrentTrackLayer = null;
@@ -1522,7 +1503,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
                 @Override
                 public void onError(FileDataSource source, Exception e) {
-                    //TODO Show error message
+                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                 }
             }, mProgressHandler);
         }
@@ -1565,7 +1546,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
                                 @Override
                                 public void onError(FileDataSource source, Exception e) {
-                                    //TODO Show error message
+                                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                                 }
                             }, mProgressHandler);
                         }
@@ -1625,7 +1606,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
                                 @Override
                                 public void onError(FileDataSource source, Exception e) {
-                                    //TODO Show error message
+                                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                                 }
                             }, mProgressHandler);
                         }
@@ -1811,7 +1792,12 @@ public class MainActivity extends Activity implements ILocationListener,
                 return;
             }
         }
+        showBitmapMap(mapFile);
+    }
+
+    private void showBitmapMap(MapFile mapFile) {
         Log.e(TAG, mapFile.name);
+        Layers layers = mMap.layers();
         if (mBuildingsLayerEnabled)
             layers.remove(mBuildingsLayer);
         layers.remove(mLabelsLayer);
@@ -1839,36 +1825,6 @@ public class MainActivity extends Activity implements ILocationListener,
         else
             //TODO Bitmap layer should respond to update map (see TileLayer)
             mMap.clearMap();
-    }
-
-    /**
-     * This method is called once by each MapView during its setup process.
-     *
-     * @param mapView the calling MapView.
-     */
-    public final void registerMapView(MapView mapView) {
-        mMap = mapView.map();
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.contains(PREF_LATITUDE) &&
-                sharedPreferences.contains(PREF_LONGITUDE) &&
-                sharedPreferences.contains(PREF_MAP_SCALE)) {
-            // retrieve and set the map position and zoom level
-            int latitudeE6 = sharedPreferences.getInt(PREF_LATITUDE, 0);
-            int longitudeE6 = sharedPreferences.getInt(PREF_LONGITUDE, 0);
-            float scale = sharedPreferences.getFloat(PREF_MAP_SCALE, 1);
-            float bearing = sharedPreferences.getFloat(PREF_MAP_BEARING, 0);
-            float tilt = sharedPreferences.getFloat(PREF_MAP_TILT, 0);
-            mBuildingsLayerEnabled = sharedPreferences.getBoolean(PREF_MAP_3D_BUILDINGS, true);
-
-            MapPosition mapPosition = new MapPosition();
-            mapPosition.setPosition(latitudeE6 / 1E6, longitudeE6 / 1E6);
-            mapPosition.setScale(scale);
-            mapPosition.setBearing(bearing);
-            mapPosition.setTilt(tilt);
-
-            mMap.setMapPosition(mapPosition);
-        }
     }
 
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {

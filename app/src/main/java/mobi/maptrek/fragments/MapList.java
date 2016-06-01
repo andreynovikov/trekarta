@@ -28,7 +28,7 @@ public class MapList extends ListFragment {
     public static final String ARG_LONGITUDE = "lon";
 
     private MapListAdapter mAdapter;
-    private ArrayList<MapFile> mMaps;
+    private ArrayList<MapFile> mMaps = new ArrayList<>();
     private MapFile mActiveMap;
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
@@ -38,7 +38,7 @@ public class MapList extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -88,9 +88,14 @@ public class MapList extends ListFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mMaps.clear();
         mFragmentHolder = null;
         mListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMaps.clear();
     }
 
     @Override
@@ -103,7 +108,7 @@ public class MapList extends ListFragment {
     }
 
     public void setMaps(Collection<MapFile> maps, MapFile active) {
-        mMaps = new ArrayList<>(maps.size());
+        mMaps.clear();
         for (MapFile map : maps)
             mMaps.add(map);
         mActiveMap = active;

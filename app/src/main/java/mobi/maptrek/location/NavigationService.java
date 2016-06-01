@@ -38,6 +38,7 @@ import android.util.Log;
 
 import org.oscim.core.GeoPoint;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
 import mobi.maptrek.data.MapObject;
@@ -148,19 +149,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (action.equals(STOP_NAVIGATION) || action.equals(PAUSE_NAVIGATION)) {
             mForeground = false;
             stopForeground(true);
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            if (action.equals(STOP_NAVIGATION)) {
-                if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
-                    editor.putString(MainActivity.PREF_NAVIGATION_WAYPOINT, null);
-                }
+            if (action.equals(STOP_NAVIGATION))
                 stopNavigation();
-            } else {
-                editor.putString(MainActivity.PREF_NAVIGATION_WAYPOINT, navWaypoint.name);
-                editor.putFloat(MainActivity.PREF_NAVIGATION_LATITUDE, (float) navWaypoint.latitude);
-                editor.putFloat(MainActivity.PREF_NAVIGATION_LONGITUDE, (float) navWaypoint.longitude);
-                editor.putInt(MainActivity.PREF_NAVIGATION_PROXIMITY, navWaypoint.proximity);
-            }
-            editor.apply();
+            if (! Configuration.initialized())
+                Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+            Configuration.setNavigationPoint(navWaypoint);
             stopSelf();
         }
         if (action.equals(ENABLE_BACKGROUND_NAVIGATION)) {
@@ -283,7 +276,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         Intent iStop = new Intent(this, NavigationService.class);
         iStop.setAction(STOP_NAVIGATION);
-        iStop.putExtra("self", true);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel_black);
 

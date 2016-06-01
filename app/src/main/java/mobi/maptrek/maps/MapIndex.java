@@ -1,5 +1,7 @@
 package mobi.maptrek.maps;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.oscim.tiling.TileSource;
@@ -31,14 +33,16 @@ public class MapIndex implements Serializable {
     MapIndex() {
     }
 
-    public MapIndex(File root) {
+    public MapIndex(@Nullable File root) {
         mRootDir = root;
         mMaps = new HashSet<>();
-        List<File> files = FileList.getFileListing(mRootDir, new MapFilenameFilter());
-        for (File file : files) {
-            load(file);
+        if (root != null) {
+            List<File> files = FileList.getFileListing(mRootDir, new MapFilenameFilter());
+            for (File file : files) {
+                load(file);
+            }
+            mHashCode = getMapsHash(files);
         }
-        mHashCode = getMapsHash(files);
     }
 
     public static int getMapsHash(String path) {
@@ -92,7 +96,7 @@ public class MapIndex implements Serializable {
         return mHashCode;
     }
 
-    private void load(File file) {
+    private void load(@NonNull File file) {
         String fileName = file.getName();
         Log.e(TAG, "load(" + fileName + ")");
         if (NativeMaps.files.containsKey(fileName)) {
@@ -120,6 +124,7 @@ public class MapIndex implements Serializable {
                     mapFile.name = info.name;
                     mapFile.boundingBox = info.boundingBox;
                     mapFile.tileSource = tileSource;
+                    mapFile.fileName = file.getAbsolutePath();
                     tileSource.close();
                 }
             }
@@ -147,6 +152,7 @@ public class MapIndex implements Serializable {
         map.tileSource.close();
     }
 
+    @Nullable
     public MapFile getNativeMap(double x, double y) {
         for (MapFile mapFile : NativeMaps.set) {
             if (mapFile.downloaded || mapFile.downloading != 0)
@@ -157,6 +163,18 @@ public class MapIndex implements Serializable {
         return null;
     }
 
+    @Nullable
+    public MapFile getMap(@Nullable String filename) {
+        if (filename == null)
+            return null;
+        for (MapFile map : mMaps) {
+            if (map.fileName.equals(filename))
+                return map;
+        }
+        return null;
+    }
+
+    @NonNull
     public Collection<MapFile> getMaps() {
         return mMaps;
     }
@@ -165,7 +183,6 @@ public class MapIndex implements Serializable {
         for (MapFile map : mMaps)
             map.tileSource.close();
         mMaps.clear();
-        mMaps = null;
     }
 
     public void markDownloaded(String filePath) {

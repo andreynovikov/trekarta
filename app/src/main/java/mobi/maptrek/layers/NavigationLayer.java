@@ -20,7 +20,6 @@ package mobi.maptrek.layers;
 
 import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.core.GeoPoint;
-import org.oscim.core.GeometryBuffer;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
@@ -55,7 +54,6 @@ public class NavigationLayer extends Layer {
     protected boolean mUpdatePoints;
 
     final Worker mWorker;
-    GeometryBuffer mGeom;
 
     public NavigationLayer(Map map, int lineColor, float lineWidth) {
         super(map);
@@ -149,10 +147,10 @@ public class NavigationLayer extends Layer {
 
         private static final int MIN_DIST = 3;
 
-        // pre-projected points
+        // pre-projected polygonPoints
         private double[] mPreprojected = new double[2];
 
-        // projected points
+        // projected polygonPoints
         private float[] mPPoints;
         private final LineClipper mClipper;
         private int mNumPoints;
@@ -204,25 +202,6 @@ public class NavigationLayer extends Layer {
 
                     MercatorProjection.project(mDestination.getLatitude(), mDestination.getLongitude(), points, size - 1);
                 }
-
-            } else if (mGeom != null) {
-                GeometryBuffer geom = mGeom;
-                mGeom = null;
-                size = geom.index[0];
-
-                double[] points = mPreprojected;
-
-                if (size > points.length) {
-                    points = mPreprojected = new double[size * 2];
-                    mPPoints = new float[size * 2];
-                }
-
-                for (int i = 0; i < size; i += 2)
-                    MercatorProjection.project(geom.points[i + 1],
-                            geom.points[i], points,
-                            i >> 1);
-                mNumPoints = size = size >> 1;
-
             }
             if (size == 0) {
                 if (task.bucket.get() != null) {

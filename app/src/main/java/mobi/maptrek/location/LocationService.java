@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
@@ -146,9 +147,9 @@ public class LocationService extends BaseLocationService implements LocationList
             stopForeground(true);
             if (action.equals(DISABLE_TRACK)) {
                 if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                    editor.putInt(MainActivity.PREF_TRACKING_STATE, MainActivity.TRACKING_STATE.DISABLED.ordinal());
-                    editor.apply();
+                    if (! Configuration.initialized())
+                        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+                    Configuration.setTrackingState(MainActivity.TRACKING_STATE.DISABLED.ordinal());
                 }
                 tryToSaveTrack();
                 clearTrack();
