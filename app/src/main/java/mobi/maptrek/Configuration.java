@@ -27,6 +27,9 @@ public class Configuration {
     private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
     private static final String PREF_GAUGES = "gauges";
+    private static final String PREF_ADVICE_STATES = "advice_states";
+
+    public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
 
     private static SharedPreferences mSharedPreferences;
 
@@ -172,6 +175,19 @@ public class Configuration {
             editor.putString(PREF_BITMAP_MAP, mapFile.fileName);
         else
             editor.putString(PREF_BITMAP_MAP, null);
+        editor.apply();
+    }
+
+    public static boolean getAdviceState(long advice) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return (mSharedPreferences.getLong(PREF_ADVICE_STATES, 0L) & advice) == 0L;
+    }
+
+    public static void setAdviceState(long advice) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        long state = mSharedPreferences.getLong(PREF_ADVICE_STATES, 0L);
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putLong(PREF_ADVICE_STATES, state | advice);
         editor.apply();
     }
 }

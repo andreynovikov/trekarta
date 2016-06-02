@@ -37,10 +37,12 @@ import org.oscim.map.Map;
 
 import java.util.ArrayList;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.ColorSwatch;
 import mobi.maptrek.view.LimitedWebView;
@@ -66,8 +68,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     private boolean mExpanded;
     private boolean mEditorMode;
 
-    public WaypointInformation() {
-
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -224,6 +228,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
         outState.putBoolean(ARG_DETAILS, mExpanded);
+        //TODO Preserve edit mode on rotation
     }
 
     private void expand() {
@@ -405,6 +410,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;
+
+            HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.msg_update_external_source, mFragmentHolder.getCoordinatorLayout());
         } else {
             mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
@@ -428,8 +435,9 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         colorSwatch.setVisibility(editsState);
 
         rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
-        rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
-
+        if (mWaypoint.date != null) {
+            rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
+        }
         rootView.findViewById(R.id.editButton).setVisibility(viewsState);
         rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
 
