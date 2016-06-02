@@ -55,7 +55,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -121,7 +121,6 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     public void onDetach() {
         super.onDetach();
         mDataSource.removeListener(this);
-        mDataSource = null;
         mWaypointActionListener = null;
         mTrackActionListener = null;
         mFragmentHolder = null;

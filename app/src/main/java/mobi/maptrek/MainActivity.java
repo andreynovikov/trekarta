@@ -1011,7 +1011,6 @@ public class MainActivity extends Activity implements ILocationListener,
                     }
                 });
         snackbar.show();
-
     }
 
     private void onMapsClicked() {
@@ -1206,7 +1205,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void disableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_TRACK));
-        boolean r = mMap.layers().remove(mCurrentTrackLayer);
+        mMap.layers().remove(mCurrentTrackLayer);
         if (mCurrentTrackLayer != null) // Can be null if called by intent
             mCurrentTrackLayer.onDetach();
         mCurrentTrackLayer = null;
@@ -2020,6 +2019,11 @@ public class MainActivity extends Activity implements ILocationListener,
     public void popAll() {
         FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
         mFragmentManager.popBackStack(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+
+    @Override
+    public CoordinatorLayout getCoordinatorLayout() {
+        return mCoordinatorLayout;
     }
 
     private boolean backKeyIntercepted() {

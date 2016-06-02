@@ -42,12 +42,6 @@ public class DataSourceList extends ListFragment {
     private boolean mNativeTracks;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.list_with_empty_view, container, false);
     }
