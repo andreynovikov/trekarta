@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.source.FileDataSource;
 
 public class KmlParser {
     private static final String NS = null;
@@ -134,6 +134,8 @@ public class KmlParser {
                 url = ((KmlFile.StyleMap) styleType).map.values().iterator().next();
             styleType = styles.get(url);
         }
+        if (styleType == null)
+            return;
         // Apply selected style
         KmlFile.Style style = (KmlFile.Style) styleType;
         if (style.iconStyle != null && placemark.point != null) {
@@ -188,6 +190,9 @@ public class KmlParser {
                     break;
                 case KmlFile.TAG_DESCRIPTION:
                     description = readTextElement(parser, KmlFile.TAG_DESCRIPTION);
+                    // Default XMLSerializer puts line break after CDATA, so we will remove
+                    // trailing spaces here
+                    description = description.trim();
                     break;
                 case KmlFile.TAG_STYLE:
                     placemark.style = readStyle(parser);
