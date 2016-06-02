@@ -95,26 +95,36 @@
         <TableLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:stretchColumns="*"
-            android:layout_span="2">
+            android:layout_span="2"
+            android:stretchColumns="*">
 
             <TableRow>
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:text="@string/sunrise" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/table_padding"
+                    android:maxLines="1"
                     android:text="@string/sunset" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/table_padding"
+                    android:maxLines="1"
+                    android:text="@string/utc_offset" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
+                    android:maxLines="1"
                     android:text="@string/declination" />
 
             </TableRow>
@@ -125,7 +135,6 @@
                     android:id="@+id/sunrise"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="--"
                     android:textColor="?android:textColorPrimary"
                     android:textIsSelectable="true"
                     android:textStyle="bold" />
@@ -135,7 +144,15 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/table_padding"
-                    android:text="--"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/offset"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/table_padding"
                     android:textColor="?android:textColorPrimary"
                     android:textIsSelectable="true"
                     android:textStyle="bold" />
@@ -145,7 +162,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/table_padding"
-                    android:text="--"
                     android:textColor="?android:textColorPrimary"
                     android:textIsSelectable="true"
                     android:textStyle="bold" />

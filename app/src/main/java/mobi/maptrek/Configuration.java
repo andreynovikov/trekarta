@@ -30,6 +30,7 @@ public class Configuration {
     private static final String PREF_ADVICE_STATES = "advice_states";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
+    public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
 
     private static SharedPreferences mSharedPreferences;
 
