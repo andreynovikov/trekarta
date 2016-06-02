@@ -7,6 +7,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import java.util.List;
+
+// It is referenced in layout file
+@SuppressWarnings("unused")
 public class BottomPanelBehavior extends CoordinatorLayout.Behavior<RelativeLayout> {
     public BottomPanelBehavior(Context context, AttributeSet attrs) {
     }
@@ -17,9 +21,18 @@ public class BottomPanelBehavior extends CoordinatorLayout.Behavior<RelativeLayo
     }
 
     @Override
-    public boolean onDependentViewChanged(CoordinatorLayout parent, RelativeLayout child, View dependency) {
-        float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
-        child.setTranslationY(translationY);
-        return true;
+    public boolean onDependentViewChanged(CoordinatorLayout parent, final RelativeLayout child, View dependency) {
+        if (dependency instanceof Snackbar.SnackbarLayout) {
+            float translationY = 0;
+            final List<View> dependencies = parent.getDependencies(child);
+            for (int i = 0, z = dependencies.size(); i < z; i++) {
+                final View view = dependencies.get(i);
+                if (view instanceof Snackbar.SnackbarLayout && parent.doViewsOverlap(child, view)) {
+                    translationY = Math.min(translationY, view.getTranslationY() - view.getHeight());
+                }
+            }
+            child.setTranslationY(translationY);
+        }
+        return false;
     }
 }
