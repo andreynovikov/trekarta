@@ -90,7 +90,10 @@
             android:textStyle="bold" />
     </TableRow>
 
-    <TableRow android:paddingTop="@dimen/table_padding">
+    <TableRow
+        android:id="@+id/extendTable"
+        android:paddingTop="@dimen/table_padding"
+        android:visibility="gone">
 
         <TableLayout
             android:layout_width="wrap_content"

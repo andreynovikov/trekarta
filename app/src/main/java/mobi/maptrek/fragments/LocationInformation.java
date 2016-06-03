@@ -16,6 +16,7 @@ import org.oscim.map.Map;
 
 import java.util.Locale;
 
+import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
@@ -35,6 +36,9 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e("LocationInformation", "onCreateView()");
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_location_information, container, false);
+        if (BuildConfig.FULL_VERSION) {
+            mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
+        }
         return mRootView;
     }
 
@@ -60,7 +64,9 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         super.onResume();
         Log.e("LocationInformation", "onResume()");
         mMapHolder.getMap().events.bind(this);
-        HelperUtils.showAdvice(Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, mFragmentHolder.getCoordinatorLayout());
+        if (BuildConfig.FULL_VERSION) {
+            HelperUtils.showAdvice(Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, mFragmentHolder.getCoordinatorLayout());
+        }
     }
 
     @Override
@@ -97,22 +103,24 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         ((TextView) mRootView.findViewById(R.id.coordinate_utmups)).setText(StringFormatter.coordinates(3, " ", latitude, longitude));
         ((TextView) mRootView.findViewById(R.id.coordinate_mgrs)).setText(StringFormatter.coordinates(4, " ", latitude, longitude));
 
-        mSunriseSunset.setLocation(latitude, longitude);
-        double sunrise = mSunriseSunset.compute(true);
-        double sunset = mSunriseSunset.compute(false);
+        if (BuildConfig.FULL_VERSION) {
+            mSunriseSunset.setLocation(latitude, longitude);
+            double sunrise = mSunriseSunset.compute(true);
+            double sunset = mSunriseSunset.compute(false);
 
-        if (Double.isNaN(sunrise) || Double.isNaN(sunset)) {
-            ((TextView) mRootView.findViewById(R.id.sunrise)).setText(R.string.never);
-            ((TextView) mRootView.findViewById(R.id.sunset)).setText(R.string.never);
-        } else {
-            ((TextView) mRootView.findViewById(R.id.sunrise)).setText(mSunriseSunset.formatTime(sunrise));
-            ((TextView) mRootView.findViewById(R.id.sunset)).setText(mSunriseSunset.formatTime(sunset));
+            if (Double.isNaN(sunrise) || Double.isNaN(sunset)) {
+                ((TextView) mRootView.findViewById(R.id.sunrise)).setText(R.string.never);
+                ((TextView) mRootView.findViewById(R.id.sunset)).setText(R.string.never);
+            } else {
+                ((TextView) mRootView.findViewById(R.id.sunrise)).setText(mSunriseSunset.formatTime(sunrise));
+                ((TextView) mRootView.findViewById(R.id.sunset)).setText(mSunriseSunset.formatTime(sunset));
+            }
+
+            ((TextView) mRootView.findViewById(R.id.offset)).setText(StringFormatter.timeR((int) (mSunriseSunset.getUtcOffset() * 60)));
+
+            GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
+            ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
         }
-
-        ((TextView) mRootView.findViewById(R.id.offset)).setText(StringFormatter.timeR((int) (mSunriseSunset.getUtcOffset() * 60)));
-
-        GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
-        ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
     }
 
     @Override
