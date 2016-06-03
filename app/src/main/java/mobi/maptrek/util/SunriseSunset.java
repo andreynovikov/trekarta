@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
+ * Helper class to quickly calculate sunrise and sunset time for specified location.
  * http://williams.best.vwh.net/sunrise_sunset_algorithm.htm
  */
 public class SunriseSunset {
@@ -17,7 +18,12 @@ public class SunriseSunset {
     private static final double CIVIL = 96d;
     private static final double OFFICIAL = 90.8333d; // 90deg 50'
 
-    private Calendar mCalendar;
+    @SuppressWarnings("FieldCanBeLocal")
+    private static double D2R = Math.PI / 180;
+    @SuppressWarnings("FieldCanBeLocal")
+    private static double R2D = 180 / Math.PI;
+
+    private Calendar calendar;
     @SuppressWarnings("FieldCanBeLocal")
     private double zenith = OFFICIAL;
     private int N;
@@ -26,16 +32,16 @@ public class SunriseSunset {
     private double tzOffset;
 
     public SunriseSunset() {
-        mCalendar = Calendar.getInstance();
+        calendar = Calendar.getInstance();
         // 1. first calculate the day of the year
-        N = mCalendar.get(Calendar.DAY_OF_YEAR);
-        tzOffset = (mCalendar.get(Calendar.ZONE_OFFSET) + mCalendar.get(Calendar.DST_OFFSET)) * 1d / 3600000;
+        N = calendar.get(Calendar.DAY_OF_YEAR);
+        tzOffset = (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)) * 1d / 3600000;
     }
 
     public void setLocation(double latitude, double longitude) {
         String timeZoneId = TimezoneMapper.latLngToTimezoneString(latitude, longitude);
         TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-        tzOffset = timeZone.getOffset(mCalendar.getTimeInMillis()) * 1d / 3600000;
+        tzOffset = timeZone.getOffset(calendar.getTimeInMillis()) * 1d / 3600000;
 
         latRad = Math.toRadians(latitude);
         // 2a. convert the longitude to hour value
@@ -47,13 +53,12 @@ public class SunriseSunset {
         double t = N + (((sunrise ? 6 : 18) - lngHour) / 24);
         // 3. calculate the Sun's mean anomaly
         double M = 0.9856 * t - 3.289;
-        double radM = Math.toRadians(M);
+        double radM = M * D2R;
         // 4. calculate the Sun's true longitude
-        double L = M + (1.916 * Math.toDegrees(Math.sin(radM))) +
-                (0.020 * Math.toDegrees(Math.sin(2 * radM))) + 282.634;
+        double L = M + (1.916 * Math.sin(radM)) + (0.020 * Math.sin(2 * radM)) + 282.634;
         L = adjustDegrees(L);
         // 5a. calculate the Sun's right ascension
-        double RA = Math.toDegrees(Math.atan(0.91764 * Math.tan(Math.toRadians(L))));
+        double RA = R2D * Math.atan(0.91764 * Math.tan(L * D2R));
         RA = adjustDegrees(RA);
         // 5b. right ascension value needs to be in the same quadrant as L
         double lQuadrant = Math.floor(L / 90) * 90;
@@ -61,14 +66,14 @@ public class SunriseSunset {
         // 5c. right ascension value needs to be converted into hours
         RA = (RA + lQuadrant - rQuadrant) / 15;
         // 6. calculate the Sun's declination
-        double sinDecRad = 0.39782 * Math.sin(Math.toRadians(L));
-        double cosDecRad = Math.cos(Math.asin(sinDecRad));
+        double sinDec = 0.39782 * Math.sin(L * D2R);
+        double cosDec = Math.cos(Math.asin(sinDec));
         // 7a. calculate the Sun's local hour angle
-        double cosH = (Math.cos(Math.toRadians(zenith)) - (sinDecRad * Math.sin(latRad))) / (cosDecRad * Math.cos(latRad));
+        double cosH = (Math.cos(zenith * D2R) - (sinDec * Math.sin(latRad))) / (cosDec * Math.cos(latRad));
         if (cosH > 1 || cosH < -1)
             return Double.NaN;
         // 7b. finish calculating H and convert into hours
-        double H = Math.toDegrees(Math.acos(cosH));
+        double H = R2D * Math.acos(cosH);
         if (sunrise)
             H = 360 - H;
         H = H / 15;
