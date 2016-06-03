@@ -116,7 +116,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
                 ((TextView) mRootView.findViewById(R.id.sunset)).setText(mSunriseSunset.formatTime(sunset));
             }
 
-            ((TextView) mRootView.findViewById(R.id.offset)).setText(StringFormatter.timeR((int) (mSunriseSunset.getUtcOffset() * 60)));
+            ((TextView) mRootView.findViewById(R.id.offset)).setText(StringFormatter.timeO((int) (mSunriseSunset.getUtcOffset() * 60)));
 
             GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
             ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
