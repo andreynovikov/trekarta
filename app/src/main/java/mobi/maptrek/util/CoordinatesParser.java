@@ -1,5 +1,7 @@
 package mobi.maptrek.util;
 
+import android.support.annotation.NonNull;
+
 import org.oscim.core.GeoPoint;
 
 import java.util.ArrayList;
@@ -24,11 +26,11 @@ import gov.nasa.worldwind.geom.coords.UTMCoord;
  * 15SUD6393628605
  */
 public class CoordinatesParser {
-    public enum Type {
+    protected enum Type {
         H_PREFIX, H_SUFFIX, DEG, MIN, SEC, UTM_ZONE, UTM_EASTING, UTM_NORTHING, MGRS
     }
 
-    public static class Token {
+    protected static class Token {
         public final Type t;
         public final String c;
 
@@ -75,7 +77,8 @@ public class CoordinatesParser {
         }
     }
 
-    public static List<Token> lex(String input) {
+    @NonNull
+    protected static List<Token> lex(@NonNull String input) throws IllegalArgumentException {
         List<Token> result = new ArrayList<>();
         StringBuilder atom = null;
         int i = 0;
@@ -131,7 +134,7 @@ public class CoordinatesParser {
         return result;
     }
 
-    private static void lexUtmOrGprs(List<Token> result, StringBuilder atom, String input, int len, int start) {
+    private static void lexUtmOrGprs(List<Token> result, StringBuilder atom, String input, int len, int start) throws IllegalArgumentException {
         int i = start + 1;
         Type type = null;
         int si = 0, ws = 0;
@@ -142,9 +145,9 @@ public class CoordinatesParser {
             char c = input.charAt(i);
             if (Character.isWhitespace(c)) {
                 if (ws == 2 && type != Type.MGRS)
-                    throw new RuntimeException("Not a UTM coordinate");
+                    throw new IllegalArgumentException("Not a UTM coordinate");
                 if (ws == 3)
-                    throw new RuntimeException("Not a MGRS coordinate");
+                    throw new IllegalArgumentException("Not a MGRS coordinate");
                 if (type == Type.UTM_EASTING) {
                     easting = new Token(Type.UTM_EASTING, buffer.toString());
                     buffer.setLength(0);
@@ -157,7 +160,7 @@ public class CoordinatesParser {
                 if (si == 0)
                     type = Type.MGRS;
                 if (si == 2)
-                    throw new RuntimeException("Not a MGRS coordinate");
+                    throw new IllegalArgumentException("Not a MGRS coordinate");
                 atom.append(c);
                 si++;
             } else if (Character.isDigit(c)) {
@@ -175,15 +178,73 @@ public class CoordinatesParser {
         }
     }
 
-    public static GeoPoint parse(String input) {
+    @NonNull
+    public static GeoPoint parse(@NonNull String input) throws IllegalArgumentException {
         List<Token> tokens = lex(input);
+        if (tokens.size() == 0)
+            throw new IllegalArgumentException("Wrong coordinates format");
+        switch (tokens.get(0).t) {
+            case MGRS: {
+                MGRSCoord coord = MGRSCoord.fromString(tokens.get(0).c);
+                return new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
+            }
+            case UTM_ZONE: {
+                return parseUtmTokens(tokens);
+            }
+        }
         double lat = Double.NaN, lon = Double.NaN, latSign = 1, lonSign = 1;
+        for (Token token : tokens) {
+            if (token.t == Type.H_PREFIX) {
+                if (Double.isNaN(lat))
+                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                else if (Double.isNaN(lon))
+                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                else
+                    throw new IllegalArgumentException("Wrong coordinates format");
+            }
+            if (token.t == Type.H_SUFFIX) {
+                if (!Double.isNaN(lon))
+                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                else if (!Double.isNaN(lat))
+                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                else
+                    throw new IllegalArgumentException("Wrong coordinates format");
+            }
+            if (token.t == Type.DEG) {
+                if (Double.isNaN(lat))
+                    lat = Double.valueOf(token.c);
+                else
+                    lon = Double.valueOf(token.c);
+            }
+            if (token.t == Type.MIN) {
+                if (!Double.isNaN(lon))
+                    lon += Math.signum(lon) * Double.valueOf(token.c) / 60;
+                else if (!Double.isNaN(lat))
+                    lat += Math.signum(lat) * Double.valueOf(token.c) / 60;
+                else
+                    throw new IllegalArgumentException("Wrong coordinates format");
+            }
+            if (token.t == Type.SEC) {
+                if (!Double.isNaN(lon))
+                    lon += Math.signum(lon) * Double.valueOf(token.c) / 3600;
+                else if (!Double.isNaN(lat))
+                    lat += Math.signum(lat) * Double.valueOf(token.c) / 3600;
+                else
+                    throw new IllegalArgumentException("Wrong coordinates format");
+            }
+        }
+        if (Double.isNaN(lat) || Double.isNaN(lon))
+            throw new IllegalArgumentException("Wrong coordinates format");
+        return new GeoPoint(lat * latSign, lon * lonSign);
+    }
+
+    @NonNull
+    private static GeoPoint parseUtmTokens(List<Token> tokens) throws IllegalArgumentException {
         int zone = 0;
         String hemisphere = null;
         double easting = Double.NaN;
         double northing = Double.NaN;
         for (Token token : tokens) {
-            //System.err.println(token.toString());
             if (token.t == Type.UTM_ZONE) {
                 zone = Integer.valueOf(token.c.substring(0, token.c.length() - 1));
                 hemisphere = token.c.substring(token.c.length() - 1, token.c.length());
@@ -198,55 +259,11 @@ public class CoordinatesParser {
             if (token.t == Type.UTM_NORTHING) {
                 northing = Double.valueOf(token.c);
             }
-            if (token.t == Type.MGRS) {
-                MGRSCoord coord = MGRSCoord.fromString(token.c);
-                return new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
-            }
-            if (token.t == Type.H_PREFIX) {
-                if (Double.isNaN(lat))
-                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
-                else if (Double.isNaN(lon))
-                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
-                else
-                    throw new RuntimeException("Wrong coordinates format");
-            }
-            if (token.t == Type.H_SUFFIX) {
-                if (!Double.isNaN(lon))
-                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
-                else if (!Double.isNaN(lat))
-                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
-                else
-                    throw new RuntimeException("Wrong coordinates format");
-            }
-            if (token.t == Type.DEG) {
-                if (Double.isNaN(lat))
-                    lat = Double.valueOf(token.c);
-                else
-                    lon = Double.valueOf(token.c);
-            }
-            if (token.t == Type.MIN) {
-                if (!Double.isNaN(lon))
-                    lon += Math.signum(lon) * Double.valueOf(token.c) / 60;
-                else if (!Double.isNaN(lat))
-                    lat += Math.signum(lat) * Double.valueOf(token.c) / 60;
-                else
-                    throw new RuntimeException("Wrong coordinates format");
-            }
-            if (token.t == Type.SEC) {
-                if (!Double.isNaN(lon))
-                    lon += Math.signum(lon) * Double.valueOf(token.c) / 3600;
-                else if (!Double.isNaN(lat))
-                    lat += Math.signum(lat) * Double.valueOf(token.c) / 3600;
-                else
-                    throw new RuntimeException("Wrong coordinates format");
-            }
         }
-        if (zone != 0 && hemisphere != null && !Double.isNaN(easting) && !Double.isNaN(northing)) {
-            UTMCoord coord = UTMCoord.fromUTM(zone, hemisphere, easting, northing);
-            return new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
-        }
-        if (Double.isNaN(lat) || Double.isNaN(lon))
-            throw new RuntimeException("Wrong coordinates format");
-        return new GeoPoint(lat * latSign, lon * lonSign);
+        if (zone == 0 || Double.isNaN(easting) || Double.isNaN(northing))
+            throw new IllegalArgumentException("Wrong UTM coordinates format");
+
+        UTMCoord coord = UTMCoord.fromUTM(zone, hemisphere, easting, northing);
+        return new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
     }
 }
