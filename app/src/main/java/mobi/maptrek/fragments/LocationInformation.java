@@ -1,44 +1,104 @@
 package mobi.maptrek.fragments;
 
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
 import org.oscim.map.Map;
 
+import java.util.List;
 import java.util.Locale;
 
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
+import mobi.maptrek.util.CoordinatesParser;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 
-public class LocationInformation extends Fragment implements Map.UpdateListener {
+public class LocationInformation extends Fragment implements Map.UpdateListener, ClipboardManager.OnPrimaryClipChangedListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
+    public static final String ARG_ZOOM = "zoom";
 
+    private ClipboardManager mClipboard;
     private SunriseSunset mSunriseSunset;
     private ViewGroup mRootView;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
 
+    private double mLatitude;
+    private double mLongitude;
+    private int mZoom;
+
+    private ImageButton mPasteButton;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e("LocationInformation", "onCreateView()");
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_location_information, container, false);
+
+        ImageButton switchOffButton = (ImageButton) mRootView.findViewById(R.id.switchOffButton);
+        switchOffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMapHolder.disableLocations();
+            }
+        });
+        ImageButton launchButton = (ImageButton) mRootView.findViewById(R.id.launchButton);
+        launchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri location = Uri.parse(String.format(Locale.getDefault(), "geo:%f,%f?z=%d", mLatitude, mLongitude, mZoom));
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+                PackageManager packageManager = getContext().getPackageManager();
+                List activities = packageManager.queryIntentActivities(mapIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                if (activities.size() > 0)
+                    startActivity(mapIntent);
+            }
+        });
+        mPasteButton = (ImageButton) mRootView.findViewById(R.id.pasteButton);
+        mPasteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mClipboard == null)
+                    return;
+                ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
+                CharSequence pasteData = item.getText();
+                if (pasteData != null) {
+                    try {
+                        GeoPoint geoPoint = CoordinatesParser.parse(pasteData.toString());
+                        mMapHolder.setMapLocation(geoPoint);
+                    } catch (IllegalArgumentException e) {
+                        final Snackbar snackbar = Snackbar.make(mFragmentHolder.getCoordinatorLayout(), getContext().getString(R.string.msg_parse_coordinates_failed), Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                }
+            }
+        });
+
         if (BuildConfig.FULL_VERSION) {
             mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
         }
+
         return mRootView;
     }
 
@@ -49,14 +109,16 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
 
         double latitude = getArguments().getDouble(ARG_LATITUDE);
         double longitude = getArguments().getDouble(ARG_LONGITUDE);
+        int zoom = getArguments().getInt(ARG_ZOOM);
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
+            zoom = savedInstanceState.getInt(ARG_ZOOM);
         }
 
         mSunriseSunset = new SunriseSunset();
-        updateLocation(latitude, longitude);
+        updateLocation(latitude, longitude, zoom);
     }
 
     @Override
@@ -67,6 +129,8 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         if (BuildConfig.FULL_VERSION) {
             HelperUtils.showAdvice(Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, mFragmentHolder.getCoordinatorLayout());
         }
+        onPrimaryClipChanged();
+        mClipboard.addPrimaryClipChangedListener(this);
     }
 
     @Override
@@ -74,6 +138,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
         super.onPause();
         Log.e("LocationInformation", "onPause()");
         mMapHolder.getMap().events.unbind(this);
+        mClipboard.removePrimaryClipChangedListener(this);
     }
 
     @Override
@@ -86,17 +151,31 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
         mFragmentHolder = (FragmentHolder) context;
+        mClipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         Log.e("LocationInformation", "onDetach()");
+        mClipboard = null;
         mFragmentHolder = null;
         mMapHolder = null;
     }
 
-    private void updateLocation(double latitude, double longitude) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putDouble(ARG_LATITUDE, mLatitude);
+        outState.putDouble(ARG_LONGITUDE, mLongitude);
+        outState.putInt(ARG_ZOOM, mZoom);
+    }
+
+    private void updateLocation(double latitude, double longitude, int zoom) {
+        mLatitude = latitude;
+        mLongitude = longitude;
+        mZoom = zoom;
+
         ((TextView) mRootView.findViewById(R.id.coordinate_degree)).setText(StringFormatter.coordinates(0, " ", latitude, longitude));
         ((TextView) mRootView.findViewById(R.id.coordinate_degmin)).setText(StringFormatter.coordinates(1, " ", latitude, longitude));
         ((TextView) mRootView.findViewById(R.id.coordinate_degminsec)).setText(StringFormatter.coordinates(2, " ", latitude, longitude));
@@ -127,7 +206,13 @@ public class LocationInformation extends Fragment implements Map.UpdateListener 
     public void onMapEvent(Event e, MapPosition mapPosition) {
         Log.w("LI", "C: " + (e == Map.CLEAR_EVENT) + " P: " + (e == Map.POSITION_EVENT) + " M: " + (e == Map.MOVE_EVENT) + " R: " + (e == Map.REDRAW_EVENT) + " U: " + (e == Map.UPDATE_EVENT));
         if (e == Map.POSITION_EVENT) {
-            updateLocation(mapPosition.getLatitude(), mapPosition.getLongitude());
+            updateLocation(mapPosition.getLatitude(), mapPosition.getLongitude(), mapPosition.getZoomLevel());
         }
+    }
+
+    @Override
+    public void onPrimaryClipChanged() {
+        mPasteButton.setEnabled(mClipboard.hasPrimaryClip() && mClipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN));
+        mPasteButton.getDrawable().setTint(getContext().getColor(mPasteButton.isEnabled() ? R.color.colorPrimaryDark : R.color.colorPrimaryLight));
     }
 }

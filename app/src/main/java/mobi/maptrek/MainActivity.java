@@ -938,6 +938,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Bundle args = new Bundle(2);
         args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(LocationInformation.ARG_LONGITUDE, mMapPosition.getLongitude());
+        args.putInt(LocationInformation.ARG_ZOOM, mMapPosition.getZoomLevel());
         Fragment fragment = Fragment.instantiate(this, LocationInformation.class.getName(), args);
         showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
@@ -1122,7 +1123,8 @@ public class MainActivity extends Activity implements ILocationListener,
         updateLocationDrawable();
     }
 
-    private void disableLocations() {
+    @Override
+    public void disableLocations() {
         Log.e(TAG, "disableLocations()");
         if (mLocationService != null) {
             mLocationService.unregisterLocationCallback(this);
@@ -1136,6 +1138,16 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mLocationState = LOCATION_STATE.DISABLED;
         updateLocationDrawable();
+    }
+
+    @Override
+    public void setMapLocation(GeoPoint point) {
+        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+            mLocationState = LOCATION_STATE.ENABLED;
+            mLocationOverlay.setPinned(false);
+            updateLocationDrawable();
+        }
+        mMap.animator().animateTo(point);
     }
 
     private ServiceConnection mLocationConnection = new ServiceConnection() {
@@ -1428,13 +1440,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointView(Waypoint waypoint) {
-        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
-            mLocationState = LOCATION_STATE.ENABLED;
-            mLocationOverlay.setPinned(false);
-            updateLocationDrawable();
-        }
         //TODO Make Waypoint inherit GeoPoint
-        mMap.animator().animateTo(new GeoPoint(waypoint.latitude, waypoint.longitude));
+        setMapLocation(new GeoPoint(waypoint.latitude, waypoint.longitude));
     }
 
     @Override

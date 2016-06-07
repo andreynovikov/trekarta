@@ -1,177 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/panelSolidBackground"
+    android:columnCount="3"
     android:padding="@dimen/fragment_padding"
     tools:context=".fragments.LocationInformation">
 
-    <TableRow>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/degrees" />
 
-        <TextView
+    <TextView
+        android:id="@+id/coordinate_degree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/table_padding"
+        android:textColor="?android:textColorPrimary"
+        android:textIsSelectable="true"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_rowSpan="5"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/panel_padding"
+        tools:ignore="RtlSymmetry">
+
+        <ImageButton
+            android:id="@+id/switchOffButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/degrees" />
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingBottom="@dimen/image_button_padding"
+            android:src="@drawable/ic_location_disable"
+            android:tint="@color/colorPrimaryDark" />
 
-        <TextView
-            android:id="@+id/coordinate_degree"
+        <ImageButton
+            android:id="@+id/launchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/table_padding"
-            android:textColor="?android:textColorPrimary"
-            android:textIsSelectable="true"
-            android:textStyle="bold" />
-    </TableRow>
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingBottom="@dimen/image_button_padding"
+            android:src="@drawable/ic_launch"
+            android:tint="@color/colorPrimaryDark" />
 
-    <TableRow>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="1dp" />
-
-        <TextView
-            android:id="@+id/coordinate_degmin"
+        <ImageButton
+            android:id="@+id/pasteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/table_padding"
-            android:textColor="?android:textColorPrimary"
-            android:textIsSelectable="true"
-            android:textStyle="bold" />
-    </TableRow>
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_content_paste"
+            android:tint="@color/colorPrimaryDark" />
+    </LinearLayout>
 
-    <TableRow>
+    <TextView
+        android:id="@+id/coordinate_degmin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_column="1"
+        android:layout_marginStart="@dimen/table_padding"
+        android:textColor="?android:textColorPrimary"
+        android:textIsSelectable="true"
+        android:textStyle="bold" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="1dp" />
+    <TextView
+        android:id="@+id/coordinate_degminsec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_column="1"
+        android:layout_marginStart="@dimen/table_padding"
+        android:textColor="?android:textColorPrimary"
+        android:textIsSelectable="true"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/coordinate_degminsec"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/table_padding"
-            android:textColor="?android:textColorPrimary"
-            android:textIsSelectable="true"
-            android:textStyle="bold" />
-    </TableRow>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/coordinate_utmups" />
 
-    <TableRow>
+    <TextView
+        android:id="@+id/coordinate_utmups"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/table_padding"
+        android:textColor="?android:textColorPrimary"
+        android:textIsSelectable="true"
+        android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/coordinate_utmups" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/coordinate_mgrs" />
 
-        <TextView
-            android:id="@+id/coordinate_utmups"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/table_padding"
-            android:textColor="?android:textColorPrimary"
-            android:textIsSelectable="true"
-            android:textStyle="bold" />
-    </TableRow>
+    <TextView
+        android:id="@+id/coordinate_mgrs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/table_padding"
+        android:textColor="?android:textColorPrimary"
+        android:textIsSelectable="true"
+        android:textStyle="bold" />
 
-    <TableRow>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/coordinate_mgrs" />
-
-        <TextView
-            android:id="@+id/coordinate_mgrs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/table_padding"
-            android:textColor="?android:textColorPrimary"
-            android:textIsSelectable="true"
-            android:textStyle="bold" />
-    </TableRow>
-
-    <TableRow
+    <TableLayout
         android:id="@+id/extendTable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="3"
+        android:layout_gravity="fill_horizontal"
         android:paddingTop="@dimen/table_padding"
         android:visibility="gone">
 
-        <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_span="2"
-            android:stretchColumns="*">
+        <TableRow>
 
-            <TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="@string/declination" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:text="@string/sunrise" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:maxLines="1"
+                android:text="@string/utc_offset" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:maxLines="1"
-                    android:text="@string/sunset" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:maxLines="1"
+                android:text="@string/sunrise" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:maxLines="1"
-                    android:text="@string/utc_offset" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:maxLines="1"
+                android:text="@string/sunset" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:maxLines="1"
-                    android:text="@string/declination" />
+        </TableRow>
 
-            </TableRow>
+        <TableRow>
 
-            <TableRow>
+            <TextView
+                android:id="@+id/declination"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/sunrise"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textColor="?android:textColorPrimary"
-                    android:textIsSelectable="true"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/offset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/sunset"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:textColor="?android:textColorPrimary"
-                    android:textIsSelectable="true"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/sunrise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/offset"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:textColor="?android:textColorPrimary"
-                    android:textIsSelectable="true"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/sunset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/table_padding"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/declination"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/table_padding"
-                    android:textColor="?android:textColorPrimary"
-                    android:textIsSelectable="true"
-                    android:textStyle="bold" />
+        </TableRow>
+    </TableLayout>
 
-            </TableRow>
-        </TableLayout>
-    </TableRow>
-
-</TableLayout>
+</GridLayout>
 
