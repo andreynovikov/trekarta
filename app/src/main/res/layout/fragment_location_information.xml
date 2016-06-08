@@ -32,30 +32,32 @@
         tools:ignore="RtlSymmetry">
 
         <ImageButton
-            android:id="@+id/switchOffButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:paddingBottom="@dimen/image_button_padding"
-            android:src="@drawable/ic_location_disable"
-            android:tint="@color/colorPrimaryDark" />
-
-        <ImageButton
             android:id="@+id/launchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:paddingBottom="@dimen/image_button_padding"
             android:src="@drawable/ic_launch"
             android:tint="@color/colorPrimaryDark" />
 
         <ImageButton
-            android:id="@+id/pasteButton"
+            android:id="@+id/inputButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_content_paste"
+            android:paddingBottom="@dimen/image_button_padding"
+            android:paddingTop="@dimen/image_button_padding"
+            android:src="@drawable/ic_input"
             android:tint="@color/colorPrimaryDark" />
+
+        <ImageButton
+            android:id="@+id/switchOffButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingTop="@dimen/image_button_padding"
+            android:src="@drawable/ic_location_disable"
+            android:tint="@color/colorPrimaryDark" />
+
     </LinearLayout>
 
     <TextView

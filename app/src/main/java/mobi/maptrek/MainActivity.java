@@ -181,14 +181,6 @@ public class MainActivity extends Activity implements ILocationListener,
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
 
-    public enum LOCATION_STATE {
-        DISABLED,
-        SEARCHING,
-        ENABLED,
-        NORTH,
-        TRACK
-    }
-
     public enum TRACKING_STATE {
         DISABLED,
         PENDING,
@@ -212,8 +204,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private boolean mIsLocationBound = false;
     private INavigationService mNavigationService = null;
     private boolean mIsNavigationBound = false;
-    private LOCATION_STATE mLocationState;
-    private LOCATION_STATE mSavedLocationState;
+    private LocationState mLocationState;
+    private LocationState mSavedLocationState;
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
     private int mTrackingOffset = 0;
@@ -339,8 +331,8 @@ public class MainActivity extends Activity implements ILocationListener,
             mMapFileSource = mDataFragment.getMapFileSource();
         }
 
-        mLocationState = LOCATION_STATE.DISABLED;
-        mSavedLocationState = LOCATION_STATE.DISABLED;
+        mLocationState = LocationState.DISABLED;
+        mSavedLocationState = LocationState.DISABLED;
 
         mPanelState = PANEL_STATE.NONE;
 
@@ -520,8 +512,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
         // Resume state
         int state = Configuration.getLocationState();
-        if (state >= LOCATION_STATE.NORTH.ordinal())
-            mSavedLocationState = LOCATION_STATE.values()[state];
+        if (state >= LocationState.NORTH.ordinal())
+            mSavedLocationState = LocationState.values()[state];
         state = Configuration.getTrackingState();
         mTrackingState = TRACKING_STATE.values()[state];
 
@@ -623,7 +615,7 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onResume();
         Log.e(TAG, "onResume()");
 
-        if (mSavedLocationState != LOCATION_STATE.DISABLED)
+        if (mSavedLocationState != LocationState.DISABLED)
             askForPermission();
         if (mTrackingState == TRACKING_STATE.TRACKING) {
             enableTracking();
@@ -650,7 +642,7 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onPause();
         Log.e(TAG, "onPause()");
 
-        if (mLocationState != LOCATION_STATE.SEARCHING)
+        if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
 
         mMapView.onPause();
@@ -744,7 +736,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.e(TAG, "onRestoreInstanceState()");
         super.onRestoreInstanceState(savedInstanceState);
-        mSavedLocationState = (LOCATION_STATE) savedInstanceState.getSerializable("savedLocationState");
+        mSavedLocationState = (LocationState) savedInstanceState.getSerializable("savedLocationState");
         mLastLocationMilliseconds = savedInstanceState.getLong("lastLocationMilliseconds");
         mAveragedBearing = savedInstanceState.getFloat("averagedBearing");
         mMovementAnimationDuration = savedInstanceState.getInt("movementAnimationDuration");
@@ -818,7 +810,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onLocationChanged() {
-        if (mLocationState == LOCATION_STATE.SEARCHING) {
+        if (mLocationState == LocationState.SEARCHING) {
             mLocationState = mSavedLocationState;
             mMap.getEventLayer().setFixOnCenter(true);
             updateLocationDrawable();
@@ -838,7 +830,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         updateGauges();
 
-        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             // Adjust map movement animation to location acquisition period to make movement smoother
             long locationDelay = SystemClock.uptimeMillis() - mLastLocationMilliseconds;
             double duration = Math.min(1500, locationDelay); // 1.5 seconds maximum
@@ -847,14 +839,14 @@ public class MainActivity extends Activity implements ILocationListener,
             mMap.getMapPosition(mMapPosition);
 
             double offset;
-            if (mLocationState == LOCATION_STATE.TRACK) {
+            if (mLocationState == LocationState.TRACK) {
                 //TODO Recalculate only on tilt change
                 offset = mTrackingOffset / Math.cos(Math.toRadians(mMapPosition.tilt) * 0.9);
             } else {
                 offset = mMovingOffset;
             }
             offset = offset / (mMapPosition.scale * Tile.SIZE);
-            mLocationOverlay.setLocationOffset(offset, mAveragedBearing, mLocationState == LOCATION_STATE.TRACK);
+            mLocationOverlay.setLocationOffset(offset, mAveragedBearing, mLocationState == LocationState.TRACK);
 
             double rad = Math.toRadians(mAveragedBearing);
             double dx = offset * Math.sin(rad);
@@ -863,7 +855,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
             mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
             mMapPosition.setBearing(-mAveragedBearing);
-            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LOCATION_STATE.TRACK);
+            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LocationState.TRACK);
         }
 
         mLocationOverlay.setPosition(lat, lon, bearing, location.getAccuracy());
@@ -877,9 +869,9 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mLocationService.getStatus() == LocationService.GPS_SEARCHING) {
             int satellites = mLocationService.getSatellites();
             mSatellitesText.setText(String.format(Locale.getDefault(), "%d / %s", satellites >> 7, satellites & 0x7f));
-            if (mLocationState != LOCATION_STATE.SEARCHING) {
+            if (mLocationState != LocationState.SEARCHING) {
                 mSavedLocationState = mLocationState;
-                mLocationState = LOCATION_STATE.SEARCHING;
+                mLocationState = LocationState.SEARCHING;
                 mMap.getEventLayer().setFixOnCenter(false);
                 mLocationOverlay.setPinned(false);
                 mLocationOverlay.setEnabled(false);
@@ -895,11 +887,11 @@ public class MainActivity extends Activity implements ILocationListener,
                 askForPermission();
                 break;
             case SEARCHING:
-                mLocationState = LOCATION_STATE.DISABLED;
+                mLocationState = LocationState.DISABLED;
                 disableLocations();
                 break;
             case ENABLED:
-                mLocationState = LOCATION_STATE.NORTH;
+                mLocationState = LocationState.NORTH;
                 mMap.getEventLayer().setFixOnCenter(true);
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setPosition(mLocationService.getLocation().getLatitude(), mLocationService.getLocation().getLongitude());
@@ -913,7 +905,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 }).animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
                 break;
             case NORTH:
-                mLocationState = LOCATION_STATE.TRACK;
+                mLocationState = LocationState.TRACK;
                 mMap.getEventLayer().enableRotation(false);
                 mMap.getEventLayer().setFixOnCenter(true);
                 mMap.getMapPosition(mMapPosition);
@@ -921,7 +913,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
                 break;
             case TRACK:
-                mLocationState = LOCATION_STATE.ENABLED;
+                mLocationState = LocationState.ENABLED;
                 mMap.getEventLayer().enableRotation(true);
                 mMap.getEventLayer().setFixOnCenter(false);
                 mMap.getMapPosition(mMapPosition);
@@ -944,7 +936,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onRecordClicked() {
-        if (mLocationState == LOCATION_STATE.DISABLED) {
+        if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission();
             return;
@@ -990,7 +982,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onPlacesLongClicked() {
         GeoPoint geoPoint;
-        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
+        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             Point point = mLocationOverlay.getPosition();
             geoPoint = new GeoPoint(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
         } else {
@@ -1075,8 +1067,8 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     public void onCompassClicked(View view) {
-        if (mLocationState == LOCATION_STATE.TRACK) {
-            mLocationState = LOCATION_STATE.NORTH;
+        if (mLocationState == LocationState.TRACK) {
+            mLocationState = LocationState.NORTH;
             updateLocationDrawable();
             mMap.getEventLayer().enableRotation(true);
         }
@@ -1094,7 +1086,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public boolean onItemLongPress(int index, MarkerItem item) {
-        if (mLocationState != LOCATION_STATE.DISABLED && mLocationState != LOCATION_STATE.ENABLED)
+        if (mLocationState != LocationState.DISABLED && mLocationState != LocationState.ENABLED)
             return false;
         mActiveMarker = item;
         // For better experience get delta from marker position and finger press
@@ -1115,9 +1107,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void enableLocations() {
         mIsLocationBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
-        mLocationState = LOCATION_STATE.SEARCHING;
-        if (mSavedLocationState == LOCATION_STATE.DISABLED)
-            mSavedLocationState = LOCATION_STATE.NORTH;
+        mLocationState = LocationState.SEARCHING;
+        if (mSavedLocationState == LocationState.DISABLED)
+            mSavedLocationState = LocationState.NORTH;
         if (mTrackingState == TRACKING_STATE.PENDING)
             enableTracking();
         updateLocationDrawable();
@@ -1136,14 +1128,14 @@ public class MainActivity extends Activity implements ILocationListener,
             mLocationOverlay.setEnabled(false);
             mMap.updateMap(true);
         }
-        mLocationState = LOCATION_STATE.DISABLED;
+        mLocationState = LocationState.DISABLED;
         updateLocationDrawable();
     }
 
     @Override
     public void setMapLocation(GeoPoint point) {
-        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
-            mLocationState = LOCATION_STATE.ENABLED;
+        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+            mLocationState = LocationState.ENABLED;
             mLocationOverlay.setPinned(false);
             updateLocationDrawable();
         }
@@ -1197,7 +1189,7 @@ public class MainActivity extends Activity implements ILocationListener,
         i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.longitude);
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
         startService(i);
-        if (mLocationState == LOCATION_STATE.DISABLED)
+        if (mLocationState == LocationState.DISABLED)
             enableLocations();
     }
 
@@ -1224,6 +1216,25 @@ public class MainActivity extends Activity implements ILocationListener,
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.DISABLED;
         updateLocationDrawable();
+    }
+
+    private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
+
+    @Override
+    public void addLocationStateChangeListener(LocationStateChangeListener listener) {
+        mLocationStateChangeListeners.add(new WeakReference<>(listener));
+        listener.onLocationStateChanged(mLocationState);
+    }
+
+    @Override
+    public void removeLocationStateChangeListener(LocationStateChangeListener listener) {
+        for (Iterator<WeakReference<LocationStateChangeListener>> iterator = mLocationStateChangeListeners.iterator();
+             iterator.hasNext(); ) {
+            WeakReference<LocationStateChangeListener> weakRef = iterator.next();
+            if (weakRef.get() == listener) {
+                iterator.remove();
+            }
+        }
     }
 
     private float downX, downY, deltaX, deltaY;
@@ -1264,8 +1275,8 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.MOVE_EVENT) {
-            if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
-                mLocationState = LOCATION_STATE.ENABLED;
+            if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+                mLocationState = LocationState.ENABLED;
                 mLocationOverlay.setPinned(false);
                 updateLocationDrawable();
             }
@@ -1329,7 +1340,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         if (mLocationButton.getTag() == mLocationState)
             return;
-        if (mLocationButton.getTag() == LOCATION_STATE.SEARCHING) {
+        if (mLocationButton.getTag() == LocationState.SEARCHING) {
             mLocationButton.clearAnimation();
             mSatellitesText.animate().translationY(-200);
         }
@@ -1352,7 +1363,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     mGaugePanel.animate().translationX(-mGaugePanel.getWidth()).setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            if (mLocationState == LOCATION_STATE.SEARCHING)
+                            if (mLocationState == LocationState.SEARCHING)
                                 mSatellitesText.animate().translationY(8);
                             mGaugePanel.animate().setListener(null);
                         }
@@ -1375,6 +1386,13 @@ public class MainActivity extends Activity implements ILocationListener,
                 mGaugePanel.animate().translationX(0);
         }
         mLocationButton.setTag(mLocationState);
+        for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
+            LocationStateChangeListener locationStateChangeListener = weakRef.get();
+            if (locationStateChangeListener != null) {
+                locationStateChangeListener.onLocationStateChanged(mLocationState);
+            }
+        }
+
     }
 
     private void updateGauges() {
@@ -1715,8 +1733,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onTrackView(Track track) {
-        if (mLocationState == LOCATION_STATE.NORTH || mLocationState == LOCATION_STATE.TRACK) {
-            mLocationState = LOCATION_STATE.ENABLED;
+        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+            mLocationState = LocationState.ENABLED;
             mLocationOverlay.setPinned(false);
             updateLocationDrawable();
         }
@@ -1987,7 +2005,7 @@ public class MainActivity extends Activity implements ILocationListener,
         updateMapViewArea();
     }
 
-    private ArrayList<WeakReference<OnBackPressedListener>> mBackListeners = new ArrayList<>();
+    private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
 
     @Override
     public FloatingActionButton enableActionButton() {

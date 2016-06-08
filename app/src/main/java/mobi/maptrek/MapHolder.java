@@ -10,5 +10,12 @@ public interface MapHolder {
 
     void disableLocations();
 
+    /**
+     * Adds location state change listener and then calls listener with current state.
+     */
+    void addLocationStateChangeListener(LocationStateChangeListener listener);
+
+    void removeLocationStateChangeListener(LocationStateChangeListener listener);
+
     void setMapLocation(GeoPoint point);
 }
