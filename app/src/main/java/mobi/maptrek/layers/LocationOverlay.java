@@ -76,7 +76,6 @@ public class LocationOverlay extends Layer {
 	}
 
     public void setPinned(boolean pinned) {
-        Log.e("LO", "setPinned(" + pinned + ")");
         //((LocationIndicator) mRenderer).setPinned(pinned);
     }
 
@@ -117,6 +116,7 @@ public class LocationOverlay extends Layer {
 		private long mAnimStart;
 
         private boolean mPinned = false;
+		private boolean mReanimated = false;
 
 		public LocationIndicator() {
 			super();
@@ -131,6 +131,7 @@ public class LocationOverlay extends Layer {
 			if (mRunAnim == enable)
 				return;
 
+			mReanimated = true;
 			mRunAnim = enable;
 			if (!enable)
 				return;
@@ -169,7 +170,7 @@ public class LocationOverlay extends Layer {
 				return;
 			}
 
-			if (!v.changed() && !isReady())
+			if (!v.changed() && ! mReanimated && !isReady())
 				return;
 
 			setReady(true);
@@ -234,7 +235,6 @@ public class LocationOverlay extends Layer {
 
 		@Override
 		public void render(GLViewport v) {
-
 			GLState.useProgram(mShaderProgram);
 			GLState.blend(true);
 			GLState.test(false, false);
