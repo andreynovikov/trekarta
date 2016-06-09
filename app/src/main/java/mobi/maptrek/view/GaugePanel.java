@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.transition.TransitionManager;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -103,11 +104,12 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
             mGauges.add(gauge);
         } else {
             int i = 0;
-            while (i < mGauges.size() && ! isNavigationGauge(mGauges.get(i).getType())) i++;
+            while (i < mGauges.size() && !isNavigationGauge(mGauges.get(i).getType())) i++;
             addView(gauge, i);
             mGauges.add(i, gauge);
         }
         mGaugeMap.put(type, gauge);
+        gauge.setGravity(Gravity.END | Gravity.TOP);
         gauge.setOnLongClickListener(this);
     }
 
