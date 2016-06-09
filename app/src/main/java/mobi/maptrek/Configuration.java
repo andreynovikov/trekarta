@@ -21,6 +21,7 @@ public class Configuration {
     private static final String PREF_BITMAP_MAP = "bitmap_map";
     private static final String PREF_POINTS_COUNTER = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
+    private static final String PREF_PREVIOUS_LOCATION_STATE = "previous_location_state";
     private static final String PREF_TRACKING_STATE = "tracking_state";
     private static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
@@ -61,6 +62,18 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putInt(PREF_LOCATION_STATE, locationState);
+        editor.apply();
+    }
+
+    public static int getPreviousLocationState() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getInt(PREF_PREVIOUS_LOCATION_STATE, 0);
+    }
+
+    public static void setPreviousLocationState(int locationState) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(PREF_PREVIOUS_LOCATION_STATE, locationState);
         editor.apply();
     }
 

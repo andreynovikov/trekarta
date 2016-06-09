@@ -206,6 +206,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private boolean mIsNavigationBound = false;
     private LocationState mLocationState;
     private LocationState mSavedLocationState;
+    private LocationState mPreviousLocationState;
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
     private int mTrackingOffset = 0;
@@ -333,6 +334,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mLocationState = LocationState.DISABLED;
         mSavedLocationState = LocationState.DISABLED;
+        mPreviousLocationState = LocationState.NORTH;
 
         mPanelState = PANEL_STATE.NONE;
 
@@ -514,6 +516,8 @@ public class MainActivity extends Activity implements ILocationListener,
         int state = Configuration.getLocationState();
         if (state >= LocationState.NORTH.ordinal())
             mSavedLocationState = LocationState.values()[state];
+        state = Configuration.getPreviousLocationState();
+        mPreviousLocationState = LocationState.values()[state];
         state = Configuration.getTrackingState();
         mTrackingState = TRACKING_STATE.values()[state];
 
@@ -654,6 +658,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Configuration.setPosition(mMap.getMapPosition());
         Configuration.setBitmapMap(mBitmapLayerMap);
         Configuration.setLocationState(mSavedLocationState.ordinal());
+        Configuration.setPreviousLocationState(mPreviousLocationState.ordinal());
         Configuration.setTrackingState(mTrackingState.ordinal());
         Configuration.setGauges(mGaugePanel.getGaugeSettings());
     }
@@ -725,6 +730,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mDataFragment.setMapFileSource(mMapFileSource);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
+        savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
         savedInstanceState.putLong("lastLocationMilliseconds", mLastLocationMilliseconds);
         savedInstanceState.putFloat("averagedBearing", mAveragedBearing);
         savedInstanceState.putInt("movementAnimationDuration", mMovementAnimationDuration);
@@ -739,6 +745,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Log.e(TAG, "onRestoreInstanceState()");
         super.onRestoreInstanceState(savedInstanceState);
         mSavedLocationState = (LocationState) savedInstanceState.getSerializable("savedLocationState");
+        mPreviousLocationState = (LocationState) savedInstanceState.getSerializable("previousLocationState");
         mLastLocationMilliseconds = savedInstanceState.getLong("lastLocationMilliseconds");
         mAveragedBearing = savedInstanceState.getFloat("averagedBearing");
         mMovementAnimationDuration = savedInstanceState.getInt("movementAnimationDuration");
@@ -893,7 +900,8 @@ public class MainActivity extends Activity implements ILocationListener,
                 disableLocations();
                 break;
             case ENABLED:
-                mLocationState = LocationState.NORTH;
+                mLocationState = mPreviousLocationState;
+                mPreviousLocationState = LocationState.NORTH;
                 mMap.getEventLayer().setFixOnCenter(true);
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setPosition(mLocationService.getLocation().getLatitude(), mLocationService.getLocation().getLongitude());
@@ -1110,8 +1118,10 @@ public class MainActivity extends Activity implements ILocationListener,
     private void enableLocations() {
         mIsLocationBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
         mLocationState = LocationState.SEARCHING;
-        if (mSavedLocationState == LocationState.DISABLED)
-            mSavedLocationState = LocationState.NORTH;
+        if (mSavedLocationState == LocationState.DISABLED) {
+            mSavedLocationState = mPreviousLocationState;
+            mPreviousLocationState = LocationState.NORTH;
+        }
         if (mTrackingState == TRACKING_STATE.PENDING)
             enableTracking();
         updateLocationDrawable();
@@ -1119,7 +1129,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void disableLocations() {
-        Log.e(TAG, "disableLocations()");
         if (mLocationService != null) {
             mLocationService.unregisterLocationCallback(this);
             mLocationService.setProgressListener(null);
@@ -1276,6 +1285,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.MOVE_EVENT) {
             if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+                mPreviousLocationState = mLocationState;
                 mLocationState = LocationState.ENABLED;
                 mLocationOverlay.setPinned(false);
                 updateLocationDrawable();
