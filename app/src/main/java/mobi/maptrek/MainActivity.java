@@ -608,6 +608,8 @@ public class MainActivity extends Activity implements ILocationListener,
         loader.setProgressHandler(mProgressHandler);
 
         registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
     }
 
     @Override
@@ -1157,8 +1159,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void enableNavigation() {
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
     }
 
     private void disableNavigation() {
@@ -1190,7 +1190,7 @@ public class MainActivity extends Activity implements ILocationListener,
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            enableLocations();
+            askForPermission();
     }
 
     public void stopNavigation() {
