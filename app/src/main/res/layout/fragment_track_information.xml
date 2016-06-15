@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/panelSolidBackground"
+    android:scrollbars="none"
+    tools:context=".fragments.TrackInformation">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fragment_padding">
+
+        <ImageButton
+            android:id="@+id/moreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="@dimen/image_button_padding"
+            android:layout_marginStart="@dimen/image_button_padding"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            android:tint="@color/colorPrimaryDark" />
+
+        <FrameLayout
+            android:id="@+id/namePlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="@dimen/fragment_padding"
+            android:layout_toStartOf="@id/moreButton">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/nameWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/nameEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:hint="@string/name"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true" />
+
+            </android.support.design.widget.TextInputLayout>
+
+        </FrameLayout>
+
+        <TableLayout
+            android:id="@+id/statisticsTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/namePlaceholder"
+            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_marginStart="@dimen/fragment_padding"
+            android:layout_marginTop="16dp"
+            android:stretchColumns="1">
+
+            <TableRow
+                android:id="@+id/sourceRow"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_folder"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/source"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_linear_scale"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/pointCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="?android:textColorPrimary" />
+
+                    <TextView
+                        android:id="@+id/segmentCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:textColorPrimary" />
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_straighten"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/timeRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_timer"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/timeSpan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/SubHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_span="2"
+                    android:text="@string/start_point" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_place"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/startCoordinates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/startDateRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_schedule"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/startDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/SubHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_span="2"
+                    android:text="@string/finish_point" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_place"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/finishCoordinates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/finishDateRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_schedule"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/finishDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/statisticsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/SubHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_span="2"
+                    android:text="@string/statistics" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/speedRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_timer"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/averageSpeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:textColorPrimary" />
+
+                    <TextView
+                        android:id="@+id/maxSpeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:textColorPrimary" />
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/elevationUpRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_trending_up"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/maxElevation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/elevationDownRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/table_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_trending_down"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/minElevation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary" />
+            </TableRow>
+
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/charts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/statisticsTable"
+            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_marginStart="@dimen/fragment_padding"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/fragment_padding">
+
+            <TextView
+                android:id="@+id/elevationHeader"
+                style="@style/SubHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/elevation_profile" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/elevationChart"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="-8dp" />
+
+            <TextView
+                android:id="@+id/speedHeader"
+                style="@style/SubHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/speed_profile" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/speedChart"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="-8dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/fragment_padding"
+            android:layout_below="@id/charts" />
+    </RelativeLayout>
+
+</ScrollView>

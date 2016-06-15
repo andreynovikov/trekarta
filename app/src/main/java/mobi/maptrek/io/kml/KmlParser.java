@@ -97,27 +97,19 @@ public class KmlParser {
         // Move all placemarks into DataSource applying styles as well
         for (KmlFile.Placemark placemark : placemarks) {
             applyStyles(placemark, styles);
-            if (placemark.point != null) {
-                placemark.point.source = dataSource;
+            if (placemark.point != null)
                 dataSource.waypoints.add(placemark.point);
-            }
-            if (placemark.track != null) {
-                placemark.track.source = dataSource;
+            if (placemark.track != null)
                 dataSource.tracks.add(placemark.track);
-            }
         }
         // Move everything from folders to the DataSource applying styles as well
         for (KmlFile.Folder folder : folders) {
             for (KmlFile.Placemark placemark : folder.placemarks) {
                 applyStyles(placemark, styles);
-                if (placemark.point != null) {
-                    placemark.point.source = dataSource;
+                if (placemark.point != null)
                     dataSource.waypoints.add(placemark.point);
-                }
-                if (placemark.track != null) {
-                    placemark.track.source = dataSource;
+                if (placemark.track != null)
                     dataSource.tracks.add(placemark.track);
-                }
             }
         }
         return dataSource;

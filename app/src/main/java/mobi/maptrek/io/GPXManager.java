@@ -25,10 +25,12 @@ public class GPXManager extends Manager {
         // TODO - Generate names if they are missing
         for (Waypoint waypoint : dataSource.waypoints) {
             waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
+            waypoint.source = dataSource;
             i++;
         }
         for (Track track : dataSource.tracks) {
             track.id = 31 * (hash + track.name.hashCode()) + i;
+            track.source = dataSource;
             i++;
         }
         return dataSource;

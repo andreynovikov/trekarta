@@ -25,4 +25,12 @@
         <item name="android:paddingStart">@dimen/dialogButtonMargin</item>
         <item name="android:paddingEnd">@dimen/dialogButtonMargin</item>
     </style>
+
+    <style name="SubHeader">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
 </resources>

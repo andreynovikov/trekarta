@@ -134,6 +134,7 @@ import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenu;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
@@ -156,6 +157,7 @@ import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
+import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
 
@@ -292,6 +294,10 @@ public class MainActivity extends Activity implements ILocationListener,
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+
+        //FIXME Use preferences
+        StringFormatter.speedFactor = 3.6f;
+        StringFormatter.speedAbbr = "kmh";
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -831,11 +837,15 @@ public class MainActivity extends Activity implements ILocationListener,
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         float bearing = location.getBearing();
-        if (bearing < mAveragedBearing - 180)
-            mAveragedBearing -= 360;
+        if (bearing < mAveragedBearing - 180f)
+            mAveragedBearing -= 360f;
+        else if (mAveragedBearing < bearing - 180f)
+            mAveragedBearing += 360f;
         mAveragedBearing = (float) movingAverage(bearing, mAveragedBearing);
-        if (mAveragedBearing < 0)
-            mAveragedBearing += 360;
+        if (mAveragedBearing < 0f)
+            mAveragedBearing += 360f;
+        if (mAveragedBearing >= 360f)
+            mAveragedBearing -= 360f;
 
         updateGauges();
 
@@ -1407,7 +1417,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void updateGauges() {
         Location location = mLocationService.getLocation();
-        mGaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed() * 3.6f);
+        mGaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
         mGaugePanel.setValue(Gauge.TYPE_TRACK, (int) location.getBearing());
         mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (int) location.getAltitude());
     }
@@ -1755,6 +1765,26 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onTrackDetails(Track track) {
+        Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, TrackInformation.class.getName());
+            Slide slide = new Slide(Gravity.BOTTOM);
+            // Required to sync with FloatingActionButton
+            slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            fragment.setEnterTransition(slide);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "trackInformation");
+            ft.addToBackStack("trackInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((TrackInformation) fragment).setTrack(track);
+        ViewGroup extendPanel = (ViewGroup) findViewById(R.id.extendPanel);
+        extendPanel.setForeground(getDrawable(R.drawable.dim));
+        extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override

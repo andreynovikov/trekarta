@@ -27,12 +27,14 @@ public class KMLManager extends Manager {
         // TODO - Generate names if they are missing
         for (Waypoint waypoint : dataSource.waypoints) {
             waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
+            waypoint.source = dataSource;
             if (waypoint.style.color == 0)
                 waypoint.style.color = MarkerStyle.DEFAULT_COLOR;
             i++;
         }
         for (Track track : dataSource.tracks) {
             track.id = 31 * (hash + track.name.hashCode()) + i;
+            track.source = dataSource;
             if (track.style.color == 0)
                 track.style.color = TrackStyle.DEFAULT_COLOR;
             if (track.style.width == 0f)

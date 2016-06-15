@@ -36,7 +36,6 @@ public class Track {
     }
 
     public class TrackPoint extends GeoPoint {
-        //TODO Refactor path readers to make fields final
         public final boolean continuous;
         public final float elevation;
         public final float speed;

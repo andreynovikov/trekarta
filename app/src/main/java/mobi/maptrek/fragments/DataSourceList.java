@@ -29,6 +29,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.util.StringFormatter;
@@ -37,6 +38,7 @@ public class DataSourceList extends ListFragment {
     public static final String ARG_NATIVE_TRACKS = "nativeTracks";
 
     private DataSourceListAdapter mAdapter;
+    private OnTrackActionListener mTrackActionListener;
     private DataHolder mDataHolder;
     private List<DataSource> mData = new ArrayList<>();
     private boolean mNativeTracks;
@@ -70,6 +72,11 @@ public class DataSourceList extends ListFragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement DataHolder");
         }
+        try {
+            mTrackActionListener = (OnTrackActionListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
+        }
     }
 
     @Override
@@ -77,6 +84,7 @@ public class DataSourceList extends ListFragment {
         super.onDetach();
         mData.clear();
         mDataHolder = null;
+        mTrackActionListener = null;
     }
 
     @Override
@@ -87,7 +95,13 @@ public class DataSourceList extends ListFragment {
 
     @Override
     public void onListItemClick(ListView lv, View v, int position, long id) {
-        mDataHolder.onDataSourceSelected(mAdapter.getItem(position));
+        DataSource source = mAdapter.getItem(position);
+        if (source.isNativeTrack()) {
+            Track track = ((TrackDataSource) source).getTracks().get(0);
+            mTrackActionListener.onTrackDetails(track);
+        } else {
+            mDataHolder.onDataSourceSelected(source);
+        }
     }
 
     public void updateData() {
