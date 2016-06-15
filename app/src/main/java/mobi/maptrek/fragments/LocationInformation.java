@@ -149,7 +149,11 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
-        mFragmentHolder = (FragmentHolder) context;
+        try {
+            mFragmentHolder = (FragmentHolder) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+        }
     }
 
     @Override

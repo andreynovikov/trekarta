@@ -10,9 +10,9 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 
 public class HelperUtils {
-    public static void showSaveError(Context context, CoordinatorLayout coordinatorLayout, Exception e) {
+    public static void showError(String message, CoordinatorLayout coordinatorLayout) {
         final Snackbar snackbar = Snackbar
-                .make(coordinatorLayout, context.getString(R.string.msg_save_failed, e.getMessage()), Snackbar.LENGTH_INDEFINITE);
+                .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.action_dismiss, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -20,6 +20,10 @@ public class HelperUtils {
             }
         });
         snackbar.show();
+    }
+
+    public static void showSaveError(Context context, CoordinatorLayout coordinatorLayout, Exception e) {
+        showError(context.getString(R.string.msg_save_failed, e.getMessage()), coordinatorLayout);
     }
 
     public static void showAdvice(final long advice, int messageResId, CoordinatorLayout coordinatorLayout) {

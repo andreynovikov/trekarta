@@ -9,10 +9,11 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -28,18 +29,19 @@ import java.util.Date;
 import java.util.Locale;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
 
-public class TrackInformation extends Fragment {
+public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
     private FragmentHolder mFragmentHolder;
+    private MapHolder mMapHolder;
     private OnTrackActionListener mListener;
 
     private Track mTrack;
-    //private Drawable fabDrawable;
-    //private FloatingActionButton fab;
+    private boolean mIsCurrent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,32 @@ public class TrackInformation extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_track_information, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
+        final ImageButton moreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
+        moreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(getContext(), moreButton);
+                moreButton.setOnTouchListener(popup.getDragToOpenListener());
+                popup.inflate(R.menu.context_menu_track);
+                Menu menu = popup.getMenu();
+                menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
+                popup.setOnMenuItemClickListener(TrackInformation.this);
+                popup.show();
+            }
+        });
+        if (mIsCurrent) {
+            ImageButton stopButton = (ImageButton) rootView.findViewById(R.id.stopButton);
+            stopButton.setVisibility(View.VISIBLE);
+            stopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mMapHolder.disableTracking();
+                    mFragmentHolder.popCurrent();
+                }
+            });
+        }
+        return rootView;
     }
 
     @Override
@@ -72,80 +99,44 @@ public class TrackInformation extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement FragmentHolder");
         }
+        try {
+            mMapHolder = (MapHolder) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement MapHolder");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mFragmentHolder = null;
+        mMapHolder = null;
         mListener = null;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        /*
-        fab = mFragmentHolder.enableActionButton();
-        fabDrawable = fab.getDrawable();
-        fab.setImageResource(R.drawable.ic_visibility_white_24dp);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onTrackView(mTrack);
-            }
-        });
-        */
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //fab.setImageDrawable(fabDrawable);
-        //mFragmentHolder.disableActionButton();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //inflater.inflate(R.menu.track_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(final Menu menu) {
-        //menu.findItem(R.id.action_view).setVisible(false);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        /*
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_view:
+                mListener.onTrackView(mTrack);
+                mFragmentHolder.popAll();
+                return true;
             case R.id.action_edit:
-                mListener.onTrackEdit(mTrack);
                 return true;
-            case R.id.action_edit_path:
-                mListener.onTrackEditPath(mTrack);
+            case R.id.action_share:
+                mListener.onTrackShare(mTrack);
                 return true;
-            case R.id.action_track_to_route:
-                mListener.onTrackToRoute(mTrack);
-                return true;
-            case R.id.action_save:
-                mListener.onTrackSave(mTrack);
-                return true;
-            case R.id.action_remove:
-                Androzic application = Androzic.getApplication();
-                application.removeTrack(mTrack);
-                // "Close" fragment
-                getFragmentManager().popBackStack();
+            case R.id.action_delete:
+                mListener.onTrackDelete(mTrack);
+                mFragmentHolder.popCurrent();
                 return true;
         }
-        */
         return false;
     }
 
-    public void setTrack(Track track) {
-        this.mTrack = track;
+    public void setTrack(Track track, boolean current) {
+        mTrack = track;
+        mIsCurrent = current;
         if (isVisible()) {
             updateTrackInformation();
         }
@@ -160,7 +151,7 @@ public class TrackInformation extends Fragment {
 
         ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
         View sourceRow = rootView.findViewById(R.id.sourceRow);
-        if (mTrack.source.isNativeTrack()) {
+        if (mTrack.source == null || mTrack.source.isNativeTrack()) {
             sourceRow.setVisibility(View.GONE);
         } else {
             ((TextView) rootView.findViewById(R.id.source)).setText(mTrack.source.name);

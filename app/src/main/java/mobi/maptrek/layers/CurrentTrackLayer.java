@@ -65,7 +65,7 @@ public class CurrentTrackLayer extends TrackLayer {
                 mTrack.addPointFast(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
                 updatePoints();
             }
-            point = mTrack.new TrackPoint(continuous, (int)(lat * 1E6), (int)(lon * 1E6), elev, speed, trk, accuracy, time);
+            point = mTrack.new TrackPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
         }
     };
 }

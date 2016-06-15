@@ -10,6 +10,8 @@ public interface MapHolder {
 
     void disableLocations();
 
+    void disableTracking();
+
     /**
      * Adds location state change listener and then calls listener with current state.
      */

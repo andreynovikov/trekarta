@@ -9,5 +9,9 @@ public interface OnTrackActionListener {
 
     void onTrackDetails(Track track);
 
+    void onTrackShare(Track track);
+
+    void onTrackDelete(Track track);
+
     void onTracksDelete(Set<Track> tracks);
 }

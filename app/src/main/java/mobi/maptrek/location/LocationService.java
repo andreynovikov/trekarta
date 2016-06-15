@@ -353,7 +353,7 @@ public class LocationService extends BaseLocationService implements LocationList
     public Track getTrack(long limit) {
         if (mTrackDB == null)
             openDatabase();
-        Track track = new Track();
+        Track track = new Track(getString(R.string.currentTrack), true);
         if (mTrackDB == null)
             return track;
         String limitStr = limit > 0 ? " LIMIT " + limit : "";
@@ -893,7 +893,7 @@ public class LocationService extends BaseLocationService implements LocationList
             mLastKnownLocation.setAccuracy(3 + mMockLocationTicker % 100);
             mLastKnownLocation.setSpeed(20);
             mLastKnownLocation.setBearing(323);
-            mLastKnownLocation.setAltitude(39);
+            mLastKnownLocation.setAltitude(20 + mMockLocationTicker);
             //mLastKnownLocation.setLatitude(34.865792);
             //mLastKnownLocation.setLongitude(32.351646);
             //mLastKnownLocation.setBearing((System.currentTimeMillis() / 166) % 360);

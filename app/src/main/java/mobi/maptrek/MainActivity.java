@@ -9,6 +9,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
@@ -962,7 +964,11 @@ public class MainActivity extends Activity implements ILocationListener,
             return;
         }
         if (mTrackingState == TRACKING_STATE.TRACKING) {
-            disableTracking();
+            Track currentTrack = mCurrentTrackLayer.getTrack();
+            if (currentTrack.points.size() == 0)
+                disableTracking();
+            else
+                onTrackDetails(currentTrack, true);
         } else {
             enableTracking();
         }
@@ -1226,7 +1232,8 @@ public class MainActivity extends Activity implements ILocationListener,
         updateLocationDrawable();
     }
 
-    private void disableTracking() {
+    @Override
+    public void disableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_TRACK));
         mMap.layers().remove(mCurrentTrackLayer);
         if (mCurrentTrackLayer != null) // Can be null if called by intent
@@ -1765,6 +1772,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onTrackDetails(Track track) {
+        onTrackDetails(track, false);
+    }
+
+    private void onTrackDetails(Track track, boolean current) {
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
             fragment = Fragment.instantiate(this, TrackInformation.class.getName());
@@ -1778,13 +1789,22 @@ public class MainActivity extends Activity implements ILocationListener,
             ft.commit();
             updateMapViewArea();
         }
-        ((TrackInformation) fragment).setTrack(track);
+        ((TrackInformation) fragment).setTrack(track, current);
         ViewGroup extendPanel = (ViewGroup) findViewById(R.id.extendPanel);
         extendPanel.setForeground(getDrawable(R.drawable.dim));
         extendPanel.getForeground().setAlpha(0);
         ObjectAnimator anim = ObjectAnimator.ofInt(extendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
+    }
+
+    @Override
+    public void onTrackShare(Track track) {
+
+    }
+
+    @Override
+    public void onTrackDelete(Track track) {
     }
 
     @Override
@@ -2518,7 +2538,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onDataSourceSelected(DataSource source) {
+    public void onDataSourceSelected(@NonNull DataSource source) {
         mMap.getMapPosition(mMapPosition);
         Bundle args = new Bundle(2);
         args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
@@ -2531,6 +2551,40 @@ public class MainActivity extends Activity implements ILocationListener,
         ft.add(R.id.extendPanel, fragment, "dataList");
         ft.addToBackStack("dataList");
         ft.commit();
+    }
+
+    @Override
+    public void onDataSourceDelete(@NonNull final DataSource source) {
+        if (!(source instanceof FileDataSource)) {
+            final Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_cannot_delete_native_source, Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.title_delete_permanently);
+        builder.setMessage(R.string.msg_delete_source_permanently);
+        builder.setPositiveButton(R.string.action_continue, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File sourceFile = new File(((FileDataSource)source).path);
+                if (sourceFile.exists()) {
+                    if (sourceFile.delete()) {
+                        removeSourceFromMap((FileDataSource) source);
+                    } else {
+                        //TODO Use helper in other places
+                        HelperUtils.showError(getString(R.string.msg_delete_failed), mCoordinatorLayout);
+                    }
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private double movingAverage(double current, double previous) {

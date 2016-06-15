@@ -9,13 +9,15 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.io.File;
@@ -62,6 +64,29 @@ public class DataSourceList extends ListFragment {
 
         mAdapter = new DataSourceListAdapter(getActivity());
         setListAdapter(mAdapter);
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                final DataSource dataSource = mAdapter.getItem(position);
+                if (dataSource instanceof WaypointDbDataSource)
+                    return false;
+                PopupMenu popup = new PopupMenu(getContext(), view);
+                popup.inflate(R.menu.context_menu_track_list);
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_delete:
+                                mDataHolder.onDataSourceDelete(dataSource);
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -183,7 +208,7 @@ public class DataSourceList extends ListFragment {
 
             int color = mAccentColor;
             if (dataSource instanceof WaypointDbDataSource) {
-                int count = ((WaypointDataSource)dataSource).getWaypointsCount();
+                int count = ((WaypointDataSource) dataSource).getWaypointsCount();
                 itemHolder.description.setText(resources.getQuantityString(R.plurals.waypointsCount, count, count));
                 itemHolder.filename.setText("");
                 itemHolder.action.setVisibility(View.GONE);
@@ -225,7 +250,6 @@ public class DataSourceList extends ListFragment {
                 itemHolder.action.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.w("DSL", "Pos: " + position + " l: " + shown);
                         mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
                         notifyDataSetChanged();
                     }

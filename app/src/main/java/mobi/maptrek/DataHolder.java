@@ -18,5 +18,7 @@ public interface DataHolder {
 
     void setDataSourceAvailability(FileDataSource source, boolean available);
 
-    void onDataSourceSelected(DataSource source);
+    void onDataSourceSelected(@NonNull DataSource source);
+
+    void onDataSourceDelete(@NonNull DataSource source);
 }
