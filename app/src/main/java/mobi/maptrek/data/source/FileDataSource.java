@@ -22,7 +22,7 @@ public class FileDataSource extends DataSource implements WaypointDataSource, Tr
 
     @Override
     public boolean isNativeTrack() {
-        return (path != null && path.endsWith(TrackManager.EXTENSION)) || (path == null && waypoints.isEmpty() && tracks.size() == 1);
+        return path != null && path.endsWith(TrackManager.EXTENSION);
     }
 
     @NonNull

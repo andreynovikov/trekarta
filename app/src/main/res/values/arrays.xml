@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="track_format_array">
+        <item>Native</item>
+        <item>GPX</item>
+        <item>KML</item>
+    </string-array>
+</resources>

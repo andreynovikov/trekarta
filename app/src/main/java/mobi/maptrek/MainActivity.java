@@ -115,6 +115,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Track;
@@ -136,6 +137,7 @@ import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenu;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.TrackExport;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -1799,8 +1801,38 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onTrackShare(Track track) {
-
+    public void onTrackShare(final Track track) {
+        final AtomicInteger selected = new AtomicInteger(0);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.title_select_format);
+        builder.setSingleChoiceItems(R.array.track_format_array, selected.get(), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                selected.set(which);
+            }
+        });
+        builder.setPositiveButton(R.string.action_continue, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                TrackExport.Builder builder = new TrackExport.Builder();
+                @TrackExport.ExportFormat int format = selected.get();
+                TrackExport trackExport = builder.setTrack(track).setFormat(format).create();
+                trackExport.show(mFragmentManager, "trackExport");
+            }
+        });
+        builder.setNeutralButton(R.string.explain, null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        // Workaround to prevent dialog dismissing
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage(R.string.msg_track_format_explanation);
+                builder.setPositiveButton(R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
     }
 
     @Override
@@ -2566,7 +2598,7 @@ public class MainActivity extends Activity implements ILocationListener,
         builder.setPositiveButton(R.string.action_continue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                File sourceFile = new File(((FileDataSource)source).path);
+                File sourceFile = new File(((FileDataSource) source).path);
                 if (sourceFile.exists()) {
                     if (sourceFile.delete()) {
                         removeSourceFromMap((FileDataSource) source);

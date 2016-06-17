@@ -88,9 +88,11 @@ public class GpxSerializer {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(track.name);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
-        serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
-        serializer.cdsect(track.description);
-        serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        if (track.description != null) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
+            serializer.cdsect(track.description);
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        }
         serializer.startTag(GpxFile.NS, GpxFile.TAG_TRKSEG);
 
         boolean first = true;

@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import mobi.maptrek.io.GPXManager;
 import mobi.maptrek.io.KMLManager;
+import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.MonitoredInputStream;
 import mobi.maptrek.util.ProgressHandler;
@@ -276,7 +277,9 @@ public class DataImportActivity extends Activity {
 
                 Log.e(TAG, "Import: [" + name + "][" + length + "]");
 
-                if (!name.endsWith(KMLManager.EXTENSION) && !name.endsWith(GPXManager.EXTENSION)) {
+                if (!name.endsWith(TrackManager.EXTENSION) &&
+                        !name.endsWith(KMLManager.EXTENSION) &&
+                        !name.endsWith(GPXManager.EXTENSION)) {
                     Log.e(TAG, "Unsupported file format");
                     return;
                 }

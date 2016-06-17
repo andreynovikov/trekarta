@@ -105,9 +105,11 @@ public class KmlSerializer {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         serializer.text(track.name);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_NAME);
-        serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
-        serializer.cdsect(track.description);
-        serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+        if (track.description != null) {
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+            serializer.cdsect(track.description);
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+        }
         serializer.startTag(KmlFile.NS, KmlFile.TAG_TIME_SPAN);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_BEGIN);
         serializer.text(sdf.format(new Date(track.points.get(0).time)));
