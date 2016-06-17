@@ -56,18 +56,26 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
-                    android:host="*"
                     android:mimeType="application/vnd.google-earth.kml+xml"
                     android:scheme="content" />
                 <data
-                    android:host="*"
                     android:mimeType="text/xml"
                     android:scheme="content" />
                 <!-- GPX from DownloadManager -->
                 <data
-                    android:host="*"
                     android:mimeType="application/octet-stream"
                     android:scheme="content" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- SEND action does not have scheme -->
+                <data android:mimeType="application/vnd.maptrek.mtrack" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/vnd.google-earth.kml+xml" />
+
             </intent-filter>
         </activity>
 
@@ -79,6 +87,11 @@
             android:name=".location.NavigationService"
             android:exported="false" />
 
+        <provider
+            android:name="mobi.maptrek.provider.ExportProvider"
+            android:authorities="mobi.maptrek.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 
 </manifest>
