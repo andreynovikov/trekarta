@@ -41,6 +41,7 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
@@ -209,8 +210,12 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
-        mFragmentHolder = (FragmentHolder) context;
-        mFragmentHolder.addBackClickListener(this);
+        try {
+            mFragmentHolder = (FragmentHolder) context;
+            mFragmentHolder.addBackClickListener(this);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+        }
     }
 
     @Override
@@ -411,7 +416,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             viewsState = View.GONE;
             editsState = View.VISIBLE;
 
-            HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.msg_update_external_source, mFragmentHolder.getCoordinatorLayout());
+            if (mWaypoint.source instanceof FileDataSource)
+                HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFragmentHolder.getCoordinatorLayout());
         } else {
             mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
@@ -450,7 +456,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         // TODO Use better approach (http://stackoverflow.com/a/22581832/488489)
         if (description instanceof LimitedWebView) {
             setWebViewText((LimitedWebView) description);
-        } else if (mWaypoint.description.contains("<") && mWaypoint.description.contains(">")) {
+        } else if (mWaypoint.description != null && mWaypoint.description.contains("<") && mWaypoint.description.contains(">")) {
             // Replace TextView with WebView
             ViewGroup parent = (ViewGroup) description.getParent();
             int index = parent.indexOfChild(description);
@@ -490,8 +496,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
     @Override
     public boolean onBackClick() {
-        ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
         if (mEditorMode) {
             setEditorMode(false);
             return true;
