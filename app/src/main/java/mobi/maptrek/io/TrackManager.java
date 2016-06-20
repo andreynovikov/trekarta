@@ -225,11 +225,14 @@ public class TrackManager extends Manager {
         output.flush();
         // Modify tail of file
         File file = new File(source.path);
+        long createTime = file.lastModified();
         RandomAccessFile access = new RandomAccessFile(file, "rw");
         access.setLength(source.propertiesOffset + 1);
         access.seek(source.propertiesOffset);
         access.write(buffer.array());
         access.close();
+        //noinspection ResultOfMethodCallIgnored
+        file.setLastModified(createTime);
     }
 
     public int getSerializedPropertiesSize(Track track) {
