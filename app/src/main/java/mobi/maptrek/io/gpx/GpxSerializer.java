@@ -62,9 +62,11 @@ public class GpxSerializer {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(waypoint.name);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
-        serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
-        serializer.cdsect(waypoint.description);
-        serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        if (waypoint.description != null) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
+            serializer.cdsect(waypoint.description);
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        }
         if (waypoint.altitude != Integer.MIN_VALUE) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_ELE);
             serializer.text(String.valueOf(waypoint.altitude));

@@ -18,6 +18,7 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.Style;
+import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.util.ProgressListener;
 
 // TODO Localize strings
@@ -75,9 +76,11 @@ public class KmlSerializer {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         serializer.text(waypoint.name);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_NAME);
-        serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
-        serializer.cdsect(waypoint.description);
-        serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+        if (waypoint.description != null) {
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+            serializer.cdsect(waypoint.description);
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
+        }
         if (!waypoint.style.isDefault()) {
             serializeStyle(serializer, waypoint.style);
         }
@@ -163,7 +166,10 @@ public class KmlSerializer {
     private static void startTrackPart(XmlSerializer serializer, int part, String name, Style style) throws IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_PLACEMARK);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
-        serializer.text(String.format(Locale.US, "Part %d - %s", part, name));
+        if (part > 1)
+            serializer.text(String.format(Locale.US, "%s #%d", name, part));
+        else
+            serializer.text(name);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_NAME);
         if (!style.isDefault()) {
             serializeStyle(serializer, style);
@@ -192,6 +198,15 @@ public class KmlSerializer {
             serializer.text(String.format("%08X", KmlFile.reverseColor(((MarkerStyle)style).color)));
             serializer.endTag(KmlFile.NS, KmlFile.TAG_COLOR);
             serializer.endTag(KmlFile.NS, KmlFile.TAG_ICON_STYLE);
+        } else if (style instanceof TrackStyle) {
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_LINE_STYLE);
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_COLOR);
+            serializer.text(String.format("%08X", KmlFile.reverseColor(((TrackStyle)style).color)));
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_COLOR);
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_WIDTH);
+            serializer.text(String.valueOf(((TrackStyle)style).width));
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_WIDTH);
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_LINE_STYLE);
         }
         serializer.endTag(KmlFile.NS, KmlFile.TAG_STYLE);
     }

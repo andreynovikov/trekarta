@@ -11,13 +11,13 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
-import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.source.FileDataSource;
 
 public class GpxParser {
     private static final String NS = null;
-    
+
     @NonNull
     public static FileDataSource parse(InputStream in) throws XmlPullParserException, IOException {
         try {
@@ -40,19 +40,22 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals(GpxFile.TAG_METADATA)) {
-                GpxFile.Metadata metadata = readMetadata(parser);
-                dataSource.name = metadata.name;
-            }
-            if (name.equals(GpxFile.TAG_WPT)) {
-                Waypoint waypoint = readWaypoint(parser);
-                dataSource.waypoints.add(waypoint);
-            }
-            if (name.equals(GpxFile.TAG_TRK)) {
-                Track track = readTrack(parser);
-                dataSource.tracks.add(track);
-            } else {
-                skip(parser);
+            switch (name) {
+                case GpxFile.TAG_METADATA:
+                    GpxFile.Metadata metadata = readMetadata(parser);
+                    dataSource.name = metadata.name;
+                    break;
+                case GpxFile.TAG_WPT:
+                    Waypoint waypoint = readWaypoint(parser);
+                    dataSource.waypoints.add(waypoint);
+                    break;
+                case GpxFile.TAG_TRK:
+                    Track track = readTrack(parser);
+                    dataSource.tracks.add(track);
+                    break;
+                default:
+                    skip(parser);
+                    break;
             }
         }
         return dataSource;
