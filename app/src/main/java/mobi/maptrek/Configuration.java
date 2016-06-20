@@ -204,4 +204,10 @@ public class Configuration {
         editor.putLong(PREF_ADVICE_STATES, state | advice);
         editor.apply();
     }
+
+    public static void resetAdviceState() {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putLong(PREF_ADVICE_STATES, 0L);
+        editor.apply();
+    }
 }

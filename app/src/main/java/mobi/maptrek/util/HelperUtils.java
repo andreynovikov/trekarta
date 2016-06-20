@@ -19,6 +19,8 @@ public class HelperUtils {
                 snackbar.dismiss();
             }
         });
+        TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+        snackbarTextView.setMaxLines(99);
         snackbar.show();
     }
 
