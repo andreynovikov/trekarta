@@ -18,6 +18,7 @@ import java.util.Set;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.io.DataFilenameFilter;
 import mobi.maptrek.io.Manager;
+import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.util.MonitoredInputStream;
 import mobi.maptrek.util.ProgressListener;
 
@@ -144,6 +145,11 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                         }
                         source.setLoaded();
                         data.add(source);
+
+                        if (manager instanceof TrackManager) {
+                            //noinspection ResultOfMethodCallIgnored
+                            file.setLastModified(source.tracks.get(0).getLastPoint().time);
+                        }
                     }
                 } catch (Exception e) {
                     //TODO Notify user about a problem
