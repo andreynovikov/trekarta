@@ -812,6 +812,12 @@ public class MainActivity extends Activity implements ILocationListener,
                 stopNavigation();
                 return true;
 
+            case R.id.action_reset_advices:
+                Configuration.resetAdviceState();
+                Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_advices_reset, Snackbar.LENGTH_LONG);
+                snackbar.show();
+                return true;
+
             case R.id.action_about:
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
                 fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
@@ -1722,41 +1728,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onTrackPropertiesChanged(String name, int color) {
-        Log.e(TAG, "onTrackPropertiesChanged()");
         mEditedTrack.name = name;
         mEditedTrack.style.color = color;
-        for (Layer layer : mMap.layers()) {
-            if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(mEditedTrack)) {
-                ((TrackLayer) layer).setColor(mEditedTrack.style.color);
-            }
-        }
-        FileDataSource fileSource = (FileDataSource) mEditedTrack.source;
-        Manager manager = Manager.getDataManager(getApplicationContext(), fileSource.path);
-        if (manager instanceof TrackManager) {
-            try {
-                ((TrackManager) manager).saveProperties(fileSource);
-                // Rename file if name changed
-                File thisFile = new File(fileSource.path);
-                File thatFile = new File(thisFile.getParent(), FileUtils.sanitizeFilename(mEditedTrack.name) + TrackManager.EXTENSION);
-                if (!thisFile.equals(thatFile)) {
-                    Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
-                    if (loader != null) {
-                        // Let loader do the task if it is available
-                        ((DataLoader) loader).renameSource(fileSource, thatFile);
-                        // otherwise do it manually (this normally should not happen)
-                    } else if (thisFile.renameTo(thatFile)) {
-                        fileSource.path = thatFile.getAbsolutePath();
-                    }
-                }
-            } catch (Exception e) {
-                // TODO Notify user about a problem
-                e.printStackTrace();
-            }
-        } else if (mEditedTrack.source.isNativeTrack()) {
-            // TODO Do we need this any more?
-            mEditedTrack.source.rename(name);
-            Manager.save(getApplicationContext(), (FileDataSource) mEditedTrack.source);
-        }
+        onTrackSave(mEditedTrack);
         mEditedTrack = null;
     }
 
@@ -1836,7 +1810,111 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onTrackDelete(Track track) {
+    public void onTrackSave(final Track track) {
+        FileDataSource fileSource = (FileDataSource) track.source;
+        Manager manager = Manager.getDataManager(getApplicationContext(), fileSource.path);
+        if (manager instanceof TrackManager) {
+            // Use optimized save for native track
+            try {
+                ((TrackManager) manager).saveProperties(fileSource);
+                // Rename file if name changed
+                File thisFile = new File(fileSource.path);
+                File thatFile = new File(thisFile.getParent(), FileUtils.sanitizeFilename(track.name) + TrackManager.EXTENSION);
+                if (!thisFile.equals(thatFile)) {
+                    Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+                    if (loader != null) {
+                        // Let loader do the task if it is available
+                        ((DataLoader) loader).renameSource(fileSource, thatFile);
+                        // otherwise do it manually (this normally should not happen)
+                    } else if (thisFile.renameTo(thatFile)) {
+                        fileSource.path = thatFile.getAbsolutePath();
+                    }
+                }
+            } catch (Exception e) {
+                HelperUtils.showSaveError(this, mCoordinatorLayout, e);
+                e.printStackTrace();
+            }
+        } else {
+            // Save hole data source
+            Manager.save(getApplicationContext(), (FileDataSource) track.source, new Manager.OnSaveListener() {
+                @Override
+                public void onSaved(FileDataSource source) {
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            track.source.notifyListeners();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(FileDataSource source, Exception e) {
+                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                }
+            }, mProgressHandler);
+        }
+        // Update track layer
+        for (Layer layer : mMap.layers()) {
+            if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(track)) {
+                ((TrackLayer) layer).setColor(track.style.color);
+            }
+        }
+        mMap.updateMap(true);
+    }
+
+    @Override
+    public void onTrackDelete(final Track track) {
+        // Remove track layer to indicate action to user
+        for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
+            Layer layer = i.next();
+            if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(track)) {
+                i.remove();
+                layer.onDetach();
+                break;
+            }
+        }
+        mMap.updateMap(true);
+
+        // Show undo snackbar
+        Snackbar snackbar = Snackbar
+                .make(mCoordinatorLayout, R.string.msg_track_deleted, Snackbar.LENGTH_LONG)
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event == DISMISS_EVENT_ACTION)
+                            return;
+                        // If dismissed, actually remove track
+                        // Native tracks can not be deleted through this procedure
+                        ((FileDataSource) track.source).tracks.remove(track);
+                        Manager.save(getApplicationContext(), (FileDataSource) track.source, new Manager.OnSaveListener() {
+                            @Override
+                            public void onSaved(FileDataSource source) {
+                                mMainHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        track.source.notifyListeners();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(FileDataSource source, Exception e) {
+                                HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                            }
+                        }, mProgressHandler);
+                    }
+                })
+                .setAction(R.string.action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // If undo pressed, restore the track on map
+                        TrackLayer trackLayer = new TrackLayer(mMap, track);
+                        mMap.layers().add(trackLayer);
+                        mMap.updateMap(true);
+                    }
+                });
+        snackbar.show();
     }
 
     @Override

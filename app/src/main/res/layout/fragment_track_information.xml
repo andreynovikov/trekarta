@@ -38,6 +38,15 @@
             android:tint="@color/colorAccent"
             android:visibility="gone" />
 
+        <mobi.maptrek.view.ColorSwatch
+            android:id="@+id/colorSwatch"
+            android:layout_width="@dimen/color_swatch_smallest"
+            android:layout_height="@dimen/color_swatch_smallest"
+            android:layout_marginLeft="@dimen/color_swatch_margins_large"
+            android:layout_marginRight="@dimen/color_swatch_margins_large"
+            android:layout_toStartOf="@id/moreButton"
+            android:visibility="gone" />
+
         <FrameLayout
             android:id="@+id/namePlaceholder"
             android:layout_width="match_parent"
@@ -45,7 +54,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="@dimen/fragment_padding"
             android:layout_toEndOf="@id/stopButton"
-            android:layout_toStartOf="@id/moreButton">
+            android:layout_toStartOf="@id/colorSwatch">
 
             <TextView
                 android:id="@+id/name"
@@ -100,7 +109,7 @@
 
                 <TextView
                     android:id="@+id/source"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="?android:textColorPrimary" />
 

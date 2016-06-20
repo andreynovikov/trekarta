@@ -7,15 +7,21 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.android.colorpicker.ColorPickerDialog;
+import com.android.colorpicker.ColorPickerSwatch;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -29,19 +35,25 @@ import java.util.Date;
 import java.util.Locale;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
+import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.view.ColorSwatch;
 
-public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
+public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener, OnBackPressedListener {
+    private Track mTrack;
+    private boolean mIsCurrent;
+
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnTrackActionListener mListener;
-
-    private Track mTrack;
-    private boolean mIsCurrent;
+    private ImageButton mMoreButton;
+    private boolean mEditorMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,18 +64,25 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
-        final ImageButton moreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
-        moreButton.setOnClickListener(new View.OnClickListener() {
+        final View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
+        mMoreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
+        mMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(getContext(), moreButton);
-                moreButton.setOnTouchListener(popup.getDragToOpenListener());
-                popup.inflate(R.menu.context_menu_track);
-                Menu menu = popup.getMenu();
-                menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
-                popup.setOnMenuItemClickListener(TrackInformation.this);
-                popup.show();
+                if (mEditorMode) {
+                    mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                    mTrack.style.color = ((ColorSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+                    mListener.onTrackSave(mTrack);
+                    setEditorMode(false);
+                } else {
+                    PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
+                    mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
+                    popup.inflate(R.menu.context_menu_track);
+                    Menu menu = popup.getMenu();
+                    menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
+                    popup.setOnMenuItemClickListener(TrackInformation.this);
+                    popup.show();
+                }
             }
         });
         if (mIsCurrent) {
@@ -77,6 +96,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 }
             });
         }
+        mEditorMode = false;
         return rootView;
     }
 
@@ -95,20 +115,22 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
         }
         try {
-            mFragmentHolder = (FragmentHolder) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
-        }
-        try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
+        }
+        try {
+            mFragmentHolder = (FragmentHolder) context;
+            mFragmentHolder.addBackClickListener(this);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mMapHolder = null;
         mListener = null;
@@ -122,6 +144,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 mFragmentHolder.popAll();
                 return true;
             case R.id.action_edit:
+                setEditorMode(true);
                 return true;
             case R.id.action_share:
                 mListener.onTrackShare(mTrack);
@@ -357,6 +380,82 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         } else {
             speedHeader.setVisibility(View.GONE);
             speedChart.setVisibility(View.GONE);
+        }
+    }
+
+    private void setEditorMode(boolean enabled) {
+        ViewGroup rootView = (ViewGroup) getView();
+        assert rootView != null;
+
+        final ColorSwatch colorSwatch = (ColorSwatch) rootView.findViewById(R.id.colorSwatch);
+
+        int viewsState, editsState;
+        if (enabled) {
+            mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
+            ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mTrack.name);
+            colorSwatch.setColor(mTrack.style.color);
+            colorSwatch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO Implement class that hides this behaviour
+                    ArrayList<Integer> colorList = new ArrayList<>(7);
+                    colorList.add(0xffff0000);
+                    colorList.add(0xff00ff00);
+                    colorList.add(0xff0000ff);
+                    colorList.add(0xffffff00);
+                    colorList.add(0xff00ffff);
+                    colorList.add(0xff000000);
+                    colorList.add(0xffff00ff);
+                    if (!colorList.contains(mTrack.style.color))
+                        colorList.add(mTrack.style.color);
+                    if (!colorList.contains(MarkerStyle.DEFAULT_COLOR))
+                        colorList.add(MarkerStyle.DEFAULT_COLOR);
+                    int[] colors = new int[colorList.size()];
+                    int i = 0;
+                    for (Integer integer : colorList)
+                        colors[i++] = integer;
+                    ColorPickerDialog dialog = new ColorPickerDialog();
+                    dialog.setColors(colors, mTrack.style.color);
+                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                    dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int color) {
+                            colorSwatch.setColor(color);
+                        }
+                    });
+                    dialog.show(getFragmentManager(), "ColorPickerDialog");
+                }
+            });
+            viewsState = View.GONE;
+            editsState = View.VISIBLE;
+
+            if (!mTrack.source.isNativeTrack())
+                HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFragmentHolder.getCoordinatorLayout());
+        } else {
+            mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_more_vert));
+            ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
+            viewsState = View.VISIBLE;
+            editsState = View.GONE;
+            // Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        }
+        // TODO Optimize view findings
+        TransitionManager.beginDelayedTransition(rootView, new Fade());
+        rootView.findViewById(R.id.name).setVisibility(viewsState);
+        rootView.findViewById(R.id.nameWrapper).setVisibility(editsState);
+        colorSwatch.setVisibility(editsState);
+
+        mEditorMode = enabled;
+    }
+
+    @Override
+    public boolean onBackClick() {
+        if (mEditorMode) {
+            setEditorMode(false);
+            return true;
+        } else {
+            return false;
         }
     }
 }
