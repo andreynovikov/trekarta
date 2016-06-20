@@ -19,7 +19,6 @@ public abstract class DataSource {
     public static final int TYPE_TRACK = 1;
 
     public String name;
-    private String mNewName;
     private boolean loaded = false;
     private boolean visible = false;
     private final Set<DataSourceUpdateListener> mListeners = new HashSet<>();
@@ -33,21 +32,6 @@ public abstract class DataSource {
      * @return <code>true</code> if this is single track source, <code>false</code> otherwise.
      */
     public abstract boolean isNativeTrack();
-
-    /**
-     * Marks source to be renamed on next save, does not actually save the source.
-     *
-     * @param name New file name (without extension)
-     */
-    public void rename(String name) {
-        this.name = name;
-        mNewName = name;
-    }
-
-    @Nullable
-    public String getNewName() {
-        return mNewName;
-    }
 
     /**
      * Returns whether the source is loaded from file (contains data).

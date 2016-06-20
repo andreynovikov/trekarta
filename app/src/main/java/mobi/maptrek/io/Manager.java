@@ -129,22 +129,12 @@ public abstract class Manager {
                     // and to hide it from data loader until it is completely saved
                     File newFile = new File(mFile.getParent(), System.currentTimeMillis() + ".tmp");
                     Manager.this.saveData(new FileOutputStream(newFile, false), mDataSource, mProgressListener);
-                    String newName = mDataSource.getNewName();
-                    File saveFile = mFile;
-                    File renamedFile = null;
-                    if (newName != null) {
-                        if (mDataSource.path != null)
-                            renamedFile = mFile;
-                        saveFile = new File(mFile.getParent(), FileUtils.sanitizeFilename(newName) + Manager.this.getExtension());
-                    }
-                    if (saveFile.exists() && !saveFile.delete() || !newFile.renameTo(saveFile)) {
+                    if (mFile.exists() && !mFile.delete() || !newFile.renameTo(mFile)) {
                         Log.e(TAG, "Can not rename data source file after save");
                         if (mSaveListener != null)
                             mSaveListener.onError(mDataSource, new Exception("Can not rename data source file after save"));
                     } else {
-                        mDataSource.path = saveFile.getAbsolutePath();
-                        if (renamedFile != null && !renamedFile.delete())
-                            Log.e(TAG, "Failed to remove renamed file");
+                        mDataSource.path = mFile.getAbsolutePath();
                         if (mSaveListener != null)
                             mSaveListener.onSaved(mDataSource);
                         Log.i(TAG, "Done");
