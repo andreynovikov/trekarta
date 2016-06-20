@@ -137,9 +137,15 @@ public class DataSourceList extends ListFragment {
 
         List<FileDataSource> data = mDataHolder.getData();
         // TODO Preserve position after source is loaded and name changes
-        Collections.sort(data, new Comparator<DataSource>() {
+        Collections.sort(data, new Comparator<FileDataSource>() {
             @Override
-            public int compare(DataSource lhs, DataSource rhs) {
+            public int compare(FileDataSource lhs, FileDataSource rhs) {
+                if (mNativeTracks) {
+                    // Newer tracks first
+                    File lf = new File(lhs.path);
+                    File rf = new File(rhs.path);
+                    return Long.compare(rf.lastModified(), lf.lastModified());
+                }
                 return lhs.name.compareTo(rhs.name);
             }
         });
