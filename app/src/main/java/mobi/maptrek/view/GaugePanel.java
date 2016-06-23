@@ -156,11 +156,18 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
         if (gauge == null)
             return;
         switch (type) {
-            case Gauge.TYPE_DISTANCE:
+            case Gauge.TYPE_SPEED: {
+                String indication = StringFormatter.speedC(value);
+                gauge.setValue(indication);
+                gauge.setUnit(StringFormatter.speedAbbr);
+                break;
+            }
+            case Gauge.TYPE_DISTANCE: {
                 String[] indication = StringFormatter.distanceC(value);
                 gauge.setValue(indication[0]);
                 gauge.setUnit(indication[1]);
                 break;
+            }
             default:
                 gauge.setValue(value);
         }
