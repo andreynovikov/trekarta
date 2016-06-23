@@ -684,15 +684,24 @@ public class MainActivity extends Activity implements ILocationListener,
 
         unregisterReceiver(mBroadcastReceiver);
 
-        if (isFinishing() && mTrackingState == TRACKING_STATE.TRACKING) {
-            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_BACKGROUND_TRACK));
+        if (isFinishing()) {
+            Intent intent = new Intent(getApplicationContext(), LocationService.class);
+            if (mTrackingState == TRACKING_STATE.TRACKING)
+                startService(intent.setAction(BaseLocationService.ENABLE_BACKGROUND_TRACK));
+            else
+                stopService(intent);
         }
+
         if (mLocationService != null)
             disableLocations();
 
         if (mNavigationService != null) {
-            if (isFinishing() && mNavigationService.isNavigating()) {
-                startService(new Intent(getApplicationContext(), NavigationService.class).setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+            if (isFinishing()) {
+                Intent intent = new Intent(getApplicationContext(), NavigationService.class);
+                if (mNavigationService.isNavigating())
+                    startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+                else
+                    stopService(intent);
             }
             disableNavigation();
         }
@@ -737,6 +746,11 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.e(TAG, "onSaveInstanceState()");
 
+        if (mLocationService != null)
+            startService(new Intent(getApplicationContext(), LocationService.class));
+        if (mNavigationService != null)
+            startService(new Intent(getApplicationContext(), NavigationService.class));
+
         mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
         mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
@@ -748,6 +762,7 @@ public class MainActivity extends Activity implements ILocationListener,
         savedInstanceState.putLong("lastLocationMilliseconds", mLastLocationMilliseconds);
         savedInstanceState.putFloat("averagedBearing", mAveragedBearing);
         savedInstanceState.putInt("movementAnimationDuration", mMovementAnimationDuration);
+        savedInstanceState.putBoolean("savedNavigationState", mNavigationService != null);
         if (mProgressBar.getVisibility() == View.VISIBLE)
             savedInstanceState.putInt("progressBar", mProgressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
@@ -763,6 +778,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mLastLocationMilliseconds = savedInstanceState.getLong("lastLocationMilliseconds");
         mAveragedBearing = savedInstanceState.getFloat("averagedBearing");
         mMovementAnimationDuration = savedInstanceState.getInt("movementAnimationDuration");
+        if (savedInstanceState.getBoolean("savedNavigationState", false))
+            enableNavigation();
         if (savedInstanceState.containsKey("progressBar")) {
             mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.setMax(savedInstanceState.getInt("progressBar"));
@@ -1185,6 +1202,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mLocationService = (ILocationService) binder;
             mLocationService.registerLocationCallback(MainActivity.this);
             mLocationService.setProgressListener(mProgressHandler);
+            updateNavigationUI();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -1194,6 +1212,7 @@ public class MainActivity extends Activity implements ILocationListener,
     };
 
     private void enableNavigation() {
+        Log.e(TAG, "enableNavigation");
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
     }
 
@@ -1207,6 +1226,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
+            Log.e(TAG, "onServiceConnected");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
         }
@@ -1440,6 +1460,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (int) location.getAltitude());
     }
 
+    //TODO Logic of calling this is a total mess! Think out proper event mechanism
     private void updateNavigationUI() {
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
