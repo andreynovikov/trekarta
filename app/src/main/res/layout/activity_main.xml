@@ -28,7 +28,6 @@
         android:layout_gravity="top|start"
         android:layout_marginTop="24dp"
         android:background="#99ffffff"
-        android:orientation="vertical"
         android:padding="4dp"
         android:visibility="invisible" />
 

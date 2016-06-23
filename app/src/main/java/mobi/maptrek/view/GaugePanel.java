@@ -8,18 +8,25 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.util.StringFormatter;
 
-public class GaugePanel extends LinearLayout implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener {
+/**
+ * Wrapping is based on https://github.com/blazsolar/FlowLayout
+ */
+public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener {
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
+
+    private final List<List<View>> mLines = new ArrayList<>();
+    private final List<Integer> mLineWidths = new ArrayList<>();
 
     private ArrayList<Gauge> mGauges = new ArrayList<>();
     private HashMap<Integer, Gauge> mGaugeMap = new HashMap<>();
@@ -36,6 +43,175 @@ public class GaugePanel extends LinearLayout implements View.OnLongClickListener
 
     public GaugePanel(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
+        int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+        int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
+        int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
+
+        int width = 0;
+        int height = 0;
+
+        int lineWidth = 0;
+        int lineHeight = 0;
+
+        int childCount = getChildCount();
+
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            boolean lastChild = i == childCount - 1;
+
+            if (child.getVisibility() == View.GONE) {
+                if (lastChild) {
+                    width += lineWidth;
+                    height = Math.max(height, lineHeight);
+                }
+                continue;
+            }
+
+            measureChild(child, widthMeasureSpec, heightMeasureSpec);
+            LayoutParams lp = child.getLayoutParams();
+
+            int childWidthMode = MeasureSpec.AT_MOST;
+            int childWidthSize = sizeWidth;
+
+            int childHeightMode = MeasureSpec.AT_MOST;
+            int childHeightSize = sizeHeight;
+
+            if (lp.width == LayoutParams.MATCH_PARENT) {
+                childWidthMode = MeasureSpec.EXACTLY;
+            } else if (lp.width >= 0) {
+                childWidthMode = MeasureSpec.EXACTLY;
+                childWidthSize = lp.width;
+            } else if (modeWidth == MeasureSpec.UNSPECIFIED) {
+                childWidthMode = MeasureSpec.UNSPECIFIED;
+                childWidthSize = 0;
+            }
+
+            if (lp.width == LayoutParams.MATCH_PARENT) {
+                childWidthMode = MeasureSpec.EXACTLY;
+            } else if (lp.height >= 0) {
+                childHeightMode = MeasureSpec.EXACTLY;
+                childHeightSize = lp.height;
+            } else if (modeHeight == MeasureSpec.UNSPECIFIED) {
+                childHeightMode = MeasureSpec.UNSPECIFIED;
+                childHeightSize = 0;
+            }
+
+            child.measure(
+                    MeasureSpec.makeMeasureSpec(childWidthSize, childWidthMode),
+                    MeasureSpec.makeMeasureSpec(childHeightSize, childHeightMode)
+            );
+
+            int childHeight = child.getMeasuredHeight();
+
+            if (lineHeight + childHeight > sizeHeight) {
+                height = Math.max(height, lineHeight);
+                lineHeight = childHeight;
+                width += lineWidth;
+                lineWidth = child.getMeasuredWidth();
+            } else {
+                lineHeight += childHeight;
+                lineWidth = Math.max(lineWidth, child.getMeasuredWidth());
+            }
+
+            if (lastChild) {
+                height = Math.max(height, lineHeight);
+                width += lineWidth;
+            }
+        }
+
+        width += getPaddingLeft() + getPaddingRight();
+        height += getPaddingTop() + getPaddingBottom();
+
+        setMeasuredDimension(
+                (modeWidth == MeasureSpec.EXACTLY) ? sizeWidth : width,
+                (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        mLines.clear();
+        mLineWidths.clear();
+
+        int width = getWidth();
+        int height = getHeight();
+
+        int childCount = getChildCount();
+
+        int linesSum = getPaddingTop();
+
+        int lineWidth = 0;
+        int lineHeight = 0;
+        List<View> lineViews = new ArrayList<>();
+
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == View.GONE) {
+                continue;
+            }
+
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
+
+            if (lineHeight + childHeight > height) {
+                mLineWidths.add(lineWidth);
+                mLines.add(lineViews);
+
+                linesSum += lineWidth;
+
+                lineHeight = 0;
+                lineWidth = 0;
+                lineViews = new ArrayList<>();
+            }
+
+            lineHeight += childHeight;
+            lineWidth = Math.max(lineWidth, childWidth);
+            lineViews.add(child);
+        }
+
+        mLineWidths.add(lineWidth);
+        mLines.add(lineViews);
+
+        linesSum += lineWidth;
+
+        int horizontalGravityMargin = width - linesSum;
+        int numLines = mLines.size();
+        int top;
+        int left = getPaddingLeft();
+
+        for (int i = 0; i < numLines; i++) {
+            lineWidth = mLineWidths.get(i);
+            lineViews = mLines.get(i);
+            top = getPaddingTop();
+            int children = lineViews.size();
+
+            for (int j = 0; j < children; j++) {
+                View child = lineViews.get(j);
+
+                if (child.getVisibility() == View.GONE)
+                    continue;
+
+                int childWidth = child.getMeasuredWidth();
+                int childHeight = child.getMeasuredHeight();
+                int gravityMargin = lineWidth - childWidth;
+
+                child.layout(left + gravityMargin + horizontalGravityMargin,
+                        top,
+                        left + childWidth + gravityMargin + horizontalGravityMargin,
+                        top + childHeight);
+
+                top += childHeight;
+            }
+
+            left += lineWidth;
+        }
     }
 
     public void initializeGauges(String settings) {

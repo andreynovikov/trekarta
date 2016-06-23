@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="end"
     android:orientation="vertical"
+    android:gravity="end"
     android:padding="@dimen/gauge_padding">
 
     <!-- TODO Check ems -->
@@ -11,9 +11,9 @@
         android:id="@+id/gaugeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minEms="2"
         android:gravity="end"
         android:lines="1"
+        android:minEms="2"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold" />
 
@@ -21,6 +21,7 @@
         android:id="@+id/gaugeUnit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:lines="1"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>
