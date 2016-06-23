@@ -203,6 +203,11 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private float mFingerTipSize;
+    private int mColorAccent;
+    private int mColorPrimaryDark;
+    private int mPanelSolidBackground;
+    private int mPanelBackground;
+    private int mPanelExtendedBackground;
 
     private ProgressHandler mProgressHandler;
 
@@ -293,6 +298,14 @@ public class MainActivity extends Activity implements ILocationListener,
         Log.e(TAG, "onCreate()");
         setContentView(R.layout.activity_main);
 
+        Resources resources = getResources();
+        Resources.Theme theme = getTheme();
+        mColorAccent = resources.getColor(R.color.colorAccent, theme);
+        mColorPrimaryDark = resources.getColor(R.color.colorPrimaryDark, theme);
+        mPanelBackground = resources.getColor(R.color.panelBackground, theme);
+        mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
+        mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
+
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
         mBackgroundThread.setPriority(Thread.MIN_PRIORITY);
@@ -311,8 +324,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mFingerTipSize = (float) (metrics.ydpi * 0.25);
 
         // Apply default styles at start
-        TrackStyle.DEFAULT_COLOR = getColor(R.color.trackColor);
-        TrackStyle.DEFAULT_WIDTH = getResources().getInteger(R.integer.trackWidth);
+        TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
+        TrackStyle.DEFAULT_WIDTH = resources.getInteger(R.integer.trackWidth);
 
         File mapsDir = getExternalFilesDir("maps");
 
@@ -381,8 +394,6 @@ public class MainActivity extends Activity implements ILocationListener,
         MapPosition mapPosition = Configuration.getPosition();
         mMap.setMapPosition(mapPosition);
 
-        Resources resources = getResources();
-        Resources.Theme theme = getTheme();
         mNavigationNorthDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_north, theme);
         mNavigationTrackDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_track, theme);
         mMyLocationDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_my_location, theme);
@@ -544,7 +555,7 @@ public class MainActivity extends Activity implements ILocationListener,
         getLoaderManager();
 
         // Remove splash from background
-        getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.colorBackground)));
+        getWindow().setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
 
         onNewIntent(getIntent());
     }
@@ -1392,7 +1403,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void updateLocationDrawable() {
         if (mRecordButton.getTag() != mTrackingState) {
-            int recordColor = getColor(mTrackingState == TRACKING_STATE.TRACKING ? R.color.colorAccent : R.color.colorPrimaryDark);
+            int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorPrimaryDark;
             mRecordButton.getDrawable().setTint(recordColor);
             mRecordButton.setTag(mTrackingState);
         }
@@ -1404,11 +1415,11 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         switch (mLocationState) {
             case DISABLED:
-                mNavigationNorthDrawable.setTint(getColor(R.color.colorPrimaryDark));
+                mNavigationNorthDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 break;
             case SEARCHING:
-                mLocationSearchingDrawable.setTint(getColor(R.color.colorAccent));
+                mLocationSearchingDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mLocationSearchingDrawable);
                 Animation rotation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotation.setInterpolator(new LinearInterpolator());
@@ -1429,17 +1440,17 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
                 break;
             case ENABLED:
-                mMyLocationDrawable.setTint(getColor(R.color.colorPrimaryDark));
+                mMyLocationDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
                 mGaugePanel.animate().translationX(-mGaugePanel.getWidth());
                 break;
             case NORTH:
-                mNavigationNorthDrawable.setTint(getColor(R.color.colorAccent));
+                mNavigationNorthDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 mGaugePanel.animate().translationX(0);
                 break;
             case TRACK:
-                mNavigationTrackDrawable.setTint(getColor(R.color.colorAccent));
+                mNavigationTrackDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
                 mGaugePanel.animate().translationX(0);
         }
@@ -1450,7 +1461,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 locationStateChangeListener.onLocationStateChanged(mLocationState);
             }
         }
-
     }
 
     private void updateGauges() {
@@ -2163,24 +2173,24 @@ public class MainActivity extends Activity implements ILocationListener,
 
         int thisFrom, thisTo, otherFrom, otherTo;
         if (state == PANEL_STATE.NONE) {
-            thisFrom = R.color.panelSolidBackground;
-            thisTo = R.color.panelBackground;
-            otherFrom = R.color.panelExtendedBackground;
-            otherTo = R.color.panelBackground;
+            thisFrom = mPanelSolidBackground;
+            thisTo = mPanelBackground;
+            otherFrom = mPanelExtendedBackground;
+            otherTo = mPanelBackground;
         } else {
             if (mPanelState == PANEL_STATE.NONE)
-                thisFrom = R.color.panelBackground;
+                thisFrom = mPanelBackground;
             else
-                thisFrom = R.color.panelExtendedBackground;
-            thisTo = R.color.panelSolidBackground;
+                thisFrom = mPanelExtendedBackground;
+            thisTo = mPanelSolidBackground;
             if (mPanelState == PANEL_STATE.NONE)
-                otherFrom = R.color.panelBackground;
+                otherFrom = mPanelBackground;
             else
-                otherFrom = R.color.panelSolidBackground;
-            otherTo = R.color.panelExtendedBackground;
+                otherFrom = mPanelSolidBackground;
+            otherTo = mPanelExtendedBackground;
         }
-        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(otherFrom), getColor(otherTo));
-        ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(thisFrom), getColor(thisTo));
+        ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), otherFrom, otherTo);
+        ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), thisFrom, thisTo);
         thisColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
