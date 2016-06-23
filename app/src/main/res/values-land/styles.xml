@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Scrollbar">
+        <item name="android:verticalScrollbarPosition">left</item>
+    </style>
+
+    <style name="FloatingActionButton">
+        <item name="layout_anchorGravity">top|start</item>
+    </style>
+
+    <style name="PanelHolder">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">end</item>
+    </style>
+
+    <style name="ActionPanel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ContentPanel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_gravity">bottom|end</item>
+    </style>
+
+    <style name="ExtendPanel">
+        <item name="android:layout_toStartOf">@id/actionPanel</item>
+    </style>
+
+    <style name="ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginBottom">-6dp</item>
+    </style>
+
+    <style name="Compass">
+        <item name="android:layout_gravity">bottom|start</item>
+    </style>
+
+    <style name="NavigationArrow">
+        <item name="android:layout_gravity">bottom|start</item>
+        <item name="android:layout_marginStart">@dimen/image_button_size</item>
+    </style>
+</resources>

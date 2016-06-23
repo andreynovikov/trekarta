@@ -2,12 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
     android:animateLayoutChanges="true"
     android:background="@color/panelSolidBackground"
     android:paddingEnd="@dimen/fragment_padding"
-    android:paddingStart="@dimen/fragment_padding"
+    android:paddingStart="@dimen/fragment_with_fab_start_padding"
     tools:context=".fragments.WaypointInformation">
 
     <View

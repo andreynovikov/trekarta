@@ -241,6 +241,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
     private CoordinatorLayout mCoordinatorLayout;
+    private boolean mVerticalOrientation;
+    private int mSlideGravity;
 
     private long mLastLocationMilliseconds = 0;
     private int mMovementAnimationDuration = BaseLocationService.LOCATION_DELAY;
@@ -644,6 +646,8 @@ public class MainActivity extends Activity implements ILocationListener,
             enableNavigation();
         }
 
+        mVerticalOrientation = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
         updateMapViewArea();
 
         mMap.events.bind(this);
@@ -820,10 +824,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
             case R.id.action_about:
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
-                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
-                fragment.setReturnTransition(new Slide(Gravity.BOTTOM));
+                fragment.setEnterTransition(new Slide(mSlideGravity));
+                fragment.setReturnTransition(new Slide(mSlideGravity));
                 FragmentTransaction ft = mFragmentManager.beginTransaction();
-                //ft.setCustomAnimations(R.animator.slide_in_up, R.animator.slide_out_up, R.animator.slide_out_up, R.animator.slide_in_up);
                 ft.replace(R.id.contentPanel, fragment, "about");
                 ft.addToBackStack("about");
                 ft.commit();
@@ -1509,7 +1512,6 @@ public class MainActivity extends Activity implements ILocationListener,
         if (fragment == null) {
             fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
             Slide slide = new Slide(Gravity.BOTTOM);
-            //slide.setInterpolator(new AccelerateDecelerateInterpolator());
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
@@ -1520,10 +1522,9 @@ public class MainActivity extends Activity implements ILocationListener,
             updateMapViewArea();
         }
         ((WaypointInformation) fragment).setWaypoint(waypoint);
-        ViewGroup extendPanel = (ViewGroup) findViewById(R.id.extendPanel);
-        extendPanel.setForeground(getDrawable(R.drawable.dim));
-        extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(extendPanel.getForeground(), "alpha", 0, 255);
+        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
+        mExtendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -1755,7 +1756,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
             fragment = Fragment.instantiate(this, TrackInformation.class.getName());
-            Slide slide = new Slide(Gravity.BOTTOM);
+            Slide slide = new Slide(mSlideGravity);
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
@@ -1766,10 +1767,9 @@ public class MainActivity extends Activity implements ILocationListener,
             updateMapViewArea();
         }
         ((TrackInformation) fragment).setTrack(track, current);
-        ViewGroup extendPanel = (ViewGroup) findViewById(R.id.extendPanel);
-        extendPanel.setForeground(getDrawable(R.drawable.dim));
-        extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(extendPanel.getForeground(), "alpha", 0, 255);
+        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
+        mExtendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -2037,24 +2037,34 @@ public class MainActivity extends Activity implements ILocationListener,
             case LOCATION:
             case RECORD:
             case PLACES:
-                params.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                if (mVerticalOrientation) {
+                    params.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                } else {
+                    params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                }
                 break;
             case MAPS:
             case MORE:
-                params.removeRule(RelativeLayout.ALIGN_PARENT_START);
-                params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                if (mVerticalOrientation) {
+                    params.removeRule(RelativeLayout.ALIGN_PARENT_START);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                } else {
+                    params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                }
         }
         mExtendPanel.setLayoutParams(params);
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
+        fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
             @Override
             public Animator onAppear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
             }
         }));
-        fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(Gravity.BOTTOM)).addTransition(new Visibility() {
+        fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
             @Override
             public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
                 return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
@@ -2372,9 +2382,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 if (v != null)
                     area.bottom = v.getTop();
                 if (mPanelState != PANEL_STATE.NONE) {
-                    v = findViewById(R.id.extendPanel);
-                    if (v != null)
-                        area.bottom = v.getTop();
+                    area.bottom = mExtendPanel.getTop();
                 }
                 v = findViewById(R.id.contentPanel);
                 if (v != null)
@@ -2653,7 +2661,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Bundle args = new Bundle(2);
         args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
-        args.putInt(DataList.ARG_HEIGHT, findViewById(R.id.extendPanel).getHeight());
+        args.putInt(DataList.ARG_HEIGHT, mExtendPanel.getHeight());
         DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
         fragment.setDataSource(source);
         FragmentTransaction ft = mFragmentManager.beginTransaction();
