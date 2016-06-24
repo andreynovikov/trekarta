@@ -58,6 +58,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -98,6 +99,7 @@ import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
+import org.oscim.renderer.BitmapRenderer;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.CombinedTileSource;
 import org.oscim.tiling.OnDataMissingListener;
@@ -260,6 +262,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private VectorTileLayer mBaseLayer;
     private BuildingLayer mBuildingsLayer;
+    private MapScaleBar mScaleBar;
     private LabelLayer mLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
@@ -443,7 +446,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
         //layers.add(new MapCoverageLayer(mMap));
-        layers.add(new MapScaleBar(mMapView));
+        mScaleBar = new MapScaleBar(mMapView);
+        layers.add(mScaleBar);
         layers.add(mLocationOverlay);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
@@ -1413,6 +1417,16 @@ public class MainActivity extends Activity implements ILocationListener,
             mLocationButton.clearAnimation();
             mSatellitesText.animate().translationY(-200);
         }
+        final ViewPropertyAnimator gaugePanelAnimator = mGaugePanel.animate();
+        gaugePanelAnimator.setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mLocationState == LocationState.SEARCHING)
+                    mSatellitesText.animate().translationY(8);
+                gaugePanelAnimator.setListener(null);
+                updateMapViewArea();
+            }
+        });
         switch (mLocationState) {
             case DISABLED:
                 mNavigationNorthDrawable.setTint(mColorPrimaryDark);
@@ -1429,30 +1443,23 @@ public class MainActivity extends Activity implements ILocationListener,
                 if (mGaugePanel.getVisibility() == View.INVISIBLE) {
                     mSatellitesText.animate().translationY(8);
                 } else {
-                    mGaugePanel.animate().translationX(-mGaugePanel.getWidth()).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            if (mLocationState == LocationState.SEARCHING)
-                                mSatellitesText.animate().translationY(8);
-                            mGaugePanel.animate().setListener(null);
-                        }
-                    });
+                    gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
                 }
                 break;
             case ENABLED:
                 mMyLocationDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
-                mGaugePanel.animate().translationX(-mGaugePanel.getWidth());
+                gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
-                mGaugePanel.animate().translationX(0);
+                gaugePanelAnimator.translationX(0);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
-                mGaugePanel.animate().translationX(0);
+                gaugePanelAnimator.translationX(0);
         }
         mLocationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
@@ -1509,6 +1516,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mNavigationLayer = null;
             }
         }
+        updateMapViewArea();
     }
 
     private void onWaypointProperties(Waypoint waypoint) {
@@ -2400,24 +2408,33 @@ public class MainActivity extends Activity implements ILocationListener,
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 Log.e(TAG, "onGlobalLayout()");
+
+                if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
+                    mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
+                    mGaugePanel.setVisibility(View.VISIBLE);
+                    mGaugePanel.setTag(null);
+                }
+
                 Rect area = new Rect();
                 mMapView.getLocalVisibleRect(area);
                 int mapWidth = area.width();
                 int mapHeight = area.height();
 
-                /*
-                if (mGaugePanel != null)
-                    area.left = mGaugePanel.getRight();
-                */
+                area.left = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
+
                 View v = findViewById(R.id.actionPanel);
-                if (v != null)
-                    area.bottom = v.getTop();
-                if (mPanelState != PANEL_STATE.NONE) {
-                    area.bottom = mExtendPanel.getTop();
+                if (v != null) {
+                    if (mVerticalOrientation)
+                        area.bottom = v.getTop();
+                    else
+                        area.right = v.getLeft();
                 }
-                v = findViewById(R.id.contentPanel);
-                if (v != null)
-                    area.bottom = Math.min(area.bottom, v.getTop());
+                if (mPanelState != PANEL_STATE.NONE) {
+                    if (mVerticalOrientation)
+                        area.bottom = mExtendPanel.getTop();
+                    else
+                        area.right = mExtendPanel.getLeft();
+                }
                 /*
                 if (mapLicense.isShown())
                 {
@@ -2427,22 +2444,9 @@ public class MainActivity extends Activity implements ILocationListener,
                         area.bottom = mapLicense.getTop();
                 }
                 */
-                /*
-                v = root.findViewById(R.id.rightbar);
-                if (v != null)
-                    area.right = v.getLeft();
-                if (mapButtons.isShown())
-                {
-                    // Landscape mode
-                    if (v != null)
-                        area.bottom = mapButtons.getTop();
-                    else
-                        area.right = mapButtons.getLeft();
-                }
-                */
 
                 if (!area.isEmpty()) {
-                    int pointerOffset = (int) (LocationOverlay.LocationIndicator.POINTER_SIZE * 2);
+                    int pointerOffset = (int) (LocationOverlay.LocationIndicator.POINTER_SIZE * 1.1f);
                     int centerX = mapWidth / 2;
                     int centerY = mapHeight / 2;
                     mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
@@ -2452,8 +2456,11 @@ public class MainActivity extends Activity implements ILocationListener,
                     if (mMovingOffset < 0)
                         mMovingOffset = 0;
 
-                    mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset;
+                    mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
                     mLocationOverlay.setPinned(false);
+
+                    //TODO Use dp units for padding
+                    ((BitmapRenderer) mScaleBar.getRenderer()).setDrawOffset(false, area.left + 16, 16);
                 }
 
                 ViewTreeObserver ob;
@@ -2463,12 +2470,6 @@ public class MainActivity extends Activity implements ILocationListener,
                     ob = mMapView.getViewTreeObserver();
 
                 ob.removeOnGlobalLayoutListener(this);
-
-                if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
-                    mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
-                    mGaugePanel.setVisibility(View.VISIBLE);
-                    mGaugePanel.setTag(null);
-                }
             }
         });
     }

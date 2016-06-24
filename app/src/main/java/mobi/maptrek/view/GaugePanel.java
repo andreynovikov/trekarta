@@ -22,6 +22,7 @@ import mobi.maptrek.util.StringFormatter;
 /**
  * Wrapping is based on https://github.com/blazsolar/FlowLayout
  */
+//TODO Redesign to balance gauge quantity in columns
 public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener {
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
 

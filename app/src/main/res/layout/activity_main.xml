@@ -23,12 +23,13 @@
 
     <mobi.maptrek.view.GaugePanel
         android:id="@+id/gaugePanel"
+        style="@style/GaugePanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="@dimen/gauge_padding"
         android:background="#99ffffff"
-        android:padding="4dp"
+        android:padding="@dimen/gauge_padding"
         android:visibility="invisible" />
 
     <TextView

@@ -44,4 +44,8 @@
         <item name="android:layout_gravity">bottom|start</item>
         <item name="android:layout_marginStart">@dimen/image_button_size</item>
     </style>
+
+    <style name="GaugePanel">
+        <item name="android:layout_marginBottom">@dimen/image_button_size_with_gap</item>
+    </style>
 </resources>
