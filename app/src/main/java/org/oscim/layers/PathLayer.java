@@ -1,10 +1,28 @@
-package mobi.maptrek.layers;
+/*
+ * Copyright 2012 osmdroid authors: Viesturs Zarins, Martin Pearman
+ * Copyright 2012 Hannes Janetzek
+ *
+ * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.oscim.layers;
 
 import org.oscim.backend.canvas.Paint.Cap;
+import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Tile;
-import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.renderer.BucketRenderer;
 import org.oscim.renderer.GLViewport;
@@ -15,17 +33,18 @@ import org.oscim.utils.FastMath;
 import org.oscim.utils.async.SimpleWorker;
 import org.oscim.utils.geom.LineClipper;
 
-import mobi.maptrek.data.Track;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class draws a path line in given color.
  */
-public class TrackLayer extends Layer {
+public class PathLayer extends Layer {
 
     /**
-     * Stores points, converted to the map projection.
+     * Stores polygonPoints, converted to the map projection.
      */
-    protected final Track mTrack;
+    protected final ArrayList<GeoPoint> mPoints;
     protected boolean mUpdatePoints;
 
     /**
@@ -35,12 +54,47 @@ public class TrackLayer extends Layer {
 
     final Worker mWorker;
 
-    public TrackLayer(Map map, Track track) {
+    public PathLayer(Map map, int lineColor, float lineWidth) {
         super(map);
         mWorker = new Worker(map);
-        mLineStyle = new LineStyle(track.style.color, track.style.width, Cap.BUTT);
+        mLineStyle = new LineStyle(lineColor, lineWidth, Cap.BUTT);
         mRenderer = new RenderPath();
-        mTrack = track;
+        mPoints = new ArrayList<>();
+    }
+
+    public PathLayer(Map map, int lineColor) {
+        this(map, lineColor, 2);
+    }
+
+    public void clearPath() {
+        if (mPoints.isEmpty())
+            return;
+
+        synchronized (mPoints) {
+            mPoints.clear();
+        }
+        updatePoints();
+    }
+
+    public void setPoints(List<GeoPoint> pts) {
+        synchronized (mPoints) {
+            mPoints.clear();
+            mPoints.addAll(pts);
+        }
+        updatePoints();
+    }
+
+    public void addPoint(GeoPoint pt) {
+        synchronized (mPoints) {
+            mPoints.add(pt);
+        }
+        updatePoints();
+    }
+
+    public void addPoint(int latitudeE6, int longitudeE6) {
+        synchronized (mPoints) {
+            mPoints.add(new GeoPoint(latitudeE6, longitudeE6));
+        }
         updatePoints();
     }
 
@@ -49,13 +103,67 @@ public class TrackLayer extends Layer {
         mUpdatePoints = true;
     }
 
-    public Track getTrack() {
-        return mTrack;
+    public List<GeoPoint> getPoints() {
+        return mPoints;
     }
 
-    public void setColor(int color) {
-        mLineStyle = new LineStyle(color, mLineStyle.width, mLineStyle.cap);
-        mWorker.submit(10);
+    /**
+     * Draw a great circle. Calculate a point for every 100km along the path.
+     *
+     * @param startPoint start point of the great circle
+     * @param endPoint   end point of the great circle
+     */
+    public void addGreatCircle(GeoPoint startPoint, GeoPoint endPoint) {
+        synchronized (mPoints) {
+
+			/* get the great circle path length in meters */
+            double length = startPoint.distanceTo(endPoint);
+
+			/* add one point for every 10kms of the great circle path */
+            int numberOfPoints = (int) (length / 10000);
+
+            addGreatCircle(startPoint, endPoint, numberOfPoints);
+        }
+    }
+
+    /**
+     * Draw a great circle.
+     *
+     * @param startPoint     start point of the great circle
+     * @param endPoint       end point of the great circle
+     * @param numberOfPoints number of polygonPoints to calculate along the path
+     */
+    public void addGreatCircle(GeoPoint startPoint, GeoPoint endPoint, final int numberOfPoints) {
+        if (numberOfPoints == 0)
+            return;
+
+        // adapted from page
+        // http://compastic.blogspot.co.uk/2011/07/how-to-draw-great-circle-on-map-in.html
+        // which was adapted from page http://maps.forum.nu/gm_flight_path.html
+
+        // convert to radians
+        double lat1 = startPoint.getLatitude() * Math.PI / 180;
+        double lon1 = startPoint.getLongitude() * Math.PI / 180;
+        double lat2 = endPoint.getLatitude() * Math.PI / 180;
+        double lon2 = endPoint.getLongitude() * Math.PI / 180;
+
+        double d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat1 - lat2) / 2), 2)
+                + Math.cos(lat1) * Math.cos(lat2)
+                * Math.pow(Math.sin((lon1 - lon2) / 2), 2)));
+
+        for (int i = 0, j = numberOfPoints + 1; i < j; i++) {
+            double f = 1.0 / numberOfPoints * i;
+            double A = Math.sin((1 - f) * d) / Math.sin(d);
+            double B = Math.sin(f * d) / Math.sin(d);
+            double x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
+            double y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
+            double z = A * Math.sin(lat1) + B * Math.sin(lat2);
+
+            //noinspection SuspiciousNameCombination
+            double latN = Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+            double lonN = Math.atan2(y, x);
+            addPoint((int) (latN / (Math.PI / 180) * 1E6), (int) (lonN / (Math.PI / 180) * 1E6));
+        }
     }
 
     /***
@@ -105,7 +213,7 @@ public class TrackLayer extends Layer {
     }
 
     final class Worker extends SimpleWorker<Task> {
-        private static final int GROW_INDICES = 32;
+
         // limit coords
         private final int max = 2048;
 
@@ -117,16 +225,13 @@ public class TrackLayer extends Layer {
 
         private static final int MIN_DIST = 3;
 
-        // pre-projected points
+        // pre-projected polygonPoints
         private double[] mPreprojected = new double[2];
 
-        // projected points
+        // projected polygonPoints
         private float[] mPPoints;
         private final LineClipper mClipper;
         private int mNumPoints;
-
-        // tear index
-        private int[] index = new int[1];
 
         @Override
         public boolean doWork(Task task) {
@@ -134,12 +239,11 @@ public class TrackLayer extends Layer {
             int size = mNumPoints;
 
             if (mUpdatePoints) {
-                synchronized (mTrack) {
+                synchronized (mPoints) {
                     mUpdatePoints = false;
-                    int indexPos = 0;
-                    index[indexPos] = -1;
-                    mNumPoints = size = mTrack.points.size();
+                    mNumPoints = size = mPoints.size();
 
+                    ArrayList<GeoPoint> geopoints = mPoints;
                     double[] points = mPreprojected;
 
                     if (size * 2 >= points.length) {
@@ -147,19 +251,8 @@ public class TrackLayer extends Layer {
                         mPPoints = new float[size * 2];
                     }
 
-                    for (int i = 0; i < size; i++) {
-                        Track.TrackPoint point = mTrack.points.get(i);
-                        MercatorProjection.project(point, points, i);
-                        if (!point.continuous && i > 0) {
-                            if (indexPos + 1 >= index.length)
-                                ensureIndexSize(indexPos + 1, true);
-                            index[indexPos] = i;
-                            indexPos++;
-                            if (index.length > indexPos + 1)
-                                index[indexPos] = -1;
-                        }
-
-                    }
+                    for (int i = 0; i < size; i++)
+                        MercatorProjection.project(geopoints.get(i), points, i);
                 }
             }
 
@@ -211,22 +304,10 @@ public class TrackLayer extends Layer {
 
             float[] segment = null;
 
-            int indexPos = 0;
-
             for (int j = 2; j < size * 2; j += 2) {
                 //noinspection PointlessArithmeticExpression
                 x = (int) ((mPreprojected[j + 0] - mx) * scale);
                 y = (int) ((mPreprojected[j + 1] - my) * scale);
-
-                if (index[indexPos] == (j >> 1)) {
-                    if (i > 2)
-                        ll.addLine(projected, i, false);
-
-                    mClipper.clipStart(x, y);
-                    i = addPoint(projected, 0, x, y);
-                    indexPos++;
-                    continue;
-                }
 
                 int flipDirection = 0;
                 if (x > maxx) {
@@ -288,26 +369,6 @@ public class TrackLayer extends Layer {
             points[i++] = x;
             points[i++] = y;
             return i;
-        }
-
-        /**
-         * Ensure index size.
-         *
-         * @param size the size
-         * @param copy the copy
-         * @return the short[] array holding current index
-         */
-        public int[] ensureIndexSize(int size, boolean copy) {
-            if (size < index.length)
-                return index;
-
-            int[] newIndex = new int[size + GROW_INDICES];
-            if (copy)
-                System.arraycopy(index, 0, newIndex, 0, index.length);
-
-            index = newIndex;
-
-            return index;
         }
     }
 }
