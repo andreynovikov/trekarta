@@ -147,12 +147,11 @@ public class LocationService extends BaseLocationService implements LocationList
             stopForeground(true);
             if (action.equals(DISABLE_TRACK)) {
                 if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
-                    if (! Configuration.initialized())
+                    if (!Configuration.initialized())
                         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
                     Configuration.setTrackingState(MainActivity.TRACKING_STATE.DISABLED.ordinal());
                 }
                 tryToSaveTrack();
-                clearTrack();
             }
             stopSelf();
         }
@@ -451,12 +450,18 @@ public class LocationService extends BaseLocationService implements LocationList
         mLastTrack.name = DateUtils.formatDateRange(this, startTime, stopTime, flags);
 
         if (period < TOO_SMALL_PERIOD) {
-            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "period"));
+            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE)
+                    .putExtra("saved", false)
+                    .putExtra("reason", "period"));
+            clearTrack();
             return;
         }
 
         if (mLastTrack.getDistance() < TOO_SMALL_DISTANCE) {
-            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "distance"));
+            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE)
+                    .putExtra("saved", false)
+                    .putExtra("reason", "distance"));
+            clearTrack();
             return;
         }
         saveTrack();
@@ -464,13 +469,16 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private void saveTrack() {
         if (mLastTrack == null) {
-            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "missing"));
+            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
+                    .putExtra("reason", "missing"));
             return;
         }
         File dataDir = getExternalFilesDir("data");
         if (dataDir == null) {
             Log.e(TAG, "Can not save track: application data folder missing");
-            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
+            sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
+                    .putExtra("reason", "error")
+                    .putExtra("exception", new RuntimeException("Application data folder missing")));
             return;
         }
         FileDataSource source = new FileDataSource();
@@ -480,13 +488,17 @@ public class LocationService extends BaseLocationService implements LocationList
         Manager.save(this, source, new Manager.OnSaveListener() {
             @Override
             public void onSaved(FileDataSource source) {
-                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true).putExtra("path", source.path));
+                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true)
+                        .putExtra("path", source.path));
+                clearTrack();
                 mLastTrack = null;
             }
 
             @Override
             public void onError(FileDataSource source, Exception e) {
-                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false).putExtra("reason", "error"));
+                sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
+                        .putExtra("reason", "error")
+                        .putExtra("exception", e));
             }
         }, mProgressListener);
     }

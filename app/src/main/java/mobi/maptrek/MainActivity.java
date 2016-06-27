@@ -2596,6 +2596,11 @@ public class MainActivity extends Activity implements ILocationListener,
                                 }
                             });
                     snackbar.show();
+                } else {
+                    Exception e = (Exception) extras.getSerializable("exception");
+                    if (e == null)
+                        e = new RuntimeException("Unknown error");
+                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                 }
             }
             if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATE)) {
