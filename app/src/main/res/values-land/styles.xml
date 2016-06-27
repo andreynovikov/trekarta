@@ -36,13 +36,8 @@
         <item name="android:layout_marginBottom">-6dp</item>
     </style>
 
-    <style name="Compass">
+    <style name="MapButtonHolder">
         <item name="android:layout_gravity">bottom|start</item>
-    </style>
-
-    <style name="NavigationArrow">
-        <item name="android:layout_gravity">bottom|start</item>
-        <item name="android:layout_marginStart">@dimen/image_button_size</item>
     </style>
 
     <style name="GaugePanel">

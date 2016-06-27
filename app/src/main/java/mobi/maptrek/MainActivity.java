@@ -230,6 +230,7 @@ public class MainActivity extends Activity implements ILocationListener,
     protected MapView mMapView;
     private GaugePanel mGaugePanel;
     private TextView mSatellitesText;
+    private View mMapButtonHolder;
     private ImageButton mLocationButton;
     private ImageButton mRecordButton;
     //TODO Temporary fix
@@ -380,8 +381,17 @@ public class MainActivity extends Activity implements ILocationListener,
         mGaugePanel.setMapHolder(this);
 
         mSatellitesText = (TextView) findViewById(R.id.satellites);
+        mMapButtonHolder = findViewById(R.id.mapButtonHolder);
         mCompassView = findViewById(R.id.compass);
         mNavigationArrowView = findViewById(R.id.navigationArrow);
+        mNavigationArrowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MapObject mapObject = mNavigationService.getWaypoint();
+                GeoPoint destination = new GeoPoint(mapObject.latitude, mapObject.longitude);
+                setMapLocation(destination);
+            }
+        });
         mNavigationArrowView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -1398,7 +1408,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void showNavigationMenu() {
-        PopupMenu popup = new PopupMenu(this, mNavigationArrowView);
+        PopupMenu popup = new PopupMenu(this, mMapButtonHolder);
         Menu menu = popup.getMenu();
         menu.add(0, R.id.actionStopNavigation, Menu.NONE, getString(R.string.action_stop_navigation));
         popup.setOnMenuItemClickListener(this);
@@ -2063,7 +2073,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
         if (mPanelState != PANEL_STATE.NONE) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
-            //TODO Make it properly work without "immediate" - that is why exit transactions do not work
+            //TODO Make it properly work without "immediate" - that is why exit transitions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
             if (name.equals(bse.getName())) {
                 setPanelState(PANEL_STATE.NONE);

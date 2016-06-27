@@ -44,30 +44,37 @@
         android:textStyle="bold"
         android:translationY="-200dp" />
 
-    <ImageButton
-        android:id="@+id/compass"
-        style="@style/Compass"
-        android:layout_width="@dimen/image_button_size"
-        android:layout_height="@dimen/image_button_size"
-        android:background="?android:attr/selectableItemBackground"
-        android:elevation="@dimen/panel_elevation"
-        android:onClick="onCompassClicked"
-        android:padding="4dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_compass"
-        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/mapButtonHolder"
+        style="@style/MapButtonHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/gauge_padding"
+        android:layout_marginStart="@dimen/gauge_padding">
 
-    <ImageButton
-        android:id="@+id/navigationArrow"
-        style="@style/NavigationArrow"
-        android:layout_width="@dimen/image_button_size"
-        android:layout_height="@dimen/image_button_size"
-        android:background="?android:attr/selectableItemBackground"
-        android:elevation="@dimen/panel_elevation"
-        android:padding="4dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_navigation_arrow"
-        android:visibility="gone" />
+        <ImageButton
+            android:id="@+id/compass"
+            android:layout_width="@dimen/image_button_size"
+            android:layout_height="@dimen/image_button_size"
+            android:background="?android:attr/selectableItemBackground"
+            android:elevation="@dimen/panel_elevation"
+            android:onClick="onCompassClicked"
+            android:padding="@dimen/gauge_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_compass"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/navigationArrow"
+            android:layout_width="@dimen/image_button_size"
+            android:layout_height="@dimen/image_button_size"
+            android:background="?android:attr/selectableItemBackground"
+            android:elevation="@dimen/panel_elevation"
+            android:padding="@dimen/gauge_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_navigation_arrow"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <RelativeLayout
         style="@style/PanelHolder"
