@@ -131,7 +131,8 @@ public class PanelMenu extends ListFragment {
                             android.R.attr.id,
                             android.R.attr.title,
                             android.R.attr.icon,
-                            android.R.attr.checkable
+                            android.R.attr.checkable,
+                            android.R.attr.actionLayout
                     };
                     TypedArray sa = getContext().obtainStyledAttributes(attrs, set);
                     item.setItemId(sa.getResourceId(0, PanelMenuItem.HEADER_ID_UNDEFINED));
@@ -148,6 +149,10 @@ public class PanelMenu extends ListFragment {
                         item.setIcon(iconRes);
 
                     item.setCheckable(sa.getBoolean(3, false));
+
+                    int actionRes = sa.getResourceId(4, 0);
+                    if (actionRes != 0)
+                        item.setActionView(actionRes);
 
                     sa.recycle();
 
@@ -193,12 +198,30 @@ public class PanelMenu extends ListFragment {
             final MenuItemHolder itemHolder;
             final PanelMenuItem item = getItem(position);
 
-            if (convertView == null) {
+            View actionView = item.getActionView();
+            if (actionView != null) {
+                if (actionView.getTag() == null) {
+                    itemHolder = new MenuItemHolder();
+                    convertView = mInflater.inflate(R.layout.menu_item, parent, false);
+                    itemHolder.title = (TextView) convertView.findViewById(R.id.title);
+                    itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+                    itemHolder.check = (Switch) convertView.findViewById(R.id.check);
+                    itemHolder.action = (ViewGroup) convertView.findViewById(R.id.actionViewContainer);
+                    itemHolder.action.addView(actionView, itemHolder.action.getLayoutParams());
+                    itemHolder.action.setVisibility(View.VISIBLE);
+                    actionView.setTag(convertView);
+                    actionView.setTag(R.id.itemHolder, itemHolder);
+                } else {
+                    convertView = (View) actionView.getTag();
+                    itemHolder = (MenuItemHolder) actionView.getTag(R.id.itemHolder);
+                }
+            } else if (convertView == null || convertView.getTag() == null) {
                 itemHolder = new MenuItemHolder();
                 convertView = mInflater.inflate(R.layout.menu_item, parent, false);
                 itemHolder.title = (TextView) convertView.findViewById(R.id.title);
                 itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
                 itemHolder.check = (Switch) convertView.findViewById(R.id.check);
+                itemHolder.action = (ViewGroup) convertView.findViewById(R.id.actionViewContainer);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (MenuItemHolder) convertView.getTag();
@@ -210,7 +233,7 @@ public class PanelMenu extends ListFragment {
             final View view = convertView;
             final ListView listView = getListView();
             if (item.isCheckable()) {
-                //TODO Strange situation: clicked listener is set
+                // itemHolder is reused - unset change listener first
                 itemHolder.check.setOnCheckedChangeListener(null);
                 itemHolder.check.setChecked(item.isChecked());
                 itemHolder.check.setVisibility(View.VISIBLE);
@@ -225,6 +248,9 @@ public class PanelMenu extends ListFragment {
             } else {
                 itemHolder.check.setVisibility(View.GONE);
                 itemHolder.check.setOnCheckedChangeListener(null);
+            }
+            if (actionView == null) {
+                itemHolder.action.setVisibility(View.GONE);
             }
             // Make hole item clickable in any case
             convertView.setOnClickListener(new View.OnClickListener() {
@@ -247,6 +273,7 @@ public class PanelMenu extends ListFragment {
         TextView title;
         Switch check;
         ImageView icon;
+        ViewGroup action;
     }
 
     public interface OnPrepareMenuListener {

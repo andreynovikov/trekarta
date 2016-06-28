@@ -31,4 +31,12 @@
         android:paddingEnd="3dip"
         android:paddingStart="3dip" />
 
+    <FrameLayout
+        android:id="@+id/actionViewContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingEnd="8dip"
+        android:paddingStart="8dip" />
+
 </LinearLayout>

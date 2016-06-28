@@ -91,6 +91,22 @@ public class SunriseSunset {
         return adjustTime(T - lngHour);
     }
 
+    public boolean isDaytime(double now) {
+        double sunrise = compute(true);
+        double sunset = compute(false);
+        // sun never sets
+        if (sunrise == Double.MIN_VALUE || sunset == Double.MIN_NORMAL)
+            return true;
+        // sun never rises
+        if (sunrise == Double.MAX_VALUE || sunset == Double.MAX_VALUE)
+            return false;
+        // sun sets after midnight
+        if (sunrise > sunset)
+            return !(now < sunrise && now > sunset);
+        // sun sets before midnight
+        return now < sunset && now > sunrise;
+    }
+
     private static double adjustDegrees(double degrees) {
         if (degrees >= 360d)
             degrees -= 360d;

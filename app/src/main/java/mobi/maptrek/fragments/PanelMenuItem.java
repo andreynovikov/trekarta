@@ -7,6 +7,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -50,6 +51,13 @@ public class PanelMenuItem implements MenuItem {
      * @attr ref R.styleable#MenuItem_checkable
      */
     private Boolean checked;
+
+    /**
+     * Optional action view.
+     *
+     * @attr ref R.styleable#MenuItem_actionLayout
+     */
+    private View actionView;
 
     private Context mContext;
 
@@ -240,19 +248,20 @@ public class PanelMenuItem implements MenuItem {
 
     @Override
     public PanelMenuItem setActionView(View view) {
-        //FIXME Unimplemented
+        this.actionView = view;
         return this;
     }
 
     @Override
     public PanelMenuItem setActionView(int resId) {
-        //FIXME Unimplemented
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.actionView = inflater.inflate(resId, null);
         return this;
     }
 
     @Override
     public View getActionView() {
-        return null;
+        return actionView;
     }
 
     @Override

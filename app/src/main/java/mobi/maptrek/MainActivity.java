@@ -164,6 +164,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
 
@@ -189,6 +190,8 @@ public class MainActivity extends Activity implements ILocationListener,
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
 
+    private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
+
     public enum TRACKING_STATE {
         DISABLED,
         PENDING,
@@ -202,6 +205,12 @@ public class MainActivity extends Activity implements ILocationListener,
         PLACES,
         MAPS,
         MORE
+    }
+
+    public enum NIGHT_MODE_STATE {
+        AUTO,
+        DAY,
+        NIGHT
     }
 
     private float mFingerTipSize;
@@ -252,9 +261,14 @@ public class MainActivity extends Activity implements ILocationListener,
     private boolean mVerticalOrientation;
     private int mSlideGravity;
 
-    private long mLastLocationMilliseconds = 0;
+    private long mLastLocationMilliseconds = 0L;
     private int mMovementAnimationDuration = BaseLocationService.LOCATION_DELAY;
-    private float mAveragedBearing = 0;
+    private float mAveragedBearing = 0f;
+
+    private SunriseSunset mSunriseSunset;
+    private NIGHT_MODE_STATE mNightModeState;
+    private boolean mNightMode = false;
+    private long mNextNightCheck = 0L;
 
     private VectorDrawable mNavigationNorthDrawable;
     private VectorDrawable mNavigationTrackDrawable;
@@ -326,6 +340,9 @@ public class MainActivity extends Activity implements ILocationListener,
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         // Estimate finger tip height (0.25 inch is obtained from experiments)
         mFingerTipSize = (float) (metrics.ydpi * 0.25);
+
+        mSunriseSunset = new SunriseSunset();
+        mNightModeState = NIGHT_MODE_STATE.values()[Configuration.getNightModeState()];
 
         // Apply default styles at start
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
@@ -434,7 +451,14 @@ public class MainActivity extends Activity implements ILocationListener,
         }
 
         mMap.setBaseMap(mBaseLayer);
-        mMap.setTheme(VtmThemes.DEFAULT);
+
+        if (mNightModeState == NIGHT_MODE_STATE.NIGHT ||
+                savedInstanceState != null && savedInstanceState.getBoolean("nightMode")) {
+            mMap.setTheme(VtmThemes.TRONRENDER);
+            mNightMode = true;
+        } else {
+            mMap.setTheme(VtmThemes.DEFAULT);
+        }
 
         mGridLayer = new TileGridLayer(mMap);
         mLocationOverlay = new LocationOverlay(mMap);
@@ -791,6 +815,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mProgressBar.getVisibility() == View.VISIBLE)
             savedInstanceState.putInt("progressBar", mProgressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
+        savedInstanceState.putBoolean("nightMode", mNightMode);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -815,20 +840,25 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.theme_default:
-                mMap.setTheme(VtmThemes.DEFAULT);
-                return true;
-
-            case R.id.theme_tubes:
-                mMap.setTheme(VtmThemes.TRONRENDER);
+            case R.id.action_night_mode:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.action_night_mode);
+                builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        mNightModeState = NIGHT_MODE_STATE.values()[which];
+                        if (mNightModeState == NIGHT_MODE_STATE.DAY && mNightMode)
+                            setNightMode(false);
+                        if (mNightModeState == NIGHT_MODE_STATE.NIGHT && !mNightMode)
+                            setNightMode(true);
+                        Configuration.setNightModeState(mNightModeState.ordinal());
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 return true;
 
             case R.id.theme_osmarender:
                 mMap.setTheme(VtmThemes.OSMARENDER);
-                return true;
-
-            case R.id.theme_newtron:
-                mMap.setTheme(VtmThemes.NEWTRON);
                 return true;
 
             case R.id.action_3dbuildings:
@@ -845,6 +875,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 Configuration.setBuildingsLayerEnabled(mBuildingsLayerEnabled);
                 mMap.updateMap(true);
                 return true;
+
             case R.id.action_grid:
                 if (item.isChecked()) {
                     mMap.layers().add(mGridLayer);
@@ -936,6 +967,8 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mNavigationLayer != null)
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
+        if (mNightModeState == NIGHT_MODE_STATE.AUTO)
+            checkNightMode(location);
     }
 
     @Override
@@ -1102,6 +1135,10 @@ public class MainActivity extends Activity implements ILocationListener,
             public void onPrepareMenu(List<PanelMenuItem> menu) {
                 for (PanelMenuItem item : menu) {
                     switch (item.getItemId()) {
+                        case R.id.action_night_mode:
+                            String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
+                            ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+                            break;
                         case R.id.action_3dbuildings:
                             item.setChecked(mBuildingsLayerEnabled);
                             break;
@@ -2750,6 +2787,27 @@ public class MainActivity extends Activity implements ILocationListener,
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void checkNightMode(Location location) {
+        if (mNextNightCheck > mLastLocationMilliseconds)
+            return;
+
+        mSunriseSunset.setLocation(location.getLatitude(), location.getLongitude());
+        boolean isNightTime = !mSunriseSunset.isDaytime((location.getTime() * 1d / 3600000) % 24);
+
+        if (isNightTime ^ mNightMode)
+            setNightMode(isNightTime);
+
+        mNextNightCheck = mLastLocationMilliseconds + NIGHT_CHECK_PERIOD;
+    }
+
+    private void setNightMode(boolean night) {
+        if (night)
+            mMap.setTheme(VtmThemes.TRONRENDER);
+        else
+            mMap.setTheme(VtmThemes.DEFAULT);
+        mNightMode = night;
     }
 
     private double movingAverage(double current, double previous) {

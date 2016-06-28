@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/theme_default"
-        android:title="@string/theme_default" />
-    <item
-        android:id="@+id/theme_tubes"
-        android:title="@string/theme_tubes" />
-    <item
-        android:id="@+id/theme_osmarender"
-        android:title="@string/theme_osmarender" />
+        android:id="@+id/action_night_mode"
+        android:title="@string/action_night_mode"
+        android:actionLayout="@layout/menu_item_action" />
     <item
         android:id="@+id/action_3dbuildings"
         android:checkable="true"
@@ -17,4 +12,7 @@
         android:id="@+id/action_grid"
         android:checkable="true"
         android:title="@string/action_show_grid" />
+    <item
+        android:id="@+id/theme_osmarender"
+        android:title="@string/theme_osmarender" />
 </menu>

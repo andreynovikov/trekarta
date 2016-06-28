@@ -5,4 +5,9 @@
         <item>GPX</item>
         <item>KML</item>
     </string-array>
+    <string-array name="night_mode_array">
+        <item>Auto</item>
+        <item>Off</item>
+        <item>On</item>
+    </string-array>
 </resources>

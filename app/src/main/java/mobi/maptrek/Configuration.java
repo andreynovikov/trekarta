@@ -29,6 +29,7 @@ public class Configuration {
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
+    private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -208,6 +209,18 @@ public class Configuration {
     public static void resetAdviceState() {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putLong(PREF_ADVICE_STATES, 0L);
+        editor.apply();
+    }
+
+    public static int getNightModeState() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getInt(PREF_NIGHT_MODE_STATE, 0);
+    }
+
+    public static void setNightModeState(int nightModeState) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(PREF_NIGHT_MODE_STATE, nightModeState);
         editor.apply();
     }
 }
