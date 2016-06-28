@@ -133,6 +133,7 @@
                 android:text="@string/utc_offset" />
 
             <TextView
+                android:id="@+id/sunriseTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/table_padding"
@@ -140,6 +141,7 @@
                 android:text="@string/sunrise" />
 
             <TextView
+                android:id="@+id/sunsetTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/table_padding"

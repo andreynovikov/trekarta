@@ -47,6 +47,18 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
 
+    TextView mCoordinateDegree;
+    TextView mCoordinateDegMin;
+    TextView mCoordinateDegMinSec;
+    TextView mCoordinateUtmUps;
+    TextView mCoordinateMgrs;
+    TextView mSunriseTitle;
+    TextView mSunsetTitle;
+    TextView mSunrise;
+    TextView mSunset;
+    TextView mOffset;
+    TextView mDeclination;
+
     private double mLatitude;
     private double mLongitude;
     private int mZoom;
@@ -94,6 +106,18 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
                 dialog.show(getFragmentManager(), "coordinatesInput");
             }
         });
+
+        mCoordinateDegree = (TextView) mRootView.findViewById(R.id.coordinate_degree);
+        mCoordinateDegMin = (TextView) mRootView.findViewById(R.id.coordinate_degmin);
+        mCoordinateDegMinSec = (TextView) mRootView.findViewById(R.id.coordinate_degminsec);
+        mCoordinateUtmUps = (TextView) mRootView.findViewById(R.id.coordinate_utmups);
+        mCoordinateMgrs = (TextView) mRootView.findViewById(R.id.coordinate_mgrs);
+        mSunriseTitle = (TextView) mRootView.findViewById(R.id.sunriseTitle);
+        mSunsetTitle = (TextView) mRootView.findViewById(R.id.sunsetTitle);
+        mSunrise = (TextView) mRootView.findViewById(R.id.sunrise);
+        mSunset = (TextView) mRootView.findViewById(R.id.sunset);
+        mOffset = (TextView) mRootView.findViewById(R.id.offset);
+        mDeclination = (TextView) mRootView.findViewById(R.id.declination);
 
         if (BuildConfig.FULL_VERSION) {
             mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
@@ -177,29 +201,38 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mLongitude = longitude;
         mZoom = zoom;
 
-        ((TextView) mRootView.findViewById(R.id.coordinate_degree)).setText(StringFormatter.coordinates(0, " ", latitude, longitude));
-        ((TextView) mRootView.findViewById(R.id.coordinate_degmin)).setText(StringFormatter.coordinates(1, " ", latitude, longitude));
-        ((TextView) mRootView.findViewById(R.id.coordinate_degminsec)).setText(StringFormatter.coordinates(2, " ", latitude, longitude));
-        ((TextView) mRootView.findViewById(R.id.coordinate_utmups)).setText(StringFormatter.coordinates(3, " ", latitude, longitude));
-        ((TextView) mRootView.findViewById(R.id.coordinate_mgrs)).setText(StringFormatter.coordinates(4, " ", latitude, longitude));
+        mCoordinateDegree.setText(StringFormatter.coordinates(0, " ", latitude, longitude));
+        mCoordinateDegMin.setText(StringFormatter.coordinates(1, " ", latitude, longitude));
+        mCoordinateDegMinSec.setText(StringFormatter.coordinates(2, " ", latitude, longitude));
+        mCoordinateUtmUps.setText(StringFormatter.coordinates(3, " ", latitude, longitude));
+        mCoordinateMgrs.setText(StringFormatter.coordinates(4, " ", latitude, longitude));
 
         if (BuildConfig.FULL_VERSION) {
             mSunriseSunset.setLocation(latitude, longitude);
             double sunrise = mSunriseSunset.compute(true);
             double sunset = mSunriseSunset.compute(false);
 
-            if (Double.isNaN(sunrise) || Double.isNaN(sunset)) {
-                ((TextView) mRootView.findViewById(R.id.sunrise)).setText(R.string.never);
-                ((TextView) mRootView.findViewById(R.id.sunset)).setText(R.string.never);
+            if (sunrise == Double.MAX_VALUE || sunset == Double.MAX_VALUE) {
+                mSunrise.setText(R.string.never_rises);
+                mSunsetTitle.setVisibility(View.GONE);
+                mSunset.setVisibility(View.GONE);
+            } else if (sunrise == Double.MIN_VALUE || sunset == Double.MIN_VALUE) {
+                mSunset.setText(R.string.never_sets);
+                mSunriseTitle.setVisibility(View.GONE);
+                mSunrise.setVisibility(View.GONE);
             } else {
-                ((TextView) mRootView.findViewById(R.id.sunrise)).setText(mSunriseSunset.formatTime(sunrise));
-                ((TextView) mRootView.findViewById(R.id.sunset)).setText(mSunriseSunset.formatTime(sunset));
+                mSunrise.setText(mSunriseSunset.formatTime(sunrise));
+                mSunset.setText(mSunriseSunset.formatTime(sunset));
+                mSunriseTitle.setVisibility(View.VISIBLE);
+                mSunrise.setVisibility(View.VISIBLE);
+                mSunsetTitle.setVisibility(View.VISIBLE);
+                mSunset.setVisibility(View.VISIBLE);
             }
 
-            ((TextView) mRootView.findViewById(R.id.offset)).setText(StringFormatter.timeO((int) (mSunriseSunset.getUtcOffset() * 60)));
+            mOffset.setText(StringFormatter.timeO((int) (mSunriseSunset.getUtcOffset() * 60)));
 
             GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
-            ((TextView) mRootView.findViewById(R.id.declination)).setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
+            mDeclination.setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
         }
     }
 

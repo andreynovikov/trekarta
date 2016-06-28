@@ -48,6 +48,12 @@ public class SunriseSunset {
         lngHour = longitude / 15;
     }
 
+    /**
+     * Returns sunrise or sunset time in UTC. If sun never rises returns Double.MAX_VALUE,
+     * if sun never sets, returns Double.MIN_VALUE.
+     *
+     * @param sunrise Indicates what to calculate - sunrise or sunset
+     */
     public double compute(boolean sunrise) {
         // 2b. calculate an approximate time
         double t = N + (((sunrise ? 6 : 18) - lngHour) / 24);
@@ -70,8 +76,10 @@ public class SunriseSunset {
         double cosDec = Math.cos(Math.asin(sinDec));
         // 7a. calculate the Sun's local hour angle
         double cosH = (Math.cos(zenith * D2R) - (sinDec * Math.sin(latRad))) / (cosDec * Math.cos(latRad));
-        if (cosH > 1 || cosH < -1)
-            return Double.NaN;
+        if (cosH > 1)
+            return Double.MAX_VALUE;
+        if (cosH < -1)
+            return Double.MIN_VALUE;
         // 7b. finish calculating H and convert into hours
         double H = R2D * Math.acos(cosH);
         if (sunrise)
