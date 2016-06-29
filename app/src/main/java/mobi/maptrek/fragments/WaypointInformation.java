@@ -77,20 +77,11 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_waypoint_information, container, false);
-        final ImageButton saveButton = (ImageButton) rootView.findViewById(R.id.saveButton);
         final ImageButton editButton = (ImageButton) rootView.findViewById(R.id.editButton);
         final ImageButton navigateButton = (ImageButton) rootView.findViewById(R.id.navigateButton);
         final ImageButton shareButton = (ImageButton) rootView.findViewById(R.id.shareButton);
         final ImageButton deleteButton = (ImageButton) rootView.findViewById(R.id.deleteButton);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                mListener.onWaypointSave(mWaypoint);
-                setEditorMode(false);
-            }
-        });
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,6 +173,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         if (full)
             expand();
 
+        mListener.onWaypointFocus(mWaypoint);
         updateWaypointInformation(latitude, longitude);
     }
 
@@ -221,6 +213,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener.onWaypointFocus(null);
         mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
@@ -259,6 +252,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
                     mWaypoint.style.color = ((ColorSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
 
                     mListener.onWaypointSave(mWaypoint);
+                    mListener.onWaypointFocus(mWaypoint);
                     setEditorMode(false);
                 } else {
                     mFragmentHolder.disableActionButton();
@@ -276,6 +270,7 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     public void setWaypoint(Waypoint waypoint) {
         mWaypoint = waypoint;
         if (isVisible()) {
+            mListener.onWaypointFocus(mWaypoint);
             updateWaypointInformation(mLatitude, mLongitude);
         }
     }

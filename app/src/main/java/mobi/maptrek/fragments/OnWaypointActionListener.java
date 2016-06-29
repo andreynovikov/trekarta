@@ -10,6 +10,8 @@ public interface OnWaypointActionListener {
      */
     void onWaypointView(Waypoint waypoint);
 
+    void onWaypointFocus(Waypoint waypoint);
+
     void onWaypointDetails(Waypoint waypoint, boolean full);
 
     void onWaypointNavigate(Waypoint waypoint);

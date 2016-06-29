@@ -1587,6 +1587,14 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
+    public void onWaypointFocus(Waypoint waypoint) {
+        if (waypoint != null)
+            mMarkerLayer.setFocus(mMarkerLayer.getByUid(waypoint), waypoint.style.color);
+        else
+            mMarkerLayer.setFocus(null);
+    }
+
+    @Override
     public void onWaypointDetails(Waypoint waypoint, boolean full) {
         MapPosition position = mMap.getMapPosition();
         Bundle args = new Bundle(2);
