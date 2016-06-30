@@ -1,10 +1,14 @@
 package mobi.maptrek.fragments;
 
+import org.oscim.core.GeoPoint;
+
 import java.util.Set;
 
 import mobi.maptrek.data.Waypoint;
 
 public interface OnWaypointActionListener {
+    void onWaypointCreate(GeoPoint point, String name);
+
     /**
      * Position map so that waypoint is visible
      */

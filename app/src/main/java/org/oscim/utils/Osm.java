@@ -12,7 +12,7 @@ public class Osm {
      * @return OSM short link url string
      */
     public static String makeShortLink(double lat, double lon, int z) {
-        String str = "http://osm.org/go/";
+        String str = "https://osm.org/go/";
         long x = (long) ((lon + 180d) * (1L << 32) / 360d);
         long y = (long) ((lat +  90d) * (1L << 32) / 180d);
         long c = interlace(x, y);

@@ -20,4 +20,8 @@ public interface MapHolder {
     void removeLocationStateChangeListener(LocationStateChangeListener listener);
 
     void setMapLocation(GeoPoint point);
+
+    void showMarker(GeoPoint point, String name);
+
+    void removeMarker();
 }
