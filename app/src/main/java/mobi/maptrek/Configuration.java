@@ -30,6 +30,7 @@ public class Configuration {
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
     private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
+    private static final String PREF_LANGUAGE = "language";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -221,6 +222,18 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putInt(PREF_NIGHT_MODE_STATE, nightModeState);
+        editor.apply();
+    }
+
+    public static String getLanguage() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getString(PREF_LANGUAGE, null);
+    }
+
+    public static void setLanguage(String language) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(PREF_LANGUAGE, language);
         editor.apply();
     }
 }

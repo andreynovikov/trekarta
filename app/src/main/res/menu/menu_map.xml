@@ -5,6 +5,10 @@
         android:title="@string/action_night_mode"
         android:actionLayout="@layout/menu_item_action" />
     <item
+        android:id="@+id/action_language"
+        android:title="@string/action_language"
+        android:actionLayout="@layout/menu_item_action" />
+    <item
         android:id="@+id/action_3dbuildings"
         android:checkable="true"
         android:title="@string/action_show_3dbuildings" />

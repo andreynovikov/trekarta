@@ -370,8 +370,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
-            if (mapsDir != null)
+            if (mapsDir != null) {
                 mMapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
+                //TODO Initialize language from locale
+                mMapFileSource.setPreferredLanguage(Configuration.getLanguage());
+            }
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
@@ -844,7 +847,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_night_mode:
+            case R.id.action_night_mode: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.action_night_mode);
                 builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
@@ -860,12 +863,30 @@ public class MainActivity extends Activity implements ILocationListener,
                 AlertDialog dialog = builder.create();
                 dialog.show();
                 return true;
-
-            case R.id.theme_osmarender:
+            }
+            case R.id.action_language: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.action_language);
+                builder.setItems(R.array.language_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
+                        String code = languageCodes[which];
+                        if (mMapFileSource != null) {
+                            mMapFileSource.setPreferredLanguage(code);
+                            mMap.clearMap();
+                        }
+                        Configuration.setLanguage(code);
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            }
+            case R.id.theme_osmarender: {
                 mMap.setTheme(VtmThemes.OSMARENDER);
                 return true;
-
-            case R.id.action_3dbuildings:
+            }
+            case R.id.action_3dbuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
                     mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
@@ -879,8 +900,8 @@ public class MainActivity extends Activity implements ILocationListener,
                 Configuration.setBuildingsLayerEnabled(mBuildingsLayerEnabled);
                 mMap.updateMap(true);
                 return true;
-
-            case R.id.action_grid:
+            }
+            case R.id.action_grid: {
                 if (item.isChecked()) {
                     mMap.layers().add(mGridLayer);
                 } else {
@@ -888,18 +909,18 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
                 mMap.updateMap(true);
                 return true;
-
-            case R.id.actionStopNavigation:
+            }
+            case R.id.actionStopNavigation: {
                 stopNavigation();
                 return true;
-
-            case R.id.action_reset_advices:
+            }
+            case R.id.action_reset_advices: {
                 Configuration.resetAdviceState();
                 Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_advices_reset, Snackbar.LENGTH_LONG);
                 snackbar.show();
                 return true;
-
-            case R.id.action_about:
+            }
+            case R.id.action_about: {
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
                 fragment.setEnterTransition(new Slide(mSlideGravity));
                 fragment.setReturnTransition(new Slide(mSlideGravity));
@@ -908,6 +929,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 ft.addToBackStack("about");
                 ft.commit();
                 return true;
+            }
         }
 
         return false;
@@ -1128,6 +1150,9 @@ public class MainActivity extends Activity implements ILocationListener,
                         case R.id.action_night_mode:
                             String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                             ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+                            break;
+                        case R.id.action_language:
+                            ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                             break;
                         case R.id.action_3dbuildings:
                             item.setChecked(mBuildingsLayerEnabled);

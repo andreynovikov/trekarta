@@ -1,5 +1,7 @@
 package org.oscim.tiling.source.mapfile;
 
+import android.util.Log;
+
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.layers.tile.MapTile;
@@ -24,6 +26,7 @@ public class MultiMapFileTileSource extends TileSource {
     private HashSet<MapFileTileSource> mMapFileTileSources;
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
     private String mRootDir;
+    private String mPreferredLanguage;
 
     private OnDataMissingListener onDataMissingListener;
 
@@ -99,12 +102,15 @@ public class MultiMapFileTileSource extends TileSource {
 
         MapFileTileSource tileSource = new MapFileTileSource();
         if (tileSource.setMapFile(file.getAbsolutePath())) {
-            if (tileSource.open().isSuccess()) {
+            TileSource.OpenResult openResult = tileSource.open();
+            if (openResult.isSuccess()) {
+                tileSource.setPreferredLanguage(mPreferredLanguage);
                 mMapFileTileSources.add(tileSource);
                 for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
                     combinedMapDatabase.add(tileSource.getDataSource());
                 return true;
             } else {
+                Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
                 tileSource.close();
             }
         }
@@ -113,6 +119,13 @@ public class MultiMapFileTileSource extends TileSource {
 
     public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
         this.onDataMissingListener = onDataMissingListener;
+    }
+
+    public void setPreferredLanguage(String preferredLanguage) {
+        mPreferredLanguage = preferredLanguage;
+        for (MapFileTileSource tileSource : mMapFileTileSources) {
+            tileSource.setPreferredLanguage(mPreferredLanguage);
+        }
     }
 
     class CombinedMapDatabase implements ITileDataSource {
@@ -128,8 +141,8 @@ public class MultiMapFileTileSource extends TileSource {
             for (ITileDataSource tileDataSource : mTileDataSources) {
                 tileDataSource.query(tile, proxyDataSink);
             }
-            if (!proxyDataSink.hasNonSeaElements && onDataMissingListener != null)
-                onDataMissingListener.onDataMissing(tile);
+            //if (!proxyDataSink.hasNonSeaElements && onDataMissingListener != null)
+            //    onDataMissingListener.onDataMissing(tile);
 
             mapDataSink.completed(proxyDataSink.result);
         }

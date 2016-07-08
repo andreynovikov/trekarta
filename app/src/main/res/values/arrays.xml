@@ -10,4 +10,14 @@
         <item>Off</item>
         <item>On</item>
     </string-array>
+    <string-array name="language_array">
+        <item>English</item>
+        <item>German</item>
+        <item>Russian</item>
+    </string-array>
+    <string-array name="language_code_array">
+        <item>en</item>
+        <item>de</item>
+        <item>ru</item>
+    </string-array>
 </resources>
