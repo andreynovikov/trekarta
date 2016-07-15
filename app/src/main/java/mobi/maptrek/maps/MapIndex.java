@@ -27,6 +27,7 @@ public class MapIndex implements Serializable {
 
     private File mRootDir;
     private HashSet<MapFile> mMaps;
+    private MapFile[][] mNativeMaps = new MapFile[128][128];
     private int mHashCode;
 
     @SuppressWarnings("unused")
@@ -99,9 +100,21 @@ public class MapIndex implements Serializable {
     private void load(@NonNull File file) {
         String fileName = file.getName();
         Log.e(TAG, "load(" + fileName + ")");
-        if (NativeMaps.files.containsKey(fileName)) {
-            Log.w(TAG, "  marked");
-            NativeMaps.files.get(fileName).downloaded = true;
+        if (fileName.endsWith(".map") && file.canRead()) {
+            String[] parts = fileName.split("[\\-\\.]");
+            try {
+                if (parts.length != 3)
+                    throw new NumberFormatException("unexpected name");
+                int x = Integer.valueOf(parts[0]);
+                int y = Integer.valueOf(parts[1]);
+                if (x > 127 || y > 127)
+                    throw new NumberFormatException("out of range");
+                //FIXME Remove unused fields
+                mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, file.getAbsolutePath(), null, null);
+                Log.w(TAG, "  indexed");
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "  skipped: " + e.getMessage());
+            }
             return;
         }
         byte[] buffer = new byte[13];
@@ -153,7 +166,9 @@ public class MapIndex implements Serializable {
     }
 
     @Nullable
-    public MapFile getNativeMap(double x, double y) {
+    public MapFile getNativeMap(int x, int y) {
+        return mNativeMaps[x][y];
+        /*
         for (MapFile mapFile : NativeMaps.set) {
             if (mapFile.downloaded || mapFile.downloading != 0)
                 continue;
@@ -161,6 +176,7 @@ public class MapIndex implements Serializable {
                 return mapFile;
         }
         return null;
+        */
     }
 
     @Nullable

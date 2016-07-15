@@ -2,168 +2,153 @@ package org.oscim.tiling.source.mapfile;
 
 import android.util.Log;
 
-import org.oscim.backend.canvas.Bitmap;
-import org.oscim.core.MapElement;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
-import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+
+import mobi.maptrek.maps.MapFile;
+import mobi.maptrek.maps.MapIndex;
+
+import static org.oscim.tiling.QueryResult.DELAYED;
+import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 public class MultiMapFileTileSource extends TileSource {
     @SuppressWarnings("SpellCheckingInspection")
     public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
-    //TODO Should we combine tile sources in one to optimize cache?
-    private HashSet<MapFileTileSource> mMapFileTileSources;
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
-    private String mRootDir;
+    private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
+    private final MapIndex mMapIndex;
     private String mPreferredLanguage;
 
-    private OnDataMissingListener onDataMissingListener;
-
-    public MultiMapFileTileSource(String rootDir) {
-        mMapFileTileSources = new HashSet<>();
+    public MultiMapFileTileSource(MapIndex mapIndex) {
+        mMapFileTileSources = new HashMap<>();
         mCombinedMapDatabases = new HashSet<>();
-        mRootDir = rootDir;
-    }
-
-    static private List<File> getFileListing(final File rootDir) {
-        List<File> result = new ArrayList<>();
-
-        File[] files = rootDir.listFiles();
-
-        if (files == null)
-            return result;
-
-        for (File file : files) {
-            if (file.getName().toLowerCase().endsWith(".map") && file.canRead()) {
-                result.add(file);
-            }
-            if (file.isDirectory()) {
-                List<File> deeperList = getFileListing(file);
-                result.addAll(deeperList);
-            }
-        }
-
-        return result;
+        mMapIndex = mapIndex;
     }
 
     @Override
     public ITileDataSource getDataSource() {
-        HashSet<ITileDataSource> tileDataSources = new HashSet<>();
-        for (MapFileTileSource tileSource : mMapFileTileSources) {
-            tileDataSources.add(tileSource.getDataSource());
-        }
-        CombinedMapDatabase combinedMapDatabase = new CombinedMapDatabase(tileDataSources);
+        CombinedMapDatabase combinedMapDatabase = new CombinedMapDatabase();
         mCombinedMapDatabases.add(combinedMapDatabase);
         return combinedMapDatabase;
     }
 
     @Override
     public OpenResult open() {
-        boolean opened = false;
-
-        List<File> files = getFileListing(new File(mRootDir));
-        for (File file : files) {
-            opened |= openFile(file);
-        }
-        return opened ? OpenResult.SUCCESS : new OpenResult("No suitable map files");
+        return OpenResult.SUCCESS;
     }
 
     @Override
     public void close() {
-        for (MapFileTileSource tileSource : mMapFileTileSources) {
+        for (MapFileTileSource tileSource : mMapFileTileSources.values()) {
             tileSource.close();
         }
         mMapFileTileSources.clear();
     }
 
-    public boolean openFile(File file) {
-        byte[] buffer = new byte[20];
-        try {
-            FileInputStream is = new FileInputStream(file);
-            int s = is.read(buffer);
-            is.close();
-            if (s != buffer.length || !Arrays.equals(FORGEMAP_MAGIC, buffer))
+    public boolean openFile(int x, int y, MapFile mapFile) {
+        synchronized (FORGEMAP_MAGIC) {
+            Log.w("MMFTS", "openFile(" + x + "," + y + ")");
+            byte[] buffer = new byte[20];
+            try {
+                FileInputStream is = new FileInputStream(mapFile.fileName);
+                int s = is.read(buffer);
+                is.close();
+                if (s != buffer.length || !Arrays.equals(FORGEMAP_MAGIC, buffer))
+                    return false;
+            } catch (IOException e) {
+                e.printStackTrace();
                 return false;
-        } catch (IOException e) {
-            e.printStackTrace();
+            }
+
+            MapFileTileSource tileSource = new MapFileTileSource();
+            if (tileSource.setMapFile(mapFile.fileName)) {
+                TileSource.OpenResult openResult = tileSource.open();
+                if (openResult.isSuccess()) {
+                    tileSource.setPreferredLanguage(mPreferredLanguage);
+                    mMapFileTileSources.put(getKey(x, y), tileSource);
+                    for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
+                        combinedMapDatabase.add(x, y, tileSource.getDataSource());
+                    return true;
+                } else {
+                    Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
+                    tileSource.close();
+                }
+            }
             return false;
         }
-
-        MapFileTileSource tileSource = new MapFileTileSource();
-        if (tileSource.setMapFile(file.getAbsolutePath())) {
-            TileSource.OpenResult openResult = tileSource.open();
-            if (openResult.isSuccess()) {
-                tileSource.setPreferredLanguage(mPreferredLanguage);
-                mMapFileTileSources.add(tileSource);
-                for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
-                    combinedMapDatabase.add(tileSource.getDataSource());
-                return true;
-            } else {
-                Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
-                tileSource.close();
-            }
-        }
-        return false;
-    }
-
-    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
-        this.onDataMissingListener = onDataMissingListener;
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
         mPreferredLanguage = preferredLanguage;
-        for (MapFileTileSource tileSource : mMapFileTileSources) {
+        for (MapFileTileSource tileSource : mMapFileTileSources.values()) {
             tileSource.setPreferredLanguage(mPreferredLanguage);
         }
     }
 
     class CombinedMapDatabase implements ITileDataSource {
-        HashSet<ITileDataSource> mTileDataSources;
+        HashMap<Integer, ITileDataSource> mTileDataSources;
 
-        public CombinedMapDatabase(HashSet<ITileDataSource> tileDataSources) {
-            mTileDataSources = tileDataSources;
+        public CombinedMapDatabase() {
+            mTileDataSources = new HashMap<>();
         }
 
         @Override
         public void query(MapTile tile, ITileDataSink mapDataSink) {
-            ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
-            for (ITileDataSource tileDataSource : mTileDataSources) {
-                tileDataSource.query(tile, proxyDataSink);
+            int tileX = tile.tileX;
+            int tileY = tile.tileY;
+            byte zoom = tile.zoomLevel;
+            if (zoom > 7) {
+                tileX = tileX >> (zoom - 7);
+                tileY = tileY >> (zoom - 7);
             }
-            //if (!proxyDataSink.hasNonSeaElements && onDataMissingListener != null)
-            //    onDataMissingListener.onDataMissing(tile);
-
-            mapDataSink.completed(proxyDataSink.result);
+            int key = getKey(tileX, tileY);
+            if (!mTileDataSources.containsKey(key)) {
+                MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
+                if (mapFile == null) {
+                    mapDataSink.completed(TILE_NOT_FOUND);
+                    return;
+                }
+                //TODO Run asynchronously?
+                openFile(tileX, tileY, mapFile);
+                mapDataSink.completed(DELAYED);
+                return;
+            }
+            ITileDataSource tileDataSource = mTileDataSources.get(key);
+            //ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
+            tileDataSource.query(tile, mapDataSink);
         }
 
         @Override
         public void dispose() {
-            for (ITileDataSource tileDataSource : mTileDataSources)
+            for (ITileDataSource tileDataSource : mTileDataSources.values())
                 tileDataSource.dispose();
         }
 
         @Override
         public void cancel() {
-            for (ITileDataSource tileDataSource : mTileDataSources)
+            for (ITileDataSource tileDataSource : mTileDataSources.values())
                 tileDataSource.cancel();
         }
 
-        public void add(ITileDataSource dataSource) {
-            mTileDataSources.add(dataSource);
+        public void add(int x, int y, ITileDataSource dataSource) {
+            mTileDataSources.put(getKey(x, y), dataSource);
         }
     }
 
+    private static int getKey(int x, int y) {
+        return (x << 7) + y;
+    }
+
+    /*
     class ProxyTileDataSink implements ITileDataSink {
         ITileDataSink mapDataSink;
         QueryResult result;
@@ -204,8 +189,9 @@ public class MultiMapFileTileSource extends TileSource {
         @Override
         public void completed(QueryResult result) {
             // Do not override successful results
-            if (this.result == null || result == ITileDataSink.QueryResult.SUCCESS)
+            if (this.result == null || result == QueryResult.SUCCESS)
                 this.result = result;
         }
     }
+    */
 }

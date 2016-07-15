@@ -3,18 +3,15 @@ package org.oscim.tiling;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.layers.tile.MapTile;
-import org.oscim.tiling.source.UrlTileSource;
-import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 
 public class CombinedTileSource extends TileSource {
     private static final byte MAP_FILE_MIN_ZOOM = 8;
 
     private TileSource mMapFileSource;
-    private UrlTileSource mUrlSource;
+    private TileSource mUrlSource;
 
-    private OnDataMissingListener onDataMissingListener;
-
-    public CombinedTileSource(TileSource mapFileSource, UrlTileSource urlSource) {
+    public CombinedTileSource(TileSource mapFileSource, TileSource urlSource) {
+        super(0, 17);
         mMapFileSource = mapFileSource;
         mUrlSource = urlSource;
     }
@@ -36,13 +33,6 @@ public class CombinedTileSource extends TileSource {
         mUrlSource.close();
     }
 
-    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
-        this.onDataMissingListener = onDataMissingListener;
-        //TODO This is a temporary hack until we will switch to rectangular maps
-        if (mMapFileSource instanceof MultiMapFileTileSource)
-            ((MultiMapFileTileSource) mMapFileSource).setOnDataMissingListener(onDataMissingListener);
-    }
-
     class CombinedDataSource implements ITileDataSource {
         private ITileDataSource mMapFileDataSource;
         private ITileDataSource mUrlDataSource;
@@ -59,11 +49,11 @@ public class CombinedTileSource extends TileSource {
             } else {
                 ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
                 mMapFileDataSource.query(tile, proxyDataSink);
-                if (proxyDataSink.result != ITileDataSink.QueryResult.SUCCESS)
+                if (proxyDataSink.result != QueryResult.SUCCESS)
                     mUrlDataSource.query(tile, proxyDataSink);
 
-                if (proxyDataSink.result != ITileDataSink.QueryResult.SUCCESS || !proxyDataSink.hasElements && onDataMissingListener != null)
-                    onDataMissingListener.onDataMissing(tile);
+                //if (proxyDataSink.result != QueryResult.SUCCESS || !proxyDataSink.hasElements && onDataMissingListener != null)
+                //    onDataMissingListener.onDataMissing(tile);
 
                 mapDataSink.completed(proxyDataSink.result);
             }
