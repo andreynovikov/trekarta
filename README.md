@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/andreynovikov/maptrek.svg?branch=master)](https://travis-ci.org/andreynovikov/maptrek)
+[![GitHub release](https://img.shields.io/github/release/andreynovikov/maptrek.svg)](https://github.com/andreynovikov/maptrek/releases/latest)
+[![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+
 __MapTrek__ is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import waypoints and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you've been.
 
 ![](http://maptrek.mobi/images/screenshot02.png)
