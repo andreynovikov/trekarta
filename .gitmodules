@@ -1,0 +1,6 @@
+[submodule "libraries/geo-coordinate-conversion"]
+	path = libraries/geo-coordinate-conversion
+	url = ../Geo-Coordinate-Conversion-Java.git
+[submodule "libraries/colorpicker"]
+	path = libraries/colorpicker
+	url = https://android.googlesource.com/platform/frameworks/opt/colorpicker
