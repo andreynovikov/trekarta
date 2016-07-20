@@ -1,5 +1,7 @@
 package mobi.maptrek.maps;
 
+import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -111,6 +113,7 @@ public class MapIndex implements Serializable {
                     throw new NumberFormatException("out of range");
                 //FIXME Remove unused fields
                 mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, file.getAbsolutePath(), null, null);
+                mNativeMaps[x][y].downloaded = true;
                 Log.w(TAG, "  indexed");
             } catch (NumberFormatException e) {
                 Log.w(TAG, "  skipped: " + e.getMessage());
@@ -167,16 +170,9 @@ public class MapIndex implements Serializable {
 
     @Nullable
     public MapFile getNativeMap(int x, int y) {
-        return mNativeMaps[x][y];
-        /*
-        for (MapFile mapFile : NativeMaps.set) {
-            if (mapFile.downloaded || mapFile.downloading != 0)
-                continue;
-            if (mapFile.contains(x, y))
-                return mapFile;
-        }
+        if (mNativeMaps[x][y] != null && mNativeMaps[x][y].downloaded)
+            return mNativeMaps[x][y];
         return null;
-        */
     }
 
     @Nullable
@@ -201,9 +197,47 @@ public class MapIndex implements Serializable {
         mMaps.clear();
     }
 
-    public void markDownloaded(String filePath) {
-        String fileName = filePath.replace(mRootDir.getAbsolutePath() + File.separator, "");
-        if (NativeMaps.files.containsKey(fileName))
-            NativeMaps.files.get(fileName).downloaded = true;
+    public void markDownloading(int x, int y, long enqueue) {
+        if (mNativeMaps[x][y] == null) {
+            //FIXME Remove unused fields
+            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null, null);
+        }
+        mNativeMaps[x][y].downloading = enqueue;
+    }
+
+    public void processDownloadedMap(String filePath) {
+        File srcFile = new File(filePath);
+        File mapFile = new File(filePath.replace(".part", ""));
+        String fileName = mapFile.getName();
+        String[] parts = fileName.split("[\\-\\.]");
+        try {
+            if (parts.length != 3)
+                throw new NumberFormatException("unexpected name");
+            int x = Integer.valueOf(parts[0]);
+            int y = Integer.valueOf(parts[1]);
+            if (x > 127 || y > 127)
+                throw new NumberFormatException("out of range");
+            if (!mapFile.exists() || mapFile.delete())
+                srcFile.renameTo(mapFile);
+            mNativeMaps[x][y].downloaded = true;
+        } catch (NumberFormatException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static Uri getDownloadUri(int x, int y) {
+        return new Uri.Builder()
+                .scheme("http")
+                .authority("maptrek.mobi")
+                .appendPath("maps")
+                .appendPath(String.valueOf(x))
+                .appendPath(String.format("%d-%d.map", x, y))
+                .build();
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static String getNativeMapFilePath(int x, int y) {
+        return String.format("/native/%d/%d-%d.map", x, x, y);
     }
 }

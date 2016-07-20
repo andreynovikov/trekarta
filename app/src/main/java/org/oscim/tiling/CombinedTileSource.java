@@ -52,9 +52,6 @@ public class CombinedTileSource extends TileSource {
                 if (proxyDataSink.result != QueryResult.SUCCESS)
                     mUrlDataSource.query(tile, proxyDataSink);
 
-                //if (proxyDataSink.result != QueryResult.SUCCESS || !proxyDataSink.hasElements && onDataMissingListener != null)
-                //    onDataMissingListener.onDataMissing(tile);
-
                 mapDataSink.completed(proxyDataSink.result);
             }
         }

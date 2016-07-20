@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="zero">No items selected</item>
+        <item quantity="one">%d item selected</item>
+        <item quantity="other">%d items selected</item>
+    </plurals>
+    <plurals name="waypointsCount">
+        <item quantity="zero">No waypoints</item>
+        <item quantity="one">%d waypoint</item>
+        <item quantity="other">%d waypoints</item>
+    </plurals>
+    <plurals name="waypointsDeleted">
+        <item quantity="zero">No waypoints deleted</item>
+        <item quantity="one">%d waypoint deleted</item>
+        <item quantity="other">%d waypoints deleted</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="zero">No tracks</item>
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="one">%d point</item>
+        <item quantity="other">%d points</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="one">%d segment</item>
+        <item quantity="other">%d segments</item>
+    </plurals>
+</resources>

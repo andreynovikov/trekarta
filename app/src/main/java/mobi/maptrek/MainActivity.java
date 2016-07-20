@@ -45,7 +45,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.text.format.Formatter;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionManager;
@@ -89,10 +88,6 @@ import org.oscim.event.Event;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
-import org.oscim.layers.marker.ItemizedLayer;
-import org.oscim.layers.marker.MarkerItem;
-import org.oscim.layers.marker.MarkerSymbol;
-import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -104,9 +99,9 @@ import org.oscim.renderer.BitmapRenderer;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.CombinedTileSource;
 import org.oscim.tiling.OnDataMissingListener;
-import org.oscim.tiling.source.UrlTileSource;
+import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
-import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
+import org.oscim.tiling.source.oscimap4.OSciMap4TileCacheSource;
 import org.oscim.utils.Osm;
 
 import java.io.File;
@@ -134,6 +129,7 @@ import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.MapList;
+import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnMapActionListener;
@@ -150,8 +146,12 @@ import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
+import mobi.maptrek.layers.MapCoverageLayer;
 import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
+import mobi.maptrek.layers.marker.ItemizedLayer;
+import mobi.maptrek.layers.marker.MarkerItem;
+import mobi.maptrek.layers.marker.MarkerSymbol;
 import mobi.maptrek.location.BaseLocationService;
 import mobi.maptrek.location.BaseNavigationService;
 import mobi.maptrek.location.ILocationListener;
@@ -286,6 +286,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private CurrentTrackLayer mCurrentTrackLayer;
     private ItemizedLayer<MarkerItem> mMarkerLayer;
     private LocationOverlay mLocationOverlay;
+    private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
 
     private PreCachedTileCache mCache;
@@ -370,11 +371,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
-            if (mapsDir != null) {
-                mMapFileSource = new MultiMapFileTileSource(mapsDir.getAbsolutePath());
-                //TODO Initialize language from locale
-                mMapFileSource.setPreferredLanguage(Configuration.getLanguage());
-            }
+            mMapFileSource = new MultiMapFileTileSource(mMapIndex);
+            //TODO Initialize language from locale
+            mMapFileSource.setPreferredLanguage(Configuration.getLanguage());
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
@@ -434,36 +433,27 @@ public class MainActivity extends Activity implements ILocationListener,
         mMyLocationDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_my_location, theme);
         mLocationSearchingDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_location_searching, theme);
 
-        UrlTileSource urlTileSource = new OSciMap4TileSource();
+        TileSource baseMapSource = new OSciMap4TileCacheSource();
         SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
 
         File cacheDir = getExternalCacheDir();
         if (cacheDir != null) {
             mCache = new PreCachedTileCache(this, preCachedDatabaseHelper.getReadableDatabase(), cacheDir.getAbsolutePath(), "tile_cache.db");
             mCache.setCacheSize(512 * (1 << 10));
-            urlTileSource.setCache(mCache);
+            baseMapSource.setCache(mCache);
         }
-        //new Thread(new TilePreloader(urlTileSource.getDataSource())).start();
+        //new Thread(new TilePreloader(baseMapSource.getDataSource())).start();
 
         mBaseLayer = new OsmTileLayer(mMap);
-
-        if (mMapFileSource != null) {
-            CombinedTileSource tileSource = new CombinedTileSource(mMapFileSource, urlTileSource);
-            tileSource.setOnDataMissingListener(this);
-            mBaseLayer.setTileSource(tileSource);
-        } else {
-            mBaseLayer.setTileSource(urlTileSource);
-        }
-
+        mBaseLayer.setTileSource(new CombinedTileSource(mMapFileSource, baseMapSource));
+        mMapFileSource.setOnDataMissingListener(this);
         mMap.setBaseMap(mBaseLayer);
 
-        if (mNightModeState == NIGHT_MODE_STATE.NIGHT ||
-                savedInstanceState != null && savedInstanceState.getBoolean("nightMode")) {
-            mMap.setTheme(VtmThemes.TRONRENDER);
-            mNightMode = true;
-        } else {
-            mMap.setTheme(VtmThemes.DEFAULT);
-        }
+        //BitmapTileLayer hillShadeLayer = new BitmapTileLayer(mMap, DefaultSources.HIKEBIKE_HILLSHADE.build());
+        //mMap.layers().add(hillShadeLayer);
+
+        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
+                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
         mGridLayer = new TileGridLayer(mMap);
         mLocationOverlay = new LocationOverlay(mMap);
@@ -484,7 +474,6 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
-        //layers.add(new MapCoverageLayer(mMap));
         mScaleBar = new MapScaleBar(mMapView);
         layers.add(mScaleBar);
         layers.add(mLocationOverlay);
@@ -977,7 +966,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 offset = mMovingOffset;
             }
             offset = offset / (mMapPosition.scale * Tile.SIZE);
-            mLocationOverlay.setLocationOffset(offset, mAveragedBearing, mLocationState == LocationState.TRACK);
 
             double rad = Math.toRadians(mAveragedBearing);
             double dx = offset * Math.sin(rad);
@@ -986,6 +974,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
             mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
             mMapPosition.setBearing(-mAveragedBearing);
+            //FIXME VTM
             mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LocationState.TRACK);
         }
 
@@ -1006,7 +995,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 mSavedLocationState = mLocationState;
                 mLocationState = LocationState.SEARCHING;
                 mMap.getEventLayer().setFixOnCenter(false);
-                mLocationOverlay.setPinned(false);
                 mLocationOverlay.setEnabled(false);
                 updateLocationDrawable();
             }
@@ -1030,13 +1018,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setPosition(mLocationService.getLocation().getLatitude(), mLocationService.getLocation().getLongitude());
                 //mMapPosition.setBearing(0);
-                mMap.animator().setListener(new org.oscim.map.Animator.MapAnimationListener() {
-                    @Override
-                    public void onMapAnimationEnd() {
-                        Log.e(TAG, "from set North");
-                        mLocationOverlay.setPinned(true);
-                    }
-                }).animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
+                mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
                 break;
             case NORTH:
                 mLocationState = LocationState.TRACK;
@@ -1053,7 +1035,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setBearing(0);
                 mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
-                mLocationOverlay.setPinned(false);
                 break;
         }
         updateLocationDrawable();
@@ -1184,17 +1165,18 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onMapDownloadClicked() {
-        MapFile mapFile = (MapFile) mMapDownloadButton.getTag();
-        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        Uri uri = Uri.parse(mapFile.downloadPath);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setTitle(getString(R.string.mapTitle, mapFile.name));
-        request.setDescription(getString(R.string.app_name));
-        request.setDestinationInExternalFilesDir(this, "maps", mapFile.fileName);
-        request.setVisibleInDownloadsUi(false);
-        mapFile.downloading = downloadManager.enqueue(request);
         mMapDownloadButton.setVisibility(View.GONE);
-        mMapDownloadButton.setTag(null);
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            popAll();
+        }
+        Fragment fragment = Fragment.instantiate(this, MapSelection.class.getName());
+        fragment.setEnterTransition(new Slide());
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.replace(R.id.contentPanel, fragment, "mapSelection");
+        ft.addToBackStack("mapSelection");
+        ft.commit();
+        updateMapViewArea();
+
     }
 
     public void onCompassClicked(View view) {
@@ -1269,7 +1251,6 @@ public class MainActivity extends Activity implements ILocationListener,
     public void setMapLocation(GeoPoint point) {
         if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.ENABLED;
-            mLocationOverlay.setPinned(false);
             updateLocationDrawable();
         }
         mMap.animator().animateTo(point);
@@ -1435,7 +1416,6 @@ public class MainActivity extends Activity implements ILocationListener,
             if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
                 mPreviousLocationState = mLocationState;
                 mLocationState = LocationState.ENABLED;
-                mLocationOverlay.setPinned(false);
                 updateLocationDrawable();
             }
         }
@@ -1443,13 +1423,11 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mMapDownloadButton.getVisibility() != View.GONE) {
             if (mapPosition.zoomLevel < 8) {
                 mMapDownloadButton.setVisibility(View.GONE);
-                mMapDownloadButton.setTag(null);
             } else if (e == Map.MOVE_EVENT) {
                 final Message m = Message.obtain(mMainHandler, new Runnable() {
                     @Override
                     public void run() {
                         mMapDownloadButton.setVisibility(View.GONE);
-                        mMapDownloadButton.setTag(null);
                     }
                 });
                 m.what = R.id.msgRemoveMapDownloadButton;
@@ -1608,7 +1586,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
         }
-        Bundle args = new Bundle(2);
+        Bundle args = new Bundle(3);
         args.putDouble(MarkerInformation.ARG_LATITUDE, position.getLatitude());
         args.putDouble(MarkerInformation.ARG_LONGITUDE, position.getLongitude());
         args.putString(MarkerInformation.ARG_NAME, name);
@@ -1707,9 +1685,9 @@ public class MainActivity extends Activity implements ILocationListener,
         int zoom = mMap.getMapPosition().getZoomLevel();
         String location = waypoint.name + " @ " + waypoint.latitude + " " + waypoint.longitude +
                 " <" + Osm.makeShortLink(waypoint.latitude, waypoint.longitude, zoom) + ">";
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, location);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
         startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
     }
 
@@ -1907,7 +1885,6 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onTrackView(Track track) {
         if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.ENABLED;
-            mLocationOverlay.setPinned(false);
             updateLocationDrawable();
         }
         BoundingBox box = track.getBoundingBox();
@@ -2155,6 +2132,56 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
         showBitmapMap(mapFile);
+    }
+
+    @Override
+    public void onBeginMapSelection(MapSelectionListener listener) {
+        mMapCoverageLayer = new MapCoverageLayer(mMap, mMapIndex);
+        mMapCoverageLayer.setOnMapSelectionListener(listener);
+        int[] xy = (int[]) mMapDownloadButton.getTag();
+        mMapCoverageLayer.selectMap(xy[0], xy[1]);
+        mMap.layers().add(mMapCoverageLayer);
+        MapPosition mapPosition = mMap.getMapPosition();
+        if (mapPosition.zoomLevel > 8) {
+            mapPosition.setZoomLevel(8);
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
+        } else {
+            mMap.updateMap(true);
+        }
+    }
+
+    @Override
+    public void onFinishMapSelection() {
+        mMap.layers().remove(mMapCoverageLayer);
+        mMapCoverageLayer.setOnMapSelectionListener(null);
+        mMapCoverageLayer.onDetach();
+        mMap.updateMap(true);
+        mMapCoverageLayer = null;
+    }
+
+    @Override
+    public void onDownloadSelectedMaps(boolean[][] selectionState) {
+        File mapsDir = getExternalFilesDir("maps");
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        for (int x = 0; x < 128; x++)
+            for (int y = 0; y < 128; y++) {
+                if (!selectionState[x][y])
+                    continue;
+                Uri uri = MapIndex.getDownloadUri(x, y);
+                DownloadManager.Request request = new DownloadManager.Request(uri);
+                request.setTitle(getString(R.string.mapTitle, x, y));
+                request.setDescription(getString(R.string.app_name));
+                String mapPath = MapIndex.getNativeMapFilePath(x, y) + ".part";
+                if (mapsDir != null) {
+                    File mapFile = new File(mapsDir.getAbsolutePath() + mapPath);
+                    if (mapFile.exists())
+                        //noinspection ResultOfMethodCallIgnored
+                        mapFile.delete();
+                }
+                request.setDestinationInExternalFilesDir(this, "maps", mapPath);
+                request.setVisibleInDownloadsUi(false);
+                mMapIndex.markDownloading(x, y, downloadManager.enqueue(request));
+            }
     }
 
     private void showBitmapMap(MapFile mapFile) {
@@ -2490,44 +2517,25 @@ public class MainActivity extends Activity implements ILocationListener,
 
     // Called by tile manager, so it's on separate thread - do not block and do not update UI
     @Override
-    public void onDataMissing(final MapTile tile) {
+    public void onDataMissing(final int x, final int y, byte zoom) {
         // Do not check "intermediate" maps - TODO: Should we consider movement when locked to location?
-        if (mMap.animator().isAnimating())
-            return;
-        // Consider only center tile
-        if (tile.distance > 0d)
+        if (mMap.animator().isActive())
             return;
 
-        mBackgroundHandler.removeMessages(R.id.msgFindMissingMap);
+        if (mMapCoverageLayer != null)
+            return;
 
-        // It appears to be fast enough but I will live it in separate background thread
-        final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                double halfTileSize = 1d / (1 << (tile.zoomLevel + 1));
-                final MapFile mapFile = mMapIndex.getNativeMap(tile.x + halfTileSize, tile.y + halfTileSize);
-                if (mapFile == null)
-                    return;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mMapDownloadButton.getVisibility() == View.GONE) {
-                            String size = Formatter.formatShortFileSize(MainActivity.this, mapFile.downloadSize);
-                            mMapDownloadButton.setTag(mapFile);
-                            mMapDownloadButton.setText(getString(R.string.mapDownloadText, mapFile.name, size));
-                            mMapDownloadButton.setVisibility(View.VISIBLE);
-                        } else if (!mapFile.downloadPath.equals(((MapFile) mMapDownloadButton.getTag()).downloadPath)) {
-                            String size = Formatter.formatShortFileSize(MainActivity.this, mapFile.downloadSize);
-                            mMapDownloadButton.setTag(mapFile);
-                            mMapDownloadButton.setText(getString(R.string.mapDownloadText, mapFile.name, size));
-                        }
-                        mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
-                    }
-                });
+                if (mMapDownloadButton.getVisibility() == View.GONE) {
+                    mMapDownloadButton.setText(R.string.mapDownloadText);
+                    mMapDownloadButton.setVisibility(View.VISIBLE);
+                }
+                mMapDownloadButton.setTag(new int[]{x, y});
+                mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
             }
         });
-        m.what = R.id.msgFindMissingMap;
-        mBackgroundHandler.sendMessage(m);
     }
 
     @Override
@@ -2586,7 +2594,6 @@ public class MainActivity extends Activity implements ILocationListener,
                         mMovingOffset = 0;
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
-                    mLocationOverlay.setPinned(false);
 
                     //TODO Use dp units for padding
                     ((BitmapRenderer) mScaleBar.getRenderer()).setDrawOffset(false, area.left + 16, 16);
@@ -2688,11 +2695,8 @@ public class MainActivity extends Activity implements ILocationListener,
                     String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
                     Log.e(TAG, "Downloaded: " + fileName);
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        mMapIndex.markDownloaded(fileName);
-                        if (mMapFileSource != null) {
-                            mMapFileSource.openFile(new File(fileName));
-                            mMap.clearMap();
-                        }
+                        mMapIndex.processDownloadedMap(fileName);
+                        mMap.clearMap();
                     }
                 }
             }
@@ -2886,7 +2890,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void setNightMode(boolean night) {
         if (night)
-            mMap.setTheme(VtmThemes.TRONRENDER);
+            mMap.setTheme(VtmThemes.NEWTRON);
         else
             mMap.setTheme(VtmThemes.DEFAULT);
         mNightMode = night;

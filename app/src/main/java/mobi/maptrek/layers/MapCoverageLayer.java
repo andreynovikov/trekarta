@@ -18,6 +18,7 @@ import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.utils.FastMath;
 
+import mobi.maptrek.MapSelectionListener;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 
@@ -30,15 +31,15 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final AreaStyle mSelectedAreaStyle;
     private final LineStyle mLineStyle;
     private boolean[][] mSelected = new boolean[128][128];
+    private MapSelectionListener mListener;
 
     public MapCoverageLayer(Map map, MapIndex mapIndex) {
         super(map);
         mMapIndex = mapIndex;
-        mPresentAreaStyle = new AreaStyle(AreaStyle.builder().fadeScale(5).blendColor(Color.GREEN).blendScale(9).color(Color.fade(Color.GREEN, 0.4f)));
-        mMissingAreaStyle = new AreaStyle(AreaStyle.builder().fadeScale(5).blendColor(Color.GRAY).blendScale(9).color(Color.fade(Color.GRAY, 0.4f)));
-        mSelectedAreaStyle = new AreaStyle(AreaStyle.builder().fadeScale(5).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)));
-        mLineStyle = new LineStyle(LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true));
-        mRenderer = new AbstractVectorLayer.Renderer();
+        mPresentAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.GREEN).blendScale(9).color(Color.fade(Color.GREEN, 0.4f)).build();
+        mMissingAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.GRAY).blendScale(9).color(Color.fade(Color.GRAY, 0.4f)).build();
+        mSelectedAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)).build();
+        mLineStyle = LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
     }
 
     @Override
@@ -110,10 +111,22 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             mMap.viewport().getMapPosition(mapPosition);
             int tileX = (int) (point.getX() / TILE_SCALE);
             int tileY = (int) (point.getY() / TILE_SCALE);
-            mSelected[tileX][tileY] = !mSelected[tileX][tileY];
-            update();
+            selectMap(tileX, tileY);
             return true;
         }
         return false;
+    }
+
+    public void selectMap(int tileX, int tileY) {
+        mSelected[tileX][tileY] = !mSelected[tileX][tileY];
+        if (mListener != null)
+            mListener.onMapSelected(tileX, tileY);
+        update();
+    }
+
+    public void setOnMapSelectionListener(MapSelectionListener listener) {
+        mListener = listener;
+        if (mListener != null)
+            mListener.registerMapSelectionState(mSelected);
     }
 }

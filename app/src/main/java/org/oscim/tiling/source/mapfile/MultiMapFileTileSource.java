@@ -2,9 +2,13 @@ package org.oscim.tiling.source.mapfile;
 
 import android.util.Log;
 
+import org.oscim.core.MapElement;
+import org.oscim.core.Tag;
+import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
 
 import java.io.FileInputStream;
@@ -23,10 +27,14 @@ public class MultiMapFileTileSource extends TileSource {
     @SuppressWarnings("SpellCheckingInspection")
     public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
+    private final static Tag mWaterTag = new Tag("natural", "sea");
+
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
     private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
     private final MapIndex mMapIndex;
     private String mPreferredLanguage;
+
+    private OnDataMissingListener onDataMissingListener;
 
     public MultiMapFileTileSource(MapIndex mapIndex) {
         mMapFileTileSources = new HashMap<>();
@@ -94,8 +102,12 @@ public class MultiMapFileTileSource extends TileSource {
         }
     }
 
+    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
+        this.onDataMissingListener = onDataMissingListener;
+    }
+
     class CombinedMapDatabase implements ITileDataSource {
-        HashMap<Integer, ITileDataSource> mTileDataSources;
+        private HashMap<Integer, ITileDataSource> mTileDataSources;
 
         public CombinedMapDatabase() {
             mTileDataSources = new HashMap<>();
@@ -115,6 +127,8 @@ public class MultiMapFileTileSource extends TileSource {
                 MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
                 if (mapFile == null) {
                     mapDataSink.completed(TILE_NOT_FOUND);
+                    if (tile.distance == 0d && onDataMissingListener != null)
+                        onDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
                     return;
                 }
                 //TODO Run asynchronously?
@@ -122,6 +136,16 @@ public class MultiMapFileTileSource extends TileSource {
                 mapDataSink.completed(DELAYED);
                 return;
             }
+            MapElement sea = new MapElement();
+            sea.tags.add(mWaterTag);
+            sea.startPolygon();
+            sea.addPoint(-16, -16);
+            sea.addPoint(Tile.SIZE + 16, -16);
+            sea.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
+            sea.addPoint(-16, Tile.SIZE + 16);
+            //sea.setLayer(-10);
+            mapDataSink.process(sea);
+
             ITileDataSource tileDataSource = mTileDataSources.get(key);
             //ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             tileDataSource.query(tile, mapDataSink);
