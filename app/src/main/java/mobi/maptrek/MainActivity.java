@@ -466,8 +466,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Layers layers = mMap.layers();
 
+        mGridLayer = new TileGridLayer(mMap);
         if (Configuration.getGridLayerEnabled())
-            mGridLayer = new TileGridLayer(mMap);
+            layers.add(mGridLayer);
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
@@ -478,7 +479,6 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(mLabelsLayer);
         mScaleBar = new MapScaleBar(mMapView);
         layers.add(mScaleBar);
-        layers.add(mGridLayer);
         layers.add(mLocationOverlay);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));

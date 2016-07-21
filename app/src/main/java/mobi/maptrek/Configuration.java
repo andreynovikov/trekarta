@@ -18,7 +18,7 @@ public class Configuration {
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
     private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
-    private static final String PREF_MAP_GRID = "map_3d_buildings";
+    private static final String PREF_MAP_GRID = "map_grid";
     private static final String PREF_BITMAP_MAP = "bitmap_map";
     private static final String PREF_POINTS_COUNTER = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
