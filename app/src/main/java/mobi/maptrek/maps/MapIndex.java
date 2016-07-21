@@ -205,6 +205,10 @@ public class MapIndex implements Serializable {
         mNativeMaps[x][y].downloading = enqueue;
     }
 
+    public boolean isDownloading(int x, int y) {
+        return mNativeMaps[x][y] != null && mNativeMaps[x][y].downloading != 0L;
+    }
+
     public void processDownloadedMap(String filePath) {
         File srcFile = new File(filePath);
         File mapFile = new File(filePath.replace(".part", ""));

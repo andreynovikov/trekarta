@@ -20,14 +20,22 @@ import java.util.HashSet;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 
-import static org.oscim.tiling.QueryResult.DELAYED;
+import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 public class MultiMapFileTileSource extends TileSource {
     @SuppressWarnings("SpellCheckingInspection")
     public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
-    private final static Tag mWaterTag = new Tag("natural", "sea");
+    private static final MapElement mSea = new MapElement();
+    static {
+        mSea.tags.add(new Tag("natural", "sea"));
+        mSea.startPolygon();
+        mSea.addPoint(-16, -16);
+        mSea.addPoint(Tile.SIZE + 16, -16);
+        mSea.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
+        mSea.addPoint(-16, Tile.SIZE + 16);
+    }
 
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
     private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
@@ -65,6 +73,11 @@ public class MultiMapFileTileSource extends TileSource {
     public boolean openFile(int x, int y, MapFile mapFile) {
         synchronized (FORGEMAP_MAGIC) {
             Log.w("MMFTS", "openFile(" + x + "," + y + ")");
+            int key = getKey(x, y);
+            if (mMapFileTileSources.containsKey(key)) {
+                Log.w("MMFTS", "   already opened");
+                return true;
+            }
             byte[] buffer = new byte[20];
             try {
                 FileInputStream is = new FileInputStream(mapFile.fileName);
@@ -131,24 +144,18 @@ public class MultiMapFileTileSource extends TileSource {
                         onDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
                     return;
                 }
-                //TODO Run asynchronously?
-                openFile(tileX, tileY, mapFile);
-                mapDataSink.completed(DELAYED);
-                return;
+                if (!openFile(tileX, tileY, mapFile)) {
+                    mapDataSink.completed(FAILED);
+                    return;
+                }
             }
-            MapElement sea = new MapElement();
-            sea.tags.add(mWaterTag);
-            sea.startPolygon();
-            sea.addPoint(-16, -16);
-            sea.addPoint(Tile.SIZE + 16, -16);
-            sea.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
-            sea.addPoint(-16, Tile.SIZE + 16);
-            //sea.setLayer(-10);
-            mapDataSink.process(sea);
+
+            //Add underlying sea polygon
+            mapDataSink.process(mSea);
 
             ITileDataSource tileDataSource = mTileDataSources.get(key);
-            //ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             tileDataSource.query(tile, mapDataSink);
+            Log.w("MMFTS", tile.tileX + "/" + tile.tileY + " complete");
         }
 
         @Override
@@ -171,51 +178,4 @@ public class MultiMapFileTileSource extends TileSource {
     private static int getKey(int x, int y) {
         return (x << 7) + y;
     }
-
-    /*
-    class ProxyTileDataSink implements ITileDataSink {
-        ITileDataSink mapDataSink;
-        QueryResult result;
-        HashSet<Integer> elements;
-        boolean hasNonSeaElements;
-
-        public ProxyTileDataSink(ITileDataSink mapDataSink) {
-            this.mapDataSink = mapDataSink;
-            elements = new HashSet<>();
-            hasNonSeaElements = false;
-        }
-
-        @Override
-        public void process(MapElement element) {
-            // Dirty workaround for sea/nosea issue
-            // https://groups.google.com/forum/#!topic/mapsforge-dev/x54kHlyKiBM
-            if (element.tags.contains("natural", "sea") || element.tags.contains("natural", "nosea")) {
-                element.setLayer("nosea".equals(element.tags.getValue("natural")) ? 1 : 0);
-            } else {
-                hasNonSeaElements = true;
-            }
-            if (element.isPoly()) {
-                int hash = element.hashCode();
-                if (elements.contains(hash))
-                    return;
-                elements.add(hash);
-            }
-            mapDataSink.process(element);
-        }
-
-        @Override
-        public void setTileImage(Bitmap bitmap) {
-            // There should be no bitmaps in vector data sources
-            // but we will put it here for convenience
-            mapDataSink.setTileImage(bitmap);
-        }
-
-        @Override
-        public void completed(QueryResult result) {
-            // Do not override successful results
-            if (this.result == null || result == QueryResult.SUCCESS)
-                this.result = result;
-        }
-    }
-    */
 }

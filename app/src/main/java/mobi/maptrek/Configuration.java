@@ -18,6 +18,7 @@ public class Configuration {
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
     private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
+    private static final String PREF_MAP_GRID = "map_3d_buildings";
     private static final String PREF_BITMAP_MAP = "bitmap_map";
     private static final String PREF_POINTS_COUNTER = "wpt_counter";
     private static final String PREF_LOCATION_STATE = "location_state";
@@ -175,6 +176,18 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(PREF_MAP_3D_BUILDINGS, buildingsLayerEnabled);
+        editor.apply();
+    }
+
+    public static boolean getGridLayerEnabled() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getBoolean(PREF_MAP_GRID, false);
+    }
+
+    public static void setGridLayerEnabled(boolean GRIDLayerEnabled) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(PREF_MAP_GRID, GRIDLayerEnabled);
         editor.apply();
     }
 

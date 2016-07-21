@@ -455,7 +455,6 @@ public class MainActivity extends Activity implements ILocationListener,
         setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
                 savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
-        mGridLayer = new TileGridLayer(mMap);
         mLocationOverlay = new LocationOverlay(mMap);
 
 		/* set initial position on first run */
@@ -467,6 +466,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Layers layers = mMap.layers();
 
+        if (Configuration.getGridLayerEnabled())
+            mGridLayer = new TileGridLayer(mMap);
+
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
             mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
@@ -476,6 +478,7 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(mLabelsLayer);
         mScaleBar = new MapScaleBar(mMapView);
         layers.add(mScaleBar);
+        layers.add(mGridLayer);
         layers.add(mLocationOverlay);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
@@ -896,6 +899,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 } else {
                     mMap.layers().remove(mGridLayer);
                 }
+                Configuration.setGridLayerEnabled(item.isChecked());
                 mMap.updateMap(true);
                 return true;
             }
@@ -2523,6 +2527,9 @@ public class MainActivity extends Activity implements ILocationListener,
             return;
 
         if (mMapCoverageLayer != null)
+            return;
+
+        if (mMapIndex.isDownloading(x, y))
             return;
 
         runOnUiThread(new Runnable() {
