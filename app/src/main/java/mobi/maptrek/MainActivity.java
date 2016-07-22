@@ -73,10 +73,12 @@ import android.widget.Toast;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
-import org.oscim.android.MapScaleBar;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
+import org.oscim.android.scalebar.DefaultMapScaleBar;
+import org.oscim.android.scalebar.MapScaleBarLayer;
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
@@ -279,7 +281,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private VectorTileLayer mBaseLayer;
     private BuildingLayer mBuildingsLayer;
-    private MapScaleBar mScaleBar;
+    private MapScaleBarLayer mMapScaleBarLayer;
     private LabelLayer mLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
@@ -477,8 +479,8 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
-        mScaleBar = new MapScaleBar(mMapView);
-        layers.add(mScaleBar);
+        mMapScaleBarLayer = new MapScaleBarLayer(mMap, new DefaultMapScaleBar(mMap));
+        layers.add(mMapScaleBarLayer);
         layers.add(mLocationOverlay);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
@@ -2602,8 +2604,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
 
-                    //TODO Use dp units for padding
-                    ((BitmapRenderer) mScaleBar.getRenderer()).setDrawOffset(false, area.left + 16, 16);
+                    BitmapRenderer renderer = (BitmapRenderer) mMapScaleBarLayer.getRenderer();
+                    renderer.setOffset(area.left + 8 * CanvasAdapter.dpi / 160, 0);
                 }
 
                 ViewTreeObserver ob;
