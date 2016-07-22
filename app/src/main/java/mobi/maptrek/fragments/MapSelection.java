@@ -16,7 +16,7 @@ import mobi.maptrek.R;
 public class MapSelection extends Fragment implements OnBackPressedListener, MapSelectionListener {
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
-    private boolean[][] mSelectionState;
+    private ACTION[][] mSelectionState;
     private TextView mMessageView;
     private Resources mResources;
     private int mCounter;
@@ -30,6 +30,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
         mMessageView = (TextView) rootView.findViewById(R.id.message);
+        mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
         return rootView;
     }
 
@@ -37,15 +38,15 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mListener.onBeginMapSelection(this);
+        mListener.onBeginMapManagement(this);
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
         floatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onDownloadSelectedMaps(mSelectionState);
-                mListener.onFinishMapSelection();
+                mListener.onManageSelectedMaps(mSelectionState);
+                mListener.onFinishMapManagement();
                 mFragmentHolder.disableActionButton();
                 mFragmentHolder.popCurrent();
             }
@@ -86,18 +87,18 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     @Override
     public boolean onBackClick() {
         mFragmentHolder.disableActionButton();
-        mListener.onFinishMapSelection();
+        mListener.onFinishMapManagement();
         return false;
     }
 
     @Override
-    public void onMapSelected(int x, int y) {
-        mCounter = mSelectionState[x][y] ? mCounter + 1 : mCounter - 1;
+    public void onMapSelected(int x, int y, ACTION action) {
+        mCounter = action == ACTION.NONE ? mCounter - 1 : mCounter + 1;
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, mCounter, mCounter));
     }
 
     @Override
-    public void registerMapSelectionState(boolean[][] selectedState) {
+    public void registerMapSelectionState(ACTION[][] selectedState) {
         mSelectionState = selectedState;
     }
 }

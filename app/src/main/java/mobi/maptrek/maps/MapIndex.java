@@ -175,6 +175,15 @@ public class MapIndex implements Serializable {
         return null;
     }
 
+    public void removeNativeMap(int x, int y) {
+        if (mNativeMaps[x][y] == null)
+            return;
+        File file = new File(mNativeMaps[x][y].fileName);
+        if (file.exists() && file.delete()) {
+            mNativeMaps[x][y] = null;
+        }
+    }
+
     @Nullable
     public MapFile getMap(@Nullable String filename) {
         if (filename == null)

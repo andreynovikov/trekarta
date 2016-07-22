@@ -5,7 +5,7 @@ import mobi.maptrek.maps.MapFile;
 
 public interface OnMapActionListener {
     void onMapSelected(MapFile map);
-    void onBeginMapSelection(MapSelectionListener listener);
-    void onFinishMapSelection();
-    void onDownloadSelectedMaps(boolean[][] mSelectionState);
+    void onBeginMapManagement(MapSelectionListener listener);
+    void onFinishMapManagement();
+    void onManageSelectedMaps(MapSelectionListener.ACTION[][] actionState);
 }

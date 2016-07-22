@@ -909,6 +909,10 @@ public class MainActivity extends Activity implements ILocationListener,
                 stopNavigation();
                 return true;
             }
+            case R.id.action_manage_maps: {
+                startMapSelection(true);
+                return true;
+            }
             case R.id.action_reset_advices: {
                 Configuration.resetAdviceState();
                 Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_advices_reset, Snackbar.LENGTH_LONG);
@@ -1172,17 +1176,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onMapDownloadClicked() {
         mMapDownloadButton.setVisibility(View.GONE);
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
-            popAll();
-        }
-        Fragment fragment = Fragment.instantiate(this, MapSelection.class.getName());
-        fragment.setEnterTransition(new Slide());
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.replace(R.id.contentPanel, fragment, "mapSelection");
-        ft.addToBackStack("mapSelection");
-        ft.commit();
-        updateMapViewArea();
-
+        startMapSelection(false);
     }
 
     public void onCompassClicked(View view) {
@@ -2122,6 +2116,26 @@ public class MainActivity extends Activity implements ILocationListener,
         */
     }
 
+    private void startMapSelection(boolean zoom) {
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            popAll();
+        }
+        if (zoom) {
+            MapPosition mapPosition = mMap.getMapPosition();
+            mapPosition.setZoomLevel(6);
+            mapPosition.setBearing(0f);
+            mapPosition.setTilt(0f);
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
+        }
+        Fragment fragment = Fragment.instantiate(this, MapSelection.class.getName());
+        fragment.setEnterTransition(new Slide());
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.replace(R.id.contentPanel, fragment, "mapSelection");
+        ft.addToBackStack("mapSelection");
+        ft.commit();
+        updateMapViewArea();
+    }
+
     @Override
     public void onMapSelected(MapFile mapFile) {
         Layers layers = mMap.layers();
@@ -2141,11 +2155,12 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onBeginMapSelection(MapSelectionListener listener) {
+    public void onBeginMapManagement(MapSelectionListener listener) {
         mMapCoverageLayer = new MapCoverageLayer(mMap, mMapIndex);
         mMapCoverageLayer.setOnMapSelectionListener(listener);
         int[] xy = (int[]) mMapDownloadButton.getTag();
-        mMapCoverageLayer.selectMap(xy[0], xy[1]);
+        if (xy != null)
+            mMapCoverageLayer.selectMap(xy[0], xy[1], MapSelectionListener.ACTION.DOWNLOAD);
         mMap.layers().add(mMapCoverageLayer);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -2157,7 +2172,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onFinishMapSelection() {
+    public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.setOnMapSelectionListener(null);
         mMapCoverageLayer.onDetach();
@@ -2166,13 +2181,19 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onDownloadSelectedMaps(boolean[][] selectionState) {
+    public void onManageSelectedMaps(MapSelectionListener.ACTION[][] selectionState) {
         File mapsDir = getExternalFilesDir("maps");
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        boolean removed = false;
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++) {
-                if (!selectionState[x][y])
+                if (selectionState[x][y] == MapSelectionListener.ACTION.NONE)
                     continue;
+                if (selectionState[x][y] == MapSelectionListener.ACTION.REMOVE) {
+                    mMapIndex.removeNativeMap(x, y);
+                    removed = true;
+                    continue;
+                }
                 Uri uri = MapIndex.getDownloadUri(x, y);
                 DownloadManager.Request request = new DownloadManager.Request(uri);
                 request.setTitle(getString(R.string.mapTitle, x, y));
@@ -2188,6 +2209,8 @@ public class MainActivity extends Activity implements ILocationListener,
                 request.setVisibleInDownloadsUi(false);
                 mMapIndex.markDownloading(x, y, downloadManager.enqueue(request));
             }
+        if (removed)
+            mMap.clearMap();
     }
 
     private void showBitmapMap(MapFile mapFile) {
