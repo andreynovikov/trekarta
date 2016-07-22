@@ -59,25 +59,41 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
         float scale = (float) (t.position.scale * Tile.SIZE / UNSCALE_COORD);
 
-        int tileXMin = FastMath.clamp((int) (MercatorProjection.longitudeToX(b.xmin) / TILE_SCALE), 0, 127);
+        int tileXMin = (int) (MercatorProjection.longitudeToX(b.xmin) / TILE_SCALE);
+        int tileXMax = (int) (MercatorProjection.longitudeToX(b.xmax) / TILE_SCALE);
         int tileYMin = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymax) / TILE_SCALE), 0, 127);
-        int tileXMax = FastMath.clamp((int) (MercatorProjection.longitudeToX(b.xmax) / TILE_SCALE), 0, 127);
         int tileYMax = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymin) / TILE_SCALE), 0, 127);
+
+        if (b.xmin < 0)
+            tileXMin--;
 
         synchronized (this) {
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
                 for (int tileY = tileYMin; tileY <= tileYMax; tileY++) {
+                    int tileXX = tileX;
+
+                    if (tileX < 0 || tileX >= 128) {
+                    /* flip-around date line */
+                        if (tileX < 0)
+                            tileXX = 128 + tileX;
+                        else
+                            tileXX = tileX - 128;
+
+                        if (tileXX < 0 || tileXX > 128)
+                            continue;
+                    }
+
                     AreaStyle style = mMissingAreaStyle;
                     int level = 1;
-                    if (mMapIndex.getNativeMap(tileX, tileY) != null) {
+                    if (mMapIndex.getNativeMap(tileXX, tileY) != null) {
                         style = mPresentAreaStyle;
                         level = 2;
                     }
 
-                    if (mSelected[tileX][tileY] == MapSelectionListener.ACTION.DOWNLOAD) {
+                    if (mSelected[tileXX][tileY] == MapSelectionListener.ACTION.DOWNLOAD) {
                         style = mSelectedAreaStyle;
                         level = 3;
-                    } else if (mSelected[tileX][tileY] == MapSelectionListener.ACTION.REMOVE) {
+                    } else if (mSelected[tileXX][tileY] == MapSelectionListener.ACTION.REMOVE) {
                         style = mDeletedAreaStyle;
                         level = 4;
                     }
