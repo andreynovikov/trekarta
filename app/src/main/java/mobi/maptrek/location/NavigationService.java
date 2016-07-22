@@ -43,6 +43,7 @@ import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Route;
+import mobi.maptrek.util.Geo;
 import mobi.maptrek.util.StringFormatter;
 
 public class NavigationService extends BaseNavigationService implements OnSharedPreferenceChangeListener {
@@ -535,10 +536,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
 
         // vmg
-        double vmg = GeoPoint.vmg(smoothspeed, Math.abs(turn));
+        double vmg = Geo.vmg(smoothspeed, Math.abs(turn));
 
         // ete
-        double curavvmg = GeoPoint.vmg(avgspeed, Math.abs(turn));
+        double curavvmg = Geo.vmg(avgspeed, Math.abs(turn));
         if (avvmg == 0.0 || tics % 10 == 0) {
             for (int i = vmgav.length - 1; i > 0; i--) {
                 avvmg += vmgav[i];
@@ -570,7 +571,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
             if (prevWaypoint != null) {
                 double dtk = GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
-                xtk = GeoPoint.xtk(distance, dtk, bearing);
+                xtk = Geo.xtk(distance, dtk, bearing);
 
                 if (xtk == Double.NEGATIVE_INFINITY) {
                     if (mUseTraverse && hasNext) {
@@ -578,7 +579,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
                         MapObject nextWpt = getNextRouteWaypoint();
                         if (nextWpt != null) {
                             double dtk2 = GeoPoint.bearing(nextWpt.latitude, nextWpt.longitude, navWaypoint.latitude, navWaypoint.longitude);
-                            cxtk2 = GeoPoint.xtk(0, dtk2, bearing);
+                            cxtk2 = Geo.xtk(0, dtk2, bearing);
                         }
 
                         if (cxtk2 != Double.NEGATIVE_INFINITY) {

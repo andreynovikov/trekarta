@@ -5,6 +5,8 @@ import org.oscim.core.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.maptrek.util.Geo;
+
 public class Route {
     public String name;
     public String description;
@@ -64,10 +66,10 @@ public class Route {
                 double distance = GeoPoint.distance(waypoint.latitude, waypoint.longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
                 double bearing1 = GeoPoint.bearing(waypoint.latitude, waypoint.longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
                 double dtk1 = GeoPoint.bearing(waypoints.get(i).latitude, waypoints.get(i).longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
-                double cxtk1 = Math.abs(GeoPoint.xtk(distance, dtk1, bearing1));
+                double cxtk1 = Math.abs(Geo.xtk(distance, dtk1, bearing1));
                 double bearing2 = GeoPoint.bearing(waypoint.latitude, waypoint.longitude, waypoints.get(i).latitude, waypoints.get(i).longitude);
                 double dtk2 = GeoPoint.bearing(waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude, waypoints.get(i).latitude, waypoints.get(i).longitude);
-                double cxtk2 = Math.abs(GeoPoint.xtk(distance, dtk2, bearing2));
+                double cxtk2 = Math.abs(Geo.xtk(distance, dtk2, bearing2));
 
                 if (cxtk2 != Double.POSITIVE_INFINITY && cxtk1 < xtk) {
                     xtk = cxtk1;

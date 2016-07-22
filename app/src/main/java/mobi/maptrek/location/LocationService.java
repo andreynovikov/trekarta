@@ -883,14 +883,15 @@ public class LocationService extends BaseLocationService implements LocationList
             mMockCallback.postDelayed(this, LOCATION_DELAY);
             mMockLocationTicker++;
 
-            //TODO Why 200?
+            // 200 ticks - 60 seconds
             int ddd = mMockLocationTicker % 200;
 
             // Search for satellites for first 3 seconds and each 1 minute
-            if (ddd >= 0 && ddd < 3) {
+            if (ddd >= 0 && ddd < 10) {
                 mGpsStatus = GPS_SEARCHING;
                 mFSats = mMockLocationTicker % 10;
                 mTSats = 25;
+                mContinuous = false;
                 updateGpsStatus();
                 return;
             }

@@ -19,6 +19,7 @@ import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.TileDistanceSort;
 import org.oscim.layers.tile.TileSet;
 import org.oscim.tiling.ITileDataSink;
+import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.PausableThread;
 import org.oscim.utils.ScanBox;
@@ -30,8 +31,8 @@ import java.util.HashMap;
 import static org.oscim.layers.tile.MapTile.State.DEADBEEF;
 import static org.oscim.layers.tile.MapTile.State.LOADING;
 import static org.oscim.layers.tile.MapTile.State.NEW_DATA;
-import static org.oscim.tiling.ITileDataSink.QueryResult.FAILED;
-import static org.oscim.tiling.ITileDataSink.QueryResult.SUCCESS;
+import static org.oscim.tiling.QueryResult.FAILED;
+import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class BitmapTileMapPreviewView extends TextureView implements SurfaceTextureListener {
     private static final String TAG = "BTMPV";
