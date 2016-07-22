@@ -10,6 +10,7 @@ import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
+import org.oscim.utils.LRUCache;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class MultiMapFileTileSource extends TileSource {
     public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
     private static final MapElement mSea = new MapElement();
+
     static {
         mSea.tags.add(new Tag("natural", "sea"));
         mSea.startPolygon();
@@ -38,14 +40,16 @@ public class MultiMapFileTileSource extends TileSource {
     }
 
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
-    private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
+    //private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
+    private final DatabaseIndex mMapFileTileSources;
+
     private final MapIndex mMapIndex;
     private String mPreferredLanguage;
 
     private OnDataMissingListener onDataMissingListener;
 
     public MultiMapFileTileSource(MapIndex mapIndex) {
-        mMapFileTileSources = new HashMap<>();
+        mMapFileTileSources = new DatabaseIndex();
         mCombinedMapDatabases = new HashSet<>();
         mMapIndex = mapIndex;
     }
@@ -64,15 +68,12 @@ public class MultiMapFileTileSource extends TileSource {
 
     @Override
     public void close() {
-        for (MapFileTileSource tileSource : mMapFileTileSources.values()) {
-            tileSource.close();
-        }
         mMapFileTileSources.clear();
     }
 
     public boolean openFile(int x, int y, MapFile mapFile) {
         synchronized (FORGEMAP_MAGIC) {
-            Log.w("MMFTS", "openFile(" + x + "," + y + ")");
+            Log.e("MMFTS", "openFile(" + x + "," + y + ")");
             int key = getKey(x, y);
             if (mMapFileTileSources.containsKey(key)) {
                 Log.w("MMFTS", "   already opened");
@@ -155,7 +156,6 @@ public class MultiMapFileTileSource extends TileSource {
 
             ITileDataSource tileDataSource = mTileDataSources.get(key);
             tileDataSource.query(tile, mapDataSink);
-            Log.w("MMFTS", tile.tileX + "/" + tile.tileY + " complete");
         }
 
         @Override
@@ -172,6 +172,36 @@ public class MultiMapFileTileSource extends TileSource {
 
         public void add(int x, int y, ITileDataSource dataSource) {
             mTileDataSources.put(getKey(x, y), dataSource);
+        }
+
+        public void remove(Integer key) {
+            mTileDataSources.remove(key);
+        }
+    }
+
+    class DatabaseIndex extends LRUCache<Integer, MapFileTileSource> {
+        public DatabaseIndex() {
+            super(20);
+        }
+
+        @Override
+        public MapFileTileSource remove(Object key) {
+            Log.e("MMFTS", "Close: " + key.toString());
+            MapFileTileSource removed = super.remove(key);
+            if (removed != null) {
+                for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
+                    combinedMapDatabase.remove((Integer) key);
+                removed.close();
+            }
+            return removed;
+        }
+
+        @Override
+        public void clear() {
+            for (MapFileTileSource mapFileTileSource : values()) {
+                mapFileTileSource.close();
+            }
+            super.clear();
         }
     }
 

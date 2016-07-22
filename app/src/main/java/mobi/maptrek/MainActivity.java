@@ -1437,7 +1437,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     }
                 });
                 m.what = R.id.msgRemoveMapDownloadButton;
-                mMainHandler.sendMessageDelayed(m, 3000);
+                mMainHandler.sendMessageDelayed(m, 1000);
             }
         }
     }
