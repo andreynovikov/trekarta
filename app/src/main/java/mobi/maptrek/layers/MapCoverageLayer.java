@@ -37,10 +37,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     public MapCoverageLayer(Map map, MapIndex mapIndex) {
         super(map);
         mMapIndex = mapIndex;
-        mPresentAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.GREEN).blendScale(9).color(Color.fade(Color.GREEN, 0.4f)).build();
-        mMissingAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.GRAY).blendScale(9).color(Color.fade(Color.GRAY, 0.4f)).build();
-        mSelectedAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)).build();
-        mDeletedAreaStyle = AreaStyle.builder().fadeScale(5).blendColor(Color.RED).blendScale(9).color(Color.fade(Color.RED, 0.4f)).build();
+        mPresentAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GREEN).blendScale(9).color(Color.fade(Color.GREEN, 0.4f)).build();
+        mMissingAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GRAY).blendScale(9).color(Color.fade(Color.GRAY, 0.4f)).build();
+        mSelectedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)).build();
+        mDeletedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.RED).blendScale(9).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++)
@@ -54,7 +54,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     protected void processFeatures(AbstractVectorLayer.Task t, Box b) {
-        if (t.position.getZoomLevel() < 5)
+        if (t.position.getZoomLevel() < 3)
             return;
 
         float scale = (float) (t.position.scale * Tile.SIZE / UNSCALE_COORD);
