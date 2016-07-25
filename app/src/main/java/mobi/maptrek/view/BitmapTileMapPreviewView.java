@@ -157,13 +157,13 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         Log.e(TAG, "onSurfaceTextureDestroyed()");
 
+        // Clear the queue
+        mJobQueue.clear();
+
         // Stop tile loader
         mTileLoader.pause();
         mTileLoader.finish();
         mTileLoader.dispose();
-
-        // Clear the queue
-        mJobQueue.clear();
 
         // Stop drawing
         mDrawThread.setRunning(false);
@@ -223,7 +223,8 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 
     public void setLocation(GeoPoint location) {
         assert (mTileSource != null);
-        mPosition = new MapPosition(location.getLatitude(), location.getLongitude(), (1 << mTileSource.getZoomLevelMax()) + 5);
+        mPosition = new MapPosition(location.getLatitude(), location.getLongitude(), 1);
+        mPosition.setZoomLevel(mTileSource.getZoomLevelMax());
     }
 
     MapTile addTile(int x, int y, int zoomLevel) {
