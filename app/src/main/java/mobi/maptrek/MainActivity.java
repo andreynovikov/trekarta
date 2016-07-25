@@ -108,6 +108,7 @@ import org.oscim.utils.Osm;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -278,6 +279,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mMyLocationDrawable;
     private VectorDrawable mLocationSearchingDrawable;
 
+    //TODO Temporary fix
+    @SuppressWarnings("FieldCanBeLocal")
     private VectorTileLayer mBaseLayer;
     private VectorTileLayer mNativeMapsLayer;
     private BuildingLayer mBuildingsLayer;
@@ -375,8 +378,14 @@ public class MainActivity extends Activity implements ILocationListener,
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
             mMapFileSource = new MultiMapFileTileSource(mMapIndex);
-            //TODO Initialize language from locale
-            mMapFileSource.setPreferredLanguage(Configuration.getLanguage());
+            String language = Configuration.getLanguage();
+            if (language == null) {
+                language = resources.getConfiguration().locale.getLanguage();
+                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
+                    language = "en";
+                Configuration.setLanguage(language);
+            }
+            mMapFileSource.setPreferredLanguage(language);
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
@@ -884,7 +893,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 return true;
             }
             case R.id.theme_osmarender: {
-                mMap.setTheme(VtmThemes.OSMARENDER);
+                mMap.setTheme(VtmThemes.OSMARENDER, true);
                 return true;
             }
             case R.id.action_3dbuildings: {
@@ -2946,9 +2955,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void setNightMode(boolean night) {
         if (night)
-            mMap.setTheme(VtmThemes.NEWTRON);
+            mMap.setTheme(VtmThemes.NEWTRON, true);
         else
-            mMap.setTheme(VtmThemes.DEFAULT);
+            mMap.setTheme(VtmThemes.DEFAULT, true);
         mNightMode = night;
     }
 
