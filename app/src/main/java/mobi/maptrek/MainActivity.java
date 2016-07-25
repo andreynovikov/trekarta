@@ -99,7 +99,6 @@ import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
 import org.oscim.theme.VtmThemes;
-import org.oscim.tiling.CombinedTileSource;
 import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
@@ -280,9 +279,11 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mLocationSearchingDrawable;
 
     private VectorTileLayer mBaseLayer;
+    private VectorTileLayer mNativeMapsLayer;
     private BuildingLayer mBuildingsLayer;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelLayer mLabelsLayer;
+    private LabelLayer mNativeLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
@@ -447,15 +448,11 @@ public class MainActivity extends Activity implements ILocationListener,
         //new Thread(new TilePreloader(baseMapSource.getDataSource())).start();
 
         mBaseLayer = new OsmTileLayer(mMap);
-        mBaseLayer.setTileSource(new CombinedTileSource(mMapFileSource, baseMapSource));
-        mMapFileSource.setOnDataMissingListener(this);
+        mBaseLayer.setTileSource(baseMapSource);
         mMap.setBaseMap(mBaseLayer);
 
         //BitmapTileLayer hillShadeLayer = new BitmapTileLayer(mMap, DefaultSources.HIKEBIKE_HILLSHADE.build());
         //mMap.layers().add(hillShadeLayer);
-
-        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
-                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
         mLocationOverlay = new LocationOverlay(mMap);
 
@@ -468,18 +465,25 @@ public class MainActivity extends Activity implements ILocationListener,
 
         Layers layers = mMap.layers();
 
+        mNativeMapsLayer = new OsmTileLayer(mMap);
+        mNativeMapsLayer.setTileSource(mMapFileSource);
+        mMapFileSource.setOnDataMissingListener(this);
+        layers.add(mNativeMapsLayer);
+
         mGridLayer = new TileGridLayer(mMap);
         if (Configuration.getGridLayerEnabled())
             layers.add(mGridLayer);
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
-            mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
+            mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
             layers.add(mBuildingsLayer);
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer);
-        mMapScaleBarLayer = new MapScaleBarLayer(mMap, new DefaultMapScaleBar(mMap));
+        mNativeLabelsLayer = new LabelLayer(mMap, mNativeMapsLayer);
+        layers.add(mNativeLabelsLayer);
+        mMapScaleBarLayer = new MapScaleBarLayer(mMap, new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 240));
         layers.add(mMapScaleBarLayer);
         layers.add(mLocationOverlay);
 
@@ -504,6 +508,9 @@ public class MainActivity extends Activity implements ILocationListener,
 
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap);
+
+        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
+                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -883,9 +890,9 @@ public class MainActivity extends Activity implements ILocationListener,
             case R.id.action_3dbuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
-                    mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
+                    mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
                     mMap.layers().add(mBuildingsLayer);
-                    // Buildings should be fetched from base layer
+                    // Let buildings be re-fetched from map layer
                     mMap.clearMap();
                 } else {
                     mMap.layers().remove(mBuildingsLayer);
@@ -1433,6 +1440,13 @@ public class MainActivity extends Activity implements ILocationListener,
                 m.what = R.id.msgRemoveMapDownloadButton;
                 mMainHandler.sendMessageDelayed(m, 1000);
             }
+        }
+        if (mLabelsLayer.isEnabled() && mapPosition.zoomLevel > 7) {
+            mMap.layers().remove(mLabelsLayer);
+            mLabelsLayer.setEnabled(false);
+        } else if (!mLabelsLayer.isEnabled() && mapPosition.zoomLevel <= 7) {
+            mMap.layers().add(mLabelsLayer);
+            mLabelsLayer.setEnabled(true);
         }
     }
 
@@ -2145,7 +2159,9 @@ public class MainActivity extends Activity implements ILocationListener,
             if (mapFile == mBitmapLayerMap) {
                 if (mBuildingsLayerEnabled)
                     layers.add(mBuildingsLayer);
-                layers.add(mLabelsLayer);
+                if (mLabelsLayer.isEnabled())
+                    layers.add(mLabelsLayer);
+                layers.add(mNativeLabelsLayer);
                 mMap.updateMap(true);
                 mBitmapLayerMap = null;
                 return;
@@ -2219,6 +2235,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mBuildingsLayerEnabled)
             layers.remove(mBuildingsLayer);
         layers.remove(mLabelsLayer);
+        layers.remove(mNativeLabelsLayer);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
         //FIXME Absolute positioning is a hack
@@ -2551,10 +2568,17 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mMap.animator().isActive())
             return;
 
+        // Do not show button if we are already choosing maps
         if (mMapCoverageLayer != null)
             return;
 
+        // Do not show button if this map is already downloading
         if (mMapIndex.isDownloading(x, y))
+            return;
+
+        // Do not show button if custom map is shown
+        mMap.getMapPosition(mMapPosition);
+        if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
             return;
 
         runOnUiThread(new Runnable() {

@@ -22,9 +22,12 @@ import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 
 import static org.oscim.tiling.QueryResult.FAILED;
+import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 public class MultiMapFileTileSource extends TileSource {
+    private static final byte MAP_FILE_MIN_ZOOM = 8;
+
     @SuppressWarnings("SpellCheckingInspection")
     public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
@@ -40,7 +43,6 @@ public class MultiMapFileTileSource extends TileSource {
     }
 
     private HashSet<CombinedMapDatabase> mCombinedMapDatabases;
-    //private HashMap<Integer, MapFileTileSource> mMapFileTileSources;
     private final DatabaseIndex mMapFileTileSources;
 
     private final MapIndex mMapIndex;
@@ -49,6 +51,7 @@ public class MultiMapFileTileSource extends TileSource {
     private OnDataMissingListener onDataMissingListener;
 
     public MultiMapFileTileSource(MapIndex mapIndex) {
+        super(2, 17);
         mMapFileTileSources = new DatabaseIndex();
         mCombinedMapDatabases = new HashSet<>();
         mMapIndex = mapIndex;
@@ -129,13 +132,13 @@ public class MultiMapFileTileSource extends TileSource {
 
         @Override
         public void query(MapTile tile, ITileDataSink mapDataSink) {
-            int tileX = tile.tileX;
-            int tileY = tile.tileY;
-            byte zoom = tile.zoomLevel;
-            if (zoom > 7) {
-                tileX = tileX >> (zoom - 7);
-                tileY = tileY >> (zoom - 7);
+            if (tile.zoomLevel < MAP_FILE_MIN_ZOOM) {
+                mapDataSink.completed(SUCCESS);
+                return;
             }
+
+            int tileX = tile.tileX >> (tile.zoomLevel - 7);
+            int tileY = tile.tileY >> (tile.zoomLevel - 7);
             int key = getKey(tileX, tileY);
             if (!mTileDataSources.containsKey(key)) {
                 MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);

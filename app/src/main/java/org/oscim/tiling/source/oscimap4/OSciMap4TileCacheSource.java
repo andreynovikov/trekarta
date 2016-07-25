@@ -34,6 +34,7 @@ import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class OSciMap4TileCacheSource extends TileSource {
     public OSciMap4TileCacheSource() {
+        super(2, 7);
     }
 
     @Override
