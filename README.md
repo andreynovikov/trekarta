@@ -8,4 +8,4 @@ __MapTrek__ is designed for hiking, geocaching, off-roading, cycling, boating an
 
 MapTrek is developed as a hobby for personal use but is generously shared to public on as-is basis. Developers are welcome to contribute to the project. Specifically experts in OpenGL and PostGIS are much needed.
 
-The development is on alpha stage now which means that much of desired functionality is not ready yet.
+The development is in beta stage now. Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/maptrek/issues), for questions and general discussions [Google Groups Q&A Forum](https://groups.google.com/forum/#!forum/maptrek) should be preferred.
