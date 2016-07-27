@@ -581,6 +581,12 @@ public class MainActivity extends Activity implements ILocationListener,
                 onMoreClicked();
             }
         });
+        mMoreButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                onMoreLongClicked();
+                return true;
+            }
+        });
         mMapDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1175,19 +1181,89 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onMoreClicked() {
-        PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
-        fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
-            @Override
-            public void onPrepareMenu(List<PanelMenuItem> menu) {
-                for (PanelMenuItem item : menu) {
-                    switch (item.getItemId()) {
-                        case R.id.action_grid:
-                            item.setChecked(mMap.layers().contains(mGridLayer));
+        if (mLocationButton.getVisibility() == View.VISIBLE) {
+            PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
+            fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
+                @Override
+                public void onPrepareMenu(List<PanelMenuItem> menu) {
+                    for (PanelMenuItem item : menu) {
+                        switch (item.getItemId()) {
+                            case R.id.action_grid:
+                                item.setChecked(mMap.layers().contains(mGridLayer));
+                        }
                     }
                 }
-            }
-        });
-        showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
+            });
+            showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
+        } else {
+            onMoreLongClicked();
+        }
+    }
+
+    private void onMoreLongClicked() {
+        final int duration = 30;
+        final View mAPB = findViewById(R.id.actionPanelBackground);
+
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            popAll();
+        }
+
+        mMoreButton.animate().rotationBy(180).setDuration(duration * 5);
+        if (mLocationButton.getVisibility() == View.VISIBLE) {
+            mAPB.animate().alpha(0f).setDuration(duration * 5);
+            mLocationButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLocationButton.setVisibility(View.INVISIBLE);
+                    mRecordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mRecordButton.setVisibility(View.INVISIBLE);
+                            mPlacesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    mPlacesButton.setVisibility(View.INVISIBLE);
+                                    mMapsButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            mMapsButton.setVisibility(View.INVISIBLE);
+                                            mAPB.setVisibility(View.INVISIBLE);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            mAPB.setVisibility(View.VISIBLE);
+            mAPB.animate().setDuration(duration * 5).alpha(1f);
+            mMapsButton.setVisibility(View.VISIBLE);
+            mMapsButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mPlacesButton.setVisibility(View.VISIBLE);
+                    mPlacesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mRecordButton.setVisibility(View.VISIBLE);
+                            mRecordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    mLocationButton.setVisibility(View.VISIBLE);
+                                    mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void onMapDownloadClicked() {
