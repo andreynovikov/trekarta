@@ -83,6 +83,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             continue;
                     }
 
+                    if (mMapIndex.hasDownloadSizes()) {
+                        MapFile mapFile = mMapIndex.getNativeMapInfo(tileXX, tileY);
+                        if (mapFile != null && mapFile.downloadSize == 0L)
+                            continue;
+                    }
+
                     AreaStyle style = mMissingAreaStyle;
                     int level = 1;
                     if (mMapIndex.getNativeMap(tileXX, tileY) != null) {
@@ -140,6 +146,11 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             return true;
         }
         if (gesture instanceof Gesture.Tap || gesture instanceof Gesture.DoubleTap) {
+            if (mMapIndex.hasDownloadSizes()) {
+                MapFile mapFile = mMapIndex.getNativeMapInfo(tileX, tileY);
+                if (mapFile != null && mapFile.downloadSize == 0L)
+                    return true;
+            }
             selectMap(tileX, tileY, MapSelectionListener.ACTION.DOWNLOAD);
             return true;
         }

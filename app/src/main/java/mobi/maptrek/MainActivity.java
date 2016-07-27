@@ -2150,7 +2150,8 @@ public class MainActivity extends Activity implements ILocationListener,
             mapPosition.setTilt(0f);
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
         }
-        Fragment fragment = Fragment.instantiate(this, MapSelection.class.getName());
+        MapSelection fragment = (MapSelection) Fragment.instantiate(this, MapSelection.class.getName());
+        fragment.setMapIndex(mMapIndex);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "mapSelection");

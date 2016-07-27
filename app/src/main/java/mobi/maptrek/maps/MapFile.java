@@ -14,21 +14,22 @@ public class MapFile {
     public transient TileLayer tileLayer;
     // Native map fields
     public String fileName;
+    public double[] polygonPoints;
+    public long created;
     public String downloadPath;
+    public short downloadCreated;
     public long downloadSize;
     public long downloading;
     public boolean downloaded;
-    public double[] polygonPoints;
 
     MapFile() {
     }
 
-    public MapFile(String name, BoundingBox boundingBox, String fileName, String downloadPath, double[] polygonPoints) {
+    public MapFile(String name, BoundingBox boundingBox, String fileName, String downloadPath) {
         this.name = name;
         this.boundingBox = boundingBox;
         this.fileName = fileName;
         this.downloadPath = downloadPath;
-        this.polygonPoints = polygonPoints;
     }
 
     /**

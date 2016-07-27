@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.oscim.tiling.TileSource;
+import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.sqlite.SQLiteMapInfo;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 
@@ -31,6 +32,7 @@ public class MapIndex implements Serializable {
     private HashSet<MapFile> mMaps;
     private MapFile[][] mNativeMaps = new MapFile[128][128];
     private int mHashCode;
+    private boolean mHasDownloadSizes;
 
     @SuppressWarnings("unused")
     MapIndex() {
@@ -112,8 +114,16 @@ public class MapIndex implements Serializable {
                 if (x > 127 || y > 127)
                     throw new NumberFormatException("out of range");
                 //FIXME Remove unused fields
-                mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, file.getAbsolutePath(), null, null);
-                mNativeMaps[x][y].downloaded = true;
+                mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, file.getAbsolutePath(), null);
+                MapFileTileSource tileSource = new MapFileTileSource();
+                if (tileSource.setMapFile(mNativeMaps[x][y].fileName)) {
+                    TileSource.OpenResult openResult = tileSource.open();
+                    if (openResult.isSuccess()) {
+                        mNativeMaps[x][y].created = tileSource.getMapInfo().mapDate;
+                        mNativeMaps[x][y].downloaded = true;
+                    }
+                    tileSource.close();
+                }
                 Log.w(TAG, "  indexed");
             } catch (NumberFormatException e) {
                 Log.w(TAG, "  skipped: " + e.getMessage());
@@ -168,11 +178,19 @@ public class MapIndex implements Serializable {
         map.tileSource.close();
     }
 
+    /**
+     * Returns native map for a specified square if it is available.
+     */
     @Nullable
     public MapFile getNativeMap(int x, int y) {
         if (mNativeMaps[x][y] != null && mNativeMaps[x][y].downloaded)
             return mNativeMaps[x][y];
         return null;
+    }
+
+    //TODO Refactor to implement separate structure
+    public MapFile getNativeMapInfo(int x, int y) {
+        return mNativeMaps[x][y];
     }
 
     public void removeNativeMap(int x, int y) {
@@ -206,10 +224,19 @@ public class MapIndex implements Serializable {
         mMaps.clear();
     }
 
+    public void setMapStatus(int x, int y, short date, long size) {
+        if (mNativeMaps[x][y] == null) {
+            //FIXME Remove unused fields
+            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null);
+        }
+        mNativeMaps[x][y].downloadCreated = date;
+        mNativeMaps[x][y].downloadSize = size;
+    }
+
     public void markDownloading(int x, int y, long enqueue) {
         if (mNativeMaps[x][y] == null) {
             //FIXME Remove unused fields
-            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null, null);
+            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null);
         }
         mNativeMaps[x][y].downloading = enqueue;
     }
@@ -236,6 +263,24 @@ public class MapIndex implements Serializable {
         } catch (NumberFormatException e) {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    public boolean hasDownloadSizes() {
+        return mHasDownloadSizes;
+    }
+
+    public void setHasDownloadSizes(boolean hasSizes) {
+        mHasDownloadSizes = hasSizes;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static Uri getIndexUri() {
+        return new Uri.Builder()
+                .scheme("http")
+                .authority("maptrek.mobi")
+                .appendPath("maps")
+                .appendPath("index")
+                .build();
     }
 
     @SuppressLint("DefaultLocale")
