@@ -246,14 +246,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private View mMapButtonHolder;
     private ImageButton mLocationButton;
     private ImageButton mRecordButton;
-    //TODO Temporary fix
-    @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mPlacesButton;
-    //TODO Temporary fix
-    @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mMapsButton;
-    //TODO Temporary fix
-    @SuppressWarnings("FieldCanBeLocal")
     private ImageButton mMoreButton;
     private Button mMapDownloadButton;
     private View mCompassView;
@@ -439,6 +433,19 @@ public class MainActivity extends Activity implements ILocationListener,
         mMap = mMapView.map();
         MapPosition mapPosition = Configuration.getPosition();
         mMap.setMapPosition(mapPosition);
+        if (mapPosition.x == 0.5 && mapPosition.y == 0.5) {
+            // Set initial location based on device language
+            switch (resources.getConfiguration().locale.getLanguage()) {
+                case "de":
+                    mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
+                    break;
+                case "ru":
+                    mMap.setMapPosition(56.4, 39, 1 << 5);
+                    break;
+                default:
+                    mMap.setMapPosition(-19, -12, 1 << 2);
+            }
+        }
 
         mNavigationNorthDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_north, theme);
         mNavigationTrackDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_track, theme);
@@ -464,13 +471,6 @@ public class MainActivity extends Activity implements ILocationListener,
         //mMap.layers().add(hillShadeLayer);
 
         mLocationOverlay = new LocationOverlay(mMap);
-
-		/* set initial position on first run */
-        MapPosition pos = new MapPosition();
-        mMap.getMapPosition(pos);
-        if (pos.x == 0.5 && pos.y == 0.5)
-            // TODO Try to guess user location
-            mMap.setMapPosition(55.8194, 37.6676, 1 << 16);
 
         Layers layers = mMap.layers();
 
