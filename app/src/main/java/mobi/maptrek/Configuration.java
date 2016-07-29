@@ -24,6 +24,7 @@ public class Configuration {
     private static final String PREF_LOCATION_STATE = "location_state";
     private static final String PREF_PREVIOUS_LOCATION_STATE = "previous_location_state";
     private static final String PREF_TRACKING_STATE = "tracking_state";
+    private static final String PREF_ACTION_PANEL_STATE = "action_panel_state";
     private static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
     private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
@@ -89,6 +90,18 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putInt(PREF_TRACKING_STATE, trackingState);
+        editor.apply();
+    }
+
+    public static boolean getActionPanelState() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getBoolean(PREF_ACTION_PANEL_STATE, true);
+    }
+
+    public static void setActionPanelState(boolean panelState) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(PREF_ACTION_PANEL_STATE, panelState);
         editor.apply();
     }
 
