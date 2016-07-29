@@ -217,6 +217,7 @@ public class DataSourceList extends ListFragment {
                 int count = ((WaypointDataSource) dataSource).getWaypointsCount();
                 itemHolder.description.setText(resources.getQuantityString(R.plurals.waypointsCount, count, count));
                 itemHolder.filename.setText("");
+                itemHolder.icon.setImageResource(R.drawable.ic_points);
                 itemHolder.action.setVisibility(View.GONE);
                 itemHolder.action.setOnClickListener(null);
             } else {
@@ -227,6 +228,7 @@ public class DataSourceList extends ListFragment {
                         Track track = ((FileDataSource) dataSource).tracks.get(0);
                         String distance = StringFormatter.distanceH(track.getDistance());
                         itemHolder.description.setText(distance);
+                        itemHolder.icon.setImageResource(R.drawable.ic_track);
                         color = track.style.color;
                     } else {
                         int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
@@ -241,10 +243,20 @@ public class DataSourceList extends ListFragment {
                             sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
                         }
                         itemHolder.description.setText(sb);
+                        if (waypointsCount > 0 && tracksCount > 0)
+                            itemHolder.icon.setImageResource(R.drawable.ic_dataset);
+                        else if (waypointsCount > 0)
+                            itemHolder.icon.setImageResource(R.drawable.ic_points);
+                        else if (tracksCount > 0)
+                            itemHolder.icon.setImageResource(R.drawable.ic_tracks);
                     }
                 } else {
                     String size = Formatter.formatShortFileSize(getContext(), file.length());
                     itemHolder.description.setText(size);
+                    if (mNativeTracks)
+                        itemHolder.icon.setImageResource(R.drawable.ic_track);
+                    else
+                        itemHolder.icon.setImageResource(R.drawable.ic_dataset);
                     color = mDisabledColor;
                 }
                 final boolean shown = dataSource.isVisible();

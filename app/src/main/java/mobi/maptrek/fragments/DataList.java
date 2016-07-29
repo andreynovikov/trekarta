@@ -282,6 +282,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
                         mFragmentHolder.popAll();
                     }
                 });
+                icon = R.drawable.ic_point;
                 color = waypoint.style.color;
             } else if (viewType == DataSource.TYPE_TRACK) {
                 final Track track = ((TrackDataSource) mDataSource).cursorToTrack(cursor);
@@ -295,6 +296,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
                         mFragmentHolder.popAll();
                     }
                 });
+                icon = R.drawable.ic_track;
                 color = track.style.color;
             }
             if (hasChecked) {
