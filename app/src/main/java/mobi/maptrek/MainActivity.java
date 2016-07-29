@@ -604,6 +604,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mTrackingState = TRACKING_STATE.values()[state];
 
         mGaugePanel.initializeGauges(Configuration.getGauges());
+        showActionPanel(Configuration.getActionPanelState(), false);
 
         // Resume navigation
         MapObject mapObject = Configuration.getNavigationPoint();
@@ -1196,74 +1197,12 @@ public class MainActivity extends Activity implements ILocationListener,
             });
             showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
         } else {
-            onMoreLongClicked();
+            showActionPanel(true, true);
         }
     }
 
     private void onMoreLongClicked() {
-        final int duration = 30;
-        final View mAPB = findViewById(R.id.actionPanelBackground);
-
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
-            popAll();
-        }
-
-        mMoreButton.animate().rotationBy(180).setDuration(duration * 5);
-        if (mLocationButton.getVisibility() == View.VISIBLE) {
-            mAPB.animate().alpha(0f).setDuration(duration * 5);
-            mLocationButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLocationButton.setVisibility(View.INVISIBLE);
-                    mRecordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mRecordButton.setVisibility(View.INVISIBLE);
-                            mPlacesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    mPlacesButton.setVisibility(View.INVISIBLE);
-                                    mMapsButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                                        @Override
-                                        public void onAnimationEnd(Animator animation) {
-                                            mMapsButton.setVisibility(View.INVISIBLE);
-                                            mAPB.setVisibility(View.INVISIBLE);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        } else {
-            mAPB.setVisibility(View.VISIBLE);
-            mAPB.animate().setDuration(duration * 5).alpha(1f);
-            mMapsButton.setVisibility(View.VISIBLE);
-            mMapsButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mPlacesButton.setVisibility(View.VISIBLE);
-                    mPlacesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mRecordButton.setVisibility(View.VISIBLE);
-                            mRecordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    mLocationButton.setVisibility(View.VISIBLE);
-                                    mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                                        @Override
-                                        public void onAnimationEnd(Animator animation) {
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
+        showActionPanel(mLocationButton.getVisibility() == View.INVISIBLE, true);
     }
 
     private void onMapDownloadClicked() {
@@ -2346,6 +2285,100 @@ public class MainActivity extends Activity implements ILocationListener,
         else
             //TODO Bitmap layer should respond to update map (see TileLayer)
             mMap.clearMap();
+    }
+
+    private void showActionPanel(boolean show, boolean animate) {
+        Configuration.setActionPanelState(show);
+        final int duration = 30;
+        final View mAPB = findViewById(R.id.actionPanelBackground);
+
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            popAll();
+        }
+
+        if (animate)
+            mMoreButton.animate().rotationBy(180).setDuration(duration * 5);
+        if (show) {
+            mAPB.setVisibility(View.VISIBLE);
+            if (animate)
+                mAPB.animate().setDuration(duration * 5).alpha(1f);
+            else
+                mAPB.setAlpha(1f);
+            mMapsButton.setVisibility(View.VISIBLE);
+            if (animate) {
+                mMapsButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mPlacesButton.setVisibility(View.VISIBLE);
+                        mPlacesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                mRecordButton.setVisibility(View.VISIBLE);
+                                mRecordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        mLocationButton.setVisibility(View.VISIBLE);
+                                        mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                            @Override
+                                            public void onAnimationEnd(Animator animation) {
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                mMapsButton.setAlpha(1f);
+                mPlacesButton.setVisibility(View.VISIBLE);
+                mPlacesButton.setAlpha(1f);
+                mRecordButton.setVisibility(View.VISIBLE);
+                mRecordButton.setAlpha(1f);
+                mLocationButton.setVisibility(View.VISIBLE);
+                mLocationButton.setAlpha(1f);
+            }
+        } else {
+            if (animate) {
+                mAPB.animate().alpha(0f).setDuration(duration * 5);
+                mLocationButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mLocationButton.setVisibility(View.INVISIBLE);
+                        mRecordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                mRecordButton.setVisibility(View.INVISIBLE);
+                                mPlacesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        mPlacesButton.setVisibility(View.INVISIBLE);
+                                        mMapsButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                            @Override
+                                            public void onAnimationEnd(Animator animation) {
+                                                mMapsButton.setVisibility(View.INVISIBLE);
+                                                mAPB.setVisibility(View.INVISIBLE);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                mAPB.setAlpha(0f);
+                mLocationButton.setAlpha(0f);
+                mLocationButton.setVisibility(View.INVISIBLE);
+                mRecordButton.setAlpha(0f);
+                mRecordButton.setVisibility(View.INVISIBLE);
+                mPlacesButton.setAlpha(0f);
+                mPlacesButton.setVisibility(View.INVISIBLE);
+                mMapsButton.setAlpha(0f);
+                mMapsButton.setVisibility(View.INVISIBLE);
+                mAPB.setVisibility(View.INVISIBLE);
+            }
+        }
     }
 
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
