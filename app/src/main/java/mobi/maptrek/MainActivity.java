@@ -235,8 +235,9 @@ public class MainActivity extends Activity implements ILocationListener,
     private LocationState mPreviousLocationState;
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
-    private int mTrackingOffset = 0;
     private int mMovingOffset = 0;
+    private int mTrackingOffset = 0;
+    private double mTrackingOffsetFactor = 1;
     private boolean mBuildingsLayerEnabled = true;
 
     protected Map mMap;
@@ -993,8 +994,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
             double offset;
             if (mLocationState == LocationState.TRACK) {
-                //TODO Recalculate only on tilt change
-                offset = mTrackingOffset / Math.cos(Math.toRadians(mMapPosition.tilt) * 0.9);
+                offset = mTrackingOffset / mTrackingOffsetFactor;
             } else {
                 offset = mMovingOffset;
             }
@@ -1443,6 +1443,10 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
+        if (e == Map.POSITION_EVENT) {
+            mTrackingOffsetFactor = Math.cos(Math.toRadians(mMapPosition.tilt) * 0.9);
+            adjustCompass(mapPosition.bearing);
+        }
         if (e == Map.MOVE_EVENT) {
             if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
                 mPreviousLocationState = mLocationState;
@@ -1450,7 +1454,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 updateLocationDrawable();
             }
         }
-        adjustCompass(mapPosition.bearing);
         if (mMapDownloadButton.getVisibility() != View.GONE) {
             if (mapPosition.zoomLevel < 8) {
                 mMapDownloadButton.setVisibility(View.GONE);
