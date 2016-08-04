@@ -12,9 +12,6 @@ import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.LRUCache;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -82,31 +79,17 @@ public class MultiMapFileTileSource extends TileSource {
                 Log.w("MMFTS", "   already opened");
                 return true;
             }
-            byte[] buffer = new byte[20];
-            try {
-                FileInputStream is = new FileInputStream(mapFile.fileName);
-                int s = is.read(buffer);
-                is.close();
-                if (s != buffer.length || !Arrays.equals(FORGEMAP_MAGIC, buffer))
-                    return false;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-            MapFileTileSource tileSource = new MapFileTileSource();
-            if (tileSource.setMapFile(mapFile.fileName)) {
-                TileSource.OpenResult openResult = tileSource.open();
-                if (openResult.isSuccess()) {
-                    tileSource.setPreferredLanguage(mPreferredLanguage);
-                    mMapFileTileSources.put(getKey(x, y), tileSource);
-                    for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
-                        combinedMapDatabase.add(x, y, tileSource.getDataSource());
-                    return true;
-                } else {
-                    Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
-                    tileSource.close();
-                }
+            MapFileTileSource tileSource = (MapFileTileSource) mapFile.tileSource;
+            TileSource.OpenResult openResult = tileSource.open();
+            if (openResult.isSuccess()) {
+                tileSource.setPreferredLanguage(mPreferredLanguage);
+                mMapFileTileSources.put(getKey(x, y), tileSource);
+                for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
+                    combinedMapDatabase.add(x, y, tileSource.getDataSource());
+                return true;
+            } else {
+                Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
+                tileSource.close();
             }
             return false;
         }
@@ -142,9 +125,9 @@ public class MultiMapFileTileSource extends TileSource {
             int key = getKey(tileX, tileY);
             if (!mTileDataSources.containsKey(key)) {
                 MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
-                if (mapFile == null) {
+                if (!mapFile.downloaded) {
                     mapDataSink.completed(TILE_NOT_FOUND);
-                    if (tile.distance == 0d && onDataMissingListener != null)
+                    if (mapFile.downloading == 0L && tile.distance == 0d && onDataMissingListener != null)
                         onDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
                     return;
                 }

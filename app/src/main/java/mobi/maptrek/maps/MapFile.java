@@ -9,27 +9,23 @@ import org.oscim.tiling.TileSource;
 public class MapFile {
     public String name;
     public BoundingBox boundingBox;
-    // If we would store index in file, use path and type instead
     public TileSource tileSource;
     public transient TileLayer tileLayer;
     // Native map fields
     public String fileName;
     public double[] polygonPoints;
     public long created;
-    public String downloadPath;
     public short downloadCreated;
     public long downloadSize;
     public long downloading;
     public boolean downloaded;
+    public MapIndex.ACTION action = MapIndex.ACTION.NONE;
 
     MapFile() {
     }
 
-    public MapFile(String name, BoundingBox boundingBox, String fileName, String downloadPath) {
+    public MapFile(String name) {
         this.name = name;
-        this.boundingBox = boundingBox;
-        this.fileName = fileName;
-        this.downloadPath = downloadPath;
     }
 
     /**

@@ -18,11 +18,11 @@ import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.utils.FastMath;
 
-import mobi.maptrek.MapSelectionListener;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.MapStateListener;
 
-public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener {
+public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, MapStateListener {
     private static final float TILE_SCALE = 1f / (1 << 7);
 
     private final MapIndex mMapIndex;
@@ -31,8 +31,6 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final AreaStyle mSelectedAreaStyle;
     private final AreaStyle mDeletedAreaStyle;
     private final LineStyle mLineStyle;
-    private MapSelectionListener.ACTION[][] mSelected = new MapSelectionListener.ACTION[128][128];
-    private MapSelectionListener mListener;
 
     public MapCoverageLayer(Map map, MapIndex mapIndex) {
         super(map);
@@ -42,9 +40,13 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mSelectedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)).build();
         mDeletedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.RED).blendScale(9).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
-        for (int x = 0; x < 128; x++)
-            for (int y = 0; y < 128; y++)
-                mSelected[x][y] = MapSelectionListener.ACTION.NONE;
+        mMapIndex.addMapStateListener(this);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mMapIndex.removeMapStateListener(this);
     }
 
     @Override
@@ -84,22 +86,23 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     }
 
                     if (mMapIndex.hasDownloadSizes()) {
-                        MapFile mapFile = mMapIndex.getNativeMapInfo(tileXX, tileY);
+                        MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
                         if (mapFile != null && mapFile.downloadSize == 0L)
                             continue;
                     }
 
                     AreaStyle style = mMissingAreaStyle;
                     int level = 1;
-                    if (mMapIndex.getNativeMap(tileXX, tileY) != null) {
+                    MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
+                    if (mapFile.downloaded) {
                         style = mPresentAreaStyle;
                         level = 2;
                     }
 
-                    if (mSelected[tileXX][tileY] == MapSelectionListener.ACTION.DOWNLOAD) {
+                    if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
                         style = mSelectedAreaStyle;
                         level = 3;
-                    } else if (mSelected[tileXX][tileY] == MapSelectionListener.ACTION.REMOVE) {
+                    } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
                         style = mDeletedAreaStyle;
                         level = 4;
                     }
@@ -141,35 +144,29 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         int tileX = (int) (point.getX() / TILE_SCALE);
         int tileY = (int) (point.getY() / TILE_SCALE);
         if (gesture instanceof Gesture.LongPress) {
-            if (mMapIndex.getNativeMap(tileX, tileY) != null)
-                selectMap(tileX, tileY, MapSelectionListener.ACTION.REMOVE);
+            if (mMapIndex.getNativeMap(tileX, tileY).downloaded)
+                mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.REMOVE);
             return true;
         }
         if (gesture instanceof Gesture.Tap || gesture instanceof Gesture.DoubleTap) {
             if (mMapIndex.hasDownloadSizes()) {
-                MapFile mapFile = mMapIndex.getNativeMapInfo(tileX, tileY);
+                MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
                 if (mapFile != null && mapFile.downloadSize == 0L)
                     return true;
             }
-            selectMap(tileX, tileY, MapSelectionListener.ACTION.DOWNLOAD);
+            mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.DOWNLOAD);
             return true;
         }
         return false;
     }
 
-    public void selectMap(int tileX, int tileY, MapSelectionListener.ACTION action) {
-        if (mSelected[tileX][tileY] == action)
-            mSelected[tileX][tileY] = MapSelectionListener.ACTION.NONE;
-        else
-            mSelected[tileX][tileY] = action;
-        if (mListener != null)
-            mListener.onMapSelected(tileX, tileY, mSelected[tileX][tileY]);
+    @Override
+    public void onHasDownloadSizes() {
         update();
     }
 
-    public void setOnMapSelectionListener(MapSelectionListener listener) {
-        mListener = listener;
-        if (mListener != null)
-            mListener.registerMapSelectionState(mSelected);
+    @Override
+    public void onMapSelected(int x, int y, MapIndex.ACTION action) {
+        update();
     }
 }

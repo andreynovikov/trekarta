@@ -25,18 +25,17 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import mobi.maptrek.MapSelectionListener;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.MapStateListener;
 
-public class MapSelection extends Fragment implements OnBackPressedListener, MapSelectionListener {
+public class MapSelection extends Fragment implements OnBackPressedListener, MapStateListener {
     private static final long INDEX_CACHE_TIMEOUT = 7 * 24 * 3600 * 1000; // One week
 
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
     private MapIndex mMapIndex;
-    private ACTION[][] mSelectionState;
     private TextView mMessageView;
     private TextView mStatusView;
     private Resources mResources;
@@ -72,14 +71,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mListener.onBeginMapManagement(this);
+        mListener.onBeginMapManagement();
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
         floatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onManageSelectedMaps(mSelectionState);
+                mListener.onManageNativeMaps();
                 mListener.onFinishMapManagement();
                 mFragmentHolder.disableActionButton();
                 mFragmentHolder.popCurrent();
@@ -105,11 +104,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
 
         File cacheDir = context.getExternalCacheDir();
         mCacheFile = new File(cacheDir, "mapIndex");
+
+        mMapIndex.addMapStateListener(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mMapIndex.removeMapStateListener(this);
         mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
@@ -129,20 +131,15 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     @Override
-    public void onMapSelected(int x, int y, ACTION action) {
-        mCounter = action == ACTION.NONE ? mCounter - 1 : mCounter + 1;
+    public void onMapSelected(int x, int y, MapIndex.ACTION action) {
+        mCounter = action == MapIndex.ACTION.NONE ? mCounter - 1 : mCounter + 1;
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, mCounter, mCounter));
-        if (action == ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
+        if (action == MapIndex.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
             mIsDownloadingIndex = true;
             new LoadMapIndex().execute(false);
         }
         if (mMapIndex.hasDownloadSizes())
             calculateDownloadSize();
-    }
-
-    @Override
-    public void registerMapSelectionState(ACTION[][] selectedState) {
-        mSelectionState = selectedState;
     }
 
     public void setMapIndex(MapIndex mapIndex) {
@@ -152,18 +149,22 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     private void calculateDownloadSize() {
         long size = 0L;
         for (int x = 0; x < 128; x++)
-            for (int y = 0; y < 128; y++)
-                if (mSelectionState[x][y] == ACTION.DOWNLOAD) {
-                    MapFile mapFile = mMapIndex.getNativeMapInfo(x, y);
-                    if (mapFile != null)
-                        size += mapFile.downloadSize;
+            for (int y = 0; y < 128; y++) {
+                MapFile mapFile = mMapIndex.getNativeMap(x, y);
+                if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
+                    size += mapFile.downloadSize;
                 }
+            }
         if (size > 0L) {
             mStatusView.setVisibility(View.VISIBLE);
             mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), size)));
         } else {
             mStatusView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onHasDownloadSizes() {
     }
 
     private class LoadMapIndex extends AsyncTask<Boolean, Integer, Boolean> {
@@ -203,7 +204,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
                             dataOut.writeShort(date);
                             dataOut.writeInt(size);
                         }
-                        mMapIndex.setMapStatus(x, y, date, size);
+                        mMapIndex.setNativeMapStatus(x, y, date, size);
                         int p = (int) ((x * 128 + y) / 163.84);
                         if (p > progress) {
                             progress = p;

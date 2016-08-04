@@ -15,10 +15,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
@@ -28,11 +31,14 @@ public class MapIndex implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public enum ACTION {NONE, DOWNLOAD, REMOVE}
+
     private File mRootDir;
     private HashSet<MapFile> mMaps;
     private MapFile[][] mNativeMaps = new MapFile[128][128];
-    private int mHashCode;
     private boolean mHasDownloadSizes;
+
+    private final Set<WeakReference<MapStateListener>> mMapStateListeners = new HashSet<>();
 
     @SuppressWarnings("unused")
     MapIndex() {
@@ -46,59 +52,7 @@ public class MapIndex implements Serializable {
             for (File file : files) {
                 load(file);
             }
-            mHashCode = getMapsHash(files);
         }
-    }
-
-    public static int getMapsHash(String path) {
-        File root = new File(path);
-        List<File> files = FileList.getFileListing(root, new MapFilenameFilter());
-        return getMapsHash(files);
-    }
-
-    private static int getMapsHash(List<File> files) {
-        int result = 13;
-        for (File file : files) {
-            result = 31 * result + file.getAbsolutePath().hashCode();
-        }
-        return result;
-    }
-
-    /*
-    public static MapIndex loadIndex(File file) throws Throwable {
-        com.esotericsoftware.minlog.Log.DEBUG();
-        Kryo kryo = new Kryo();
-        kryo.register(MapIndex.class);
-        kryo.register(MapFile.class);
-        kryo.register(Integer.class);
-        kryo.register(String.class);
-        kryo.register(ArrayList.class);
-        kryo.register(HashSet.class);
-        kryo.register(HashMap.class);
-        Input input = new Input(new FileInputStream(file));
-        MapIndex index = kryo.readObject(input, MapIndex.class);
-        input.close();
-        return index;
-    }
-
-    public static void saveIndex(MapIndex index, File file) throws Throwable {
-        Kryo kryo = new Kryo();
-        kryo.register(MapIndex.class);
-        kryo.register(MapFile.class);
-        kryo.register(Integer.class);
-        kryo.register(String.class);
-        kryo.register(ArrayList.class);
-        kryo.register(HashSet.class);
-        kryo.register(HashMap.class);
-        Output output = new Output(new FileOutputStream(file));
-        kryo.writeObject(output, index);
-        output.close();
-    }
-    */
-
-    @Override
-    public int hashCode() {
-        return mHashCode;
     }
 
     private void load(@NonNull File file) {
@@ -113,17 +67,9 @@ public class MapIndex implements Serializable {
                 int y = Integer.valueOf(parts[1]);
                 if (x > 127 || y > 127)
                     throw new NumberFormatException("out of range");
-                //FIXME Remove unused fields
-                mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, file.getAbsolutePath(), null);
-                MapFileTileSource tileSource = new MapFileTileSource();
-                if (tileSource.setMapFile(mNativeMaps[x][y].fileName)) {
-                    TileSource.OpenResult openResult = tileSource.open();
-                    if (openResult.isSuccess()) {
-                        mNativeMaps[x][y].created = tileSource.getMapInfo().mapDate;
-                        mNativeMaps[x][y].downloaded = true;
-                    }
-                    tileSource.close();
-                }
+                MapFile mapFile = getNativeMap(x, y);
+                mapFile.fileName = file.getAbsolutePath();
+                setNativeMapTileSource(mapFile);
                 Log.w(TAG, "  indexed");
             } catch (NumberFormatException e) {
                 Log.w(TAG, "  skipped: " + e.getMessage());
@@ -173,35 +119,6 @@ public class MapIndex implements Serializable {
         mMaps.add(mapFile);
     }
 
-    public void removeMap(MapFile map) {
-        mMaps.remove(map);
-        map.tileSource.close();
-    }
-
-    /**
-     * Returns native map for a specified square if it is available.
-     */
-    @Nullable
-    public MapFile getNativeMap(int x, int y) {
-        if (mNativeMaps[x][y] != null && mNativeMaps[x][y].downloaded)
-            return mNativeMaps[x][y];
-        return null;
-    }
-
-    //TODO Refactor to implement separate structure
-    public MapFile getNativeMapInfo(int x, int y) {
-        return mNativeMaps[x][y];
-    }
-
-    public void removeNativeMap(int x, int y) {
-        if (mNativeMaps[x][y] == null)
-            return;
-        File file = new File(mNativeMaps[x][y].fileName);
-        if (file.exists() && file.delete()) {
-            mNativeMaps[x][y] = null;
-        }
-    }
-
     @Nullable
     public MapFile getMap(@Nullable String filename) {
         if (filename == null)
@@ -218,27 +135,83 @@ public class MapIndex implements Serializable {
         return mMaps;
     }
 
+    @SuppressWarnings("unused")
+    public void removeMap(MapFile map) {
+        mMaps.remove(map);
+        map.tileSource.close();
+    }
+
+    /**
+     * Returns native map for a specified square.
+     */
+    @SuppressLint("DefaultLocale")
+    @NonNull
+    public MapFile getNativeMap(int x, int y) {
+        if (mNativeMaps[x][y] == null) {
+            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + y);
+            mNativeMaps[x][y].fileName = mRootDir.getAbsolutePath() + File.separator + getLocalPath(x, y);
+        }
+        return mNativeMaps[x][y];
+    }
+
+    public void removeNativeMap(int x, int y) {
+        if (mNativeMaps[x][y] == null)
+            return;
+        File file = new File(mNativeMaps[x][y].fileName);
+        if (file.exists() && file.delete()) {
+            mNativeMaps[x][y].downloaded = false;
+        }
+    }
+
     public void clear() {
         for (MapFile map : mMaps)
             map.tileSource.close();
         mMaps.clear();
     }
 
-    public void setMapStatus(int x, int y, short date, long size) {
-        if (mNativeMaps[x][y] == null) {
-            //FIXME Remove unused fields
-            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null);
-        }
+    public void setNativeMapStatus(int x, int y, short date, long size) {
+        if (mNativeMaps[x][y] == null)
+            getNativeMap(x, y);
         mNativeMaps[x][y].downloadCreated = date;
         mNativeMaps[x][y].downloadSize = size;
     }
 
-    public void markDownloading(int x, int y, long enqueue) {
-        if (mNativeMaps[x][y] == null) {
-            //FIXME Remove unused fields
-            mNativeMaps[x][y] = new MapFile("7-" + x + "-" + "y", null, mRootDir.getAbsolutePath() + File.separator + getNativeMapFilePath(x, y), null);
+    public void selectNativeMap(int x, int y, ACTION action) {
+        MapFile mapFile = getNativeMap(x, y);
+        if (mapFile.action == action)
+            mapFile.action = ACTION.NONE;
+        else
+            mapFile.action = action;
+        for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+            MapStateListener mapStateListener = weakRef.get();
+            if (mapStateListener != null) {
+                mapStateListener.onMapSelected(x, y, mapFile.action);
+            }
         }
-        mNativeMaps[x][y].downloading = enqueue;
+    }
+
+    public void clearSelections() {
+        for (int x = 0; x < 128; x++)
+            for (int y = 0; y < 128; y++)
+                if (mNativeMaps[x][y] != null)
+                    mNativeMaps[x][y].action = ACTION.NONE;
+    }
+
+    private void setNativeMapTileSource(MapFile mapFile) {
+        //TODO Check if tile source exists and close it
+        MapFileTileSource tileSource = new MapFileTileSource();
+        if (tileSource.setMapFile(mapFile.fileName)) {
+            TileSource.OpenResult openResult = tileSource.open();
+            if (openResult.isSuccess()) {
+                mapFile.created = tileSource.getMapInfo().mapDate;
+                mapFile.downloaded = true;
+                mapFile.tileSource = tileSource;
+            } else {
+                Log.w(TAG, "Failed to open file: " + openResult.getErrorMessage());
+                mapFile.downloaded = false;
+            }
+            tileSource.close();
+        }
     }
 
     public boolean isDownloading(int x, int y) {
@@ -257,9 +230,8 @@ public class MapIndex implements Serializable {
             int y = Integer.valueOf(parts[1]);
             if (x > 127 || y > 127)
                 throw new NumberFormatException("out of range");
-            if (!mapFile.exists() || mapFile.delete())
-                srcFile.renameTo(mapFile);
-            mNativeMaps[x][y].downloaded = true;
+            if ((!mapFile.exists() || mapFile.delete()) && srcFile.renameTo(mapFile))
+                setNativeMapTileSource(mNativeMaps[x][y]);
         } catch (NumberFormatException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -271,6 +243,28 @@ public class MapIndex implements Serializable {
 
     public void setHasDownloadSizes(boolean hasSizes) {
         mHasDownloadSizes = hasSizes;
+        if (hasSizes) {
+            for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+                MapStateListener mapStateListener = weakRef.get();
+                if (mapStateListener != null) {
+                    mapStateListener.onHasDownloadSizes();
+                }
+            }
+        }
+    }
+
+    public void addMapStateListener(MapStateListener listener) {
+        mMapStateListeners.add(new WeakReference<>(listener));
+    }
+
+    public void removeMapStateListener(MapStateListener listener) {
+        for (Iterator<WeakReference<MapStateListener>> iterator = mMapStateListeners.iterator();
+             iterator.hasNext(); ) {
+            WeakReference<MapStateListener> weakRef = iterator.next();
+            if (weakRef.get() == listener) {
+                iterator.remove();
+            }
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -295,7 +289,7 @@ public class MapIndex implements Serializable {
     }
 
     @SuppressLint("DefaultLocale")
-    public static String getNativeMapFilePath(int x, int y) {
-        return String.format("/native/%d/%d-%d.map", x, x, y);
+    public static String getLocalPath(int x, int y) {
+        return String.format("native/%d/%d-%d.map", x, x, y);
     }
 }
