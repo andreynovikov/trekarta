@@ -373,6 +373,10 @@ public class MainActivity extends Activity implements ILocationListener,
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
             mMapIndex = new MapIndex(mapsDir);
+            if (BuildConfig.FULL_VERSION) {
+                // Provide application context so that maps can be cached on rotation
+                mMapIndex.initializeOnlineMapProviders(getApplicationContext());
+            }
 
             //noinspection SpellCheckingInspection
             File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");

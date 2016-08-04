@@ -1,11 +1,16 @@
 package mobi.maptrek.maps;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.oscim.core.BoundingBox;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.sqlite.SQLiteMapInfo;
@@ -23,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import mobi.maptrek.maps.online.OnlineTileSource;
+import mobi.maptrek.maps.online.TileSourceFactory;
 import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
 
@@ -30,6 +37,7 @@ public class MapIndex implements Serializable {
     private static final String TAG = "MapIndex";
 
     private static final long serialVersionUID = 1L;
+    private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
     public enum ACTION {NONE, DOWNLOAD, REMOVE}
 
@@ -117,6 +125,36 @@ public class MapIndex implements Serializable {
 
         Log.w(TAG, "  added " + mapFile.boundingBox.toString());
         mMaps.add(mapFile);
+    }
+
+    public void initializeOnlineMapProviders(Context context)
+    {
+        PackageManager packageManager = context.getPackageManager();
+
+        Intent initializationIntent = new Intent("mobi.maptrek.maps.online.provider.action.INITIALIZE");
+        // enumerate online map providers
+        List<ResolveInfo> providers = packageManager.queryBroadcastReceivers(initializationIntent, 0);
+        for (ResolveInfo provider : providers)
+        {
+            // send initialization broadcast, we send it directly instead of sending
+            // one broadcast for all plugins to wake up stopped plugins:
+            // http://developer.android.com/about/versions/android-3.1.html#launchcontrols
+            Intent intent = new Intent();
+            intent.setClassName(provider.activityInfo.packageName, provider.activityInfo.name);
+            intent.setAction(initializationIntent.getAction());
+            context.sendBroadcast(intent);
+
+            List<OnlineTileSource> tileSources = TileSourceFactory.fromPlugin(context, packageManager, provider);
+            for (OnlineTileSource tileSource : tileSources)
+            {
+                MapFile mapFile = new MapFile(tileSource.getName());
+                mapFile.tileSource = tileSource;
+                mapFile.boundingBox = WORLD_BOUNDING_BOX;
+                //TODO Implement tile cache expiration
+                //tileProvider.tileExpiration = onlineMapTileExpiration;
+                mMaps.add(mapFile);
+            }
+        }
     }
 
     @Nullable

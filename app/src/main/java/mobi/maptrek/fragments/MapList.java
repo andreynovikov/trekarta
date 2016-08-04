@@ -198,7 +198,7 @@ public class MapList extends ListFragment {
             if (res != 0)
                 return res;
             //TODO Compare covering area - smaller is better
-            return 0;
+            return o1.name.compareTo(o2.name);
         }
     }
 
