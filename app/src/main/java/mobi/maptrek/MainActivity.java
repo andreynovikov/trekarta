@@ -191,6 +191,15 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String TAG = "MainActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
+    private static final int MAP_BASE = 1;
+    private static final int MAP_MAPS = 2;
+    private static final int MAP_3D = 3;
+    private static final int MAP_LABELS = 4;
+    private static final int MAP_DATA = 5;
+    private static final int MAP_3D_DATA = 6;
+    private static final int MAP_POSITIONAL = 7;
+    private static final int MAP_OVERLAYS = 8;
+
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
 
@@ -301,7 +310,6 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapIndex mMapIndex;
     private MultiMapFileTileSource mMapFileSource;
     private MapFile mBitmapLayerMap;
-    //TODO Should we store it here?
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
@@ -453,6 +461,9 @@ public class MainActivity extends Activity implements ILocationListener,
         mMyLocationDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_my_location, theme);
         mLocationSearchingDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_location_searching, theme);
 
+        Layers layers = mMap.layers();
+        layers.addGroup(MAP_BASE);
+
         TileSource baseMapSource = new OSciMap4TileCacheSource();
         SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
 
@@ -466,36 +477,46 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(baseMapSource);
-        mMap.setBaseMap(mBaseLayer);
+        mMap.setBaseMap(mBaseLayer); // will go to base group
+
+        // setBaseMap does not operate with layer groups so we add remaining groups later
+        layers.addGroup(MAP_MAPS);
+        layers.addGroup(MAP_3D);
+        layers.addGroup(MAP_LABELS);
+        layers.addGroup(MAP_DATA);
+        layers.addGroup(MAP_3D_DATA);
+        layers.addGroup(MAP_POSITIONAL);
+        layers.addGroup(MAP_OVERLAYS);
 
         //BitmapTileLayer hillShadeLayer = new BitmapTileLayer(mMap, DefaultSources.HIKEBIKE_HILLSHADE.build());
-        //mMap.layers().add(hillShadeLayer);
+        //mMap.layers().add(hillShadeLayer, MAP_MAPS);
+        //OsmTileLayer osciLayer = new OsmTileLayer(mMap);
+        //osciLayer.setTileSource(new OSciMap4TileSource.Builder<>().build());
+        //layers.add(osciLayer, MAP_MAPS);
 
         mLocationOverlay = new LocationOverlay(mMap);
-
-        Layers layers = mMap.layers();
 
         mNativeMapsLayer = new OsmTileLayer(mMap);
         mNativeMapsLayer.setTileSource(mMapFileSource);
         mMapFileSource.setOnDataMissingListener(this);
-        layers.add(mNativeMapsLayer);
+        layers.add(mNativeMapsLayer, MAP_BASE);
 
         mGridLayer = new TileGridLayer(mMap);
         if (Configuration.getGridLayerEnabled())
-            layers.add(mGridLayer);
+            layers.add(mGridLayer, MAP_OVERLAYS);
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
             mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
-            layers.add(mBuildingsLayer);
+            layers.add(mBuildingsLayer, MAP_3D);
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
-        layers.add(mLabelsLayer);
+        layers.add(mLabelsLayer, MAP_LABELS);
         mNativeLabelsLayer = new LabelLayer(mMap, mNativeMapsLayer);
-        layers.add(mNativeLabelsLayer);
+        layers.add(mNativeLabelsLayer, MAP_LABELS);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 240));
-        layers.add(mMapScaleBarLayer);
-        layers.add(mLocationOverlay);
+        layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
+        layers.add(mLocationOverlay, MAP_POSITIONAL);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol;
@@ -505,7 +526,7 @@ public class MainActivity extends Activity implements ILocationListener,
             symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
 
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
-        mMap.layers().add(mMarkerLayer);
+        layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
         mWaypointDbDataSource.open();
@@ -908,7 +929,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
                     mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
-                    mMap.layers().add(mBuildingsLayer);
+                    mMap.layers().add(mBuildingsLayer, MAP_3D);
                     // Let buildings be re-fetched from map layer
                     mMap.clearMap();
                 } else {
@@ -921,7 +942,7 @@ public class MainActivity extends Activity implements ILocationListener,
             }
             case R.id.action_grid: {
                 if (item.isChecked()) {
-                    mMap.layers().add(mGridLayer);
+                    mMap.layers().add(mGridLayer, MAP_OVERLAYS);
                 } else {
                     mMap.layers().remove(mGridLayer);
                 }
@@ -1369,7 +1390,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void enableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
         mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
-        mMap.layers().add(mCurrentTrackLayer);
+        mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.TRACKING;
         updateLocationDrawable();
@@ -1457,11 +1478,13 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mMapDownloadButton.getVisibility() != View.GONE) {
             if (mapPosition.zoomLevel < 8) {
                 mMapDownloadButton.setVisibility(View.GONE);
+                mMapDownloadButton.setTag(null);
             } else if (e == Map.MOVE_EVENT) {
                 final Message m = Message.obtain(mMainHandler, new Runnable() {
                     @Override
                     public void run() {
                         mMapDownloadButton.setVisibility(View.GONE);
+                        mMapDownloadButton.setTag(null);
                     }
                 });
                 m.what = R.id.msgRemoveMapDownloadButton;
@@ -1472,7 +1495,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mMap.layers().remove(mLabelsLayer);
             mLabelsLayer.setEnabled(false);
         } else if (!mLabelsLayer.isEnabled() && mapPosition.zoomLevel <= 7) {
-            mMap.layers().add(mLabelsLayer);
+            mMap.layers().add(mLabelsLayer, MAP_LABELS);
             mLabelsLayer.setEnabled(true);
         }
     }
@@ -1599,7 +1622,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mNavigationLayer.setDestination(destination);
                 Point point = mLocationOverlay.getPosition();
                 mNavigationLayer.setPosition(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
-                mMap.layers().add(mNavigationLayer);
+                mMap.layers().add(mNavigationLayer, MAP_POSITIONAL);
             } else {
                 GeoPoint current = mNavigationLayer.getDestination();
                 if (mapObject.latitude != current.getLatitude() || mapObject.longitude != current.getLongitude()) {
@@ -2096,7 +2119,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     public void onClick(View view) {
                         // If undo pressed, restore the track on map
                         TrackLayer trackLayer = new TrackLayer(mMap, track);
-                        mMap.layers().add(trackLayer);
+                        mMap.layers().add(trackLayer, MAP_DATA);
                         mMap.updateMap(true);
                     }
                 });
@@ -2186,10 +2209,10 @@ public class MainActivity extends Activity implements ILocationListener,
             mBitmapLayerMap.tileSource.close();
             if (mapFile == mBitmapLayerMap) {
                 if (mBuildingsLayerEnabled)
-                    layers.add(mBuildingsLayer);
+                    layers.add(mBuildingsLayer, MAP_3D);
                 if (mLabelsLayer.isEnabled())
-                    layers.add(mLabelsLayer);
-                layers.add(mNativeLabelsLayer);
+                    layers.add(mLabelsLayer, MAP_LABELS);
+                layers.add(mNativeLabelsLayer, MAP_LABELS);
                 mMap.updateMap(true);
                 mBitmapLayerMap = null;
                 return;
@@ -2199,13 +2222,9 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onBeginMapManagement(MapSelectionListener listener) {
+    public void onBeginMapManagement() {
         mMapCoverageLayer = new MapCoverageLayer(mMap, mMapIndex);
-        mMapCoverageLayer.setOnMapSelectionListener(listener);
-        int[] xy = (int[]) mMapDownloadButton.getTag();
-        if (xy != null)
-            mMapCoverageLayer.selectMap(xy[0], xy[1], MapSelectionListener.ACTION.DOWNLOAD);
-        mMap.layers().add(mMapCoverageLayer);
+        mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
             mapPosition.setZoomLevel(8);
@@ -2213,28 +2232,32 @@ public class MainActivity extends Activity implements ILocationListener,
         } else {
             mMap.updateMap(true);
         }
+        int[] xy = (int[]) mMapDownloadButton.getTag();
+        if (xy != null)
+            mMapIndex.selectNativeMap(xy[0], xy[1], MapIndex.ACTION.DOWNLOAD);
     }
 
     @Override
     public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
-        mMapCoverageLayer.setOnMapSelectionListener(null);
         mMapCoverageLayer.onDetach();
         mMap.updateMap(true);
+        mMapIndex.clearSelections();
         mMapCoverageLayer = null;
     }
 
     @Override
-    public void onManageSelectedMaps(MapSelectionListener.ACTION[][] selectionState) {
-        File mapsDir = getExternalFilesDir("maps");
+    public void onManageNativeMaps() {
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         boolean removed = false;
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++) {
-                if (selectionState[x][y] == MapSelectionListener.ACTION.NONE)
+                MapFile mapFile = mMapIndex.getNativeMap(x, y);
+                if (mapFile.action == MapIndex.ACTION.NONE)
                     continue;
-                if (selectionState[x][y] == MapSelectionListener.ACTION.REMOVE) {
+                if (mapFile.action == MapIndex.ACTION.REMOVE) {
                     mMapIndex.removeNativeMap(x, y);
+                    mapFile.action = MapIndex.ACTION.NONE;
                     removed = true;
                     continue;
                 }
@@ -2242,16 +2265,16 @@ public class MainActivity extends Activity implements ILocationListener,
                 DownloadManager.Request request = new DownloadManager.Request(uri);
                 request.setTitle(getString(R.string.mapTitle, x, y));
                 request.setDescription(getString(R.string.app_name));
-                String mapPath = MapIndex.getNativeMapFilePath(x, y) + ".part";
-                if (mapsDir != null) {
-                    File mapFile = new File(mapsDir.getAbsolutePath() + mapPath);
-                    if (mapFile.exists())
-                        //noinspection ResultOfMethodCallIgnored
-                        mapFile.delete();
+                String mapPath = mapFile.fileName + ".part";
+                File file = new File(mapPath);
+                if (file.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    file.delete();
                 }
-                request.setDestinationInExternalFilesDir(this, "maps", mapPath);
+                request.setDestinationInExternalFilesDir(this, "maps", MapIndex.getLocalPath(x, y) + ".part");
                 request.setVisibleInDownloadsUi(false);
-                mMapIndex.markDownloading(x, y, downloadManager.enqueue(request));
+                mapFile.downloading = downloadManager.enqueue(request);
+                mapFile.action = MapIndex.ACTION.NONE;
             }
         if (removed)
             mMap.clearMap();
@@ -2266,8 +2289,7 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.remove(mNativeLabelsLayer);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-        //FIXME Absolute positioning is a hack
-        layers.add(2, mapFile.tileLayer);
+        layers.add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
         boolean positionChanged = false;
@@ -2936,7 +2958,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         for (Track track : source.tracks) {
             TrackLayer trackLayer = new TrackLayer(mMap, track);
-            mMap.layers().add(trackLayer);
+            mMap.layers().add(trackLayer, MAP_DATA);
         }
     }
 
@@ -3022,8 +3044,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onDataSourceDelete(@NonNull final DataSource source) {
         if (!(source instanceof FileDataSource)) {
-            final Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_cannot_delete_native_source, Snackbar.LENGTH_LONG);
-            snackbar.show();
+            HelperUtils.showError(getString(R.string.msg_cannot_delete_native_source), mCoordinatorLayout);
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -3037,7 +3058,6 @@ public class MainActivity extends Activity implements ILocationListener,
                     if (sourceFile.delete()) {
                         removeSourceFromMap((FileDataSource) source);
                     } else {
-                        //TODO Use helper in other places
                         HelperUtils.showError(getString(R.string.msg_delete_failed), mCoordinatorLayout);
                     }
                 }
