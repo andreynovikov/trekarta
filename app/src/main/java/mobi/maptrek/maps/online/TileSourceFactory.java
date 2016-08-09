@@ -6,6 +6,9 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
+import org.oscim.android.cache.TileCache;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,9 @@ public class TileSourceFactory {
 
             if (maps == null)
                 return sources;
+
+            File cacheDir = new File(context.getExternalCacheDir(), "online");
+            boolean useCache = cacheDir.mkdir() || cacheDir.isDirectory();
 
             for (String map : maps) {
                 String name = null;
@@ -54,7 +60,12 @@ public class TileSourceFactory {
                 if (id != 0)
                     builder.zoomMax(resources.getInteger(id));
 
-                sources.add(builder.build());
+                OnlineTileSource source = builder.build();
+                if (useCache) {
+                    TileCache cache = new TileCache(context, cacheDir.getAbsolutePath(), map);
+                    source.setCache(cache);
+                }
+                sources.add(source);
             }
         } catch (Resources.NotFoundException | PackageManager.NameNotFoundException e) {
             e.printStackTrace();

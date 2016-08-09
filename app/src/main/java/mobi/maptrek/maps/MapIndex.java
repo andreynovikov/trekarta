@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.oscim.android.cache.TileCache;
 import org.oscim.core.BoundingBox;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
@@ -162,7 +163,7 @@ public class MapIndex implements Serializable {
         if (filename == null)
             return null;
         for (MapFile map : mMaps) {
-            if (map.fileName.equals(filename))
+            if (filename.equals(map.fileName))
                 return map;
         }
         return null;
@@ -202,8 +203,11 @@ public class MapIndex implements Serializable {
     }
 
     public void clear() {
-        for (MapFile map : mMaps)
+        for (MapFile map : mMaps) {
             map.tileSource.close();
+            if (map.tileSource.tileCache != null && map.tileSource.tileCache instanceof TileCache)
+                ((TileCache) map.tileSource.tileCache).dispose();
+        }
         mMaps.clear();
     }
 

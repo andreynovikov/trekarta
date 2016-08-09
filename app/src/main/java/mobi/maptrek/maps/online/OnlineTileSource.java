@@ -11,7 +11,7 @@ import org.oscim.tiling.source.OkHttpEngine;
 import org.oscim.tiling.source.bitmap.BitmapTileSource;
 
 public class OnlineTileSource extends BitmapTileSource {
-    public static final String TILE_TYPE = "vnd.android.cursor.item/vnd.com.androzic.map.online.provider.tile";
+    public static final String TILE_TYPE = "vnd.android.cursor.item/vnd.mobi.maptrek.maps.online.provider.tile";
     public static final String[] TILE_COLUMNS = new String[]{"TILE"};
 
     public static class Builder<T extends Builder<T>> extends BitmapTileSource.Builder<T> {
