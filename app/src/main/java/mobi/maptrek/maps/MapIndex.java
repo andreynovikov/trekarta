@@ -286,6 +286,14 @@ public class MapIndex implements Serializable {
     public void setHasDownloadSizes(boolean hasSizes) {
         mHasDownloadSizes = hasSizes;
         if (hasSizes) {
+            for (int x = 0; x < 128; x++)
+                for (int y = 0; y < 128; y++) {
+                    MapFile mapFile = getNativeMap(x, y);
+                    if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
+                        if (mapFile.downloadSize == 0L)
+                            selectNativeMap(x, y, MapIndex.ACTION.NONE);
+                    }
+                }
             for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
                 MapStateListener mapStateListener = weakRef.get();
                 if (mapStateListener != null) {

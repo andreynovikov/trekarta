@@ -24,9 +24,11 @@ import mobi.maptrek.maps.MapStateListener;
 
 public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, MapStateListener {
     private static final float TILE_SCALE = 1f / (1 << 7);
+    private static final long MAP_EXPIRE_PERIOD = 7 * 24 * 3600 * 1000; // one week
 
     private final MapIndex mMapIndex;
     private final AreaStyle mPresentAreaStyle;
+    private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
     private final AreaStyle mSelectedAreaStyle;
     private final AreaStyle mDeletedAreaStyle;
@@ -35,10 +37,11 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     public MapCoverageLayer(Map map, MapIndex mapIndex) {
         super(map);
         mMapIndex = mapIndex;
-        mPresentAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GREEN).blendScale(9).color(Color.fade(Color.GREEN, 0.4f)).build();
-        mMissingAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GRAY).blendScale(9).color(Color.fade(Color.GRAY, 0.4f)).build();
-        mSelectedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.BLUE).blendScale(9).color(Color.fade(Color.BLUE, 0.4f)).build();
-        mDeletedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.RED).blendScale(9).color(Color.fade(Color.RED, 0.4f)).build();
+        mPresentAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
+        mOutdatedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
+        mMissingAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GRAY).blendScale(10).color(Color.fade(Color.GRAY, 0.4f)).build();
+        mSelectedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
+        mDeletedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
         mMapIndex.addMapStateListener(this);
     }
@@ -69,6 +72,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         if (b.xmin < 0)
             tileXMin--;
 
+        boolean hasSizes = mMapIndex.hasDownloadSizes();
+
         synchronized (this) {
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
                 for (int tileY = tileYMin; tileY <= tileYMax; tileY++) {
@@ -85,9 +90,9 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             continue;
                     }
 
-                    if (mMapIndex.hasDownloadSizes()) {
+                    if (hasSizes) {
                         MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
-                        if (mapFile != null && mapFile.downloadSize == 0L)
+                        if (mapFile.downloadSize == 0L)
                             continue;
                     }
 
@@ -95,16 +100,22 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     int level = 1;
                     MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
                     if (mapFile.downloaded) {
-                        style = mPresentAreaStyle;
-                        level = 2;
+                        long downloadCreated = mapFile.downloadCreated * 24 * 3600000L;
+                        if (hasSizes && mapFile.created + MAP_EXPIRE_PERIOD < downloadCreated) {
+                            style = mOutdatedAreaStyle;
+                            level = 3;
+                        } else {
+                            style = mPresentAreaStyle;
+                            level = 2;
+                        }
                     }
 
                     if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
                         style = mSelectedAreaStyle;
-                        level = 3;
+                        level = 4;
                     } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
                         style = mDeletedAreaStyle;
-                        level = 4;
+                        level = 5;
                     }
 
                     mGeom.clear();
@@ -151,7 +162,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         if (gesture instanceof Gesture.Tap || gesture instanceof Gesture.DoubleTap) {
             if (mMapIndex.hasDownloadSizes()) {
                 MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
-                if (mapFile != null && mapFile.downloadSize == 0L)
+                if (mapFile.downloadSize == 0L)
                     return true;
             }
             mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.DOWNLOAD);
