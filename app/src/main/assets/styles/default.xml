@@ -42,7 +42,7 @@
 
     <!-- <style-area id="greens" fill="#d2e5ce" fade="10" /> -->
 
-    <!-- marsh|wetland|mud|nature_reserve -->
+    <!-- marsh|wetland|mud -->
     <style-area fade="12" fill="#deecb9" id="greens2" />
 
     <!-- park|common|green|cemetery|golf_course|dog_park -->
@@ -109,6 +109,7 @@
     <!-- no-go area boundary -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.4" />
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
+    <style-line cap="butt" fix="true" id="protected_area" stroke="#4000d400" width="3.0" />
     <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="3.0" />
 
     <!-- <style-line id="building" stroke="#c9c3c1" width="1.0" fix="true" cap="butt" fade="15"/> -->
@@ -166,14 +167,6 @@
             <!-- <m k="landuse" v="garages"> <area fill="#d6d6e4" /> </m> -->
         </m>
         <m k="landuse|natural|leisure|amenity|tourism">
-            <!-- kind of more like landuse imho -->
-            <m k="leisure|landuse" v="nature_reserve">
-                <area use="greens2" />
-                <m zoom-min="14">
-                    <line cap="butt" fix="true" stroke="#abe29c" width="1.0" />
-                </m>
-            </m>
-
             <!-- tourism areas
               Berlin Zoologischer Garten has lots of details that should be drawn above
             -->
@@ -207,7 +200,8 @@
             <m k="landuse" zoom-min="11">
                 <!-- how about 'leisure' for this one? -->
                 <m v="cemetery">
-                    <area use="park" src="assets:patterns/cemetery.svg" />
+                    <area use="park" />
+                    <area use="park" src="assets:patterns/cemetery.svg" fill="#9ac56e" />
                     <m zoom-min="14">
                         <line use="park" />
                     </m>
@@ -328,14 +322,13 @@
             <!-- area outlines need to be above to avoid uggly pixelation where
               not aliased polygon overlaps the lines... -->
             <m k="leisure|landuse" zoom-min="8">
-
                 <m v="nature_reserve">
-                    <line cap="butt" fix="true" stroke="#abe29c" width="1.0" />
+                    <line use="protected_area" />
                     <area src="assets:patterns/nature-reserve.svg" fade="8" />
                 </m>
                 <m v="military">
                     <line use="military" />
-                    <area src="assets:patterns/military.svg" fade="10" />
+                    <area src="assets:patterns/military.svg" fade="10"/>
                 </m>
             </m>
             <m k="landuse" v="reservoir|basin">
@@ -1435,8 +1428,22 @@
 
         </m>
 
-        <m k="natural" v="tree" zoom-min="15">
-            <circle radius="10" />
+        <m k="natural">
+            <m select="first" zoom-min="13">
+                <m v="volcano">
+                    <symbol src="assets:symbols/volcano.svg" />
+                </m>
+                <m v="peak">
+                    <symbol src="assets:symbols/peak.svg" />
+                </m>
+                <m v="tree" zoom-min="15">
+                    <circle radius="10" />
+                </m>
+            </m>
+            <m zoom-min="13">
+                <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
         </m>
     </m>
 
