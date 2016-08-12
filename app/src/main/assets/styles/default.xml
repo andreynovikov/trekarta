@@ -37,6 +37,9 @@
     <!-- grassland|scrub -->
     <style-area fade="10" fill="#c2cba5" id="darkgreen" use="tex1" />
 
+    <!-- scree|shingle -->
+    <style-area fade="12" fill="#c2b280" id="scree" use="tex1" />
+
     <style-area fade="12" fill="#e4dab5" id="farmland" stroke="#d1dbc7" stroke-width="1.0"
         use="tex1" />
 
@@ -77,12 +80,12 @@
     <style-line id="highway-service" use="residential" width="-0.6" />
 
     <!-- track -->
-    <style-line cap="butt" id="highway:track:g1" stroke="#99807040" width="0.6" />
-    <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#bb807040"
-        stroke="#00ffffff" width="0.6" />
+    <style-line cap="butt" id="highway:track:g1" stroke="#C19A6B" width="1.0" />
+    <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#C19A6B"
+        stroke="#00ffffff" width="1.0" />
     <style-line id="highway:track:g3" stipple="12" use="highway:track:g2" />
-    <style-line id="highway:track:g4" stipple="15" use="highway:track:g2" width="-0.1" />
-    <style-line id="highway:track:g5" stipple="18" stroke="#44ff8888" use="highway:track:g3" />
+    <style-line id="highway:track:g4" stipple="15" use="highway:track:g2" width="-0.2" />
+    <style-line id="highway:track:g5" stipple="18" stroke="#44ff8888" use="highway:track:g4" />
 
     <!-- footway|path|cycleway -->
     <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
@@ -124,7 +127,7 @@
     </m>
 
     <m e="way" k="natural" v="nosea">
-        <area fill="#f8f8f8" mesh="true" />
+        <area fill="#fcfcfc" mesh="true" />
     </m>
 
     <!-- all closed ways that are not 'highway' or 'building' -->
@@ -147,6 +150,9 @@
         </m>
         <m k="natural" v="grassland|scrub">
             <area use="darkgreen" />
+        </m>
+        <m k="natural" v="scree|shingle">
+            <area use="scree" />
         </m>
 
         <m k="landuse">
@@ -285,7 +291,7 @@
                     <area use="greens2" />
                 </m>
                 <m v="marsh|wetland">
-                    <area src="assets:patterns/swamp.svg" />
+                    <area src="assets:patterns/wetland.svg" />
                 </m>
             </m>
 
@@ -426,6 +432,16 @@
             <!--<line use="water:outline" />-->
         </m>
 
+        <m k="natural" v="cliff">
+            <line cap="butt" fix="true" stroke="#888888" width="4" />
+            <m zoom-min="14">
+                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="100" width="24" />
+            </m>
+            <m zoom-min="13" zoom-max="13">
+                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="50" width="24" />
+            </m>
+        </m>
+
         <!-- sport -->
         <!-- <m k="sport"> <m k="sport" v="soccer"
           zoom-min="17"> <m k="sport" v="swimming|canoe|diving|scuba_diving">
@@ -450,9 +466,6 @@
                                 <line use="steps" />
                                 <!-- <outline use="0"/> -->
                             </m>
-                            <!-- <m v="track|footway|path|cycleway" zoom-min="16">
-                              <line use="footway:z16"/>
-                              </m> -->
                         </m>
                         <m zoom-min="15">
                             <m v="footway">
@@ -735,22 +748,17 @@
                                 <line use="steps" />
                                 <!-- <outline use="2"/> -->
                             </m>
-                            <!-- <m v="track|footway|path|cycleway" zoom-min="16" zoom-max="16">
-                              <line use="footway:z16"/>
-                              </m> -->
-                            <m v="track|footway|path|cycleway" zoom-min="17">
+                            <m v="footway|path|cycleway" zoom-min="17">
                                 <line outline="1" use="footway:z17" />
                             </m>
                         </m>
-                        <m zoom-min="15">
+                        <m zoom-min="14">
                             <m v="footway">
                                 <line use="footway" />
                             </m>
                             <m v="path">
                                 <line use="highway:path" />
                             </m>
-                        </m>
-                        <m zoom-min="14">
                             <m v="cycleway">
                                 <line use="highway:cycleway" />
                             </m>
@@ -770,31 +778,30 @@
                                 </m>
                             </m>
                         </m>
-                        <m zoom-min="12">
-                            <m v="byway|track">
-                                <m k="tracktype" v="~|grade1">
-                                    <line use="highway:track:g1" />
-                                </m>
-                                <m k="tracktype" v="grade2">
-                                    <line use="highway:track:g2" />
-                                </m>
-                                <m k="tracktype" v="grade3">
-                                    <line use="highway:track:g3" />
-                                </m>
-                                <m k="tracktype" v="grade4">
-                                    <line use="highway:track:g4" />
-                                </m>
-                                <m k="tracktype" v="grade5">
-                                    <line use="highway:track:g5" />
-                                </m>
+                        <m v="byway|track">
+                            <m k="tracktype" v="grade1">
+                                <line use="highway:track:g1" />
                             </m>
+                            <m k="tracktype" v="~|grade2">
+                                <line use="highway:track:g2" />
+                            </m>
+                            <m k="tracktype" v="grade3">
+                                <line use="highway:track:g3" />
+                            </m>
+                            <m k="tracktype" v="grade4">
+                                <line use="highway:track:g4" />
+                            </m>
+                            <m k="tracktype" v="grade5">
+                                <line use="highway:track:g5" />
+                            </m>
+                            <text use="road" />
                         </m>
                         <m v="trunk_link|motorway_link">
                             <line outline="motorway" use="trunk_link" />
                             <text use="major-road" />
                         </m>
                         <m zoom-min="13">
-                            <m v="byway|pedestrian">
+                            <m v="pedestrian">
                                 <line outline="1" use="residential" width="-0.4" />
                                 <text use="road" />
                             </m>
@@ -847,25 +854,25 @@
                                 </m>
                             </m>
 
-                            <m v="track|footway|path|cycleway" zoom-min="15">
+                            <m v="footway|path|cycleway" zoom-min="15">
                                 <line cap="square" outline="bridge" use="footway:z17" />
                             </m>
 
-                            <m select="first" zoom-min="14">
+                            <m select="first">
                                 <m v="footway">
-                                    <line use="footway" />
+                                    <line outline="bridge" use="footway" />
                                 </m>
                                 <m v="cycleway">
-                                    <line use="highway:cycleway" />
+                                    <line outline="bridge" use="highway:cycleway" />
                                 </m>
                                 <m v="track">
-                                    <line use="highway:track" />
+                                    <line cap="square" outline="bridge" use="highway:track:g1" />
                                 </m>
                                 <m v="path">
-                                    <line use="highway:path" />
+                                    <line outline="bridge" use="highway:path" />
                                 </m>
                                 <m v="bridleway">
-                                    <line use="bridleway" />
+                                    <line outline="bridge" use="bridleway" />
                                 </m>
                                 <m v="construction">
                                     <line cap="square" outline="bridge" use="construction" />
@@ -927,6 +934,16 @@
                             </m>
                         </m>  <!-- end area=yes|true -->
                     </m>  <!-- end bridge=yes -->
+                </m>
+                <m k="ford">
+                    <!-- except ford=no|false -->
+                    <m k="ford" v="-|no|false">
+                        <m select="first">
+                            <m v="track">
+                                <line cap="square" stroke="#889172ec" use="highway:track:g1" />
+                            </m>
+                        </m>
+                    </m>
                 </m>
             </m> <!-- end zoom-min=11 -->
         </m><!-- end highway -->
@@ -1060,11 +1077,14 @@
         </m>
 
         <m k="highway" v="track">
-            <m k="areay" v="yes">
+            <m k="area" v="yes">
                 <area fill="#aaff0000" />
             </m>
         </m>
 
+        <m k="power" v="line" zoom-min="14">
+            <line fix="true" cap="butt" stroke="#6e6e6e" width="2.0" />
+        </m>
         <!-- Contour lines from AndroMaps -->
 
         <m k="contour_ext" zoom-max="9">
@@ -1137,16 +1157,25 @@
         <m k="barrier">
             <m zoom-min="10">
                 <m v="bollard">
-                    <circle fill="#909090" radius="1.5" />
+                    <symbol src="assets:symbols/barrier/bollard.svg" />
                 </m>
                 <m v="block">
-                    <circle fill="#909090" radius="1.5" />
+                    <symbol src="assets:symbols/barrier/blocks.svg" />
                 </m>
-                <m v="gate">
-                    <circle fill="#909090" radius="1.5" />
+                <m v="border_control">
+                    <symbol src="assets:symbols/barrier/border_control.svg" />
+                </m>
+                <m v="cycle_barrier">
+                    <symbol src="assets:symbols/barrier/cycle_barrier.svg" />
                 </m>
                 <m v="lift_gate">
-                    <circle fill="#909090" radius="1.5" />
+                    <symbol src="assets:symbols/barrier/lift_gate.svg" />
+                </m>
+                <m v="toll_booth">
+                    <symbol src="assets:symbols/barrier/toll_booth.svg" />
+                </m>
+                <m v="gate|swing_gate|yes">
+                    <symbol src="assets:symbols/barrier/gate.svg" />
                 </m>
             </m>
         </m>
@@ -1257,7 +1286,9 @@
                 <m k="amenity" v="cinema">
                     <symbol src="assets:symbols/tourist/cinema2.svg" />
                 </m>
-
+                <m k="amenity" v="drinking_water">
+                    <symbol src="assets:symbols/food/drinkingtap.svg" />
+                </m>
                 <m select="when-matched">
                     <text use="poi" />
                 </m>
@@ -1299,9 +1330,6 @@
                 </m>
                 <m k="amenity" v="bicycle_rental">
                     <symbol src="assets:symbols/transport/rental_bicycle.svg" />
-                </m>
-                <m k="amenity" v="drinking_water">
-                    <symbol src="assets:symbols/food/drinkingtap.svg" />
                 </m>
                 <m k="amenity" v="fire_station">
                     <symbol src="assets:symbols/amenity/firestation3.svg" />
@@ -1395,6 +1423,9 @@
                 <m v="camp_site">
                     <symbol src="assets:symbols/accommodation/camping.svg" />
                 </m>
+                <m v="guest_house">
+                    <symbol src="assets:symbols/accommodation/hotel.svg" />
+                </m>
                 <m v="hostel">
                     <symbol src="assets:symbols/accommodation/hostel.svg" />
                 </m>
@@ -1419,15 +1450,34 @@
               </m>
               </m>
             -->
+            <m v="attraction">
+                <symbol src="assets:symbols/tourist/attraction.svg" />
+                <m zoom-min="17">
+                    <text use="poi" />
+                </m>
+            </m>
             <m v="viewpoint">
                 <symbol src="assets:symbols/tourist/view_point.svg" />
+                <m zoom-min="17">
+                    <text use="poi" />
+                </m>
             </m>
             <m v="museum">
                 <symbol src="assets:symbols/tourist/museum.svg" />
+                <m zoom-min="17">
+                    <text use="poi" />
+                </m>
             </m>
 
         </m>
 
+        <m k="power">
+            <m select="first" zoom-min="16">
+                <m v="tower">
+                    <symbol src="assets:symbols/power/tower.svg" />
+                </m>
+            </m>
+        </m>
         <m k="natural">
             <m select="first" zoom-min="13">
                 <m v="volcano">
@@ -1436,11 +1486,17 @@
                 <m v="peak">
                     <symbol src="assets:symbols/peak.svg" />
                 </m>
+                <m v="cave_entrance" zoom-min="15">
+                    <symbol src="assets:symbols/poi/cave.svg" />
+                </m>
+                <m v="spring">
+                    <symbol src="assets:symbols/poi/spring.svg" />
+                </m>
                 <m v="tree" zoom-min="15">
                     <circle radius="10" />
                 </m>
             </m>
-            <m zoom-min="13">
+            <m select="when-matched">
                 <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
