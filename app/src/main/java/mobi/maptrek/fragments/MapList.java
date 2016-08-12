@@ -1,14 +1,16 @@
 package mobi.maptrek.fragments;
 
-import android.app.ListFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
@@ -23,17 +25,26 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.view.BitmapTileMapPreviewView;
 
-public class MapList extends ListFragment {
+public class MapList extends Fragment {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
+    public static final String ARG_ZOOM_LEVEL = "zoom";
+    public static final String ARG_HIDE_OBJECTS = "hide";
+    public static final String ARG_TRANSPARENCY = "transparency";
 
-    private MapListAdapter mAdapter;
+    private TextView mEmptyView;
+    private View mMapListHeader;
+    private Switch mHideSwitch;
+    private SeekBar mTransparencySeekBar;
+    private LinearLayout mMapList;
     private ArrayList<MapFile> mMaps = new ArrayList<>();
     private MapFile mActiveMap;
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
+    private LayoutInflater mInflater;
 
     private GeoPoint mLocation;
+    private int mZoomLevel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,29 +54,66 @@ public class MapList extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.menu_list_with_empty_view, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_map_list, container, false);
+
+        mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
+        mMapListHeader = rootView.findViewById(R.id.mapListHeader);
+        mHideSwitch = (Switch) rootView.findViewById(R.id.hideSwitch);
+        mTransparencySeekBar = (SeekBar) rootView.findViewById(R.id.transparencySeekBar);
+        mMapList = (LinearLayout) rootView.findViewById(R.id.mapList);
+
+        mHideSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mListener.onHideMapObjects(isChecked);
+            }
+        });
+        mTransparencySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser)
+                    mListener.onTransparencyChanged(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        double latitude = getArguments().getDouble(ARG_LATITUDE);
-        double longitude = getArguments().getDouble(ARG_LONGITUDE);
-
-        if (savedInstanceState != null) {
-            latitude = savedInstanceState.getDouble(ARG_LATITUDE);
-            longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
-        }
+        Bundle arguments = getArguments();
+        double latitude = arguments.getDouble(ARG_LATITUDE);
+        double longitude = arguments.getDouble(ARG_LONGITUDE);
+        mZoomLevel = arguments.getInt(ARG_ZOOM_LEVEL);
+        boolean hideObjects = arguments.getBoolean(ARG_HIDE_OBJECTS);
+        int transparency = arguments.getInt(ARG_TRANSPARENCY);
 
         mLocation = new GeoPoint(latitude, longitude);
 
-        TextView emptyView = (TextView) getListView().getEmptyView();
-        if (emptyView != null)
-            emptyView.setText(R.string.msg_empty_map_list);
-
-        mAdapter = new MapListAdapter(getActivity());
-        setListAdapter(mAdapter);
+        mMapList.removeAllViews();
+        if (mMaps.size() == 0) {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mMapListHeader.setVisibility(View.GONE);
+        } else {
+            mEmptyView.setVisibility(View.GONE);
+            mMapListHeader.setVisibility(View.VISIBLE);
+            for (MapFile map : mMaps)
+                addMap(map);
+        }
+        mHideSwitch.setChecked(hideObjects);
+        mTransparencySeekBar.setProgress(transparency);
     }
 
     @Override
@@ -77,12 +125,7 @@ public class MapList extends ListFragment {
             throw new ClassCastException(context.toString() + " must implement OnMapActionListener");
         }
         mFragmentHolder = (FragmentHolder) context;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Collections.sort(mMaps, new MapComparator());
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -98,92 +141,50 @@ public class MapList extends ListFragment {
         mMaps.clear();
     }
 
-    @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
-        BitmapTileMapPreviewView mapView = (BitmapTileMapPreviewView) v.findViewById(R.id.map);
-        mapView.setShouldNotCloseDataSource();
-        MapFile map = mAdapter.getItem(position);
-        mListener.onMapSelected(map);
-        mFragmentHolder.popCurrent();
-    }
-
     public void setMaps(Collection<MapFile> maps, MapFile active) {
         mMaps.clear();
         for (MapFile map : maps)
             mMaps.add(map);
         mActiveMap = active;
+        Collections.sort(mMaps, new MapComparator());
     }
 
-    public class MapListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-
-        public MapListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    private void addMap(final MapFile mapFile) {
+        final View mapView = mInflater.inflate(R.layout.list_item_map, mMapList, false);
+        TextView name = (TextView) mapView.findViewById(R.id.name);
+        final BitmapTileMapPreviewView map = (BitmapTileMapPreviewView) mapView.findViewById(R.id.map);
+        View indicator = mapView.findViewById(R.id.indicator);
+        name.setText(mapFile.name);
+        map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
+        if (mapFile.boundingBox.contains(mLocation)) {
+            int zoomLevel = mapFile.tileSource.getZoomLevelMax();
+            if (mapFile.fileName == null || (mZoomLevel < mapFile.tileSource.getZoomLevelMax() &&
+                    mZoomLevel > mapFile.tileSource.getZoomLevelMin()))
+                zoomLevel = mZoomLevel;
+            map.setLocation(mLocation, zoomLevel);
+        } else {
+            map.setLocation(mapFile.boundingBox.getCenterPoint(), mapFile.tileSource.getZoomLevelMax());
         }
-
-        @Override
-        public MapFile getItem(int position) {
-            return mMaps.get(position);
+        if (mapFile == mActiveMap) {
+            indicator.setBackgroundColor(getResources().getColor(R.color.colorAccent, getContext().getTheme()));
+        } else {
+            indicator.setBackgroundColor(Color.TRANSPARENT);
         }
-
-        @Override
-        public long getItemId(int position) {
-            return mMaps.get(position).name.hashCode();
-        }
-
-        @Override
-        public int getCount() {
-            return mMaps.size();
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            MapListItemHolder itemHolder;
-            final MapFile mapFile = getItem(position);
-
-            if (convertView == null) {
-                itemHolder = new MapListItemHolder();
-                convertView = mInflater.inflate(R.layout.list_item_map, parent, false);
-                itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.map = (BitmapTileMapPreviewView) convertView.findViewById(R.id.map);
-                itemHolder.indicator = convertView.findViewById(R.id.indicator);
-                convertView.setTag(itemHolder);
-            } else {
-                itemHolder = (MapListItemHolder) convertView.getTag();
+        mapView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                map.setShouldNotCloseDataSource();
+                mListener.onMapSelected(mapFile);
+                mFragmentHolder.popCurrent();
             }
-
-            itemHolder.name.setText(mapFile.name);
-            itemHolder.map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
-            if (mapFile.boundingBox.contains(mLocation)) {
-                itemHolder.map.setLocation(mLocation);
-            } else {
-                itemHolder.map.setLocation(mapFile.boundingBox.getCenterPoint());
-            }
-
-            if (mapFile == mActiveMap) {
-                itemHolder.indicator.setBackgroundColor(getResources().getColor(R.color.colorAccent, getContext().getTheme()));
-            } else {
-                itemHolder.indicator.setBackgroundColor(Color.TRANSPARENT);
-            }
-
-            return convertView;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-    }
-
-    private static class MapListItemHolder {
-        TextView name;
-        BitmapTileMapPreviewView map;
-        View indicator;
+        });
+        mMapList.addView(mapView);
     }
 
     private class MapComparator implements Comparator<MapFile>, Serializable {
         @Override
         public int compare(MapFile o1, MapFile o2) {
+            /*
             boolean c1 = o1.boundingBox.contains(mLocation);
             boolean c2 = o2.boundingBox.contains(mLocation);
             int res = Boolean.compare(c1, c2);
@@ -198,6 +199,7 @@ public class MapList extends ListFragment {
             if (res != 0)
                 return res;
             //TODO Compare covering area - smaller is better
+            */
             return o1.name.compareTo(o2.name);
         }
     }

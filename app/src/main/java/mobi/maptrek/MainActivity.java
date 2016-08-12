@@ -76,8 +76,6 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
-import org.oscim.android.scalebar.DefaultMapScaleBar;
-import org.oscim.android.scalebar.MapScaleBarLayer;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
@@ -98,6 +96,8 @@ import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
+import org.oscim.scalebar.DefaultMapScaleBar;
+import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.TileSource;
@@ -248,6 +248,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private int mTrackingOffset = 0;
     private double mTrackingOffsetFactor = 1;
     private boolean mBuildingsLayerEnabled = true;
+    private boolean mHideMapObjects = true;
+    private int mBitmapMapTransparency = 0;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -481,6 +483,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(baseMapSource);
+        mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
@@ -502,6 +505,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mNativeMapsLayer = new OsmTileLayer(mMap);
         mNativeMapsLayer.setTileSource(mMapFileSource);
+        mNativeMapsLayer.setNumLoaders(1);
         mMapFileSource.setOnDataMissingListener(this);
         layers.add(mNativeMapsLayer, MAP_BASE);
 
@@ -541,6 +545,8 @@ public class MainActivity extends Activity implements ILocationListener,
             addWaypointMarker(waypoint);
         }
 
+        mHideMapObjects = Configuration.getHideMapObjects();
+        mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap);
 
@@ -1171,9 +1177,12 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onMapsClicked() {
         mMap.getMapPosition(mMapPosition);
-        Bundle args = new Bundle(2);
+        Bundle args = new Bundle(5);
         args.putDouble(MapList.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(MapList.ARG_LONGITUDE, mMapPosition.getLongitude());
+        args.putInt(MapList.ARG_ZOOM_LEVEL, mMapPosition.getZoomLevel());
+        args.putBoolean(MapList.ARG_HIDE_OBJECTS, mHideMapObjects);
+        args.putInt(MapList.ARG_TRANSPARENCY, mBitmapMapTransparency);
         MapList fragment = (MapList) Fragment.instantiate(this, MapList.class.getName(), args);
         fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMap);
         showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
@@ -2184,6 +2193,24 @@ public class MainActivity extends Activity implements ILocationListener,
         */
     }
 
+    private void showHideMapObjects(boolean hasBitmapMap) {
+        Layers layers = mMap.layers();
+        if (hasBitmapMap && mHideMapObjects && layers.contains(mNativeLabelsLayer)) {
+            if (mBuildingsLayerEnabled)
+                layers.remove(mBuildingsLayer);
+            if (mLabelsLayer.isEnabled())
+                layers.remove(mLabelsLayer);
+            layers.remove(mNativeLabelsLayer);
+        }
+        if ((!hasBitmapMap || !mHideMapObjects) && !layers.contains(mNativeLabelsLayer)) {
+            if (mBuildingsLayerEnabled)
+                layers.add(mBuildingsLayer, MAP_3D);
+            if (mLabelsLayer.isEnabled())
+                layers.add(mLabelsLayer, MAP_LABELS);
+            layers.add(mNativeLabelsLayer, MAP_LABELS);
+        }
+    }
+
     private void startMapSelection(boolean zoom) {
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
@@ -2207,22 +2234,35 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onMapSelected(MapFile mapFile) {
-        Layers layers = mMap.layers();
         if (mBitmapLayerMap != null) {
-            layers.remove(mBitmapLayerMap.tileLayer);
+            mMap.layers().remove(mBitmapLayerMap.tileLayer);
             mBitmapLayerMap.tileSource.close();
             if (mapFile == mBitmapLayerMap) {
-                if (mBuildingsLayerEnabled)
-                    layers.add(mBuildingsLayer, MAP_3D);
-                if (mLabelsLayer.isEnabled())
-                    layers.add(mLabelsLayer, MAP_LABELS);
-                layers.add(mNativeLabelsLayer, MAP_LABELS);
+                showHideMapObjects(false);
                 mMap.updateMap(true);
                 mBitmapLayerMap = null;
                 return;
             }
         }
         showBitmapMap(mapFile);
+    }
+
+    @Override
+    public void onHideMapObjects(boolean hide) {
+        mHideMapObjects = hide;
+        showHideMapObjects(mBitmapLayerMap != null);
+        mMap.updateMap(true);
+        Configuration.setHideMapObjects(hide);
+    }
+
+    @Override
+    public void onTransparencyChanged(int transparency) {
+        mBitmapMapTransparency = transparency;
+        if (mBitmapLayerMap != null) {
+            mBitmapLayerMap.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+            mMap.updateMap(true);
+        }
+        Configuration.setBitmapMapTransparency(transparency);
     }
 
     @Override
@@ -2286,14 +2326,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void showBitmapMap(MapFile mapFile) {
         Log.e(TAG, mapFile.name);
-        Layers layers = mMap.layers();
-        if (mBuildingsLayerEnabled)
-            layers.remove(mBuildingsLayer);
-        layers.remove(mLabelsLayer);
-        layers.remove(mNativeLabelsLayer);
+        showHideMapObjects(true);
         mapFile.tileSource.open();
         mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-        layers.add(mapFile.tileLayer, MAP_MAPS);
+        mapFile.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+        mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
         boolean positionChanged = false;
@@ -2799,7 +2836,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
 
-                    BitmapRenderer renderer = (BitmapRenderer) mMapScaleBarLayer.getRenderer();
+                    BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
                     renderer.setOffset(area.left + 8 * CanvasAdapter.dpi / 160, 0);
                 }
 
