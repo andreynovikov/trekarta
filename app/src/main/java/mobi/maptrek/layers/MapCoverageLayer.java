@@ -149,9 +149,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     @Override
     public boolean onGesture(Gesture gesture, MotionEvent event) {
         Point point = new Point();
-        mMap.viewport().fromScreenPoint(event.getX(), event.getY(), point);
-        MapPosition mapPosition = new MapPosition();
-        mMap.viewport().getMapPosition(mapPosition);
+        mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2, point);
         int tileX = (int) (point.getX() / TILE_SCALE);
         int tileY = (int) (point.getY() / TILE_SCALE);
         if (gesture instanceof Gesture.LongPress) {
