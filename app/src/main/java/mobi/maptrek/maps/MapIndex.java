@@ -239,6 +239,12 @@ public class MapIndex implements Serializable {
                     mNativeMaps[x][y].action = ACTION.NONE;
     }
 
+    public void setNativeMapTileSource(int key) {
+        int x = key >>> 7;
+        int y = key & 0x7f;
+        setNativeMapTileSource(mNativeMaps[x][y]);
+    }
+
     private void setNativeMapTileSource(MapFile mapFile) {
         //TODO Check if tile source exists and close it
         MapFileTileSource tileSource = new MapFileTileSource();
@@ -260,7 +266,7 @@ public class MapIndex implements Serializable {
         return mNativeMaps[x][y] != null && mNativeMaps[x][y].downloading != 0L;
     }
 
-    public void processDownloadedMap(String filePath) {
+    public static int processDownloadedMap(String filePath) {
         File srcFile = new File(filePath);
         File mapFile = new File(filePath.replace(".part", ""));
         String fileName = mapFile.getName();
@@ -273,10 +279,11 @@ public class MapIndex implements Serializable {
             if (x > 127 || y > 127)
                 throw new NumberFormatException("out of range");
             if ((!mapFile.exists() || mapFile.delete()) && srcFile.renameTo(mapFile))
-                setNativeMapTileSource(mNativeMaps[x][y]);
+                return getNativeKey(x, y);
         } catch (NumberFormatException e) {
             Log.e(TAG, e.getMessage());
         }
+        return 0;
     }
 
     public boolean hasDownloadSizes() {
@@ -315,6 +322,10 @@ public class MapIndex implements Serializable {
                 iterator.remove();
             }
         }
+    }
+
+    public static int getNativeKey(int x, int y) {
+        return (x << 7) + y;
     }
 
     @SuppressLint("DefaultLocale")

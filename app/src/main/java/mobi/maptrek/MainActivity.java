@@ -26,7 +26,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.VectorDrawable;
@@ -471,15 +470,16 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.addGroup(MAP_BASE);
 
         TileSource baseMapSource = new OSciMap4TileCacheSource();
-        SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
+        //TileSource baseMapSource = OSciMap4TileSource.builder().url("http://maptrek.mobi/tiles/all").zoomMax(4).build();
 
         File cacheDir = getExternalCacheDir();
         if (cacheDir != null) {
+            SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
             mCache = new PreCachedTileCache(this, preCachedDatabaseHelper.getReadableDatabase(), cacheDir.getAbsolutePath(), "tile_cache.db");
             mCache.setCacheSize(512 * (1 << 10));
             baseMapSource.setCache(mCache);
+            //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
         }
-        //new Thread(new TilePreloader(baseMapSource.getDataSource())).start();
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(baseMapSource);
@@ -494,12 +494,6 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.addGroup(MAP_3D_DATA);
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
-
-        //BitmapTileLayer hillShadeLayer = new BitmapTileLayer(mMap, DefaultSources.HIKEBIKE_HILLSHADE.build());
-        //mMap.layers().add(hillShadeLayer, MAP_MAPS);
-        //OsmTileLayer osciLayer = new OsmTileLayer(mMap);
-        //osciLayer.setTileSource(new OSciMap4TileSource.Builder<>().build());
-        //layers.add(osciLayer, MAP_MAPS);
 
         mLocationOverlay = new LocationOverlay(mMap);
 
@@ -723,12 +717,12 @@ public class MainActivity extends Activity implements ILocationListener,
         super.onStart();
         Log.e(TAG, "onStart()");
 
-        registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
         // Start loading user data
         DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
     }
@@ -1270,17 +1264,13 @@ public class MainActivity extends Activity implements ILocationListener,
         mActiveMarker = item;
         // For better experience get delta from marker position and finger press
         // and consider it when moving marker
-        MapPosition position = mMap.getMapPosition();
         Point point = new Point();
         mMap.viewport().toScreenPoint(item.getPoint(), point);
         deltaX = (float) (downX - point.x);
         deltaY = (float) (downY - point.y);
         // Shift map to reveal marker tip position
-        mMap.viewport().toScreenPoint(position.getGeoPoint(), point);
-        point.y = point.y + mFingerTipSize;
-        position.setPosition(mMap.viewport().fromScreenPoint((float) point.x, (float) point.y));
         mMap.getEventLayer().enableMove(false);
-        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, position);
+        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(0f, mFingerTipSize), 1, true);
         return true;
     }
 
@@ -1459,12 +1449,7 @@ public class MainActivity extends Activity implements ILocationListener,
             onWaypointSave(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
-            MapPosition position = mMap.getMapPosition();
-            Point point = new Point();
-            mMap.viewport().toScreenPoint(position.getGeoPoint(), point);
-            point.y = point.y - mFingerTipSize;
-            position.setPosition(mMap.viewport().fromScreenPoint((float) point.x, (float) point.y));
-            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, position);
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(0f, -mFingerTipSize), 1, true);
             mMap.getEventLayer().enableMove(true);
         } else if (action == MotionEvent.ACTION_MOVE) {
             float eventX = motionEvent.getX() - deltaX - mMap.getWidth() / 2;
@@ -1478,7 +1463,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.POSITION_EVENT) {
-            mTrackingOffsetFactor = Math.cos(Math.toRadians(mMapPosition.tilt) * 0.9);
+            mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.9);
             adjustCompass(mapPosition.bearing);
         }
         if (e == Map.MOVE_EVENT) {
@@ -2925,21 +2910,10 @@ public class MainActivity extends Activity implements ILocationListener,
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Broadcast: " + action);
-            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
-                long ref = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterById(ref);
-                Cursor cursor = downloadManager.query(query);
-                if (cursor.moveToFirst()) {
-                    int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
-                    Log.e(TAG, "Downloaded: " + fileName);
-                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        mMapIndex.processDownloadedMap(fileName);
-                        mMap.clearMap();
-                    }
-                }
+            if (action.equals(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED)) {
+                int key = intent.getIntExtra("key", 0);
+                mMapIndex.setNativeMapTileSource(key);
+                mMap.clearMap();
             }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
                 final Bundle extras = intent.getExtras();

@@ -92,6 +92,14 @@
             android:authorities="mobi.maptrek.files"
             android:exported="false"
             android:grantUriPermissions="true" />
+
+        <receiver
+            android:name="mobi.maptrek.DownloadReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

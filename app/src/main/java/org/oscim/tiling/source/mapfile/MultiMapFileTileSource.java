@@ -2,6 +2,7 @@ package org.oscim.tiling.source.mapfile;
 
 import android.util.Log;
 
+import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
@@ -9,6 +10,7 @@ import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.OnDataMissingListener;
+import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.LRUCache;
 
@@ -74,7 +76,7 @@ public class MultiMapFileTileSource extends TileSource {
     public boolean openFile(int x, int y, MapFile mapFile) {
         synchronized (FORGEMAP_MAGIC) {
             Log.e("MMFTS", "openFile(" + x + "," + y + ")");
-            int key = getKey(x, y);
+            int key = MapIndex.getNativeKey(x, y);
             if (mMapFileTileSources.containsKey(key)) {
                 Log.w("MMFTS", "   already opened");
                 return true;
@@ -83,9 +85,9 @@ public class MultiMapFileTileSource extends TileSource {
             TileSource.OpenResult openResult = tileSource.open();
             if (openResult.isSuccess()) {
                 tileSource.setPreferredLanguage(mPreferredLanguage);
-                mMapFileTileSources.put(getKey(x, y), tileSource);
+                mMapFileTileSources.put(key, tileSource);
                 for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
-                    combinedMapDatabase.add(x, y, tileSource.getDataSource());
+                    combinedMapDatabase.add(key, tileSource.getDataSource());
                 return true;
             } else {
                 Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
@@ -122,7 +124,7 @@ public class MultiMapFileTileSource extends TileSource {
 
             int tileX = tile.tileX >> (tile.zoomLevel - 7);
             int tileY = tile.tileY >> (tile.zoomLevel - 7);
-            int key = getKey(tileX, tileY);
+            int key = MapIndex.getNativeKey(tileX, tileY);
             if (!mTileDataSources.containsKey(key)) {
                 MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
                 if (!mapFile.downloaded) {
@@ -141,7 +143,10 @@ public class MultiMapFileTileSource extends TileSource {
             mapDataSink.process(mSea);
 
             ITileDataSource tileDataSource = mTileDataSources.get(key);
-            tileDataSource.query(tile, mapDataSink);
+
+            ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
+            tileDataSource.query(tile, proxyDataSink);
+            mapDataSink.completed(proxyDataSink.result);
         }
 
         @Override
@@ -156,8 +161,8 @@ public class MultiMapFileTileSource extends TileSource {
                 tileDataSource.cancel();
         }
 
-        public void add(int x, int y, ITileDataSource dataSource) {
-            mTileDataSources.put(getKey(x, y), dataSource);
+        public void add(int key, ITileDataSource dataSource) {
+            mTileDataSources.put(key, dataSource);
         }
 
         public void remove(Integer key) {
@@ -191,7 +196,37 @@ public class MultiMapFileTileSource extends TileSource {
         }
     }
 
-    private static int getKey(int x, int y) {
-        return (x << 7) + y;
+    class ProxyTileDataSink implements ITileDataSink {
+        ITileDataSink mapDataSink;
+        QueryResult result;
+        HashSet<Integer> elements;
+        boolean hasNonSeaElements;
+
+        public ProxyTileDataSink(ITileDataSink mapDataSink) {
+            this.mapDataSink = mapDataSink;
+            elements = new HashSet<>();
+            hasNonSeaElements = false;
+        }
+
+        @Override
+        public void process(MapElement element) {
+            //Log.e("MMFTS", element.tags.toString());
+            //TODO refactor with filterTags
+            if (element.tags.containsKey("ele"))
+                element.tags.get("ele").value = element.tags.get("ele").value + " m";
+            mapDataSink.process(element);
+        }
+
+        @Override
+        public void setTileImage(Bitmap bitmap) {
+            // There should be no bitmaps in vector data sources
+            // but we will put it here for convenience
+            mapDataSink.setTileImage(bitmap);
+        }
+
+        @Override
+        public void completed(QueryResult result) {
+            this.result = result;
+        }
     }
 }
