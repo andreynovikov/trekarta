@@ -2,6 +2,7 @@ package mobi.maptrek.layers;
 
 import org.oscim.backend.canvas.Color;
 import org.oscim.core.Box;
+import org.oscim.core.GeometryBuffer;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
@@ -75,6 +76,13 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         boolean hasSizes = mMapIndex.hasDownloadSizes();
 
         synchronized (this) {
+            GeometryBuffer lines = new GeometryBuffer();
+            GeometryBuffer missingAreas = new GeometryBuffer();
+            GeometryBuffer selectedAreas = new GeometryBuffer();
+            GeometryBuffer presentAreas = new GeometryBuffer();
+            GeometryBuffer outdatedAreas = new GeometryBuffer();
+            GeometryBuffer deletedAreas = new GeometryBuffer();
+
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
                 for (int tileY = tileYMin; tileY <= tileYMax; tileY++) {
                     int tileXX = tileX;
@@ -96,53 +104,78 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             continue;
                     }
 
-                    AreaStyle style = mMissingAreaStyle;
-                    int level = 1;
+                    GeometryBuffer areas = missingAreas;
                     MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
                     if (mapFile.downloaded) {
                         long downloadCreated = mapFile.downloadCreated * 24 * 3600000L;
                         if (hasSizes && mapFile.created + MAP_EXPIRE_PERIOD < downloadCreated) {
-                            style = mOutdatedAreaStyle;
-                            level = 3;
+                            areas = outdatedAreas;
                         } else {
-                            style = mPresentAreaStyle;
-                            level = 2;
+                            areas = presentAreas;
                         }
                     }
 
                     if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
-                        style = mSelectedAreaStyle;
-                        level = 4;
+                        areas = selectedAreas;
                     } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
-                        style = mDeletedAreaStyle;
-                        level = 5;
+                        areas = deletedAreas;
                     }
 
-                    mGeom.clear();
-                    mGeom.startPolygon();
+                    areas.startPolygon();
+                    lines.startLine();
 
                     float x = (float) (tileX * TILE_SCALE - t.position.x);
                     float y = (float) (tileY * TILE_SCALE - t.position.y);
-                    mGeom.addPoint(x * scale, y * scale);
+                    areas.addPoint(x * scale, y * scale);
+                    lines.addPoint(x * scale, y * scale);
                     x += TILE_SCALE;
-                    mGeom.addPoint(x * scale, y * scale);
+                    areas.addPoint(x * scale, y * scale);
+                    lines.addPoint(x * scale, y * scale);
                     y += TILE_SCALE;
-                    mGeom.addPoint(x * scale, y * scale);
+                    areas.addPoint(x * scale, y * scale);
+                    lines.addPoint(x * scale, y * scale);
                     x -= TILE_SCALE;
-                    mGeom.addPoint(x * scale, y * scale);
-
-                    MeshBucket mesh = t.buckets.getMeshBucket(level);
-                    if (mesh.area == null)
-                        mesh.area = style;
-
-                    LineBucket line = t.buckets.getLineBucket(0);
-                    if (line.line == null)
-                        line.line = mLineStyle;
-
-                    mesh.addMesh(mGeom);
-                    line.addLine(mGeom);
+                    areas.addPoint(x * scale, y * scale);
+                    lines.addPoint(x * scale, y * scale);
+                    y -= TILE_SCALE;
+                    lines.addPoint(x * scale, y * scale);
                 }
             }
+
+            LineBucket line = t.buckets.getLineBucket(0);
+            if (line.line == null)
+                line.line = mLineStyle;
+            line.addLine(lines);
+
+            MeshBucket missing = t.buckets.getMeshBucket(1);
+            if (missing.area == null)
+                missing.area = mMissingAreaStyle;
+            missing.addMesh(missingAreas);
+            line.next = missing;
+
+            MeshBucket selected = t.buckets.getMeshBucket(2);
+            if (selected.area == null)
+                selected.area = mSelectedAreaStyle;
+            selected.addMesh(selectedAreas);
+            missing.next = selected;
+
+            MeshBucket present = t.buckets.getMeshBucket(3);
+            if (present.area == null)
+                present.area = mPresentAreaStyle;
+            present.addMesh(presentAreas);
+            selected.next = present;
+
+            MeshBucket outdated = t.buckets.getMeshBucket(4);
+            if (outdated.area == null)
+                outdated.area = mOutdatedAreaStyle;
+            outdated.addMesh(deletedAreas);
+            present.next = outdated;
+
+            MeshBucket deleted = t.buckets.getMeshBucket(5);
+            if (deleted.area == null)
+                deleted.area = mDeletedAreaStyle;
+            deleted.addMesh(deletedAreas);
+            outdated.next = deleted;
         }
     }
 
