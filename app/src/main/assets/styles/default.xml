@@ -12,8 +12,8 @@
     <style-text style="bold" fill="#101010" id="major-road" k="name" priority="1" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
 
-    <style-text caption="true" dy="20" fill="#777744" id="poi" k="name" size="16" stroke="#aaffffff"
-        stroke-width="2.0" />
+    <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
+        stroke-width="2.5" />
 
     <style-text fill="#3D59AB" id="water" k="name" size="16" stroke="#CAE1FF" stroke-width="2.0" />
 
@@ -278,9 +278,6 @@
 
             <!-- natural -->
             <m k="natural" zoom-min="10">
-                <m v="glacier">
-                    <area fill="#fafaff" />
-                </m>
                 <m v="land">
                     <area fill="#f8f8f8" />
                 </m>
@@ -292,6 +289,11 @@
                 </m>
                 <m v="marsh|wetland">
                     <area src="assets:patterns/wetland.svg" />
+                </m>
+            </m>
+            <m k="natural" zoom-min="8">
+                <m v="glacier">
+                    <area fill="#ddecec" />
                 </m>
             </m>
 
@@ -329,11 +331,11 @@
               not aliased polygon overlaps the lines... -->
             <m k="leisure|landuse" zoom-min="8">
                 <m v="nature_reserve">
-                    <line use="protected_area" />
+                    <line use="protected_area" fade="8" />
                     <area src="assets:patterns/nature-reserve.svg" fade="8" />
                 </m>
                 <m v="military">
-                    <line use="military" />
+                    <line use="military" fade="10" />
                     <area src="assets:patterns/military.svg" fade="10"/>
                 </m>
             </m>
@@ -821,18 +823,52 @@
                         <m v="secondary|primary_link">
                             <line outline="primary" use="secondary:z11" />
                             <text use="major-road" />
+                            <!--
+                            <m zoom-min="13">
+                                <caption style="bold" fill="#7f462c" k="ref" size="16" stroke="#ffffff"
+                                    stroke-width="2.0"/>
+                            </m>
+                            -->
+                            <text style="bold" fill="#7f462c" k="ref" priority="1" size="16"
+                                stroke="#eeeeee" stroke-width="2.0" />
+
                         </m>
                         <m v="primary">
                             <line outline="primary" use="primary:z11" />
                             <text use="major-road" />
+                            <!--
+                            <m zoom-min="12">
+                                <caption style="bold" fill="#7f462c" k="ref" size="16" stroke="#ffffff"
+                                    stroke-width="2.0"/>
+                            </m>
+                            -->
+                            <text style="bold" fill="#7f462c" k="ref" priority="1" size="16"
+                                stroke="#eeeeee" stroke-width="2.0" />
+
                         </m>
                         <m v="trunk">
                             <line outline="motorway" use="trunk" />
                             <text use="major-road" />
+                            <!--
+                            <m zoom-min="11">
+                                <caption style="bold" fill="#c35817" k="ref" size="18" stroke="#ffffff"
+                                    stroke-width="2.0"/>
+                            </m>
+                            -->
+                            <text style="bold" fill="#c35817" k="ref" priority="1" size="18"
+                                stroke="#eeeeee" stroke-width="2.0" />
                         </m>
                         <m v="motorway">
                             <line outline="motorway" use="highway:z11" />
                             <text use="major-road" />
+                            <!--
+                            <m zoom-min="10">
+                                <caption style="bold" fill="#c35817" k="ref" size="18" stroke="#ffffff"
+                                    stroke-width="2.0"/>
+                            </m>
+                            -->
+                            <text style="bold" fill="#c35817" k="ref" priority="1" size="18"
+                                stroke="#eeeeee" stroke-width="2.0" />
                         </m>
                     </m> <!-- end area=~|no|false -->
                 </m><!-- end tunnel|bridge=~|no|false -->
@@ -1266,6 +1302,9 @@
             <m k="aeroway" v="aerodrome|airport">
                 <symbol src="assets:symbols/transport/airport.svg" />
             </m>
+            <m select="when-matched">
+                <text use="poi" />
+            </m>
         </m>
 
         <m k="amenity">
@@ -1485,6 +1524,8 @@
                 </m>
                 <m v="peak">
                     <symbol src="assets:symbols/peak.svg" />
+                    <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                        stroke-width="2.0" />
                 </m>
                 <m v="cave_entrance" zoom-min="15">
                     <symbol src="assets:symbols/poi/cave.svg" />
@@ -1501,6 +1542,15 @@
                     stroke-width="2.0" />
             </m>
         </m>
+
+        <m k="mountain_pass" v="yes|true|1">
+            <symbol src="assets:symbols/poi/mountain_pass.svg" />
+            <caption style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+                stroke-width="2.0" />
+            <caption style="bold" dy="-16" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                stroke-width="2.0" />
+        </m>
+
     </m>
 
 </rendertheme>
