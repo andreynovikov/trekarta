@@ -18,6 +18,9 @@ package org.oscim.tiling.source.oscimap4;
 
 import android.util.Log;
 
+import org.oscim.core.MapElement;
+import org.oscim.core.Tag;
+import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileCache;
 import org.oscim.tiling.ITileDataSink;
@@ -33,6 +36,18 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class OSciMap4TileCacheSource extends TileSource {
+    private static final MapElement mLand = new MapElement();
+
+    static {
+        mLand.tags.add(new Tag("natural", "land"));
+        mLand.startPolygon();
+        mLand.addPoint(-16, -16);
+        mLand.addPoint(Tile.SIZE + 16, -16);
+        mLand.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
+        mLand.addPoint(-16, Tile.SIZE + 16);
+    }
+
+
     public OSciMap4TileCacheSource() {
         super(2, 7);
     }
@@ -65,6 +80,9 @@ public class OSciMap4TileCacheSource extends TileSource {
         public void query(final MapTile tile, final ITileDataSink sink) {
             ITileCache.TileReader c = mTileSource.tileCache.getTile(tile);
             if (c != null) {
+                //Add underlying land polygon, will be later replaced with sea polygon
+                sink.process(mLand);
+
                 InputStream is = c.getInputStream();
                 try {
                     if (mTileDecoder.decode(tile, sink, is)) {
