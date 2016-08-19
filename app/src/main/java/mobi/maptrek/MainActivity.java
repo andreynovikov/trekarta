@@ -747,6 +747,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mVerticalOrientation = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
         mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
+        layoutExtendPanel(mPanelState);
         updateMapViewArea();
 
         mMap.events.bind(this);
@@ -2348,7 +2349,8 @@ public class MainActivity extends Activity implements ILocationListener,
         final int duration = 30;
         final View mAPB = findViewById(R.id.actionPanelBackground);
 
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
+        // If this is interactive action hide all open panels
+        if (animate && mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
         }
 
@@ -2448,8 +2450,34 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
 
+        layoutExtendPanel(panel);
+
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
+            @Override
+            public Animator onAppear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
+                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
+            }
+        }));
+        fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
+            @Override
+            public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
+                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
+            }
+        }));
+        ft.replace(R.id.extendPanel, fragment, name);
+        ft.addToBackStack(name);
+        ft.commit();
+
+        setPanelState(panel);
+    }
+
+    private void layoutExtendPanel(PANEL_STATE state) {
+        if (state == PANEL_STATE.NONE)
+            return;
+
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mExtendPanel.getLayoutParams();
-        switch (panel) {
+        switch (state) {
             case LOCATION:
             case RECORD:
             case PLACES:
@@ -2472,25 +2500,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
         }
         mExtendPanel.setLayoutParams(params);
-
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
-            @Override
-            public Animator onAppear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
-                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelBackground), getColor(R.color.panelSolidBackground));
-            }
-        }));
-        fragment.setReturnTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
-            @Override
-            public Animator onDisappear(ViewGroup sceneRoot, final View v, TransitionValues startValues, TransitionValues endValues) {
-                return ObjectAnimator.ofObject(v, "backgroundColor", new ArgbEvaluator(), getColor(R.color.panelSolidBackground), getColor(R.color.panelBackground));
-            }
-        }));
-        ft.replace(R.id.extendPanel, fragment, name);
-        ft.addToBackStack(name);
-        ft.commit();
-
-        setPanelState(panel);
     }
 
     private void setPanelState(PANEL_STATE state) {
@@ -2633,11 +2642,13 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void popCurrent() {
+        Log.e(TAG, "popCurrent()");
         mFragmentManager.popBackStack();
     }
 
     @Override
     public void popAll() {
+        Log.e(TAG, "popAll()");
         FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
         mFragmentManager.popBackStack(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }

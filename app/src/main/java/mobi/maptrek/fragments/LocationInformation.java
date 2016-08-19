@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -68,6 +67,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("LocationInformation", "onCreate()");
         setRetainInstance(true);
     }
 
@@ -191,6 +191,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.e("LocationInformation", "onSaveInstanceState()");
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
         outState.putInt(ARG_ZOOM, mZoom);
@@ -238,7 +239,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
 
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
-        Log.w("LI", "C: " + (e == Map.CLEAR_EVENT) + " P: " + (e == Map.POSITION_EVENT) + " M: " + (e == Map.MOVE_EVENT) + " R: " + (e == Map.REDRAW_EVENT) + " U: " + (e == Map.UPDATE_EVENT));
+        //Log.w("LI", "C: " + (e == Map.CLEAR_EVENT) + " P: " + (e == Map.POSITION_EVENT) + " M: " + (e == Map.MOVE_EVENT) + " R: " + (e == Map.REDRAW_EVENT) + " U: " + (e == Map.UPDATE_EVENT));
         if (e == Map.POSITION_EVENT) {
             updateLocation(mapPosition.getLatitude(), mapPosition.getLongitude(), mapPosition.getZoomLevel());
         }
@@ -250,8 +251,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             GeoPoint geoPoint = CoordinatesParser.parse(inputText);
             mMapHolder.setMapLocation(geoPoint);
         } catch (IllegalArgumentException e) {
-            final Snackbar snackbar = Snackbar.make(mFragmentHolder.getCoordinatorLayout(), getContext().getString(R.string.msg_parse_coordinates_failed), Snackbar.LENGTH_LONG);
-            snackbar.show();
+            HelperUtils.showError(getString(R.string.msg_parse_coordinates_failed), mFragmentHolder.getCoordinatorLayout());
         }
     }
 
