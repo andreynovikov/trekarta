@@ -1187,6 +1187,7 @@ public class MainActivity extends Activity implements ILocationListener,
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
             public void onPrepareMenu(List<PanelMenuItem> menu) {
+                PanelMenuItem osmarenderer = null;
                 for (PanelMenuItem item : menu) {
                     switch (item.getItemId()) {
                         case R.id.action_night_mode:
@@ -1202,8 +1203,12 @@ public class MainActivity extends Activity implements ILocationListener,
                         case R.id.action_grid:
                             item.setChecked(mMap.layers().contains(mGridLayer));
                             break;
+                        case R.id.theme_osmarender:
+                            osmarenderer = item;
                     }
                 }
+                if (!BuildConfig.DEBUG && osmarenderer != null)
+                    menu.remove(osmarenderer);
             }
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
