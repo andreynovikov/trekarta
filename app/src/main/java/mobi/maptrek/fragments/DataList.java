@@ -78,10 +78,15 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
             mLongitude = savedInstanceState.getDouble(ARG_LONGITUDE);
         }
 
+        //TODO Test what will happen when there is external source but no native points
         if (emptyMessage) {
             TextView emptyView = (TextView) getListView().getEmptyView();
             if (emptyView != null)
-                emptyView.setText(R.string.msg_empty_waypoint_list);
+                emptyView.setText(getString(R.string.msg_empty_waypoint_list)
+                        + System.getProperty("line.separator")
+                        + System.getProperty("line.separator")
+                        + getString(R.string.msg_no_file_data_sources)
+                );
         }
 
         mAdapter = new DataListAdapter(getActivity(), mDataSource.getCursor(), 0);
