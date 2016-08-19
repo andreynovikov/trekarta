@@ -126,8 +126,8 @@
         <area use="water" />
     </m>
 
-    <m e="way" k="natural" v="nosea">
-        <area fill="#fcfcfc" mesh="true" />
+    <m e="way" k="natural" v="nosea|land">
+        <area fill="#f2efe9" mesh="true" />
     </m>
 
     <!-- all closed ways that are not 'highway' or 'building' -->
@@ -278,9 +278,6 @@
 
             <!-- natural -->
             <m k="natural" zoom-min="10">
-                <m v="land">
-                    <area fill="#f8f8f8" />
-                </m>
                 <m v="beach">
                     <area fill="#f7f5c8" />
                 </m>
@@ -453,7 +450,7 @@
 
         <!-- outline 0 -->
         <outline-layer blur="1.0" id="glow" stroke="#000000" width="0.2" />
-        <outline-layer id="0" stroke="#44000000" width="0.1" />
+        <outline-layer id="0" stroke="#66000000" width="0.1" />
 
         <!-- match tunnel-tag (to ensure tunnel key is present) -->
         <m k="tunnel" zoom-min="11">
