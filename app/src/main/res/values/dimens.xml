@@ -28,5 +28,6 @@
     <dimen name="textPadding">8dp</dimen>
     <dimen name="image_button_size_small">24dp</dimen>
     <dimen name="circle_progress">200dp</dimen>
+    <dimen name="fragment_with_fab_top_padding">32dp</dimen>
     <dimen name="fragment_with_fab_start_padding">16dp</dimen>
 </resources>

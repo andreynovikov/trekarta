@@ -125,6 +125,7 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
+import mobi.maptrek.fragments.CrashReport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
@@ -342,8 +343,6 @@ public class MainActivity extends Activity implements ILocationListener,
         mBackgroundThread.setPriority(Thread.MIN_PRIORITY);
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-
-        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
         //FIXME Use preferences
         StringFormatter.speedFactor = 3.6f;
@@ -755,6 +754,16 @@ public class MainActivity extends Activity implements ILocationListener,
         mMapView.onResume();
         updateLocationDrawable();
         adjustCompass(mMap.getMapPosition().bearing);
+
+        if (MapTrekApplication.getApplication().hasPreviousRunsExceptions()) {
+            Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
+            fragment.setEnterTransition(new Slide());
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "crashReport");
+            ft.addToBackStack("crashReport");
+            ft.commit();
+            updateMapViewArea();
+        }
     }
 
     @Override

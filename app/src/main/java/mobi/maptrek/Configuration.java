@@ -35,6 +35,7 @@ public class Configuration {
     private static final String PREF_LANGUAGE = "language";
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
+    private static final String PREF_EXCEPTION_SIZE = "exception_size";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -286,6 +287,18 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putInt(PREF_BITMAP_MAP_TRANSPARENCY, transparency);
+        editor.apply();
+    }
+
+    public static long getExceptionSize() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getLong(PREF_EXCEPTION_SIZE, 0L);
+    }
+
+    public static void setExceptionSize(long size) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putLong(PREF_EXCEPTION_SIZE, size);
         editor.apply();
     }
 }
