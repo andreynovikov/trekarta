@@ -146,11 +146,8 @@ public class LocationService extends BaseLocationService implements LocationList
             closeDatabase();
             stopForeground(true);
             if (action.equals(DISABLE_TRACK)) {
-                if (intent.getBooleanExtra("self", false)) { // Preference is normally updated by Activity but not in this case
-                    if (!Configuration.initialized())
-                        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+                if (intent.getBooleanExtra("self", false)) // Preference is normally updated by Activity but not in this case
                     Configuration.setTrackingState(MainActivity.TRACKING_STATE.DISABLED.ordinal());
-                }
                 tryToSaveTrack();
             }
             stopSelf();
@@ -273,14 +270,12 @@ public class LocationService extends BaseLocationService implements LocationList
         iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        Intent iStop = new Intent(this, LocationService.class);
-        iStop.setAction(DISABLE_TRACK);
+        Intent iStop = new Intent(DISABLE_TRACK, null, getApplicationContext(), LocationService.class);
         iStop.putExtra("self", true);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_stop);
 
-        Intent iPause = new Intent(this, LocationService.class);
-        iPause.setAction(PAUSE_TRACK);
+        Intent iPause = new Intent(PAUSE_TRACK, null, getApplicationContext(), LocationService.class);
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 

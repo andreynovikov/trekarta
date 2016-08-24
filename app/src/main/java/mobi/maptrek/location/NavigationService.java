@@ -152,8 +152,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
             stopForeground(true);
             if (action.equals(STOP_NAVIGATION))
                 stopNavigation();
-            if (! Configuration.initialized())
-                Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
             Configuration.setNavigationPoint(navWaypoint);
             stopSelf();
         }
@@ -275,13 +273,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
         iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        Intent iStop = new Intent(this, NavigationService.class);
-        iStop.setAction(STOP_NAVIGATION);
+        Intent iStop = new Intent(STOP_NAVIGATION, null, getApplicationContext(), NavigationService.class);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel_black);
 
-        Intent iPause = new Intent(this, NavigationService.class);
-        iPause.setAction(PAUSE_NAVIGATION);
+        Intent iPause = new Intent(PAUSE_NAVIGATION, null, getApplicationContext(), NavigationService.class);
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
