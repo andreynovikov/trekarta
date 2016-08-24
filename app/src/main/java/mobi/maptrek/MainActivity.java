@@ -203,6 +203,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
 
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
+    private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
 
     public enum TRACKING_STATE {
         DISABLED,
@@ -246,6 +247,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private int mMovingOffset = 0;
     private int mTrackingOffset = 0;
     private double mTrackingOffsetFactor = 1;
+    private long mTrackingDelay;
     private boolean mBuildingsLayerEnabled = true;
     private boolean mHideMapObjects = true;
     private int mBitmapMapTransparency = 0;
@@ -1018,15 +1020,17 @@ public class MainActivity extends Activity implements ILocationListener,
         updateGauges();
 
         if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+            long time = SystemClock.uptimeMillis();
             // Adjust map movement animation to location acquisition period to make movement smoother
-            long locationDelay = SystemClock.uptimeMillis() - mLastLocationMilliseconds;
+            long locationDelay =  time - mLastLocationMilliseconds;
             double duration = Math.min(1500, locationDelay); // 1.5 seconds maximum
             mMovementAnimationDuration = (int) movingAverage(duration, mMovementAnimationDuration);
             // Update map position
             mMap.getMapPosition(mMapPosition);
 
+            boolean rotate = mLocationState == LocationState.TRACK && mTrackingDelay < time;
             double offset;
-            if (mLocationState == LocationState.TRACK) {
+            if (rotate) {
                 offset = mTrackingOffset / mTrackingOffsetFactor;
             } else {
                 offset = mMovingOffset;
@@ -1041,7 +1045,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
             mMapPosition.setBearing(-mAveragedBearing);
             //FIXME VTM
-            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, mLocationState == LocationState.TRACK);
+            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, rotate);
         }
 
         mLocationOverlay.setPosition(lat, lon, bearing, location.getAccuracy());
@@ -1090,9 +1094,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mLocationState = LocationState.TRACK;
                 mMap.getEventLayer().enableRotation(false);
                 mMap.getEventLayer().setFixOnCenter(true);
-                mMap.getMapPosition(mMapPosition);
-                mMapPosition.setBearing(-mLocationService.getLocation().getBearing());
-                mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
+                mTrackingDelay = SystemClock.uptimeMillis() + TRACK_ROTATION_DELAY;
                 break;
             case TRACK:
                 mLocationState = LocationState.ENABLED;
