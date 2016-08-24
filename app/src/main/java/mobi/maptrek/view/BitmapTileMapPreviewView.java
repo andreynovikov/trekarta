@@ -82,6 +82,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 
     public BitmapTileMapPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        Log.e(TAG, "BitmapTileMapPreviewView");
         setSurfaceTextureListener(this);
         setOpaque(false);
         mJobQueue = new JobQueue();
@@ -94,6 +95,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        Log.e(TAG, "onSurfaceTextureAvailable(" + width + "," + height + ")");
         if (!mActive)
             mTileSource.open();
         mIndex.drop();
@@ -140,7 +142,6 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         mJobs.clear();
 
         mDrawThread = new DrawThread();
-        mDrawThread.setRunning(true);
         mDrawThread.start();
 
         mTileLoader = new BitmapTileLoader();
@@ -157,29 +158,29 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         Log.e(TAG, "onSurfaceTextureDestroyed()");
 
-        // Clear the queue
-        mJobQueue.clear();
-
         // Stop tile loader
         mTileLoader.pause();
         mTileLoader.finish();
         mTileLoader.dispose();
+        try {
+            mTileLoader.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.e(TAG, "  loader stopped");
+
+        // Clear the queue
+        mJobQueue.clear();
+        Log.e(TAG, "  queue cleared");
 
         // Stop drawing
-        mDrawThread.setRunning(false);
-        synchronized (mDrawThread.mWaitLock) {
-            mDrawThread.mWaitLock.notify();
+        mDrawThread.halt();
+        try {
+            mDrawThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        boolean retry = true;
-        while (retry) {
-            try {
-                mDrawThread.join();
-                retry = false;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        Log.e(TAG, "  drawer stopped");
 
         // Clear all loaded tiles
         mNewTiles.releaseTiles();
@@ -195,6 +196,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         if (!mActive)
             mTileSource.close();
 
+        Log.e(TAG, "  finished");
         return true;
     }
 
@@ -203,7 +205,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        Log.e(TAG, width + " " + height);
+        Log.e(TAG, "onSurfaceTextureSizeChanged(" + width + "," + height + ")");
         //TODO Handle view resize
     }
 
@@ -212,19 +214,20 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        Log.e(TAG, "onSurfaceTextureUpdated");
         //Do nothing.
-
     }
 
     public void setTileSource(TileSource tileSource, boolean active) {
         mTileSource = tileSource;
         mActive = active;
+        invalidate();
     }
 
-    public void setLocation(GeoPoint location) {
+    public void setLocation(GeoPoint location, int zoomLevel) {
         assert (mTileSource != null);
         mPosition = new MapPosition(location.getLatitude(), location.getLongitude(), 1);
-        mPosition.setZoomLevel(mTileSource.getZoomLevelMax());
+        mPosition.setZoomLevel(zoomLevel);
     }
 
     MapTile addTile(int x, int y, int zoomLevel) {
@@ -259,7 +262,9 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 		/* locked means the tile is visible or referenced by
          * a tile that might be visible. */
         //if (tile.isLocked()) {
+        Log.w(TAG, "  jobCompleted");
         synchronized (mDrawThread.mWaitLock) {
+            Log.w(TAG, "  notify from jobCompleted");
             mDrawThread.mWaitLock.notify();
         }
         //}
@@ -293,9 +298,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 
     class DrawThread extends Thread {
 
-        private boolean mRun = false;
-
-        private final Object mRunLock = new Object();
+        private boolean mDone = false;
         private final Object mWaitLock = new Object();
 
         public DrawThread() {
@@ -315,7 +318,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         }
 
         public void run() {
-            while (mRun) {
+            while (!mDone) {
                 //draw to our canvas
                 Canvas c = null;
                 try {
@@ -328,19 +331,30 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                         unlockCanvasAndPost(c);
                     }
                 }
-                try {
-                    synchronized (mWaitLock) {
-                        mWaitLock.wait();
+                Log.w(TAG, "  finished drawing");
+                synchronized (mWaitLock) {
+                    try {
+                        Log.w(TAG, "  waiting...");
+                        if (!mDone)
+                            mWaitLock.wait();
+                        Log.w(TAG, "  notified, done: " + mDone);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }
 
-        public void setRunning(boolean b) {
-            synchronized (mRunLock) {
-                mRun = b;
+        /**
+         * Tells the thread to stop running.
+         */
+        public void halt() {
+            Log.w(TAG, "  try to halt");
+            synchronized (mWaitLock) {
+                Log.w(TAG, "  halt");
+                mDone = true;
+                mWaitLock.notify();
             }
         }
     }
@@ -382,6 +396,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                 return;
 
             try {
+                Log.w(TAG, mTileSource.getOption("path") + " : " + mTile.toString() + " " + mTile.state());
                 loadTile(mTile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -405,7 +420,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         }
 
         public void dispose() {
-            mTileSource.getDataSource().cancel();
+            mTileSource.getDataSource().dispose();
         }
 
         public void cancel() {
@@ -446,6 +461,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             Bitmap bmp = Bitmap.createBitmap(bitmap.getPixels(), bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
             mTileMap.put(mTile, bmp);
         }
+
     }
 
     private final TileIndex<MapTile.TileNode, MapTile> mIndex =

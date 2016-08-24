@@ -117,6 +117,12 @@ public class MapList extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mMapList.removeAllViews();
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
