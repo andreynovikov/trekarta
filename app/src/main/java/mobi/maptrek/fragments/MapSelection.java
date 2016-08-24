@@ -1,7 +1,10 @@
 package mobi.maptrek.fragments;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,11 +38,11 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
 
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
+    private FloatingActionButton mFloatingButton;
     private MapIndex mMapIndex;
     private TextView mMessageView;
     private TextView mStatusView;
     private Resources mResources;
-    private int mCounter;
     private boolean mIsDownloadingIndex;
     private File mCacheFile;
 
@@ -73,9 +76,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
 
         mListener.onBeginMapManagement();
 
-        FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
-        floatingButton.setOnClickListener(new View.OnClickListener() {
+        mFloatingButton = mFragmentHolder.enableActionButton();
+        mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+        mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.onManageNativeMaps();
@@ -131,15 +134,33 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     @Override
-    public void onMapSelected(int x, int y, MapIndex.ACTION action) {
-        mCounter = action == MapIndex.ACTION.NONE ? mCounter - 1 : mCounter + 1;
-        mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, mCounter, mCounter));
+    public void onMapSelected(final int x, final int y, MapIndex.ACTION action) {
+        if (action == MapIndex.ACTION.CANCEL) {
+            final Activity activity = getActivity();
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setMessage(R.string.msg_cancel_download);
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mMapIndex.cancelDownload(x, y);
+                    mMapIndex.selectNativeMap(x, y, MapIndex.ACTION.NONE);
+                }
+            });
+            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            return;
+        }
+        calculateDownloadSize();
         if (action == MapIndex.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
             mIsDownloadingIndex = true;
             new LoadMapIndex().execute(false);
         }
-        if (mMapIndex.hasDownloadSizes())
-            calculateDownloadSize();
     }
 
     public void setMapIndex(MapIndex mapIndex) {
@@ -147,14 +168,27 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     private void calculateDownloadSize() {
+        boolean hasSizes = mMapIndex.hasDownloadSizes();
+        int downloadCounter = 0, removeCounter = 0;
         long size = 0L;
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++) {
                 MapFile mapFile = mMapIndex.getNativeMap(x, y);
                 if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
-                    size += mapFile.downloadSize;
+                    downloadCounter++;
+                    if (hasSizes)
+                        size += mapFile.downloadSize;
+                }
+                if (mapFile.action == MapIndex.ACTION.REMOVE) {
+                    removeCounter++;
                 }
             }
+        int counter = downloadCounter + removeCounter;
+        mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, counter, counter));
+        if (downloadCounter == 0 && removeCounter > 0)
+            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_delete));
+        else
+            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
         if (size > 0L) {
             mStatusView.setVisibility(View.VISIBLE);
             mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), size)));

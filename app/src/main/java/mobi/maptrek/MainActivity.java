@@ -10,7 +10,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -372,11 +371,10 @@ public class MainActivity extends Activity implements ILocationListener,
             mDataFragment = new DataFragment();
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
-            mMapIndex = new MapIndex(mapsDir);
-            if (BuildConfig.FULL_VERSION) {
-                // Provide application context so that maps can be cached on rotation
-                mMapIndex.initializeOnlineMapProviders(getApplicationContext());
-            }
+            // Provide application context so that maps can be cached on rotation
+            mMapIndex = new MapIndex(getApplicationContext(), mapsDir);
+            if (BuildConfig.FULL_VERSION)
+                mMapIndex.initializeOnlineMapProviders();
 
             //noinspection SpellCheckingInspection
             File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
@@ -2292,34 +2290,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onManageNativeMaps() {
-        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        boolean removed = false;
-        for (int x = 0; x < 128; x++)
-            for (int y = 0; y < 128; y++) {
-                MapFile mapFile = mMapIndex.getNativeMap(x, y);
-                if (mapFile.action == MapIndex.ACTION.NONE)
-                    continue;
-                if (mapFile.action == MapIndex.ACTION.REMOVE) {
-                    mMapIndex.removeNativeMap(x, y);
-                    mapFile.action = MapIndex.ACTION.NONE;
-                    removed = true;
-                    continue;
-                }
-                Uri uri = MapIndex.getDownloadUri(x, y);
-                DownloadManager.Request request = new DownloadManager.Request(uri);
-                request.setTitle(getString(R.string.mapTitle, x, y));
-                request.setDescription(getString(R.string.app_name));
-                String mapPath = mapFile.fileName + ".part";
-                File file = new File(mapPath);
-                if (file.exists()) {
-                    //noinspection ResultOfMethodCallIgnored
-                    file.delete();
-                }
-                request.setDestinationInExternalFilesDir(this, "maps", MapIndex.getLocalPath(x, y) + ".part");
-                request.setVisibleInDownloadsUi(false);
-                mapFile.downloading = downloadManager.enqueue(request);
-                mapFile.action = MapIndex.ACTION.NONE;
-            }
+        boolean removed = mMapIndex.manageNativeMaps();
         if (removed)
             mMap.clearMap();
     }

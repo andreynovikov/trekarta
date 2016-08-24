@@ -31,6 +31,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final AreaStyle mPresentAreaStyle;
     private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
+    private final AreaStyle mDownloadingAreaStyle;
     private final AreaStyle mSelectedAreaStyle;
     private final AreaStyle mDeletedAreaStyle;
     private final LineStyle mLineStyle;
@@ -41,6 +42,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mPresentAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
         mOutdatedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
         mMissingAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GRAY).blendScale(10).color(Color.fade(Color.GRAY, 0.4f)).build();
+        mDownloadingAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.GREEN & Color.GRAY).blendScale(10).color(Color.fade(Color.GREEN & Color.GRAY, 0.4f)).build();
         mSelectedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
         mDeletedAreaStyle = AreaStyle.builder().fadeScale(3).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(5).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
@@ -81,6 +83,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             GeometryBuffer selectedAreas = new GeometryBuffer();
             GeometryBuffer presentAreas = new GeometryBuffer();
             GeometryBuffer outdatedAreas = new GeometryBuffer();
+            GeometryBuffer downloadingAreas = new GeometryBuffer();
             GeometryBuffer deletedAreas = new GeometryBuffer();
 
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
@@ -106,19 +109,19 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
                     GeometryBuffer areas = missingAreas;
                     MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
-                    if (mapFile.downloaded) {
+                    if (mapFile.downloading != 0L) {
+                        areas = downloadingAreas;
+                    } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
+                        areas = deletedAreas;
+                    } else if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
+                        areas = selectedAreas;
+                    } else if (mapFile.downloaded) {
                         long downloadCreated = mapFile.downloadCreated * 24 * 3600000L;
                         if (hasSizes && mapFile.created + MAP_EXPIRE_PERIOD < downloadCreated) {
                             areas = outdatedAreas;
                         } else {
                             areas = presentAreas;
                         }
-                    }
-
-                    if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
-                        areas = selectedAreas;
-                    } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
-                        areas = deletedAreas;
                     }
 
                     areas.startPolygon();
@@ -176,6 +179,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                 deleted.area = mDeletedAreaStyle;
             deleted.addMesh(deletedAreas);
             outdated.next = deleted;
+
+            MeshBucket downloading = t.buckets.getMeshBucket(6);
+            if (downloading.area == null)
+                downloading.area = mDownloadingAreaStyle;
+            downloading.addMesh(downloadingAreas);
+            deleted.next = downloading;
         }
     }
 
@@ -185,14 +194,18 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2, point);
         int tileX = (int) (point.getX() / TILE_SCALE);
         int tileY = (int) (point.getY() / TILE_SCALE);
+        MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
         if (gesture instanceof Gesture.LongPress) {
-            if (mMapIndex.getNativeMap(tileX, tileY).downloaded)
+            if (mapFile.downloading != 0L)
+                mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.CANCEL);
+            else if (mapFile.downloaded)
                 mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.REMOVE);
             return true;
         }
         if (gesture instanceof Gesture.Tap || gesture instanceof Gesture.DoubleTap) {
+            if (mapFile.downloading != 0L)
+                return true;
             if (mMapIndex.hasDownloadSizes()) {
-                MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
                 if (mapFile.downloadSize == 0L)
                     return true;
             }

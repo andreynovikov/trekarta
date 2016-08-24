@@ -1,10 +1,12 @@
 package mobi.maptrek.maps;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +21,8 @@ import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -27,8 +31,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
+import mobi.maptrek.R;
 import mobi.maptrek.maps.online.OnlineTileSource;
 import mobi.maptrek.maps.online.TileSourceFactory;
 import mobi.maptrek.util.FileList;
@@ -40,8 +46,10 @@ public class MapIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
-    public enum ACTION {NONE, DOWNLOAD, REMOVE}
+    public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
+    private final Context mContext;
+    private final DownloadManager mDownloadManager;
     private File mRootDir;
     private HashSet<MapFile> mMaps;
     private MapFile[][] mNativeMaps = new MapFile[128][128];
@@ -49,11 +57,9 @@ public class MapIndex implements Serializable {
 
     private final Set<WeakReference<MapStateListener>> mMapStateListeners = new HashSet<>();
 
-    @SuppressWarnings("unused")
-    MapIndex() {
-    }
-
-    public MapIndex(@Nullable File root) {
+    public MapIndex(@NonNull Context context, @Nullable File root) {
+        mContext = context;
+        mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         mRootDir = root;
         mMaps = new HashSet<>();
         if (root != null) {
@@ -67,20 +73,37 @@ public class MapIndex implements Serializable {
     private void load(@NonNull File file) {
         String fileName = file.getName();
         Log.e(TAG, "load(" + fileName + ")");
-        if (fileName.endsWith(".map") && file.canRead()) {
+        if ((fileName.endsWith(".map") || fileName.endsWith(".enqueue")) && file.canRead()) {
             String[] parts = fileName.split("[\\-\\.]");
             try {
-                if (parts.length != 3)
+                if (parts.length < 3 || parts.length > 4)
                     throw new NumberFormatException("unexpected name");
                 int x = Integer.valueOf(parts[0]);
                 int y = Integer.valueOf(parts[1]);
                 if (x > 127 || y > 127)
                     throw new NumberFormatException("out of range");
                 MapFile mapFile = getNativeMap(x, y);
-                mapFile.fileName = file.getAbsolutePath();
-                setNativeMapTileSource(mapFile);
-                Log.w(TAG, "  indexed");
-            } catch (NumberFormatException e) {
+                if (fileName.endsWith(".map")) {
+                    mapFile.fileName = file.getAbsolutePath();
+                    setNativeMapTileSource(mapFile);
+                    Log.w(TAG, "  indexed");
+                } else {
+                    Scanner scanner = new Scanner(file);
+                    String enqueue = scanner.useDelimiter("\\A").next();
+                    scanner.close();
+                    mapFile.downloading = Long.valueOf(enqueue);
+                    int status = checkDownloadStatus(mapFile.downloading);
+                    if (status == DownloadManager.STATUS_PAUSED
+                            || status == DownloadManager.STATUS_PENDING
+                            || status == DownloadManager.STATUS_RUNNING) {
+                        Log.w(TAG, "  downloading: " + mapFile.downloading);
+                    } else {
+                        mapFile.downloading = 0L;
+                        if (file.delete())
+                            Log.w(TAG, "  cleared");
+                    }
+                }
+            } catch (NumberFormatException | FileNotFoundException e) {
                 Log.w(TAG, "  skipped: " + e.getMessage());
             }
             return;
@@ -111,16 +134,6 @@ public class MapIndex implements Serializable {
             }
         }
 
-        /*
-        byte[] buffer13 = Arrays.copyOf(buffer, MapFile.SQLITE_MAGIC.length);
-        if (Arrays.equals(MapFile.SQLITE_MAGIC, buffer13)) {
-            if (file.getName().endsWith(".mbtiles"))
-                return new MBTilesMap(file.getCanonicalPath());
-            else
-                return new SQLiteMap(file.getCanonicalPath());
-        }
-        */
-
         if (mapFile.tileSource == null)
             return;
 
@@ -128,26 +141,34 @@ public class MapIndex implements Serializable {
         mMaps.add(mapFile);
     }
 
-    public void initializeOnlineMapProviders(Context context)
-    {
-        PackageManager packageManager = context.getPackageManager();
+    private int checkDownloadStatus(long enqueue) {
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterById(enqueue);
+        Cursor c = mDownloadManager.query(query);
+        int status = 0;
+        if (c.moveToFirst())
+            status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+        c.close();
+        return status;
+    }
+
+    public void initializeOnlineMapProviders() {
+        PackageManager packageManager = mContext.getPackageManager();
 
         Intent initializationIntent = new Intent("mobi.maptrek.maps.online.provider.action.INITIALIZE");
         // enumerate online map providers
         List<ResolveInfo> providers = packageManager.queryBroadcastReceivers(initializationIntent, 0);
-        for (ResolveInfo provider : providers)
-        {
+        for (ResolveInfo provider : providers) {
             // send initialization broadcast, we send it directly instead of sending
             // one broadcast for all plugins to wake up stopped plugins:
             // http://developer.android.com/about/versions/android-3.1.html#launchcontrols
             Intent intent = new Intent();
             intent.setClassName(provider.activityInfo.packageName, provider.activityInfo.name);
             intent.setAction(initializationIntent.getAction());
-            context.sendBroadcast(intent);
+            mContext.sendBroadcast(intent);
 
-            List<OnlineTileSource> tileSources = TileSourceFactory.fromPlugin(context, packageManager, provider);
-            for (OnlineTileSource tileSource : tileSources)
-            {
+            List<OnlineTileSource> tileSources = TileSourceFactory.fromPlugin(mContext, packageManager, provider);
+            for (OnlineTileSource tileSource : tileSources) {
                 MapFile mapFile = new MapFile(tileSource.getName());
                 mapFile.tileSource = tileSource;
                 mapFile.boundingBox = WORLD_BOUNDING_BOX;
@@ -193,7 +214,7 @@ public class MapIndex implements Serializable {
         return mNativeMaps[x][y];
     }
 
-    public void removeNativeMap(int x, int y) {
+    private void removeNativeMap(int x, int y) {
         if (mNativeMaps[x][y] == null)
             return;
         File file = new File(mNativeMaps[x][y].fileName);
@@ -239,6 +260,37 @@ public class MapIndex implements Serializable {
                     mNativeMaps[x][y].action = ACTION.NONE;
     }
 
+    public boolean manageNativeMaps() {
+        boolean removed = false;
+        for (int x = 0; x < 128; x++)
+            for (int y = 0; y < 128; y++) {
+                MapFile mapFile = getNativeMap(x, y);
+                if (mapFile.action == MapIndex.ACTION.NONE)
+                    continue;
+                if (mapFile.action == MapIndex.ACTION.REMOVE) {
+                    removeNativeMap(x, y);
+                    mapFile.action = MapIndex.ACTION.NONE;
+                    removed = true;
+                    continue;
+                }
+                Uri uri = MapIndex.getDownloadUri(x, y);
+                DownloadManager.Request request = new DownloadManager.Request(uri);
+                request.setTitle(mContext.getString(R.string.mapTitle, x, y));
+                request.setDescription(mContext.getString(R.string.app_name));
+                String mapPath = mapFile.fileName + ".part";
+                File file = new File(mapPath);
+                if (file.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    file.delete();
+                }
+                request.setDestinationInExternalFilesDir(mContext, "maps", MapIndex.getLocalPath(x, y) + ".part");
+                request.setVisibleInDownloadsUi(false);
+                setDownloading(mapFile, mDownloadManager.enqueue(request));
+                mapFile.action = MapIndex.ACTION.NONE;
+            }
+        return removed;
+    }
+
     public void setNativeMapTileSource(int key) {
         int x = key >>> 7;
         int y = key & 0x7f;
@@ -262,6 +314,30 @@ public class MapIndex implements Serializable {
         }
     }
 
+    private void setDownloading(MapFile map, long enqueue) {
+        map.downloading = enqueue;
+        File enqueueFile = new File(map.fileName + ".enqueue");
+        try {
+            if (!enqueueFile.getParentFile().exists())
+                //noinspection ResultOfMethodCallIgnored
+                enqueueFile.getParentFile().mkdirs();
+            FileWriter writer = new FileWriter(enqueueFile, false);
+            writer.write(String.valueOf(enqueue));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void cancelDownload(int x, int y) {
+        MapFile map = getNativeMap(x, y);
+        mDownloadManager.remove(map.downloading);
+        map.downloading = 0L;
+        File enqueueFile = new File(map.fileName + ".enqueue");
+        //noinspection ResultOfMethodCallIgnored
+        enqueueFile.delete();
+    }
+
     public boolean isDownloading(int x, int y) {
         return mNativeMaps[x][y] != null && mNativeMaps[x][y].downloading != 0L;
     }
@@ -280,6 +356,9 @@ public class MapIndex implements Serializable {
                 throw new NumberFormatException("out of range");
             if ((!mapFile.exists() || mapFile.delete()) && srcFile.renameTo(mapFile))
                 return getNativeKey(x, y);
+            File enqueueFile = new File(mapFile.getAbsolutePath() + ".enqueue");
+            //noinspection ResultOfMethodCallIgnored
+            enqueueFile.delete();
         } catch (NumberFormatException e) {
             Log.e(TAG, e.getMessage());
         }
