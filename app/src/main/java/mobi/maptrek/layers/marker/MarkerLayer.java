@@ -80,12 +80,14 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 	public void setFocus(Item item) {
 		mFocusedItem = item;
 		mMarkerRenderer.update();
+		mMap.updateMap(true);
 	}
 
     public void setFocus(Item item, int color) {
         mFocusedItem = item;
         mFocusColor = color;
         mMarkerRenderer.update();
+        mMap.updateMap(true);
     }
 
     /**
