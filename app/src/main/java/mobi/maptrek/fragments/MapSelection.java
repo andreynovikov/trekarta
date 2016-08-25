@@ -185,10 +185,13 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
             }
         int counter = downloadCounter + removeCounter;
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, counter, counter));
-        if (downloadCounter == 0 && removeCounter > 0)
-            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_delete));
-        else
-            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+        // can be null when fragment is not yet visible
+        if (mFloatingButton != null) {
+            if (downloadCounter == 0 && removeCounter > 0)
+                mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_delete));
+            else
+                mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+        }
         if (size > 0L) {
             mStatusView.setVisibility(View.VISIBLE);
             mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), size)));
