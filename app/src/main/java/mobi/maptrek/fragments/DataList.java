@@ -39,7 +39,7 @@ import mobi.maptrek.util.StringFormatter;
 public class DataList extends ListFragment implements DataSourceUpdateListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
-    public static final String ARG_EMPTY_MESSAGE = "msg";
+    public static final String ARG_NO_EXTRA_SOURCES = "msg";
     public static final String ARG_HEIGHT = "hgt";
 
     private DataListAdapter mAdapter;
@@ -70,7 +70,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         Bundle arguments = getArguments();
         mLatitude = arguments.getDouble(ARG_LATITUDE);
         mLongitude = arguments.getDouble(ARG_LONGITUDE);
-        boolean emptyMessage = arguments.getBoolean(ARG_EMPTY_MESSAGE);
+        boolean noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
         int minHeight = arguments.getInt(ARG_HEIGHT, 0);
 
         if (savedInstanceState != null) {
@@ -78,15 +78,16 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
             mLongitude = savedInstanceState.getDouble(ARG_LONGITUDE);
         }
 
-        //TODO Test what will happen when there is external source but no native points
-        if (emptyMessage) {
-            TextView emptyView = (TextView) getListView().getEmptyView();
-            if (emptyView != null)
-                emptyView.setText(getString(R.string.msg_empty_waypoint_list)
-                        + System.getProperty("line.separator")
-                        + System.getProperty("line.separator")
-                        + getString(R.string.msg_no_file_data_sources)
-                );
+        TextView emptyView = (TextView) getListView().getEmptyView();
+        if (emptyView != null) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(getString(R.string.msg_empty_waypoint_list));
+            if (noExtraSources) {
+                stringBuilder.append(System.getProperty("line.separator"));
+                stringBuilder.append(System.getProperty("line.separator"));
+                stringBuilder.append(getString(R.string.msg_no_file_data_sources));
+            }
+            emptyView.setText(stringBuilder.toString());
         }
 
         mAdapter = new DataListAdapter(getActivity(), mDataSource.getCursor(), 0);
@@ -100,7 +101,9 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         if (rootView != null)
             rootView.setMinimumHeight(minHeight);
 
-        if (emptyMessage) {
+        // If list contains no data footer is not displayed, so we should not worry about
+        // message being shown twice
+        if (noExtraSources) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false));
         }

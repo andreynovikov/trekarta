@@ -1160,7 +1160,7 @@ public class MainActivity extends Activity implements ILocationListener,
             Bundle args = new Bundle(2);
             args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
             args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
-            args.putBoolean(DataList.ARG_EMPTY_MESSAGE, true);
+            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
             DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
             fragment.setDataSource(mWaypointDbDataSource);
             showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
