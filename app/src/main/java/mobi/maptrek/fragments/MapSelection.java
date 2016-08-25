@@ -138,7 +138,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
         if (action == MapIndex.ACTION.CANCEL) {
             final Activity activity = getActivity();
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(R.string.msg_cancel_download);
+            builder.setTitle(R.string.msg_cancel_download);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
