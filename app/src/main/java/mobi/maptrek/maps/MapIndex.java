@@ -295,6 +295,8 @@ public class MapIndex implements Serializable {
         int x = key >>> 7;
         int y = key & 0x7f;
         setNativeMapTileSource(mNativeMaps[x][y]);
+        mNativeMaps[x][y].downloading = 0L;
+        selectNativeMap(x, y, MapIndex.ACTION.NONE);
     }
 
     private void setNativeMapTileSource(MapFile mapFile) {
