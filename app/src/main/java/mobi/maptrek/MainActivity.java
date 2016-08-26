@@ -2750,6 +2750,10 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mMapIndex.isDownloading(x, y))
             return;
 
+        // Do not show button if there is no map for that area
+        if (mMapIndex.hasDownloadSizes() && mMapIndex.getNativeMap(x, y).downloadSize == 0L)
+            return;
+
         // Do not show button if custom map is shown
         mMap.getMapPosition(mMapPosition);
         if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
