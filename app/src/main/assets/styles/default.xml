@@ -451,6 +451,7 @@
         <!-- outline 0 -->
         <outline-layer blur="1.0" id="glow" stroke="#000000" width="0.2" />
         <outline-layer id="0" stroke="#66000000" width="0.1" />
+        <outline-layer id="tunnel" stroke="#ff0000" width="5" stipple="20" stipple-stroke="#666666" />
 
         <!-- match tunnel-tag (to ensure tunnel key is present) -->
         <m k="tunnel" zoom-min="11">
@@ -528,8 +529,7 @@
                             <text use="major-road" />
                         </m>
                         <m v="motorway">
-                            <line blur="0.3" outline="0" use="highway:z11" />
-                            <!-- <outline use="glow"/> -->
+                            <line outline="tunnel" use="highway:z11" stroke="#33000000" />
                             <text use="major-road" />
                         </m>
                     </m>
@@ -575,6 +575,11 @@
         <!-- <m k="highway" v="turning_circle"> <circle radius="1.5" scale-radius="true"
           fill="#707070" />
           </m> -->
+
+        <!-- non-physical routes -->
+        <m k="route" v="ferry">
+            <line cap="butt" stroke="#00ffffff" width="2.5" stipple="20" stipple-stroke="#587f9d" fix="true" />
+        </m>
 
         <m k="aerialway">
             <line cap="butt" stroke="#202020" width="0.8" />
@@ -1275,14 +1280,25 @@
 
         <!-- railway -->
         <m k="railway">
-            <m v="station" zoom-min="14">
-                <symbol src="assets:symbols/transport/train_station.svg" />
-                <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="14" stroke="#ffffff"
+            <m select="first" v="station" zoom-min="14">
+                <m k="station" v="subway">
+                    <symbol src="assets:symbols/transport/subway.svg" />
+                </m>
+                <m k="station" v="-|subway">
+                    <symbol src="assets:symbols/transport/train_station.svg" />
+                </m>
+                <m select="when-matched">
+                    <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="14"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+            </m>
+            <m v="halt">
+                <symbol src="assets:symbols/transport/train_station2.svg" />
+                <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-
-            <m v="halt|tram_stop">
-                <symbol src="assets:symbols/transport/train_station2.svg" />
+            <m v="tram_stop">
+                <symbol src="assets:symbols/transport/tram_stop.svg" />
                 <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
