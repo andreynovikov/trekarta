@@ -304,16 +304,15 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
 
         final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
         if (coordsView != null) {
-            coordsView.setTag(StringFormatter.coordinateFormat);
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.latitude, mWaypoint.longitude));
             coordsView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int format = (Integer) coordsView.getTag() + 1;
-                    if (format == 5)
-                        format = 0;
-                    coordsView.setText(StringFormatter.coordinates(format, " ", mWaypoint.latitude, mWaypoint.longitude));
-                    coordsView.setTag(format);
+                    StringFormatter.coordinateFormat++;
+                    if (StringFormatter.coordinateFormat == 5)
+                        StringFormatter.coordinateFormat = 0;
+                    coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.latitude, mWaypoint.longitude));
+                    Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
                 }
             });
         }

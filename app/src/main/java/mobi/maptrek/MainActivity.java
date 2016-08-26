@@ -345,6 +345,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
+        StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();
         //FIXME Use preferences
         StringFormatter.speedFactor = 3.6f;
         StringFormatter.speedAbbr = "kmh";

@@ -36,6 +36,7 @@ public class Configuration {
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
+    private static final String PREF_COORDINATES_FORMAT = "coordinates_format";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -46,66 +47,42 @@ public class Configuration {
         mSharedPreferences = sharedPreferences;
     }
 
-    public static boolean initialized() {
-        return mSharedPreferences != null;
-    }
-
     public static int getPointsCounter() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        int counter = mSharedPreferences.getInt(PREF_POINTS_COUNTER, 0);
-        counter++;
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_POINTS_COUNTER, counter);
-        editor.apply();
+        int counter = loadInt(PREF_POINTS_COUNTER, 0) + 1;
+        saveInt(PREF_POINTS_COUNTER, counter);
         return counter;
     }
 
     public static int getLocationState() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getInt(PREF_LOCATION_STATE, 0);
+        return loadInt(PREF_LOCATION_STATE, 0);
     }
 
     public static void setLocationState(int locationState) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_LOCATION_STATE, locationState);
-        editor.apply();
+        saveInt(PREF_LOCATION_STATE, locationState);
     }
 
     public static int getPreviousLocationState() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getInt(PREF_PREVIOUS_LOCATION_STATE, 0);
+        return loadInt(PREF_PREVIOUS_LOCATION_STATE, 0);
     }
 
     public static void setPreviousLocationState(int locationState) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_PREVIOUS_LOCATION_STATE, locationState);
-        editor.apply();
+        saveInt(PREF_PREVIOUS_LOCATION_STATE, locationState);
     }
 
     public static int getTrackingState() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getInt(PREF_TRACKING_STATE, 0);
+        return loadInt(PREF_TRACKING_STATE, 0);
     }
 
     public static void setTrackingState(int trackingState) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_TRACKING_STATE, trackingState);
-        editor.apply();
+        saveInt(PREF_TRACKING_STATE, trackingState);
     }
 
     public static boolean getActionPanelState() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getBoolean(PREF_ACTION_PANEL_STATE, true);
+        return loadBoolean(PREF_ACTION_PANEL_STATE, true);
     }
 
     public static void setActionPanelState(boolean panelState) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(PREF_ACTION_PANEL_STATE, panelState);
-        editor.apply();
+        saveBoolean(PREF_ACTION_PANEL_STATE, panelState);
     }
 
     /**
@@ -113,57 +90,46 @@ public class Configuration {
      */
     @Nullable
     public static MapObject getNavigationPoint() {
-        assert mSharedPreferences != null : "Configuration not initialized";
         MapObject waypoint = null;
-        String navWpt = mSharedPreferences.getString(PREF_NAVIGATION_WAYPOINT, null);
+        String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
         if (navWpt != null) {
             waypoint = new MapObject();
             waypoint.name = navWpt;
             waypoint.latitude = (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0);
             waypoint.longitude = (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0);
-            waypoint.proximity = mSharedPreferences.getInt(PREF_NAVIGATION_PROXIMITY, 0);
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString(PREF_NAVIGATION_WAYPOINT, null);
-            editor.apply();
+            waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
+            saveString(PREF_NAVIGATION_WAYPOINT, null);
         }
         return waypoint;
     }
 
     public static void setNavigationPoint(@Nullable MapObject mapObject) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
         if (mapObject != null) {
-            editor.putString(PREF_NAVIGATION_WAYPOINT, mapObject.name);
-            editor.putFloat(PREF_NAVIGATION_LATITUDE, (float) mapObject.latitude);
-            editor.putFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.longitude);
-            editor.putInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
+            saveString(PREF_NAVIGATION_WAYPOINT, mapObject.name);
+            saveFloat(PREF_NAVIGATION_LATITUDE, (float) mapObject.latitude);
+            saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.longitude);
+            saveInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
         } else {
-            editor.putString(PREF_NAVIGATION_WAYPOINT, null);
+            saveString(PREF_NAVIGATION_WAYPOINT, null);
         }
-        editor.apply();
     }
 
     public static String getGauges() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET);
+        return loadString(PREF_GAUGES, GaugePanel.DEFAULT_GAUGE_SET);
     }
 
     public static void setGauges(String gauges) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString(PREF_GAUGES, gauges);
-        editor.apply();
+        saveString(PREF_GAUGES, gauges);
     }
 
     @NonNull
     public static MapPosition getPosition() {
-        assert mSharedPreferences != null : "Configuration not initialized";
         MapPosition mapPosition = new MapPosition();
-        int latitudeE6 = mSharedPreferences.getInt(PREF_LATITUDE, 0);
-        int longitudeE6 = mSharedPreferences.getInt(PREF_LONGITUDE, 0);
-        float scale = mSharedPreferences.getFloat(PREF_MAP_SCALE, 1);
-        float bearing = mSharedPreferences.getFloat(PREF_MAP_BEARING, 0);
-        float tilt = mSharedPreferences.getFloat(PREF_MAP_TILT, 0);
+        int latitudeE6 = loadInt(PREF_LATITUDE, 0);
+        int longitudeE6 = loadInt(PREF_LONGITUDE, 0);
+        float scale = loadFloat(PREF_MAP_SCALE, 1);
+        float bearing = loadFloat(PREF_MAP_BEARING, 0);
+        float tilt = loadFloat(PREF_MAP_TILT, 0);
         mapPosition.setPosition(latitudeE6 / 1E6, longitudeE6 / 1E6);
         mapPosition.setScale(scale);
         mapPosition.setBearing(bearing);
@@ -172,133 +138,160 @@ public class Configuration {
     }
 
     public static void setPosition(@NonNull MapPosition mapPosition) {
-        assert mSharedPreferences != null : "Configuration not initialized";
         GeoPoint geoPoint = mapPosition.getGeoPoint();
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_LATITUDE, geoPoint.latitudeE6);
-        editor.putInt(PREF_LONGITUDE, geoPoint.longitudeE6);
-        editor.putFloat(PREF_MAP_SCALE, (float) mapPosition.scale);
-        editor.putFloat(PREF_MAP_BEARING, mapPosition.bearing);
-        editor.putFloat(PREF_MAP_TILT, mapPosition.tilt);
-        editor.apply();
+        saveInt(PREF_LATITUDE, geoPoint.latitudeE6);
+        saveInt(PREF_LONGITUDE, geoPoint.longitudeE6);
+        saveFloat(PREF_MAP_SCALE, (float) mapPosition.scale);
+        saveFloat(PREF_MAP_BEARING, mapPosition.bearing);
+        saveFloat(PREF_MAP_TILT, mapPosition.tilt);
     }
 
     public static boolean getBuildingsLayerEnabled() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getBoolean(PREF_MAP_3D_BUILDINGS, true);
+        return loadBoolean(PREF_MAP_3D_BUILDINGS, true);
     }
 
     public static void setBuildingsLayerEnabled(boolean buildingsLayerEnabled) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(PREF_MAP_3D_BUILDINGS, buildingsLayerEnabled);
-        editor.apply();
+        saveBoolean(PREF_MAP_3D_BUILDINGS, buildingsLayerEnabled);
     }
 
     public static boolean getGridLayerEnabled() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getBoolean(PREF_MAP_GRID, false);
+        return loadBoolean(PREF_MAP_GRID, false);
     }
 
     public static void setGridLayerEnabled(boolean GRIDLayerEnabled) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(PREF_MAP_GRID, GRIDLayerEnabled);
-        editor.apply();
+        saveBoolean(PREF_MAP_GRID, GRIDLayerEnabled);
     }
 
     @Nullable
     public static String getBitmapMap() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getString(PREF_BITMAP_MAP, null);
+        return loadString(PREF_BITMAP_MAP, null);
     }
 
     public static void setBitmapMap(@Nullable MapFile mapFile) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
         if (mapFile != null)
-            editor.putString(PREF_BITMAP_MAP, mapFile.fileName);
+            saveString(PREF_BITMAP_MAP, mapFile.fileName);
         else
-            editor.putString(PREF_BITMAP_MAP, null);
-        editor.apply();
+            saveString(PREF_BITMAP_MAP, null);
     }
 
     public static boolean getAdviceState(long advice) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return (mSharedPreferences.getLong(PREF_ADVICE_STATES, 0L) & advice) == 0L;
+        return (loadLong(PREF_ADVICE_STATES, 0L) & advice) == 0L;
     }
 
     public static void setAdviceState(long advice) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        long state = mSharedPreferences.getLong(PREF_ADVICE_STATES, 0L);
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putLong(PREF_ADVICE_STATES, state | advice);
-        editor.apply();
+        long state = loadLong(PREF_ADVICE_STATES, 0L);
+        saveLong(PREF_ADVICE_STATES, state | advice);
     }
 
     public static void resetAdviceState() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putLong(PREF_ADVICE_STATES, 0L);
-        editor.apply();
+        saveLong(PREF_ADVICE_STATES, 0L);
     }
 
     public static int getNightModeState() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getInt(PREF_NIGHT_MODE_STATE, 0);
+        return loadInt(PREF_NIGHT_MODE_STATE, 0);
     }
 
     public static void setNightModeState(int nightModeState) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_NIGHT_MODE_STATE, nightModeState);
-        editor.apply();
+        saveInt(PREF_NIGHT_MODE_STATE, nightModeState);
     }
 
     public static String getLanguage() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getString(PREF_LANGUAGE, null);
+        return loadString(PREF_LANGUAGE, null);
     }
 
     public static void setLanguage(String language) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString(PREF_LANGUAGE, language);
-        editor.apply();
+        saveString(PREF_LANGUAGE, language);
     }
 
     public static boolean getHideMapObjects() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getBoolean(PREF_HIDE_MAP_OBJECTS, true);
+        return loadBoolean(PREF_HIDE_MAP_OBJECTS, true);
     }
 
     public static void setHideMapObjects(boolean hideMapObjects) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(PREF_HIDE_MAP_OBJECTS, hideMapObjects);
-        editor.apply();
+        saveBoolean(PREF_HIDE_MAP_OBJECTS, hideMapObjects);
     }
 
     public static int getBitmapMapTransparency() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getInt(PREF_BITMAP_MAP_TRANSPARENCY, 0);
+        return loadInt(PREF_BITMAP_MAP_TRANSPARENCY, 0);
     }
 
     public static void setBitmapMapTransparency(int transparency) {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(PREF_BITMAP_MAP_TRANSPARENCY, transparency);
-        editor.apply();
+        saveInt(PREF_BITMAP_MAP_TRANSPARENCY, transparency);
     }
 
     public static long getExceptionSize() {
-        assert mSharedPreferences != null : "Configuration not initialized";
-        return mSharedPreferences.getLong(PREF_EXCEPTION_SIZE, 0L);
+        return loadLong(PREF_EXCEPTION_SIZE, 0L);
     }
 
     public static void setExceptionSize(long size) {
+        saveLong(PREF_EXCEPTION_SIZE, size);
+    }
+
+    public static int getCoordinatesFormat() {
+        return loadInt(PREF_COORDINATES_FORMAT, 0);
+    }
+
+    public static void setCoordinatesFormat(int format) {
+        saveInt(PREF_COORDINATES_FORMAT, format);
+    }
+    
+    private static int loadInt(String key, int defValue) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getInt(key, defValue);
+    }
+    
+    private static void saveInt(String key, int value) {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putLong(PREF_EXCEPTION_SIZE, size);
+        editor.putInt(key, value);
+        editor.apply();
+    }
+
+    private static long loadLong(String key, long defValue) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getLong(key, defValue);
+    }
+
+    private static void saveLong(String key, long value) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putLong(key, value);
+        editor.apply();
+    }
+
+    private static float loadFloat(String key, float defValue) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getFloat(key, defValue);
+    }
+
+    private static void saveFloat(String key, float value) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putFloat(key, value);
+        editor.apply();
+    }
+
+    private static boolean loadBoolean(String key, boolean defValue) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getBoolean(key, defValue);
+    }
+
+    private static void saveBoolean(String key, boolean value) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    private static String loadString(String key, String defValue) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        return mSharedPreferences.getString(key, defValue);
+    }
+
+    private static void saveString(String key, String value) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(key, value);
         editor.apply();
     }
 }
