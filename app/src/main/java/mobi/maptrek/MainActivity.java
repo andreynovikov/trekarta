@@ -1479,6 +1479,12 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.POSITION_EVENT) {
             mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.9);
+            if (mCompassView.getVisibility() == View.GONE && mapPosition.bearing != 0f) {
+                if (Math.abs(mapPosition.bearing) < 1.5f) {
+                    mapPosition.setBearing(0f);
+                    mMap.setMapPosition(mapPosition);
+                }
+            }
             adjustCompass(mapPosition.bearing);
         }
         if (e == Map.MOVE_EVENT) {
