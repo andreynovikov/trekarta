@@ -1023,7 +1023,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             long time = SystemClock.uptimeMillis();
             // Adjust map movement animation to location acquisition period to make movement smoother
-            long locationDelay =  time - mLastLocationMilliseconds;
+            long locationDelay = time - mLastLocationMilliseconds;
             double duration = Math.min(1500, locationDelay); // 1.5 seconds maximum
             mMovementAnimationDuration = (int) movingAverage(duration, mMovementAnimationDuration);
             // Update map position
@@ -1480,7 +1480,7 @@ public class MainActivity extends Activity implements ILocationListener,
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.POSITION_EVENT) {
             mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.9);
-            if (mCompassView.getVisibility() == View.GONE && mapPosition.bearing != 0f) {
+            if (mCompassView.getVisibility() == View.GONE && mapPosition.bearing != 0f && mLocationState != LocationState.TRACK) {
                 if (Math.abs(mapPosition.bearing) < 1.5f) {
                     mapPosition.setBearing(0f);
                     mMap.setMapPosition(mapPosition);
