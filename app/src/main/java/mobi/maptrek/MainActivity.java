@@ -2964,7 +2964,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 enableNavigation();
                 updateNavigationUI();
             }
-            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATUS)) {
+            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATUS) && mNavigationService != null) {
                 mGaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
                 mGaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
                 mGaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
