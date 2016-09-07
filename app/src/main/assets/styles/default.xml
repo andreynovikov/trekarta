@@ -665,7 +665,7 @@
                     <line fade="14" use="building" />
                 </m>
             </m>
-            <m zoom-min="17">
+            <m k="building:outline" v="~|no" zoom-min="17">
                 <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
             </m>
             <m zoom-min="17">
@@ -674,6 +674,9 @@
                 <caption style="bold" fill="#606060" k="addr:housenumber" priority="10" size="10"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
+        </m>
+        <m k="building:part" zoom-min="17">
+            <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
         </m>
 
         <!-- outline 1 - 4 -->
