@@ -1602,6 +1602,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 gaugePanelAnimator.translationX(0);
+                HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
