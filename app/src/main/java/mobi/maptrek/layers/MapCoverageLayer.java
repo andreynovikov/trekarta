@@ -172,7 +172,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             MeshBucket outdated = t.buckets.getMeshBucket(4);
             if (outdated.area == null)
                 outdated.area = mOutdatedAreaStyle;
-            outdated.addMesh(deletedAreas);
+            outdated.addMesh(outdatedAreas);
             present.next = outdated;
 
             MeshBucket deleted = t.buckets.getMeshBucket(5);
