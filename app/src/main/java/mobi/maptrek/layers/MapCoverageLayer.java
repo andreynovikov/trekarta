@@ -195,6 +195,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2, point);
         int tileX = (int) (point.getX() / TILE_SCALE);
         int tileY = (int) (point.getY() / TILE_SCALE);
+        if (tileX < 0 || tileX > 127 || tileY < 0 || tileY > 127)
+            return false;
         MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
         if (gesture instanceof Gesture.LongPress) {
             if (mapFile.downloading != 0L)
