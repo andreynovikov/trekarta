@@ -37,6 +37,7 @@ public class Configuration {
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     private static final String PREF_COORDINATES_FORMAT = "coordinates_format";
+    private static final String PREF_REMEMBERED_SCALE = "remembered_scale";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -235,7 +236,15 @@ public class Configuration {
     public static void setCoordinatesFormat(int format) {
         saveInt(PREF_COORDINATES_FORMAT, format);
     }
-    
+
+    public static float getRememberedScale() {
+        return loadFloat(PREF_REMEMBERED_SCALE, -1f);
+    }
+
+    public static void setRememberedScale(float scale) {
+        saveFloat(PREF_REMEMBERED_SCALE, scale);
+    }
+
     private static int loadInt(String key, int defValue) {
         assert mSharedPreferences != null : "Configuration not initialized";
         return mSharedPreferences.getInt(key, defValue);

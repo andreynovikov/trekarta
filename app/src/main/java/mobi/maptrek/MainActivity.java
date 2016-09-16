@@ -83,6 +83,8 @@ import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
 import org.oscim.core.Tile;
 import org.oscim.event.Event;
+import org.oscim.event.Gesture;
+import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
@@ -148,6 +150,7 @@ import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.MapCoverageLayer;
+import mobi.maptrek.layers.MapEventLayer;
 import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
@@ -176,6 +179,7 @@ public class MainActivity extends Activity implements ILocationListener,
         MapHolder,
         Map.InputListener,
         Map.UpdateListener,
+        GestureListener,
         FragmentHolder,
         WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
@@ -190,14 +194,15 @@ public class MainActivity extends Activity implements ILocationListener,
     private static final String TAG = "MainActivity";
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
-    private static final int MAP_BASE = 1;
-    private static final int MAP_MAPS = 2;
-    private static final int MAP_3D = 3;
-    private static final int MAP_LABELS = 4;
-    private static final int MAP_DATA = 5;
-    private static final int MAP_3D_DATA = 6;
-    private static final int MAP_POSITIONAL = 7;
-    private static final int MAP_OVERLAYS = 8;
+    private static final int MAP_EVENTS = 1;
+    private static final int MAP_BASE = 2;
+    private static final int MAP_MAPS = 3;
+    private static final int MAP_3D = 4;
+    private static final int MAP_LABELS = 5;
+    private static final int MAP_DATA = 6;
+    private static final int MAP_3D_DATA = 7;
+    private static final int MAP_POSITIONAL = 8;
+    private static final int MAP_OVERLAYS = 9;
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
@@ -244,6 +249,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private LocationState mPreviousLocationState;
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
+    private GeoPoint mSelectedPoint;
     private int mMovingOffset = 0;
     private int mTrackingOffset = 0;
     private double mTrackingOffsetFactor = 1;
@@ -269,6 +275,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
     private CoordinatorLayout mCoordinatorLayout;
+    private View mPopupAnchor;
     private boolean mVerticalOrientation;
     private int mSlideGravity;
 
@@ -287,6 +294,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mLocationSearchingDrawable;
 
     //TODO Temporary fix
+    private MapEventLayer mMapEventLayer;
     @SuppressWarnings("FieldCanBeLocal")
     private VectorTileLayer mBaseLayer;
     private VectorTileLayer mNativeMapsLayer;
@@ -417,6 +425,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mMapsButton = (ImageButton) findViewById(R.id.mapsButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
         mMapDownloadButton = (Button) findViewById(R.id.mapDownloadButton);
+        mPopupAnchor = findViewById(R.id.popupAnchor);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
         mGaugePanel.setTag(Boolean.TRUE);
@@ -468,6 +477,7 @@ public class MainActivity extends Activity implements ILocationListener,
         mLocationSearchingDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_location_searching, theme);
 
         Layers layers = mMap.layers();
+        layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
         TileSource baseMapSource = new OSciMap4TileCacheSource();
@@ -753,6 +763,8 @@ public class MainActivity extends Activity implements ILocationListener,
         layoutExtendPanel(mPanelState);
         updateMapViewArea();
 
+        mMapEventLayer = new MapEventLayer(mMap, this);
+        mMap.layers().add(mMapEventLayer, MAP_EVENTS);
         mMap.events.bind(this);
         mMap.input.bind(this);
         mMapView.onResume();
@@ -780,6 +792,8 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mMapView.onPause();
         mMap.events.unbind(this);
+        mMap.layers().remove(mMapEventLayer);
+        mMapEventLayer = null;
 
         // save the map position and state
         Configuration.setPosition(mMap.getMapPosition());
@@ -991,6 +1005,22 @@ public class MainActivity extends Activity implements ILocationListener,
                 ft.replace(R.id.contentPanel, fragment, "about");
                 ft.addToBackStack("about");
                 ft.commit();
+                return true;
+            }
+            case R.id.action_add_waypoint_here: {
+                String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+                onWaypointCreate(mSelectedPoint, name);
+                return true;
+            }
+            case R.id.action_navigate_here: {
+                MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
+                mapObject.name = getString(R.string.selectedLocation);
+                startNavigation(mapObject);
+                return true;
+            }
+            case R.id.action_remember_scale: {
+                mMap.getMapPosition(mMapPosition);
+                Configuration.setRememberedScale((float) mMapPosition.getScale());
                 return true;
             }
         }
@@ -1522,6 +1552,29 @@ public class MainActivity extends Activity implements ILocationListener,
             mMap.layers().add(mLabelsLayer, MAP_LABELS);
             mLabelsLayer.setEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onGesture(Gesture gesture, MotionEvent event) {
+        if (gesture == Gesture.LONG_PRESS) {
+            mPopupAnchor.setX(event.getX());
+            mPopupAnchor.setY(event.getY());
+            mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2);
+            PopupMenu popup = new PopupMenu(this, mPopupAnchor);
+            popup.inflate(R.menu.context_menu_map);
+            popup.setOnMenuItemClickListener(this);
+            popup.show();
+            return true;
+        } else if (gesture == Gesture.DOUBLE_TAP) {
+            float scale = Configuration.getRememberedScale();
+            if (scale > 0f) {
+                mMap.getMapPosition(mMapPosition);
+                double scaleBy = scale / mMapPosition.getScale();
+                mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void adjustCompass(float bearing) {
