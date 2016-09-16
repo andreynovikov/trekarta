@@ -20,6 +20,7 @@ public abstract class DataSource {
 
     public String name;
     private boolean loaded = false;
+    private boolean loadable = true;
     private boolean visible = false;
     private final Set<DataSourceUpdateListener> mListeners = new HashSet<>();
 
@@ -47,6 +48,14 @@ public abstract class DataSource {
      */
     public void setLoaded() {
         loaded = true;
+    }
+
+    public boolean isLoadable() {
+        return loadable;
+    }
+
+    public void setLoadable(boolean loadable) {
+        this.loadable = loadable;
     }
 
     public boolean isVisible() {

@@ -63,12 +63,14 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void markDataSourceLoadable(FileDataSource source, boolean loadable) {
         // Actual data changes will be performed by FileObserver which will detect flag change
+        source.setLoadable(loadable);
         File flag = new File(source.path + DO_NOT_LOAD_FLAG);
         if (loadable)
             flag.delete();
         else
             try {
                 flag.createNewFile();
+                Log.e(TAG, "contains: " + mData.contains(source));
             } catch (IOException e) {
                 e.printStackTrace();
             }

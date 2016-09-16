@@ -291,6 +291,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorTileLayer mBaseLayer;
     private VectorTileLayer mNativeMapsLayer;
     private BuildingLayer mBuildingsLayer;
+    DefaultMapScaleBar mMapScaleBar;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelLayer mLabelsLayer;
     private LabelLayer mNativeLabelsLayer;
@@ -516,7 +517,9 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.add(mLabelsLayer, MAP_LABELS);
         mNativeLabelsLayer = new LabelLayer(mMap, mNativeMapsLayer);
         layers.add(mNativeLabelsLayer, MAP_LABELS);
-        mMapScaleBarLayer = new MapScaleBarLayer(mMap, new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 240));
+
+        mMapScaleBar = new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 200);
+        mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
@@ -828,6 +831,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Log.e(TAG, "onDestroy()");
 
         mMap.destroy();
+        mMapScaleBar.destroy();
         if (mCache != null)
             mCache.dispose();
 
@@ -2896,7 +2900,7 @@ public class MainActivity extends Activity implements ILocationListener,
             return;
         mData = data;
         for (FileDataSource source : mData) {
-            if (source.isLoaded() && !source.isVisible()) {
+            if (source.isLoaded() && source.isLoadable() && !source.isVisible()) {
                 addSourceToMap(source);
                 source.setVisible(true);
             }
