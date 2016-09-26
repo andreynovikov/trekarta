@@ -52,6 +52,7 @@ import android.transition.Visibility;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -253,6 +254,9 @@ public class MainActivity extends Activity implements ILocationListener,
     private int mTrackingOffset = 0;
     private double mTrackingOffsetFactor = 1;
     private long mTrackingDelay;
+    private float mAutoTilt;
+    private boolean mAutoTiltSet;
+    private boolean mAutoTiltShouldSet;
     private boolean mBuildingsLayerEnabled = true;
     private boolean mHideMapObjects = true;
     private int mBitmapMapTransparency = 0;
@@ -469,6 +473,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     mMap.setMapPosition(-19, -12, 1 << 2);
             }
         }
+        mAutoTilt = Configuration.getAutoTilt();
 
         mNavigationNorthDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_north, theme);
         mNavigationTrackDrawable = (VectorDrawable) resources.getDrawable(R.drawable.ic_navigation_track, theme);
@@ -844,7 +849,7 @@ public class MainActivity extends Activity implements ILocationListener,
         Log.e(TAG, "onDestroy()");
 
         mMap.destroy();
-        mMapScaleBar.destroy();
+        //mMapScaleBar.destroy();
         if (mCache != null)
             mCache.dispose();
 
@@ -894,6 +899,7 @@ public class MainActivity extends Activity implements ILocationListener,
             savedInstanceState.putInt("progressBar", mProgressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("nightMode", mNightMode);
+        savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -912,6 +918,7 @@ public class MainActivity extends Activity implements ILocationListener,
             mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.setMax(savedInstanceState.getInt("progressBar"));
         }
+        mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
@@ -982,6 +989,30 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.updateMap(true);
                 return true;
             }
+            case R.id.actionAutoTilt: {
+                mMap.getMapPosition(mMapPosition);
+                if (item.isChecked()) {
+                    Configuration.setAutoTilt(65f);
+                    mAutoTilt = 65f;
+                } else {
+                    Configuration.setAutoTilt(-1f);
+                    mAutoTilt = -1f;
+                    if (mAutoTiltSet) {
+                        mMapPosition.setTilt(0f);
+                        mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
+                        mAutoTiltSet = false;
+                    }
+                }
+                return true;
+            }
+            case R.id.actionRememberTilt: {
+                mMap.getMapPosition(mMapPosition);
+                mAutoTilt = mMapPosition.getTilt();
+                Configuration.setAutoTilt(mAutoTilt);
+                mAutoTiltSet = true;
+                mAutoTiltShouldSet = true;
+                return true;
+            }
             case R.id.actionOverviewRoute: {
                 if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
                     mLocationState = LocationState.ENABLED;
@@ -1020,18 +1051,18 @@ public class MainActivity extends Activity implements ILocationListener,
                 ft.commit();
                 return true;
             }
-            case R.id.action_add_waypoint_here: {
+            case R.id.actionAddWaypointHere: {
                 String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
                 onWaypointCreate(mSelectedPoint, name);
                 return true;
             }
-            case R.id.action_navigate_here: {
+            case R.id.actionNavigateHere: {
                 MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
                 mapObject.name = getString(R.string.selectedLocation);
                 startNavigation(mapObject);
                 return true;
             }
-            case R.id.action_remember_scale: {
+            case R.id.actionRememberScale: {
                 mMap.getMapPosition(mMapPosition);
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
                 HelperUtils.showAdvice(Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mCoordinatorLayout);
@@ -1080,6 +1111,8 @@ public class MainActivity extends Activity implements ILocationListener,
             double offset;
             if (rotate) {
                 offset = mTrackingOffset / mTrackingOffsetFactor;
+                if (mAutoTilt > 0f && !mAutoTiltSet && mAutoTiltShouldSet)
+                    mMapPosition.setTilt(mAutoTilt);
             } else {
                 offset = mMovingOffset;
             }
@@ -1135,7 +1168,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getEventLayer().setFixOnCenter(true);
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setPosition(mLocationService.getLocation().getLatitude(), mLocationService.getLocation().getLongitude());
-                //mMapPosition.setBearing(0);
                 mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
                 break;
             case NORTH:
@@ -1143,6 +1175,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getEventLayer().enableRotation(false);
                 mMap.getEventLayer().setFixOnCenter(true);
                 mTrackingDelay = SystemClock.uptimeMillis() + TRACK_ROTATION_DELAY;
+                mAutoTiltShouldSet = mMapPosition.getTilt() == 0f;
                 break;
             case TRACK:
                 mLocationState = LocationState.ENABLED;
@@ -1150,7 +1183,14 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getEventLayer().setFixOnCenter(false);
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setBearing(0);
-                mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
+                long duration = MAP_BEARING_ANIMATION_DURATION;
+                if (mAutoTiltSet) {
+                    mMapPosition.setTilt(0f);
+                    mAutoTiltSet = false;
+                    duration = MAP_POSITION_ANIMATION_DURATION;
+                }
+                mAutoTiltShouldSet = false;
+                mMap.animator().animateTo(duration, mMapPosition);
                 break;
         }
         updateLocationDrawable();
@@ -1254,6 +1294,9 @@ public class MainActivity extends Activity implements ILocationListener,
                             break;
                         case R.id.action_language:
                             ((TextView) item.getActionView()).setText(Configuration.getLanguage());
+                            break;
+                        case R.id.actionAutoTilt:
+                            item.setChecked(mAutoTilt != -1f);
                             break;
                         case R.id.action_3dbuildings:
                             item.setChecked(mBuildingsLayerEnabled);
@@ -1526,7 +1569,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.POSITION_EVENT) {
-            mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.9);
+            mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.85);
             if (mCompassView.getVisibility() == View.GONE && mapPosition.bearing != 0f && mLocationState != LocationState.TRACK) {
                 if (Math.abs(mapPosition.bearing) < 1.5f) {
                     mapPosition.setBearing(0f);
@@ -1534,6 +1577,15 @@ public class MainActivity extends Activity implements ILocationListener,
                 }
             }
             adjustCompass(mapPosition.bearing);
+            if (mAutoTiltSet) {
+                if (mAutoTilt != mapPosition.tilt) {
+                    mAutoTiltSet = false;
+                    mAutoTiltShouldSet = false;
+                }
+            } else {
+                if (mAutoTiltShouldSet)
+                    mAutoTiltSet = mapPosition.tilt == mAutoTilt;
+            }
         }
         if (e == Map.MOVE_EVENT) {
             if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
@@ -1569,19 +1621,22 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public boolean onGesture(Gesture gesture, MotionEvent event) {
+        mMap.getMapPosition(mMapPosition);
         if (gesture == Gesture.LONG_PRESS) {
             mPopupAnchor.setX(event.getX());
             mPopupAnchor.setY(event.getY());
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2);
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
+            Menu menu = popup.getMenu();
+            if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || mAutoTilt == mMapPosition.getTilt())
+                menu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
             popup.show();
             return true;
         } else if (gesture == Gesture.DOUBLE_TAP) {
             float scale = Configuration.getRememberedScale();
             if (scale > 0f) {
-                mMap.getMapPosition(mMapPosition);
                 double scaleBy = scale / mMapPosition.getScale();
                 mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
                 return true;

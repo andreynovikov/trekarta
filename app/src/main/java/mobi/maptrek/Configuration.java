@@ -38,6 +38,7 @@ public class Configuration {
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     private static final String PREF_COORDINATES_FORMAT = "coordinates_format";
     private static final String PREF_REMEMBERED_SCALE = "remembered_scale";
+    private static final String PREF_AUTO_TILT = "auto_tilt";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -244,6 +245,14 @@ public class Configuration {
 
     public static void setRememberedScale(float scale) {
         saveFloat(PREF_REMEMBERED_SCALE, scale);
+    }
+
+    public static float getAutoTilt() {
+        return loadFloat(PREF_AUTO_TILT, 65f);
+    }
+
+    public static void setAutoTilt(float tilt) {
+        saveFloat(PREF_AUTO_TILT, tilt);
     }
 
     private static int loadInt(String key, int defValue) {
