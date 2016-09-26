@@ -52,7 +52,6 @@ import android.transition.Visibility;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -983,6 +982,20 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.updateMap(true);
                 return true;
             }
+            case R.id.actionOverviewRoute: {
+                if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+                    mLocationState = LocationState.ENABLED;
+                    updateLocationDrawable();
+                }
+                BoundingBox box = new BoundingBox();
+                mMap.getMapPosition(mMapPosition);
+                box.extend(mMapPosition.getLatitude(), mMapPosition.getLongitude());
+                MapObject mapObject = mNavigationService.getWaypoint();
+                box.extend(mapObject.latitude, mapObject.longitude);
+                box.expand(0.05);
+                mMap.animator().animateTo(box);
+                return true;
+            }
             case R.id.actionStopNavigation: {
                 stopNavigation();
                 return true;
@@ -1021,10 +1034,10 @@ public class MainActivity extends Activity implements ILocationListener,
             case R.id.action_remember_scale: {
                 mMap.getMapPosition(mMapPosition);
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
+                HelperUtils.showAdvice(Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mCoordinatorLayout);
                 return true;
             }
         }
-
         return false;
     }
 
@@ -1603,8 +1616,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void showNavigationMenu() {
         PopupMenu popup = new PopupMenu(this, mMapButtonHolder);
-        Menu menu = popup.getMenu();
-        menu.add(0, R.id.actionStopNavigation, Menu.NONE, getString(R.string.action_stop_navigation));
+        popup.inflate(R.menu.context_menu_navigation);
         popup.setOnMenuItemClickListener(this);
         popup.show();
     }

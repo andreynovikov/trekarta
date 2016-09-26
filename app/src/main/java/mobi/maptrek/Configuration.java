@@ -42,6 +42,7 @@ public class Configuration {
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
     public static final long ADVICE_MORE_GAUGES = 0x0000000000000004;
+    public static final long ADVICE_REMEMBER_SCALE = 0x0000000000000008;
 
     private static SharedPreferences mSharedPreferences;
 
