@@ -17,7 +17,7 @@
 
     <style-text fill="#3D59AB" id="water" k="name" size="16" stroke="#CAE1FF" stroke-width="2.0" />
 
-    <style-area fade="11" fill="#e8e7e3" id="residential" />
+    <style-area fill="#e8e7e3" id="residential" />
 
     <style-area fade="10" fill="#e6e3e5" id="railway|industrial" />
 
@@ -134,14 +134,12 @@
 
         <!-- landuse base -->
         <m k="landuse">
-            <m v="urban">
-                <area fill="#f4f3f0" />
-            </m>
-
             <m v="meadow|conservation">
                 <area fade="11" use="greens" />
             </m>
-
+            <m v="urban">
+                <area use="residential" />
+            </m>
             <m v="residential|commercial|retail|farmyard">
                 <area use="residential" />
             </m>
@@ -324,14 +322,28 @@
 
             <!-- area outlines need to be above to avoid uggly pixelation where
               not aliased polygon overlaps the lines... -->
-            <m k="leisure|landuse" zoom-min="8">
-                <m v="nature_reserve">
-                    <line use="protected_area" fade="8" />
-                    <area src="assets:patterns/nature-reserve.svg" fade="8" />
+            <m k="leisure|landuse">
+                <m v="nature_reserve" zoom-max="7">
+                    <line fade="6" use="protected_area" />
+                    <area fade="6" src="assets:patterns/nature-reserve.svg" />
                 </m>
-                <m v="military">
-                    <line use="military" fade="10" />
-                    <area src="assets:patterns/military.svg" fade="10"/>
+                <m v="nature_reserve" zoom-max="13" zoom-min="8">
+                    <area src="assets:patterns/nature-reserve.svg" />
+                </m>
+                <m v="nature_reserve" zoom-min="14">
+                    <line use="protected_area" />
+                    <area src="assets:patterns/nature-reserve.svg" />
+                </m>
+                <m v="military" zoom-max="7">
+                    <line fade="7" use="military" />
+                    <area fade="7" src="assets:patterns/military.svg" />
+                </m>
+                <m v="military" zoom-max="13" zoom-min="8">
+                    <area src="assets:patterns/military.svg" />
+                </m>
+                <m v="military" zoom-min="14">
+                    <line use="military" />
+                    <area src="assets:patterns/military.svg" />
                 </m>
             </m>
             <m k="landuse" v="reservoir|basin">
@@ -705,20 +717,22 @@
             </m>
             <m select="first" zoom-max="7" zoom-min="5">
                 <m k="area" v="~|no|false">
-                    <m v="secondary|primary_link" zoom-min="9">
-                        <line fade="9" stroke="#e2cf5d" use="fix" width="0.3" />
+                    <!--
+                    <m v="secondary|primary_link" zoom-min="7">
+                        <line fade="7" stroke="#e2cf5d" use="fix" width="0.3" />
                     </m>
-                    <m v="trunk_link|motorway_link" zoom-min="8">
-                        <line fade="8" stroke="#eec693" use="fix" width="0.4" />
+                    -->
+                    <m v="trunk_link|motorway_link" zoom-min="7">
+                        <line fade="7" stroke="#eec693" use="fix" width="0.4" />
                     </m>
-                    <m v="primary" zoom-min="5">
-                        <line fade="5" stroke="#c6c5a2" use="fix" width="0.5" />
+                    <m v="primary" zoom-min="6">
+                        <line fade="6" stroke="#c6c5a2" use="fix" width="0.5" />
                     </m>
-                    <m v="trunk" zoom-min="5">
-                        <line fade="5" stroke="#c6c5a2" use="fix" width="0.5" />
+                    <m v="trunk" zoom-min="6">
+                        <line fade="6" stroke="#c6c5a2" use="fix" width="0.5" />
                     </m>
-                    <m v="motorway">
-                        <line fade="4" stroke="#deb683" use="fix" width="0.6" />
+                    <m v="motorway" zoom-min="6">
+                        <line fade="6" stroke="#deb683" use="fix" width="0.6" />
                     </m>
                 </m>
             </m>
@@ -1089,15 +1103,15 @@
         <!--<m k="boundary" v="administrative"> -->
         <m k="admin_level">
             <m k="admin_level" v="4">
-                <line stroke="#ffcccc" width="3" fix="true" fade="7" cap="butt" blur="0.9" />
+                <line stroke="#ffcccc" width="2" fix="true" fade="7" cap="butt" blur="0.9" />
                 <line stroke="#dadada" width="1.3" fix="true" stipple-width="1.0" stipple="4" stipple-stroke="#888888" />
             </m>
             <m k="admin_level" v="3">
-                <line stroke="#ffcccc" width="4" fix="true" fade="5" cap="butt" blur="0.9" />
+                <line stroke="#ffcccc" width="3" fix="true" fade="5" cap="butt" blur="0.9" />
                 <line stroke="#dadada" width="1.5" fix="true" stipple-width="1.0" stipple="5" stipple-stroke="#888888" />
             </m>
             <m k="admin_level" v="2">
-                <line stroke="#ffcccc" width="5" fix="true" fade="3" cap="butt" blur="0.9" />
+                <line stroke="#ffcccc" width="4" fix="true" fade="3" cap="butt" blur="0.9" />
                 <line stroke="#dadada" width="1.6" fix="true" stipple-width="1.0" stipple="6" stipple-stroke="#647b9c" />
             </m>
         </m>
@@ -1248,34 +1262,60 @@
         <!-- place -->
         <m k="place">
             <m v="suburb" zoom-max="14">
-                <caption style="italic" fill="#606060" k="name" priority="4" size="17"
+                <caption style="italic" fill="#606060" k="name" priority="5" size="17"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="village" zoom-max="14">
-                <caption fill="#444411" k="name" priority="3" size="17" stroke="#ffffff"
+                <caption fill="#444411" k="name" priority="4" size="17" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="island" zoom-min="10">
-                <caption style="bold" fill="#000000" k="name" priority="1" size="20"
+                <caption style="bold" fill="#000000" k="name" priority="2" size="20"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="town">
-                <caption dy="14" fill="#000000" k="name" priority="2" size="19" stroke="#ffffff"
+                <caption dy="14" fill="#000000" k="name" priority="3" size="19" stroke="#ffffff"
                     stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
             </m>
             <m v="city">
                 <m zoom-min="7">
-                    <caption style="bold" dy="14" fill="#000000" k="name" priority="1" size="19"
+                    <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="19"
                         stroke="#ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
                 <m zoom-max="6">
-                    <caption dy="14" fill="#000000" k="name" priority="1" size="19" stroke="#ffffff"
+                    <caption dy="14" fill="#000000" k="name" priority="2" size="19" stroke="#ffffff"
                         stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
             </m>
             <m v="country">
-                <caption style="bold" fill="#000000" k="name" priority="0" size="20"
-                    stroke="#ffffff" stroke-width="2.0" />
+                <m zoom-min="5">
+                    <caption fill="#000000" k="name" priority="1" size="24" stroke="#ffffff"
+                        stroke-width="2.0" />
+                </m>
+                <m zoom-min="3" zoom-max="4">
+                    <caption style="bold" fill="#000000" k="name" priority="1" size="20"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+                <m zoom-max="2">
+                    <caption fill="#000000" k="name" priority="1" size="16"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+            </m>
+            <m v="sea">
+                <m zoom-min="5">
+                    <caption fill="#3D59AB" k="name" priority="0" size="18"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+            </m>
+            <m v="ocean">
+                <m zoom-max="4" zoom-min="3">
+                    <caption style="bold" fill="#3D59AB" k="name" priority="0" size="18"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+                <m zoom-max="2">
+                    <caption fill="#3D59AB" k="name" priority="0" size="18" stroke="#ffffff"
+                        stroke-width="2.0" />
+                </m>
             </m>
         </m>
 
