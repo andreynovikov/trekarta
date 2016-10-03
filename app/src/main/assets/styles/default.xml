@@ -110,7 +110,7 @@
     <!-- no-go area boundary -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.4" />
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
-    <style-line cap="butt" fix="true" id="protected_area" stroke="#4000d400" width="3.0" />
+    <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="3.0" />
     <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="3.0" />
 
     <!-- <style-line id="building" stroke="#c9c3c1" width="1.0" fix="true" cap="butt" fade="15"/> -->
@@ -320,32 +320,6 @@
                   /> </m> </m> -->
             </m>
 
-            <!-- area outlines need to be above to avoid uggly pixelation where
-              not aliased polygon overlaps the lines... -->
-            <m k="leisure|landuse">
-                <m v="nature_reserve" zoom-max="7">
-                    <line fade="6" use="protected_area" />
-                    <area fade="6" src="assets:patterns/nature-reserve.svg" />
-                </m>
-                <m v="nature_reserve" zoom-max="13" zoom-min="8">
-                    <area src="assets:patterns/nature-reserve.svg" />
-                </m>
-                <m v="nature_reserve" zoom-min="14">
-                    <line use="protected_area" />
-                    <area src="assets:patterns/nature-reserve.svg" />
-                </m>
-                <m v="military" zoom-max="7">
-                    <line fade="7" use="military" />
-                    <area fade="7" src="assets:patterns/military.svg" />
-                </m>
-                <m v="military" zoom-max="13" zoom-min="8">
-                    <area src="assets:patterns/military.svg" />
-                </m>
-                <m v="military" zoom-min="14">
-                    <line use="military" />
-                    <area src="assets:patterns/military.svg" />
-                </m>
-            </m>
             <m k="landuse" v="reservoir|basin">
                 <area use="water" />
             </m>
@@ -439,6 +413,10 @@
         <m closed="yes" k="natural" v="water">
             <area use="water" />
             <!--<line use="water:outline" />-->
+        </m>
+        <!-- overview map rivers -->
+        <m closed="no" k="natural" v="water">
+            <line use="water" />
         </m>
 
         <m k="natural" v="cliff">
@@ -1138,8 +1116,35 @@
         <m k="power" v="line" zoom-min="14">
             <line fix="true" cap="butt" stroke="#6e6e6e" width="2.0" />
         </m>
-        <!-- Contour lines from AndroMaps -->
 
+        <!-- area outlines need to be above to avoid uggly pixelation where
+        not aliased polygon overlaps the lines... -->
+        <m k="leisure|landuse">
+            <m v="nature_reserve" zoom-max="7">
+                <line fade="6" use="protected_area" />
+                <area fade="6" src="assets:patterns/nature-reserve.svg" />
+            </m>
+            <m v="nature_reserve" zoom-max="13" zoom-min="8">
+                <area src="assets:patterns/nature-reserve.svg" />
+            </m>
+            <m v="nature_reserve" zoom-min="14">
+                <line use="protected_area" />
+                <area src="assets:patterns/nature-reserve.svg" />
+            </m>
+            <m v="military" zoom-max="7">
+                <line fade="7" use="military" />
+                <area fade="7" src="assets:patterns/military.svg" />
+            </m>
+            <m v="military" zoom-max="13" zoom-min="8">
+                <area src="assets:patterns/military.svg" />
+            </m>
+            <m v="military" zoom-min="14">
+                <line use="military" />
+                <area src="assets:patterns/military.svg" />
+            </m>
+        </m>
+
+        <!-- Contour lines from AndroMaps -->
         <m k="contour_ext" zoom-max="9">
             <m k="contour_ext" v="elevation_major">
                 <line fix="true" stroke="#8E8072" width="0.3" />
