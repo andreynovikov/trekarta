@@ -1291,11 +1291,11 @@
                 </m>
                 <m k="admin_level">
                     <caption dy="14" fill="#000000" k="name" priority="3" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
+                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
                 <m k="admin_level" v="~">
                     <caption dy="14" fill="#000000" k="name" priority="6" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
+                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
             </m>
             <m v="city" select="first">
@@ -1315,24 +1315,24 @@
                     <m zoom-min="7">
                         <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="19"
                             stroke="#ffffff" stroke-width="2.0"
-                            symbol="assets:symbols/dot_black.svg" />
+                            symbol="assets:symbols/dot_white.svg" />
                     </m>
                     <m zoom-max="6">
                         <caption dy="14" fill="#000000" k="name" priority="2" size="19"
                             stroke="#ffffff" stroke-width="2.0"
-                            symbol="assets:symbols/dot_black.svg" />
+                            symbol="assets:symbols/dot_white.svg" />
                     </m>
                 </m>
                 <m k="admin_level" v="~">
                     <m zoom-min="7">
                         <caption style="bold" dy="14" fill="#000000" k="name" priority="4" size="19"
                             stroke="#ffffff" stroke-width="2.0"
-                            symbol="assets:symbols/dot_black.svg" />
+                            symbol="assets:symbols/dot_white.svg" />
                     </m>
                     <m zoom-max="6">
                         <caption dy="14" fill="#000000" k="name" priority="4" size="19"
                             stroke="#ffffff" stroke-width="2.0"
-                            symbol="assets:symbols/dot_black.svg" />
+                            symbol="assets:symbols/dot_white.svg" />
                     </m>
                 </m>
             </m>
