@@ -1,7 +1,5 @@
 package org.oscim.tiling.source.mapfile;
 
-import android.util.Log;
-
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
@@ -13,6 +11,8 @@ import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.LRUCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,10 +25,12 @@ import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 public class MultiMapFileTileSource extends TileSource {
+    private static final Logger logger = LoggerFactory.getLogger(MultiMapFileTileSource.class);
+
     private static final byte MAP_FILE_MIN_ZOOM = 8;
 
     @SuppressWarnings("SpellCheckingInspection")
-    public static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
+    private static final byte[] FORGEMAP_MAGIC = "mapsforge binary OSM".getBytes();
 
     private static final MapElement mSea = new MapElement();
 
@@ -73,12 +75,12 @@ public class MultiMapFileTileSource extends TileSource {
         mMapFileTileSources.clear();
     }
 
-    public boolean openFile(int x, int y, MapFile mapFile) {
+    private boolean openFile(int x, int y, MapFile mapFile) {
         synchronized (FORGEMAP_MAGIC) {
-            Log.e("MMFTS", "openFile(" + x + "," + y + ")");
+            logger.debug("openFile({},{})", x, y);
             int key = MapIndex.getNativeKey(x, y);
             if (mMapFileTileSources.containsKey(key)) {
-                Log.w("MMFTS", "   already opened");
+                logger.debug("   already opened");
                 return true;
             }
             MapFileTileSource tileSource = (MapFileTileSource) mapFile.tileSource;
@@ -90,7 +92,7 @@ public class MultiMapFileTileSource extends TileSource {
                     combinedMapDatabase.add(key, tileSource.getDataSource());
                 return true;
             } else {
-                Log.w("MapFile", "Failed to open file: " + openResult.getErrorMessage());
+                logger.debug("Failed to open file: {}", openResult.getErrorMessage());
                 tileSource.close();
             }
             return false;
@@ -108,10 +110,10 @@ public class MultiMapFileTileSource extends TileSource {
         this.onDataMissingListener = onDataMissingListener;
     }
 
-    class CombinedMapDatabase implements ITileDataSource {
+    private class CombinedMapDatabase implements ITileDataSource {
         private HashMap<Integer, ITileDataSource> mTileDataSources;
 
-        public CombinedMapDatabase() {
+        CombinedMapDatabase() {
             mTileDataSources = new HashMap<>();
         }
 
@@ -170,14 +172,14 @@ public class MultiMapFileTileSource extends TileSource {
         }
     }
 
-    class DatabaseIndex extends LRUCache<Integer, MapFileTileSource> {
-        public DatabaseIndex() {
+    private class DatabaseIndex extends LRUCache<Integer, MapFileTileSource> {
+        DatabaseIndex() {
             super(20);
         }
 
         @Override
         public MapFileTileSource remove(Object key) {
-            Log.e("MMFTS", "Close: " + key.toString());
+            logger.debug("Close: {}", key);
             MapFileTileSource removed = super.remove(key);
             if (removed != null) {
                 for (CombinedMapDatabase combinedMapDatabase : mCombinedMapDatabases)
@@ -196,13 +198,13 @@ public class MultiMapFileTileSource extends TileSource {
         }
     }
 
-    class ProxyTileDataSink implements ITileDataSink {
+    private class ProxyTileDataSink implements ITileDataSink {
         ITileDataSink mapDataSink;
         QueryResult result;
         HashSet<Integer> elements;
         boolean hasNonSeaElements;
 
-        public ProxyTileDataSink(ITileDataSink mapDataSink) {
+        ProxyTileDataSink(ITileDataSink mapDataSink) {
             this.mapDataSink = mapDataSink;
             elements = new HashSet<>();
             hasNonSeaElements = false;
@@ -212,8 +214,8 @@ public class MultiMapFileTileSource extends TileSource {
         public void process(MapElement element) {
             //Log.e("MMFTS", element.tags.toString());
             //TODO refactor with filterTags
-            if (element.tags.containsKey("ele"))
-                element.tags.get("ele").value = element.tags.get("ele").value + " m";
+            //if (element.tags.containsKey("ele"))
+            //    element.tags.get("ele").value = element.tags.get("ele").value + " m";
             mapDataSink.process(element);
         }
 

@@ -3,8 +3,10 @@ package mobi.maptrek;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.FileObserver;
-import android.util.Log;
 import android.util.Pair;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,8 +27,8 @@ import mobi.maptrek.util.ProgressListener;
 //TODO Document class
 // http://www.androiddesignpatterns.com/2012/08/implementing-loaders.html
 
-public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
-    private static final String TAG = "DataLoader";
+class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
     private static final String DO_NOT_LOAD_FLAG = ".do_not_load";
 
     // We hold a reference to the Loader’s data here.
@@ -36,7 +38,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
     private ProgressListener mProgressListener;
     private FileObserver mObserver;
 
-    public DataLoader(Context ctx) {
+    DataLoader(Context ctx) {
         // Loaders may be used across multiple Activities (assuming they aren't
         // bound to the LoaderManager), so NEVER hold a reference to the context
         // directly. Doing so will cause you to leak an entire Activity's context.
@@ -45,11 +47,11 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         super(ctx);
     }
 
-    public void setProgressHandler(ProgressListener listener) {
+    void setProgressHandler(ProgressListener listener) {
         mProgressListener = listener;
     }
 
-    public void renameSource(FileDataSource source, File thatFile) {
+    void renameSource(FileDataSource source, File thatFile) {
         File thisFile = new File(source.path);
         if (thisFile.renameTo(thatFile)) {
             synchronized (mFiles) {
@@ -61,7 +63,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void markDataSourceLoadable(FileDataSource source, boolean loadable) {
+    void markDataSourceLoadable(FileDataSource source, boolean loadable) {
         // Actual data changes will be performed by FileObserver which will detect flag change
         source.setLoadable(loadable);
         File flag = new File(source.path + DO_NOT_LOAD_FLAG);
@@ -70,9 +72,9 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         else
             try {
                 flag.createNewFile();
-                Log.e(TAG, "contains: " + mData.contains(source));
+                logger.debug("contains: {}", mData.contains(source));
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Failed to create flag", e);
             }
     }
 
@@ -80,7 +82,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
     public List<FileDataSource> loadInBackground() {
         // This method is called on a background thread and should generate a
         // new set of data to be delivered back to the client.
-        Log.i(TAG, "loadInBackground()");
+        logger.debug("loadInBackground()");
         File dataDir = getContext().getExternalFilesDir("data");
         if (dataDir == null)
             return null;
@@ -111,13 +113,13 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
         for (Pair<File, Boolean> pair : loadFiles) {
             if (isLoadInBackgroundCanceled()) {
-                Log.i(TAG, "loadInBackgroundCanceled");
+                logger.debug("loadInBackgroundCanceled");
                 return null;
             }
             File file = pair.first;
             boolean loadFlag = pair.second;
 
-            Log.d(TAG, "  " + (loadFlag ? "skip" : "load") + " -> " + file.getName());
+            logger.debug("  {} -> {}", (loadFlag ? "skip" : "load"), file.getName());
 
             if (loadFlag) {
                 FileDataSource source = new FileDataSource();
@@ -155,7 +157,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                     }
                 } catch (Exception e) {
                     //TODO Notify user about a problem
-                    Log.e(TAG, "File error: " + file.getAbsolutePath(), e);
+                    logger.error("File error: {}, {}", file.getAbsolutePath(), e);
                 }
                 progress += file.length();
             }
@@ -165,7 +167,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
     @Override
     public void deliverResult(List<FileDataSource> data) {
-        Log.i(TAG, "deliverResult()");
+        logger.debug("deliverResult()");
 
         if (mProgressListener != null) {
             mProgressListener.onProgressFinished();
@@ -198,7 +200,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
     @Override
     protected void onStartLoading() {
-        Log.i(TAG, "onStartLoading()");
+        logger.debug("onStartLoading()");
         if (mData != null) {
             // Deliver any previously loaded data immediately.
             deliverResult(new ArrayList<FileDataSource>());
@@ -218,7 +220,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                     if (path == null) // Undocumented, unexplainable
                         return;
                     path = dir.getAbsolutePath() + File.separator + path;
-                    Log.i(TAG, path + ": " + event);
+                    logger.debug("{}: {}", path, event);
                     boolean loadFlag = false;
                     if (path.endsWith(DO_NOT_LOAD_FLAG)) {
                         if (event == FileObserver.CLOSE_WRITE)
@@ -258,7 +260,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
     @Override
     protected void onStopLoading() {
-        Log.i(TAG, "onStopLoading()");
+        logger.debug("onStopLoading()");
         // The Loader is in a stopped state, so we should attempt to cancel the
         // current load (if there is one).
         cancelLoad();
@@ -270,7 +272,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
     @Override
     protected void onReset() {
-        Log.i(TAG, "onReset()");
+        logger.debug("onReset()");
         // Ensure the loader has been stopped.
         onStopLoading();
 
@@ -289,7 +291,7 @@ public class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
     @Override
     public void onCanceled(List<FileDataSource> data) {
-        Log.i(TAG, "onCanceled()");
+        logger.debug("onCanceled()");
         // Attempt to cancel the current asynchronous load.
         super.onCanceled(data);
     }

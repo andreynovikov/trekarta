@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.oscim.android.cache.TileCache;
 import org.oscim.core.BoundingBox;
@@ -18,6 +17,8 @@ import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.sqlite.SQLiteMapInfo;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,7 +42,7 @@ import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
 
 public class MapIndex implements Serializable {
-    private static final String TAG = "MapIndex";
+    private static final Logger logger = LoggerFactory.getLogger(MapIndex.class);
 
     private static final long serialVersionUID = 1L;
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
@@ -72,7 +73,7 @@ public class MapIndex implements Serializable {
 
     private void load(@NonNull File file) {
         String fileName = file.getName();
-        Log.e(TAG, "load(" + fileName + ")");
+        logger.debug("load({})", fileName);
         if ((fileName.endsWith(".map") || fileName.endsWith(".enqueue")) && file.canRead()) {
             String[] parts = fileName.split("[\\-\\.]");
             try {
@@ -86,7 +87,7 @@ public class MapIndex implements Serializable {
                 if (fileName.endsWith(".map")) {
                     mapFile.fileName = file.getAbsolutePath();
                     setNativeMapTileSource(mapFile);
-                    Log.w(TAG, "  indexed");
+                    logger.debug("  indexed");
                 } else {
                     Scanner scanner = new Scanner(file);
                     String enqueue = scanner.useDelimiter("\\A").next();
@@ -96,15 +97,15 @@ public class MapIndex implements Serializable {
                     if (status == DownloadManager.STATUS_PAUSED
                             || status == DownloadManager.STATUS_PENDING
                             || status == DownloadManager.STATUS_RUNNING) {
-                        Log.w(TAG, "  downloading: " + mapFile.downloading);
+                        logger.debug("  downloading: {}", mapFile.downloading);
                     } else {
                         mapFile.downloading = 0L;
                         if (file.delete())
-                            Log.w(TAG, "  cleared");
+                            logger.debug("  cleared");
                     }
                 }
             } catch (NumberFormatException | FileNotFoundException e) {
-                Log.w(TAG, "  skipped: " + e.getMessage());
+                logger.warn("  skipped: {}", e.getMessage());
             }
             return;
         }
@@ -137,7 +138,7 @@ public class MapIndex implements Serializable {
         if (mapFile.tileSource == null)
             return;
 
-        Log.w(TAG, "  added " + mapFile.boundingBox.toString());
+        logger.debug("  added {}", mapFile.boundingBox);
         mMaps.add(mapFile);
     }
 
@@ -309,7 +310,7 @@ public class MapIndex implements Serializable {
                 mapFile.downloaded = true;
                 mapFile.tileSource = tileSource;
             } else {
-                Log.w(TAG, "Failed to open file: " + openResult.getErrorMessage());
+                logger.warn("Failed to open file: {}", openResult.getErrorMessage());
                 mapFile.downloaded = false;
             }
             tileSource.close();
@@ -362,7 +363,7 @@ public class MapIndex implements Serializable {
             //noinspection ResultOfMethodCallIgnored
             enqueueFile.delete();
         } catch (NumberFormatException e) {
-            Log.e(TAG, e.getMessage());
+            logger.error(e.getMessage());
         }
         return 0;
     }
@@ -420,7 +421,7 @@ public class MapIndex implements Serializable {
     }
 
     @SuppressLint("DefaultLocale")
-    public static Uri getDownloadUri(int x, int y) {
+    private static Uri getDownloadUri(int x, int y) {
         return new Uri.Builder()
                 .scheme("http")
                 .authority("maptrek.mobi")
@@ -431,7 +432,7 @@ public class MapIndex implements Serializable {
     }
 
     @SuppressLint("DefaultLocale")
-    public static String getLocalPath(int x, int y) {
+    private static String getLocalPath(int x, int y) {
         return String.format("native/%d/%d-%d.map", x, x, y);
     }
 }

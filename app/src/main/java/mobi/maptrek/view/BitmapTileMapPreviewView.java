@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 
@@ -24,6 +23,8 @@ import org.oscim.tiling.TileSource;
 import org.oscim.utils.PausableThread;
 import org.oscim.utils.ScanBox;
 import org.oscim.utils.quadtree.TileIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class BitmapTileMapPreviewView extends TextureView implements SurfaceTextureListener {
-    private static final String TAG = "BTMPV";
+    private static final Logger logger = LoggerFactory.getLogger(BitmapTileMapPreviewView.class);
 
     private static final int CACHE_LIMIT = 40;
     private static final int BITMAP_TILE_SIZE = 256;
@@ -82,7 +83,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 
     public BitmapTileMapPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.e(TAG, "BitmapTileMapPreviewView");
+        logger.debug("BitmapTileMapPreviewView");
         setSurfaceTextureListener(this);
         setOpaque(false);
         mJobQueue = new JobQueue();
@@ -95,7 +96,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        Log.e(TAG, "onSurfaceTextureAvailable(" + width + "," + height + ")");
+        logger.debug("onSurfaceTextureAvailable({},{})", width, height);
         if (!mActive)
             mTileSource.open();
         mIndex.drop();
@@ -156,7 +157,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        Log.e(TAG, "onSurfaceTextureDestroyed()");
+        logger.debug("onSurfaceTextureDestroyed()");
 
         // Stop tile loader
         mTileLoader.pause();
@@ -167,11 +168,11 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Log.e(TAG, "  loader stopped");
+        logger.debug("  loader stopped");
 
         // Clear the queue
         mJobQueue.clear();
-        Log.e(TAG, "  queue cleared");
+        logger.debug("  queue cleared");
 
         // Stop drawing
         mDrawThread.halt();
@@ -180,7 +181,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Log.e(TAG, "  drawer stopped");
+        logger.debug("  drawer stopped");
 
         // Clear all loaded tiles
         mNewTiles.releaseTiles();
@@ -196,7 +197,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         if (!mActive)
             mTileSource.close();
 
-        Log.e(TAG, "  finished");
+        logger.debug("  finished");
         return true;
     }
 
@@ -205,7 +206,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        Log.e(TAG, "onSurfaceTextureSizeChanged(" + width + "," + height + ")");
+        logger.debug("onSurfaceTextureSizeChanged({},{})", width, height);
         //TODO Handle view resize
     }
 
@@ -214,7 +215,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      */
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        Log.e(TAG, "onSurfaceTextureUpdated");
+        logger.debug("onSurfaceTextureUpdated");
         //Do nothing.
     }
 
@@ -225,7 +226,10 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
     }
 
     public void setLocation(GeoPoint location, int zoomLevel) {
-        assert (mTileSource != null);
+        if (mTileSource == null) {
+            logger.warn("Source should not be null");
+            return;
+        }
         mPosition = new MapPosition(location.getLatitude(), location.getLongitude(), 1);
         mPosition.setZoomLevel(zoomLevel);
     }
@@ -262,9 +266,9 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
 		/* locked means the tile is visible or referenced by
          * a tile that might be visible. */
         //if (tile.isLocked()) {
-        Log.w(TAG, "  jobCompleted");
+        logger.debug("  jobCompleted");
         synchronized (mDrawThread.mWaitLock) {
-            Log.w(TAG, "  notify from jobCompleted");
+            logger.debug("  notify from jobCompleted");
             mDrawThread.mWaitLock.notify();
         }
         //}
@@ -281,7 +285,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             }
 
             if (mTilesEnd == mTiles.length) {
-                Log.d("TileManager", "realloc tiles " + mTilesEnd);
+                logger.debug("realloc tiles {}", mTilesEnd);
                 MapTile[] tmp = new MapTile[mTiles.length + 20];
                 System.arraycopy(mTiles, 0, tmp, 0, mTilesCount);
                 mTiles = tmp;
@@ -301,7 +305,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         private boolean mDone = false;
         private final Object mWaitLock = new Object();
 
-        public DrawThread() {
+        DrawThread() {
         }
 
         private void doDraw(Canvas canvas) {
@@ -311,9 +315,12 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             for (MapTile tile : mNewTiles.tiles) {
                 if (tile == null || tile.getState() != NEW_DATA)
                     continue;
+                Bitmap bitmap = mTileMap.get(tile);
+                if (bitmap == null)
+                    continue;
                 float x = (float) ((tile.x - mPosition.x) * tileScale) + mHalfWidth;
                 float y = (float) ((tile.y - mPosition.y) * tileScale) + mHalfHeight;
-                canvas.drawBitmap(mTileMap.get(tile), x, y, null);
+                canvas.drawBitmap(bitmap, x, y, null);
             }
         }
 
@@ -331,13 +338,13 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                         unlockCanvasAndPost(c);
                     }
                 }
-                Log.w(TAG, "  finished drawing");
+                logger.debug("  finished drawing");
                 synchronized (mWaitLock) {
                     try {
-                        Log.w(TAG, "  waiting...");
+                        logger.debug("  waiting...");
                         if (!mDone)
                             mWaitLock.wait();
-                        Log.w(TAG, "  notified, done: " + mDone);
+                        logger.debug("  notified, done: {}", mDone);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         Thread.currentThread().interrupt();
@@ -349,10 +356,10 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         /**
          * Tells the thread to stop running.
          */
-        public void halt() {
-            Log.w(TAG, "  try to halt");
+        void halt() {
+            logger.debug("  try to halt");
             synchronized (mWaitLock) {
-                Log.w(TAG, "  halt");
+                logger.debug("  halt");
                 mDone = true;
                 mWaitLock.notify();
             }
@@ -365,24 +372,24 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
         /**
          * currently processed tile
          */
-        protected MapTile mTile;
+        MapTile mTile;
 
-        public BitmapTileLoader() {
+        BitmapTileLoader() {
             super();
             THREAD_NAME = "BitmapTileLoader";
         }
 
-        protected boolean loadTile(MapTile tile) {
+        boolean loadTile(MapTile tile) {
             try {
                 mTileSource.getDataSource().query(tile, this);
             } catch (Exception e) {
-                Log.e("BitmapTileLoader", tile + " " + e.getMessage());
+                logger.error("{}: {}", tile, e.getMessage());
                 return false;
             }
             return true;
         }
 
-        public void go() {
+        void go() {
             synchronized (this) {
                 notify();
             }
@@ -396,7 +403,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                 return;
 
             try {
-                Log.w(TAG, mTileSource.getOption("path") + " : " + mTile.toString() + " " + mTile.state());
+                logger.debug("{} : {} {}", mTileSource.getOption("path"), mTile, mTile.state());
                 loadTile(mTile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -419,7 +426,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             return !mJobQueue.isEmpty();
         }
 
-        public void dispose() {
+        void dispose() {
             mTileSource.getDataSource().dispose();
         }
 
@@ -495,7 +502,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                 MapTile tile = null;
 
                 if (cnt == maxTiles) {
-                    Log.w(TAG, "too many tiles " + maxTiles);
+                    logger.warn("too many tiles {}", maxTiles);
                     break;
                 }
                 int xx = x;

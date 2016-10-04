@@ -1,7 +1,6 @@
 package org.oscim.tiling.source.sqlite;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
@@ -11,6 +10,9 @@ import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.ITileDecoder;
+import org.oscim.tiling.source.oscimap4.TileDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +21,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class SQLiteTileSource extends TileSource {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteTileSource.class);
+
     public static final byte[] MAGIC = "SQLite format".getBytes();
 
     SQLiteDatabase mDatabase;
-    Class<? extends SQLiteTileDatabase> mTileDatabase;
+    private Class<? extends SQLiteTileDatabase> mTileDatabase;
     BoundingBox mBoundingBox;
 
     public boolean setMapFile(String filename) {
@@ -45,7 +49,8 @@ public class SQLiteTileSource extends TileSource {
     public ITileDataSource getDataSource() {
         try {
             Constructor con = mTileDatabase.getConstructor(SQLiteTileSource.class, ITileDecoder.class);
-            return (ITileDataSource) con.newInstance(this, new BitmapTileDecoder());
+            ITileDecoder tileDecoder = "vtm".equals(getOption("format")) ? new TileDecoder() : new BitmapTileDecoder();
+            return (ITileDataSource) con.newInstance(this, tileDecoder);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -96,6 +101,7 @@ public class SQLiteTileSource extends TileSource {
             // 2. capitalizeFirst first letter
             StringBuilder nameSb = new StringBuilder(name);
             nameSb.setCharAt(0, Character.toUpperCase(nameSb.charAt(0)));
+            // 3. append zoom interval
             nameSb.append(" (");
             nameSb.append(String.valueOf(getZoomLevelMin()));
             nameSb.append("-");
@@ -112,11 +118,11 @@ public class SQLiteTileSource extends TileSource {
         mDatabase.close();
     }
 
-    public void setMinZoom(int minZoom) {
+    void setMinZoom(int minZoom) {
         mZoomMin = minZoom;
     }
 
-    public void setMaxZoom(int maxZoom) {
+    void setMaxZoom(int maxZoom) {
         mZoomMax = maxZoom;
     }
 
@@ -128,13 +134,13 @@ public class SQLiteTileSource extends TileSource {
         return new SQLiteMapInfo(options.get("name"), mBoundingBox);
     }
 
-    public class BitmapTileDecoder implements ITileDecoder {
+    private class BitmapTileDecoder implements ITileDecoder {
         @Override
         public boolean decode(Tile tile, ITileDataSink sink, InputStream is) throws IOException {
 
             Bitmap bitmap = CanvasAdapter.decodeBitmap(is);
             if (!bitmap.isValid()) {
-                Log.d("BitmapTileSource", tile + " invalid bitmap");
+                logger.warn("invalid bitmap {}", tile);
                 return false;
             }
             sink.setTileImage(bitmap);

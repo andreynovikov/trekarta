@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,12 +66,10 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("LocationInformation", "onCreate()");
         setRetainInstance(true);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("LocationInformation", "onCreateView()");
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_location_information, container, false);
 
         mSwitchOffButton = (ImageButton) mRootView.findViewById(R.id.switchOffButton);
@@ -129,7 +126,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.e("LocationInformation", "onActivityCreated()");
 
         double latitude = getArguments().getDouble(ARG_LATITUDE);
         double longitude = getArguments().getDouble(ARG_LONGITUDE);
@@ -148,7 +144,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("LocationInformation", "onResume()");
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
         if (BuildConfig.FULL_VERSION) {
@@ -159,7 +154,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("LocationInformation", "onPause()");
         mMapHolder.getMap().events.unbind(this);
         mMapHolder.removeLocationStateChangeListener(this);
     }
@@ -167,7 +161,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.e("LocationInformation", "onAttach()");
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
@@ -183,7 +176,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.e("LocationInformation", "onDetach()");
         mFragmentHolder = null;
         mMapHolder = null;
     }
@@ -191,7 +183,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.e("LocationInformation", "onSaveInstanceState()");
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
         outState.putInt(ARG_ZOOM, mZoom);

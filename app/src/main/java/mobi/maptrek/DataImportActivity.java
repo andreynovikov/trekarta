@@ -17,11 +17,13 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +43,7 @@ import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.ProgressListener;
 
 public class DataImportActivity extends Activity {
-    private static final String TAG = "DataImportActivity";
+    private static final Logger logger = LoggerFactory.getLogger(DataImportActivity.class);
     private static final String DATA_IMPORT_FRAGMENT = "dataImportFragment";
     private static final DateFormat SUFFIX_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
 
@@ -119,7 +121,7 @@ public class DataImportActivity extends Activity {
 
     @SuppressLint("HandlerLeak")
     public class ImportProgressHandler extends ProgressHandler {
-        public ImportProgressHandler(ProgressBar progressBar) {
+        ImportProgressHandler(ProgressBar progressBar) {
             super(progressBar);
         }
 
@@ -203,8 +205,8 @@ public class DataImportActivity extends Activity {
                 public void run() {
                     String action = intent.getAction();
                     String type = intent.getType();
-                    Log.e(TAG, "Action: " + action);
-                    Log.e(TAG, "Type: " + type);
+                    logger.debug("Action: {}", action);
+                    logger.debug("Type: {}", type);
 
                     if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action)) {
                         handleSendOrView(intent);
@@ -236,14 +238,14 @@ public class DataImportActivity extends Activity {
 
         private void readFile(Uri uri) {
             Context context = getContext();
-            Log.e(TAG, uri.toString());
+            logger.debug(uri.toString());
             String scheme = uri.getScheme();
             if ("file".equals(scheme)) {
                 String path = uri.getPath();
                 File src = new File(path);
                 String name = uri.getLastPathSegment();
                 long size = src.length();
-                Log.e(TAG, "file: " + name + " [" + size + "]");
+                logger.debug("file: {} [{}]", name, size);
                 File dst = getDestinationFile(name);
                 try {
                     FileUtils.copyFile(src, dst);
@@ -256,7 +258,7 @@ public class DataImportActivity extends Activity {
                 String name = null;
                 long length = -1;
                 if (cursor != null) {
-                    Log.e(TAG, "   from cursor");
+                    logger.debug("   from cursor");
                     cursor.moveToFirst();
                     name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     length = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
@@ -269,18 +271,18 @@ public class DataImportActivity extends Activity {
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    Log.e(TAG, "Length: " + length);
+                    logger.debug("Length: " + length);
                 }
                 //TODO This is just to not crash, should be correctly implemented
                 if (name == null)
                     name = uri.getLastPathSegment();
 
-                Log.e(TAG, "Import: [" + name + "][" + length + "]");
+                logger.debug("Import: [{}][{}]", name, length);
 
                 if (!name.endsWith(TrackManager.EXTENSION) &&
                         !name.endsWith(KMLManager.EXTENSION) &&
                         !name.endsWith(GPXManager.EXTENSION)) {
-                    Log.e(TAG, "Unsupported file format");
+                    logger.warn("Unsupported file format");
                     return;
                 }
 
@@ -310,7 +312,7 @@ public class DataImportActivity extends Activity {
                         dst.delete();
                 }
             } else {
-                Log.e(TAG, "Unsupported transfer method");
+                logger.warn("Unsupported transfer method");
             }
         }
 
@@ -318,7 +320,7 @@ public class DataImportActivity extends Activity {
         private File getDestinationFile(String filename) {
             File dir = getContext().getExternalFilesDir("data");
             if (dir == null) {
-                Log.e(TAG, "Data path unavailable");
+                logger.error("Data path unavailable");
                 return null;
             }
             File destination = new File(dir, filename);

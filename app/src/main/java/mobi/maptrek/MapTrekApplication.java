@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,7 +14,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 public class MapTrekApplication extends Application {
-    private static final String TAG = "MapTrekApplication";
+    private static final Logger logger = LoggerFactory.getLogger(MapTrekApplication.class);
     public static final String EXCEPTION_PATH = "exception.log";
 
     private static MapTrekApplication mSelf;
@@ -54,7 +56,7 @@ public class MapTrekApplication extends Application {
     private class DefaultExceptionHandler implements Thread.UncaughtExceptionHandler {
         private Thread.UncaughtExceptionHandler defaultHandler;
 
-        public DefaultExceptionHandler() {
+        DefaultExceptionHandler() {
             defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         }
 
@@ -86,7 +88,7 @@ public class MapTrekApplication extends Application {
                 defaultHandler.uncaughtException(thread, ex);
             } catch (Exception e) {
                 // swallow all exceptions
-                Log.e(TAG, "Exception while handle other exception", e);
+                logger.error("Exception while handle other exception", e);
             }
         }
     }

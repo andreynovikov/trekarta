@@ -2,12 +2,13 @@ package org.oscim.tiling.source.sqlite;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.source.ITileDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 
@@ -15,8 +16,10 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public abstract class SQLiteTileDatabase implements ITileDataSource {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteTileDatabase.class);
+
     private final SQLiteTileSource mSQLiteTileSource;
-    protected final ITileDecoder mTileDecoder;
+    private final ITileDecoder mTileDecoder;
 
     public SQLiteTileDatabase(SQLiteTileSource tileSource, ITileDecoder tileDecoder) {
         mSQLiteTileSource = tileSource;
@@ -42,7 +45,7 @@ public abstract class SQLiteTileDatabase implements ITileDataSource {
                 ok = mTileDecoder.decode(tile, sink, new ByteArrayInputStream(bytes));
             }
         } catch (Exception e) {
-            Log.e("SQLiteTileDatabase", mSQLiteTileSource.getMapInfo().name, e);
+            logger.error(mSQLiteTileSource.getMapInfo().name, e);
         } finally {
             sink.completed(ok ? SUCCESS : FAILED);
         }

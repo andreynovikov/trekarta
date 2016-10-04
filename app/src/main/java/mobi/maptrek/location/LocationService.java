@@ -31,7 +31,9 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -52,8 +54,9 @@ import mobi.maptrek.util.ProgressListener;
 import mobi.maptrek.util.StringFormatter;
 
 public class LocationService extends BaseLocationService implements LocationListener, NmeaListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
-    private static final String TAG = "Location";
+    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
+    private static final int SKIP_INITIAL_LOCATIONS = 2;
     private static final long TOO_SMALL_PERIOD = DateUtils.MINUTE_IN_MILLIS; // 1 minute
     private static final float TOO_SMALL_DISTANCE = 100f; // 100 meters
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
@@ -117,16 +120,16 @@ public class LocationService extends BaseLocationService implements LocationList
         onSharedPreferenceChanged(sharedPreferences, PREF_TRACKING_MIN_DISTANCE);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        Log.i(TAG, "Service started");
+        logger.debug("Service started");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null || intent.getAction() == null)
-            return 0;
+            return START_NOT_STICKY;
 
         String action = intent.getAction();
-        Log.i(TAG, "Command: " + action);
+        logger.debug("Command: {}", action);
         if (action.equals(ENABLE_TRACK) || action.equals(ENABLE_BACKGROUND_TRACK) && !mTrackingEnabled) {
             mErrorMsg = "";
             mErrorTime = 0;
@@ -162,7 +165,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
         updateNotification();
 
-        return START_REDELIVER_INTENT | START_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -170,7 +173,7 @@ public class LocationService extends BaseLocationService implements LocationList
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
         disconnect();
         closeDatabase();
-        Log.i(TAG, "Service stopped");
+        logger.debug("Service stopped");
     }
 
     @Nullable
@@ -189,10 +192,10 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void connect() {
-        Log.i(TAG, "connect()");
+        logger.debug("connect()");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationManager != null) {
-            mLastLocationMillis = 0;
+            mLastLocationMillis = -SKIP_INITIAL_LOCATIONS;
             mContinuous = false;
             mJustStarted = true;
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -201,12 +204,12 @@ public class LocationService extends BaseLocationService implements LocationList
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_DELAY, 0, this);
                     mLocationManager.addNmeaListener(this);
                     mLocationsEnabled = true;
-                    Log.d(TAG, "Gps provider set");
+                    logger.debug("Gps provider set");
                 } catch (IllegalArgumentException e) {
-                    Log.w(TAG, "Cannot set gps provider, likely no gps on device");
+                    logger.warn("Cannot set gps provider, likely no gps on device");
                 }
             } else {
-                Log.e(TAG, "Missing ACCESS_FINE_LOCATION permission");
+                logger.error("Missing ACCESS_FINE_LOCATION permission");
             }
         }
         if (enableMockLocations) {
@@ -217,14 +220,14 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void disconnect() {
-        Log.i(TAG, "disconnect()");
+        logger.debug("disconnect()");
         if (mLocationManager != null) {
             mLocationsEnabled = false;
             mLocationManager.removeNmeaListener(this);
             try {
                 mLocationManager.removeUpdates(this);
             } catch (SecurityException e) {
-                Log.e(TAG, "Failed to remove updates", e);
+                logger.error("Failed to remove updates", e);
             }
             mLocationManager.removeGpsStatusListener(this);
             mLocationManager = null;
@@ -307,7 +310,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private void updateNotification() {
         if (mForeground) {
-            Log.e(TAG, "updateNotification()");
+            logger.debug("updateNotification()");
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, getNotification());
         }
@@ -326,7 +329,7 @@ public class LocationService extends BaseLocationService implements LocationList
             cursor.close();
         } catch (SQLiteException e) {
             mTrackDB = null;
-            Log.e(TAG, "openDatabase", e);
+            logger.error("openDatabase", e);
             mErrorMsg = "Failed to open DB";
             mErrorTime = System.currentTimeMillis();
             updateNotification();
@@ -470,7 +473,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
         File dataDir = getExternalFilesDir("data");
         if (dataDir == null) {
-            Log.e(TAG, "Can not save track: application data folder missing");
+            logger.error("Can not save track: application data folder missing");
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
                     .putExtra("reason", "error")
                     .putExtra("exception", new RuntimeException("Application data folder missing")));
@@ -518,7 +521,7 @@ public class LocationService extends BaseLocationService implements LocationList
         try {
             mTrackDB.insertOrThrow("track", null, values);
         } catch (SQLException e) {
-            Log.e(TAG, "addPoint", e);
+            logger.error("addPoint", e);
             mErrorMsg = e.getMessage();
             mErrorTime = System.currentTimeMillis();
             updateNotification();
@@ -593,7 +596,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private void updateGpsStatus() {
         if (mGpsStatus == GPS_SEARCHING)
-            Log.d(TAG, "Searching: " + mFSats + "/" + mTSats);
+            logger.debug("Searching: {}/{}", mFSats, mTSats);
         updateNotification();
         final Handler handler = new Handler();
         for (final ILocationListener callback : mLocationCallbacks) {
@@ -615,6 +618,12 @@ public class LocationService extends BaseLocationService implements LocationList
     public void onLocationChanged(final Location location) {
         if (enableMockLocations)
             return;
+
+        // skip initial locations
+        if (mLastLocationMillis < 0) {
+            mLastLocationMillis++;
+            return;
+        }
 
         long time = SystemClock.elapsedRealtime();
 
@@ -695,9 +704,9 @@ public class LocationService extends BaseLocationService implements LocationList
                     mVDOP = Float.parseFloat(vdop);
             }
         } catch (NumberFormatException e) {
-            Log.e(TAG, "NFE", e);
+            logger.error("NFE", e);
         } catch (ArrayIndexOutOfBoundsException e) {
-            Log.e(TAG, "AIOOBE", e);
+            logger.error("AIOOBE", e);
         }
     }
 
@@ -750,24 +759,29 @@ public class LocationService extends BaseLocationService implements LocationList
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                 if (mLocationManager == null)
                     return;
-                GpsStatus status = mLocationManager.getGpsStatus(null);
-                Iterator<GpsSatellite> it = status.getSatellites().iterator();
-                mTSats = 0;
-                mFSats = 0;
-                while (it.hasNext()) {
-                    mTSats++;
-                    GpsSatellite sat = it.next();
-                    if (sat.usedInFix())
-                        mFSats++;
-                }
-                if (SystemClock.elapsedRealtime() - mLastLocationMillis < 3000) {
-                    mGpsStatus = GPS_OK;
+                try {
+                    GpsStatus status = mLocationManager.getGpsStatus(null);
+                    Iterator<GpsSatellite> it = status.getSatellites().iterator();
+                    mTSats = 0;
+                    mFSats = 0;
+                    while (it.hasNext()) {
+                        mTSats++;
+                        GpsSatellite sat = it.next();
+                        if (sat.usedInFix())
+                            mFSats++;
+                    }
+                    if (mLastLocationMillis >= 0) {
+                        if (SystemClock.elapsedRealtime() - mLastLocationMillis < 3000) {
+                            mGpsStatus = GPS_OK;
+                        } else {
+                            if (mContinuous)
+                                tearTrack();
+                            mGpsStatus = GPS_SEARCHING;
+                        }
+                    }
                     updateGpsStatus();
-                } else {
-                    if (mContinuous)
-                        tearTrack();
-                    mGpsStatus = GPS_SEARCHING;
-                    updateGpsStatus();
+                } catch (SecurityException e) {
+                    logger.error("Failed to update gps status", e);
                 }
                 break;
         }
@@ -882,6 +896,7 @@ public class LocationService extends BaseLocationService implements LocationList
             int ddd = mMockLocationTicker % 200;
 
             // Search for satellites for first 3 seconds and each 1 minute
+            /*
             if (ddd >= 0 && ddd < 10) {
                 mGpsStatus = GPS_SEARCHING;
                 mFSats = mMockLocationTicker % 10;
@@ -890,22 +905,23 @@ public class LocationService extends BaseLocationService implements LocationList
                 updateGpsStatus();
                 return;
             }
+            */
 
-            if (mGpsStatus == GPS_SEARCHING) {
+            //if (mGpsStatus == GPS_SEARCHING) {
                 mGpsStatus = GPS_OK;
                 updateGpsStatus();
-            }
+            //}
 
             mLastKnownLocation = new Location(LocationManager.GPS_PROVIDER);
             mLastKnownLocation.setTime(System.currentTimeMillis());
             mLastKnownLocation.setAccuracy(3 + mMockLocationTicker % 100);
             mLastKnownLocation.setSpeed(20);
-            mLastKnownLocation.setBearing(323);
             mLastKnownLocation.setAltitude(20 + mMockLocationTicker);
             //mLastKnownLocation.setLatitude(34.865792);
             //mLastKnownLocation.setLongitude(32.351646);
             //mLastKnownLocation.setBearing((System.currentTimeMillis() / 166) % 360);
             //mLastKnownLocation.setAltitude(169);
+            /*
             double lat = 55.813557;
             double lon = 37.645524;
             if (ddd < 50) {
@@ -922,6 +938,20 @@ public class LocationService extends BaseLocationService implements LocationList
             } else {
                 lon += (200 - ddd) * 0.0001;
                 mLastKnownLocation.setBearing(270);
+            }
+            */
+            double lat = 60.0 + mMockLocationTicker * 0.0001;
+            double lon = 30.3;
+            if (ddd < 10) {
+                mLastKnownLocation.setBearing(ddd);
+            } if (ddd < 90) {
+                mLastKnownLocation.setBearing(10);
+            } else if (ddd < 110) {
+                mLastKnownLocation.setBearing(100 - ddd);
+            } else if (ddd < 190) {
+                mLastKnownLocation.setBearing(-10);
+            } else {
+                mLastKnownLocation.setBearing(-200 + ddd);
             }
             mLastKnownLocation.setLatitude(lat);
             mLastKnownLocation.setLongitude(lon);

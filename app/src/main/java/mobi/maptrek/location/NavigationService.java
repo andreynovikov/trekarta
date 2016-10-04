@@ -34,9 +34,10 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import org.oscim.core.GeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
@@ -47,7 +48,8 @@ import mobi.maptrek.util.Geo;
 import mobi.maptrek.util.StringFormatter;
 
 public class NavigationService extends BaseNavigationService implements OnSharedPreferenceChangeListener {
-    private static final String TAG = "Navigation";
+    private static final Logger logger = LoggerFactory.getLogger(NavigationService.class);
+
     private static final int NOTIFICATION_ID = 25502;
 
     private ILocationService mLocationService = null;
@@ -106,17 +108,17 @@ public class NavigationService extends BaseNavigationService implements OnShared
         onSharedPreferenceChanged(sharedPreferences, PREF_NAVIGATION_TRAVERSE);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        Log.i(TAG, "Service started");
+        logger.debug("Service started");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null || intent.getAction() == null)
-            return 0;
+            return START_NOT_STICKY;
 
         String action = intent.getAction();
         Bundle extras = intent.getExtras();
-        Log.i(TAG, "Command: " + action);
+        logger.debug("Command: {}", action);
         if (action.equals(NAVIGATE_MAP_OBJECT)) {
             MapObject mo = new MapObject();
             mo.name = extras.getString(EXTRA_NAME);
@@ -131,7 +133,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             //TODO Reimplement moving object navigation
             //noinspection ConstantConditions
             if (mo == null)
-                return 0;
+                return START_NOT_STICKY;
             navigateTo(mo);
         }
         if (action.equals(NAVIGATE_ROUTE)) {
@@ -142,7 +144,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             //TODO Reimplement route navigation
             //noinspection ConstantConditions
             if (route == null)
-                return 0;
+                return START_NOT_STICKY;
             navigateTo(route, dir);
             if (start != -1)
                 setRouteWaypoint(start);
@@ -171,14 +173,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
         updateNotification();
 
-        return START_REDELIVER_INTENT | START_STICKY;
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         disconnect();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-        Log.i(TAG, "Service stopped");
+        logger.debug("Service stopped");
     }
 
     public class LocalBinder extends Binder implements INavigationService {
@@ -311,7 +313,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     public void stopNavigation() {
-        Log.i(TAG, "Stop navigation");
+        logger.debug("Stop navigation");
         updateNavigationState(STATE_STOPPED);
         stopForeground(true);
         clearNavigation();
@@ -604,25 +606,25 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (state != STATE_STOPPED && state != STATE_REACHED)
             updateNotification();
         sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATE).putExtra("state", state));
-        Log.d(TAG, "State dispatched");
+        logger.trace("State dispatched");
     }
 
     private void updateNavigationStatus() {
         updateNotification();
         sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS));
-        Log.d(TAG, "Status dispatched");
+        logger.trace("Status dispatched");
     }
 
     private ServiceConnection locationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mLocationService = (ILocationService) service;
             mLocationService.registerLocationCallback(locationListener);
-            Log.i(TAG, "Location service connected");
+            logger.debug("Location service connected");
         }
 
         public void onServiceDisconnected(ComponentName className) {
             mLocationService = null;
-            Log.i(TAG, "Location service disconnected");
+            logger.debug("Location service disconnected");
         }
     };
 

@@ -3,7 +3,9 @@ package mobi.maptrek.io;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +17,8 @@ import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.ProgressListener;
 
 public abstract class Manager {
-    private static final String TAG = "IO Manager";
+    protected static final Logger logger = LoggerFactory.getLogger(Manager.class);
+
     private Context mContext;
 
     /**
@@ -124,24 +127,24 @@ public abstract class Manager {
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 // Do not allow simultaneous operations on one source
                 synchronized (mDataSource) {
-                    Log.i(TAG, "Saving data source...");
+                    logger.debug("Saving data source...");
                     // Save to temporary file for two reasons: to preserve original file in case of error
                     // and to hide it from data loader until it is completely saved
                     File newFile = new File(mFile.getParent(), System.currentTimeMillis() + ".tmp");
                     Manager.this.saveData(new FileOutputStream(newFile, false), mDataSource, mProgressListener);
                     if (mFile.exists() && !mFile.delete() || !newFile.renameTo(mFile)) {
-                        Log.e(TAG, "Can not rename data source file after save");
+                        logger.error("Can not rename data source file after save");
                         if (mSaveListener != null)
                             mSaveListener.onError(mDataSource, new Exception("Can not rename data source file after save"));
                     } else {
                         mDataSource.path = mFile.getAbsolutePath();
                         if (mSaveListener != null)
                             mSaveListener.onSaved(mDataSource);
-                        Log.i(TAG, "Done");
+                        logger.debug("Done");
                     }
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Can not save data source", e);
+                logger.error("Can not save data source", e);
                 if (mSaveListener != null)
                     mSaveListener.onError(mDataSource, e);
             }

@@ -10,11 +10,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -34,6 +36,8 @@ import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapStateListener;
 
 public class MapSelection extends Fragment implements OnBackPressedListener, MapStateListener {
+    private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
+
     private static final long INDEX_CACHE_TIMEOUT = 7 * 24 * 3600 * 1000; // One week
 
     private OnMapActionListener mListener;
@@ -251,7 +255,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
                 if (!useCache)
                     dataOut.close();
             } catch (Exception e) {
-                Log.e("MS", "Failed to load index", e);
+                logger.error("Failed to load index", e);
                 // remove cache on any error
                 //noinspection ResultOfMethodCallIgnored
                 mCacheFile.delete();
