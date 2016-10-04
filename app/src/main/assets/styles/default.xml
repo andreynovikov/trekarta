@@ -569,25 +569,6 @@
             <line cap="butt" stroke="#00ffffff" width="2.5" stipple="20" stipple-stroke="#587f9d" fix="true" />
         </m>
 
-        <m k="aerialway">
-            <line cap="butt" stroke="#202020" width="0.8" />
-            <line cap="butt" stipple="5" stipple-stroke="#202020" stipple-width="2"
-                stroke="#00000000" width="2" />
-            <m k="aerialway" v="cable_car">
-                <symbol src="assets:symbols/cable_car.svg" />
-            </m>
-            <m k="aerialway" v="chair_lift">
-                <symbol src="assets:symbols/chair_lift_2.svg" />
-            </m>
-            <m k="aerialway" v="gondola">
-                <symbol src="assets:symbols/gondola.svg" />
-            </m>
-            <m zoom-min="14">
-                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
-                    stroke-width="2.0" />
-            </m>
-        </m>
-
         <m closed="yes" k="piste:type" v="downhill" zoom-min="13">
             <m k="piste:difficulty" v="novice">
                 <area fill="#4440ff40" />
@@ -1066,34 +1047,40 @@
             </m>
         </m>
 
-        <!-- non-physical boundaries -->
-        <!-- <m k="boundary"> <m k="boundary" v="national_park">
-          <line stroke="#4ef94b" width="0.25" stroke-dasharray="15, 5, 5, 5"
-          /> -->
-
-        <!--
-          maybe use some alpha texture for this
-          <m k="boundary" v="national_park">
-          <area fill="#d7e6b0" />
-          </m>
-        -->
-
-        <!--<m k="boundary" v="administrative"> -->
-        <m k="admin_level">
-            <m k="admin_level" v="4">
-                <line stroke="#ffcccc" width="2" fix="true" fade="7" cap="butt" blur="0.9" />
-                <line stroke="#dadada" width="1.3" fix="true" stipple-width="1.0" stipple="4" stipple-stroke="#888888" />
-            </m>
-            <m k="admin_level" v="3">
-                <line stroke="#ffcccc" width="3" fix="true" fade="5" cap="butt" blur="0.9" />
-                <line stroke="#dadada" width="1.5" fix="true" stipple-width="1.0" stipple="5" stipple-stroke="#888888" />
-            </m>
-            <m k="admin_level" v="2">
-                <line stroke="#ffcccc" width="4" fix="true" fade="3" cap="butt" blur="0.9" />
-                <line stroke="#dadada" width="1.6" fix="true" stipple-width="1.0" stipple="6" stipple-stroke="#647b9c" />
+        <m k="boundary" v="administrative">
+            <m k="admin_level">
+                <m k="admin_level" v="4">
+                    <m zoom-min="8">
+                        <line blur="0.9" cap="butt" fix="true" stroke="#ffcccc" width="3.8" />
+                    </m>
+                    <m zoom-max="7">
+                        <line blur="0.9" cap="butt" fade="7" fix="true" stroke="#cccccc" width="3.8" />
+                    </m>
+                    <line fix="true" stipple="4" stipple-stroke="#888888" stipple-width="1.0" stroke="#dadada"
+                        width="1.3" />
+                </m>
+                <m k="admin_level" v="3">
+                    <m zoom-min="8">
+                        <line blur="0.9" cap="butt" fix="true" stroke="#ffcccc" width="4.2" />
+                    </m>
+                    <m zoom-max="7">
+                        <line blur="0.9" cap="butt" fade="5" fix="true" stroke="#cccccc" width="4.2" />
+                    </m>
+                    <line fix="true" stipple="5" stipple-stroke="#888888" stipple-width="1.0" stroke="#dadada"
+                        width="1.5" />
+                </m>
+                <m k="admin_level" v="2">
+                    <m zoom-min="8">
+                        <line blur="0.9" cap="butt" fix="true" stroke="#ffcccc" width="5" />
+                    </m>
+                    <m zoom-max="7">
+                        <line blur="0.9" cap="butt" fade="4" fix="true" stroke="#cccccc" width="5" />
+                    </m>
+                    <line fix="true" stipple="6" stipple-stroke="#888888" stipple-width="1.0" stroke="#00000000"
+                        width="1.8" />
+                </m>
             </m>
         </m>
-        <!-- </m> -->
 
         <!-- historic -->
         <!-- <m k="historic" v="ruins" zoom-min="17">
@@ -1208,6 +1195,25 @@
                     stroke-width="2.0" />
             </m>
         </m>
+
+        <m k="aerialway">
+            <line cap="butt" stroke="#202020" width="0.8" />
+            <line cap="butt" stipple="5" stipple-stroke="#202020" stipple-width="2"
+                stroke="#00000000" width="2" />
+            <m k="aerialway" v="cable_car">
+                <symbol src="assets:symbols/cable_car.svg" />
+            </m>
+            <m k="aerialway" v="chair_lift">
+                <symbol src="assets:symbols/chair_lift_2.svg" />
+            </m>
+            <m k="aerialway" v="gondola">
+                <symbol src="assets:symbols/gondola.svg" />
+            </m>
+            <m zoom-min="14">
+                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+        </m>
     </m><!-- end e="way" -->
 
     <m e="node" select="first">
@@ -1268,34 +1274,72 @@
         <!-- place -->
         <m k="place">
             <m v="suburb" zoom-max="14">
-                <caption style="italic" fill="#606060" k="name" priority="5" size="17"
+                <caption style="italic" fill="#606060" k="name" priority="8" size="17"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="village" zoom-max="14">
-                <caption fill="#444411" k="name" priority="4" size="17" stroke="#ffffff"
+                <caption fill="#444411" k="name" priority="7" size="17" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="island" zoom-min="10">
-                <caption style="bold" fill="#000000" k="name" priority="2" size="20"
+                <caption style="bold" fill="#000000" k="name" priority="4" size="20"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
-            <m v="town">
-                <caption dy="14" fill="#000000" k="name" priority="3" size="19" stroke="#ffffff"
-                    stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
-            </m>
-            <m v="city">
-                <m zoom-min="7">
-                    <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="19"
-                        stroke="#ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+            <m v="town" select="first">
+                <m k="admin_level" v="2">
+                    <caption dy="14" fill="#000000" k="name" priority="2" size="20" stroke="#ffffff"
+                        stroke-width="2.0" symbol="assets:symbols/star.svg" />
                 </m>
-                <m zoom-max="6">
-                    <caption dy="14" fill="#000000" k="name" priority="2" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                <m k="admin_level">
+                    <caption dy="14" fill="#000000" k="name" priority="3" size="19" stroke="#ffffff"
+                        stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
+                </m>
+                <m k="admin_level" v="~">
+                    <caption dy="14" fill="#000000" k="name" priority="6" size="19" stroke="#ffffff"
+                        stroke-width="2.0" symbol="assets:symbols/dot_white.svg" />
+                </m>
+            </m>
+            <m v="city" select="first">
+                <m k="admin_level" v="2">
+                    <m zoom-min="7">
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="20"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/star.svg" />
+                    </m>
+                    <m zoom-max="6">
+                        <caption dy="14" fill="#000000" k="name" priority="2" size="20"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/star.svg" />
+                    </m>
+                </m>
+                <m k="admin_level">
+                    <m zoom-min="7">
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="19"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/dot_black.svg" />
+                    </m>
+                    <m zoom-max="6">
+                        <caption dy="14" fill="#000000" k="name" priority="2" size="19"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/dot_black.svg" />
+                    </m>
+                </m>
+                <m k="admin_level" v="~">
+                    <m zoom-min="7">
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="4" size="19"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/dot_black.svg" />
+                    </m>
+                    <m zoom-max="6">
+                        <caption dy="14" fill="#000000" k="name" priority="4" size="19"
+                            stroke="#ffffff" stroke-width="2.0"
+                            symbol="assets:symbols/dot_black.svg" />
+                    </m>
                 </m>
             </m>
             <m v="country">
                 <m zoom-min="5">
-                    <caption fill="#000000" k="name" priority="1" size="24" stroke="#ffffff"
+                    <caption fill="#000000" k="name" priority="5" size="24" stroke="#ffffff"
                         stroke-width="2.0" />
                 </m>
                 <m zoom-min="3" zoom-max="4">
