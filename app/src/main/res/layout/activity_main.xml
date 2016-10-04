@@ -13,6 +13,22 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
+    <TextView
+        android:id="@+id/license"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginBottom="@dimen/image_button_size_margin"
+        android:padding="2dp"
+        android:rotation="-90"
+        android:textColor="@color/colorPrimaryDark"
+        android:textColorLink="@color/colorAccentDarkest"
+        android:textSize="9sp"
+        android:transformPivotX="0px"
+        android:transformPivotY="0px"
+        android:visibility="gone"
+        tools:ignore="SmallSp" />
+
     <View
         android:id="@+id/popupAnchor"
         android:layout_width="wrap_content"

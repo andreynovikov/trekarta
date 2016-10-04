@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="actionStopNavigation" type="id"/>
+    <item name="msgRemoveLicense" type="id" />
+    <item name="msgRemoveMapDownloadButton" type="id" />
+    <item name="msgFindMissingMap" type="id" />
+    <item name="itemHolder" type="id" />
+</resources>

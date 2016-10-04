@@ -43,6 +43,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionManager;
@@ -282,6 +284,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private View mCompassView;
     private View mNavigationArrowView;
     private View mExtendPanel;
+    private TextView mLicense;
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
     private CoordinatorLayout mCoordinatorLayout;
@@ -437,6 +440,17 @@ public class MainActivity extends Activity implements ILocationListener,
         mMapsButton = (ImageButton) findViewById(R.id.mapsButton);
         mMoreButton = (ImageButton) findViewById(R.id.moreButton);
         mMapDownloadButton = (Button) findViewById(R.id.mapDownloadButton);
+        mLicense = (TextView) findViewById(R.id.license);
+        mLicense.setClickable(true);
+        mLicense.setMovementMethod(LinkMovementMethod.getInstance());
+        /*
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            mapLicense.setRotation(-90);
+            mapLicense.setPivotX(0);
+            mapLicense.setPivotY(0);
+        }
+        */
         mPopupAnchor = findViewById(R.id.popupAnchor);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
@@ -791,6 +805,23 @@ public class MainActivity extends Activity implements ILocationListener,
         mMapView.onResume();
         updateLocationDrawable();
         adjustCompass(mMap.getMapPosition().bearing);
+
+        mLicense.setText(Html.fromHtml(getString(R.string.osmLicense)));
+        mLicense.setVisibility(View.VISIBLE);
+        final Message m = Message.obtain(mMainHandler, new Runnable() {
+            @Override
+            public void run() {
+                mLicense.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mLicense.setVisibility(View.GONE);
+                        mLicense.animate().setListener(null);
+                    }
+                });
+            }
+        });
+        m.what = R.id.msgRemoveLicense;
+        mMainHandler.sendMessageDelayed(m, 5000);
 
         if (MapTrekApplication.getApplication().hasPreviousRunsExceptions()) {
             Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
