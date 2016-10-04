@@ -947,13 +947,12 @@
                         </m>  <!-- end area=yes|true -->
                     </m>  <!-- end bridge=yes -->
                 </m>
+                <outline-layer id="ford" stroke="#a4bbcc" width="0.7" />
                 <m k="ford">
                     <!-- except ford=no|false -->
                     <m k="ford" v="-|no|false">
-                        <m select="first">
-                            <m v="track">
-                                <line cap="square" stroke="#889172ec" use="highway:track:g1" />
-                            </m>
+                        <m v="track">
+                            <line cap="square" outline="ford" use="highway:track:g1" width="-0.5" />
                         </m>
                     </m>
                 </m>
