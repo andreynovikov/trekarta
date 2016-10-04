@@ -77,6 +77,10 @@ public class MBTilesDatabase extends SQLiteTileDatabase {
 
             String name = getString(database, SQL_SELECT_PARAM, new String[]{"name"});
             tileSource.setName(name);
+
+            String format = getString(database, SQL_SELECT_PARAM, new String[]{"format"});
+            if (format != null)
+                tileSource.setOption("format", format);
         } catch (SQLException e) {
             return new TileSource.OpenResult(e.getMessage());
         }

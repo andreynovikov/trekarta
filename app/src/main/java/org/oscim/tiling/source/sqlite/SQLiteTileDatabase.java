@@ -1,6 +1,7 @@
 package org.oscim.tiling.source.sqlite;
 
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.oscim.layers.tile.MapTile;
@@ -15,13 +16,13 @@ import java.io.ByteArrayInputStream;
 import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
-public abstract class SQLiteTileDatabase implements ITileDataSource {
+abstract class SQLiteTileDatabase implements ITileDataSource {
     private static final Logger logger = LoggerFactory.getLogger(SQLiteTileDatabase.class);
 
     private final SQLiteTileSource mSQLiteTileSource;
     private final ITileDecoder mTileDecoder;
 
-    public SQLiteTileDatabase(SQLiteTileSource tileSource, ITileDecoder tileDecoder) {
+    SQLiteTileDatabase(SQLiteTileSource tileSource, ITileDecoder tileDecoder) {
         mSQLiteTileSource = tileSource;
         mTileDecoder = tileDecoder;
     }
@@ -75,6 +76,7 @@ public abstract class SQLiteTileDatabase implements ITileDataSource {
         try (Cursor c = database.rawQuery(query, args)) {
             c.moveToFirst();
             return c.getString(0);
+        } catch (CursorIndexOutOfBoundsException ignore) {
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -50,7 +50,6 @@ import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,9 +77,11 @@ import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
+import org.oscim.core.MapElement;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
+import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.event.Event;
 import org.oscim.event.Gesture;
@@ -88,6 +89,7 @@ import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
+import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -96,14 +98,16 @@ import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
+import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.MapScaleBarLayer;
+import org.oscim.theme.ThemeLoader;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.OnDataMissingListener;
-import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
-import org.oscim.tiling.source.oscimap4.OSciMap4TileCacheSource;
 import org.oscim.utils.Osm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -165,6 +169,7 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.WorldMapTileSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -191,7 +196,8 @@ public class MainActivity extends Activity implements ILocationListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
         OnDataMissingListener {
-    private static final String TAG = "MainActivity";
+    private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
+
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     private static final int MAP_EVENTS = 1;
@@ -260,6 +266,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private boolean mBuildingsLayerEnabled = true;
     private boolean mHideMapObjects = true;
     private int mBitmapMapTransparency = 0;
+    private String mLocalizedName;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -296,8 +303,8 @@ public class MainActivity extends Activity implements ILocationListener,
     private VectorDrawable mMyLocationDrawable;
     private VectorDrawable mLocationSearchingDrawable;
 
-    //TODO Temporary fix
     private MapEventLayer mMapEventLayer;
+    //TODO Temporary fix
     @SuppressWarnings("FieldCanBeLocal")
     private VectorTileLayer mBaseLayer;
     private VectorTileLayer mNativeMapsLayer;
@@ -314,6 +321,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
 
+    @SuppressWarnings("unused")
     private PreCachedTileCache mCache;
 
     private FragmentManager mFragmentManager;
@@ -340,7 +348,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate()");
+        logger.debug("onCreate()");
         setContentView(R.layout.activity_main);
 
         Resources resources = getResources();
@@ -365,7 +373,7 @@ public class MainActivity extends Activity implements ILocationListener,
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         // Estimate finger tip height (0.25 inch is obtained from experiments)
-        mFingerTipSize = (float) (metrics.ydpi * 0.25);
+        mFingerTipSize = (float) (metrics.ydpi * 0.3);
 
         mSunriseSunset = new SunriseSunset();
         mNightModeState = NIGHT_MODE_STATE.values()[Configuration.getNightModeState()];
@@ -405,6 +413,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     language = "en";
                 Configuration.setLanguage(language);
             }
+            mLocalizedName = "name:" + language;
             mMapFileSource.setPreferredLanguage(language);
         } else {
             mMapIndex = mDataFragment.getMapIndex();
@@ -484,20 +493,28 @@ public class MainActivity extends Activity implements ILocationListener,
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        TileSource baseMapSource = new OSciMap4TileCacheSource();
-        //TileSource baseMapSource = OSciMap4TileSource.builder().url("http://maptrek.mobi/tiles/all").zoomMax(4).build();
+        //TileSource baseMapSource = OSciMap4TileSource.builder().url("http://maptrek.mobi/tiles/all").zoomMin(2).zoomMax(7).build();
+        //File cacheDir = getExternalCacheDir();
+        //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
 
-        File cacheDir = getExternalCacheDir();
-        if (cacheDir != null) {
-            SQLiteAssetHelper preCachedDatabaseHelper = new SQLiteAssetHelper(this, "world_map_z7.db", getDir("databases", 0).getAbsolutePath(), null, 1);
-            mCache = new PreCachedTileCache(this, preCachedDatabaseHelper.getReadableDatabase(), cacheDir.getAbsolutePath(), "tile_cache.db");
-            mCache.setCacheSize(512 * (1 << 10));
-            baseMapSource.setCache(mCache);
-            //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
-        }
+        SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 1);
+        WorldMapTileSource baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(baseMapSource);
+        mBaseLayer.addHook(new VectorTileLayer.TileLoaderProcessHook() {
+            @Override
+            public boolean process(MapTile tile, RenderBuckets buckets, MapElement element) {
+                Tag name = element.tags.get("name");
+                if (name != null && element.tags.containsKey(mLocalizedName))
+                    name.value = element.tags.get(mLocalizedName).value;
+                return false;
+            }
+
+            @Override
+            public void complete(MapTile tile, boolean success) {
+            }
+        });
         mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
 
@@ -665,12 +682,12 @@ public class MainActivity extends Activity implements ILocationListener,
 
     protected void onNewIntent(Intent intent) {
         String action = intent.getAction();
-        Log.w(TAG, "New intent: " + action);
+        logger.debug("New intent: {}", action);
         String scheme = intent.getScheme();
 
         if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
-            Log.w(TAG, "   " + uri.toString());
+            logger.debug("   {}", uri.toString());
             String data = uri.getSchemeSpecificPart();
             String query = uri.getQuery();
             // geo:latitude,longitude
@@ -718,7 +735,7 @@ public class MainActivity extends Activity implements ILocationListener,
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
             // http://wiki.openstreetmap.org/wiki/Shortlink
             Uri uri = intent.getData();
-            Log.w(TAG, "   " + uri.toString());
+            logger.debug("   {}", uri.toString());
             List<String> path = uri.getPathSegments();
             if ("go".equals(path.get(0))) {
                 MapPosition position = Osm.decodeShortLink(path.get(1));
@@ -732,7 +749,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e(TAG, "onStart()");
+        logger.debug("onStart()");
 
         // Start loading user data
         DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
@@ -747,7 +764,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume()");
+        logger.debug("onResume()");
 
         if (mSavedLocationState != LocationState.DISABLED)
             askForPermission();
@@ -789,7 +806,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onPause() {
         super.onPause();
-        Log.e(TAG, "onPause()");
+        logger.debug("onPause()");
 
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
@@ -811,7 +828,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e(TAG, "onStop()");
+        logger.debug("onStop()");
 
         unregisterReceiver(mBroadcastReceiver);
 
@@ -846,7 +863,7 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy()");
+        logger.debug("onDestroy()");
 
         mMap.destroy();
         //mMapScaleBar.destroy();
@@ -858,7 +875,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mProgressHandler = null;
 
-        Log.w(TAG, "  stopping threads...");
+        logger.debug("  stopping threads...");
         mBackgroundThread.interrupt();
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.quit();
@@ -876,7 +893,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.e(TAG, "onSaveInstanceState()");
+        logger.debug("onSaveInstanceState()");
 
         if (mLocationService != null)
             startService(new Intent(getApplicationContext(), LocationService.class));
@@ -900,12 +917,13 @@ public class MainActivity extends Activity implements ILocationListener,
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("nightMode", mNightMode);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
+        savedInstanceState.putString("localizedName", mLocalizedName);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.e(TAG, "onRestoreInstanceState()");
+        logger.debug("onRestoreInstanceState()");
         super.onRestoreInstanceState(savedInstanceState);
         mSavedLocationState = (LocationState) savedInstanceState.getSerializable("savedLocationState");
         mPreviousLocationState = (LocationState) savedInstanceState.getSerializable("previousLocationState");
@@ -920,6 +938,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
+        mLocalizedName = savedInstanceState.getString("localizedName");
     }
 
     @Override
@@ -948,12 +967,13 @@ public class MainActivity extends Activity implements ILocationListener,
                 builder.setItems(R.array.language_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
-                        String code = languageCodes[which];
+                        String language = languageCodes[which];
                         if (mMapFileSource != null) {
-                            mMapFileSource.setPreferredLanguage(code);
+                            mMapFileSource.setPreferredLanguage(language);
                             mMap.clearMap();
                         }
-                        Configuration.setLanguage(code);
+                        Configuration.setLanguage(language);
+                        mLocalizedName = "name:" + language;
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -1376,7 +1396,7 @@ public class MainActivity extends Activity implements ILocationListener,
         deltaY = (float) (downY - point.y);
         // Shift map to reveal marker tip position
         mMap.getEventLayer().enableMove(false);
-        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(0f, mFingerTipSize), 1, true);
+        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 + mFingerTipSize), 1, true);
         return true;
     }
 
@@ -1454,7 +1474,7 @@ public class MainActivity extends Activity implements ILocationListener,
     };
 
     private void enableNavigation() {
-        Log.e(TAG, "enableNavigation");
+        logger.debug("enableNavigation");
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
     }
 
@@ -1468,7 +1488,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            Log.e(TAG, "onServiceConnected");
+            logger.debug("onServiceConnected");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
         }
@@ -1555,11 +1575,11 @@ public class MainActivity extends Activity implements ILocationListener,
             onWaypointSave(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
-            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(0f, -mFingerTipSize), 1, true);
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 - mFingerTipSize), 1, true);
             mMap.getEventLayer().enableMove(true);
         } else if (action == MotionEvent.ACTION_MOVE) {
-            float eventX = motionEvent.getX() - deltaX - mMap.getWidth() / 2;
-            float eventY = motionEvent.getY() - deltaY - mMap.getHeight() / 2 - mFingerTipSize;
+            float eventX = motionEvent.getX() - deltaX;
+            float eventY = motionEvent.getY() - deltaY - mFingerTipSize;
             mActiveMarker.setPoint(mMap.viewport().fromScreenPoint(eventX, eventY));
             mMarkerLayer.updateItems();
             mMap.updateMap(true);
@@ -1625,7 +1645,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (gesture == Gesture.LONG_PRESS) {
             mPopupAnchor.setX(event.getX());
             mPopupAnchor.setY(event.getY());
-            mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX() - mMap.getWidth() / 2, event.getY() - mMap.getHeight() / 2);
+            mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu menu = popup.getMenu();
@@ -2059,7 +2079,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onTrackProperties(String path) {
-        Log.e(TAG, "onTrackProperties(" + path + ")");
+        logger.debug("onTrackProperties({})", path);
         //TODO Think of better way to find appropriate track
         for (FileDataSource source : mData) {
             if (source.path.equals(path)) {
@@ -2430,11 +2450,18 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void showBitmapMap(MapFile mapFile) {
-        Log.e(TAG, mapFile.name);
+        logger.debug("showBitmapMap({})", mapFile.name);
         showHideMapObjects(true);
         mapFile.tileSource.open();
-        mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-        mapFile.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+        if ("vtm".equals(mapFile.tileSource.getOption("format"))) {
+            OsmTileLayer layer = new OsmTileLayer(mMap);
+            layer.setTileSource(mapFile.tileSource);
+            layer.setRenderTheme(ThemeLoader.load(VtmThemes.DEFAULT));
+            mapFile.tileLayer = layer;
+        } else {
+            mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
+            mapFile.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+        }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
         MapPosition position = mMap.getMapPosition();
@@ -2756,13 +2783,13 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void popCurrent() {
-        Log.e(TAG, "popCurrent()");
+        logger.debug("popCurrent()");
         mFragmentManager.popBackStack();
     }
 
     @Override
     public void popAll() {
-        Log.e(TAG, "popAll()");
+        logger.debug("popAll()");
         FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
         mFragmentManager.popBackStack(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
@@ -2789,7 +2816,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onBackPressed() {
-        Log.e(TAG, "onBackPressed()");
+        logger.debug("onBackPressed()");
         if (backKeyIntercepted())
             return;
 
@@ -2818,7 +2845,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onBackStackChanged() {
-        Log.e(TAG, "onBackStackChanged()");
+        logger.debug("onBackStackChanged()");
         int count = mFragmentManager.getBackStackEntryCount();
         if (count == 0) {
             if (mPanelState != PANEL_STATE.NONE)
@@ -2900,11 +2927,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void updateMapViewArea() {
-        Log.e(TAG, "updateMapViewArea()");
+        logger.debug("updateMapViewArea()");
         final ViewTreeObserver vto = mMapView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
-                Log.e(TAG, "onGlobalLayout()");
+                logger.debug("onGlobalLayout()");
 
                 if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
                     mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
@@ -3009,13 +3036,13 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public Loader<List<FileDataSource>> onCreateLoader(int id, Bundle args) {
-        Log.e(TAG, "onCreateLoader(" + id + ")");
+        logger.debug("onCreateLoader({})", id);
         return new DataLoader(this);
     }
 
     @Override
     public void onLoadFinished(Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
-        Log.e(TAG, "onLoadFinished()");
+        logger.debug("onLoadFinished()");
         if (data == null)
             return;
         mData = data;
@@ -3043,7 +3070,7 @@ public class MainActivity extends Activity implements ILocationListener,
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d(TAG, "Broadcast: " + action);
+            logger.debug("Broadcast: {}", action);
             if (action.equals(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED)) {
                 int key = intent.getIntExtra("key", 0);
                 mMapIndex.setNativeMapTileSource(key);
@@ -3053,7 +3080,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 final Bundle extras = intent.getExtras();
                 boolean saved = extras.getBoolean("saved");
                 if (saved) {
-                    Log.e(TAG, "Track saved: " + extras.getString("path"));
+                    logger.debug("Track saved: {}", extras.getString("path"));
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, R.string.msg_track_saved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.action_customize, new View.OnClickListener() {
@@ -3066,7 +3093,7 @@ public class MainActivity extends Activity implements ILocationListener,
                     return;
                 }
                 String reason = extras.getString("reason");
-                Log.e(TAG, "Track not saved: " + reason);
+                logger.warn("Track not saved: {}", reason);
                 if ("period".equals(reason) || "distance".equals(reason)) {
                     int msg = "period".equals(reason) ? R.string.msg_track_not_saved_period : R.string.msg_track_not_saved_distance;
                     Snackbar snackbar = Snackbar

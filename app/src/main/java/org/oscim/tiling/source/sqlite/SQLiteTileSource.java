@@ -1,6 +1,7 @@
 package org.oscim.tiling.source.sqlite;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
@@ -26,8 +27,16 @@ public class SQLiteTileSource extends TileSource {
     public static final byte[] MAGIC = "SQLite format".getBytes();
 
     SQLiteDatabase mDatabase;
+    private SQLiteOpenHelper mOpenHelper;
     private Class<? extends SQLiteTileDatabase> mTileDatabase;
     BoundingBox mBoundingBox;
+
+    public SQLiteTileSource() {
+    }
+
+    public SQLiteTileSource(SQLiteOpenHelper openHelper) {
+        mOpenHelper = openHelper;
+    }
 
     public boolean setMapFile(String filename) {
         setOption("path", filename);
@@ -59,21 +68,28 @@ public class SQLiteTileSource extends TileSource {
 
     @Override
     public OpenResult open() {
-        if (!options.containsKey("path"))
-            return new OpenResult("no map path set");
+        File file = null;
 
-        File file = new File(options.get("path"));
+        if (mOpenHelper != null) {
+            mDatabase = mOpenHelper.getReadableDatabase();
+            setOption("name", mOpenHelper.getDatabaseName());
+        } else {
+            if (!options.containsKey("path"))
+                return new OpenResult("no map path set");
 
-        // check if the path exists and is readable
-        if (!file.exists()) {
-            return new OpenResult("path does not exist: " + file);
-        } else if (!file.isFile()) {
-            return new OpenResult("not a path: " + file);
-        } else if (!file.canRead()) {
-            return new OpenResult("cannot read path: " + file);
+            file = new File(options.get("path"));
+
+            // check if the path exists and is readable
+            if (!file.exists()) {
+                return new OpenResult("path does not exist: " + file);
+            } else if (!file.isFile()) {
+                return new OpenResult("not a path: " + file);
+            } else if (!file.canRead()) {
+                return new OpenResult("cannot read path: " + file);
+            }
+            mDatabase = SQLiteDatabase.openDatabase(file.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
         }
 
-        mDatabase = SQLiteDatabase.openDatabase(file.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
         OpenResult openResult = RMapsDatabase.initialize(this, mDatabase);
 
         if (openResult.isSuccess()) {
@@ -88,7 +104,7 @@ public class SQLiteTileSource extends TileSource {
             }
         }
 
-        if (getOption("name") == null) {
+        if (getOption("name") == null && file != null) {
             // Construct name
             // 1. remove extension
             String name = file.getName().toLowerCase();
