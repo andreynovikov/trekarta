@@ -280,7 +280,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            mStatusView.setText(getString(R.string.msgEstimateDownloadSizePlaceholder, getString(R.string.msgEstimateDownloadSize), values[0]));
+            if (isVisible())
+                mStatusView.setText(getString(R.string.msgEstimateDownloadSizePlaceholder, getString(R.string.msgEstimateDownloadSize), values[0]));
         }
     }
 }
