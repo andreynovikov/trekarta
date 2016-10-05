@@ -684,8 +684,8 @@
                     <m v="trunk_link|motorway_link" zoom-min="7">
                         <line fade="7" stroke="#eec693" use="fix" width="0.4" />
                     </m>
-                    <m v="primary" zoom-min="6">
-                        <line fade="6" stroke="#c6c5a2" use="fix" width="0.5" />
+                    <m v="primary" zoom-min="7">
+                        <line fade="7" stroke="#c6c5a2" use="fix" width="0.5" />
                     </m>
                     <m v="trunk" zoom-min="6">
                         <line fade="6" stroke="#c6c5a2" use="fix" width="0.5" />
@@ -1272,15 +1272,19 @@
 
         <!-- place -->
         <m k="place">
+            <m v="hamlet">
+                <caption fill="#444411" k="name" priority="8" size="17" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
             <m v="suburb" zoom-max="14">
                 <caption style="italic" fill="#606060" k="name" priority="8" size="17"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
-            <m v="village" zoom-max="14">
+            <m v="village">
                 <caption fill="#444411" k="name" priority="7" size="17" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-            <m v="island" zoom-min="10">
+            <m v="island" zoom-min="8" zoom-max="14">
                 <caption style="bold" fill="#000000" k="name" priority="4" size="20"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
@@ -1337,7 +1341,7 @@
                 </m>
             </m>
             <m v="country">
-                <m zoom-min="5">
+                <m zoom-min="5" zoom-max="10">
                     <caption fill="#000000" k="name" priority="5" size="24" stroke="#ffffff"
                         stroke-width="2.0" />
                 </m>
