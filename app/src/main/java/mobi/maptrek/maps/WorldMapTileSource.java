@@ -24,6 +24,9 @@ public class WorldMapTileSource extends SQLiteTileSource {
         mSea.addPoint(-16, Tile.SIZE + 16);
     }
 
+    public WorldMapTileSource() {
+    }
+
     public WorldMapTileSource(SQLiteOpenHelper openHelper) {
         super(openHelper);
     }

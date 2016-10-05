@@ -200,7 +200,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
 
         private LayoutInflater mInflater;
 
-        public DataListAdapter(Context context, Cursor cursor, int flags) {
+        DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mAccentColor = getResources().getColor(R.color.colorAccent, context.getTheme());
@@ -339,7 +339,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     }
 
     private static class ItemHolder {
-        public TextView separator;
+        TextView separator;
         TextView name;
         TextView distance;
         ImageView icon;

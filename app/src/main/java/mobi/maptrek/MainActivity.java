@@ -51,7 +51,6 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -373,10 +372,8 @@ public class MainActivity extends Activity implements ILocationListener,
         StringFormatter.speedFactor = 3.6f;
         StringFormatter.speedAbbr = "kmh";
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        // Estimate finger tip height (0.25 inch is obtained from experiments)
-        mFingerTipSize = (float) (metrics.ydpi * 0.3);
+        // Estimate finger tip height (0.3 inch is obtained from experiments)
+        mFingerTipSize = (float) (MapTrekApplication.ydpi * 0.3);
 
         mSunriseSunset = new SunriseSunset();
         mNightModeState = NIGHT_MODE_STATE.values()[Configuration.getNightModeState()];
@@ -443,14 +440,6 @@ public class MainActivity extends Activity implements ILocationListener,
         mLicense = (TextView) findViewById(R.id.license);
         mLicense.setClickable(true);
         mLicense.setMovementMethod(LinkMovementMethod.getInstance());
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-        {
-            mapLicense.setRotation(-90);
-            mapLicense.setPivotX(0);
-            mapLicense.setPivotY(0);
-        }
-        */
         mPopupAnchor = findViewById(R.id.popupAnchor);
 
         mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
@@ -511,8 +500,15 @@ public class MainActivity extends Activity implements ILocationListener,
         //File cacheDir = getExternalCacheDir();
         //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
 
-        SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 1);
-        WorldMapTileSource baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
+        WorldMapTileSource baseMapSource;
+        File worldMapFile = new File(getExternalFilesDir(null), "world.mbtiles");
+        if (worldMapFile.exists() && worldMapFile.canRead()) {
+            baseMapSource = new WorldMapTileSource();
+            baseMapSource.setMapFile(worldMapFile.getAbsolutePath());
+        } else {
+            SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 1);
+            baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
+        }
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(baseMapSource);
@@ -821,7 +817,7 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         });
         m.what = R.id.msgRemoveLicense;
-        mMainHandler.sendMessageDelayed(m, 5000);
+        mMainHandler.sendMessageDelayed(m, 10000);
 
         if (MapTrekApplication.getApplication().hasPreviousRunsExceptions()) {
             Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
@@ -1186,6 +1182,13 @@ public class MainActivity extends Activity implements ILocationListener,
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
         if (mNightModeState == NIGHT_MODE_STATE.AUTO)
             checkNightMode(location);
+
+        for (WeakReference<LocationChangeListener> weakRef : mLocationChangeListeners) {
+            LocationChangeListener locationChangeListener = weakRef.get();
+            if (locationChangeListener != null) {
+                locationChangeListener.onLocationChanged(location);
+            }
+        }
     }
 
     @Override
@@ -1295,10 +1298,16 @@ public class MainActivity extends Activity implements ILocationListener,
             Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), args);
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
-            mMap.getMapPosition(mMapPosition);
-            Bundle args = new Bundle(2);
-            args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
-            args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
+            Bundle args = new Bundle(3);
+            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                Location location = mLocationService.getLocation();
+                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+            } else {
+                MapPosition position = mMap.getMapPosition();
+                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+            }
             args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
             DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
             fragment.setDataSource(mWaypointDbDataSource);
@@ -1581,6 +1590,24 @@ public class MainActivity extends Activity implements ILocationListener,
         for (Iterator<WeakReference<LocationStateChangeListener>> iterator = mLocationStateChangeListeners.iterator();
              iterator.hasNext(); ) {
             WeakReference<LocationStateChangeListener> weakRef = iterator.next();
+            if (weakRef.get() == listener) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private final Set<WeakReference<LocationChangeListener>> mLocationChangeListeners = new HashSet<>();
+
+    @Override
+    public void addLocationChangeListener(LocationChangeListener listener) {
+        mLocationChangeListeners.add(new WeakReference<>(listener));
+    }
+
+    @Override
+    public void removeLocationChangeListener(LocationChangeListener listener) {
+        for (Iterator<WeakReference<LocationChangeListener>> iterator = mLocationChangeListeners.iterator();
+             iterator.hasNext(); ) {
+            WeakReference<LocationChangeListener> weakRef = iterator.next();
             if (weakRef.get() == listener) {
                 iterator.remove();
             }
@@ -1907,12 +1934,20 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public void onWaypointDetails(Waypoint waypoint, boolean full) {
-        MapPosition position = mMap.getMapPosition();
+    public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
         Bundle args = new Bundle(3);
-        args.putBoolean(WaypointInformation.ARG_DETAILS, full);
-        args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
-        args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
+        args.putBoolean(WaypointInformation.ARG_DETAILS, fromList);
+        if (fromList || mLocationState != LocationState.DISABLED) {
+            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                Location location = mLocationService.getLocation();
+                args.putDouble(WaypointInformation.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(WaypointInformation.ARG_LONGITUDE, location.getLongitude());
+            } else {
+                MapPosition position = mMap.getMapPosition();
+                args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
+            }
+        }
 
         Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
         if (fragment == null) {
@@ -3234,10 +3269,16 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onDataSourceSelected(@NonNull DataSource source) {
-        mMap.getMapPosition(mMapPosition);
-        Bundle args = new Bundle(2);
-        args.putDouble(DataList.ARG_LATITUDE, mMapPosition.getLatitude());
-        args.putDouble(DataList.ARG_LONGITUDE, mMapPosition.getLongitude());
+        Bundle args = new Bundle(3);
+        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+            Location location = mLocationService.getLocation();
+            args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+            args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+        } else {
+            MapPosition position = mMap.getMapPosition();
+            args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+            args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+        }
         args.putInt(DataList.ARG_HEIGHT, mExtendPanel.getHeight());
         DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
         fragment.setDataSource(source);

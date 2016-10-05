@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.DisplayMetrics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,9 @@ public class MapTrekApplication extends Application {
     private static MapTrekApplication mSelf;
     private File mExceptionLog;
 
+    public static float density = 1f;
+    public static float ydpi = 160f;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,6 +31,9 @@ public class MapTrekApplication extends Application {
         mExceptionLog = new File(getExternalFilesDir(null), EXCEPTION_PATH);
         Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        density = metrics.density;
+        ydpi = metrics.ydpi;
     }
 
     public static MapTrekApplication getApplication() {

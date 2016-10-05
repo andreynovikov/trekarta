@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -31,14 +32,13 @@ import com.android.colorpicker.ColorPickerDialog;
 import com.android.colorpicker.ColorPickerSwatch;
 
 import org.oscim.core.GeoPoint;
-import org.oscim.core.MapPosition;
-import org.oscim.event.Event;
-import org.oscim.map.Map;
 
 import java.util.ArrayList;
 
 import mobi.maptrek.Configuration;
+import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
+import mobi.maptrek.MapTrekApplication;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
@@ -48,14 +48,13 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.ColorSwatch;
 import mobi.maptrek.view.LimitedWebView;
 
-public class WaypointInformation extends Fragment implements Map.UpdateListener, OnBackPressedListener {
+public class WaypointInformation extends Fragment implements OnBackPressedListener, LocationChangeListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
 
-    //TODO Honor dpi
-    final int SWIPE_MIN_DISTANCE = 120; // vertical distance
-    final int SWIPE_MAX_OFF_PATH = 100; // horizontal displacement during fling
+    final int SWIPE_MIN_DISTANCE = (int) (40 * MapTrekApplication.density); // vertical distance
+    final int SWIPE_MAX_OFF_PATH = (int) (30 * MapTrekApplication.density); // horizontal displacement during fling
     final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private Waypoint mWaypoint;
@@ -161,8 +160,8 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        double latitude = getArguments().getDouble(ARG_LATITUDE);
-        double longitude = getArguments().getDouble(ARG_LONGITUDE);
+        double latitude = getArguments().getDouble(ARG_LATITUDE, Double.NaN);
+        double longitude = getArguments().getDouble(ARG_LONGITUDE, Double.NaN);
         boolean full = getArguments().getBoolean(ARG_DETAILS);
 
         if (savedInstanceState != null) {
@@ -180,13 +179,13 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onResume() {
         super.onResume();
-        mMapHolder.getMap().events.bind(this);
+        mMapHolder.addLocationChangeListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapHolder.getMap().events.unbind(this);
+        mMapHolder.removeLocationChangeListener(this);
     }
 
     @Override
@@ -280,10 +279,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         View view = getView();
         assert view != null;
 
-        double dist = GeoPoint.distance(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
-        double bearing = GeoPoint.bearing(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
-        String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-
         TextView nameView = (TextView) view.findViewById(R.id.name);
         if (nameView != null)
             nameView.setText(mWaypoint.name);
@@ -295,12 +290,37 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         if (sourceView != null)
             sourceView.setText(mWaypoint.source.name);
 
-        TextView destinationView = (TextView) view.findViewById(R.id.destination);
-        if (destinationView != null)
-            destinationView.setText(distance);
-        destinationView = (TextView) view.findViewById(R.id.destinationExtended);
-        if (destinationView != null)
-            destinationView.setText(distance);
+        if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
+            if (mExpanded) {
+                View destinationRow = view.findViewById(R.id.destinationRow);
+                if (destinationRow != null)
+                    destinationRow.setVisibility(View.GONE);
+            } else {
+                TextView destinationView = (TextView) view.findViewById(R.id.destination);
+                if (destinationView != null)
+                    destinationView.setVisibility(View.GONE);
+            }
+        } else {
+            double dist = GeoPoint.distance(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
+            double bearing = GeoPoint.bearing(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
+            String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
+            if (mExpanded) {
+                View destinationRow = view.findViewById(R.id.destinationRow);
+                if (destinationRow != null) {
+                    destinationRow.setVisibility(View.VISIBLE);
+                    destinationRow.setTag(true);
+                    TextView destinationView = (TextView) view.findViewById(R.id.destinationExtended);
+                    if (destinationView != null)
+                        destinationView.setText(distance);
+                }
+            } else {
+                TextView destinationView = (TextView) view.findViewById(R.id.destination);
+                if (destinationView != null) {
+                    destinationView.setVisibility(View.VISIBLE);
+                    destinationView.setText(distance);
+                }
+            }
+        }
 
         final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
         if (coordsView != null) {
@@ -434,7 +454,9 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
         rootView.findViewById(R.id.descriptionWrapper).setVisibility(editsState);
         colorSwatch.setVisibility(editsState);
 
-        rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
+        if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
+            rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
+        }
         if (mWaypoint.date != null) {
             rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
         }
@@ -482,13 +504,6 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
     }
 
     @Override
-    public void onMapEvent(Event e, MapPosition mapPosition) {
-        if (e == Map.POSITION_EVENT && !mEditorMode) {
-            updateWaypointInformation(mapPosition.getLatitude(), mapPosition.getLongitude());
-        }
-    }
-
-    @Override
     public boolean onBackClick() {
         if (mEditorMode) {
             setEditorMode(false);
@@ -497,5 +512,10 @@ public class WaypointInformation extends Fragment implements Map.UpdateListener,
             mFragmentHolder.disableActionButton();
             return false;
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        updateWaypointInformation(location.getLatitude(), location.getLongitude());
     }
 }

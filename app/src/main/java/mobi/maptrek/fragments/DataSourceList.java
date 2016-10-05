@@ -163,7 +163,7 @@ public class DataSourceList extends ListFragment {
         private int mAccentColor;
         private int mDisabledColor;
 
-        public DataSourceListAdapter(Context context) {
+        DataSourceListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             Activity activity = getActivity();
             mAccentColor = activity.getColor(R.color.colorAccent);
