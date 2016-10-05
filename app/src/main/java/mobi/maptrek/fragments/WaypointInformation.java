@@ -90,8 +90,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         navigateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFragmentHolder.popAll();
-                mListener.onWaypointNavigate(mWaypoint);
+                onNavigate();
             }
         });
         shareButton.setOnClickListener(new View.OnClickListener() {
@@ -241,7 +240,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         rootView.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
 
         mFloatingButton = mFragmentHolder.enableActionButton();
-        mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
+        setFloatingPointDrawable();
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,8 +254,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                     setEditorMode(false);
                 } else {
                     mFragmentHolder.disableActionButton();
-                    mListener.onWaypointNavigate(mWaypoint);
-                    mFragmentHolder.popAll();
+                    onNavigate();
                 }
             }
         });
@@ -264,6 +262,14 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         mMapHolder.updateMapViewArea();
 
         mExpanded = true;
+    }
+
+    private void onNavigate() {
+        if (mMapHolder.isNavigatingTo(mWaypoint.latitude, mWaypoint.longitude))
+            mMapHolder.stopNavigation();
+        else
+            mListener.onWaypointNavigate(mWaypoint);
+        mFragmentHolder.popAll();
     }
 
     public void setWaypoint(Waypoint waypoint) {
@@ -276,27 +282,27 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
     private void updateWaypointInformation(double latitude, double longitude) {
         Activity activity = getActivity();
-        View view = getView();
-        assert view != null;
+        View rootView = getView();
+        assert rootView != null;
 
-        TextView nameView = (TextView) view.findViewById(R.id.name);
+        TextView nameView = (TextView) rootView.findViewById(R.id.name);
         if (nameView != null)
             nameView.setText(mWaypoint.name);
 
-        TextView sourceView = (TextView) view.findViewById(R.id.source);
+        TextView sourceView = (TextView) rootView.findViewById(R.id.source);
         if (sourceView != null)
             sourceView.setText(mWaypoint.source.name);
-        sourceView = (TextView) view.findViewById(R.id.sourceExtended);
+        sourceView = (TextView) rootView.findViewById(R.id.sourceExtended);
         if (sourceView != null)
             sourceView.setText(mWaypoint.source.name);
 
         if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
             if (mExpanded) {
-                View destinationRow = view.findViewById(R.id.destinationRow);
+                View destinationRow = rootView.findViewById(R.id.destinationRow);
                 if (destinationRow != null)
                     destinationRow.setVisibility(View.GONE);
             } else {
-                TextView destinationView = (TextView) view.findViewById(R.id.destination);
+                TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
                 if (destinationView != null)
                     destinationView.setVisibility(View.GONE);
             }
@@ -305,16 +311,16 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             double bearing = GeoPoint.bearing(latitude, longitude, mWaypoint.latitude, mWaypoint.longitude);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
             if (mExpanded) {
-                View destinationRow = view.findViewById(R.id.destinationRow);
+                View destinationRow = rootView.findViewById(R.id.destinationRow);
                 if (destinationRow != null) {
                     destinationRow.setVisibility(View.VISIBLE);
                     destinationRow.setTag(true);
-                    TextView destinationView = (TextView) view.findViewById(R.id.destinationExtended);
+                    TextView destinationView = (TextView) rootView.findViewById(R.id.destinationExtended);
                     if (destinationView != null)
                         destinationView.setText(distance);
                 }
             } else {
-                TextView destinationView = (TextView) view.findViewById(R.id.destination);
+                TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
                 if (destinationView != null) {
                     destinationView.setVisibility(View.VISIBLE);
                     destinationView.setText(distance);
@@ -322,7 +328,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             }
         }
 
-        final TextView coordsView = (TextView) view.findViewById(R.id.coordinates);
+        final TextView coordsView = (TextView) rootView.findViewById(R.id.coordinates);
         if (coordsView != null) {
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.latitude, mWaypoint.longitude));
             coordsView.setOnClickListener(new View.OnClickListener() {
@@ -337,7 +343,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             });
         }
 
-        TextView altitudeView = (TextView) view.findViewById(R.id.altitude);
+        TextView altitudeView = (TextView) rootView.findViewById(R.id.altitude);
         if (altitudeView != null) {
             if (mWaypoint.altitude != Integer.MIN_VALUE) {
                 altitudeView.setText(getString(R.string.waypoint_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
@@ -347,7 +353,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             }
         }
 
-        TextView proximityView = (TextView) view.findViewById(R.id.proximity);
+        TextView proximityView = (TextView) rootView.findViewById(R.id.proximity);
         if (proximityView != null) {
             if (mWaypoint.proximity > 0) {
                 proximityView.setText(getString(R.string.waypoint_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
@@ -357,26 +363,31 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             }
         }
 
-        TextView dateView = (TextView) view.findViewById(R.id.date);
+        TextView dateView = (TextView) rootView.findViewById(R.id.date);
         if (dateView != null) {
             if (mWaypoint.date != null) {
                 String date = DateFormat.getDateFormat(activity).format(mWaypoint.date);
                 String time = DateFormat.getTimeFormat(activity).format(mWaypoint.date);
                 dateView.setText(getString(R.string.datetime, date, time));
-                view.findViewById(R.id.dateRow).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.dateRow).setVisibility(View.VISIBLE);
             } else {
-                view.findViewById(R.id.dateRow).setVisibility(View.GONE);
+                rootView.findViewById(R.id.dateRow).setVisibility(View.GONE);
             }
         }
 
-        final ViewGroup row = (ViewGroup) view.findViewById(R.id.descriptionRow);
+        final ViewGroup row = (ViewGroup) rootView.findViewById(R.id.descriptionRow);
         if (row != null) {
             if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
                 row.setVisibility(View.GONE);
             } else {
-                setDescription(view);
+                setDescription(rootView);
                 row.setVisibility(View.VISIBLE);
             }
+        }
+
+        if (mMapHolder.isNavigatingTo(mWaypoint.latitude, mWaypoint.longitude)) {
+            ImageButton navigateButton = (ImageButton) rootView.findViewById(R.id.navigateButton);
+            navigateButton.setImageResource(R.drawable.ic_navigation_off);
         }
 
         mLatitude = latitude;
@@ -433,7 +444,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             if (mWaypoint.source instanceof FileDataSource)
                 HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFragmentHolder.getCoordinatorLayout());
         } else {
-            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_navigate));
+            setFloatingPointDrawable();
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
             setDescription(rootView);
             viewsState = View.VISIBLE;
@@ -464,6 +475,14 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
 
         mEditorMode = enabled;
+    }
+
+    private void setFloatingPointDrawable() {
+        if (mMapHolder.isNavigatingTo(mWaypoint.latitude, mWaypoint.longitude)) {
+            mFloatingButton.setImageResource(R.drawable.ic_navigation_off);
+        } else {
+            mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        }
     }
 
     // WebView is very heavy to initialize. That's why it is used only on demand.

@@ -174,6 +174,7 @@ import mobi.maptrek.maps.WorldMapTileSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
+import mobi.maptrek.util.MathUtils;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
@@ -1551,9 +1552,9 @@ public class MainActivity extends Activity implements ILocationListener,
             askForPermission();
     }
 
+    @Override
     public void stopNavigation() {
-        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.STOP_NAVIGATION);
-        startService(i);
+        startService(new Intent(this, NavigationService.class).setAction(NavigationService.STOP_NAVIGATION));
     }
 
     private void enableTracking() {
@@ -1575,6 +1576,16 @@ public class MainActivity extends Activity implements ILocationListener,
         mMap.updateMap(true);
         mTrackingState = TRACKING_STATE.DISABLED;
         updateLocationDrawable();
+    }
+
+    @Override
+    public boolean isNavigatingTo(double latitude, double longitude) {
+        if (mNavigationService == null)
+            return false;
+        if (!mNavigationService.isNavigating())
+            return false;
+        MapObject mapObject = mNavigationService.getWaypoint();
+        return MathUtils.equals(mapObject.latitude, latitude) && MathUtils.equals(mapObject.longitude, longitude);
     }
 
     private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
@@ -1707,7 +1718,9 @@ public class MainActivity extends Activity implements ILocationListener,
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu menu = popup.getMenu();
-            if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || mAutoTilt == mMapPosition.getTilt())
+            if ((int) Configuration.getRememberedScale() == (int) mMapPosition.getScale())
+                menu.removeItem(R.id.actionRememberScale);
+            if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
                 menu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
             popup.show();

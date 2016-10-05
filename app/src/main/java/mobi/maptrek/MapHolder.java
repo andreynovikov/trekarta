@@ -12,6 +12,10 @@ public interface MapHolder {
 
     void disableTracking();
 
+    boolean isNavigatingTo(double latitude, double longitude);
+
+    void stopNavigation();
+
     /**
      * Adds location state change listener and then calls listener with current state.
      */
