@@ -77,7 +77,7 @@ public class About extends Fragment {
         Resources resources = getResources();
         InputStream is = resources.openRawResource(R.raw.license);
         final char[] buffer = new char[100];
-        final StringBuilder out = new StringBuilder();
+        StringBuilder out = new StringBuilder();
         try (Reader in = new InputStreamReader(is, "UTF-8")) {
             for (; ; ) {
                 int rsz = in.read(buffer, 0, buffer.length);
@@ -92,5 +92,23 @@ public class About extends Fragment {
         final TextView license = (TextView) view.findViewById(R.id.license);
         license.setText(Html.fromHtml(out.toString()));
         license.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // Credits
+        is = resources.openRawResource(R.raw.credits);
+        out = new StringBuilder();
+        try (Reader in = new InputStreamReader(is, "UTF-8")) {
+            for (; ; ) {
+                int rsz = in.read(buffer, 0, buffer.length);
+                if (rsz < 0)
+                    break;
+                out.append(buffer, 0, rsz);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final TextView credits = (TextView) view.findViewById(R.id.credits);
+        credits.setText(Html.fromHtml(out.toString()));
+        credits.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }
