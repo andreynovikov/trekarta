@@ -145,9 +145,9 @@ public class KmlSerializer {
                     serializer.text(" ");
                 }
             }
-            serializer.text(String.valueOf(point.latitudeE6 / 1E6));
-            serializer.text(",");
             serializer.text(String.valueOf(point.longitudeE6 / 1E6));
+            serializer.text(",");
+            serializer.text(String.valueOf(point.latitudeE6 / 1E6));
             if (point.elevation != Float.NaN) {
                 serializer.text(",");
                 serializer.text(String.valueOf(point.elevation));
