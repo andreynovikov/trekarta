@@ -25,15 +25,15 @@ public class TrackLayer extends Layer {
     /**
      * Stores points, converted to the map projection.
      */
-    protected final Track mTrack;
-    protected boolean mUpdatePoints;
+    final Track mTrack;
+    private boolean mUpdatePoints;
 
     /**
      * Line style
      */
     LineStyle mLineStyle;
 
-    final Worker mWorker;
+    private final Worker mWorker;
 
     public TrackLayer(Map map, Track track) {
         super(map);
@@ -44,7 +44,7 @@ public class TrackLayer extends Layer {
         updatePoints();
     }
 
-    protected void updatePoints() {
+    void updatePoints() {
         mWorker.submit(10);
         mUpdatePoints = true;
     }
@@ -61,9 +61,9 @@ public class TrackLayer extends Layer {
     /***
      * everything below runs on GL- and Worker-Thread
      ***/
-    final class RenderPath extends BucketRenderer {
+    private final class RenderPath extends BucketRenderer {
 
-        public RenderPath() {
+        RenderPath() {
 
             buckets.addLineBucket(0, mLineStyle);
         }
@@ -104,12 +104,12 @@ public class TrackLayer extends Layer {
         MapPosition pos = new MapPosition();
     }
 
-    final class Worker extends SimpleWorker<Task> {
+    private final class Worker extends SimpleWorker<Task> {
         private static final int GROW_INDICES = 32;
         // limit coords
         private final int max = 2048;
 
-        public Worker(Map map) {
+        Worker(Map map) {
             super(map, 0, new Task(), new Task());
             mClipper = new LineClipper(-max, -max, max, max);
             mPPoints = new float[0];
@@ -297,7 +297,7 @@ public class TrackLayer extends Layer {
          * @param copy the copy
          * @return the short[] array holding current index
          */
-        public int[] ensureIndexSize(int size, boolean copy) {
+        int[] ensureIndexSize(int size, boolean copy) {
             if (size < index.length)
                 return index;
 

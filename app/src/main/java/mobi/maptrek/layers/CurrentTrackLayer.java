@@ -56,7 +56,7 @@ public class CurrentTrackLayer extends TrackLayer {
     };
 
     //FIXME Ugly hack
-    Track.TrackPoint point = null;
+    private Track.TrackPoint point = null;
 
     private ITrackingListener mTrackingListener = new ITrackingListener() {
         public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {

@@ -16,7 +16,6 @@ public class Track {
     public boolean show;
     public TrackStyle style = new TrackStyle();
     public DataSource source; // back reference to it's source
-    public boolean removed = false;
 
     public final List<TrackPoint> points = new ArrayList<>();
     private TrackPoint mLastTrackPoint;
