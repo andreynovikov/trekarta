@@ -135,17 +135,13 @@ public class LocationService extends BaseLocationService implements LocationList
             mErrorTime = 0;
             mTrackingEnabled = true;
             mContinuous = false;
-            Track leftTrack = getTrack();
-            // TODO Optimize: save distance in a cache
-            mDistanceTracked = leftTrack.getDistance();
-            Track.TrackPoint firstPoint = leftTrack.points.size() > 0 ? leftTrack.points.get(0) : null;
-            mTrackingStarted = firstPoint != null ? firstPoint.time : System.currentTimeMillis();
             mDistanceNotified = 0f;
             openDatabase();
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
             mForeground = false;
+            updateDistanceTracked();
             closeDatabase();
             stopForeground(true);
             if (action.equals(DISABLE_TRACK)) {
@@ -157,6 +153,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
         if (action.equals(ENABLE_BACKGROUND_TRACK)) {
             mForeground = true;
+            updateDistanceTracked();
             startForeground(NOTIFICATION_ID, getNotification());
         }
         if (action.equals(DISABLE_BACKGROUND_TRACK)) {
@@ -170,6 +167,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onDestroy() {
+        updateDistanceTracked();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
         disconnect();
         closeDatabase();
@@ -327,6 +325,19 @@ public class LocationService extends BaseLocationService implements LocationList
                 mTrackDB.execSQL("CREATE TABLE track (_id INTEGER PRIMARY KEY, latitude INTEGER, longitude INTEGER, code INTEGER, elevation REAL, speed REAL, track REAL, accuracy REAL, datetime INTEGER)");
             }
             cursor.close();
+            mDistanceTracked = 0f;
+            cursor = mTrackDB.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = 'track_properties'", null);
+            if (cursor.getCount() == 0) {
+                mTrackDB.execSQL("CREATE TABLE track_properties (_id INTEGER PRIMARY KEY, distance REAL)");
+            } else {
+                Cursor propertiesCursor = mTrackDB.rawQuery("SELECT * FROM track_properties ORDER BY _id DESC LIMIT 1", null);
+                if (propertiesCursor.moveToFirst()) {
+                    mDistanceTracked = propertiesCursor.getFloat(propertiesCursor.getColumnIndex("distance"));
+                }
+                propertiesCursor.close();
+            }
+            cursor.close();
+            mTrackingStarted = getTrackStartTime();
         } catch (SQLiteException e) {
             mTrackDB = null;
             logger.error("openDatabase", e);
@@ -344,7 +355,9 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     public Track getTrack() {
-        return getTrack(0);
+        Track track = getTrack(0);
+        mDistanceTracked = track.getDistance();
+        return track;
     }
 
     public Track getTrack(long limit) {
@@ -419,10 +432,13 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     public void clearTrack() {
+        mDistanceTracked = 0f;
         if (mTrackDB == null)
             openDatabase();
-        if (mTrackDB != null)
+        if (mTrackDB != null) {
             mTrackDB.execSQL("DELETE FROM track");
+            mTrackDB.execSQL("DELETE FROM track_properties");
+        }
     }
 
     public void tryToSaveTrack() {
@@ -499,6 +515,15 @@ public class LocationService extends BaseLocationService implements LocationList
                         .putExtra("exception", e));
             }
         }, mProgressListener);
+    }
+
+    private void updateDistanceTracked() {
+        if (mTrackDB != null) {
+            mTrackDB.delete("track_properties", null, null);
+            ContentValues values = new ContentValues();
+            values.put("distance", mDistanceTracked);
+            mTrackDB.insert("track_properties", null, values);
+        }
     }
 
     public void addPoint(boolean continuous, double latitude, double longitude, float elevation, float speed, float bearing, float accuracy, long time) {
@@ -896,7 +921,6 @@ public class LocationService extends BaseLocationService implements LocationList
             int ddd = mMockLocationTicker % 200;
 
             // Search for satellites for first 3 seconds and each 1 minute
-            /*
             if (ddd >= 0 && ddd < 10) {
                 mGpsStatus = GPS_SEARCHING;
                 mFSats = mMockLocationTicker % 10;
@@ -905,12 +929,11 @@ public class LocationService extends BaseLocationService implements LocationList
                 updateGpsStatus();
                 return;
             }
-            */
 
-            //if (mGpsStatus == GPS_SEARCHING) {
+            if (mGpsStatus == GPS_SEARCHING) {
                 mGpsStatus = GPS_OK;
                 updateGpsStatus();
-            //}
+            }
 
             mLastKnownLocation = new Location(LocationManager.GPS_PROVIDER);
             mLastKnownLocation.setTime(System.currentTimeMillis());

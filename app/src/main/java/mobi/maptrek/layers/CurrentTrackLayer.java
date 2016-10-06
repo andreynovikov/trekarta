@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 
 import org.oscim.map.Map;
@@ -46,8 +47,13 @@ public class CurrentTrackLayer extends TrackLayer {
     private ServiceConnection mTrackingConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mTrackingService = (ILocationService) service;
-            mTrack.copyFrom(mTrackingService.getTrack());
-            mTrackingService.registerTrackingCallback(mTrackingListener);
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mTrack.copyFrom(mTrackingService.getTrack());
+                    mTrackingService.registerTrackingCallback(mTrackingListener);
+                }
+            });
         }
 
         public void onServiceDisconnected(ComponentName className) {
