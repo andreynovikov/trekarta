@@ -793,7 +793,6 @@ public class MainActivity extends Activity implements ILocationListener,
         mVerticalOrientation = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
         mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
         layoutExtendPanel(mPanelState);
-        updateMapViewArea();
 
         mMapEventLayer = new MapEventLayer(mMap, this);
         mMap.layers().add(mMapEventLayer, MAP_EVENTS);
@@ -827,8 +826,9 @@ public class MainActivity extends Activity implements ILocationListener,
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
-            updateMapViewArea();
         }
+
+        updateMapViewArea();
     }
 
     @Override
@@ -1194,6 +1194,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onGpsStatusChanged() {
+        logger.debug("onGpsStatusChanged()");
         if (mLocationService.getStatus() == LocationService.GPS_SEARCHING) {
             int satellites = mLocationService.getSatellites();
             mSatellitesText.setText(String.format(Locale.getDefault(), "%d / %s", satellites >> 7, satellites & 0x7f));
@@ -1502,6 +1503,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private ServiceConnection mLocationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
+            logger.debug("onServiceConnected: LocationService");
             mLocationService = (ILocationService) binder;
             mLocationService.registerLocationCallback(MainActivity.this);
             mLocationService.setProgressListener(mProgressHandler);
@@ -1509,6 +1511,7 @@ public class MainActivity extends Activity implements ILocationListener,
         }
 
         public void onServiceDisconnected(ComponentName className) {
+            logger.debug("onServiceDisconnected: LocationService");
             mLocationService = null;
             updateNavigationUI();
         }
@@ -1520,6 +1523,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void disableNavigation() {
+        logger.debug("disableNavigation");
         if (mIsNavigationBound) {
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
@@ -1529,12 +1533,13 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            logger.debug("onServiceConnected");
+            logger.debug("onServiceConnected: NavigationService");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
         }
 
         public void onServiceDisconnected(ComponentName className) {
+            logger.debug("onServiceDisconnected: NavigationService");
             mNavigationService = null;
             updateNavigationUI();
         }
@@ -1559,9 +1564,11 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void enableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
-        mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
-        mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
-        mMap.updateMap(true);
+        if (mCurrentTrackLayer == null) {
+            mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
+            mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
+            mMap.updateMap(true);
+        }
         mTrackingState = TRACKING_STATE.TRACKING;
         updateLocationDrawable();
     }
@@ -1768,6 +1775,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void updateLocationDrawable() {
+        logger.debug("updateLocationDrawable()");
         if (mRecordButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorPrimaryDark;
             mRecordButton.getDrawable().setTint(recordColor);
@@ -1842,6 +1850,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     //TODO Logic of calling this is a total mess! Think out proper event mechanism
     private void updateNavigationUI() {
+        logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
         mGaugePanel.setNavigationMode(enabled);
