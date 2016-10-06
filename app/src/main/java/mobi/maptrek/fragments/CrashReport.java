@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.File;
+import java.util.Locale;
 
 import mobi.maptrek.MapTrekApplication;
 import mobi.maptrek.R;
@@ -45,6 +46,7 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
                 text.append("\nBrand : ").append(Build.BRAND);
                 text.append("\nModel : ").append(Build.MODEL);
                 text.append("\nProduct : ").append(Build.PRODUCT);
+                text.append("\nLocale : ").append(Locale.getDefault().toString());
                 text.append("\nBuild : ").append(Build.DISPLAY);
                 text.append("\nVersion : ").append(Build.VERSION.RELEASE);
                 try {
