@@ -439,7 +439,6 @@
         <!-- outline 0 -->
         <outline-layer blur="1.0" id="glow" stroke="#000000" width="0.2" />
         <outline-layer id="0" stroke="#66000000" width="0.1" />
-        <outline-layer id="tunnel" stroke="#ff0000" width="5" stipple="20" stipple-stroke="#666666" />
 
         <!-- match tunnel-tag (to ensure tunnel key is present) -->
         <m k="tunnel" zoom-min="11">
@@ -512,12 +511,12 @@
                             <text use="major-road" />
                         </m>
                         <m v="trunk">
-                            <line blur="0.3" outline="0" use="trunk" />
+                            <line outline="0" use="trunk" />
                             <!-- <outline use="glow"/> -->
                             <text use="major-road" />
                         </m>
                         <m v="motorway">
-                            <line outline="tunnel" use="highway:z11" stroke="#33000000" />
+                            <line outline="0" use="highway:z11" />
                             <text use="major-road" />
                         </m>
                     </m>
