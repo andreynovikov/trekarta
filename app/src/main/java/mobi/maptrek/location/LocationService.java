@@ -137,6 +137,7 @@ public class LocationService extends BaseLocationService implements LocationList
             mContinuous = false;
             mDistanceNotified = 0f;
             openDatabase();
+            mTrackingStarted = System.currentTimeMillis();
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
