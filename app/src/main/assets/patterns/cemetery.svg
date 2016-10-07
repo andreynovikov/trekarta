@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="100"
+   id="svg6584"
+   version="1.1"
+   width="100"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="cemetery.svg">
+  <metadata
+     id="metadata11">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1536"
+     inkscape:window-height="801"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="4.12"
+     inkscape:cx="-3.5274042"
+     inkscape:cy="50"
+     inkscape:window-x="-8"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6584" />
+  <defs
+     id="defs6586" />
+  <g
+     id="layer1"
+     transform="matrix(0.36407767,0,0,0.36407767,13.466019,-334.2386)">
+    <g
+       id="cemetery-24"
+       style="display:inline"
+       transform="matrix(4.1666667,0,0,4.1666631,-25.000007,-3724.1431)">
+      <g
+         id="g21832">
+        <path
+           d="m 18.5,1126.3622 c -3.073646,0 -4.5,2 -4.5,5 l 0,5 0,4 c -0.5,0 -1,0.5 -1,1 l 0,1 11,0 0,-1 c 0,-0.5 -0.5,-1 -1,-1 l 0,-9 c 0,-3 -1.5,-5 -4.5,-5 z"
+           id="rect12479-9"
+           style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#008000;fill-opacity:1;stroke:none;stroke-width:2;marker:none;enable-background:accumulate"
+           inkscape:connector-curvature="0" />
+      </g>
+      <rect
+         height="24.000017"
+         id="rect22135"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.5;fill:none;stroke:none;stroke-width:2;marker:none;enable-background:accumulate"
+         width="24"
+         x="6.0000014"
+         y="1122.3622" />
+    </g>
+  </g>
+  <g
+     id="layer1-7"
+     transform="matrix(0.36407767,0,0,0.36407767,48.184465,-298.54927)">
+    <g
+       id="cemetery-24-4"
+       style="display:inline"
+       transform="matrix(4.1666667,0,0,4.1666631,-25.000007,-3724.1431)">
+      <g
+         id="g21832-5">
+        <path
+           d="m 18.5,1126.3622 c -3.073646,0 -4.5,2 -4.5,5 l 0,5 0,4 c -0.5,0 -1,0.5 -1,1 l 0,1 11,0 0,-1 c 0,-0.5 -0.5,-1 -1,-1 l 0,-9 c 0,-3 -1.5,-5 -4.5,-5 z"
+           id="rect12479-9-0"
+           style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#008000;fill-opacity:1;stroke:none;stroke-width:2;marker:none;enable-background:accumulate"
+           inkscape:connector-curvature="0" />
+      </g>
+      <rect
+         height="24.000017"
+         id="rect22135-1"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.5;fill:none;stroke:none;stroke-width:2;marker:none;enable-background:accumulate"
+         width="24"
+         x="6.0000014"
+         y="1122.3622" />
+    </g>
+  </g>
+</svg>
