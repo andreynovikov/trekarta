@@ -172,6 +172,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     private void calculateDownloadSize() {
+        if (!isVisible())
+            return;
+
         boolean hasSizes = mMapIndex.hasDownloadSizes();
         int downloadCounter = 0, removeCounter = 0;
         long size = 0L;
