@@ -688,6 +688,25 @@ public class MainActivity extends Activity implements ILocationListener,
         // Remove splash from background
         getWindow().setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
 
+        // Get back to full screen mode after edge swipe
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(
+                new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        boolean hide = Configuration.getHideSystemUI();
+                        if (hide && (visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                            final Message m = Message.obtain(mMainHandler, new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideSystemUI();
+                                }
+                            });
+                            m.what = R.id.msgHideSystemUI;
+                            mMainHandler.sendMessageDelayed(m, 5000);
+                        }
+                    }
+                });
+
         onNewIntent(getIntent());
     }
 
@@ -827,6 +846,9 @@ public class MainActivity extends Activity implements ILocationListener,
             ft.addToBackStack("crashReport");
             ft.commit();
         }
+
+        if (Configuration.getHideSystemUI())
+            hideSystemUI();
 
         updateMapViewArea();
     }
@@ -1398,7 +1420,10 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void onMoreLongClicked() {
-        showActionPanel(mLocationButton.getVisibility() == View.INVISIBLE, true);
+        boolean show = mLocationButton.getVisibility() == View.INVISIBLE;
+        showActionPanel(show, true);
+        if (!show && !Configuration.getHideSystemUI())
+            hideSystemUI();
     }
 
     private void onMapDownloadClicked() {
@@ -1739,6 +1764,12 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
                 return true;
             }
+        } else if (gesture == Gesture.TAP) {
+            if (Configuration.getHideSystemUI())
+                showSystemUI();
+            else
+                hideSystemUI();
+            return true;
         }
         return false;
     }
@@ -3362,6 +3393,31 @@ public class MainActivity extends Activity implements ILocationListener,
         else
             mMap.setTheme(VtmThemes.DEFAULT, true);
         mNightMode = night;
+    }
+
+    private void hideSystemUI() {
+        Configuration.setHideSystemUI(true);
+        // Set the IMMERSIVE flag to make content appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        final View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        // for some reason visibility is not updated if application menu was previously shown
+        decorView.invalidate();
+    }
+
+    private void showSystemUI() {
+        Configuration.setHideSystemUI(false);
+        final View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        // for some reason visibility is not updated if application menu was previously shown
+        decorView.invalidate();
+        mMainHandler.removeMessages(R.id.msgHideSystemUI);
     }
 
     private double movingAverage(double current, double previous) {

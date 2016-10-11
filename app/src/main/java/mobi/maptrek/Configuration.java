@@ -11,6 +11,7 @@ import mobi.maptrek.data.MapObject;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.view.GaugePanel;
 
+@SuppressWarnings("WeakerAccess")
 public class Configuration {
     private static final String PREF_LATITUDE = "latitude";
     private static final String PREF_LONGITUDE = "longitude";
@@ -39,6 +40,7 @@ public class Configuration {
     private static final String PREF_COORDINATES_FORMAT = "coordinates_format";
     private static final String PREF_REMEMBERED_SCALE = "remembered_scale";
     private static final String PREF_AUTO_TILT = "auto_tilt";
+    private static final String PREF_HIDE_SYSTEM_UI = "hide_system_ui";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -253,6 +255,14 @@ public class Configuration {
 
     public static void setAutoTilt(float tilt) {
         saveFloat(PREF_AUTO_TILT, tilt);
+    }
+
+    public static boolean getHideSystemUI() {
+        return loadBoolean(PREF_HIDE_SYSTEM_UI, false);
+    }
+
+    public static void setHideSystemUI(boolean hide) {
+        saveBoolean(PREF_HIDE_SYSTEM_UI, hide);
     }
 
     private static int loadInt(String key, int defValue) {

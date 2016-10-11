@@ -5,4 +5,5 @@
     <item name="msgRemoveMapDownloadButton" type="id" />
     <item name="msgFindMissingMap" type="id" />
     <item name="itemHolder" type="id" />
+    <item name="msgHideSystemUI" type="id" />
 </resources>
