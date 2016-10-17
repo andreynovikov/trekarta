@@ -120,10 +120,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         Bundle extras = intent.getExtras();
         logger.debug("Command: {}", action);
         if (action.equals(NAVIGATE_MAP_OBJECT)) {
-            MapObject mo = new MapObject();
+            MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
             mo.name = extras.getString(EXTRA_NAME);
-            mo.latitude = extras.getDouble(EXTRA_LATITUDE);
-            mo.longitude = extras.getDouble(EXTRA_LONGITUDE);
             mo.proximity = extras.getInt(EXTRA_PROXIMITY);
             navigateTo(mo);
         }
@@ -372,7 +370,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
-        navCourse = GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
+        navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
         updateNavigationState(STATE_STARTED);
         if (mLastKnownLocation != null)
             calculateNavigationStatus(mLastKnownLocation, 0, 0);
@@ -388,7 +386,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             prevWaypoint = null;
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
-        navCourse = prevWaypoint == null ? 0d : GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
+        navCourse = prevWaypoint == null ? 0d : prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -406,7 +404,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
-        navCourse = GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
+        navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -420,7 +418,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             prevWaypoint = null;
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
-        navCourse = prevWaypoint == null ? 0d : GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
+        navCourse = prevWaypoint == null ? 0d : prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -494,7 +492,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             int j = i - navDirection;
             MapObject w1 = navRoute.getWaypoint(i);
             MapObject w2 = navRoute.getWaypoint(j);
-            double distance = GeoPoint.distance(w1.latitude, w1.longitude, w2.latitude, w2.longitude);
+            double distance = w1.coordinates.vincentyDistance(w2.coordinates);
             ete = (int) Math.round(distance / avvmg / 60);
         }
         return ete;
@@ -523,8 +521,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void calculateNavigationStatus(Location loc, double smoothspeed, double avgspeed) {
-        double distance = GeoPoint.distance(loc.getLatitude(), loc.getLongitude(), navWaypoint.latitude, navWaypoint.longitude);
-        double bearing = GeoPoint.bearing(loc.getLatitude(), loc.getLongitude(), navWaypoint.latitude, navWaypoint.longitude);
+        GeoPoint point = new GeoPoint(loc.getLatitude(), loc.getLongitude());
+        double distance = point.vincentyDistance(navWaypoint.coordinates);
+        double bearing = point.bearingTo(navWaypoint.coordinates);
         double track = loc.getBearing();
 
         // turn
@@ -568,7 +567,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             }
 
             if (prevWaypoint != null) {
-                double dtk = GeoPoint.bearing(prevWaypoint.latitude, prevWaypoint.longitude, navWaypoint.latitude, navWaypoint.longitude);
+                double dtk = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
                 xtk = Geo.xtk(distance, dtk, bearing);
 
                 if (xtk == Double.NEGATIVE_INFINITY) {
@@ -576,7 +575,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
                         double cxtk2 = Double.NEGATIVE_INFINITY;
                         MapObject nextWpt = getNextRouteWaypoint();
                         if (nextWpt != null) {
-                            double dtk2 = GeoPoint.bearing(nextWpt.latitude, nextWpt.longitude, navWaypoint.latitude, navWaypoint.longitude);
+                            double dtk2 = nextWpt.coordinates.bearingTo(navWaypoint.coordinates);
                             cxtk2 = Geo.xtk(0, dtk2, bearing);
                         }
 
