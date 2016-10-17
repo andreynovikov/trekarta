@@ -261,6 +261,7 @@
                 -->
                 <m v="parking" zoom-min="15">
                     <area fill="#f4f4f4" stroke="#d4d4d4" stroke-width="0.2" />
+                    <symbol src="assets:symbols/transport/parking.svg" />
                 </m>
                 <m closed="yes" v="fountain">
                     <area fill="#b4cbdc" stroke="#000080" stroke-width="0.15" />
@@ -412,6 +413,7 @@
     <m e="way">
         <m closed="yes" k="natural" v="water">
             <area use="water" />
+            <text use="water" caption="true" area-size="0.4" />
             <!--<line use="water:outline" />-->
         </m>
         <!-- overview map rivers -->
@@ -546,8 +548,18 @@
         <!-- runways areas -->
         <m k="aeroway">
             <m closed="yes" v="aerodrome">
-                <area fill="#e8ecde" />
+                <m zoom-min="12">
+                    <area fill="#e8ecde" />
+                </m>
+                <m zoom-min="12">
+                    <text area-size="0.1" caption="true" dy="18" priority="5" use="poi" />
+                </m>
+                <m zoom-max="12">
+                    <text caption="true" dy="18" k="ref" priority="6" use="poi" />
+                </m>
+                <symbol src="assets:symbols/transport/airport.svg" />
             </m>
+
             <!-- A place where planes are parked -->
             <m v="apron">
                 <area fill="#f0f0f0" />
@@ -639,7 +651,7 @@
             <m zoom-min="17">
                 <caption style="bold" fill="#4040ff" k="name" priority="9" size="14"
                     stroke="#ffffff" stroke-width="2.0" />
-                <caption style="bold" fill="#606060" k="addr:housenumber" priority="10" size="10"
+                <caption style="bold" fill="#606060" k="addr:housenumber" priority="10" size="12"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
         </m>
@@ -1265,7 +1277,7 @@
 
         <!-- house numbers -->
         <m k="addr:housenumber" zoom-min="18">
-            <caption style="bold" fill="#606060" k="addr:housenumber" size="10" stroke="#ffffff"
+            <caption style="bold" fill="#606060" k="addr:housenumber" size="12" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
 
