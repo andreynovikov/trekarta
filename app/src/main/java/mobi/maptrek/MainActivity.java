@@ -1101,17 +1101,24 @@ public class MainActivity extends Activity implements ILocationListener,
                 stopNavigation();
                 return true;
             }
-            case R.id.action_manage_maps: {
+            case R.id.actionManageMaps: {
                 startMapSelection(true);
                 return true;
             }
-            case R.id.action_reset_advices: {
+            case R.id.actionHideSystemUI: {
+                if (Configuration.getHideSystemUI())
+                    showSystemUI();
+                else
+                    hideSystemUI();
+                return true;
+            }
+            case R.id.actionResetAdvices: {
                 Configuration.resetAdviceState();
                 Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_advices_reset, Snackbar.LENGTH_LONG);
                 snackbar.show();
                 return true;
             }
-            case R.id.action_about: {
+            case R.id.actionAbout: {
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
                 fragment.setEnterTransition(new Slide(mSlideGravity));
                 fragment.setReturnTransition(new Slide(mSlideGravity));
@@ -1407,8 +1414,8 @@ public class MainActivity extends Activity implements ILocationListener,
                 public void onPrepareMenu(List<PanelMenuItem> menu) {
                     for (PanelMenuItem item : menu) {
                         switch (item.getItemId()) {
-                            case R.id.action_grid:
-                                item.setChecked(mMap.layers().contains(mGridLayer));
+                            case R.id.actionHideSystemUI:
+                                item.setChecked(Configuration.getHideSystemUI());
                         }
                     }
                 }
@@ -1764,12 +1771,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
                 return true;
             }
-        } else if (gesture == Gesture.TAP) {
-            if (Configuration.getHideSystemUI())
-                showSystemUI();
-            else
-                hideSystemUI();
-            return true;
         }
         return false;
     }

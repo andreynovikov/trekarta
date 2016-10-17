@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_manage_maps"
-        android:title="@string/action_manage_maps" />
+        android:id="@+id/actionManageMaps"
+        android:title="@string/actionManageMaps" />
     <item
-        android:id="@+id/action_reset_advices"
-        android:title="@string/action_reset_advices" />
+        android:id="@+id/actionHideSystemUI"
+        android:checkable="true"
+        android:title="@string/actionHideSystemUI" />
     <item
-        android:id="@+id/action_about"
-        android:title="@string/action_about" />
+        android:id="@+id/actionResetAdvices"
+        android:title="@string/actionResetAdvices" />
+    <item
+        android:id="@+id/actionAbout"
+        android:title="@string/actionAbout" />
 
 </menu>
