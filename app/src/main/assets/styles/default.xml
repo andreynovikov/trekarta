@@ -80,9 +80,9 @@
     <style-line id="highway-service" use="residential" width="-0.6" />
 
     <!-- track -->
-    <style-line cap="butt" id="highway:track:g1" stroke="#C19A6B" width="1.0" />
+    <style-line cap="butt" id="highway:track:g1" stroke="#C19A6B" width="0.7" />
     <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#C19A6B"
-        stroke="#00ffffff" width="1.0" />
+        stroke="#00ffffff" width="0.7" />
     <style-line id="highway:track:g3" stipple="12" use="highway:track:g2" />
     <style-line id="highway:track:g4" stipple="15" use="highway:track:g2" width="-0.2" />
     <style-line id="highway:track:g5" stipple="18" stroke="#44ff8888" use="highway:track:g4" />
@@ -754,18 +754,6 @@
                             <m v="bridleway">
                                 <line use="bridleway" />
                             </m>
-                            <m v="construction">
-                                <line outline="1" use="construction" />
-                            </m>
-                            <m v="service">
-                                <!-- matches every service but parking_isle -->
-                                <m k="service" v="-|parking_aisle">
-                                    <line outline="1" use="highway-service" />
-                                </m>
-                                <m k="service" v="parking_aisle" zoom-min="16">
-                                    <line outline="1" use="highway-service" width="-0.4" />
-                                </m>
-                            </m>
                         </m>
                         <m v="byway|track">
                             <m k="tracktype" v="grade1">
@@ -784,6 +772,20 @@
                                 <line use="highway:track:g5" />
                             </m>
                             <text use="road" />
+                        </m>
+                        <m zoom-min="14">
+                            <m v="construction">
+                                <line outline="1" use="construction" />
+                            </m>
+                            <m v="service">
+                                <!-- matches every service but parking_isle -->
+                                <m k="service" v="-|parking_aisle">
+                                    <line outline="1" use="highway-service" />
+                                </m>
+                                <m k="service" v="parking_aisle" zoom-min="16">
+                                    <line outline="1" use="highway-service" width="-0.4" />
+                                </m>
+                            </m>
                         </m>
                         <m v="trunk_link|motorway_link">
                             <line outline="motorway" use="trunk_link" />
@@ -1138,6 +1140,20 @@
             <m v="military" zoom-min="14">
                 <line use="military" />
                 <area src="assets:patterns/military.svg" />
+            </m>
+        </m>
+        <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
+        <m k="boundary">
+            <m v="national_park|protected_area" zoom-max="7">
+                <line fade="6" use="protected_area" />
+                <area fade="6" src="assets:patterns/nature-reserve.svg" />
+            </m>
+            <m v="national_park|protected_area" zoom-max="13" zoom-min="8">
+                <area src="assets:patterns/nature-reserve.svg" />
+            </m>
+            <m v="national_park|protected_area" zoom-min="14">
+                <line use="protected_area" />
+                <area src="assets:patterns/nature-reserve.svg" />
             </m>
         </m>
 
