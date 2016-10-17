@@ -455,8 +455,7 @@ public class MainActivity extends Activity implements ILocationListener,
             @Override
             public void onClick(View v) {
                 MapObject mapObject = mNavigationService.getWaypoint();
-                GeoPoint destination = new GeoPoint(mapObject.latitude, mapObject.longitude);
-                setMapLocation(destination);
+                setMapLocation(mapObject.coordinates);
             }
         });
         mNavigationArrowView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1092,8 +1091,8 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.getMapPosition(mMapPosition);
                 box.extend(mMapPosition.getLatitude(), mMapPosition.getLongitude());
                 MapObject mapObject = mNavigationService.getWaypoint();
-                box.extend(mapObject.latitude, mapObject.longitude);
-                box.expand(0.05);
+                box.extend(mapObject.coordinates.getLatitude(), mapObject.coordinates.getLongitude());
+                box.extendBy(0.05);
                 mMap.animator().animateTo(box);
                 return true;
             }
@@ -1581,8 +1580,8 @@ public class MainActivity extends Activity implements ILocationListener,
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_MAP_OBJECT);
         i.putExtra(NavigationService.EXTRA_NAME, mapObject.name);
-        i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.latitude);
-        i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.longitude);
+        i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.coordinates.getLatitude());
+        i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.coordinates.getLongitude());
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
@@ -1618,13 +1617,13 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     @Override
-    public boolean isNavigatingTo(double latitude, double longitude) {
+    public boolean isNavigatingTo(GeoPoint coordinates) {
         if (mNavigationService == null)
             return false;
         if (!mNavigationService.isNavigating())
             return false;
         MapObject mapObject = mNavigationService.getWaypoint();
-        return MathUtils.equals(mapObject.latitude, latitude) && MathUtils.equals(mapObject.longitude, longitude);
+        return mapObject.coordinates.equals(coordinates);
     }
 
     private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
@@ -1678,8 +1677,7 @@ public class MainActivity extends Activity implements ILocationListener,
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             // Update corresponding waypoint
             Waypoint waypoint = (Waypoint) mActiveMarker.getUid();
-            waypoint.latitude = mActiveMarker.getPoint().getLatitude();
-            waypoint.longitude = mActiveMarker.getPoint().getLongitude();
+            waypoint.setCoordinates(mActiveMarker.getPoint());
             onWaypointSave(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
@@ -1892,8 +1890,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mNavigationArrowView.setVisibility(View.VISIBLE);
                 mNavigationArrowView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
             }
-            MapObject mapObject = mNavigationService.getWaypoint();
-            GeoPoint destination = new GeoPoint(mapObject.latitude, mapObject.longitude);
+            GeoPoint destination = mNavigationService.getWaypoint().coordinates;
             if (mNavigationLayer == null) {
                 mNavigationLayer = new NavigationLayer(mMap, 0x66ffff00, 8);
                 mNavigationLayer.setDestination(destination);
@@ -1902,7 +1899,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 mMap.layers().add(mNavigationLayer, MAP_POSITIONAL);
             } else {
                 GeoPoint current = mNavigationLayer.getDestination();
-                if (mapObject.latitude != current.getLatitude() || mapObject.longitude != current.getLongitude()) {
+                if (!destination.equals(current)) {
                     mNavigationLayer.setDestination(destination);
                 }
             }
@@ -1975,8 +1972,7 @@ public class MainActivity extends Activity implements ILocationListener,
 
     @Override
     public void onWaypointView(Waypoint waypoint) {
-        //TODO Make Waypoint inherit GeoPoint
-        setMapLocation(new GeoPoint(waypoint.latitude, waypoint.longitude));
+        setMapLocation(waypoint.coordinates);
     }
 
     @Override
@@ -2032,8 +2028,9 @@ public class MainActivity extends Activity implements ILocationListener,
     @Override
     public void onWaypointShare(Waypoint waypoint) {
         int zoom = mMap.getMapPosition().getZoomLevel();
-        String location = waypoint.name + " @ " + waypoint.latitude + " " + waypoint.longitude +
-                " <" + Osm.makeShortLink(waypoint.latitude, waypoint.longitude, zoom) + ">";
+        String location = String.format(Locale.US, "%s @ %.6f %.6f <%s>", waypoint.name,
+                waypoint.coordinates.getLatitude(), waypoint.coordinates.getLongitude(),
+                Osm.makeShortLink(waypoint.coordinates.getLatitude(), waypoint.coordinates.getLongitude(), zoom));
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
@@ -2237,7 +2234,7 @@ public class MainActivity extends Activity implements ILocationListener,
             updateLocationDrawable();
         }
         BoundingBox box = track.getBoundingBox();
-        box.expand(0.05);
+        box.extendBy(0.05);
         mMap.animator().animateTo(box);
     }
 
@@ -3274,8 +3271,7 @@ public class MainActivity extends Activity implements ILocationListener,
     }
 
     private void addWaypointMarker(Waypoint waypoint) {
-        GeoPoint geoPoint = new GeoPoint(waypoint.latitude, waypoint.longitude);
-        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, geoPoint);
+        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, waypoint.coordinates);
         if (waypoint.style.color != 0 && waypoint.style.color != MarkerStyle.DEFAULT_COLOR) {
             Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.style.color));
             marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));

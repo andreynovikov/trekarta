@@ -12,7 +12,7 @@ public interface MapHolder {
 
     void disableTracking();
 
-    boolean isNavigatingTo(double latitude, double longitude);
+    boolean isNavigatingTo(GeoPoint coordinates);
 
     void stopNavigation();
 

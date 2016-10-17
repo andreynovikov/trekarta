@@ -49,8 +49,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     private OnTrackActionListener mTrackActionListener;
     private FragmentHolder mFragmentHolder;
 
-    private double mLatitude;
-    private double mLongitude;
+    private GeoPoint mCoordinates;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,15 +67,17 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         super.onActivityCreated(savedInstanceState);
 
         Bundle arguments = getArguments();
-        mLatitude = arguments.getDouble(ARG_LATITUDE);
-        mLongitude = arguments.getDouble(ARG_LONGITUDE);
+        double latitude = arguments.getDouble(ARG_LATITUDE);
+        double longitude = arguments.getDouble(ARG_LONGITUDE);
         boolean noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
         int minHeight = arguments.getInt(ARG_HEIGHT, 0);
 
         if (savedInstanceState != null) {
-            mLatitude = savedInstanceState.getDouble(ARG_LATITUDE);
-            mLongitude = savedInstanceState.getDouble(ARG_LONGITUDE);
+            latitude = savedInstanceState.getDouble(ARG_LATITUDE);
+            longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
         }
+
+        mCoordinates = new GeoPoint(latitude, longitude);
 
         TextView emptyView = (TextView) getListView().getEmptyView();
         if (emptyView != null) {
@@ -278,8 +279,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
 
             if (viewType == DataSource.TYPE_WAYPOINT) {
                 final Waypoint waypoint = ((WaypointDataSource) mDataSource).cursorToWaypoint(cursor);
-                double dist = GeoPoint.distance(mLatitude, mLongitude, waypoint.latitude, waypoint.longitude);
-                double bearing = GeoPoint.bearing(mLatitude, mLongitude, waypoint.latitude, waypoint.longitude);
+                double dist = mCoordinates.vincentyDistance(waypoint.coordinates);
+                double bearing = mCoordinates.bearingTo(waypoint.coordinates);
                 String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
                 holder.name.setText(waypoint.name);
                 holder.distance.setText(distance);

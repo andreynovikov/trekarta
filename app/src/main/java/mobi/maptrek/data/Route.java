@@ -36,7 +36,7 @@ public class Route {
 
     public void addWaypoint(Waypoint waypoint) {
         if (lastWaypoint != null) {
-            distance += GeoPoint.distance(lastWaypoint.latitude, lastWaypoint.longitude, waypoint.latitude, waypoint.longitude);
+            distance += lastWaypoint.coordinates.vincentyDistance(waypoint.coordinates);
         }
         lastWaypoint = waypoint;
         waypoints.add(lastWaypoint);
@@ -63,12 +63,12 @@ public class Route {
         double xtk = Double.MAX_VALUE;
         synchronized (waypoints) {
             for (int i = 0; i < waypoints.size() - 1; i++) {
-                double distance = GeoPoint.distance(waypoint.latitude, waypoint.longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
-                double bearing1 = GeoPoint.bearing(waypoint.latitude, waypoint.longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
-                double dtk1 = GeoPoint.bearing(waypoints.get(i).latitude, waypoints.get(i).longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
+                double distance = waypoint.coordinates.vincentyDistance(waypoints.get(i + 1).coordinates);
+                double bearing1 = waypoint.coordinates.bearingTo(waypoints.get(i + 1).coordinates);
+                double dtk1 = waypoints.get(i).coordinates.bearingTo(waypoints.get(i + 1).coordinates);
                 double cxtk1 = Math.abs(Geo.xtk(distance, dtk1, bearing1));
-                double bearing2 = GeoPoint.bearing(waypoint.latitude, waypoint.longitude, waypoints.get(i).latitude, waypoints.get(i).longitude);
-                double dtk2 = GeoPoint.bearing(waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude, waypoints.get(i).latitude, waypoints.get(i).longitude);
+                double bearing2 = waypoint.coordinates.bearingTo(waypoints.get(i).coordinates);
+                double dtk2 = waypoints.get(i + 1).coordinates.bearingTo(waypoints.get(i).coordinates);
                 double cxtk2 = Math.abs(Geo.xtk(distance, dtk2, bearing2));
 
                 if (cxtk2 != Double.POSITIVE_INFINITY && cxtk1 < xtk) {
@@ -128,7 +128,7 @@ public class Route {
         double dist = 0.0;
         synchronized (waypoints) {
             for (int i = first; i < last; i++) {
-                dist += GeoPoint.distance(waypoints.get(i).latitude, waypoints.get(i).longitude, waypoints.get(i + 1).latitude, waypoints.get(i + 1).longitude);
+                dist += waypoints.get(i).coordinates.vincentyDistance(waypoints.get(i + 1).coordinates);
             }
         }
         return dist;
@@ -136,7 +136,7 @@ public class Route {
 
     public double course(int prev, int next) {
         synchronized (waypoints) {
-            return GeoPoint.bearing(waypoints.get(prev).latitude, waypoints.get(prev).longitude, waypoints.get(next).latitude, waypoints.get(next).longitude);
+            return waypoints.get(prev).coordinates.bearingTo(waypoints.get(next).coordinates);
         }
     }
 }

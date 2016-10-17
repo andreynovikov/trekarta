@@ -86,9 +86,9 @@ public class KmlSerializer {
         }
         serializer.startTag(KmlFile.NS, KmlFile.TAG_POINT);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_COORDINATES);
-        serializer.text(String.valueOf(waypoint.longitude));
+        serializer.text(String.valueOf(waypoint.coordinates.getLongitude()));
         serializer.text(",");
-        serializer.text(String.valueOf(waypoint.latitude));
+        serializer.text(String.valueOf(waypoint.coordinates.getLatitude()));
         if (waypoint.altitude != Integer.MIN_VALUE) {
             serializer.text(",");
             serializer.text(String.valueOf(waypoint.altitude));

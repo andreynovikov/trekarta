@@ -261,7 +261,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (Float.isNaN(point.speed)) {
                 if (hasTime) {
                     if (ptp != null) {
-                        speed = ((float) point.distanceTo(ptp)) / ((point.time - ptp.time) / 1000);
+                        speed = ((float) point.vincentyDistance(ptp)) / ((point.time - ptp.time) / 1000);
                     } else {
                         speed = 0f;
                     }

@@ -1,5 +1,7 @@
 package mobi.maptrek.data;
 
+import org.oscim.core.GeoPoint;
+
 import mobi.maptrek.data.style.MarkerStyle;
 
 //TODO Refactor
@@ -7,8 +9,7 @@ public class MapObject {
     public long _id = 0;
     public String name;
     public String description;
-    public double latitude;
-    public double longitude;
+    public GeoPoint coordinates;
     /**
      * Object altitude, if set to Integer.MIN_VALUE then it is undefined
      */
@@ -16,12 +17,16 @@ public class MapObject {
     public int proximity = 0;
     public MarkerStyle style = new MarkerStyle();
 
-    public MapObject() {
+    public MapObject(double latitude, double longitude) {
+        coordinates = new GeoPoint(latitude, longitude);
     }
 
-    public MapObject(double lat, double lon) {
-        latitude = lat;
-        longitude = lon;
+    public MapObject(int latitudeE6, int longitudeE6) {
+        coordinates = new GeoPoint(latitudeE6, longitudeE6);
+    }
+
+    public void setCoordinates(GeoPoint coordinates) {
+        this.coordinates = coordinates;
     }
 
     @Override

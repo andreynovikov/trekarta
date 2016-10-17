@@ -117,7 +117,7 @@ public class PathLayer extends Layer {
         synchronized (mPoints) {
 
 			/* get the great circle path length in meters */
-            double length = startPoint.distanceTo(endPoint);
+            double length = startPoint.vincentyDistance(endPoint);
 
 			/* add one point for every 10kms of the great circle path */
             int numberOfPoints = (int) (length / 10000);

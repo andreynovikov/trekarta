@@ -99,10 +99,8 @@ public class Configuration {
         MapObject waypoint = null;
         String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
         if (navWpt != null) {
-            waypoint = new MapObject();
+            waypoint = new MapObject((double) mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
             waypoint.name = navWpt;
-            waypoint.latitude = (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0);
-            waypoint.longitude = (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0);
             waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
             saveString(PREF_NAVIGATION_WAYPOINT, null);
         }
@@ -112,8 +110,8 @@ public class Configuration {
     public static void setNavigationPoint(@Nullable MapObject mapObject) {
         if (mapObject != null) {
             saveString(PREF_NAVIGATION_WAYPOINT, mapObject.name);
-            saveFloat(PREF_NAVIGATION_LATITUDE, (float) mapObject.latitude);
-            saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.longitude);
+            saveFloat(PREF_NAVIGATION_LATITUDE, (float) mapObject.coordinates.getLatitude());
+            saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.coordinates.getLongitude());
             saveInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
         } else {
             saveString(PREF_NAVIGATION_WAYPOINT, null);

@@ -218,7 +218,6 @@ public class KmlParser {
     @NonNull
     private static Waypoint readPoint(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, KmlFile.TAG_POINT);
-        Waypoint waypoint = new Waypoint();
         String coordinatesString = null;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -237,10 +236,10 @@ public class KmlParser {
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_POINT);
         if (coordinatesString == null)
             throw new XmlPullParserException(KmlFile.TAG_POINT + " must have coordinates", parser, null);
+        Waypoint waypoint;
         try {
             String[] coordinates = coordinatesString.split(",");
-            waypoint.latitude = Double.parseDouble(coordinates[1]);
-            waypoint.longitude = Double.parseDouble(coordinates[0]);
+            waypoint = new Waypoint(Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[0]));
             if (coordinates.length == 3) {
                 double altitude = Double.parseDouble(coordinates[2]);
                 if (altitude != 0d)

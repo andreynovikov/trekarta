@@ -86,9 +86,7 @@ public class GpxParser {
     @NonNull
     private static Waypoint readWaypoint(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_WPT);
-        Waypoint waypoint = new Waypoint();
-        waypoint.latitude = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
-        waypoint.longitude = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        Waypoint waypoint = new Waypoint(Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;

@@ -54,8 +54,8 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         if (waypoint._id > 0)
             values.put(WaypointDbHelper.COLUMN_ID, waypoint._id);
         values.put(WaypointDbHelper.COLUMN_NAME, waypoint.name);
-        values.put(WaypointDbHelper.COLUMN_LATE6, waypoint.latitude * 1E6);
-        values.put(WaypointDbHelper.COLUMN_LONE6, waypoint.longitude * 1E6);
+        values.put(WaypointDbHelper.COLUMN_LATE6, waypoint.coordinates.latitudeE6);
+        values.put(WaypointDbHelper.COLUMN_LONE6, waypoint.coordinates.longitudeE6);
         if (waypoint.altitude != Integer.MIN_VALUE)
             values.put(WaypointDbHelper.COLUMN_ALTITUDE, waypoint.altitude);
         if (waypoint.proximity != 0)
@@ -118,11 +118,9 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
 
     @Override
     public Waypoint cursorToWaypoint(Cursor cursor) {
-        Waypoint waypoint = new Waypoint();
+        Waypoint waypoint = new Waypoint(cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LATE6)), cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LONE6)));
         waypoint._id = cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ID));
         waypoint.name = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_NAME));
-        waypoint.latitude = cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LATE6)) / 1E6;
-        waypoint.longitude = cursor.getLong(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LONE6)) / 1E6;
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ALTITUDE)))
             waypoint.altitude = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ALTITUDE));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_PROXIMITY)))

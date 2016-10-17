@@ -57,8 +57,8 @@ public class GpxSerializer {
 
     private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_WPT);
-        serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(waypoint.latitude));
-        serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(waypoint.longitude));
+        serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(waypoint.coordinates.getLatitude()));
+        serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(waypoint.coordinates.getLongitude()));
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(waypoint.name);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
