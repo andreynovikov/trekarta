@@ -3,13 +3,16 @@ package mobi.maptrek;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,8 +28,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.oscim.tiling.source.sqlite.MBTilesDatabase;
-import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,10 +134,31 @@ public class DataImportActivity extends Activity {
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
+                String name;
+                try {
+                    PackageManager pm = getPackageManager();
+                    PermissionInfo permissionInfo = pm.getPermissionInfo(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.GET_META_DATA);
+                    name = (String) permissionInfo.loadLabel(pm);
+                } catch (PackageManager.NameNotFoundException e) {
+                    logger.error("Failed to obtain name for permission", e);
+                    name = "read external storage";
+                }
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.msgReadExternalStorageRationale, name))
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .create()
+                        .show();
             } else {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
             }
