@@ -11,6 +11,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name="mobi.maptrek.MapTrekApplication"
@@ -49,13 +50,32 @@
 
         <activity
             android:name=".DataImportActivity"
-            android:label="@string/activityImportData"
+            android:label="@string/intentImportData"
             android:theme="@android:style/Theme.Material.Light.Dialog">
             <intent-filter android:label="@string/intentImportData">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
+                <!-- KML from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.kml"
+                    android:scheme="file" />
+                <!-- GPX from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="file" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- KML from DownloadManager -->
                 <data
                     android:mimeType="application/vnd.google-earth.kml+xml"
                     android:scheme="content" />
