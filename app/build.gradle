@@ -8,8 +8,8 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 9
-        versionName "2016.10"
+        versionCode 11
+        versionName "2016.beta11"
     }
 
     compileOptions {
