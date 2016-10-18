@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.oscim.tiling.source.sqlite.MBTilesDatabase;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -334,7 +336,9 @@ public class DataImportActivity extends Activity {
 
             if (!name.endsWith(TrackManager.EXTENSION) &&
                     !name.endsWith(KMLManager.EXTENSION) &&
-                    !name.endsWith(GPXManager.EXTENSION)) {
+                    !name.endsWith(GPXManager.EXTENSION) &&
+                    !name.endsWith(".mbtiles") &&
+                    !name.endsWith(".sqlitedb")) {
                 logger.warn("Unsupported file format");
                 return;
             }
@@ -367,9 +371,10 @@ public class DataImportActivity extends Activity {
 
         @Nullable
         private File getDestinationFile(String filename) {
-            File dir = getContext().getExternalFilesDir("data");
+            boolean isMap = filename.endsWith(".mbtiles") || filename.endsWith(".sqlitedb");
+            File dir = getContext().getExternalFilesDir(isMap ? "maps" : "data");
             if (dir == null) {
-                logger.error("Data path unavailable");
+                logger.error("Path for {} unavailable", isMap ? "maps" : "data");
                 return null;
             }
             File destination = new File(dir, filename);

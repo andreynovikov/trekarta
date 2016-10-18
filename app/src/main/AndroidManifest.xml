@@ -69,6 +69,18 @@
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.gpx"
                     android:scheme="file" />
+                <!-- MBTiles from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.mbtiles"
+                    android:scheme="file" />
+                <!-- SQLite from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.sqlitedb"
+                    android:scheme="file" />
             </intent-filter>
             <intent-filter android:label="@string/intentImportData">
                 <action android:name="android.intent.action.VIEW" />
@@ -82,7 +94,7 @@
                 <data
                     android:mimeType="text/xml"
                     android:scheme="content" />
-                <!-- GPX from DownloadManager -->
+                <!-- GPX, MBTiles, SQLite from DownloadManager -->
                 <data
                     android:mimeType="application/octet-stream"
                     android:scheme="content" />
