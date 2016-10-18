@@ -413,7 +413,7 @@
     <m e="way">
         <m closed="yes" k="natural" v="water">
             <area use="water" />
-            <text use="water" caption="true" area-size="0.4" />
+            <text use="water" caption="true" area-size="0.1" />
             <!--<line use="water:outline" />-->
         </m>
         <!-- overview map rivers -->
