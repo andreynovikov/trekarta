@@ -8,7 +8,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -214,6 +213,13 @@ public class DataImportActivity extends Activity {
         }
     }
 
+    private void showError(String message) {
+        mFileNameView.setText(message);
+        mProgressBar.setVisibility(View.GONE);
+        mActionButton.setText(R.string.close);
+        mActionButton.setTag(false);
+    }
+
     public static class DataImportFragment extends Fragment {
         private HandlerThread mBackgroundThread;
         private Handler mBackgroundHandler;
@@ -275,6 +281,7 @@ public class DataImportActivity extends Activity {
                 if (uri == null)
                     uri = intent.getData();
                 logger.debug("Uri: {}", uri.toString());
+                logger.debug("Authority: {}", uri.getAuthority());
                 final Uri finalUri = uri;
                 Runnable task = new Runnable() {
                     @Override
@@ -304,7 +311,7 @@ public class DataImportActivity extends Activity {
         }
 
         private void readFile(Uri uri) {
-            Context context = getContext();
+            DataImportActivity activity = (DataImportActivity) getActivity();
 
             String name = null;
             long length = -1;
@@ -319,19 +326,30 @@ public class DataImportActivity extends Activity {
                     mInputStream = new MonitoredInputStream(new FileInputStream(src));
                 } catch (FileNotFoundException e) {
                     logger.error("Failed to get imported file stream", e);
+                    activity.showError(getString(R.string.msgFailedToGetFile));
                     return;
                 }
                 logger.debug("file: {} [{}]", name, length);
             } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-                ContentResolver resolver = context.getContentResolver();
+                ContentResolver resolver = activity.getContentResolver();
                 Cursor cursor = resolver.query(uri, new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE}, null, null, null);
                 if (cursor != null) {
                     logger.debug("   from cursor");
-                    cursor.moveToFirst();
-                    name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    length = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+                    if (cursor.moveToFirst()) {
+                        name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        length = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+                    }
                     cursor.close();
-                } else {
+                }
+                if (name == null) {
+                    cursor = resolver.query(uri, new String[]{"_data"}, null, null, null);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        name = cursor.getString(cursor.getColumnIndexOrThrow("_data"));
+                    }
+                    if (cursor != null)
+                        cursor.close();
+                }
+                if (length == -1) {
                     try {
                         AssetFileDescriptor afd = resolver.openAssetFileDescriptor(uri, "r");
                         if (afd != null)
@@ -340,19 +358,24 @@ public class DataImportActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                //TODO This is just to not crash, should be correctly implemented
-                if (name == null)
-                    name = uri.getLastPathSegment();
+                //TODO Find out how to get file name from chrome
+                if (name == null) {
+                    logger.error("Failed to get file name");
+                    activity.showError(getString(R.string.msgFailedToGetFileName));
+                    return;
+                }
 
                 try {
                     mInputStream = new MonitoredInputStream(resolver.openInputStream(uri));
                 } catch (FileNotFoundException e) {
                     logger.error("Failed to get imported file stream", e);
+                    activity.showError(getString(R.string.msgFailedToGetFile));
                     return;
                 }
                 logger.debug("Import: [{}][{}]", name, length);
             } else {
                 logger.warn("Unsupported transfer method");
+                activity.showError(getString(R.string.msgFailedToGetFile));
                 return;
             }
 
@@ -362,6 +385,7 @@ public class DataImportActivity extends Activity {
                     !name.endsWith(".mbtiles") &&
                     !name.endsWith(".sqlitedb")) {
                 logger.warn("Unsupported file format");
+                activity.showError(getString(R.string.msgUnsupportedFileFormat));
                 return;
             }
 
@@ -388,6 +412,7 @@ public class DataImportActivity extends Activity {
                 if (dst != null && dst.exists())
                     //noinspection ResultOfMethodCallIgnored
                     dst.delete();
+                activity.showError(getString(R.string.msgFailedToGetFile));
             }
         }
 
