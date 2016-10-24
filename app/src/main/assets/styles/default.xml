@@ -12,7 +12,7 @@
     <style-text style="bold" fill="#101010" id="major-road" k="name" priority="1" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
 
-    <style-text fill="#3D59AB" id="water" k="name" size="16" stroke="#CAE1FF" stroke-width="2.0" />
+    <style-text fill="#486f8d" id="water" k="name" size="16" stroke="#CAE1FF" stroke-width="2.0" />
 
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
