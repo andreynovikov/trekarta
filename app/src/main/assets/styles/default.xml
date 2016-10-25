@@ -12,7 +12,7 @@
     <style-text style="bold" fill="#101010" id="major-road" k="name" priority="1" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
 
-    <style-text fill="#486f8d" id="water" k="name" size="16" stroke="#CAE1FF" stroke-width="2.0" />
+    <style-text fill="#486f8d" id="water" k="name" style="italic" size="16" stroke="#CAE1FF" stroke-width="2.0" />
 
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -1325,10 +1325,6 @@
                 <caption fill="#444411" k="name" priority="7" size="17" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-            <m v="island" zoom-min="8" zoom-max="14">
-                <caption style="bold" fill="#000000" k="name" priority="4" size="20"
-                    stroke="#ffffff" stroke-width="2.0" />
-            </m>
             <m v="town" select="first">
                 <m k="admin_level" v="2">
                     <caption dy="14" fill="#000000" k="name" priority="2" size="20" stroke="#ffffff"
@@ -1395,20 +1391,25 @@
                         stroke="#ffffff" stroke-width="2.0" />
                 </m>
             </m>
+            <m v="locality" zoom-max="17" zoom-min="13">
+                <caption style="italic" fill="#000000" k="name" priority="7" size="20"
+                    stroke="#ffffff" stroke-width="2.0" />
+            </m>
+            <m v="island" zoom-max="14" zoom-min="12">
+                <caption style="italic" fill="#000000" k="name" priority="4" size="22"
+                    stroke="#ffffff" stroke-width="2.0" />
+            </m>
             <m v="sea">
                 <m zoom-min="5">
-                    <caption fill="#3D59AB" k="name" priority="0" size="18"
-                        stroke="#ffffff" stroke-width="2.0" />
+                    <text caption="true" priority="0" size="18" use="water" />
                 </m>
             </m>
             <m v="ocean">
                 <m zoom-max="4" zoom-min="3">
-                    <caption style="bold" fill="#3D59AB" k="name" priority="0" size="18"
-                        stroke="#ffffff" stroke-width="2.0" />
+                    <text style="bold_italic" caption="true" priority="0" size="18" use="water" />
                 </m>
                 <m zoom-max="2">
-                    <caption fill="#3D59AB" k="name" priority="0" size="18" stroke="#ffffff"
-                        stroke-width="2.0" />
+                    <text caption="true" priority="0" size="18" use="water" />
                 </m>
             </m>
         </m>
