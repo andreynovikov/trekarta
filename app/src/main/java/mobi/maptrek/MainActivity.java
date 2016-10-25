@@ -65,7 +65,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -283,7 +282,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private Button mMapDownloadButton;
     private View mCompassView;
     private View mNavigationArrowView;
-    private View mExtendPanel;
+    private ViewGroup mExtendPanel;
     private TextView mLicense;
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
@@ -465,8 +464,80 @@ public class MainActivity extends Activity implements ILocationListener,
                 return true;
             }
         });
-        mExtendPanel = findViewById(R.id.extendPanel);
+        mExtendPanel = (ViewGroup) findViewById(R.id.extendPanel);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        mExtendPanel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                int width = v.getWidth();
+                int height = v.getHeight();
+                logger.debug("onLayoutChange({}, {})", width, height);
+                if (width == 0 || height == 0) {
+                    v.setTranslationX(0f);
+                    v.setTranslationY(0f);
+                    return;
+                }
+                int rootWidth = mCoordinatorLayout.getWidth();
+                int rootHeight = mCoordinatorLayout.getHeight();
+                switch (mPanelState) {
+                    case RECORD:
+                        if (mVerticalOrientation) {
+                            int cWidth = (int) (mRecordButton.getWidth() + mRecordButton.getX());
+                            if (width < cWidth)
+                                v.setTranslationX(cWidth - width);
+                        }
+                        break;
+                    case PLACES:
+                        if (mVerticalOrientation) {
+                            int cWidth = (int) (mPlacesButton.getWidth() + mPlacesButton.getX());
+                            if (width < cWidth)
+                                v.setTranslationX(cWidth - width);
+                        }
+                        break;
+                    case MAPS:
+                        if (mVerticalOrientation) {
+                            int cWidth = (int) (rootWidth - mMapsButton.getX());
+                            if (width < cWidth)
+                                v.setTranslationX(mMapsButton.getX());
+                            else
+                                v.setTranslationX(rootWidth - width);
+                        } else {
+                            v.setTranslationY(rootHeight - height);
+                        }
+                        break;
+                    case MORE:
+                        if (mVerticalOrientation) {
+                            v.setTranslationX(rootWidth - width);
+                        } else {
+                            v.setTranslationY(rootHeight - height);
+                        }
+                }
+            }
+        });
+
+        mExtendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                if (mVerticalOrientation)
+                    return;
+                switch (mPanelState) {
+                    case RECORD:
+                        child.setMinimumHeight((int) (mRecordButton.getHeight() + mRecordButton.getY()));
+                        break;
+                    case PLACES:
+                        child.setMinimumHeight((int) (mPlacesButton.getHeight() + mPlacesButton.getY()));
+                        break;
+                    case MAPS:
+                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY()));
+                        break;
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+            }
+        });
 
         mMapView = (MapView) findViewById(R.id.mapView);
         mMap = mMapView.map();
@@ -810,7 +881,6 @@ public class MainActivity extends Activity implements ILocationListener,
 
         mVerticalOrientation = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
         mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
-        layoutExtendPanel(mPanelState);
 
         mMapEventLayer = new MapEventLayer(mMap, this);
         mMap.layers().add(mMapEventLayer, MAP_EVENTS);
@@ -2708,8 +2778,6 @@ public class MainActivity extends Activity implements ILocationListener,
             }
         }
 
-        layoutExtendPanel(panel);
-
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
             @Override
@@ -2728,36 +2796,6 @@ public class MainActivity extends Activity implements ILocationListener,
         ft.commit();
 
         setPanelState(panel);
-    }
-
-    private void layoutExtendPanel(PANEL_STATE state) {
-        if (state == PANEL_STATE.NONE)
-            return;
-
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mExtendPanel.getLayoutParams();
-        switch (state) {
-            case LOCATION:
-            case RECORD:
-            case PLACES:
-                if (mVerticalOrientation) {
-                    params.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                } else {
-                    params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                }
-                break;
-            case MAPS:
-            case MORE:
-                if (mVerticalOrientation) {
-                    params.removeRule(RelativeLayout.ALIGN_PARENT_START);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                } else {
-                    params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                }
-        }
-        mExtendPanel.setLayoutParams(params);
     }
 
     private void setPanelState(PANEL_STATE state) {
@@ -3076,15 +3114,6 @@ public class MainActivity extends Activity implements ILocationListener,
                     else
                         area.right = mExtendPanel.getLeft();
                 }
-                /*
-                if (mapLicense.isShown())
-                {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && mapLicense.getRotation() != 0f)
-                        area.left = mapLicense.getHeight(); // rotated view does not correctly report it's position
-                    else
-                        area.bottom = mapLicense.getTop();
-                }
-                */
 
                 if (!area.isEmpty()) {
                     int pointerOffset = (int) (LocationOverlay.LocationIndicator.POINTER_SIZE * 1.1f);

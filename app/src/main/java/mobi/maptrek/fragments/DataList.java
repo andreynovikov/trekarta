@@ -99,7 +99,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         listView.setMultiChoiceModeListener(mMultiChoiceModeListener);
 
         View rootView = getView();
-        if (rootView != null)
+        if (rootView != null && minHeight > 0)
             rootView.setMinimumHeight(minHeight);
 
         // If list contains no data footer is not displayed, so we should not worry about
