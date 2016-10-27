@@ -4,5 +4,7 @@ public interface MapStateListener {
 
     void onHasDownloadSizes();
 
-    void onMapSelected(int x, int y, MapIndex.ACTION action);
+    void onStatsChanged(MapIndex.IndexStats stats);
+
+    void onMapSelected(int x, int y, MapIndex.ACTION action, MapIndex.IndexStats stats);
 }

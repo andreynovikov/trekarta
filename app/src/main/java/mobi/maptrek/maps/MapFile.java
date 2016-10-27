@@ -14,7 +14,7 @@ public class MapFile {
     // Native map fields
     public String fileName;
     public double[] polygonPoints;
-    public long created;
+    public long created = 0L;
     public short downloadCreated;
     public long downloadSize;
     public long downloading;

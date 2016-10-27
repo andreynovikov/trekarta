@@ -8,7 +8,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -139,7 +138,6 @@ import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
-import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenu;
@@ -180,7 +178,7 @@ import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
 
-public class MainActivity extends Activity implements ILocationListener,
+public class MainActivity extends BasePaymentActivity implements ILocationListener,
         DataHolder,
         MapHolder,
         Map.InputListener,
@@ -191,7 +189,6 @@ public class MainActivity extends Activity implements ILocationListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
         OnTrackActionListener,
-        OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
@@ -376,7 +373,8 @@ public class MainActivity extends Activity implements ILocationListener,
         mFingerTipSize = (float) (MapTrekApplication.ydpi * 0.3);
 
         mSunriseSunset = new SunriseSunset();
-        mNightModeState = NIGHT_MODE_STATE.values()[Configuration.getNightModeState()];
+        //noinspection ConstantConditions
+        mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
 
         // Apply default styles at start
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
@@ -1099,10 +1097,6 @@ public class MainActivity extends Activity implements ILocationListener,
                 dialog.show();
                 return true;
             }
-            case R.id.theme_osmarender: {
-                mMap.setTheme(VtmThemes.OSMARENDER, true);
-                return true;
-            }
             case R.id.action_3dbuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
@@ -1386,12 +1380,15 @@ public class MainActivity extends Activity implements ILocationListener,
 
     private void onPlacesClicked() {
         boolean hasExtraSources = false;
-        for (FileDataSource source : mData) {
-            if (!source.isNativeTrack()) {
-                hasExtraSources = true;
-                break;
+        if (BuildConfig.FULL_VERSION) {
+            for (FileDataSource source : mData) {
+                if (!source.isNativeTrack()) {
+                    hasExtraSources = true;
+                    break;
+                }
             }
         }
+        //noinspection ConstantConditions
         if (hasExtraSources) {
             Bundle args = new Bundle(1);
             args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, false);
@@ -1408,7 +1405,7 @@ public class MainActivity extends Activity implements ILocationListener,
                 args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
                 args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
             }
-            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
+            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, BuildConfig.FULL_VERSION);
             DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
             fragment.setDataSource(mWaypointDbDataSource);
             showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
@@ -1445,10 +1442,11 @@ public class MainActivity extends Activity implements ILocationListener,
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
             public void onPrepareMenu(List<PanelMenuItem> menu) {
-                PanelMenuItem osmarenderer = null;
+                PanelMenuItem menuNightMode = null;
                 for (PanelMenuItem item : menu) {
                     switch (item.getItemId()) {
                         case R.id.action_night_mode:
+                            menuNightMode = item;
                             String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                             ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
                             break;
@@ -1464,12 +1462,11 @@ public class MainActivity extends Activity implements ILocationListener,
                         case R.id.action_grid:
                             item.setChecked(mMap.layers().contains(mGridLayer));
                             break;
-                        case R.id.theme_osmarender:
-                            osmarenderer = item;
                     }
                 }
-                if (!BuildConfig.DEBUG && osmarenderer != null)
-                    menu.remove(osmarenderer);
+                if (!BuildConfig.FULL_VERSION && menuNightMode != null) {
+                    menu.remove(menuNightMode);
+                }
             }
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
@@ -1481,11 +1478,16 @@ public class MainActivity extends Activity implements ILocationListener,
             fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
                 @Override
                 public void onPrepareMenu(List<PanelMenuItem> menu) {
-                    for (PanelMenuItem item : menu) {
-                        switch (item.getItemId()) {
-                            case R.id.actionHideSystemUI:
-                                item.setChecked(Configuration.getHideSystemUI());
+                    PanelMenuItem menuHideSystemUI = null;
+                        for (PanelMenuItem item : menu) {
+                            switch (item.getItemId()) {
+                                case R.id.actionHideSystemUI:
+                                    menuHideSystemUI = item;
+                                    item.setChecked(Configuration.getHideSystemUI());
+                            }
                         }
+                    if (!BuildConfig.FULL_VERSION && menuHideSystemUI != null) {
+                        menu.remove(menuHideSystemUI);
                     }
                 }
             });
@@ -1498,7 +1500,7 @@ public class MainActivity extends Activity implements ILocationListener,
     private void onMoreLongClicked() {
         boolean show = mLocationButton.getVisibility() == View.INVISIBLE;
         showActionPanel(show, true);
-        if (!show && !Configuration.getHideSystemUI())
+        if (BuildConfig.FULL_VERSION && !show && !Configuration.getHideSystemUI())
             hideSystemUI();
     }
 
@@ -3297,6 +3299,12 @@ public class MainActivity extends Activity implements ILocationListener,
                 layer.onDetach();
             }
         }
+    }
+
+    @Override
+    protected void onMapLimitChanged(int limit) {
+        mMapIndex.setLimit(limit);
+        mMap.clearMap();
     }
 
     private void addWaypointMarker(Waypoint waypoint) {

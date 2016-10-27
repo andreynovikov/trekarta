@@ -30,8 +30,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import mobi.maptrek.BuildConfig;
 import mobi.maptrek.R;
-import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapStateListener;
 
@@ -46,9 +46,11 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     private MapIndex mMapIndex;
     private TextView mMessageView;
     private TextView mStatusView;
+    private TextView mCounterView;
     private Resources mResources;
     private boolean mIsDownloadingIndex;
     private File mCacheFile;
+    private int mCounter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
             mIsDownloadingIndex = true;
             new LoadMapIndex().execute(true);
         }
+        updateUI(mMapIndex.getMapStats());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,6 +74,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
         mMessageView = (TextView) rootView.findViewById(R.id.message);
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
         mStatusView = (TextView) rootView.findViewById(R.id.status);
+        mCounterView = (TextView) rootView.findViewById(R.id.count);
         return rootView;
     }
 
@@ -81,12 +85,18 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
         mListener.onBeginMapManagement();
 
         mFloatingButton = mFragmentHolder.enableActionButton();
-        mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+        mFloatingButton.setImageResource(R.drawable.ic_file_download);
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onManageNativeMaps();
-                mListener.onFinishMapManagement();
+                if (mCounter == 0 && !BuildConfig.FULL_VERSION) {
+                    mListener.onPurchaseMaps();
+                    return;
+                }
+                if (mCounter > 0) {
+                    mListener.onManageNativeMaps();
+                    mListener.onFinishMapManagement();
+                }
                 mFragmentHolder.disableActionButton();
                 mFragmentHolder.popCurrent();
             }
@@ -138,7 +148,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     @Override
-    public void onMapSelected(final int x, final int y, MapIndex.ACTION action) {
+    public void onMapSelected(final int x, final int y, MapIndex.ACTION action, MapIndex.IndexStats stats) {
         if (action == MapIndex.ACTION.CANCEL) {
             final Activity activity = getActivity();
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -147,7 +157,6 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mMapIndex.cancelDownload(x, y);
-                    mMapIndex.selectNativeMap(x, y, MapIndex.ACTION.NONE);
                 }
             });
             builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -160,7 +169,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
             dialog.show();
             return;
         }
-        calculateDownloadSize();
+        updateUI(stats);
         if (action == MapIndex.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
             mIsDownloadingIndex = true;
             new LoadMapIndex().execute(false);
@@ -171,44 +180,62 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
         mMapIndex = mapIndex;
     }
 
-    private void calculateDownloadSize() {
+    private void updateUI(MapIndex.IndexStats stats) {
         if (!isVisible())
             return;
 
-        boolean hasSizes = mMapIndex.hasDownloadSizes();
-        int downloadCounter = 0, removeCounter = 0;
-        long size = 0L;
-        for (int x = 0; x < 128; x++)
-            for (int y = 0; y < 128; y++) {
-                MapFile mapFile = mMapIndex.getNativeMap(x, y);
-                if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
-                    downloadCounter++;
-                    if (hasSizes)
-                        size += mapFile.downloadSize;
-                }
-                if (mapFile.action == MapIndex.ACTION.REMOVE) {
-                    removeCounter++;
-                }
-            }
-        int counter = downloadCounter + removeCounter;
-        mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, counter, counter));
+        mCounter = stats.download + stats.remove;
+        mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, mCounter, mCounter));
         // can be null when fragment is not yet visible
         if (mFloatingButton != null) {
-            if (downloadCounter == 0 && removeCounter > 0)
-                mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_delete));
-            else
-                mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+            if (stats.download == 0 && stats.remove > 0) {
+                mFloatingButton.setImageResource(R.drawable.ic_delete);
+                mFloatingButton.setVisibility(View.VISIBLE);
+            } else if (stats.download > 0) {
+                mFloatingButton.setImageResource(R.drawable.ic_file_download);
+                mFloatingButton.setVisibility(View.VISIBLE);
+            } else if (!BuildConfig.FULL_VERSION) {
+                mFloatingButton.setImageResource(R.drawable.ic_add_shopping_cart_black);
+                mFloatingButton.setVisibility(View.VISIBLE);
+            } else {
+                mFloatingButton.setVisibility(View.GONE);
+            }
         }
-        if (size > 0L) {
+        if (stats.downloadSize > 0L) {
             mStatusView.setVisibility(View.VISIBLE);
-            mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), size)));
+            mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), stats.downloadSize)));
         } else {
             mStatusView.setVisibility(View.GONE);
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        if (stats.loaded > 0) {
+            stringBuilder.append(mResources.getQuantityString(R.plurals.loadedAreas, stats.loaded, stats.loaded));
+        }
+        if (stats.downloading > 0) {
+            if (stringBuilder.length() > 0)
+                stringBuilder.append(", ");
+            stringBuilder.append(mResources.getQuantityString(R.plurals.downloading, stats.downloading, stats.downloading));
+        }
+        if (stats.remaining >= 0) {
+            if (stringBuilder.length() > 0)
+                stringBuilder.append(", ");
+            stringBuilder.append(mResources.getQuantityString(R.plurals.remaining, stats.remaining, stats.remaining));
+        }
+        if (stringBuilder.length() > 0) {
+            mCounterView.setVisibility(View.VISIBLE);
+            mCounterView.setText(stringBuilder);
+        } else {
+            mCounterView.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onHasDownloadSizes() {
+    }
+
+    @Override
+    public void onStatsChanged(MapIndex.IndexStats stats) {
+        updateUI(stats);
     }
 
     private class LoadMapIndex extends AsyncTask<Boolean, Integer, Boolean> {
@@ -274,7 +301,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
         protected void onPostExecute(Boolean result) {
             if (result) {
                 mMapIndex.setHasDownloadSizes(true);
-                calculateDownloadSize();
+                updateUI(mMapIndex.getMapStats());
             } else {
                 mStatusView.setText(R.string.msgIndexDownloadFailed);
             }

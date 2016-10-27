@@ -24,4 +24,11 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+
 </LinearLayout>

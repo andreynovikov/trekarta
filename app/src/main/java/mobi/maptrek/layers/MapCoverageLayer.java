@@ -224,7 +224,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     }
 
     @Override
-    public void onMapSelected(int x, int y, MapIndex.ACTION action) {
+    public void onStatsChanged(MapIndex.IndexStats stats) {
+        update();
+    }
+
+    @Override
+    public void onMapSelected(int x, int y, MapIndex.ACTION action, MapIndex.IndexStats stats) {
         update();
     }
 }

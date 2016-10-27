@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import mobi.maptrek.BuildConfig;
+
 public class ExportProvider extends ContentProvider {
-    private static final String AUTHORITY = "mobi.maptrek.files";
+    private static final String AUTHORITY = BuildConfig.EXPORT_PROVIDER_AUTHORITY;
     private static final String[] COLUMNS = {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE};
 
     private PathStrategy mStrategy;
@@ -296,14 +298,14 @@ public class ExportProvider extends ContentProvider {
     static class SimplePathStrategy implements PathStrategy {
         private final HashMap<String, File> mRoots = new HashMap<>();
 
-        public SimplePathStrategy() {
+        SimplePathStrategy() {
         }
 
         /**
          * Add a mapping from a name to a filesystem root. The provider only offers
          * access to files that live under configured roots.
          */
-        public void addRoot(String name, File root) {
+        void addRoot(String name, File root) {
             if (TextUtils.isEmpty(name)) {
                 throw new IllegalArgumentException("Name must not be empty");
             }

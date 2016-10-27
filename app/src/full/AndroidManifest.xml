@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="mobi.maptrek">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application tools:ignore="AllowBackup">
+        <activity
+            android:name=".DataImportActivity"
+            android:label="@string/intentImportData"
+            android:theme="@android:style/Theme.Material.Light.Dialog">
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- KML from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.kml"
+                    android:scheme="file" />
+                <!-- GPX from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="file" />
+                <!-- MBTiles from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.mbtiles"
+                    android:scheme="file" />
+                <!-- SQLite from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.sqlitedb"
+                    android:scheme="file" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- KML from DownloadManager -->
+                <data
+                    android:mimeType="application/vnd.google-earth.kml+xml"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="text/xml"
+                    android:scheme="content" />
+                <!-- GPX, MBTiles, SQLite from DownloadManager -->
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:scheme="content" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- SEND action does not have scheme -->
+                <data android:mimeType="application/vnd.maptrek.mtrack" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/vnd.google-earth.kml+xml" />
+
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
