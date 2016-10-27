@@ -20,7 +20,4 @@
         android:id="@+id/action_grid"
         android:checkable="true"
         android:title="@string/action_show_grid" />
-    <item
-        android:id="@+id/theme_osmarender"
-        android:title="@string/theme_osmarender" />
 </menu>
