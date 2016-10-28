@@ -575,7 +575,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             baseMapSource = new WorldMapTileSource();
             baseMapSource.setMapFile(worldMapFile.getAbsolutePath());
         } else {
-            SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 1);
+            SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 2);
             baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
         }
 
@@ -1442,10 +1442,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
             public void onPrepareMenu(List<PanelMenuItem> menu) {
+                //noinspection UnusedAssignment (Lite version)
                 PanelMenuItem menuNightMode = null;
                 for (PanelMenuItem item : menu) {
                     switch (item.getItemId()) {
                         case R.id.action_night_mode:
+                            //noinspection UnusedAssignment (Lite version)
                             menuNightMode = item;
                             String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                             ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
@@ -1478,10 +1480,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
                 @Override
                 public void onPrepareMenu(List<PanelMenuItem> menu) {
+                    //noinspection UnusedAssignment (Lite version)
                     PanelMenuItem menuHideSystemUI = null;
                         for (PanelMenuItem item : menu) {
                             switch (item.getItemId()) {
                                 case R.id.actionHideSystemUI:
+                                    //noinspection UnusedAssignment (Lite version)
                                     menuHideSystemUI = item;
                                     item.setChecked(Configuration.getHideSystemUI());
                             }

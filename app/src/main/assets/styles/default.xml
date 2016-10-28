@@ -117,6 +117,7 @@
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.4" />
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
     <style-area id="aeroway:runway" fill="#c8ccbe" />
+    <style-area id="protected_area" fill="#2000a000" />
     <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="3.0" />
     <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="3.0" />
 
@@ -1157,7 +1158,7 @@
             <m v="national_park|protected_area|nature_reserve">
                 <m zoom-max="7">
                     <line fade="6" use="protected_area" />
-                    <area fade="6" src="assets:patterns/nature-reserve.svg" />
+                    <area fade="6" use="protected_area" />
                 </m>
                 <m zoom-max="13" zoom-min="8">
                     <area src="assets:patterns/nature-reserve.svg" />
