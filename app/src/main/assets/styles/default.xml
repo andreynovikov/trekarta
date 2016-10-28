@@ -216,6 +216,11 @@
                         priority="4" size="16" stroke="#ccffcc" stroke-width="2.0" />
                 </m>
             </m>
+            <!--should be under playing field -->
+            <m v="sports_centre|water_park" zoom-min="14">
+                <area fade="12" fill="#daefdb" />
+                <text use="poi" caption="true" />
+            </m>
 
             <m k="leisure" v="garden">
                 <area use="greens" />
@@ -302,10 +307,6 @@
                     <area fill="#e9e6e3" />
                 </m>
 
-                <!--should be under playing field -->
-                <m v="sports_centre|water_park" zoom-min="14">
-                    <area fade="12" fill="#daefdb" />
-                </m>
                 <m v="playground|miniature_golf" zoom-min="15">
                     <area fill="#f4f4de" use="tex1" />
                     <line cap="butt" fix="true" stroke="#d9d9a3" width="1.0" />
@@ -349,6 +350,9 @@
         </m>
         <m v="river" zoom-min="10">
             <line use="river" fade="10" width="0.3" />
+            <m zoom-min="17">
+                <line fix="true" stipple-stroke="#587f9d" src="assets:symbols/oneway.svg" stipple="160" width="24" />
+            </m>
             <text priority="4" use="water" />
         </m>
         <m v="riverbank|dock">
@@ -545,51 +549,52 @@
 
         <m closed="yes" k="piste:type" v="downhill" zoom-min="13">
             <m k="piste:difficulty" v="novice">
-                <area fill="#4440ff40" />
+                <area fill="#aaffaa" />
             </m>
             <m k="piste:difficulty" v="easy">
-                <area fill="#444040ff" />
+                <area fill="#aaaaff" />
             </m>
             <m k="piste:difficulty" v="intermediate">
-                <area fill="#44ff4040" />
+                <area fill="#ffaaaa" />
             </m>
             <m k="piste:difficulty" v="advanced">
-                <area fill="#44000000" />
+                <area fill="#666666" />
             </m>
             <m k="piste:difficulty" v="expert">
-                <area fill="#44f6800a" />
+                <area fill="#ffd0aa" />
             </m>
             <m k="piste:difficulty" v="freeride">
-                <area fill="#44f6dd0a" />
+                <area fill="#fffdaa" />
             </m>
             <m k="piste:difficulty" v="~">
-                <area fill="#44505050" />
+                <area fill="#aaaaaa" />
             </m>
         </m>
 
         <!-- piste ways -->
         <m closed="no" k="piste:type" v="downhill" zoom-min="13">
             <m k="piste:difficulty" v="novice">
-                <line stroke="#5540ff40" width="3.0" />
+                <line stroke="#aaffaa" width="2.0" />
             </m>
             <m k="piste:difficulty" v="easy">
-                <line stroke="#554040ff" width="3.0" />
+                <line stroke="#aaaaff" width="2.0" />
             </m>
             <m k="piste:difficulty" v="intermediate">
-                <line stroke="#55ff4040" width="3.0" />
+                <line stroke="#ffaaaa" width="2.0" />
             </m>
             <m k="piste:difficulty" v="advanced">
-                <line stroke="#55000000" width="3.0" />
+                <line stroke="#666666" width="2.0" />
             </m>
             <m k="piste:difficulty" v="expert">
-                <line stroke="#55f6800a" width="3.0" />
+                <line stroke="#ffd0aa" width="2.0" />
             </m>
             <m k="piste:difficulty" v="freeride">
-                <line stroke="#55f6dd0a" width="3.0" />
+                <line stroke="#fffdaa" width="2.0" />
             </m>
             <m k="piste:difficulty" v="~">
-                <line stroke="#55505050" width="3.0" />
+                <line stroke="#aaaaaa" width="2.0" />
             </m>
+            <line fix="true" stipple-stroke="#444444" src="assets:symbols/oneway.svg" stipple="120" width="32" />
         </m>
         <m k="piste:type" v="sled">
             <line cap="butt" dasharray="0,5,5,5" stroke="#8098F5FF" width="1.2" />
@@ -840,6 +845,9 @@
                             <text style="bold" fill="#c35817" k="ref" priority="1" size="18"
                                 stroke="#eeeeee" stroke-width="2.0" />
                         </m>
+                        <m k="oneway" v="yes" zoom-min="16">
+                            <line fix="true" stipple-stroke="#888888" src="assets:symbols/oneway.svg" stipple="120" width="26" />
+                        </m>
                     </m> <!-- end area=~|no|false -->
                 </m><!-- end tunnel|bridge=~|no|false -->
 
@@ -924,6 +932,9 @@
                                     <line cap="square" outline="bridge" use="highway:z11" />
                                     <text use="major-road" />
                                 </m>
+                            </m>
+                            <m k="oneway" v="yes" zoom-min="16">
+                                <line fix="true" stipple-stroke="#888888" src="assets:symbols/oneway.svg" stipple="120" width="26" />
                             </m>
                         </m><!-- end area=~|no|false -->
 
@@ -1201,9 +1212,8 @@
         </m>
 
         <m k="aerialway">
-            <line cap="butt" stroke="#202020" width="0.8" />
-            <line cap="butt" stipple="5" stipple-stroke="#202020" stipple-width="2"
-                stroke="#00000000" width="2" />
+            <line cap="butt" fix="true" stroke="#202020" width="1.8" />
+            <line fix="true" stipple-stroke="#202020" src="assets:symbols/tick.svg" stipple="50" width="12" />
             <m k="aerialway" v="cable_car">
                 <symbol src="assets:symbols/cable_car.svg" />
             </m>
