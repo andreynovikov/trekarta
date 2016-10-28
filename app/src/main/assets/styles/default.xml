@@ -1109,7 +1109,7 @@
 
         <!-- area outlines need to be above to avoid uggly pixelation where
         not aliased polygon overlaps the lines... -->
-        <m k="leisure|landuse|boundary">
+        <m k="leisure|landuse|boundary" closed="yes">
             <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
             <m v="national_park|protected_area|nature_reserve">
                 <area fade="6" use="protected_area" mesh="true" />
