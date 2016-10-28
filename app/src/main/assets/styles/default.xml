@@ -119,6 +119,7 @@
     <style-area id="aeroway:runway" fill="#c8ccbe" />
     <style-area id="protected_area" fill="#2000a000" />
     <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="3.0" />
+    <style-area id="military" fill="#20d40000" />
     <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="3.0" />
 
     <!-- <style-line id="building" stroke="#c9c3c1" width="1.0" fix="true" cap="butt" fade="15"/> -->
@@ -201,17 +202,6 @@
             </m>
 
             <!-- landuse -->
-            <m k="landuse" zoom-min="11">
-                <!-- how about 'leisure' for this one? -->
-                <m v="cemetery">
-                    <area src="assets:patterns/cemetery.svg" />
-                    <m zoom-min="14">
-                        <line use="park" />
-                        <text style="bold_italic" area-size="0.2" caption="true" fill="#222222"
-                            k="name" priority="4" size="16" stroke="#cccccc" stroke-width="2.0" />
-                    </m>
-                </m>
-            </m>
             <m k="landuse" v="village_green|recreation_ground">
                 <area use="greens" />
             </m>
@@ -227,9 +217,17 @@
                 </m>
             </m>
 
+            <m k="leisure" v="garden">
+                <area use="greens" />
+            </m>
+
             <!-- Heideland, keep below forest -->
             <m v="heath|sand" zoom-min="10">
                 <area fade="10" fill="#fffad1" use="tex1" />
+            </m>
+
+            <m k="landuse" v="grass">
+                <area use="lightgreen" />
             </m>
 
             <m k="landuse|natural" v="forest|wood">
@@ -241,15 +239,16 @@
                 </m>
             </m>
 
-            <!-- keep grass above forest:wood and leisure:park! -->
-            <!-- http://wiki.openstreetmap.org/wiki/Proposed_features/conservation,
-              often serves as background for leisure=nature_reserve -->
-            <m k="landuse" v="grass">
-                <area use="lightgreen" />
-            </m>
-
-            <m k="leisure" v="garden">
-                <area use="greens" />
+            <m k="landuse" zoom-min="11">
+                <!-- how about 'leisure' for this one? -->
+                <m v="cemetery">
+                    <area src="assets:patterns/cemetery.svg" />
+                    <m zoom-min="14">
+                        <line use="park" />
+                        <text style="bold_italic" area-size="0.2" caption="true" fill="#222222"
+                            k="name" priority="4" size="16" stroke="#cccccc" stroke-width="2.0" />
+                    </m>
+                </m>
             </m>
 
             <!-- amenity -->
@@ -286,6 +285,7 @@
                 </m>
                 <m v="marsh|wetland">
                     <area src="assets:patterns/wetland.svg" />
+                    <text area-size="0.2" caption="true" use="water" />
                 </m>
             </m>
             <m k="natural" zoom-min="8">
@@ -347,56 +347,9 @@
         <m v="stream" zoom-min="13">
             <line fade="13" use="water" width="0.5" />
         </m>
-        <m select="first" v="river">
-            <m zoom-min="12">
-                <line use="river" width="0.3" />
-                <text use="water" priority="3" />
-            </m>
-            <!-- zoom <= 11 -->
-            <m k="rank" v="0|1|2">
-                <line fade="2" use="water" width="0.3" />
-                <text use="water" style="bold" priority="1" />
-            </m>
-            <m k="rank" v="3" zoom-min="3">
-                <line fade="3" use="water" width="0.3" />
-                <text use="water" priority="2" />
-            </m>
-            <m k="rank" v="4" zoom-min="4">
-                <line fade="4" use="water" width="0.3" />
-                <text use="water" priority="5" />
-            </m>
-            <m k="rank" v="5" zoom-min="5">
-                <line fade="5" use="water" width="0.3" />
-                <text use="water" priority="6" />
-            </m>
-            <m k="rank" v="6" zoom-min="6">
-                <line fade="6" use="water" width="0.2" />
-                <text use="water" style="bold" priority="1" />
-                <text use="water" priority="7" />
-            </m>
-            <m k="rank" v="7" zoom-min="7">
-                <line fade="7" use="water" width="0.2" />
-                <text use="water" priority="8" />
-            </m>
-            <m k="rank" v="8" zoom-min="8">
-                <line fade="8" use="water" width="0.1" />
-                <text use="water" priority="9" />
-            </m>
-            <m k="rank" v="9" zoom-min="9">
-                <line fade="9" use="water" width="0.1" />
-                <text use="water" />
-            </m>
-            <m k="motorboat" v="yes|true|1" zoom-min="3">
-                <line fade="3" use="water" width="0.3" />
-                <text use="water" style="bold" priority="3" />
-            </m>
-            <m k="rank" v="~|-1" zoom-min="9">
-                <line fade="9" use="water" width="0.2" />
-                <text use="water" />
-            </m>
-            <m k="rank" v="~|-1" zoom-min="9">
-                <line fade="9" use="water" width="0.2" />
-            </m>
+        <m v="river" zoom-min="10">
+            <line use="river" fade="10" width="0.3" />
+            <text priority="4" use="water" />
         </m>
         <m v="riverbank|dock">
             <area use="water" />
@@ -416,8 +369,7 @@
     <m e="way">
         <m closed="yes" k="natural" v="water">
             <area use="water" />
-            <text use="water" caption="true" area-size="0.1" />
-            <!--<line use="water:outline" />-->
+            <text use="water" caption="true" area-size="0.1" priority="3" />
         </m>
         <!-- overview map rivers -->
         <m closed="no" k="natural" v="water">
@@ -426,6 +378,10 @@
 
         <m closed="yes" k="man_made" v="bridge">
             <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.0" />
+        </m>
+
+        <m k="man_made" v="cutline" zoom-min="14">
+            <line width="2.0" stroke="#d3dcb9" cap="butt" />
         </m>
 
         <m k="natural" v="cliff">
@@ -1156,31 +1112,23 @@
         <m k="leisure|landuse|boundary">
             <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
             <m v="national_park|protected_area|nature_reserve">
+                <area fade="6" use="protected_area" mesh="true" />
                 <m zoom-max="7">
                     <line fade="6" use="protected_area" />
-                    <area fade="6" use="protected_area" />
-                </m>
-                <m zoom-max="13" zoom-min="8">
-                    <area src="assets:patterns/nature-reserve.svg" />
                 </m>
                 <m zoom-min="14">
                     <line use="protected_area" />
-                    <area src="assets:patterns/nature-reserve.svg" />
                 </m>
                 <text style="bold_italic" area-size="0.2" caption="true" fill="#006600" k="name"
                     priority="3" size="18" stroke="#ccffcc" stroke-width="2.0" />
             </m>
             <m v="military">
+                <area fade="7" use="military" mesh="true" />
                 <m zoom-max="7">
                     <line fade="7" use="military" />
-                    <area fade="7" src="assets:patterns/military.svg" />
-                </m>
-                <m zoom-max="13" zoom-min="8">
-                    <area src="assets:patterns/military.svg" />
                 </m>
                 <m zoom-min="14">
                     <line use="military" />
-                    <area src="assets:patterns/military.svg" />
                 </m>
                 <text style="bold_italic" area-size="0.3" caption="true" fill="#990000" k="name"
                     priority="6" size="18" stroke="#ffcccc" stroke-width="2.0" />
@@ -1512,8 +1460,8 @@
                 <m v="spring">
                     <symbol src="assets:symbols/poi/spring.svg" />
                 </m>
-                <m v="tree" zoom-min="15">
-                    <circle radius="10" />
+                <m v="tree" zoom-min="16">
+                    <symbol src="assets:symbols/tree.svg" />
                 </m>
             </m>
             <m select="when-matched">
