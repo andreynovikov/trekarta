@@ -12,7 +12,7 @@
     <style-text style="bold" fill="#101010" id="major-road" k="name" priority="1" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
 
-    <style-text fill="#486f8d" id="water" k="name" style="italic" size="16" stroke="#CAE1FF" stroke-width="2.0" />
+    <style-text fill="#486780" id="water" k="name" style="italic" size="16" stroke="#CAE1FF" stroke-width="2.0" />
 
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -65,7 +65,7 @@
     <style-line cap="butt" fade="14" fix="true" id="park" stroke="#9ac56e" width="1.0" />
 
     <!-- de:Kleingartengebiet -->
-    <style-area fade="12" fill="#efeae0" id="allotments" use="tex1" />
+    <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <!-- de:Steinbruch, Schotter-, Kies-, Sand- und Tongrube -->
     <style-area fade="10" fill="#ddddcc" id="quarry" />
@@ -109,9 +109,7 @@
     <style-line cap="butt" fix="true" id="water" stroke="#a4bbcc" width="1.0" />
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
 
-    <!--<style-area id="water" fill="#97b7e5" afc5e3 /> -->
-    <!-- src="assets:textures/water.png" -->
-    <style-area fade="-1" fill="#99badf" id="water" use="tex1" />
+    <style-area fade="-1" fill="#a4bbcc" id="water" />
 
     <!-- no-go area boundary -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.4" />
@@ -308,7 +306,7 @@
                 </m>
 
                 <m v="playground|miniature_golf" zoom-min="15">
-                    <area fill="#f4f4de" use="tex1" />
+                    <area fill="#f4f4de" />
                     <line cap="butt" fix="true" stroke="#d9d9a3" width="1.0" />
                 </m>
                 <m v="playing_fields|pitch">
@@ -336,6 +334,16 @@
         </m><!-- end landuse|natural|leisure||amenity|tourism -->
     </m>
 
+    <m e="way">
+        <m closed="yes" k="natural" v="water">
+            <area use="water" />
+            <text area-size="0.1" caption="true" priority="3" use="water" />
+        </m>
+        <!-- overview map rivers -->
+        <m closed="no" k="natural" v="water">
+            <line use="water" />
+        </m>
+    </m>
     <!-- waterways -->
     <m e="way" k="waterway">
         <m v="ditch|drain" zoom-min="14">
@@ -348,16 +356,16 @@
         <m v="stream" zoom-min="13">
             <line fade="13" use="water" width="0.5" />
         </m>
-        <m v="river" zoom-min="10">
-            <line use="river" fade="10" width="0.3" />
-            <m zoom-min="17">
-                <line fix="true" stipple-stroke="#587f9d" src="assets:symbols/oneway.svg" stipple="160" width="24" />
-            </m>
-            <text priority="4" use="water" />
-        </m>
         <m v="riverbank|dock">
             <area use="water" />
             <line use="water:outline" />
+        </m>
+        <m v="river" zoom-min="10">
+            <line use="river" fade="10" width="0.3" />
+            <m zoom-min="17">
+                <line fix="true" stipple-stroke="#587f9d" src="assets:symbols/oneway_long.svg" stipple="600" width="36" />
+            </m>
+            <text priority="4" use="water" />
         </m>
         <m v="weir">
             <line stroke="#000088" use="fix" />
@@ -371,15 +379,6 @@
     </m>
 
     <m e="way">
-        <m closed="yes" k="natural" v="water">
-            <area use="water" />
-            <text use="water" caption="true" area-size="0.1" priority="3" />
-        </m>
-        <!-- overview map rivers -->
-        <m closed="no" k="natural" v="water">
-            <line use="water" />
-        </m>
-
         <m closed="yes" k="man_made" v="bridge">
             <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.0" />
         </m>
@@ -467,7 +466,7 @@
                                 <text use="road" />
                             </m>
                         </m>
-                        <m v="tertiary|secondary_link">
+                        <m v="tertiary|secondary_link|tertiary_link">
                             <line outline="0" use="tertiary" />
                             <text use="road" />
                         </m>
@@ -788,7 +787,7 @@
                             </m>
                             <text use="road" />
                         </m>
-                        <m v="tertiary|secondary_link">
+                        <m v="tertiary|secondary_link|tertiary_link">
                             <line outline="1" use="tertiary" />
                             <text use="road" />
                             <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
@@ -908,7 +907,7 @@
                             </m>
 
                             <m select="first">
-                                <m v="tertiary|secondary_link">
+                                <m v="tertiary|secondary_link|tertiary_link">
                                     <line cap="square" outline="bridge" use="tertiary" />
                                     <text use="road" />
                                 </m>
