@@ -576,6 +576,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             baseMapSource.setMapFile(worldMapFile.getAbsolutePath());
         } else {
             SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 2);
+            worldDatabaseHelper.setForcedUpgrade();
             baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
         }
 
