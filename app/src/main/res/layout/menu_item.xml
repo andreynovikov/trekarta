@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:includeFontPadding="true"
-        android:paddingEnd="8dip"
-        android:paddingStart="0dip" />
+        android:paddingEnd="4dip"
+        android:paddingStart="4dip" />
 
     <TextView
         android:id="@+id/title"

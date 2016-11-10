@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.net.Uri;
@@ -50,6 +51,7 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -112,6 +114,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -394,12 +397,14 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
             // Provide application context so that maps can be cached on rotation
             mMapIndex = new MapIndex(getApplicationContext(), mapsDir);
-            if (BuildConfig.FULL_VERSION)
+            if (BuildConfig.FULL_VERSION) {
+                initializePlugins();
                 mMapIndex.initializeOnlineMapProviders();
+            }
 
             //noinspection SpellCheckingInspection
             File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
-            mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
+            mWaypointDbDataSource = new WaypointDbDataSource(getApplicationContext(), waypointsFile);
 
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
@@ -646,12 +651,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         // Load waypoints
         mWaypointDbDataSource.open();
-        List<Waypoint> waypoints = mWaypointDbDataSource.getWaypoints();
-        for (Waypoint waypoint : waypoints) {
+        for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
             if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
                 mEditedWaypoint = waypoint;
             addWaypointMarker(waypoint);
         }
+        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
+        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
 
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
@@ -664,7 +670,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
-        mBackToast = Toast.makeText(this, R.string.msg_back_quit, Toast.LENGTH_SHORT);
+        mBackToast = Toast.makeText(this, R.string.msgBackQuit, Toast.LENGTH_SHORT);
         mProgressHandler = new ProgressHandler(mProgressBar);
 
         // Initialize UI event handlers
@@ -991,6 +997,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         for (FileDataSource source : mData)
             source.setVisible(false);
 
+        unregisterReceiver(mWaypointBroadcastReceiver);
+        mWaypointDbDataSource.close();
+
         mProgressHandler = null;
 
         logger.debug("  stopping threads...");
@@ -1003,7 +1012,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         if (isFinishing()) {
             mMapIndex.clear();
-            mWaypointDbDataSource.close();
         }
 
         mFragmentManager = null;
@@ -1064,7 +1072,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         switch (item.getItemId()) {
             case R.id.action_night_mode: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.action_night_mode);
+                builder.setTitle(R.string.actionNightMode);
                 builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         mNightModeState = NIGHT_MODE_STATE.values()[which];
@@ -1081,7 +1089,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             }
             case R.id.action_language: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.action_language);
+                builder.setTitle(R.string.actionLanguage);
                 builder.setItems(R.array.language_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
@@ -1178,7 +1186,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             }
             case R.id.actionResetAdvices: {
                 Configuration.resetAdviceState();
-                Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msg_advices_reset, Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
                 snackbar.show();
                 return true;
             }
@@ -1208,6 +1216,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
                 HelperUtils.showAdvice(Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mCoordinatorLayout);
                 return true;
+            }
+            default: {
+                Intent intent = item.getIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                    return true;
+                }
             }
         }
         return false;
@@ -1483,16 +1498,27 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 public void onPrepareMenu(List<PanelMenuItem> menu) {
                     //noinspection UnusedAssignment (Lite version)
                     PanelMenuItem menuHideSystemUI = null;
-                        for (PanelMenuItem item : menu) {
-                            switch (item.getItemId()) {
-                                case R.id.actionHideSystemUI:
-                                    //noinspection UnusedAssignment (Lite version)
-                                    menuHideSystemUI = item;
-                                    item.setChecked(Configuration.getHideSystemUI());
-                            }
+                    for (PanelMenuItem item : menu) {
+                        switch (item.getItemId()) {
+                            case R.id.actionHideSystemUI:
+                                //noinspection UnusedAssignment (Lite version)
+                                menuHideSystemUI = item;
+                                item.setChecked(Configuration.getHideSystemUI());
                         }
+                    }
                     if (!BuildConfig.FULL_VERSION && menuHideSystemUI != null) {
                         menu.remove(menuHideSystemUI);
+                    }
+                    java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
+                    String[] toolNames = tools.keySet().toArray(new String[0]);
+                    Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
+                    for (String toolName : toolNames) {
+                        Pair<Drawable, Intent> tool = tools.get(toolName);
+                        PanelMenuItem item = new PanelMenuItem(MainActivity.this);
+                        item.setTitle(toolName);
+                        //item.setIcon(tool.first);
+                        item.setIntent(tool.second);
+                        menu.add(0, item);
                     }
                 }
             });
@@ -2037,8 +2063,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msg_waypoint_saved, Snackbar.LENGTH_LONG)
-                .setAction(R.string.action_customize, new View.OnClickListener() {
+                .make(mCoordinatorLayout, R.string.msgWaypointSaved, Snackbar.LENGTH_LONG)
+                .setAction(R.string.actionCustomize, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         onWaypointProperties(waypoint);
@@ -2150,7 +2176,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         // Show undo snackbar
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msg_waypoint_deleted, Snackbar.LENGTH_LONG)
+                .make(mCoordinatorLayout, R.string.msgWaypointDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2181,7 +2207,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         }
                     }
                 })
-                .setAction(R.string.action_undo, new View.OnClickListener() {
+                .setAction(R.string.actionUndo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // If undo pressed, restore the marker
@@ -2241,7 +2267,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         }
                     }
                 })
-                .setAction(R.string.action_undo, new View.OnClickListener() {
+                .setAction(R.string.actionUndo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // If undo pressed, restore the marker
@@ -2352,7 +2378,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 selected.set(which);
             }
         });
-        builder.setPositiveButton(R.string.action_continue, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 TrackExport.Builder builder = new TrackExport.Builder();
@@ -2369,7 +2395,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(R.string.msg_track_format_explanation);
+                builder.setMessage(R.string.msgTrackFormatExplanation);
                 builder.setPositiveButton(R.string.ok, null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -2445,7 +2471,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         // Show undo snackbar
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msg_track_deleted, Snackbar.LENGTH_LONG)
+                .make(mCoordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2473,7 +2499,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         }, mProgressHandler);
                     }
                 })
-                .setAction(R.string.action_undo, new View.OnClickListener() {
+                .setAction(R.string.actionUndo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // If undo pressed, restore the track on map
@@ -3235,8 +3261,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
                     Snackbar snackbar = Snackbar
-                            .make(mCoordinatorLayout, R.string.msg_track_saved, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.action_customize, new View.OnClickListener() {
+                            .make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.actionCustomize, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     onTrackProperties(extras.getString("path"));
@@ -3248,10 +3274,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 String reason = extras.getString("reason");
                 logger.warn("Track not saved: {}", reason);
                 if ("period".equals(reason) || "distance".equals(reason)) {
-                    int msg = "period".equals(reason) ? R.string.msg_track_not_saved_period : R.string.msg_track_not_saved_distance;
+                    int msg = "period".equals(reason) ? R.string.msgTrackNotSavedPeriod : R.string.msgTrackNotSavedDistance;
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.action_save, new View.OnClickListener() {
+                            .setAction(R.string.actionSave, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     mLocationService.saveTrack();
@@ -3277,6 +3303,28 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mGaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
                 mGaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
                 adjustNavigationArrow(mNavigationService.getTurn());
+            }
+        }
+    };
+
+    private BroadcastReceiver mWaypointBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            logger.debug("Broadcast: {}", action);
+            if (action.equals(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED)) {
+                for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints())
+                    removeWaypointMarker(waypoint);
+                mWaypointDbDataSource.close();
+            }
+            if (action.equals(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN)) {
+                mWaypointDbDataSource.open();
+                mWaypointDbDataSource.notifyListeners();
+                for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
+                    if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
+                        mEditedWaypoint = waypoint;
+                    addWaypointMarker(waypoint);
+                }
             }
         }
     };
@@ -3384,13 +3432,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     @Override
     public void onDataSourceDelete(@NonNull final DataSource source) {
         if (!(source instanceof FileDataSource)) {
-            HelperUtils.showError(getString(R.string.msg_cannot_delete_native_source), mCoordinatorLayout);
+            HelperUtils.showError(getString(R.string.msgCannotDeleteNativeSource), mCoordinatorLayout);
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(R.string.title_delete_permanently);
-        builder.setMessage(R.string.msg_delete_source_permanently);
-        builder.setPositiveButton(R.string.action_continue, new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.msgDeleteSourcePermanently);
+        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 File sourceFile = new File(((FileDataSource) source).path);
@@ -3398,7 +3446,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     if (sourceFile.delete()) {
                         removeSourceFromMap((FileDataSource) source);
                     } else {
-                        HelperUtils.showError(getString(R.string.msg_delete_failed), mCoordinatorLayout);
+                        HelperUtils.showError(getString(R.string.msgDeleteFailed), mCoordinatorLayout);
                     }
                 }
             }

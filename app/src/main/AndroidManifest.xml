@@ -13,6 +13,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <permission android:name="${applicationId}.READ_FILES" />
+    <permission android:name="${applicationId}.WRITE_FILES" />
+
     <application
         android:name="mobi.maptrek.MapTrekApplication"
         android:allowBackup="true"
@@ -60,16 +63,26 @@
         <provider
             android:name="mobi.maptrek.provider.ExportProvider"
             android:authorities="${applicationId}.files"
-            android:exported="false"
+            android:exported="true"
+            android:readPermission="${applicationId}.READ_FILES"
+            android:writePermission="${applicationId}.WRITE_FILES"
             android:grantUriPermissions="true" />
 
         <receiver
-            android:name="mobi.maptrek.DownloadReceiver"
-            android:exported="true">
+            android:name="mobi.maptrek.DownloadReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name="mobi.maptrek.WaypointsRestoreReceiver"
+            android:exported="false">
+            <intent-filter android:priority="-10">
+                <action android:name="mobi.maptrek.event.WaypointsRestored" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

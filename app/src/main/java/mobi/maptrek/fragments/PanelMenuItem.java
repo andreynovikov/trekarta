@@ -59,6 +59,13 @@ public class PanelMenuItem implements MenuItem {
      */
     private View actionView;
 
+    /**
+     * Optional intent.
+     *
+     * @attr ref R.styleable#MenuItem_intent
+     */
+    private Intent intent;
+
     private Context mContext;
 
     public PanelMenuItem(Context context) {
@@ -132,13 +139,13 @@ public class PanelMenuItem implements MenuItem {
 
     @Override
     public PanelMenuItem setIntent(Intent intent) {
-        //FIXME Unimplemented
+        this.intent = intent;
         return this;
     }
 
     @Override
     public Intent getIntent() {
-        return null;
+        return intent;
     }
 
     @Override

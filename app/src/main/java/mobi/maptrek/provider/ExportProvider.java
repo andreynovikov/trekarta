@@ -16,6 +16,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,10 +26,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 
 public class ExportProvider extends ContentProvider {
+    private static final Logger logger = LoggerFactory.getLogger(ExportProvider.class);
+
+    private static final String COLUMN_LAST_MODIFIED = "_last_modified";
     private static final String AUTHORITY = BuildConfig.EXPORT_PROVIDER_AUTHORITY;
-    private static final String[] COLUMNS = {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE};
+    private static final String[] COLUMNS = {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE, COLUMN_LAST_MODIFIED};
 
     private PathStrategy mStrategy;
     private static PathStrategy mCachedStrategy;
@@ -54,9 +61,11 @@ public class ExportProvider extends ContentProvider {
         super.attachInfo(context, info);
 
         // Sanity check our security
+        /*
         if (info.exported) {
             throw new SecurityException("Provider must not be exported");
         }
+        */
         if (!info.grantUriPermissions) {
             throw new SecurityException("Provider must grant uri permissions");
         }
@@ -132,6 +141,9 @@ public class ExportProvider extends ContentProvider {
             } else if (OpenableColumns.SIZE.equals(col)) {
                 cols[i] = OpenableColumns.SIZE;
                 values[i++] = file.length();
+            } else if (COLUMN_LAST_MODIFIED.equals(col)) {
+                cols[i] = COLUMN_LAST_MODIFIED;
+                values[i++] = file.lastModified();
             }
         }
 
@@ -221,15 +233,24 @@ public class ExportProvider extends ContentProvider {
      * @return A new {@link ParcelFileDescriptor} with which you can access the file.
      */
     @Override
-    public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
-        final int fileMode = modeToMode(mode);
+        File file = mStrategy.getFileForUri(uri);
+        int fileMode = modeToMode(mode);
+        if ("rwt".equals(mode) && uri.getLastPathSegment().endsWith(".sqlitedb"))
+            file = new File(file.getAbsolutePath() + ".restore");
+        logger.error("openFile: {} {} {}", uri, file, mode);
         try {
             return ParcelFileDescriptor.open(file, fileMode, mHandler, new ParcelFileDescriptor.OnCloseListener() {
                 @Override
                 public void onClose(IOException e) {
                     if (e == null || !(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
+                        if ("rwt".equals(mode)) {
+                            logger.error("saved");
+                            Intent intent = new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED);
+                            //noinspection ConstantConditions
+                            getContext().sendOrderedBroadcast(intent, null);
+                        }
                         if ("export".equals(uri.getPathSegments().get(0))) {
                             File file = mStrategy.getFileForUri(uri);
                             //noinspection ResultOfMethodCallIgnored
@@ -253,6 +274,7 @@ public class ExportProvider extends ContentProvider {
             if (mCachedStrategy == null) {
                 SimplePathStrategy simplePathStrategy = new SimplePathStrategy();
                 simplePathStrategy.addRoot("data", buildPath(context.getExternalFilesDir("data")));
+                simplePathStrategy.addRoot("databases", buildPath(context.getExternalFilesDir("databases")));
                 simplePathStrategy.addRoot("export", buildPath(context.getExternalCacheDir(), "export"));
                 mCachedStrategy = simplePathStrategy;
             }

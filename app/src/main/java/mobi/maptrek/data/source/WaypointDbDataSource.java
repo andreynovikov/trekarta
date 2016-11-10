@@ -2,6 +2,7 @@ package mobi.maptrek.data.source;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,8 +16,17 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 
 public class WaypointDbDataSource extends DataSource implements WaypointDataSource {
+    @SuppressWarnings("WeakerAccess")
+    public static final String BROADCAST_WAYPOINTS_MODIFIED = "mobi.maptrek.event.WaypointsModified";
+    public static final String BROADCAST_WAYPOINTS_RESTORED = "mobi.maptrek.event.WaypointsRestored";
+    public static final String BROADCAST_WAYPOINTS_REWRITTEN = "mobi.maptrek.event.WaypointsRewritten";
+
+    private Context mContext;
     private SQLiteDatabase mDatabase;
     private WaypointDbHelper mDbHelper;
+    private static final Intent mBroadcastIntent = new Intent()
+            .setAction(BROADCAST_WAYPOINTS_MODIFIED)
+            .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 
     private String[] mAllColumns = {
             WaypointDbHelper.COLUMN_ID,
@@ -32,6 +42,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     };
 
     public WaypointDbDataSource(Context context, File file) {
+        mContext = context;
         mDbHelper = new WaypointDbHelper(context, file);
         name = context.getString(R.string.waypointStoreName);
     }
@@ -46,7 +57,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     }
 
     public boolean isOpen() {
-        return mDatabase.isOpen();
+        return mDatabase != null && mDatabase.isOpen();
     }
 
     public void saveWaypoint(Waypoint waypoint) {
@@ -114,6 +125,12 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     @Override
     public int getDataType(int position) {
         return TYPE_WAYPOINT;
+    }
+
+    @Override
+    public void notifyListeners() {
+        super.notifyListeners();
+        mContext.sendBroadcast(mBroadcastIntent);
     }
 
     @Override
