@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="48dp"
-        android:text="@string/msg_empty_map_list"
+        android:text="@string/msgEmptyMapList"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 

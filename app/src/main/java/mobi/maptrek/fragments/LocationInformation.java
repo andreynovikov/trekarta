@@ -242,7 +242,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             GeoPoint geoPoint = CoordinatesParser.parse(inputText);
             mMapHolder.setMapLocation(geoPoint);
         } catch (IllegalArgumentException e) {
-            HelperUtils.showError(getString(R.string.msg_parse_coordinates_failed), mFragmentHolder.getCoordinatorLayout());
+            HelperUtils.showError(getString(R.string.msgParseCoordinatesFailed), mFragmentHolder.getCoordinatorLayout());
         }
     }
 

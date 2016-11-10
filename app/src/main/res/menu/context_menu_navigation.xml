@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/actionOverviewRoute"
-        android:title="@string/action_overview_route" />
+        android:title="@string/actionOverviewRoute" />
     <item
         android:id="@+id/actionStopNavigation"
-        android:title="@string/action_stop_navigation" />
+        android:title="@string/actionStopNavigation" />
 </menu>

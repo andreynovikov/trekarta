@@ -4,20 +4,20 @@
         android:id="@+id/action_view"
         android:icon="@drawable/ic_play_arrow_black"
         android:showAsAction="always"
-        android:title="@string/action_view" />
+        android:title="@string/actionView" />
     <item
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_mode_edit"
         android:showAsAction="always"
-        android:title="@string/action_edit" />
+        android:title="@string/actionEdit" />
     <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:showAsAction="always"
-        android:title="@string/action_share" />
+        android:title="@string/actionShare" />
     <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_delete"
         android:showAsAction="always"
-        android:title="@string/action_delete" />
+        android:title="@string/actionDelete" />
 </menu>

@@ -13,7 +13,7 @@ public class HelperUtils {
     public static void showError(String message, CoordinatorLayout coordinatorLayout) {
         final Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.action_dismiss, new View.OnClickListener() {
+        snackbar.setAction(R.string.actionDismiss, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 snackbar.dismiss();
@@ -25,14 +25,14 @@ public class HelperUtils {
     }
 
     public static void showSaveError(Context context, CoordinatorLayout coordinatorLayout, Exception e) {
-        showError(context.getString(R.string.msg_save_failed, e.getMessage()), coordinatorLayout);
+        showError(context.getString(R.string.msgSaveFailed, e.getMessage()), coordinatorLayout);
     }
 
     public static void showAdvice(final long advice, int messageResId, CoordinatorLayout coordinatorLayout) {
         if (Configuration.getAdviceState(advice)) {
             Snackbar snackbar = Snackbar
                     .make(coordinatorLayout, messageResId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.action_got_it, new View.OnClickListener() {
+                    .setAction(R.string.actionGotIt, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             Configuration.setAdviceState(advice);

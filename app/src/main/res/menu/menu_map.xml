@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_night_mode"
-        android:title="@string/action_night_mode"
+        android:title="@string/actionNightMode"
         android:actionLayout="@layout/menu_item_action" />
     <item
         android:id="@+id/action_language"
-        android:title="@string/action_language"
+        android:title="@string/actionLanguage"
         android:actionLayout="@layout/menu_item_action" />
     <item
         android:id="@+id/actionAutoTilt"
         android:checkable="true"
-        android:title="@string/action_auto_tilt" />
+        android:title="@string/actionAutoTilt" />
     <item
         android:id="@+id/action_3dbuildings"
         android:checkable="true"
-        android:title="@string/action_show_3dbuildings" />
+        android:title="@string/action3dBuildings" />
     <item
         android:id="@+id/action_grid"
         android:checkable="true"
-        android:title="@string/action_show_grid" />
+        android:title="@string/actionGrid" />
 </menu>

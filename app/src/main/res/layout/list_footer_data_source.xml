@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="48dp"
-        android:text="@string/msg_no_file_data_sources"
+        android:text="@string/msgNoFileDataSources"
         android:layout_gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

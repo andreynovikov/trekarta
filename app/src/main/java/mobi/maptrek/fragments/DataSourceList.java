@@ -59,7 +59,7 @@ public class DataSourceList extends ListFragment {
         if (mNativeTracks) {
             TextView emptyView = (TextView) getListView().getEmptyView();
             if (emptyView != null)
-                emptyView.setText(R.string.msg_empty_track_list);
+                emptyView.setText(R.string.msgEmptyTrackList);
         }
 
         mAdapter = new DataSourceListAdapter(getActivity());

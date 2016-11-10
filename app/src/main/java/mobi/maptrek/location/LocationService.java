@@ -238,18 +238,18 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private Notification getNotification() {
-        int titleId = R.string.notif_tracking;
+        int titleId = R.string.notifTracking;
         int ntfId = R.mipmap.ic_stat_tracking;
         if (mGpsStatus != LocationService.GPS_OK) {
-            titleId = R.string.notif_loc_waiting;
+            titleId = R.string.notifLocationWaiting;
             ntfId = R.mipmap.ic_stat_waiting;
         }
         if (mGpsStatus == LocationService.GPS_OFF) {
-            titleId = R.string.notif_loc_waiting;
+            titleId = R.string.notifLocationWaiting;
             ntfId = R.mipmap.ic_stat_off;
         }
         if (mErrorTime > 0) {
-            titleId = R.string.notif_tracking_failure;
+            titleId = R.string.notifTrackingFailure;
             ntfId = R.mipmap.ic_stat_failure;
         }
 
@@ -257,12 +257,12 @@ public class LocationService extends BaseLocationService implements LocationList
         String distanceTracked = StringFormatter.distanceH(mDistanceTracked);
 
         StringBuilder sb = new StringBuilder(40);
-        sb.append(getString(R.string.msg_tracked, distanceTracked, timeTracked));
+        sb.append(getString(R.string.msgTracked, distanceTracked, timeTracked));
         String message = sb.toString();
         sb.insert(0, ". ");
-        sb.insert(0, getString(R.string.msg_tracking));
+        sb.insert(0, getString(R.string.msgTracking));
         sb.append(". ");
-        sb.append(getString(R.string.msg_tracking_actions));
+        sb.append(getString(R.string.msgTrackingActions));
         sb.append(".");
         String bigText = sb.toString();
 
@@ -281,8 +281,8 @@ public class LocationService extends BaseLocationService implements LocationList
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
-        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.action_stop), piStop).build();
-        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.action_pause), piPause).build();
+        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.actionStop), piStop).build();
+        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.actionPause), piPause).build();
 
         Notification.Builder builder = new Notification.Builder(this);
         builder.setWhen(mErrorTime);

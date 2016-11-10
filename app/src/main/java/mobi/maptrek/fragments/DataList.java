@@ -82,11 +82,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         TextView emptyView = (TextView) getListView().getEmptyView();
         if (emptyView != null) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(getString(R.string.msg_empty_waypoint_list));
+            stringBuilder.append(getString(R.string.msgEmptyWaypointList));
             if (noExtraSources) {
                 stringBuilder.append(System.getProperty("line.separator"));
                 stringBuilder.append(System.getProperty("line.separator"));
-                stringBuilder.append(getString(R.string.msg_no_file_data_sources));
+                stringBuilder.append(getString(R.string.msgNoFileDataSources));
             }
             emptyView.setText(stringBuilder.toString());
         }

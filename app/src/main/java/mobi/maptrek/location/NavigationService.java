@@ -255,15 +255,15 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private Notification getNotification() {
-        String title = getString(R.string.msg_navigating, navWaypoint.name);
+        String title = getString(R.string.msgNavigating, navWaypoint.name);
         String bearing = StringFormatter.angleH(navBearing);
         String distance = StringFormatter.distanceH(navDistance);
 
         StringBuilder sb = new StringBuilder(40);
-        sb.append(getString(R.string.msg_navigation_progress, distance, bearing));
+        sb.append(getString(R.string.msgNavigationProgress, distance, bearing));
         String message = sb.toString();
         sb.append(". ");
-        sb.append(getString(R.string.msg_navigation_actions));
+        sb.append(getString(R.string.msgNavigationActions));
         sb.append(".");
         String bigText = sb.toString();
 
@@ -281,8 +281,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
-        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.action_stop), piStop).build();
-        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.action_pause), piPause).build();
+        Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.actionStop), piStop).build();
+        Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.actionPause), piPause).build();
 
         Notification.Builder builder = new Notification.Builder(this);
         builder.setSmallIcon(R.mipmap.ic_stat_navigation);

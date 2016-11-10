@@ -3,15 +3,15 @@
     <item
         android:id="@+id/actionAddWaypointHere"
         android:icon="@drawable/ic_place"
-        android:title="@string/action_add_waypoint_here" />
+        android:title="@string/actionAddWaypointHere" />
     <item
         android:id="@+id/actionNavigateHere"
         android:icon="@drawable/ic_navigate"
-        android:title="@string/action_navigate_here" />
+        android:title="@string/actionNavigateHere" />
     <item
         android:id="@+id/actionRememberScale"
-        android:title="@string/action_remember_scale" />
+        android:title="@string/actionRememberScale" />
     <item
         android:id="@+id/actionRememberTilt"
-        android:title="@string/action_remember_tilt" />
+        android:title="@string/actionRememberTilt" />
 </menu>
