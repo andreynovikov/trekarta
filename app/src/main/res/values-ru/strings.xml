@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">MapTrek</string>
+    <string name="title_select_format">Выбор формата</string>
+    <string name="title_export_track">Экспорт трека</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Отменить</string>
+    <string name="close">Закрыть</string>
+    <string name="error">Ошибка</string>
+    <string name="name">Имя</string>
+    <string name="degrees">Градусы</string>
+    <string name="coordinate_utmups">UTM/UPS</string>
+    <string name="coordinate_mgrs">MGRS</string>
+    <string name="declination">Declination</string>
+    <string name="provider">Provider</string>
+    <string name="sunrise">Восход</string>
+    <string name="sunset">Закат</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="description">Описание</string>
+    <string name="waypoints">Точки</string>
+    <string name="tracks">Треки</string>
+    <string name="explain">Объяснить</string>
+    <string name="copyright">Copyright</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="credits">Credits</string>
+
+    <string name="actionSave">Сохранить</string>
+    <string name="actionStop">Закончить</string>
+    <string name="actionPause">Остановить</string>
+    <string name="actionCustomize">Customize</string>
+    <string name="actionUndo">Отменить</string>
+    <string name="actionDismiss">Dismiss</string>
+    <string name="actionDelete">Удалить</string>
+    <string name="action3dBuildings">3D здания</string>
+    <string name="actionGrid" tools:ignore="Typos">Сетка плиток</string>
+    <string name="actionStopNavigation">Закончить навигацию</string>
+    <string name="actionAbout">О приложении</string>
+    <string name="actionGotIt">Got it</string>
+    <string name="actionEdit">Редактировать</string>
+    <string name="actionShare">Поделиться</string>
+    <string name="actionView">Показать</string>
+    <string name="actionContinue">Продолжить</string>
+    <string name="actionNightMode">Ночной режим</string>
+    <string name="actionLanguage">Язык</string>
+    <string name="actionManageMaps">Управление картами</string>
+    <string name="actionAddWaypointHere">Добавить точку здесь</string>
+    <string name="actionNavigateHere">Задать направление сюда</string>
+    <string name="actionRememberScale">Запомнить масштаб</string>
+    <string name="actionOverviewRoute">Overview route</string>
+    <string name="actionAutoTilt">Tilt on track up</string>
+    <string name="actionRememberTilt">Запомнить наклон</string>
+    <string name="actionHideSystemUI">Полноэкранный режим</string>
+    <string name="actionResetAdvices">Сбросить подсказки</string>
+
+    <string name="notifTracking">Запись трека</string>
+    <string name="notifTrackingFailure">Ошибка записи трека</string>
+    <string name="notifLocationWaiting">Ожидание местоположения</string>
+
+    <string name="msgNavigationProgress" formatted="false">Осталось %s, продолжайте двигаться курсом %s</string>
+    <string name="msgNavigating" formatted="false">Движение на точку %s</string>
+    <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
+    <string name="msgBackQuit">Press Back once more to quit</string>
+    <string name="msgWaypointDeleted">Точка удалена</string>
+    <string name="msgWaypointSaved">Точка сохранена</string>
+    <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку долгим нажатием на кнопку Точки.</string>
+    <string name="msgTrackDeleted">Трек удалён</string>
+    <string name="msgTracked" formatted="false">%s пройдено с %s</string>
+    <string name="msgTracking">MapTrek записывает ваше перемещение</string>
+    <string name="msgTrackingActions">Вы можете прекратить запись, чтобы сохранить трек, или остановить запись, чтобы продолжить её при следующем старте приложения</string>
+    <string name="msgTrackSaved">Трек сохранён</string>
+    <string name="msgTrackNotSavedPeriod">Трек не был сохранён: слишком короткий период времени</string>
+    <string name="msgTrackNotSavedDistance">Трек не был сохранён: пройдено слишком маленькое расстояние</string>
+    <string name="msgEmptyTrackList">Здесь будут отображаться записанные вами треки.</string>
+    <string name="msgNoFileDataSources">Вы так же можете импортировать GPX и KML файлы.</string>
+    <string name="msgDataImported">Файл сохранён в папку приложения.</string>
+    <string name="msgSaveFailed">Ошибка сохранения: %s</string>
+    <string name="msgReadExternalStorageRationale">MapTrek требуется %s, чтобы иметь доступ к файлу, который вы хотите открыть</string>
+    <string name="msgFailedToGetFileName">Не удалось получить имя файла</string>
+    <string name="msgCancelDownload">Отменить загрузку карты?</string>
+    <string name="msgCrashOccurred">Похоже, в прошлый раз приложение закрылось из-за ошибки. Вы окажете помощь разработчику, отправив отчёт об ошибке.</string>
+    <string name="msgIndexDownloadFailed">Загружаемый объём не известен</string>
+    <string name="msgEstimateDownloadSize">Оценка загружаемого объёма</string>
+    <string name="msgDownloadSize">Загружаемый объём: %s</string>
+    <string name="msgAdvicesReset">Advices will be shown from the very beginning</string>
+    <string name="msgParseCoordinatesFailed">Failed to get coordinates from string</string>
+    <string name="msgEmptyMapList">Your installed custom tile maps will appear here.</string>
+    <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
+    <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
+    <string name="msgDeleteFailed">Failed to delete data source</string>
+    <string name="msgTrackFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek. GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
+    <string name="msgFailedToGetFile">Failed to get file</string>
+    <string name="msgUnsupportedFileFormat">Unsupported file format</string>
+
+</resources>
