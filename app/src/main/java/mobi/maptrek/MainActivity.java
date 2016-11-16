@@ -2840,6 +2840,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 return;
             }
         }
+        mExtendPanel.setForeground(null);
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
