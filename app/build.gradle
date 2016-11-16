@@ -8,7 +8,7 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 17
+        versionCode 18
         versionName "17"
     }
 
@@ -26,10 +26,11 @@ android {
 
     productFlavors {
         full {
-            versionName "2016.11"
+            versionName "2016.beta18"
             applicationId "mobi.maptrek"
             buildConfigField "boolean", "FULL_VERSION", "true"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
+            return void
         }
 
         lite {
@@ -37,8 +38,16 @@ android {
             applicationId "mobi.maptrek.lite"
             buildConfigField "boolean", "FULL_VERSION", "false"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
+            return void
         }
     }
+
+    lintOptions {
+        disable 'MissingTranslation'
+        return void
+    }
+
+    return void
 }
 
 repositories {
@@ -64,6 +73,7 @@ dependencies {
     compile 'org.mapsforge:vtm-android:master-SNAPSHOT:natives-x86_64'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.noveogroup.android:android-logger:1.3.5'
+    compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.squareup.okhttp:okhttp:1.5.2'
     compile 'org.openstreetmap.osmosis:osmosis-osm-binary:0.44.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'

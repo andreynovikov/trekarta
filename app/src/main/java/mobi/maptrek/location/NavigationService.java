@@ -35,12 +35,15 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.oscim.core.GeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Route;
@@ -119,17 +122,15 @@ public class NavigationService extends BaseNavigationService implements OnShared
         String action = intent.getAction();
         Bundle extras = intent.getExtras();
         logger.debug("Command: {}", action);
-        if (action.equals(NAVIGATE_MAP_OBJECT)) {
+        if (action.equals(NAVIGATE_TO_POINT)) {
             MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
             mo.name = extras.getString(EXTRA_NAME);
             mo.proximity = extras.getInt(EXTRA_PROXIMITY);
             navigateTo(mo);
         }
-        if (action.equals(NAVIGATE_MAP_OBJECT_WITH_ID)) {
+        if (action.equals(NAVIGATE_TO_OBJECT)) {
             long id = extras.getLong(EXTRA_ID);
-            MapObject mo = null; //application.getMapObject(id);
-            //TODO Reimplement moving object navigation
-            //noinspection ConstantConditions
+            MapObject mo = MapTrek.getMapObject(id);
             if (mo == null)
                 return START_NOT_STICKY;
             navigateTo(mo);
@@ -243,10 +244,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void connect() {
+        EventBus.getDefault().register(this);
         bindService(new Intent(this, LocationService.class), locationConnection, BIND_AUTO_CREATE);
     }
 
     private void disconnect() {
+        EventBus.getDefault().unregister(this);
         if (mLocationService != null) {
             mLocationService.unregisterLocationCallback(locationListener);
             unbindService(locationConnection);
@@ -614,6 +617,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         logger.trace("Status dispatched");
     }
 
+    @Subscribe
+    public void onMapObjectUpdated(MapObject.UpdatedEvent event) {
+        logger.error("onMapObjectUpdated({})", (event.mapObject.equals(navWaypoint)));
+        if (event.mapObject.equals(navWaypoint))
+            calculateNavigationStatus(mLastKnownLocation, 0, 0);
+    }
+
     private ServiceConnection locationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mLocationService = (ILocationService) service;
@@ -630,6 +640,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private ILocationListener locationListener = new ILocationListener() {
         @Override
         public void onLocationChanged() {
+            if (mLocationService == null)
+                return;
+
             mLastKnownLocation = mLocationService.getLocation();
 
             if (navWaypoint != null)

@@ -13,11 +13,29 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <permission android:name="${applicationId}.READ_FILES" />
-    <permission android:name="${applicationId}.WRITE_FILES" />
+    <permission
+        android:name="${applicationId}.permission.READ_FILES"
+        android:protectionLevel="normal" />
+    <permission
+        android:name="${applicationId}.permission.WRITE_FILES"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="${applicationId}.permission.RECEIVE_LOCATION"
+        android:description="@string/permReceiveLocationDescription"
+        android:label="@string/permReceiveLocationTitle" />
+    <permission
+        android:name="${applicationId}.permission.READ_MAP_DATA"
+        android:description="@string/permReadMapDataDescription"
+        android:label="@string/permReadMapDataTitle"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="${applicationId}.permission.WRITE_MAP_DATA"
+        android:description="@string/permWriteMapDataDescription"
+        android:label="@string/permWriteMapDataTitle"
+        android:protectionLevel="signature" />
 
     <application
-        android:name="mobi.maptrek.MapTrekApplication"
+        android:name="mobi.maptrek.MapTrek"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
@@ -31,6 +49,14 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="mobi.maptrek.action.CENTER_ON_COORDINATES" />
+                <action android:name="mobi.maptrek.action.NAVIGATE_TO_OBJECT" />
+                <action android:name="mobi.maptrek.action.NAVIGATE_TO_POINT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -54,29 +80,40 @@
 
         <service
             android:name=".location.LocationService"
-            android:exported="false" />
+            android:permission="${applicationId}.permission.RECEIVE_LOCATION">
+            <intent-filter>
+                <action android:name="${applicationId}.location" />
+                <action android:name="${applicationId}.location.ILocationRemoteService" />
+            </intent-filter>
+        </service>
 
         <service
             android:name=".location.NavigationService"
             android:exported="false" />
 
         <provider
-            android:name="mobi.maptrek.provider.ExportProvider"
+            android:name=".provider.ExportProvider"
             android:authorities="${applicationId}.files"
             android:exported="true"
-            android:readPermission="${applicationId}.READ_FILES"
-            android:writePermission="${applicationId}.WRITE_FILES"
-            android:grantUriPermissions="true" />
+            android:grantUriPermissions="true"
+            android:readPermission="${applicationId}.permission.READ_FILES"
+            android:writePermission="${applicationId}.permission.WRITE_FILES" />
 
-        <receiver
-            android:name="mobi.maptrek.DownloadReceiver">
+        <provider
+            android:name=".provider.DataProvider"
+            android:authorities="${applicationId}.data"
+            android:exported="true"
+            android:readPermission="${applicationId}.permission.READ_MAP_DATA"
+            android:writePermission="${applicationId}.permission.WRITE_MAP_DATA" />
+
+        <receiver android:name="mobi.maptrek.DownloadReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name="mobi.maptrek.WaypointsRestoreReceiver"
+            android:name=".WaypointsRestoreReceiver"
             android:exported="false">
             <intent-filter android:priority="-10">
                 <action android:name="mobi.maptrek.event.WaypointsRestored" />

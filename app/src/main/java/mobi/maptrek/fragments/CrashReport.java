@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import java.io.File;
 import java.util.Locale;
 
-import mobi.maptrek.MapTrekApplication;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 
 public class CrashReport extends Fragment implements OnBackPressedListener {
@@ -37,7 +37,7 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
-                File file = MapTrekApplication.getApplication().getExceptionLog();
+                File file = MapTrek.getApplication().getExceptionLog();
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                 intent.setType("vnd.android.cursor.dir/email");
                 intent.putExtra(Intent.EXTRA_SUBJECT, "MapTrek crash report");

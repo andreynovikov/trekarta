@@ -22,6 +22,7 @@ public class Configuration {
     private static final String PREF_MAP_GRID = "map_grid";
     private static final String PREF_BITMAP_MAP = "bitmap_map";
     private static final String PREF_POINTS_COUNTER = "wpt_counter";
+    private static final String PREF_UID = "uid";
     private static final String PREF_LOCATION_STATE = "location_state";
     private static final String PREF_PREVIOUS_LOCATION_STATE = "previous_location_state";
     private static final String PREF_TRACKING_STATE = "tracking_state";
@@ -57,6 +58,12 @@ public class Configuration {
         int counter = loadInt(PREF_POINTS_COUNTER, 0) + 1;
         saveInt(PREF_POINTS_COUNTER, counter);
         return counter;
+    }
+
+    public static long getUID() {
+        long uid = loadLong(PREF_UID, 0L) + 1L;
+        saveLong(PREF_UID, uid);
+        return uid;
     }
 
     public static int getLocationState() {

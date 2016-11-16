@@ -27,6 +27,8 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -106,6 +108,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private final Set<ILocationListener> mLocationCallbacks = new HashSet<>();
     private final Set<ITrackingListener> mTrackingCallbacks = new HashSet<>();
     private ProgressListener mProgressListener;
+    private final RemoteCallbackList<ILocationCallback> mLocationRemoteCallbacks = new RemoteCallbackList<>();
 
     private static final String PREF_TRACKING_MIN_TIME = "tracking_min_time";
     private static final String PREF_TRACKING_MIN_DISTANCE = "tracking_min_distance";
@@ -178,7 +181,11 @@ public class LocationService extends BaseLocationService implements LocationList
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        if (MAPTREK_LOCATION_SERVICE.equals(intent.getAction()) || ILocationRemoteService.class.getName().equals(intent.getAction())) {
+            return mLocationRemoteBinder;
+        } else {
+            return mBinder;
+        }
     }
 
     @Override
@@ -609,15 +616,20 @@ public class LocationService extends BaseLocationService implements LocationList
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onLocationChanged();
+                        callback.onLocationChanged();
                 }
             });
         }
-    }
-
-    private void updateLocation(final ILocationListener callback) {
-        if (!"unknown".equals(mLastKnownLocation.getProvider()))
-            callback.onLocationChanged();
+        final int n = mLocationRemoteCallbacks.beginBroadcast();
+        for (int i = 0; i < n; i++) {
+            final ILocationCallback callback = mLocationRemoteCallbacks.getBroadcastItem(i);
+            try {
+                callback.onLocationChanged();
+            } catch (RemoteException e) {
+                logger.error("Location broadcast error", e);
+            }
+        }
+        mLocationRemoteCallbacks.finishBroadcast();
     }
 
     private void updateGpsStatus() {
@@ -633,11 +645,16 @@ public class LocationService extends BaseLocationService implements LocationList
                 }
             });
         }
-    }
-
-    private void updateGpsStatus(final ILocationListener callback) {
-        if (!"unknown".equals(mLastKnownLocation.getProvider()))
-            callback.onLocationChanged();
+        final int n = mLocationRemoteCallbacks.beginBroadcast();
+        for (int i = 0; i < n; i++) {
+            final ILocationCallback callback = mLocationRemoteCallbacks.getBroadcastItem(i);
+            try {
+                callback.onGpsStatusChanged();
+            } catch (RemoteException e) {
+                logger.error("Location broadcast error", e);
+            }
+        }
+        mLocationRemoteCallbacks.finishBroadcast();
     }
 
     @Override
@@ -813,13 +830,54 @@ public class LocationService extends BaseLocationService implements LocationList
         }
     }
 
+    private final ILocationRemoteService.Stub mLocationRemoteBinder = new ILocationRemoteService.Stub() {
+        public void registerCallback(ILocationCallback callback)
+        {
+            logger.debug("Register callback");
+            if (callback == null)
+                return;
+            if (!"unknown".equals(mLastKnownLocation.getProvider())) {
+                try {
+                    callback.onLocationChanged();
+                    callback.onGpsStatusChanged();
+                } catch (RemoteException e) {
+                    logger.error("Location broadcast error", e);
+                }
+            }
+            mLocationRemoteCallbacks.register(callback);
+        }
+
+        public void unregisterCallback(ILocationCallback callback)
+        {
+            if (callback != null)
+                mLocationRemoteCallbacks.unregister(callback);
+        }
+
+        public boolean isLocating()
+        {
+            return mLocationsEnabled;
+        }
+
+        @Override
+        public Location getLocation() throws RemoteException {
+            return mLastKnownLocation;
+        }
+
+        @Override
+        public int getStatus() throws RemoteException {
+            return mGpsStatus;
+        }
+    };
+
     public class LocalBinder extends Binder implements ILocationService {
         @Override
         public void registerLocationCallback(ILocationListener callback) {
             if (!mLocationsEnabled)
                 connect();
-            updateLocation(callback);
-            updateGpsStatus(callback);
+            if (!"unknown".equals(mLastKnownLocation.getProvider())) {
+                    callback.onLocationChanged();
+                    callback.onGpsStatusChanged();
+            }
             mLocationCallbacks.add(callback);
         }
 

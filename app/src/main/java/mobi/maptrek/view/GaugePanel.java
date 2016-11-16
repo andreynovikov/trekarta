@@ -350,7 +350,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
     }
 
-    public void setNavigationMode(boolean mode) {
+    public boolean setNavigationMode(boolean mode) {
+        if (mNavigationMode == mode)
+            return false;
         mNavigationMode = mode;
         int visibility = mode ? View.VISIBLE : View.GONE;
         TransitionManager.beginDelayedTransition(this);
@@ -358,6 +360,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             if (isNavigationGauge(gauge.getType()))
                 gauge.setVisibility(visibility);
         }
+        return true;
     }
 
     private boolean isNavigationGauge(int type) {

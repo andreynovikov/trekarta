@@ -156,6 +156,7 @@ import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.MapCoverageLayer;
 import mobi.maptrek.layers.MapEventLayer;
+import mobi.maptrek.layers.MapObjectLayer;
 import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
@@ -344,8 +345,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private Handler mBackgroundHandler;
     private Handler mMainHandler;
 
-    private static final boolean BILLBOARDS = true;
-
     @SuppressLint("ShowToast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -372,8 +371,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         StringFormatter.speedFactor = 3.6f;
         StringFormatter.speedAbbr = "kmh";
 
-        // Estimate finger tip height (0.3 inch is obtained from experiments)
-        mFingerTipSize = (float) (MapTrekApplication.ydpi * 0.3);
+        // Estimate finger tip height (0.1 inch is obtained from experiments)
+        mFingerTipSize = (float) (MapTrek.ydpi * 0.1);
 
         mSunriseSunset = new SunriseSunset();
         //noinspection ConstantConditions
@@ -639,13 +638,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
-        MarkerSymbol symbol;
-        if (BILLBOARDS)
-            symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-        else
-            symbol = new MarkerSymbol(bitmap, 0.5f, 0.5f, false);
+        layers.add(new MapObjectLayer(mMap), MAP_3D_DATA);
 
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
+        MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
@@ -789,8 +785,15 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         String action = intent.getAction();
         logger.debug("New intent: {}", action);
         String scheme = intent.getScheme();
-
-        if ("geo".equals(scheme)) {
+        if ("mobi.maptrek.action.CENTER_ON_COORDINATES".equals(action)) {
+            MapPosition position = mMap.getMapPosition();
+            double lat = intent.getDoubleExtra("lat", position.getLatitude());
+            double lon = intent.getDoubleExtra("lon", position.getLongitude());
+            position.setPosition(lat, lon);
+            setMapLocation(position.getGeoPoint());
+        } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
+            startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
+        } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
             logger.debug("   {}", uri.toString());
             String data = uri.getSchemeSpecificPart();
@@ -912,7 +915,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         m.what = R.id.msgRemoveLicense;
         mMainHandler.sendMessageDelayed(m, 10000);
 
-        if (MapTrekApplication.getApplication().hasPreviousRunsExceptions()) {
+        if (MapTrek.getApplication().hasPreviousRunsExceptions()) {
             Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
             fragment.setEnterTransition(new Slide());
             FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -1012,6 +1015,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         if (isFinishing()) {
             mMapIndex.clear();
+            sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
         }
 
         mFragmentManager = null;
@@ -1147,14 +1151,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 }
                 return true;
             }
-            case R.id.actionRememberTilt: {
-                mMap.getMapPosition(mMapPosition);
-                mAutoTilt = mMapPosition.getTilt();
-                Configuration.setAutoTilt(mAutoTilt);
-                mAutoTiltSet = true;
-                mAutoTiltShouldSet = true;
-                return true;
-            }
             case R.id.actionOverviewRoute: {
                 if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
                     mLocationState = LocationState.ENABLED;
@@ -1201,20 +1197,32 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 return true;
             }
             case R.id.actionAddWaypointHere: {
+                removeMarker();
                 String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
                 onWaypointCreate(mSelectedPoint, name);
                 return true;
             }
             case R.id.actionNavigateHere: {
+                removeMarker();
                 MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
                 mapObject.name = getString(R.string.selectedLocation);
                 startNavigation(mapObject);
                 return true;
             }
             case R.id.actionRememberScale: {
+                removeMarker();
                 mMap.getMapPosition(mMapPosition);
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
                 HelperUtils.showAdvice(Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mCoordinatorLayout);
+                return true;
+            }
+            case R.id.actionRememberTilt: {
+                removeMarker();
+                mMap.getMapPosition(mMapPosition);
+                mAutoTilt = mMapPosition.getTilt();
+                Configuration.setAutoTilt(mAutoTilt);
+                mAutoTiltSet = true;
+                mAutoTiltShouldSet = true;
                 return true;
             }
             default: {
@@ -1572,7 +1580,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         deltaY = (float) (downY - point.y);
         // Shift map to reveal marker tip position
         mMap.getEventLayer().enableMove(false);
-        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 + mFingerTipSize), 1, true);
+        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 + 3 * mFingerTipSize), 1, true);
         return true;
     }
 
@@ -1606,6 +1614,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public void setMapLocation(GeoPoint point) {
+        if (mSavedLocationState == LocationState.NORTH || mSavedLocationState == LocationState.TRACK) {
+            mSavedLocationState = LocationState.ENABLED;
+        }
         if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.ENABLED;
             updateLocationDrawable();
@@ -1681,11 +1692,22 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private void startNavigation(MapObject mapObject) {
         enableNavigation();
-        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_MAP_OBJECT);
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_TO_POINT);
         i.putExtra(NavigationService.EXTRA_NAME, mapObject.name);
         i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.coordinates.getLatitude());
         i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.coordinates.getLongitude());
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
+        startService(i);
+        if (mLocationState == LocationState.DISABLED)
+            askForPermission();
+    }
+
+    private void startNavigation(long id) {
+        if (MapTrek.getMapObject(id) == null)
+            return;
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_TO_OBJECT);
+        i.putExtra(NavigationService.EXTRA_ID, id);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
             askForPermission();
@@ -1788,7 +1810,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             mMap.getEventLayer().enableMove(true);
         } else if (action == MotionEvent.ACTION_MOVE) {
             float eventX = motionEvent.getX() - deltaX;
-            float eventY = motionEvent.getY() - deltaY - mFingerTipSize;
+            float eventY = motionEvent.getY() - deltaY - 3 * mFingerTipSize;
             mActiveMarker.setPoint(mMap.viewport().fromScreenPoint(eventX, eventY));
             mMarkerLayer.updateItems();
             mMap.updateMap(true);
@@ -1852,9 +1874,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     public boolean onGesture(Gesture gesture, MotionEvent event) {
         mMap.getMapPosition(mMapPosition);
         if (gesture == Gesture.LONG_PRESS) {
-            mPopupAnchor.setX(event.getX());
-            mPopupAnchor.setY(event.getY());
+            mPopupAnchor.setX(event.getX() + mFingerTipSize);
+            mPopupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
+            showMarker(mSelectedPoint, null);
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu menu = popup.getMenu();
@@ -1863,6 +1886,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
                 menu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
+            popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                @Override
+                public void onDismiss(PopupMenu menu) {
+                    removeMarker();
+                }
+            });
             popup.show();
             return true;
         } else if (gesture == Gesture.DOUBLE_TAP) {
@@ -1986,7 +2015,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
-        mGaugePanel.setNavigationMode(enabled);
+        boolean changed = mGaugePanel.setNavigationMode(enabled);
         if (enabled) {
             if (mNavigationArrowView.getVisibility() == View.GONE) {
                 mNavigationArrowView.setAlpha(0f);
@@ -2020,7 +2049,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mNavigationLayer = null;
             }
         }
-        updateMapViewArea();
+        if (changed)
+            updateMapViewArea();
     }
 
     private void showMarker(@NonNull MapPosition position, @Nullable String name) {
@@ -3303,6 +3333,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mGaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
                 mGaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
                 adjustNavigationArrow(mNavigationService.getTurn());
+                updateNavigationUI();
             }
         }
     };

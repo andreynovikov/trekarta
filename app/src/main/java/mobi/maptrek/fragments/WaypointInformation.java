@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
-import mobi.maptrek.MapTrekApplication;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
@@ -53,8 +53,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
 
-    final int SWIPE_MIN_DISTANCE = (int) (40 * MapTrekApplication.density); // vertical distance
-    final int SWIPE_MAX_OFF_PATH = (int) (30 * MapTrekApplication.density); // horizontal displacement during fling
+    final int SWIPE_MIN_DISTANCE = (int) (40 * MapTrek.density); // vertical distance
+    final int SWIPE_MAX_OFF_PATH = (int) (30 * MapTrek.density); // horizontal displacement during fling
     final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private Waypoint mWaypoint;
