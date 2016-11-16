@@ -39,6 +39,7 @@ public class BasePluginActivity extends Activity {
             Intent intent = new Intent();
             intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
             intent.setAction(initializationIntent.getAction());
+            intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             sendBroadcast(intent);
         }
 
