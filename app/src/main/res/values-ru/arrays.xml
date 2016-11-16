@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="track_format_array">
-        <item>Native</item>
+        <item>Внутренний</item>
         <item>GPX</item>
         <item>KML</item>
     </string-array>
     <string-array name="night_mode_array">
-        <item>Auto</item>
-        <item>Off</item>
-        <item>On</item>
+        <item>Авто</item>
+        <item>Нет</item>
+        <item>Да</item>
     </string-array>
     <string-array name="language_array">
-        <item>English</item>
-        <item>German</item>
-        <item>Russian</item>
+        <item>Английский</item>
+        <item>Немецкий</item>
+        <item>Русский</item>
     </string-array>
 </resources>

@@ -92,5 +92,30 @@
     <string name="msgTrackFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek. GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
     <string name="msgFailedToGetFile">Failed to get file</string>
     <string name="msgUnsupportedFileFormat">Unsupported file format</string>
+    <string name="add_gauge">Добавить прибор %s</string>
+    <string name="advice_more_gauges">Вы можете добавить другие приборы долгим нажатием на панель приборов</string>
+    <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
+    <string name="never_rises">Солнце никогда не встаёт</string>
+    <string name="never_sets">Солнце никогда не садится</string>
+    <string name="currentTrack">Текущий трек</string>
+    <string name="finish_point">Конечная точка</string>
+    <string name="mapTitle" formatted="false">Карта области %d-%d</string>
+    <string name="mapDownloadText">Загрузить недостающую карту</string>
+    <string name="gauge_speed">Скорость</string>
+    <string name="max_speed">Максимальная скорость</string>
+    <string name="transparency">Прозрачность</string>
+    <string name="version">Версия: %s</string>
+    <string name="gauge_distance">Расстояние</string>
+    <string name="gauge_altitude">Высота</string>
+    <string name="average_speed">Средняя скорость</string>
+    <string name="title_delete_permanently">Удалить навсегда?</string>
+    <string name="statistics">Статистика</string>
+    <string name="start_point">Начальная точка</string>
+    <string name="send_crash_report">Отправить отчёт о сбое</string>
+    <string name="share_track_intent_title">Поделиться треком через:</string>
+    <string name="share_location_intent_title">Поделиться местоположением через:</string>
+    <string name="waypointStoreName">Мои точки</string>
+    <string name="waypoint_name">Точка &#8470;%d</string>
+    <string name="startApplication">Открыть MapTrek</string>
 
 </resources>
