@@ -78,7 +78,7 @@ public class MapTrek extends Application {
 
     public static long addMapObject(MapObject mapObject) {
         mapObject._id = getNewUID();
-        logger.error("addMapObject({})", mapObject._id);
+        logger.debug("addMapObject({})", mapObject._id);
         synchronized (mapObjects) {
             mapObjects.put(mapObject._id, mapObject);
         }
@@ -88,7 +88,7 @@ public class MapTrek extends Application {
 
     public static boolean removeMapObject(long id) {
         synchronized (mapObjects) {
-            logger.error("removeMapObject({})", id);
+            logger.debug("removeMapObject({})", id);
             MapObject mapObject = mapObjects.get(id);
             mapObjects.delete(id);
             if (mapObject != null) {
