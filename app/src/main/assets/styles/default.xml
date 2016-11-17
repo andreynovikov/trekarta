@@ -1272,64 +1272,64 @@
         <!-- place -->
         <m k="place">
             <m v="hamlet">
-                <caption fill="#444411" k="name" priority="8" size="17" stroke="#ffffff"
+                <caption fill="#444411" k="name" priority="8" size="16" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="suburb" zoom-max="14">
-                <caption style="italic" fill="#606060" k="name" priority="8" size="17"
+                <caption style="italic" fill="#606060" k="name" priority="8" size="16"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="village">
-                <caption fill="#444411" k="name" priority="7" size="17" stroke="#ffffff"
+                <caption fill="#444411" k="name" priority="7" size="16" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="town" select="first">
                 <m k="admin_level" v="2">
-                    <caption dy="14" fill="#000000" k="name" priority="2" size="20" stroke="#ffffff"
+                    <caption dy="14" fill="#000000" k="name" priority="2" size="18" stroke="#ffffff"
                         stroke-width="2.0" symbol="assets:symbols/star.svg" />
                 </m>
                 <m k="admin_level">
-                    <caption dy="14" fill="#000000" k="name" priority="3" size="19" stroke="#ffffff"
+                    <caption dy="14" fill="#000000" k="name" priority="3" size="17" stroke="#ffffff"
                         stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
                 <m k="admin_level" v="~">
-                    <caption dy="14" fill="#000000" k="name" priority="6" size="19" stroke="#ffffff"
+                    <caption dy="14" fill="#000000" k="name" priority="6" size="17" stroke="#ffffff"
                         stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
                 </m>
             </m>
             <m v="city" select="first">
                 <m k="admin_level" v="2">
                     <m zoom-min="7">
-                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="20"
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="18"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/star.svg" />
                     </m>
                     <m zoom-max="6">
-                        <caption dy="14" fill="#000000" k="name" priority="2" size="20"
+                        <caption dy="14" fill="#000000" k="name" priority="2" size="18"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/star.svg" />
                     </m>
                 </m>
                 <m k="admin_level">
                     <m zoom-min="7">
-                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="19"
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="2" size="17"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/dot_white.svg" />
                     </m>
                     <m zoom-max="6">
-                        <caption dy="14" fill="#000000" k="name" priority="2" size="19"
+                        <caption dy="14" fill="#000000" k="name" priority="2" size="17"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/dot_white.svg" />
                     </m>
                 </m>
                 <m k="admin_level" v="~">
                     <m zoom-min="7">
-                        <caption style="bold" dy="14" fill="#000000" k="name" priority="4" size="19"
+                        <caption style="bold" dy="14" fill="#000000" k="name" priority="4" size="17"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/dot_white.svg" />
                     </m>
                     <m zoom-max="6">
-                        <caption dy="14" fill="#000000" k="name" priority="4" size="19"
+                        <caption dy="14" fill="#000000" k="name" priority="4" size="17"
                             stroke="#ffffff" stroke-width="2.0"
                             symbol="assets:symbols/dot_white.svg" />
                     </m>
@@ -1341,7 +1341,7 @@
                         stroke-width="2.0" />
                 </m>
                 <m zoom-min="3" zoom-max="4">
-                    <caption style="bold" fill="#000000" k="name" priority="1" size="20"
+                    <caption style="bold" fill="#000000" k="name" priority="1" size="18"
                         stroke="#ffffff" stroke-width="2.0" />
                 </m>
                 <m zoom-max="2">
@@ -1350,11 +1350,11 @@
                 </m>
             </m>
             <m v="locality" zoom-max="17" zoom-min="13">
-                <caption style="italic" fill="#000000" k="name" priority="7" size="20"
+                <caption style="italic" fill="#000000" k="name" priority="7" size="18"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="island" zoom-max="14" zoom-min="12">
-                <caption style="italic" fill="#000000" k="name" priority="4" size="22"
+                <caption style="italic" fill="#000000" k="name" priority="4" size="20"
                     stroke="#ffffff" stroke-width="2.0" />
             </m>
             <m v="sea">
