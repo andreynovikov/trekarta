@@ -1,6 +1,11 @@
 package mobi.maptrek.layers;
 
+import android.content.Context;
+import android.text.format.DateFormat;
+import android.text.format.Formatter;
+
 import org.oscim.backend.canvas.Color;
+import org.oscim.backend.canvas.Paint;
 import org.oscim.core.Box;
 import org.oscim.core.GeometryBuffer;
 import org.oscim.core.MapPosition;
@@ -15,10 +20,14 @@ import org.oscim.layers.vector.AbstractVectorLayer;
 import org.oscim.map.Map;
 import org.oscim.renderer.bucket.LineBucket;
 import org.oscim.renderer.bucket.MeshBucket;
+import org.oscim.renderer.bucket.TextBucket;
+import org.oscim.renderer.bucket.TextItem;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.LineStyle;
+import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.FastMath;
 
+import mobi.maptrek.BuildConfig;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapStateListener;
@@ -27,6 +36,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static final float TILE_SCALE = 1f / (1 << 7);
     private static final long MAP_EXPIRE_PERIOD = 7 * 24 * 3600 * 1000; // one week
     private static final int MIN_ZOOM = 3;
+    public static final int TEXT_MIN_ZOOM = 6;
+    private static final int TEXT_MAX_ZOOM = 8;
 
     private final MapIndex mMapIndex;
     private final AreaStyle mPresentAreaStyle;
@@ -36,9 +47,14 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final AreaStyle mSelectedAreaStyle;
     private final AreaStyle mDeletedAreaStyle;
     private final LineStyle mLineStyle;
+    private final TextStyle mTextStyle;
+    private final java.text.DateFormat mDateFormat;
+    private final TextStyle mTextStyle2;
+    private Context mContext;
 
-    public MapCoverageLayer(Map map, MapIndex mapIndex) {
+    public MapCoverageLayer(Context context, Map map, MapIndex mapIndex, float scale) {
         super(map);
+        mContext = context;
         mMapIndex = mapIndex;
         mPresentAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
         mOutdatedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
@@ -46,7 +62,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mDownloadingAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.GREEN & Color.GRAY).blendScale(10).color(Color.fade(Color.GREEN & Color.GRAY, 0.4f)).build();
         mSelectedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
         mDeletedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
-        mLineStyle = LineStyle.builder().fadeScale(MIN_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(2f).fixed(true).build();
+        mLineStyle = LineStyle.builder().fadeScale(MIN_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(0.5f * scale).fixed(true).build();
+        mTextStyle = TextStyle.builder().fontSize(10 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
+        mTextStyle2 = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
+        mDateFormat = DateFormat.getDateFormat(context);
         mMapIndex.addMapStateListener(this);
     }
 
@@ -63,7 +82,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     protected void processFeatures(AbstractVectorLayer.Task t, Box b) {
-        if (t.position.getZoomLevel() < MIN_ZOOM)
+        int zoom = t.position.getZoomLevel();
+        if (zoom < MIN_ZOOM)
             return;
 
         float scale = (float) (t.position.scale * Tile.SIZE / UNSCALE_COORD);
@@ -86,6 +106,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             GeometryBuffer outdatedAreas = new GeometryBuffer();
             GeometryBuffer downloadingAreas = new GeometryBuffer();
             GeometryBuffer deletedAreas = new GeometryBuffer();
+
+            TextBucket text = null;
+            if (zoom >= TEXT_MIN_ZOOM && zoom <= TEXT_MAX_ZOOM && hasSizes)
+                text = t.buckets.getTextBucket(-1);
 
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
                 for (int tileY = tileYMin; tileY <= tileYMax; tileY++) {
@@ -143,6 +167,24 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     lines.addPoint(x * scale, y * scale);
                     y -= TILE_SCALE;
                     lines.addPoint(x * scale, y * scale);
+
+                    if (text != null) {
+                        float tx = (x + TILE_SCALE / 2) * scale;
+                        float ty = (y + TILE_SCALE / 2) * scale;
+                        TextItem ti;
+                        if (BuildConfig.DEBUG) {
+                            ti = TextItem.pool.get();
+                            ti.set(tx, ty - TILE_SCALE / 8 * scale, tileXX + "-" + tileY, mTextStyle);
+                            text.addText(ti);
+                        }
+                        ti = TextItem.pool.get();
+                        ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapFile.downloadSize), mTextStyle);
+                        text.addText(ti);
+                        ty += TILE_SCALE / 8 * scale;
+                        ti = TextItem.pool.get();
+                        ti.set(tx, ty, mDateFormat.format(mapFile.downloadCreated * 24 * 3600000L), mTextStyle2);
+                        text.addText(ti);
+                    }
                 }
             }
 
@@ -150,6 +192,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             if (line.line == null)
                 line.line = mLineStyle;
             line.addLine(lines);
+            if (text != null)
+                text.next = line;
 
             MeshBucket missing = t.buckets.getMeshBucket(1);
             if (missing.area == null)
@@ -186,6 +230,9 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                 downloading.area = mDownloadingAreaStyle;
             downloading.addMesh(downloadingAreas);
             deleted.next = downloading;
+
+            if (text != null)
+                text.setLevel(7);
         }
     }
 

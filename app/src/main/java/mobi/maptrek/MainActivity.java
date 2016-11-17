@@ -74,7 +74,6 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
-import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
@@ -620,7 +619,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMapFileSource.setOnDataMissingListener(this);
         layers.add(mNativeMapsLayer, MAP_BASE);
 
-        mGridLayer = new TileGridLayer(mMap, MapTrek.density * .7f);
+        mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
             layers.add(mGridLayer, MAP_OVERLAYS);
 
@@ -634,8 +633,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mNativeLabelsLayer = new LabelLayer(mMap, mNativeMapsLayer);
         layers.add(mNativeLabelsLayer, MAP_LABELS);
 
-        mMapScaleBar = new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 200);
-        mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .7f);
+        mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
@@ -2621,7 +2619,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         }
         if (zoom) {
             MapPosition mapPosition = mMap.getMapPosition();
-            mapPosition.setZoomLevel(6);
+            mapPosition.setScale((1 << MapCoverageLayer.TEXT_MIN_ZOOM) + 5f);
             mapPosition.setBearing(0f);
             mapPosition.setTilt(0f);
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
@@ -2671,7 +2669,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(mMap, mMapIndex);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mMapIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
