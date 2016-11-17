@@ -27,13 +27,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import mobi.maptrek.MapTrek;
-import mobi.maptrek.R;
 import mobi.maptrek.data.MapObject;
 
 public class MapObjectLayer extends Layer {
-    public MapObjectLayer(Map map) {
+    public MapObjectLayer(Map map, float scale) {
         super(map);
-        mRenderer = new MapObjectRenderer();
+        mRenderer = new MapObjectRenderer(scale);
         EventBus.getDefault().register(mRenderer);
     }
 
@@ -46,6 +45,7 @@ public class MapObjectLayer extends Layer {
         private final SymbolBucket mSymbolBucket;
         private final TextBucket mTextBucket;
         private final float[] mBox = new float[8];
+        private final float mScale;
         private int mExtents = 100;
         private boolean mUpdate;
 
@@ -76,10 +76,11 @@ public class MapObjectLayer extends Layer {
             }
         }
 
-        MapObjectRenderer() {
+        MapObjectRenderer(float scale) {
             mSymbolBucket = new SymbolBucket();
             mTextBucket = new TextBucket();
             mSymbolBucket.next = mTextBucket;
+            mScale = scale;
         }
 
         public void update() {
@@ -194,8 +195,7 @@ public class MapObjectLayer extends Layer {
                 if (textStyle == null || color != it.item.textColor) {
                     color = it.item.textColor;
                     textStyle = TextStyle.builder()
-                            //TODO Pass this from layer constructor
-                            .fontSize(MapTrek.density * 10)
+                            .fontSize(10 * mScale)
                             .color(color)
                             .outline(Color.WHITE, 2f)
                             .isCaption(true)

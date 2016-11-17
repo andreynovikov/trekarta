@@ -1,4 +1,4 @@
-package org.oscim.tiling.source.mapfile;
+package mobi.maptrek.maps.mapsforge;
 
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
@@ -7,9 +7,9 @@ import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
-import org.oscim.tiling.OnDataMissingListener;
 import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
+import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.utils.LRUCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

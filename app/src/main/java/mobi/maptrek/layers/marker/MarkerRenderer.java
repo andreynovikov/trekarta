@@ -35,15 +35,16 @@ import java.util.Comparator;
 
 import static org.oscim.backend.GLAdapter.gl;
 
-public class MarkerRenderer extends BucketRenderer {
-    private static final float FOCUS_CIRCLE_SIZE = 25;
+class MarkerRenderer extends BucketRenderer {
+    private static final float FOCUS_CIRCLE_SIZE = 8;
 
-    protected final MarkerSymbol mDefaultMarker;
+    final MarkerSymbol mDefaultMarker;
 
     private final SymbolBucket mSymbolLayer;
     private final float[] mBox = new float[8];
     private final MarkerLayer<MarkerItem> mMarkerLayer;
     private final Point mMapPoint = new Point();
+    private final float mScale;
 
     private int mShaderProgram;
     private int hVertexPosition;
@@ -57,7 +58,7 @@ public class MarkerRenderer extends BucketRenderer {
     /**
      * increase view to show items that are partially visible
      */
-    protected int mExtents = 100;
+    private static final int mExtents = 100;
 
     /**
      * flag to force update of markers
@@ -66,7 +67,7 @@ public class MarkerRenderer extends BucketRenderer {
 
     private InternalItem[] mItems;
 
-    static class InternalItem {
+    private static class InternalItem {
         MarkerItem item;
         boolean visible;
         boolean changes;
@@ -80,10 +81,11 @@ public class MarkerRenderer extends BucketRenderer {
         }
     }
 
-    public MarkerRenderer(MarkerLayer<MarkerItem> markerLayer, MarkerSymbol defaultSymbol) {
+    MarkerRenderer(MarkerLayer<MarkerItem> markerLayer, MarkerSymbol defaultSymbol, float scale) {
         mSymbolLayer = new SymbolBucket();
         mMarkerLayer = markerLayer;
         mDefaultMarker = defaultSymbol;
+        mScale = scale;
     }
 
     @Override
@@ -219,7 +221,7 @@ public class MarkerRenderer extends BucketRenderer {
             v.mvp.multiplyMM(v.viewproj, v.mvp);
             v.mvp.setAsUniform(hMatrixPosition);
 
-            gl.uniform1f(hScale, FOCUS_CIRCLE_SIZE);
+            gl.uniform1f(hScale, FOCUS_CIRCLE_SIZE * mScale);
 
             float r = ((mMarkerLayer.mFocusColor >> 16) & 0xFF) * 1f / 0xFF;
             float g = ((mMarkerLayer.mFocusColor >> 8) & 0xFF) * 1f / 0xFF;
@@ -231,7 +233,7 @@ public class MarkerRenderer extends BucketRenderer {
         super.render(v);
     }
 
-    protected void populate(int size) {
+    void populate(int size) {
 
         InternalItem[] tmp = new InternalItem[size];
 
@@ -255,9 +257,9 @@ public class MarkerRenderer extends BucketRenderer {
         mUpdate = true;
     }
 
-    static TimSort<InternalItem> ZSORT = new TimSort<>();
+    private static TimSort<InternalItem> ZSORT = new TimSort<>();
 
-    public static void sort(InternalItem[] a, int lo, int hi) {
+    private static void sort(InternalItem[] a, int lo, int hi) {
         int nRemaining = hi - lo;
         if (nRemaining < 2) {
             return;
@@ -266,7 +268,7 @@ public class MarkerRenderer extends BucketRenderer {
         ZSORT.doSort(a, zComparator, lo, hi);
     }
 
-    final static Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
+    private final static Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
         @Override
         public int compare(InternalItem a, InternalItem b) {
             if (a.visible && b.visible) {
@@ -321,25 +323,4 @@ public class MarkerRenderer extends BucketRenderer {
             + "  float len = 1.0 - length(v_tex);"
             + "  gl_FragColor = u_color * 0.5 * smoothstep(0.0, 1.0 / u_scale, len);"
             + "}";
-
-    //	/**
-    //	 * Returns the Item at the given index.
-    //	 *
-    //	 * @param position
-    //	 *            the position of the item to return
-    //	 * @return the Item of the given index.
-    //	 */
-    //	public final Item getItem(int position) {
-    //
-    //		synchronized (lock) {
-    //			InternalItem item = mItems;
-    //			for (int i = mSize - position - 1; i > 0 && item != null; i--)
-    //				item = item.next;
-    //
-    //			if (item != null)
-    //				return item.item;
-    //
-    //			return null;
-    //		}
-    //	}
 }

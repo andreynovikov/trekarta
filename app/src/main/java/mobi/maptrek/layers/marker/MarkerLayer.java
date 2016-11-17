@@ -50,10 +50,10 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 	public abstract int size();
 
 	@SuppressWarnings("unchecked")
-	public MarkerLayer(Map map, MarkerSymbol defaultSymbol) {
+	public MarkerLayer(Map map, MarkerSymbol defaultSymbol, float scale) {
 		super(map);
 
-		mMarkerRenderer = new MarkerRenderer((MarkerLayer<MarkerItem>) this, defaultSymbol);
+		mMarkerRenderer = new MarkerRenderer((MarkerLayer<MarkerItem>) this, defaultSymbol, scale);
 		mRenderer = mMarkerRenderer;
 	}
 
@@ -98,28 +98,4 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 		return mFocusedItem;
 	}
 
-	/**
-	 * TODO
-	 * Interface definition for overlays that contain items that can be snapped
-	 * to (for example, when the user invokes a zoom, this could be called
-	 * allowing the user to snap the zoom to an interesting point.)
-	 */
-	public interface Snappable {
-
-		/**
-		 * Checks to see if the given x and y are close enough to an item
-		 * resulting in snapping the current action (e.g. zoom) to the item.
-		 * 
-		 * @param x
-		 *            The x in screen coordinates.
-		 * @param y
-		 *            The y in screen coordinates.
-		 * @param snapPoint
-		 *            To be filled with the the interesting point (in screen
-		 *            coordinates) that is closest to the given x and y. Can be
-		 *            untouched if not snapping.
-		 * @return Whether or not to snap to the interesting point.
-		 */
-		boolean onSnapToItem(int x, int y, Point snapPoint);
-	}
 }

@@ -3,12 +3,11 @@ package mobi.maptrek;
 import android.app.Fragment;
 import android.os.Bundle;
 
-import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
-
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 
 public class DataFragment extends Fragment {
 

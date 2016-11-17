@@ -102,10 +102,9 @@ import org.oscim.renderer.BitmapRenderer;
 import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.MapScaleBarLayer;
+import org.oscim.theme.IRenderTheme;
+import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
-import org.oscim.theme.VtmThemes;
-import org.oscim.tiling.OnDataMissingListener;
-import org.oscim.tiling.source.mapfile.MultiMapFileTileSource;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +171,8 @@ import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.WorldMapTileSource;
+import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
+import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -615,11 +616,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         mNativeMapsLayer = new OsmTileLayer(mMap);
         mNativeMapsLayer.setTileSource(mMapFileSource);
-        mNativeMapsLayer.setNumLoaders(1);
+        //mNativeMapsLayer.setNumLoaders(1);
         mMapFileSource.setOnDataMissingListener(this);
         layers.add(mNativeMapsLayer, MAP_BASE);
 
-        mGridLayer = new TileGridLayer(mMap);
+        mGridLayer = new TileGridLayer(mMap, MapTrek.density * .7f);
         if (Configuration.getGridLayerEnabled())
             layers.add(mGridLayer, MAP_OVERLAYS);
 
@@ -634,15 +635,16 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.add(mNativeLabelsLayer, MAP_LABELS);
 
         mMapScaleBar = new DefaultMapScaleBar(mMap, CanvasAdapter.dpi / 200);
+        mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .7f);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
-        layers.add(new MapObjectLayer(mMap), MAP_3D_DATA);
+        layers.add(new MapObjectLayer(mMap, MapTrek.density), MAP_3D_DATA);
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, this);
+        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, MapTrek.density, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
@@ -3193,7 +3195,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
 
                     BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                    renderer.setOffset(area.left + 8 * CanvasAdapter.dpi / 160, 0);
+                    renderer.setOffset(area.left + 8 * MapTrek.density, 0);
                 }
 
                 ViewTreeObserver ob;
@@ -3507,10 +3509,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     private void setNightMode(boolean night) {
-        if (night)
-            mMap.setTheme(VtmThemes.NEWTRON, true);
-        else
-            mMap.setTheme(VtmThemes.DEFAULT, true);
+        ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.DEFAULT;
+        IRenderTheme theme = ThemeLoader.load(themeFile);
+        //TODO Let user set text scale
+        theme.scaleTextSize(.7f * MapTrek.density);
+        mMap.setTheme(theme, true);
         mNightMode = night;
     }
 
