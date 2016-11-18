@@ -49,7 +49,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final LineStyle mLineStyle;
     private final TextStyle mTextStyle;
     private final java.text.DateFormat mDateFormat;
-    private final TextStyle mTextStyle2;
+    private final TextStyle mSmallTextStyle;
     private Context mContext;
 
     public MapCoverageLayer(Context context, Map map, MapIndex mapIndex, float scale) {
@@ -64,7 +64,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mDeletedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(MIN_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(0.5f * scale).fixed(true).build();
         mTextStyle = TextStyle.builder().fontSize(10 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
-        mTextStyle2 = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
+        mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
         mDateFormat = DateFormat.getDateFormat(context);
         mMapIndex.addMapStateListener(this);
     }
@@ -182,7 +182,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         text.addText(ti);
                         ty += TILE_SCALE / 8 * scale;
                         ti = TextItem.pool.get();
-                        ti.set(tx, ty, mDateFormat.format(mapFile.downloadCreated * 24 * 3600000L), mTextStyle2);
+                        ti.set(tx, ty, mDateFormat.format(mapFile.downloadCreated * 24 * 3600000L), mSmallTextStyle);
                         text.addText(ti);
                     }
                 }
