@@ -141,7 +141,7 @@ import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
-import mobi.maptrek.fragments.PanelMenu;
+import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.TrackExport;
 import mobi.maptrek.fragments.TrackInformation;
@@ -181,6 +181,7 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
+import mobi.maptrek.view.PanelMenu;
 
 public class MainActivity extends BasePaymentActivity implements ILocationListener,
         DataHolder,
@@ -950,6 +951,24 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         Configuration.setPreviousLocationState(mPreviousLocationState.ordinal());
         Configuration.setTrackingState(mTrackingState.ordinal());
         Configuration.setGauges(mGaugePanel.getGaugeSettings());
+
+        if (!isChangingConfigurations()) {
+            Intent intent = new Intent(getApplicationContext(), LocationService.class);
+            if (mTrackingState == TRACKING_STATE.TRACKING)
+                startService(intent.setAction(BaseLocationService.ENABLE_BACKGROUND_TRACK));
+            else
+                stopService(intent);
+
+            if (mNavigationService != null) {
+                intent = new Intent(getApplicationContext(), NavigationService.class);
+                if (mNavigationService.isNavigating())
+                    startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+                else
+                    stopService(intent);
+            }
+            disableNavigation();
+            disableLocations();
+        }
     }
 
     @Override
@@ -958,28 +977,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         logger.debug("onStop()");
 
         unregisterReceiver(mBroadcastReceiver);
-
-        if (isFinishing()) {
-            Intent intent = new Intent(getApplicationContext(), LocationService.class);
-            if (mTrackingState == TRACKING_STATE.TRACKING)
-                startService(intent.setAction(BaseLocationService.ENABLE_BACKGROUND_TRACK));
-            else
-                stopService(intent);
-        }
-
-        if (mLocationService != null)
-            disableLocations();
-
-        if (mNavigationService != null) {
-            if (isFinishing()) {
-                Intent intent = new Intent(getApplicationContext(), NavigationService.class);
-                if (mNavigationService.isNavigating())
-                    startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
-                else
-                    stopService(intent);
-            }
-            disableNavigation();
-        }
 
         Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
         if (loader != null) {
@@ -1019,6 +1016,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         }
 
         mFragmentManager = null;
+        logger.debug("  done!");
     }
 
     @Override
@@ -1178,6 +1176,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     showSystemUI();
                 else
                     hideSystemUI();
+                return true;
+            }
+            case R.id.actionAddGauge: {
+                mGaugePanel.onLongClick(mGaugePanel);
                 return true;
             }
             case R.id.actionResetAdvices: {
@@ -1462,36 +1464,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     private void onMapsLongClicked() {
-        PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
+        PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
-            public void onPrepareMenu(List<PanelMenuItem> menu) {
-                //noinspection UnusedAssignment (Lite version)
-                PanelMenuItem menuNightMode = null;
-                for (PanelMenuItem item : menu) {
-                    switch (item.getItemId()) {
-                        case R.id.action_night_mode:
-                            //noinspection UnusedAssignment (Lite version)
-                            menuNightMode = item;
-                            String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
-                            ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
-                            break;
-                        case R.id.action_language:
-                            ((TextView) item.getActionView()).setText(Configuration.getLanguage());
-                            break;
-                        case R.id.actionAutoTilt:
-                            item.setChecked(mAutoTilt != -1f);
-                            break;
-                        case R.id.action_3dbuildings:
-                            item.setChecked(mBuildingsLayerEnabled);
-                            break;
-                        case R.id.action_grid:
-                            item.setChecked(mMap.layers().contains(mGridLayer));
-                            break;
-                    }
-                }
-                if (!BuildConfig.FULL_VERSION && menuNightMode != null) {
-                    menu.remove(menuNightMode);
+            public void onPrepareMenu(PanelMenu menu) {
+                MenuItem item = menu.findItem(R.id.action_night_mode);
+                String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
+                ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+                item = menu.findItem(R.id.action_language);
+                ((TextView) item.getActionView()).setText(Configuration.getLanguage());
+                menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
+                menu.findItem(R.id.action_3dbuildings).setChecked(mBuildingsLayerEnabled);
+                menu.findItem(R.id.action_grid).setChecked(mMap.layers().contains(mGridLayer));
+                if (!BuildConfig.FULL_VERSION) {
+                    menu.removeItem(R.id.action_night_mode);
                 }
             }
         });
@@ -1500,33 +1486,25 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private void onMoreClicked() {
         if (mLocationButton.getVisibility() == View.VISIBLE) {
-            PanelMenu fragment = (PanelMenu) Fragment.instantiate(this, PanelMenu.class.getName());
+            PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
             fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
                 @Override
-                public void onPrepareMenu(List<PanelMenuItem> menu) {
-                    //noinspection UnusedAssignment (Lite version)
-                    PanelMenuItem menuHideSystemUI = null;
-                    for (PanelMenuItem item : menu) {
-                        switch (item.getItemId()) {
-                            case R.id.actionHideSystemUI:
-                                //noinspection UnusedAssignment (Lite version)
-                                menuHideSystemUI = item;
-                                item.setChecked(Configuration.getHideSystemUI());
-                        }
+                public void onPrepareMenu(PanelMenu menu) {
+                    if (BuildConfig.FULL_VERSION) {
+                        menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
+                    } else {
+                        menu.removeItem(R.id.actionHideSystemUI);
                     }
-                    if (!BuildConfig.FULL_VERSION && menuHideSystemUI != null) {
-                        menu.remove(menuHideSystemUI);
-                    }
+                    if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
+                        menu.removeItem(R.id.actionAddGauge);
                     java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
                     String[] toolNames = tools.keySet().toArray(new String[0]);
                     Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
                     for (String toolName : toolNames) {
                         Pair<Drawable, Intent> tool = tools.get(toolName);
-                        PanelMenuItem item = new PanelMenuItem(MainActivity.this);
-                        item.setTitle(toolName);
+                        MenuItem item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
                         //item.setIcon(tool.first);
                         item.setIntent(tool.second);
-                        menu.add(0, item);
                     }
                 }
             });

@@ -1,16 +1,20 @@
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.MenuRes;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -26,17 +30,21 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import mobi.maptrek.R;
 import mobi.maptrek.util.XmlUtils;
+import mobi.maptrek.view.PanelMenu;
 
-public class PanelMenu extends ListFragment {
+public class PanelMenuFragment extends ListFragment implements PanelMenu {
     private MenuListAdapter mAdapter;
     private ArrayList<PanelMenuItem> mMenuItems;
+    private HashMap<Integer, PanelMenuItem> mItemsMap;
     private OnPrepareMenuListener mOnPrepareMenuListener;
     private FragmentHolder mFragmentHolder;
     private int mMenuId;
+    private boolean mPopulating;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,11 +93,43 @@ public class PanelMenu extends ListFragment {
         }
     }
 
+    @Nullable
+    public PanelMenuItem findItem(@IdRes int id) {
+        return mItemsMap.get(id);
+    }
+
+    @Override
+    public MenuItem add(@IdRes int id, int order, CharSequence title) {
+        PanelMenuItem item = new PanelMenuItem(getContext());
+        if (id == PanelMenuItem.HEADER_ID_UNDEFINED)
+            id = View.generateViewId();
+        item.setItemId(id);
+        item.setTitle(title);
+        mMenuItems.add(order, item);
+        mItemsMap.put(id, item);
+        if (isVisible() && !mPopulating)
+            mAdapter.notifyDataSetChanged();
+        return item;
+    }
+
+    @Override
+    public void removeItem(@IdRes int id) {
+        mMenuItems.remove(mItemsMap.remove(id));
+        if (isVisible() && !mPopulating)
+            mAdapter.notifyDataSetChanged();
+    }
+
+    @SuppressLint("UseSparseArrays")
     private void populateMenu() {
+        mPopulating = true;
         mMenuItems = new ArrayList<>();
+        mItemsMap = new HashMap<>();
         loadHeadersFromResource(mMenuId, mMenuItems);
+        for (PanelMenuItem item : mMenuItems)
+            mItemsMap.put(item.getItemId(), item);
         if (mOnPrepareMenuListener != null)
-            mOnPrepareMenuListener.onPrepareMenu(mMenuItems);
+            mOnPrepareMenuListener.onPrepareMenu(this);
+        mPopulating = false;
     }
 
     /**
@@ -100,7 +140,7 @@ public class PanelMenu extends ListFragment {
      * @param target The list in which the parsed headers should be placed.
      */
     @SuppressWarnings("ResourceType")
-    private void loadHeadersFromResource(int resId, List<PanelMenuItem> target) {
+    private void loadHeadersFromResource(@MenuRes int resId, List<PanelMenuItem> target) {
         XmlResourceParser parser = null;
         try {
             Resources resources = getResources();
@@ -174,7 +214,7 @@ public class PanelMenu extends ListFragment {
     public class MenuListAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
 
-        public MenuListAdapter(Context context) {
+        MenuListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -252,7 +292,7 @@ public class PanelMenu extends ListFragment {
             if (actionView == null) {
                 itemHolder.action.setVisibility(View.GONE);
             }
-            // Make hole item clickable in any case
+            // Make whole item clickable in any case
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -274,9 +314,5 @@ public class PanelMenu extends ListFragment {
         Switch check;
         ImageView icon;
         ViewGroup action;
-    }
-
-    public interface OnPrepareMenuListener {
-        void onPrepareMenu(List<PanelMenuItem> menu);
     }
 }

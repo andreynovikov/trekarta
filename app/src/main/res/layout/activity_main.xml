@@ -50,7 +50,6 @@
         android:layout_gravity="top|start"
         android:layout_marginTop="@dimen/gauge_padding"
         android:background="#99ffffff"
-        android:padding="@dimen/gauge_padding"
         android:visibility="invisible" />
 
     <TextView

@@ -8,6 +8,9 @@
         android:checkable="true"
         android:title="@string/actionHideSystemUI" />
     <item
+        android:id="@+id/actionAddGauge"
+        android:title="@string/actionAddGauge" />
+    <item
         android:id="@+id/actionResetAdvices"
         android:title="@string/actionResetAdvices" />
     <item

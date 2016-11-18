@@ -1,9 +1,11 @@
 package mobi.maptrek.view;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.transition.TransitionManager;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,8 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import mobi.maptrek.MapHolder;
@@ -24,15 +28,18 @@ import mobi.maptrek.util.StringFormatter;
  */
 //TODO Redesign to balance gauge quantity in columns
 public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener {
+    private static final Logger logger = LoggerFactory.getLogger(GaugePanel.class);
+
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
 
     private final List<List<View>> mLines = new ArrayList<>();
     private final List<Integer> mLineWidths = new ArrayList<>();
 
     private ArrayList<Gauge> mGauges = new ArrayList<>();
-    private HashMap<Integer, Gauge> mGaugeMap = new HashMap<>();
+    private SparseArray<Gauge> mGaugeMap = new SparseArray<>();
     private MapHolder mMapHolder;
     private boolean mNavigationMode = false;
+    private List<View> mLineViewsBuffer = new ArrayList<>();
 
     public GaugePanel(Context context) {
         super(context);
@@ -150,7 +157,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         int lineWidth = 0;
         int lineHeight = 0;
-        List<View> lineViews = new ArrayList<>();
+        mLineViewsBuffer.clear();
 
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
@@ -163,22 +170,22 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
             if (lineHeight + childHeight > height) {
                 mLineWidths.add(lineWidth);
-                mLines.add(lineViews);
+                mLines.add(mLineViewsBuffer);
 
                 linesSum += lineWidth;
 
                 lineHeight = 0;
                 lineWidth = 0;
-                lineViews = new ArrayList<>();
+                mLineViewsBuffer.clear();
             }
 
             lineHeight += childHeight;
             lineWidth = Math.max(lineWidth, childWidth);
-            lineViews.add(child);
+            mLineViewsBuffer.add(child);
         }
 
         mLineWidths.add(lineWidth);
-        mLines.add(lineViews);
+        mLines.add(mLineViewsBuffer);
 
         linesSum += lineWidth;
 
@@ -189,12 +196,12 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         for (int i = 0; i < numLines; i++) {
             lineWidth = mLineWidths.get(i);
-            lineViews = mLines.get(i);
+            mLineViewsBuffer = mLines.get(i);
             top = getPaddingTop();
-            int children = lineViews.size();
+            int children = mLineViewsBuffer.size();
 
             for (int j = 0; j < children; j++) {
-                View child = lineViews.get(j);
+                View child = mLineViewsBuffer.get(j);
 
                 if (child.getVisibility() == View.GONE)
                     continue;
@@ -278,6 +285,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         Gauge gauge = new Gauge(getContext(), type, getGaugeUnit(type));
         if (isNavigationGauge(type)) {
             addView(gauge);
+            if (!mNavigationMode)
+                gauge.setVisibility(GONE);
             mGauges.add(gauge);
         } else {
             int i = 0;
@@ -299,14 +308,16 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     @Override
     public boolean onLongClick(View v) {
-        if (!(v instanceof Gauge))
-            return false;
-        Gauge gauge = (Gauge) v;
         Context context = getContext();
         PopupMenu popup = new PopupMenu(context, v);
         Menu menu = popup.getMenu();
-        menu.add(0, gauge.getType(), Menu.NONE, context.getString(R.string.remove_gauge, getGaugeName(gauge.getType())));
-        ArrayList<Integer> availableGauges = getAvailableGauges(gauge.getType());
+        int type = 0;
+        if (v instanceof Gauge) {
+            Gauge gauge = (Gauge) v;
+            menu.add(0, gauge.getType(), Menu.NONE, context.getString(R.string.remove_gauge, getGaugeName(gauge.getType())));
+            gauge.getType();
+        }
+        ArrayList<Integer> availableGauges = getAvailableGauges(type);
         for (int availableGauge : availableGauges) {
             menu.add(0, availableGauge, Menu.NONE, context.getString(R.string.add_gauge, getGaugeName(availableGauge)));
         }
@@ -319,7 +330,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     public boolean onMenuItemClick(MenuItem item) {
         TransitionManager.beginDelayedTransition(this);
         int type = item.getItemId();
-        if (mGaugeMap.containsKey(type))
+        if (mGaugeMap.indexOfKey(type) >= 0)
             removeGauge(type);
         else
             addGauge(type);
@@ -351,6 +362,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     }
 
     public boolean setNavigationMode(boolean mode) {
+        logger.debug("setNavigationMode({})", mode);
         if (mNavigationMode == mode)
             return false;
         mNavigationMode = mode;
@@ -367,6 +379,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         return type > 0x9999;
     }
 
+    @NonNull
     private ArrayList<Integer> getAvailableGauges(int type) {
         ArrayList<Integer> gauges = new ArrayList<>();
         gauges.add(Gauge.TYPE_SPEED);
@@ -377,8 +390,10 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             gauges.add(Gauge.TYPE_BEARING);
             gauges.add(Gauge.TYPE_TURN);
         }
-        for (int gauge : mGaugeMap.keySet())
+        for (int i = 0; i < mGaugeMap.size(); i++) {
+            int gauge = mGaugeMap.keyAt(i);
             gauges.remove(Integer.valueOf(gauge));
+        }
         gauges.remove(Integer.valueOf(type));
         return gauges;
     }
@@ -388,5 +403,12 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         for (int i = 0; i < gauges.length; i++)
             gauges[i] = String.valueOf(mGauges.get(i).getType());
         return TextUtils.join(",", gauges);
+    }
+
+    public boolean hasVisibleGauges() {
+        for (Gauge gauge : mGauges)
+            if (gauge.getVisibility() == View.VISIBLE)
+                return true;
+        return false;
     }
 }
