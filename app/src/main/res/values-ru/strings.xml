@@ -12,8 +12,7 @@
     <string name="degrees">Градусы</string>
     <string name="coordinate_utmups">UTM/UPS</string>
     <string name="coordinate_mgrs">MGRS</string>
-    <string name="declination">Declination</string>
-    <string name="provider">Provider</string>
+    <string name="declination">Склонение</string>
     <string name="sunrise">Восход</string>
     <string name="sunset">Закат</string>
     <string name="unknown">Неизвестно</string>
@@ -21,23 +20,22 @@
     <string name="waypoints">Точки</string>
     <string name="tracks">Треки</string>
     <string name="explain">Объяснить</string>
-    <string name="copyright">Copyright</string>
+    <string name="copyright">Авторское право</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
-    <string name="credits">Credits</string>
+    <string name="credits">Признательности</string>
 
     <string name="actionSave">Сохранить</string>
     <string name="actionStop">Закончить</string>
     <string name="actionPause">Остановить</string>
-    <string name="actionCustomize">Customize</string>
+    <string name="actionCustomize">Настроить</string>
     <string name="actionUndo">Отменить</string>
-    <string name="actionDismiss">Dismiss</string>
     <string name="actionDelete">Удалить</string>
     <string name="action3dBuildings">3D здания</string>
     <string name="actionGrid" tools:ignore="Typos">Сетка плиток</string>
     <string name="actionStopNavigation">Закончить навигацию</string>
     <string name="actionAbout">О приложении</string>
-    <string name="actionGotIt">Got it</string>
+    <string name="actionGotIt">Понятно</string>
     <string name="actionEdit">Редактировать</string>
     <string name="actionShare">Поделиться</string>
     <string name="actionView">Показать</string>
@@ -45,11 +43,10 @@
     <string name="actionNightMode">Ночной режим</string>
     <string name="actionLanguage">Язык</string>
     <string name="actionManageMaps">Управление картами</string>
-    <string name="actionAddWaypointHere">Добавить точку здесь</string>
+    <string name="actionAddWaypointHere">Добавить точку</string>
     <string name="actionNavigateHere">Задать направление сюда</string>
     <string name="actionRememberScale">Запомнить масштаб</string>
-    <string name="actionOverviewRoute">Overview route</string>
-    <string name="actionAutoTilt">Tilt on track up</string>
+    <string name="actionOverviewRoute">Просмотреть маршрут</string>
     <string name="actionRememberTilt">Запомнить наклон</string>
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
@@ -61,7 +58,6 @@
     <string name="msgNavigationProgress" formatted="false">Осталось %s, продолжайте двигаться курсом %s</string>
     <string name="msgNavigating" formatted="false">Движение на точку %s</string>
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
-    <string name="msgBackQuit">Press Back once more to quit</string>
     <string name="msgWaypointDeleted">Точка удалена</string>
     <string name="msgWaypointSaved">Точка сохранена</string>
     <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку долгим нажатием на кнопку Точки.</string>
@@ -83,16 +79,12 @@
     <string name="msgIndexDownloadFailed">Загружаемый объём не известен</string>
     <string name="msgEstimateDownloadSize">Оценка загружаемого объёма</string>
     <string name="msgDownloadSize">Загружаемый объём: %s</string>
-    <string name="msgAdvicesReset">Advices will be shown from the very beginning</string>
-    <string name="msgParseCoordinatesFailed">Failed to get coordinates from string</string>
-    <string name="msgEmptyMapList">Your installed custom tile maps will appear here.</string>
-    <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
-    <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
-    <string name="msgDeleteFailed">Failed to delete data source</string>
-    <string name="msgTrackFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek. GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
-    <string name="msgFailedToGetFile">Failed to get file</string>
-    <string name="msgUnsupportedFileFormat">Unsupported file format</string>
-    <string name="add_gauge">Добавить прибор %s</string>
+    <string name="msgEmptyMapList">Здесь будут отображаться ваши специально установленные карты.</string>
+    <string name="msgDeleteSourcePermanently">Источник данных будет перманентно удалён из хранилища. Отмена этого действия не возможна.</string>
+    <string name="msgCannotDeleteNativeSource">Внутренние источники данных не могут быть удалены</string>
+    <string name="msgTrackFormatExplanation">Данные во внутреннем формате хранятся в очень компактном виде и быстро обрабатываются, но распознаются только приложением MapTrek. Формат GPX сохраняет всю важную информацию и широко используется, но итоговые файлы занимают очень много места. Формат KML не хранит информацию о времени, но итоговые файлы на 30%  компактнее, чем в формате GPX.</string>
+    <string name="msgFailedToGetFile">Не удалось получить файл</string>
+    <string name="add_gauge">Добавить прибор «%s»</string>
     <string name="advice_more_gauges">Вы можете добавить другие приборы долгим нажатием на панель приборов</string>
     <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
     <string name="never_rises">Солнце никогда не встаёт</string>
@@ -117,5 +109,39 @@
     <string name="waypointStoreName">Мои точки</string>
     <string name="waypoint_name">Точка &#8470;%d</string>
     <string name="startApplication">Открыть MapTrek</string>
-
+    <string name="actionAutoTilt">Наклонять при вращении по курсу</string>
+    <string name="actionDismiss">Убрать</string>
+    <string name="coordinates">Координаты</string>
+    <string name="elevation_profile">Профиль высоты</string>
+    <string name="gauge_bearing">Пеленг</string>
+    <string name="gauge_ete">ETE</string>
+    <string name="gauge_track">Путевой угол</string>
+    <string name="gauge_turn">Курсовой угол</string>
+    <string name="gauge_vmg">VMG</string>
+    <string name="gauge_xtk">XTK</string>
+    <string name="hide_map_objects">Прятать объекты карты</string>
+    <string name="intentCopyMap">Установить карту</string>
+    <string name="intentImportData">Импорт данных MapTrek</string>
+    <string name="msgDeleteFailed">Ошибка удаления источника данных</string>
+    <string name="utc_offset">Часовой пояс</string>
+    <string name="speed_profile">Профиль скорости</string>
+    <string name="selectedLocation">выбранное местоположение</string>
+    <string name="remove_gauge">Удалить прибор «%s»</string>
+    <string name="osmLicense"><![CDATA[&#169; Участники <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>]]></string>
+    <string name="msgUnsupportedFileFormat">Неподдерживаемый формат данных</string>
+    <string name="msgParseCoordinatesFailed">Не удалось обнаружить координаты в строке</string>
+    <string name="permReadMapDataTitle">Получение данных</string>
+    <string name="permReceiveLocationTitle">Местоположение</string>
+    <string name="permReadMapDataDescription">получать данные от MapTrek</string>
+    <string name="msgAdvicesReset">Советы будут показываться с самого начала</string>
+    <string name="msgBackQuit">Нажмите «Назад» ещё раз для выхода</string>
+    <string name="advice_sunrise_sunset">Время восхода и заката указаны по местному для местоположения времени</string>
+    <string name="advice_update_external_source">Когда вы изменяете импортированный источник данных, сохраняются только уместные данные, неподдерживаемые свойства будут потеряны</string>
+    <string name="advice_remember_scale">Мы можете быстро вернуться к запомненному масштабу с помощью двойного нажатия на карту</string>
+    <string name="permReadPreferencesTitle">читать настройки пользователя MapTrek</string>
+    <string name="permReceiveLocationDescription">получать местоположение из MapTrek</string>
+    <string name="permWriteMapDataDescription">помещать объекты на карту MapTrek</string>
+    <string name="permWriteMapDataTitle">Помещение объектов</string>
+    <string name="actionAddGauge">Добавить прибор</string>
+    <string name="about">Приложение MapTrek предназначено для походов, геокешинга, бездорожья, велопрогулок и другой активности на свежем воздухе. Приложение использует офлайн карты, поэтому вам не потребуется интернет-подключение. Вы можете легко импортировать точки и треки из файлов в формате GPX и KML или создавать свои собственные точки и делиться ими с другими. Приложение позволяет вам записывать трек вашего путешествия, в том числе в фоновом режиме. Таким образом вы никогда не потеряетесь и сможете позже посмотреть, где вы были.</string>
 </resources>
