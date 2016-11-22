@@ -70,7 +70,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
                     if (mLastShown + FADE_TIMEOUT <= SystemClock.elapsedRealtime())
                         animate(true);
                 }
-            }, FADE_TIMEOUT);
+            }, FADE_TIMEOUT + 100);
         }
 
         private void animate(boolean enable) {
