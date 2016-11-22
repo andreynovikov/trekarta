@@ -115,9 +115,9 @@
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
     <style-area id="aeroway:runway" fill="#c8ccbe" />
     <style-area id="protected_area" fill="#2000a000" />
-    <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="3.0" />
+    <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="2.5" />
     <style-area id="military" fill="#20d40000" />
-    <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="3.0" />
+    <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="2.5" />
 
     <!-- <style-line id="building" stroke="#c9c3c1" width="1.0" fix="true" cap="butt" fade="15"/> -->
     <!-- <style-line id="building" stroke="#d0cec8" width="1.0" fix="true" cap="butt" fade="15"/>
@@ -541,7 +541,7 @@
 
         <!-- non-physical routes -->
         <m k="route" v="ferry">
-            <line cap="butt" stroke="#00ffffff" width="2.5" stipple="20" stipple-stroke="#587f9d" fix="true" />
+            <line cap="butt" stroke="#00ffffff" width="2.0" stipple="20" stipple-stroke="#587f9d" fix="true" />
         </m>
 
         <m closed="yes" k="piste:type" v="downhill" zoom-min="13">
