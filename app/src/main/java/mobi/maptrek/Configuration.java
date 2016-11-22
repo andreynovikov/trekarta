@@ -247,7 +247,7 @@ public class Configuration {
     }
 
     public static float getRememberedScale() {
-        return loadFloat(PREF_REMEMBERED_SCALE, -1f);
+        return loadFloat(PREF_REMEMBERED_SCALE, (1 << 15) - 5f);
     }
 
     public static void setRememberedScale(float scale) {

@@ -137,7 +137,7 @@
     <string name="msgBackQuit">Нажмите «Назад» ещё раз для выхода</string>
     <string name="advice_sunrise_sunset">Время восхода и заката указаны по местному для местоположения времени</string>
     <string name="advice_update_external_source">Когда вы изменяете импортированный источник данных, сохраняются только уместные данные, неподдерживаемые свойства будут потеряны</string>
-    <string name="advice_remember_scale">Мы можете быстро вернуться к запомненному масштабу с помощью двойного нажатия на карту</string>
+    <string name="advice_remember_scale">Мы можете быстро вернуться к запомненному масштабу с помощью тройного нажатия на карту</string>
     <string name="permReadPreferencesTitle">читать настройки пользователя MapTrek</string>
     <string name="permReceiveLocationDescription">получать местоположение из MapTrek</string>
     <string name="permWriteMapDataDescription">помещать объекты на карту MapTrek</string>

@@ -150,6 +150,7 @@ import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
+import mobi.maptrek.layers.CrosshairLayer;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.MapCoverageLayer;
@@ -321,6 +322,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private NavigationLayer mNavigationLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
     private ItemizedLayer<MarkerItem> mMarkerLayer;
+    private CrosshairLayer mCrosshairLayer;
     private LocationOverlay mLocationOverlay;
     private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
@@ -637,6 +639,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
+        mCrosshairLayer = new CrosshairLayer(mMap);
+        layers.add(mCrosshairLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
         layers.add(new MapObjectLayer(mMap, MapTrek.density), MAP_3D_DATA);
@@ -1872,13 +1876,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             });
             popup.show();
             return true;
-        } else if (gesture == Gesture.DOUBLE_TAP) {
+        } else if (gesture == Gesture.TRIPLE_TAP) {
             float scale = Configuration.getRememberedScale();
-            if (scale > 0f) {
-                double scaleBy = scale / mMapPosition.getScale();
-                mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
-                return true;
-            }
+            double scaleBy = scale / mMapPosition.getScale();
+            mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
+            return true;
         }
         return false;
     }
@@ -1941,6 +1943,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             case DISABLED:
                 mNavigationNorthDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
+                mCrosshairLayer.setEnabled(true);
                 break;
             case SEARCHING:
                 mLocationSearchingDrawable.setTint(mColorAccent);
@@ -1959,17 +1962,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             case ENABLED:
                 mMyLocationDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
+                mCrosshairLayer.setEnabled(true);
                 gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
+                mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
                 HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
+                mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
         }
         mLocationButton.setTag(mLocationState);
