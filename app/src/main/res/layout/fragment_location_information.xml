@@ -32,10 +32,19 @@
         tools:ignore="RtlSymmetry">
 
         <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_share"
+            android:tint="@color/colorPrimaryDark" />
+
+        <ImageButton
             android:id="@+id/launchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingTop="@dimen/image_button_padding"
             android:src="@drawable/ic_launch"
             android:tint="@color/colorPrimaryDark" />
 

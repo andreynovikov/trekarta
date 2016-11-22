@@ -155,17 +155,26 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
         android:layout_columnSpan="2"
+        android:layout_gravity="start"
         android:orientation="horizontal"
         android:paddingTop="@dimen/panel_padding"
         tools:ignore="RtlSymmetry">
+
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_share"
+            android:tint="@color/colorPrimaryDark" />
 
         <ImageButton
             android:id="@+id/launchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingStart="@dimen/image_button_padding"
             android:src="@drawable/ic_launch"
             android:tint="@color/colorPrimaryDark" />
 

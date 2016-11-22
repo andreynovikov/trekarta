@@ -19,6 +19,7 @@ import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
 import org.oscim.map.Map;
+import org.oscim.utils.Osm;
 
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,18 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             @Override
             public void onClick(View v) {
                 mMapHolder.disableLocations();
+            }
+        });
+        ImageButton shareButton = (ImageButton) mRootView.findViewById(R.id.shareButton);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String location = String.format(Locale.US, "%.6f %.6f <%s>",
+                        mLatitude, mLongitude, Osm.makeShortLink(mLatitude, mLongitude, mZoom));
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
+                startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
             }
         });
         ImageButton launchButton = (ImageButton) mRootView.findViewById(R.id.launchButton);
