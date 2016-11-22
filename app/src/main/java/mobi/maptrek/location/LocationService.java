@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
@@ -218,7 +219,7 @@ public class LocationService extends BaseLocationService implements LocationList
                 logger.error("Missing ACCESS_FINE_LOCATION permission");
             }
         }
-        if (enableMockLocations) {
+        if (enableMockLocations && BuildConfig.DEBUG) {
             mMockLocationTicker = 0;
             mMockCallback.post(mSendMockLocation);
             mLocationsEnabled = true;
@@ -238,7 +239,7 @@ public class LocationService extends BaseLocationService implements LocationList
             mLocationManager.removeGpsStatusListener(this);
             mLocationManager = null;
         }
-        if (enableMockLocations) {
+        if (enableMockLocations && BuildConfig.DEBUG) {
             mLocationsEnabled = false;
             mMockCallback.removeCallbacks(mSendMockLocation);
         }
@@ -659,7 +660,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onLocationChanged(final Location location) {
-        if (enableMockLocations)
+        if (enableMockLocations && BuildConfig.DEBUG)
             return;
 
         // skip initial locations
@@ -763,7 +764,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        if (enableMockLocations)
+        if (enableMockLocations && BuildConfig.DEBUG)
             return;
 
         if (LocationManager.GPS_PROVIDER.equals(provider)) {
@@ -779,7 +780,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     @Override
     public void onGpsStatusChanged(int event) {
-        if (enableMockLocations)
+        if (enableMockLocations && BuildConfig.DEBUG)
             return;
 
         switch (event) {
