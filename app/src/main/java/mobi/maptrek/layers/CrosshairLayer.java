@@ -16,9 +16,9 @@ import org.oscim.renderer.MapRenderer;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class CrosshairLayer extends Layer implements Map.UpdateListener {
-    public CrosshairLayer(Map map) {
+    public CrosshairLayer(Map map, float scale) {
         super(map);
-        mRenderer = new CrosshairRenderer();
+        mRenderer = new CrosshairRenderer(scale);
     }
 
     @Override
@@ -27,21 +27,23 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             return;
         super.setEnabled(enabled);
         if (enabled)
-            ((CrosshairRenderer)mRenderer).fade();
+            ((CrosshairRenderer)mRenderer).show();
     }
 
     @Override
     public void onMapEvent(Event event, MapPosition mapPosition) {
-        if (event == Map.MOVE_EVENT && isEnabled()) {
-            ((CrosshairRenderer)mRenderer).fade();
+        if (isEnabled() && (event == Map.MOVE_EVENT || event == Map.POSITION_EVENT)) {
+            ((CrosshairRenderer)mRenderer).show();
         }
     }
 
     private class CrosshairRenderer extends LayerRenderer {
+        private float mScale;
         private float mAlpha;
         private int mShaderProgram;
         private int hVertexPosition;
         private int hMatrixPosition;
+        private int hScale;
         private int hPhase;
 
         private final static long ANIM_RATE = 50;
@@ -55,12 +57,13 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
 
         private long mLastShown;
 
-        CrosshairRenderer() {
+        CrosshairRenderer(float scale) {
             super();
+            mScale = scale;
             mAlpha = 1f;
         }
 
-        void fade() {
+        void show() {
             animate(false);
             mAlpha = 1f;
             mLastShown = SystemClock.elapsedRealtime();
@@ -108,7 +111,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
         public void update(GLViewport v) {
             if (!mInitialized) {
                 init();
-                fade();
+                show();
                 mInitialized = true;
             }
             setReady(isEnabled());
@@ -134,9 +137,11 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             }
 
             v.mvp.setTransScale(0f, 0f, 1);
-            v.mvp.multiplyMM(v.viewproj, v.mvp);
+            // use v.viewproj to honor rotation ant tilt, or v.proj otherwise
+            v.mvp.multiplyMM(v.proj, v.mvp);
             v.mvp.setAsUniform(hMatrixPosition);
 
+            gl.uniform1f(hScale, mScale);
             gl.uniform1f(hPhase, mAlpha);
 
             gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
@@ -150,6 +155,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             mShaderProgram = shader;
             hVertexPosition = gl.getAttribLocation(shader, "a_pos");
             hMatrixPosition = gl.getUniformLocation(shader, "u_mvp");
+            hScale = gl.getUniformLocation(shader, "u_scale");
             hPhase = gl.getUniformLocation(shader, "u_phase");
 
             return true;

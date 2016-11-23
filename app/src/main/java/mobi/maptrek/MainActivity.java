@@ -639,7 +639,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
-        mCrosshairLayer = new CrosshairLayer(mMap);
+        mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density);
         layers.add(mCrosshairLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
