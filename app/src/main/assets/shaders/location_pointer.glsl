@@ -7,7 +7,7 @@ uniform float u_scale;
 attribute vec2 a_pos;
 varying vec2 v_tex;
 void main() {
-  gl_Position = u_mvp * vec4(a_pos * u_scale * u_phase, 0.0, 1.0);
+  gl_Position = u_mvp * vec4(40.0 * a_pos * u_scale * u_phase, 0.0, 1.0);
   v_tex = a_pos;
 }
 
@@ -17,7 +17,6 @@ $$
 precision mediump float;
 #endif
 varying vec2 v_tex;
-uniform float u_scale;
 uniform float u_phase;
 uniform float u_type;
 uniform vec2 u_dir;
@@ -67,11 +66,11 @@ void main() {
     gl_FragColor = vec4(1.0, 0.34, 0.13, 1.0) * len;
   } else if (u_type == 1.0) {
     ///  outer ring
-	float a = smoothstep(0.0, 2.0 / u_scale, len);
+	float a = smoothstep(0.0, 0.02, len);
 	///  inner ring
-	float b = 0.5 * smoothstep(4.0 / u_scale, 5.0 / u_scale, len);
+	float b = 0.5 * smoothstep(0.04, 0.05, len);
 	///  center point
-	float c = 0.5 * (1.0 - smoothstep(14.0 / u_scale, 16.0 / u_scale, 1.0 - len));
+	float c = 0.5 * (1.0 - smoothstep(0.14, 0.16, 1.0 - len));
 	vec2 dir = normalize(v_tex);
 	float d = 1.0 - dot(dir, u_dir);
 	///  0.5 width of viewshed

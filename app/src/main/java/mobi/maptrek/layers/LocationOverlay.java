@@ -37,23 +37,19 @@ import org.oscim.utils.math.Interpolation;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class LocationOverlay extends Layer {
-    private final int SHOW_ACCURACY_ZOOM = 18;
-
     private final Point mLocation = new Point();
     private float mBearing;
-    private double mRadius;
 
-    public LocationOverlay(Map map) {
+    public LocationOverlay(Map map, float scale) {
         super(map);
-        mRenderer = new LocationIndicator();
+        mRenderer = new LocationIndicator(scale);
         setEnabled(false);
     }
 
-    public void setPosition(double latitude, double longitude, float bearing, float accuracy) {
+    public void setPosition(double latitude, double longitude, float bearing) {
         mLocation.x = MercatorProjection.longitudeToX(longitude);
         mLocation.y = MercatorProjection.latitudeToY(latitude);
         mBearing = bearing;
-        mRadius = accuracy / MercatorProjection.groundResolution(latitude, 1);
         ((LocationIndicator) mRenderer).animate(true);
     }
 
@@ -72,7 +68,8 @@ public class LocationOverlay extends Layer {
         ((LocationIndicator) mRenderer).animate(enabled);
     }
 
-    public class LocationIndicator extends LayerRenderer {
+    private class LocationIndicator extends LayerRenderer {
+        private final float mScale;
         private int mShaderProgram;
         private int hVertexPosition;
         private int hMatrixPosition;
@@ -80,8 +77,6 @@ public class LocationOverlay extends Layer {
         private int hPhase;
         private int hDirection;
         private int hType;
-
-        public final static float POINTER_SIZE = 100;
 
         private final static long ANIM_RATE = 50;
         private final static long INTERVAL = 8000;
@@ -99,8 +94,9 @@ public class LocationOverlay extends Layer {
 
         private boolean mReanimated = false;
 
-        public LocationIndicator() {
+        LocationIndicator(float scale) {
             super();
+            mScale = scale;
         }
 
         private void animate(boolean enable) {
@@ -123,6 +119,7 @@ public class LocationOverlay extends Layer {
                     long diff = SystemClock.elapsedRealtime() - lastRun;
                     mMap.postDelayed(this, Math.min(ANIM_RATE, diff));
                     mMap.render();
+                    lastRun = SystemClock.elapsedRealtime();
                 }
             };
 
@@ -169,21 +166,6 @@ public class LocationOverlay extends Layer {
             GLState.enableVertexArrays(hVertexPosition, -1);
             MapRenderer.bindQuadVertexVBO(hVertexPosition);
 
-            float radius = POINTER_SIZE;
-
-            animate(true);
-            boolean viewShed = false;
-            if (!mLocationIsVisible /* || pos.zoomLevel < SHOW_ACCURACY_ZOOM */) {
-                //animate(true);
-            } else {
-                float r = (float) (mRadius * v.pos.scale);
-                //if (r > radius) // || v.pos.zoomLevel >= SHOW_ACCURACY_ZOOM)
-                //    radius = r;
-                viewShed = true;
-                //animate(false);
-            }
-            gl.uniform1f(hScale, radius);
-
             double x = mIndicatorPosition.x - v.pos.x;
             double y = mIndicatorPosition.y - v.pos.y;
             double tileScale = Tile.SIZE * v.pos.scale;
@@ -192,15 +174,11 @@ public class LocationOverlay extends Layer {
             v.mvp.multiplyMM(v.viewproj, v.mvp);
             v.mvp.setAsUniform(hMatrixPosition);
 
-            if (!viewShed) {
-                float phase = Math.abs(animPhase() - 0.5f) * 2;
-                phase = Interpolation.swing.apply(phase);
-                gl.uniform1f(hPhase, 0.8f + phase * 0.2f);
-            } else {
-                gl.uniform1f(hPhase, 1);
-            }
+            gl.uniform1f(hScale, mScale);
 
-            if (viewShed && mLocationIsVisible) {
+            if (mLocationIsVisible) {
+                animate(false);
+                gl.uniform1f(hPhase, 1);
                 float rotation = mBearing - 90;
                 if (rotation > 180)
                     rotation -= 360;
@@ -211,6 +189,10 @@ public class LocationOverlay extends Layer {
                         (float) Math.cos(Math.toRadians(rotation)),
                         (float) Math.sin(Math.toRadians(rotation)));
             } else {
+                animate(true);
+                float phase = Math.abs(animPhase() - 0.5f) * 2;
+                phase = Interpolation.swing.apply(phase);
+                gl.uniform1f(hPhase, 0.8f + phase * 0.2f);
                 gl.uniform2f(hDirection, 0, 0);
             }
 

@@ -614,8 +614,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        mLocationOverlay = new LocationOverlay(mMap);
-
         mNativeMapsLayer = new OsmTileLayer(mMap);
         mNativeMapsLayer.setTileSource(mMapFileSource);
         //mNativeMapsLayer.setNumLoaders(1);
@@ -638,8 +636,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
-        layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density);
+        mLocationOverlay = new LocationOverlay(mMap, MapTrek.density);
+        layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mCrosshairLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
 
@@ -1299,7 +1298,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, rotate);
         }
 
-        mLocationOverlay.setPosition(lat, lon, bearing, location.getAccuracy());
+        mLocationOverlay.setPosition(lat, lon, bearing);
         if (mNavigationLayer != null)
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
@@ -3164,7 +3163,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 }
 
                 if (!area.isEmpty()) {
-                    int pointerOffset = (int) (LocationOverlay.LocationIndicator.POINTER_SIZE * 1.1f);
+                    int pointerOffset = (int) (50 * MapTrek.density);
                     int centerX = mapWidth / 2;
                     int centerY = mapHeight / 2;
                     mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
@@ -3174,7 +3173,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     if (mMovingOffset < 0)
                         mMovingOffset = 0;
 
-                    mTrackingOffset = area.bottom - mapHeight / 2 - pointerOffset - pointerOffset / 2;
+                    mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
 
                     BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
                     renderer.setOffset(area.left + 8 * MapTrek.density, 0);
