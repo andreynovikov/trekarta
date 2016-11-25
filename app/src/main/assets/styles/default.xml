@@ -223,6 +223,11 @@
                 <area use="greens" />
             </m>
 
+            <m k="leisure" v="dog_park" zoom-min="15">
+                <area src="assets:patterns/dog_park.svg" />
+                <line use="park" />
+            </m>
+
             <!-- Heideland, keep below forest -->
             <m v="heath|sand" zoom-min="10">
                 <area fade="10" fill="#fffad1" use="tex1" />
@@ -381,17 +386,23 @@
             <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.0" />
         </m>
 
+        <m k="highway" v="track">
+            <m k="area" v="yes">
+                <area fill="#C19A6B" />
+            </m>
+        </m>
+
         <m k="man_made" v="cutline" zoom-min="14">
             <line width="2.0" stroke="#d3dcb9" cap="butt" />
         </m>
 
         <m k="natural" v="cliff">
-            <line cap="butt" fix="true" stroke="#888888" width="4" />
+            <line cap="butt" fix="true" stroke="#888888" width="3" />
             <m zoom-min="14">
-                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="100" width="24" />
+                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="80" width="20" />
             </m>
             <m zoom-min="13" zoom-max="13">
-                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="50" width="24" />
+                <line fix="true" stipple-stroke="#888888" src="assets:symbols/cliff.svg" stipple="40" width="20" />
             </m>
         </m>
 
@@ -1103,12 +1114,6 @@
         <m k="place" v="locality" zoom-min="17">
             <caption style="bold" fill="#000000" k="name" size="12" stroke="#ffffff"
                 stroke-width="2.0" />
-        </m>
-
-        <m k="highway" v="track">
-            <m k="area" v="yes">
-                <area fill="#aaff0000" />
-            </m>
         </m>
 
         <m k="power" v="line" zoom-min="14">
