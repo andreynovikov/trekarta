@@ -1,7 +1,6 @@
 package mobi.maptrek;
 
 import android.app.Application;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -34,6 +33,11 @@ public class MapTrek extends Application {
     public static float ydpi = 160f;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
+
+    // Configure global defaults
+    static {
+        org.oscim.map.Map.NEW_GESTURES = true;
+    }
 
     @Override
     public void onCreate() {
