@@ -6,7 +6,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.Pair;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -16,6 +20,18 @@ public class BasePluginActivity extends Activity {
     // Plugins
     private AbstractMap<String, Intent> mPluginPreferences = new HashMap<>();
     private AbstractMap<String, Pair<Drawable, Intent>> mPluginTools = new HashMap<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
     public java.util.Map<String, Intent> getPluginsPreferences() {
         return mPluginPreferences;
@@ -72,4 +88,8 @@ public class BasePluginActivity extends Activity {
         }
     }
 
+    @Subscribe
+    public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
+        mPluginTools.put(entry.first, entry.second);
+    }
 }
