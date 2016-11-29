@@ -15,24 +15,33 @@
 
     <permission
         android:name="${applicationId}.permission.READ_FILES"
+        android:description="@string/permReadFilesDescription"
+        android:label="@string/permReadFilesLabel"
         android:protectionLevel="normal" />
     <permission
         android:name="${applicationId}.permission.WRITE_FILES"
+        android:description="@string/permWriteFilesDescription"
+        android:label="@string/permWriteFilesLabel"
         android:protectionLevel="signature" />
     <permission
         android:name="${applicationId}.permission.RECEIVE_LOCATION"
         android:description="@string/permReceiveLocationDescription"
-        android:label="@string/permReceiveLocationTitle" />
+        android:label="@string/permReceiveLocationLabel" />
     <permission
         android:name="${applicationId}.permission.READ_MAP_DATA"
         android:description="@string/permReadMapDataDescription"
-        android:label="@string/permReadMapDataTitle"
+        android:label="@string/permReadMapDataLabel"
         android:protectionLevel="signature" />
     <permission
         android:name="${applicationId}.permission.WRITE_MAP_DATA"
         android:description="@string/permWriteMapDataDescription"
-        android:label="@string/permWriteMapDataTitle"
+        android:label="@string/permWriteMapDataLabel"
         android:protectionLevel="signature" />
+    <permission
+        android:name="${applicationId}.permission.ADD_PLUGIN_ENTRIES"
+        android:description="@string/permAddPluginEntriesDescription"
+        android:label="@string/permAddPluginEntriesLabel"
+        android:protectionLevel="normal" />
 
     <application
         android:name="mobi.maptrek.MapTrek"
@@ -117,6 +126,14 @@
             android:exported="false">
             <intent-filter android:priority="-10">
                 <action android:name="mobi.maptrek.event.WaypointsRestored" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".plugin.PluginEntryReceiver"
+            android:permission="${applicationId}.permission.ADD_PLUGIN_ENTRIES">
+            <intent-filter>
+                <action android:name="mobi.maptrek.plugin.NewEntry" />
             </intent-filter>
         </receiver>
 

@@ -130,18 +130,18 @@
     <string name="osmLicense"><![CDATA[&#169; Участники <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>]]></string>
     <string name="msgUnsupportedFileFormat">Неподдерживаемый формат данных</string>
     <string name="msgParseCoordinatesFailed">Не удалось обнаружить координаты в строке</string>
-    <string name="permReadMapDataTitle">Получение данных</string>
-    <string name="permReceiveLocationTitle">Местоположение</string>
+    <string name="permReadMapDataLabel">Получение данных</string>
+    <string name="permReceiveLocationLabel">Местоположение</string>
     <string name="permReadMapDataDescription">получать данные от MapTrek</string>
     <string name="msgAdvicesReset">Советы будут показываться с самого начала</string>
     <string name="msgBackQuit">Нажмите «Назад» ещё раз для выхода</string>
     <string name="advice_sunrise_sunset">Время восхода и заката указаны по местному для местоположения времени</string>
     <string name="advice_update_external_source">Когда вы изменяете импортированный источник данных, сохраняются только уместные данные, неподдерживаемые свойства будут потеряны</string>
     <string name="advice_remember_scale">Мы можете быстро вернуться к запомненному масштабу с помощью тройного нажатия на карту</string>
-    <string name="permReadPreferencesTitle">читать настройки пользователя MapTrek</string>
+    <string name="permReadPreferencesLabel">читать настройки пользователя MapTrek</string>
     <string name="permReceiveLocationDescription">получать местоположение из MapTrek</string>
     <string name="permWriteMapDataDescription">помещать объекты на карту MapTrek</string>
-    <string name="permWriteMapDataTitle">Помещение объектов</string>
+    <string name="permWriteMapDataLabel">Помещение объектов</string>
     <string name="actionAddGauge">Добавить прибор</string>
     <string name="about">Приложение MapTrek предназначено для походов, геокешинга, бездорожья, велопрогулок и другой активности на свежем воздухе. Приложение использует офлайн карты, поэтому вам не потребуется интернет-подключение. Вы можете легко импортировать точки и треки из файлов в формате GPX и KML или создавать свои собственные точки и делиться ими с другими. Приложение позволяет вам записывать трек вашего путешествия, в том числе в фоновом режиме. Таким образом вы никогда не потеряетесь и сможете позже посмотреть, где вы были.</string>
 </resources>
