@@ -415,11 +415,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             if (language == null) {
                 language = resources.getConfiguration().locale.getLanguage();
                 if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
-                    language = "en";
+                    language = "none";
                 Configuration.setLanguage(language);
             }
-            mLocalizedName = "name:" + language;
-            mMapFileSource.setPreferredLanguage(language);
+            if (!"none".equals(language)) {
+                mLocalizedName = "name:" + language;
+                mMapFileSource.setPreferredLanguage(language);
+            }
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
@@ -593,7 +595,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public boolean process(MapTile tile, RenderBuckets buckets, MapElement element) {
                 Tag name = element.tags.get("name");
-                if (name != null && element.tags.containsKey(mLocalizedName))
+                if (name != null && mLocalizedName != null && element.tags.containsKey(mLocalizedName))
                     name.value = element.tags.get(mLocalizedName).value;
                 return false;
             }
@@ -1101,11 +1103,17 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
                         String language = languageCodes[which];
                         if (mMapFileSource != null) {
-                            mMapFileSource.setPreferredLanguage(language);
+                            if ("none".equals(language))
+                                mMapFileSource.setPreferredLanguage(null);
+                            else
+                                mMapFileSource.setPreferredLanguage(language);
                             mMap.clearMap();
                         }
                         Configuration.setLanguage(language);
-                        mLocalizedName = "name:" + language;
+                        if ("none".equals(language))
+                            mLocalizedName = null;
+                        else
+                            mLocalizedName = "name:" + language;
                     }
                 });
                 AlertDialog dialog = builder.create();

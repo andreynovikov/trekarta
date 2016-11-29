@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string-array name="language_code_array">
+        <item>none</item>
         <item>en</item>
         <item>de</item>
         <item>ru</item>
