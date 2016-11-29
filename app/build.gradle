@@ -8,8 +8,8 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 18
-        versionName "17"
+        versionCode 24
+        versionName "24"
     }
 
     compileOptions {
@@ -26,7 +26,7 @@ android {
 
     productFlavors {
         full {
-            versionName "2016.beta18"
+            versionName "2016.12"
             applicationId "mobi.maptrek"
             buildConfigField "boolean", "FULL_VERSION", "true"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
@@ -34,17 +34,12 @@ android {
         }
 
         lite {
-            versionName "2016.11-lite"
+            versionName "2016.12-lite"
             applicationId "mobi.maptrek.lite"
             buildConfigField "boolean", "FULL_VERSION", "false"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
             return void
         }
-    }
-
-    lintOptions {
-        disable 'MissingTranslation'
-        return void
     }
 
     return void
