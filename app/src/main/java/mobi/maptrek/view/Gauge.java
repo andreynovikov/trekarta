@@ -11,7 +11,7 @@ public class Gauge extends RelativeLayout {
     public static final int TYPE_SPEED = 0x00001;
     public static final int TYPE_TRACK = 0x00002;
     public static final int TYPE_ALTITUDE = 0x00004;
-    public static final int TYPE_PRESSURE = 0x01000;
+    public static final int TYPE_ELEVATION = 0x01000;
     public static final int TYPE_DISTANCE = 0x10000;
     public static final int TYPE_BEARING = 0x20000;
     public static final int TYPE_TURN = 0x40000;

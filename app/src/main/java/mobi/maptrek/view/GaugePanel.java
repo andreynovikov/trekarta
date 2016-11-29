@@ -257,8 +257,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 return context.getString(R.string.gauge_altitude);
             case Gauge.TYPE_DISTANCE:
                 return context.getString(R.string.gauge_distance);
-            case Gauge.TYPE_PRESSURE:
-                return "Pressure";
+            case Gauge.TYPE_ELEVATION:
+                return context.getString(R.string.gauge_elevation);
             case Gauge.TYPE_BEARING:
                 return context.getString(R.string.gauge_bearing);
             case Gauge.TYPE_TURN:
@@ -289,8 +289,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 return "m";
             case Gauge.TYPE_ETE:
                 return "min";
-            case Gauge.TYPE_PRESSURE:
-                return "hPa";
+            case Gauge.TYPE_ELEVATION:
+                return "ft";
             default:
                 return "";
         }
@@ -298,7 +298,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     private void addGauge(int type) {
         Gauge gauge = new Gauge(getContext(), type, getGaugeUnit(type));
-        gauge.setValue("--"); //TODO USe descriptive string
+        gauge.setValue("--"); //TODO Use descriptive string
         if (isNavigationGauge(type)) {
             addView(gauge);
             if (!mNavigationMode)
@@ -312,9 +312,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
         mGaugeMap.put(type, gauge);
 
-        mHasSensors = mGaugeMap.get(Gauge.TYPE_PRESSURE) != null;
-        logger.error("add gauge {} {} {} {}", (type == Gauge.TYPE_PRESSURE), mHasSensors, (mPressureSensor != null), mVisible);
-        if (type == Gauge.TYPE_PRESSURE && mPressureSensor != null && mVisible)
+        mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
+        if (type == Gauge.TYPE_ELEVATION && mPressureSensor != null && mVisible)
             mSensorManager.registerListener(this, mPressureSensor, SensorManager.SENSOR_DELAY_NORMAL, 1000);
 
         gauge.setGravity(Gravity.END | Gravity.TOP);
@@ -326,8 +325,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         removeView(gauge);
         mGauges.remove(gauge);
         mGaugeMap.remove(type);
-        mHasSensors = mGaugeMap.get(Gauge.TYPE_PRESSURE) != null;
-        if (type == Gauge.TYPE_PRESSURE && !mHasSensors && mVisible)
+        mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
+        if (type == Gauge.TYPE_ELEVATION && !mHasSensors && mVisible)
             mSensorManager.unregisterListener(this);
     }
 
@@ -368,6 +367,10 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         Gauge gauge = mGaugeMap.get(type);
         if (gauge == null)
             return;
+        if (Float.isNaN(value)) {
+            gauge.setValue("--"); //TODO Use descriptive string
+            return;
+        }
         switch (type) {
             case Gauge.TYPE_SPEED: {
                 String indication = StringFormatter.speedC(value);
@@ -379,6 +382,12 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 String[] indication = StringFormatter.distanceC(value);
                 gauge.setValue(indication[0]);
                 gauge.setUnit(indication[1]);
+                break;
+            }
+            case Gauge.TYPE_ELEVATION: {
+                // https://en.wikipedia.org/wiki/Pressure_altitude
+                float elevation = (float) ((1 - Math.pow(value / SensorManager.PRESSURE_STANDARD_ATMOSPHERE, 0.190284)) * 145366.45);
+                gauge.setValue(elevation);
                 break;
             }
             default:
@@ -401,7 +410,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     }
 
     public boolean setNavigationMode(boolean mode) {
-        logger.debug("setNavigationMode({})", mode);
         if (mNavigationMode == mode)
             return false;
         mNavigationMode = mode;
@@ -425,7 +433,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         gauges.add(Gauge.TYPE_TRACK);
         gauges.add(Gauge.TYPE_ALTITUDE);
         if (mPressureSensor != null)
-            gauges.add(Gauge.TYPE_PRESSURE);
+            gauges.add(Gauge.TYPE_ELEVATION);
         if (mNavigationMode) {
             gauges.add(Gauge.TYPE_DISTANCE);
             gauges.add(Gauge.TYPE_BEARING);
@@ -455,27 +463,19 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        logger.error("value: {}", event.values[0]);
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-            Gauge gauge = mGaugeMap.get(Gauge.TYPE_PRESSURE);
-            if (gauge == null)
-                return;
             if (event.accuracy == SensorManager.SENSOR_STATUS_NO_CONTACT || event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
-                gauge.setValue("--"); //TODO Use descriptive string
+                setValue(Gauge.TYPE_ELEVATION, Float.NaN);
             else
-                gauge.setValue(event.values[0]);
+                setValue(Gauge.TYPE_ELEVATION, event.values[0]);
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        logger.error("accuracy: {}", accuracy);
         if (sensor.getType() == Sensor.TYPE_PRESSURE) {
-            Gauge gauge = mGaugeMap.get(Gauge.TYPE_PRESSURE);
-            if (gauge == null)
-                return;
             if (accuracy == SensorManager.SENSOR_STATUS_NO_CONTACT || accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
-                gauge.setValue("--"); //TODO Use descriptive string
+                setValue(Gauge.TYPE_ELEVATION, Float.NaN);
         }
     }
 }
