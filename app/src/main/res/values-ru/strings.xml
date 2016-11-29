@@ -144,4 +144,12 @@
     <string name="permWriteMapDataLabel">Помещение объектов</string>
     <string name="actionAddGauge">Добавить прибор</string>
     <string name="about">Приложение MapTrek предназначено для походов, геокешинга, бездорожья, велопрогулок и другой активности на свежем воздухе. Приложение использует офлайн карты, поэтому вам не потребуется интернет-подключение. Вы можете легко импортировать точки и треки из файлов в формате GPX и KML или создавать свои собственные точки и делиться ими с другими. Приложение позволяет вам записывать трек вашего путешествия, в том числе в фоновом режиме. Таким образом вы никогда не потеряетесь и сможете позже посмотреть, где вы были.</string>
+    <string name="gauge_elevation">Превышение</string>
+    <string name="permAddPluginEntriesDescription">Позволяет приложению добавлять пункты в меню MapTrek.</string>
+    <string name="permAddPluginEntriesLabel">добавлять пункты меню</string>
+    <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы MapTrek, такие как точки и треки.</string>
+    <string name="permReadFilesLabel">читать пользовательские файлы</string>
+    <string name="permReadPreferencesDescription">Позволяет приложению получать пользовательские настройки MapTrek.</string>
+    <string name="permWriteFilesDescription">Позволяет приложению добавлять или замещать пользовательские файлы MapTrek, такие как точки и треки.</string>
+    <string name="permWriteFilesLabel">писать пользовательские файлы</string>
 </resources>
