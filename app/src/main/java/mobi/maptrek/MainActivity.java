@@ -946,6 +946,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMap.events.unbind(this);
         mMap.layers().remove(mMapEventLayer);
         mMapEventLayer = null;
+        mGaugePanel.onVisibilityChanged(false);
 
         // save the map position and state
         Configuration.setPosition(mMap.getMapPosition());
@@ -1956,6 +1957,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     mSatellitesText.animate().translationY(8);
                 } else {
                     gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
+                    mGaugePanel.onVisibilityChanged(false);
                 }
                 break;
             case ENABLED:
@@ -1963,12 +1965,14 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
                 gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
+                mGaugePanel.onVisibilityChanged(false);
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
+                mGaugePanel.onVisibilityChanged(true);
                 HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
                 break;
             case TRACK:
@@ -1976,6 +1980,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mLocationButton.setImageDrawable(mNavigationTrackDrawable);
                 mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
+                mGaugePanel.onVisibilityChanged(true);
         }
         mLocationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
