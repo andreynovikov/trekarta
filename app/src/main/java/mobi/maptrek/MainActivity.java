@@ -595,8 +595,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public boolean process(MapTile tile, RenderBuckets buckets, MapElement element) {
                 Tag name = element.tags.get("name");
-                if (name != null && mLocalizedName != null && element.tags.containsKey(mLocalizedName))
-                    name.value = element.tags.get(mLocalizedName).value;
+                if (name != null && mLocalizedName != null && element.tags.containsKey(mLocalizedName)) {
+                    String localizedName = element.tags.get(mLocalizedName).value;
+                    if (!"".equals(localizedName))
+                        name.value = localizedName;
+                }
                 return false;
             }
 
