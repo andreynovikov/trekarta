@@ -8,7 +8,8 @@
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 
@@ -69,10 +70,12 @@
     </style>
 
     <style name="MapButtonHolder">
-     <item name="android:layout_gravity">top|end</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:layout_marginTop">@*android:dimen/status_bar_height</item>
     </style>
 
     <style name="GaugePanel">
+        <item name="android:layout_marginTop">@*android:dimen/status_bar_height</item>
         <item name="android:layout_marginBottom">@dimen/gauge_padding</item>
     </style>
 </resources>

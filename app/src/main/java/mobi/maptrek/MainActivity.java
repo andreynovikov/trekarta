@@ -59,6 +59,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -219,6 +221,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
+    private int mStatusBarHeight;
 
     public enum TRACKING_STATE {
         DISABLED,
@@ -353,6 +356,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         logger.debug("onCreate()");
+        Window w = getWindow();
+        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //w.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        //w.setStatusBarColor(Color.TRANSPARENT);
         setContentView(R.layout.activity_main);
 
         Resources resources = getResources();
@@ -362,6 +369,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
+        mStatusBarHeight = getStatusBarHeight();
 
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
@@ -1945,7 +1953,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (mLocationState == LocationState.SEARCHING)
-                    mSatellitesText.animate().translationY(8);
+                    mSatellitesText.animate().translationY(mStatusBarHeight + 8);
                 gaugePanelAnimator.setListener(null);
                 updateMapViewArea();
             }
@@ -1965,7 +1973,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 rotation.setDuration(1000);
                 mLocationButton.startAnimation(rotation);
                 if (mGaugePanel.getVisibility() == View.INVISIBLE) {
-                    mSatellitesText.animate().translationY(8);
+                    mSatellitesText.animate().translationY(mStatusBarHeight + 8);
                 } else {
                     gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
                     mGaugePanel.onVisibilityChanged(false);
@@ -3162,6 +3170,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 int mapWidth = area.width();
                 int mapHeight = area.height();
 
+                area.top = mStatusBarHeight;
                 area.left = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
 
                 View v = findViewById(R.id.actionPanel);
@@ -3192,7 +3201,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
 
                     BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                    renderer.setOffset(area.left + 8 * MapTrek.density, 0);
+                    renderer.setOffset(area.left + 8 * MapTrek.density, area.top);
                 }
 
                 ViewTreeObserver ob;
@@ -3516,6 +3525,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private void hideSystemUI() {
         Configuration.setHideSystemUI(true);
+        mStatusBarHeight = 0;
         // Set the IMMERSIVE flag to make content appear under the system bars so that the content
         // doesn't resize when the system bars hide and show.
         final View decorView = getWindow().getDecorView();
@@ -3532,11 +3542,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private void showSystemUI() {
         Configuration.setHideSystemUI(false);
+        mStatusBarHeight = getStatusBarHeight();
         final View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         // for some reason visibility is not updated if application menu was previously shown
         decorView.invalidate();
         mMainHandler.removeMessages(R.id.msgHideSystemUI);
+    }
+
+    private int getStatusBarHeight() {
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0)
+            return getResources().getDimensionPixelSize(resourceId);
+        else
+            return 0;
     }
 
     private double movingAverage(double current, double previous) {
