@@ -49,9 +49,12 @@ public final class FileList {
         // if nothing find may be it empty and can be deleted,
         // current logic does not remove nested empty dirs
         //noinspection ConstantConditions
-        if (startingDir.isDirectory() && files.length == 0 && dirs.length == 0 && startingDir.list().length == 0)
-            //noinspection ResultOfMethodCallIgnored
-            startingDir.delete();
+        if (startingDir.isDirectory() && (files == null || files.length == 0) && (dirs == null || dirs.length == 0)) {
+            String[] items = startingDir.list();
+            if (items == null || items.length == 0)
+                //noinspection ResultOfMethodCallIgnored
+                startingDir.delete();
+        }
 
         return result;
     }
