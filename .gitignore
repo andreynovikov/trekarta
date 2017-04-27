@@ -30,3 +30,6 @@ proguard/
 *.log
 
 *.iml
+
+resources/
+captures/
