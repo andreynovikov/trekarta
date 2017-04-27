@@ -80,11 +80,9 @@ import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
-import org.oscim.core.MapElement;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
-import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.event.Event;
 import org.oscim.event.Gesture;
@@ -92,7 +90,6 @@ import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
-import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -101,12 +98,12 @@ import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
-import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,9 +171,9 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.WorldMapTileSource;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
+import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -231,7 +228,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         TRACKING
     }
 
-    public enum PANEL_STATE {
+    private enum PANEL_STATE {
         NONE,
         LOCATION,
         RECORD,
@@ -240,7 +237,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         MORE
     }
 
-    public enum NIGHT_MODE_STATE {
+    private enum NIGHT_MODE_STATE {
         AUTO,
         DAY,
         NIGHT
@@ -275,7 +272,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private boolean mBuildingsLayerEnabled = true;
     private boolean mHideMapObjects = true;
     private int mBitmapMapTransparency = 0;
-    private String mLocalizedName;
 
     protected Map mMap;
     protected MapView mMapView;
@@ -314,15 +310,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private VectorDrawable mLocationSearchingDrawable;
 
     private MapEventLayer mMapEventLayer;
-    //TODO Temporary fix
-    @SuppressWarnings("FieldCanBeLocal")
     private VectorTileLayer mBaseLayer;
-    private VectorTileLayer mNativeMapsLayer;
     private BuildingLayer mBuildingsLayer;
-    DefaultMapScaleBar mMapScaleBar;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelLayer mLabelsLayer;
-    private LabelLayer mNativeLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
     private CurrentTrackLayer mCurrentTrackLayer;
@@ -342,6 +333,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private Toast mBackToast;
 
     private MapIndex mMapIndex;
+    private MapTrekTileSource mNativeTileSource;
     private MultiMapFileTileSource mMapFileSource;
     private MapFile mBitmapLayerMap;
     private WaypointDbDataSource mWaypointDbDataSource;
@@ -422,10 +414,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
                     language = "none";
                 Configuration.setLanguage(language);
-            }
-            if (!"none".equals(language)) {
-                mLocalizedName = "name:" + language;
-                mMapFileSource.setPreferredLanguage(language);
             }
         } else {
             mMapIndex = mDataFragment.getMapIndex();
@@ -583,19 +571,25 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         //File cacheDir = getExternalCacheDir();
         //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
 
-        WorldMapTileSource baseMapSource;
+        SQLiteTileSource worldMapSource;
         File worldMapFile = new File(getExternalFilesDir(null), "world.mbtiles");
         if (worldMapFile.exists() && worldMapFile.canRead()) {
-            baseMapSource = new WorldMapTileSource();
-            baseMapSource.setMapFile(worldMapFile.getAbsolutePath());
+            worldMapSource = new SQLiteTileSource();
+            worldMapSource.setMapFile(worldMapFile.getAbsolutePath());
         } else {
             SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 2);
             worldDatabaseHelper.setForcedUpgrade();
-            baseMapSource = new WorldMapTileSource(worldDatabaseHelper);
+            worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
+        mNativeTileSource = new MapTrekTileSource(worldMapSource, null, mMapFileSource);
+        String language = Configuration.getLanguage();
+        if (!"none".equals(language))
+            mNativeTileSource.setPreferredLanguage(language);
+
         mBaseLayer = new OsmTileLayer(mMap);
-        mBaseLayer.setTileSource(baseMapSource);
+        mBaseLayer.setTileSource(mNativeTileSource);
+        /*
         mBaseLayer.addHook(new VectorTileLayer.TileLoaderProcessHook() {
             @Override
             public boolean process(MapTile tile, RenderBuckets buckets, MapElement element) {
@@ -612,8 +606,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             public void complete(MapTile tile, boolean success) {
             }
         });
+        */
+
         //mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
+        mNativeTileSource.setOnDataMissingListener(this);
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
@@ -624,28 +621,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        mNativeMapsLayer = new OsmTileLayer(mMap);
-        mNativeMapsLayer.setTileSource(mMapFileSource);
-        //mNativeMapsLayer.setNumLoaders(1);
-        mMapFileSource.setOnDataMissingListener(this);
-        layers.add(mNativeMapsLayer, MAP_BASE);
-
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
             layers.add(mGridLayer, MAP_OVERLAYS);
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
-            mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
+            mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
             layers.add(mBuildingsLayer, MAP_3D);
         }
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
         layers.add(mLabelsLayer, MAP_LABELS);
-        mNativeLabelsLayer = new LabelLayer(mMap, mNativeMapsLayer);
-        layers.add(mNativeLabelsLayer, MAP_LABELS);
 
-        mMapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
-        mMapScaleBarLayer = new MapScaleBarLayer(mMap, mMapScaleBar);
+        DefaultMapScaleBar mapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
+        mMapScaleBarLayer = new MapScaleBarLayer(mMap, mapScaleBar);
         mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density);
         mLocationOverlay = new LocationOverlay(mMap, MapTrek.density);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
@@ -1063,7 +1052,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("nightMode", mNightMode);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
-        savedInstanceState.putString("localizedName", mLocalizedName);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -1084,7 +1072,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
-        mLocalizedName = savedInstanceState.getString("localizedName");
     }
 
     @Override
@@ -1114,18 +1101,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     public void onClick(DialogInterface dialog, int which) {
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
                         String language = languageCodes[which];
-                        if (mMapFileSource != null) {
-                            if ("none".equals(language))
-                                mMapFileSource.setPreferredLanguage(null);
-                            else
-                                mMapFileSource.setPreferredLanguage(language);
-                            mMap.clearMap();
-                        }
-                        Configuration.setLanguage(language);
                         if ("none".equals(language))
-                            mLocalizedName = null;
+                            mNativeTileSource.setPreferredLanguage(null);
                         else
-                            mLocalizedName = "name:" + language;
+                            mNativeTileSource.setPreferredLanguage(language);
+                        mMap.clearMap();
+                        Configuration.setLanguage(language);
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -1135,7 +1116,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             case R.id.action_3dbuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
-                    mBuildingsLayer = new BuildingLayer(mMap, mNativeMapsLayer);
+                    mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
                     mMap.layers().add(mBuildingsLayer, MAP_3D);
                     // Let buildings be re-fetched from map layer
                     mMap.clearMap();
@@ -1866,13 +1847,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 m.what = R.id.msgRemoveMapDownloadButton;
                 mMainHandler.sendMessageDelayed(m, 1000);
             }
-        }
-        if (mLabelsLayer.isEnabled() && mapPosition.zoomLevel > 7) {
-            mMap.layers().remove(mLabelsLayer);
-            mLabelsLayer.setEnabled(false);
-        } else if (!mLabelsLayer.isEnabled() && mapPosition.zoomLevel <= 7) {
-            mMap.layers().add(mLabelsLayer, MAP_LABELS);
-            mLabelsLayer.setEnabled(true);
         }
     }
 
@@ -2609,19 +2583,15 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private void showHideMapObjects(boolean hasBitmapMap) {
         Layers layers = mMap.layers();
-        if (hasBitmapMap && mHideMapObjects && layers.contains(mNativeLabelsLayer)) {
+        if (hasBitmapMap && mHideMapObjects && layers.contains(mLabelsLayer)) {
             if (mBuildingsLayerEnabled)
                 layers.remove(mBuildingsLayer);
-            if (mLabelsLayer.isEnabled())
-                layers.remove(mLabelsLayer);
-            layers.remove(mNativeLabelsLayer);
+            layers.remove(mLabelsLayer);
         }
-        if ((!hasBitmapMap || !mHideMapObjects) && !layers.contains(mNativeLabelsLayer)) {
+        if ((!hasBitmapMap || !mHideMapObjects) && !layers.contains(mLabelsLayer)) {
             if (mBuildingsLayerEnabled)
                 layers.add(mBuildingsLayer, MAP_3D);
-            if (mLabelsLayer.isEnabled())
-                layers.add(mLabelsLayer, MAP_LABELS);
-            layers.add(mNativeLabelsLayer, MAP_LABELS);
+            layers.add(mLabelsLayer, MAP_LABELS);
         }
     }
 
