@@ -4,12 +4,16 @@ android {
     compileSdkVersion 23
     buildToolsVersion '25.0.2'
 
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 24
-        versionName "24"
+        versionCode 25
+        versionName "25"
     }
 
     compileOptions {
@@ -26,7 +30,7 @@ android {
 
     productFlavors {
         full {
-            versionName "2016.12"
+            versionName "2017.beta25"
             applicationId "mobi.maptrek"
             buildConfigField "boolean", "FULL_VERSION", "true"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
