@@ -16,4 +16,62 @@
         <item>German</item>
         <item>Russian</item>
     </string-array>
+    <string-array name="speed_units">
+        <item>kilometers per hour</item>
+        <item>miles per hour</item>
+        <item>knots</item>
+        <item>meters per second</item>
+    </string-array>
+    <string-array name="speed_abbreviations">
+        <item>km/h</item>
+        <item>mph</item>
+        <item>kts</item>
+        <item>m/s</item>
+    </string-array>
+    <string-array name="distance_units">
+        <item>kilometers/meters</item>
+        <item>miles/yards</item>
+        <item>miles/feet</item>
+        <item>nautical miles</item>
+    </string-array>
+    <string-array name="distance_short">
+        <item>meters</item>
+        <item>yards</item>
+        <item>feet</item>
+        <item>(nautical miles)ˉ³</item>
+    </string-array>
+    <string-array name="distance_abbreviations">
+        <item>km</item>
+        <item>mi</item>
+        <item>mi</item>
+        <item>nm</item>
+    </string-array>
+    <string-array name="distance_abbreviations_short">
+        <item>m</item>
+        <item>yd</item>
+        <item>ft</item>
+        <item>nmˉ³</item>
+    </string-array>
+    <string-array name="elevation_units">
+        <item>meters</item>
+        <item>feet</item>
+    </string-array>
+    <string-array name="elevation_abbreviations">
+        <item>m</item>
+        <item>ft</item>
+    </string-array>
+    <string-array name="angle_units">
+        <item>degrees</item>
+        <item>NATO mils</item>
+        <item>Soviet mils</item>
+        <item>grads</item>
+    </string-array>
+    <string-array name="angle_abbreviations">
+        <item>deg</item>
+        <item>deg</item>
+        <item>mil</item>
+        <item>s.mil</item>
+        <item>gon</item>
+    </string-array>
+
 </resources>

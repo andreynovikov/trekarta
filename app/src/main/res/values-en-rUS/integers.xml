@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="default_speed_unit">1</integer>
+    <integer name="default_distance_unit">2</integer>
+    <integer name="default_elevation_unit">1</integer>
+</resources>

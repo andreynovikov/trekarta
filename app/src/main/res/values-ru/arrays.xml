@@ -16,4 +16,61 @@
         <item>Немецкий</item>
         <item>Русский</item>
     </string-array>
+    <string-array name="speed_units">
+        <item>километры в час</item>
+        <item>мили в час</item>
+        <item>узлы</item>
+        <item>метры в секунды</item>
+    </string-array>
+    <string-array name="speed_abbreviations">
+        <item>км/ч</item>
+        <item>мил/ч</item>
+        <item>уз</item>
+        <item>м/с</item>
+    </string-array>
+    <string-array name="distance_units">
+        <item>километры/метры</item>
+        <item>мили/ярды</item>
+        <item>мили/футы</item>
+        <item>морские мили</item>
+    </string-array>
+    <string-array name="distance_short">
+        <item>метры</item>
+        <item>ярды</item>
+        <item>футы</item>
+        <item>(мор. мили)ˉ³</item>
+    </string-array>
+    <string-array name="distance_abbreviations">
+        <item>км</item>
+        <item>мил</item>
+        <item>мил</item>
+        <item>м.мил</item>
+    </string-array>
+    <string-array name="distance_abbreviations_short">
+        <item>м</item>
+        <item>ярд</item>
+        <item>фут</item>
+        <item>м.милˉ³</item>
+    </string-array>
+    <string-array name="elevation_units">
+        <item>метры</item>
+        <item>футы</item>
+    </string-array>
+    <string-array name="elevation_abbreviations">
+        <item>м</item>
+        <item>фут</item>
+    </string-array>
+    <string-array name="angle_units">
+        <item>градусы</item>
+        <item>тысячные НАТО</item>
+        <item>тысячные СССР</item>
+        <item>грады</item>
+    </string-array>
+    <string-array name="angle_abbreviations">
+        <item>град</item>
+        <item>град</item>
+        <item>тыс(н)</item>
+        <item>тыс</item>
+        <item>гон</item>
+    </string-array>
 </resources>

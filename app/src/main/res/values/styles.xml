@@ -71,11 +71,10 @@
 
     <style name="MapButtonHolder">
         <item name="android:layout_gravity">top|end</item>
-        <item name="android:layout_marginTop">@*android:dimen/status_bar_height</item>
     </style>
 
     <style name="GaugePanel">
-        <item name="android:layout_marginTop">@*android:dimen/status_bar_height</item>
+        <item name="android:layout_marginTop">@dimen/gauge_padding</item>
         <item name="android:layout_marginBottom">@dimen/gauge_padding</item>
     </style>
 </resources>

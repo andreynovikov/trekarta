@@ -2,6 +2,7 @@ package mobi.maptrek;
 
 import android.app.Application;
 import android.content.pm.PackageInfo;
+import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,6 +22,7 @@ import java.util.Iterator;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.util.LongSparseArrayIterator;
+import mobi.maptrek.util.StringFormatter;
 
 public class MapTrek extends Application {
     private static final Logger logger = LoggerFactory.getLogger(MapTrek.class);
@@ -45,11 +47,34 @@ public class MapTrek extends Application {
         mSelf = this;
         mExceptionLog = new File(getExternalFilesDir(null), EXCEPTION_PATH);
         Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
+        initializeSettings();
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         density = metrics.density;
         ydpi = metrics.ydpi;
         mapObjects.clear();
+    }
+
+    private void initializeSettings() {
+        Resources resources = getResources();
+        int unit = Configuration.getSpeedUnit();
+        StringFormatter.speedFactor = Float.parseFloat(resources.getStringArray(R.array.speed_factors)[unit]);
+        StringFormatter.speedAbbr = resources.getStringArray(R.array.speed_abbreviations)[unit];
+        unit = Configuration.getDistanceUnit();
+        StringFormatter.distanceFactor = Double.parseDouble(resources.getStringArray(R.array.distance_factors)[unit]);
+        StringFormatter.distanceAbbr = resources.getStringArray(R.array.distance_abbreviations)[unit];
+        StringFormatter.distanceShortFactor = Double.parseDouble(resources.getStringArray(R.array.distance_factors_short)[unit]);
+        StringFormatter.distanceShortAbbr = resources.getStringArray(R.array.distance_abbreviations_short)[unit];
+        unit = Configuration.getElevationUnit();
+        StringFormatter.elevationFactor = Float.parseFloat(resources.getStringArray(R.array.elevation_factors)[unit]);
+        StringFormatter.elevationAbbr = resources.getStringArray(R.array.elevation_abbreviations)[unit];
+        unit = Configuration.getAngleUnit();
+        StringFormatter.angleFactor = Double.parseDouble(resources.getStringArray(R.array.angle_factors)[unit]);
+        StringFormatter.angleAbbr = resources.getStringArray(R.array.angle_abbreviations)[unit];
+        boolean precision = Configuration.getUnitPrecision();
+        StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
+        StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();
     }
 
     public static MapTrek getApplication() {

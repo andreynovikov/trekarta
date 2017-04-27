@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -13,228 +12,234 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
-    <TextView
-        android:id="@+id/license"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_marginBottom="@dimen/image_button_size_margin"
-        android:padding="2dp"
-        android:rotation="-90"
-        android:textColor="@color/colorPrimaryDark"
-        android:textColorLink="@color/colorAccentDarkest"
-        android:textSize="9sp"
-        android:transformPivotX="0px"
-        android:transformPivotY="0px"
-        android:visibility="gone"
-        tools:ignore="SmallSp" />
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/android_status_bar_height">
 
-    <View
-        android:id="@+id/popupAnchor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/mapDownloadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:alpha="0.7"
-        android:visibility="gone" />
-
-    <mobi.maptrek.view.GaugePanel
-        android:id="@+id/gaugePanel"
-        style="@style/GaugePanel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_marginTop="@dimen/gauge_padding"
-        android:background="#99ffffff"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/satellites"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:background="#99ffffff"
-        android:elevation="@dimen/panel_elevation"
-        android:padding="4dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textStyle="bold"
-        android:translationY="-200dp" />
-
-    <LinearLayout
-        android:id="@+id/mapButtonHolder"
-        style="@style/MapButtonHolder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/gauge_padding"
-        android:layout_marginStart="@dimen/gauge_padding">
-
-        <ImageButton
-            android:id="@+id/compass"
-            android:layout_width="@dimen/image_button_size"
-            android:layout_height="@dimen/image_button_size"
-            android:background="?android:attr/selectableItemBackground"
-            android:elevation="@dimen/panel_elevation"
-            android:onClick="onCompassClicked"
-            android:padding="@dimen/gauge_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_compass"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/navigationArrow"
-            android:layout_width="@dimen/image_button_size"
-            android:layout_height="@dimen/image_button_size"
-            android:background="?android:attr/selectableItemBackground"
-            android:elevation="@dimen/panel_elevation"
-            android:padding="@dimen/gauge_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_navigation_arrow"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <RelativeLayout
-        style="@style/PanelHolder"
-        android:elevation="@dimen/panel_elevation"
-        app:layout_behavior="mobi.maptrek.ui.BottomPanelBehavior">
-
-        <LinearLayout
-            android:id="@+id/actionPanelBackground"
-            style="@style/ActionPanel">
-
-            <View
-                android:id="@+id/locationButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
-
-            <View
-                android:id="@+id/recordButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
-
-            <View
-                android:id="@+id/placesButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
-
-            <View
-                android:id="@+id/mapsButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
-
-            <View
-                android:id="@+id/moreButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/actionPanel"
-            style="@style/ActionPanel">
-
-            <ImageButton
-                android:id="@+id/locationButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_navigation_north" />
-
-            <ImageButton
-                android:id="@+id/recordButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_record"
-                android:tint="@color/colorPrimaryDark" />
-
-            <ImageButton
-                android:id="@+id/placesButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_place"
-                android:tint="@color/colorPrimaryDark" />
-
-            <ImageButton
-                android:id="@+id/mapsButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_layers"
-                android:tint="@color/colorPrimaryDark" />
-
-            <ImageButton
-                android:id="@+id/moreButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_menu"
-                android:tint="@color/colorPrimaryDark" />
-
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/extendPanel"
-            style="@style/ExtendPanel"
+        <TextView
+            android:id="@+id/license"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true" />
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="@dimen/image_button_size_margin"
+            android:padding="2dp"
+            android:rotation="-90"
+            android:textColor="@color/colorPrimaryDark"
+            android:textColorLink="@color/colorAccentDarkest"
+            android:textSize="9sp"
+            android:transformPivotX="0px"
+            android:transformPivotY="0px"
+            android:visibility="gone"
+            tools:ignore="SmallSp" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/ProgressBar"
-            android:layout_width="match_parent"
+        <View
+            android:id="@+id/popupAnchor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/mapDownloadButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:progressTint="@color/colorAccent"
+            android:layout_gravity="center"
+            android:alpha="0.7"
             android:visibility="gone" />
-    </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/contentPanel"
-        style="@style/ContentPanel"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:elevation="@dimen/fragment_elevation" />
+        <mobi.maptrek.view.GaugePanel
+            android:id="@+id/gaugePanel"
+            style="@style/GaugePanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:background="#99ffffff"
+            android:visibility="invisible" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/actionButton"
-        style="@style/FloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fragment_padding"
-        android:clickable="true"
-        android:src="@drawable/ic_done"
-        android:tint="@color/colorBackground"
-        android:visibility="gone"
-        app:layout_anchor="@id/contentPanel" />
+        <TextView
+            android:id="@+id/satellites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:background="#99ffffff"
+            android:elevation="@dimen/panel_elevation"
+            android:padding="4dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold"
+            android:translationY="-200dp" />
 
-</android.support.design.widget.CoordinatorLayout>
+        <LinearLayout
+            android:id="@+id/mapButtonHolder"
+            style="@style/MapButtonHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/gauge_padding"
+            android:layout_marginStart="@dimen/gauge_padding">
+
+            <ImageButton
+                android:id="@+id/compass"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:background="?android:attr/selectableItemBackground"
+                android:elevation="@dimen/panel_elevation"
+                android:onClick="onCompassClicked"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_compass"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/navigationArrow"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:background="?android:attr/selectableItemBackground"
+                android:elevation="@dimen/panel_elevation"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_navigation_arrow"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <RelativeLayout
+            style="@style/PanelHolder"
+            android:elevation="@dimen/panel_elevation"
+            app:layout_behavior="mobi.maptrek.ui.BottomPanelBehavior">
+
+            <LinearLayout
+                android:id="@+id/actionPanelBackground"
+                style="@style/ActionPanel">
+
+                <View
+                    android:id="@+id/locationButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
+
+                <View
+                    android:id="@+id/recordButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
+
+                <View
+                    android:id="@+id/placesButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
+
+                <View
+                    android:id="@+id/mapsButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
+
+                <View
+                    android:id="@+id/moreButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/actionPanel"
+                style="@style/ActionPanel">
+
+                <ImageButton
+                    android:id="@+id/locationButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_navigation_north" />
+
+                <ImageButton
+                    android:id="@+id/recordButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_record"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <ImageButton
+                    android:id="@+id/placesButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_place"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <ImageButton
+                    android:id="@+id/mapsButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_layers"
+                    android:tint="@color/colorPrimaryDark" />
+
+                <ImageButton
+                    android:id="@+id/moreButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_menu"
+                    android:tint="@color/colorPrimaryDark" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/extendPanel"
+                style="@style/ExtendPanel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="@style/ProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorAccent"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/contentPanel"
+            style="@style/ContentPanel"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:elevation="@dimen/fragment_elevation" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/actionButton"
+            style="@style/FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fragment_padding"
+            android:clickable="true"
+            android:src="@drawable/ic_done"
+            android:tint="@color/colorBackground"
+            android:visibility="gone"
+            app:layout_anchor="@id/contentPanel" />
+
+    </android.support.design.widget.CoordinatorLayout>
+</FrameLayout>

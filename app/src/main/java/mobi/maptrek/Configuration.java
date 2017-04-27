@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import org.greenrobot.eventbus.EventBus;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
@@ -38,6 +39,11 @@ public class Configuration {
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
+    public static final String PREF_SPEED_UNIT = "speed_unit";
+    public static final String PREF_DISTANCE_UNIT = "distance_unit";
+    public static final String PREF_ELEVATION_UNIT = "elevation_unit";
+    public static final String PREF_ANGLE_UNIT = "angle_unit";
+    public static final String PREF_UNIT_PRECISION = "unit_precision";
     private static final String PREF_COORDINATES_FORMAT = "coordinates_format";
     private static final String PREF_REMEMBERED_SCALE = "remembered_scale";
     private static final String PREF_AUTO_TILT = "auto_tilt";
@@ -238,6 +244,26 @@ public class Configuration {
         saveLong(PREF_EXCEPTION_SIZE, size);
     }
 
+    public static int getSpeedUnit() {
+        return Integer.parseInt(loadString(PREF_SPEED_UNIT, "0"));
+    }
+
+    public static int getDistanceUnit() {
+        return Integer.parseInt(loadString(PREF_DISTANCE_UNIT, "0"));
+    }
+
+    public static int getElevationUnit() {
+        return Integer.parseInt(loadString(PREF_ELEVATION_UNIT, "0"));
+    }
+
+    public static int getAngleUnit() {
+        return Integer.parseInt(loadString(PREF_ANGLE_UNIT, "0"));
+    }
+
+    public static boolean getUnitPrecision() {
+        return loadBoolean(PREF_UNIT_PRECISION, false);
+    }
+
     public static int getCoordinatesFormat() {
         return loadInt(PREF_COORDINATES_FORMAT, 0);
     }
@@ -280,6 +306,7 @@ public class Configuration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putInt(key, value);
         editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
     }
 
     private static long loadLong(String key, long defValue) {
@@ -292,6 +319,7 @@ public class Configuration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putLong(key, value);
         editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
     }
 
     private static float loadFloat(String key, float defValue) {
@@ -304,6 +332,7 @@ public class Configuration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putFloat(key, value);
         editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
     }
 
     private static boolean loadBoolean(String key, boolean defValue) {
@@ -316,6 +345,7 @@ public class Configuration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(key, value);
         editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
     }
 
     private static String loadString(String key, String defValue) {
@@ -328,5 +358,17 @@ public class Configuration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(key, value);
         editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    /**
+     * Event bus
+     */
+    public static class ChangedEvent {
+        public String key;
+
+        public ChangedEvent(String key) {
+            this.key = key;
+        }
     }
 }

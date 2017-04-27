@@ -25,7 +25,6 @@ import java.util.List;
 
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
-import mobi.maptrek.util.StringFormatter;
 
 /**
  * Wrapping is based on https://github.com/blazsolar/FlowLayout
@@ -274,31 +273,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
     }
 
-    private String getGaugeUnit(int type) {
-        switch (type) {
-            case Gauge.TYPE_SPEED:
-            case Gauge.TYPE_VMG:
-                return "kmh";
-            case Gauge.TYPE_TRACK:
-            case Gauge.TYPE_BEARING:
-            case Gauge.TYPE_TURN:
-                return "deg";
-            case Gauge.TYPE_ALTITUDE:
-            case Gauge.TYPE_DISTANCE:
-            case Gauge.TYPE_XTK:
-                return "m";
-            case Gauge.TYPE_ETE:
-                return "min";
-            case Gauge.TYPE_ELEVATION:
-                return "ft";
-            default:
-                return "";
-        }
-    }
-
     private void addGauge(int type) {
-        Gauge gauge = new Gauge(getContext(), type, getGaugeUnit(type));
-        gauge.setValue("--"); //TODO Use descriptive string
+        Gauge gauge = new Gauge(getContext(), type);
+        gauge.setValue(Float.NaN);
         if (isNavigationGauge(type)) {
             addView(gauge);
             if (!mNavigationMode)
@@ -367,32 +344,13 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         Gauge gauge = mGaugeMap.get(type);
         if (gauge == null)
             return;
-        if (Float.isNaN(value)) {
-            gauge.setValue("--"); //TODO Use descriptive string
-            return;
-        }
-        switch (type) {
-            case Gauge.TYPE_SPEED: {
-                String indication = StringFormatter.speedC(value);
-                gauge.setValue(indication);
-                gauge.setUnit(StringFormatter.speedAbbr);
-                break;
-            }
-            case Gauge.TYPE_DISTANCE: {
-                String[] indication = StringFormatter.distanceC(value);
-                gauge.setValue(indication[0]);
-                gauge.setUnit(indication[1]);
-                break;
-            }
-            case Gauge.TYPE_ELEVATION: {
-                // https://en.wikipedia.org/wiki/Pressure_altitude
-                float elevation = (float) ((1 - Math.pow(value / SensorManager.PRESSURE_STANDARD_ATMOSPHERE, 0.190284)) * 145366.45);
-                gauge.setValue(elevation);
-                break;
-            }
-            default:
-                gauge.setValue(value);
-        }
+        gauge.setValue(value);
+    }
+
+
+    public void refreshGauges() {
+        for (Gauge gauge : mGauges)
+            gauge.refresh();
     }
 
     public void onVisibilityChanged(boolean visible) {
@@ -464,10 +422,13 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-            if (event.accuracy == SensorManager.SENSOR_STATUS_NO_CONTACT || event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
+            if (event.accuracy == SensorManager.SENSOR_STATUS_NO_CONTACT || event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
                 setValue(Gauge.TYPE_ELEVATION, Float.NaN);
-            else
-                setValue(Gauge.TYPE_ELEVATION, event.values[0]);
+            } else {
+                // https://en.wikipedia.org/wiki/Pressure_altitude (converted to meters)
+                float elevation = (float) ((1 - Math.pow(event.values[0] / SensorManager.PRESSURE_STANDARD_ATMOSPHERE, 0.190284)) * 145366.45 / 3.281);
+                setValue(Gauge.TYPE_ELEVATION, elevation);
+            }
         }
     }
 

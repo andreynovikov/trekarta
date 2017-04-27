@@ -4,6 +4,8 @@ import android.content.Context;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import mobi.maptrek.R;
 import mobi.maptrek.util.StringFormatter;
 
@@ -20,39 +22,89 @@ public class Gauge extends RelativeLayout {
     public static final int TYPE_ETE = 0x200000;
 
     private int mType;
-    private TextView mValue;
-    private TextView mUnit;
+    private TextView mValueView;
+    private TextView mUnitView;
+
+    private float mValue;
 
     public Gauge(Context context) {
         super(context);
     }
 
-    public Gauge(Context context, int type, String unit) {
+    public Gauge(Context context, int type) {
         super(context);
         mType = type;
         inflate(getContext(), R.layout.gauge, this);
-        mValue = (TextView) findViewById(R.id.gaugeValue);
-        mUnit = (TextView) findViewById(R.id.gaugeUnit);
-        mUnit.setText(unit);
+        mValueView = (TextView) findViewById(R.id.gaugeValue);
+        mUnitView = (TextView) findViewById(R.id.gaugeUnit);
+        mUnitView.setText(getDefaultGaugeUnit(type));
     }
 
     public int getType() {
         return mType;
     }
 
-    public void setUnit(String unit) {
-        mUnit.setText(unit);
-    }
-
-    public void setValue(int value) {
-        mValue.setText(String.valueOf(value));
-    }
-
     public void setValue(float value) {
-        mValue.setText(String.format(StringFormatter.precisionFormat, value));
+        mValue = value;
+        String indication;
+        String unit = null;
+        switch (mType) {
+            case Gauge.TYPE_SPEED:
+            case Gauge.TYPE_VMG: {
+                indication = StringFormatter.speedC(value);
+                break;
+            }
+            case Gauge.TYPE_DISTANCE:
+            case Gauge.TYPE_XTK: {
+                String[] indications = StringFormatter.distanceC(value);
+                indication = indications[0];
+                unit = indications[1];
+                break;
+            }
+            case Gauge.TYPE_ELEVATION:
+            case Gauge.TYPE_ALTITUDE: {
+                indication = StringFormatter.elevationC(value);
+                break;
+            }
+            case Gauge.TYPE_TRACK:
+            case Gauge.TYPE_BEARING:
+            case Gauge.TYPE_TURN: {
+                indication = StringFormatter.angleC(value);
+                break;
+            }
+            default:
+                indication = String.format(Locale.getDefault(), StringFormatter.precisionFormat, value);
+        }
+
+        mValueView.setText(indication);
+        if (unit != null)
+            mUnitView.setText(unit);
     }
 
-    public void setValue(String value) {
-        mValue.setText(value);
+    public void refresh() {
+        mUnitView.setText(getDefaultGaugeUnit(mType));
+        setValue(mValue);
+    }
+
+    private String getDefaultGaugeUnit(int type) {
+        switch (type) {
+            case Gauge.TYPE_SPEED:
+            case Gauge.TYPE_VMG:
+                return StringFormatter.speedAbbr;
+            case Gauge.TYPE_TRACK:
+            case Gauge.TYPE_BEARING:
+            case Gauge.TYPE_TURN:
+                return StringFormatter.angleAbbr;
+            case Gauge.TYPE_DISTANCE:
+            case Gauge.TYPE_XTK:
+                return StringFormatter.distanceAbbr;
+            case Gauge.TYPE_ETE:
+                return StringFormatter.minuteAbbr;
+            case Gauge.TYPE_ALTITUDE:
+            case Gauge.TYPE_ELEVATION:
+                return StringFormatter.elevationAbbr;
+            default:
+                return "";
+        }
     }
 }

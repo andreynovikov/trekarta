@@ -11,8 +11,8 @@
         android:id="@+id/actionAddGauge"
         android:title="@string/actionAddGauge" />
     <item
-        android:id="@+id/actionResetAdvices"
-        android:title="@string/actionResetAdvices" />
+        android:id="@+id/actionSettings"
+        android:title="@string/actionSettings" />
     <item
         android:id="@+id/actionAbout"
         android:title="@string/actionAbout" />

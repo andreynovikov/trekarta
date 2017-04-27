@@ -152,4 +152,12 @@
     <string name="permReadPreferencesDescription">Позволяет приложению получать пользовательские настройки MapTrek.</string>
     <string name="permWriteFilesDescription">Позволяет приложению добавлять или замещать пользовательские файлы MapTrek, такие как точки и треки.</string>
     <string name="permWriteFilesLabel">писать пользовательские файлы</string>
+    <string name="actionSettings">Настройки</string>
+    <string name="pref_advanced">Дополнительно</string>
+    <string name="pref_unit_angle_title">Угол</string>
+    <string name="pref_unit_distance_title">Расстояние</string>
+    <string name="pref_unit_elevation_title">Высота</string>
+    <string name="pref_unit_precision_title">Повышенная точность</string>
+    <string name="pref_unit_speed_title">Скорость</string>
+    <string name="pref_units">Единицы измерения</string>
 </resources>

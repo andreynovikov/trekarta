@@ -73,6 +73,7 @@ import android.widget.Toast;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
@@ -145,6 +146,7 @@ import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.Settings;
 import mobi.maptrek.fragments.TrackExport;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
@@ -377,11 +379,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
-        StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();
-        //FIXME Use preferences
-        StringFormatter.speedFactor = 3.6f;
-        StringFormatter.speedAbbr = "kmh";
-
         // Estimate finger tip height (0.1 inch is obtained from experiments)
         mFingerTipSize = (float) (MapTrek.ydpi * 0.1);
 
@@ -494,7 +491,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     return;
                 }
                 int rootWidth = mCoordinatorLayout.getWidth();
-                int rootHeight = mCoordinatorLayout.getHeight();
+                int rootHeight = mCoordinatorLayout.getHeight() - mStatusBarHeight;
                 switch (mPanelState) {
                     case RECORD:
                         if (mVerticalOrientation) {
@@ -544,7 +541,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         child.setMinimumHeight((int) (mPlacesButton.getHeight() + mPlacesButton.getY()));
                         break;
                     case MAPS:
-                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY()));
+                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY() - mStatusBarHeight));
                         break;
                 }
             }
@@ -615,7 +612,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             public void complete(MapTile tile, boolean success) {
             }
         });
-        mBaseLayer.setNumLoaders(1);
+        //mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
@@ -810,6 +807,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             setMapLocation(position.getGeoPoint());
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
+        } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
+            Configuration.resetAdviceState();
+            Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
+            snackbar.show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
             logger.debug("   {}", uri.toString());
@@ -1205,10 +1206,14 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mGaugePanel.onLongClick(mGaugePanel);
                 return true;
             }
-            case R.id.actionResetAdvices: {
-                Configuration.resetAdviceState();
-                Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
-                snackbar.show();
+            case R.id.actionSettings: {
+                Fragment fragment = Fragment.instantiate(this, Settings.class.getName());
+                fragment.setEnterTransition(new Slide(mSlideGravity));
+                fragment.setReturnTransition(new Slide(mSlideGravity));
+                FragmentTransaction ft = mFragmentManager.beginTransaction();
+                ft.replace(R.id.contentPanel, fragment, "settings");
+                ft.addToBackStack("settings");
+                ft.commit();
                 return true;
             }
             case R.id.actionAbout: {
@@ -1953,7 +1958,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (mLocationState == LocationState.SEARCHING)
-                    mSatellitesText.animate().translationY(mStatusBarHeight + 8);
+                    mSatellitesText.animate().translationY(8);
                 gaugePanelAnimator.setListener(null);
                 updateMapViewArea();
             }
@@ -1973,7 +1978,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 rotation.setDuration(1000);
                 mLocationButton.startAnimation(rotation);
                 if (mGaugePanel.getVisibility() == View.INVISIBLE) {
-                    mSatellitesText.animate().translationY(mStatusBarHeight + 8);
+                    mSatellitesText.animate().translationY(8);
                 } else {
                     gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
                     mGaugePanel.onVisibilityChanged(false);
@@ -2013,8 +2018,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private void updateGauges() {
         Location location = mLocationService.getLocation();
         mGaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
-        mGaugePanel.setValue(Gauge.TYPE_TRACK, (int) location.getBearing());
-        mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (int) location.getAltitude());
+        mGaugePanel.setValue(Gauge.TYPE_TRACK, location.getBearing());
+        mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
     }
 
     //TODO Logic of calling this is a total mess! Think out proper event mechanism
@@ -3499,6 +3504,52 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Subscribe
+    public void onConfigurationChanged(Configuration.ChangedEvent event) {
+        switch (event.key) {
+            case Configuration.PREF_SPEED_UNIT: {
+                int unit = Configuration.getSpeedUnit();
+                Resources resources = getResources();
+                StringFormatter.speedFactor = Float.parseFloat(resources.getStringArray(R.array.speed_factors)[unit]);
+                StringFormatter.speedAbbr = resources.getStringArray(R.array.speed_abbreviations)[unit];
+                mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_DISTANCE_UNIT: {
+                int unit = Configuration.getDistanceUnit();
+                Resources resources = getResources();
+                StringFormatter.distanceFactor = Double.parseDouble(resources.getStringArray(R.array.distance_factors)[unit]);
+                StringFormatter.distanceAbbr = resources.getStringArray(R.array.distance_abbreviations)[unit];
+                StringFormatter.distanceShortFactor = Double.parseDouble(resources.getStringArray(R.array.distance_factors_short)[unit]);
+                StringFormatter.distanceShortAbbr = resources.getStringArray(R.array.distance_abbreviations_short)[unit];
+                mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_ELEVATION_UNIT: {
+                int unit = Configuration.getElevationUnit();
+                Resources resources = getResources();
+                StringFormatter.elevationFactor = Float.parseFloat(resources.getStringArray(R.array.elevation_factors)[unit]);
+                StringFormatter.elevationAbbr = resources.getStringArray(R.array.elevation_abbreviations)[unit];
+                mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_ANGLE_UNIT: {
+                int unit = Configuration.getAngleUnit();
+                Resources resources = getResources();
+                StringFormatter.angleFactor = Double.parseDouble(resources.getStringArray(R.array.angle_factors)[unit]);
+                StringFormatter.angleAbbr = resources.getStringArray(R.array.angle_abbreviations)[unit];
+                mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_UNIT_PRECISION: {
+                boolean precision = Configuration.getUnitPrecision();
+                StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
+                mGaugePanel.refreshGauges();
+                break;
+            }
+        }
     }
 
     private void checkNightMode(Location location) {
