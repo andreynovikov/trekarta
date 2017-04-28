@@ -60,11 +60,13 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -350,8 +352,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         logger.debug("onCreate()");
-        Window w = getWindow();
-        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        Window window = getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         //w.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         //w.setStatusBarColor(Color.TRANSPARENT);
         setContentView(R.layout.activity_main);
@@ -479,7 +481,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     return;
                 }
                 int rootWidth = mCoordinatorLayout.getWidth();
-                int rootHeight = mCoordinatorLayout.getHeight() - mStatusBarHeight;
+                int rootHeight = mCoordinatorLayout.getHeight();
                 switch (mPanelState) {
                     case RECORD:
                         if (mVerticalOrientation) {
@@ -529,7 +531,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         child.setMinimumHeight((int) (mPlacesButton.getHeight() + mPlacesButton.getY()));
                         break;
                     case MAPS:
-                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY() - mStatusBarHeight));
+                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY()));
                         break;
                 }
             }
@@ -589,24 +591,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(mNativeTileSource);
-        /*
-        mBaseLayer.addHook(new VectorTileLayer.TileLoaderProcessHook() {
-            @Override
-            public boolean process(MapTile tile, RenderBuckets buckets, MapElement element) {
-                Tag name = element.tags.get("name");
-                if (name != null && mLocalizedName != null && element.tags.containsKey(mLocalizedName)) {
-                    String localizedName = element.tags.get(mLocalizedName).value;
-                    if (!"".equals(localizedName))
-                        name.value = localizedName;
-                }
-                return false;
-            }
-
-            @Override
-            public void complete(MapTile tile, boolean success) {
-            }
-        });
-        */
 
         //mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
@@ -760,10 +744,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         getLoaderManager();
 
         // Remove splash from background
-        getWindow().setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
+        window.setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
 
         // Get back to full screen mode after edge swipe
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(
+        window.getDecorView().setOnSystemUiVisibilityChangeListener(
                 new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
@@ -780,6 +764,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                         }
                     }
                 });
+
+        mCoordinatorLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                final int statusBar = insets.getSystemWindowInsetTop();
+                final int navigationBar = insets.getSystemWindowInsetBottom();
+                logger.error("Insets: status {}, navigation {}", statusBar, navigationBar);
+                mStatusBarHeight = statusBar;
+                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) v.getLayoutParams();
+                p.setMargins(0, statusBar, 0, 0);
+                v.requestLayout();
+                return insets;
+            }
+        });
 
         onNewIntent(getIntent());
     }

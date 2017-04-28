@@ -7,9 +7,6 @@
     <dimen name="dialogTitleMargin">20dp</dimen>
     <dimen name="dialogButtonMargin">8dp</dimen>
 
-    <dimen name="android_status_bar_height">24dp</dimen>
-    <dimen name="android_status_bar_height_with_gap">28dp</dimen>
-
     <dimen name="image_button_padding">8dp</dimen>
     <dimen name="image_button_size">48dp</dimen>
     <dimen name="image_button_size_with_gap">52dp</dimen>
