@@ -10,8 +10,7 @@
     <mobi.maptrek.view.BitmapTileMapPreviewView
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorBackground" />
+        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/name"
