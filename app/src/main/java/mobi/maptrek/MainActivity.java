@@ -175,6 +175,7 @@ import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
+import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
@@ -584,7 +585,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
-        mNativeTileSource = new MapTrekTileSource(worldMapSource, null, mMapFileSource);
+        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "world.mtiles"));
+
+        mNativeTileSource = new MapTrekTileSource(worldMapSource, detailedMapHelper, mMapFileSource);
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mNativeTileSource.setPreferredLanguage(language);
@@ -745,9 +748,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         // Remove splash from background
         window.setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
+        View decorView = window.getDecorView();
+        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() ^ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         // Get back to full screen mode after edge swipe
-        window.getDecorView().setOnSystemUiVisibilityChangeListener(
+        decorView.setOnSystemUiVisibilityChangeListener(
                 new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
@@ -770,7 +775,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                 final int statusBar = insets.getSystemWindowInsetTop();
                 final int navigationBar = insets.getSystemWindowInsetBottom();
-                logger.error("Insets: status {}, navigation {}", statusBar, navigationBar);
                 mStatusBarHeight = statusBar;
                 FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) v.getLayoutParams();
                 p.setMargins(0, statusBar, 0, 0);

@@ -59,7 +59,7 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         ITileDataSource baseDataSource = mBaseMapTileSource.getDataSource();
-        ITileDataSource detailedDataSource = null; //new MapTrekDatabase(mDetailedDatabase);
+        ITileDataSource detailedDataSource = new MapTrekDatabase(mDetailedDatabase);
         ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
 
         return new NativeDataSource(baseDataSource, detailedDataSource, mapFileDataSource);
@@ -69,8 +69,8 @@ public class MapTrekTileSource extends TileSource {
     public OpenResult open() {
         try {
             mBaseMapTileSource.open();
-            //mDetailedDatabase = mDetailedMapOpenHelper.getReadableDatabase();
-            //mDetailedDatabase.enableWriteAheadLogging();
+            mDetailedDatabase = mDetailedMapOpenHelper.getReadableDatabase();
+            mDetailedDatabase.enableWriteAheadLogging();
             mMultiMapFileTileSource.open();
             return TileSource.OpenResult.SUCCESS;
         } catch (SQLiteException e) {
@@ -81,7 +81,7 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public void close() {
         mBaseMapTileSource.close();
-        //mDetailedDatabase.close();
+        mDetailedDatabase.close();
         mMultiMapFileTileSource.close();
     }
 
@@ -104,9 +104,9 @@ public class MapTrekTileSource extends TileSource {
                 return;
             }
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
-            //mDetailedDataSource.query(tile, proxyDataSink);
+            mDetailedDataSource.query(tile, proxyDataSink);
 
-            //if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
+            if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
                 mMapFileDataSource.query(tile, proxyDataSink);
 
             if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS) {
@@ -121,13 +121,13 @@ public class MapTrekTileSource extends TileSource {
 
         @Override
         public void dispose() {
-            //mDetailedDataSource.dispose();
+            mDetailedDataSource.dispose();
             mMapFileDataSource.dispose();
         }
 
         @Override
         public void cancel() {
-            //mDetailedDataSource.cancel();
+            mDetailedDataSource.cancel();
             mMapFileDataSource.cancel();
         }
     }
