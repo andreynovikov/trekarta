@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +30,11 @@ public class DownloadReceiver extends BroadcastReceiver
 			Cursor cursor = downloadManager.query(query);
 			if (cursor.moveToFirst()) {
 				int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-				String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
-				logger.debug("Downloaded: {}", fileName);
 				if (status == DownloadManager.STATUS_SUCCESSFUL) {
-					int key = MapIndex.processDownloadedMap(fileName);
+                    String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                    Uri uri = Uri.parse(fileName);
+                    logger.debug("Downloaded: {}", fileName);
+					int key = MapIndex.processDownloadedMap(uri.getPath());
                     if (key > 0)
     					context.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED).putExtra("key", key));
 				}
