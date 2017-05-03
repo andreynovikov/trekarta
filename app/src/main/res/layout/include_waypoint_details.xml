@@ -7,7 +7,7 @@
     android:stretchColumns="1">
 
     <TableRow
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -18,17 +18,19 @@
             android:tint="@color/colorPrimaryDark" />
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/coordinates"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:textColorPrimary"
-                android:textIsSelectable="true" />
+                <TextView
+                    android:id="@+id/coordinates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    android:drawableEnd="@drawable/ic_lock_open"
+                    android:drawablePadding="@dimen/textPadding" />
 
             <TextView
                 android:id="@+id/altitude"
@@ -44,7 +46,7 @@
 
     <TableRow
         android:id="@+id/destinationRow"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/waypoint_table_padding">
 
@@ -112,7 +114,7 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/waypoint_table_padding">
 
@@ -141,14 +143,14 @@
                 android:layout_height="@dimen/color_swatch_smallest"
                 android:layout_marginLeft="@dimen/color_swatch_margins_large"
                 android:layout_marginRight="@dimen/color_swatch_margins_large"
-                android:visibility="gone"/>
+                android:visibility="gone" />
         </LinearLayout>
 
     </TableRow>
 
     <TableRow
         android:id="@+id/dateRow"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/waypoint_table_padding">
 

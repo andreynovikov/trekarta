@@ -18,4 +18,5 @@
     <color name="colorControlActivated">#e0e0e0</color>
     <color name="trackColor">#e64a19</color>
     <color name="dim">#33000000</color>
+    <color name="red">#cc0000</color>
 </resources>

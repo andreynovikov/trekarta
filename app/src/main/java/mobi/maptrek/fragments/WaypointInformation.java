@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -332,14 +333,37 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         final TextView coordsView = (TextView) rootView.findViewById(R.id.coordinates);
         if (coordsView != null) {
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-            coordsView.setOnClickListener(new View.OnClickListener() {
+
+            int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
+            Drawable drawable = activity.getDrawable(imageResource);
+            if (drawable != null) {
+                int drawableSize = (int) Math.round(coordsView.getLineHeight() * 0.7);
+                int drawablePadding = (int) (MapTrek.density * 1.5f);
+                drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
+                int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
+                drawable.setTint(activity.getColor(tintColor));
+                coordsView.setCompoundDrawables(null, null, drawable, null);
+            }
+
+            coordsView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public void onClick(View v) {
-                    StringFormatter.coordinateFormat++;
-                    if (StringFormatter.coordinateFormat == 5)
-                        StringFormatter.coordinateFormat = 0;
-                    coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-                    Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
+                            // your action for drawable click event
+                            mWaypoint.locked = ! mWaypoint.locked;
+                            mListener.onWaypointSave(mWaypoint);
+                            mListener.onWaypointFocus(mWaypoint);
+                            updateWaypointInformation(mLatitude, mLongitude);
+                        } else {
+                            StringFormatter.coordinateFormat++;
+                            if (StringFormatter.coordinateFormat == 5)
+                                StringFormatter.coordinateFormat = 0;
+                            coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+                            Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
+                        }
+                    }
+                    return true;
                 }
             });
         }

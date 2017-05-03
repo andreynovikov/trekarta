@@ -1212,7 +1212,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             case R.id.actionAddWaypointHere: {
                 removeMarker();
                 String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
-                onWaypointCreate(mSelectedPoint, name);
+                onWaypointCreate(mSelectedPoint, name, false);
                 return true;
             }
             case R.id.actionNavigateHere: {
@@ -1458,7 +1458,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             geoPoint = mMap.getMapPosition().getGeoPoint();
         }
         String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
-        onWaypointCreate(geoPoint, name);
+        onWaypointCreate(geoPoint, name, false);
     }
 
     private void onMapsClicked() {
@@ -1560,6 +1560,14 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     public boolean onItemLongPress(int index, MarkerItem item) {
         if (mLocationState != LocationState.DISABLED && mLocationState != LocationState.ENABLED)
             return false;
+        Object uid = item.getUid();
+        if (uid != null) {
+            Waypoint waypoint = (Waypoint) uid;
+            if (waypoint.locked) {
+                Toast.makeText(this, R.string.msgWaypointLocked, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        }
         mActiveMarker = item;
         // For better experience get delta from marker position and finger press
         // and consider it when moving marker
@@ -2073,9 +2081,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     @Override
-    public void onWaypointCreate(GeoPoint point, String name) {
+    public void onWaypointCreate(GeoPoint point, String name, boolean locked) {
         final Waypoint waypoint = new Waypoint(name, point.getLatitude(), point.getLongitude());
         waypoint.date = new Date();
+        waypoint.locked = locked;
         mWaypointDbDataSource.saveWaypoint(waypoint);
         MarkerItem marker = new MarkerItem(waypoint, name, null, point);
         mMarkerLayer.addItem(marker);

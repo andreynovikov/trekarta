@@ -32,8 +32,9 @@ public class Waypoint extends MapObject
      */
 	public Date date;
 	public DataSource source;
+	public boolean locked;
 
-	public Waypoint(double latitude, double longitude)
+    public Waypoint(double latitude, double longitude)
 	{
 		super(latitude, longitude);
 	}

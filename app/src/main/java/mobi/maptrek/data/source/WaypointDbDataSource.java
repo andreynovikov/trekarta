@@ -38,7 +38,8 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
             WaypointDbHelper.COLUMN_DESCRIPTION,
             WaypointDbHelper.COLUMN_DATE,
             WaypointDbHelper.COLUMN_COLOR,
-            WaypointDbHelper.COLUMN_ICON
+            WaypointDbHelper.COLUMN_ICON,
+            WaypointDbHelper.COLUMN_LOCKED
     };
 
     public WaypointDbDataSource(Context context, File file) {
@@ -78,6 +79,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         values.put(WaypointDbHelper.COLUMN_COLOR, waypoint.style.color);
         if (waypoint.style.icon != null)
             values.put(WaypointDbHelper.COLUMN_ICON, waypoint.style.icon);
+        values.put(WaypointDbHelper.COLUMN_LOCKED, waypoint.locked ? 1 : 0);
 
         int id = (int) mDatabase.insertWithOnConflict(WaypointDbHelper.TABLE_NAME, null, values,
                 SQLiteDatabase.CONFLICT_IGNORE);
@@ -149,6 +151,8 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         waypoint.style.color = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_COLOR));
         if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON)))
             waypoint.style.icon = cursor.getString(cursor.getColumnIndex(WaypointDbHelper.COLUMN_ICON));
+        if (!cursor.isNull(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LOCKED)))
+            waypoint.locked = cursor.getInt(cursor.getColumnIndex(WaypointDbHelper.COLUMN_LOCKED)) > 0;
         waypoint.source = this;
         return waypoint;
     }
