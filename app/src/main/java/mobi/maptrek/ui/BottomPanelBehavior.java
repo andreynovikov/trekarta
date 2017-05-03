@@ -49,4 +49,12 @@ public class BottomPanelBehavior extends CoordinatorLayout.Behavior<RelativeLayo
         }
         return false;
     }
+
+    @Override
+    public void onDependentViewRemoved(CoordinatorLayout parent, RelativeLayout child, View dependency) {
+        if (dependency instanceof Snackbar.SnackbarLayout) {
+            child.setPaddingRelative(0, 0, 0, 0);
+            child.setTranslationY(0);
+        }
+    }
 }
