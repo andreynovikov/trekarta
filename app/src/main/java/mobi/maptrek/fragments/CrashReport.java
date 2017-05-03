@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +17,7 @@ import java.util.Locale;
 
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
+import mobi.maptrek.provider.ExportProvider;
 
 public class CrashReport extends Fragment implements OnBackPressedListener {
     private FragmentHolder mFragmentHolder;
@@ -38,7 +38,7 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
                 File file = MapTrek.getApplication().getExceptionLog();
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                intent.putExtra(Intent.EXTRA_STREAM, ExportProvider.getUriForFile(getContext(), file));
                 intent.setType("vnd.android.cursor.dir/email");
                 intent.putExtra(Intent.EXTRA_SUBJECT, "MapTrek crash report");
                 StringBuilder text = new StringBuilder();

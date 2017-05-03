@@ -45,7 +45,12 @@ public class MapTrek extends Application {
     public void onCreate() {
         super.onCreate();
         mSelf = this;
-        mExceptionLog = new File(getExternalFilesDir(null), EXCEPTION_PATH);
+        File cacheDir = getExternalCacheDir();
+        File exportDir = new File(cacheDir, "export");
+        if (!exportDir.exists())
+            //noinspection ResultOfMethodCallIgnored
+            exportDir.mkdir();
+        mExceptionLog = new File(exportDir, EXCEPTION_PATH);
         Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
@@ -83,10 +88,9 @@ public class MapTrek extends Application {
 
     public boolean hasPreviousRunsExceptions() {
         long size = Configuration.getExceptionSize();
-        File logFile = new File(getExternalFilesDir(null), EXCEPTION_PATH);
-        if (logFile.exists() && logFile.length() > 0L) {
-            if (size != logFile.length()) {
-                Configuration.setExceptionSize(logFile.length());
+        if (mExceptionLog.exists() && mExceptionLog.length() > 0L) {
+            if (size != mExceptionLog.length()) {
+                Configuration.setExceptionSize(mExceptionLog.length());
                 return true;
             }
         } else {

@@ -317,7 +317,7 @@ public class ExportProvider extends ContentProvider {
      * {@code context.getFileStreamPath("foo.txt")} would map to
      * {@code content://myauthority/myfiles/foo.txt}.
      */
-    static class SimplePathStrategy implements PathStrategy {
+    private static class SimplePathStrategy implements PathStrategy {
         private final HashMap<String, File> mRoots = new HashMap<>();
 
         SimplePathStrategy() {
