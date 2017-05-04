@@ -11,12 +11,16 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import mobi.maptrek.R;
 
@@ -25,17 +29,24 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
     private TextInputDialogCallback mCallback;
     private ClipboardManager mClipboard;
     private ImageButton mPasteButton;
+    private TextView mDescription;
 
     public interface TextInputDialogCallback {
+        void beforeTextChanged(CharSequence s, int start, int count, int after);
+
+        void onTextChanged(CharSequence s, int start, int before, int count);
+
+        void afterTextChanged(Editable s);
+
         void onTextInputPositiveClick(String id, String inputText);
 
         void onTextInputNegativeClick(String id);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mClipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mClipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     }
 
     @Override
@@ -68,7 +79,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         String hint = args.getString("hint", null);
         final String id = args.getString("id", null);
 
-        Activity activity = getActivity();
+        final Activity activity = getActivity();
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_text_input, null);
@@ -78,6 +89,23 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         textEdit.setText(oldValue);
         textEdit.setSelectAllOnFocus(selectAllOnFocus);
         textEdit.requestFocus();
+
+        textEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                mCallback.beforeTextChanged(s, start, count, after);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mCallback.onTextChanged(s, start, before, count);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mCallback.afterTextChanged(s);
+            }
+        });
 
         if (hint != null) {
             TextInputLayout textInputLayout = (TextInputLayout) dialogView.findViewById(R.id.textWrapper);
@@ -99,6 +127,8 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
             });
             onPrimaryClipChanged();
         }
+
+        mDescription = (TextView) dialogView.findViewById(R.id.description);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);
@@ -129,6 +159,11 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         if (mClipboard.hasPrimaryClip() && mClipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
             visibility = View.VISIBLE;
         mPasteButton.setVisibility(visibility);
+    }
+
+    public void setDescription(@NonNull CharSequence text) {
+        mDescription.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
+        mDescription.setText(text);
     }
 
     public static class Builder {

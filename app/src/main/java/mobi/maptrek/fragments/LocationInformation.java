@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -64,6 +67,11 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
 
     private ImageButton mSwitchOffButton;
 
+    private TextInputDialogFragment mTextInputDialog;
+    private int mColorTextPrimary;
+    private int mColorDarkBlue;
+    private int mColorRed;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,11 +117,11 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             @Override
             public void onClick(View v) {
                 TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
-                TextInputDialogFragment dialog = builder.setCallbacks(LocationInformation.this)
+                mTextInputDialog = builder.setCallbacks(LocationInformation.this)
                         .setHint(getContext().getString(R.string.coordinates))
                         .setShowPasteButton(true)
                         .create();
-                dialog.show(getFragmentManager(), "coordinatesInput");
+                mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
             }
         });
 
@@ -174,6 +182,11 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        mColorTextPrimary = context.getColor(R.color.textColorPrimary);
+        mColorDarkBlue = context.getColor(R.color.darkBlue);
+        mColorRed = context.getColor(R.color.red);
+
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
@@ -250,7 +263,48 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     }
 
     @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        if (s.length() == 0) {
+            mTextInputDialog.setDescription("");
+            return;
+        }
+        try {
+            CoordinatesParser.Result result = CoordinatesParser.parseWithResult(s.toString());
+            s.setSpan(
+                    new ForegroundColorSpan(mColorTextPrimary),
+                    0,
+                    s.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            for (CoordinatesParser.Token token : result.tokens) {
+                //Log.e("C", token.toString());
+                s.setSpan(
+                        new ForegroundColorSpan(mColorDarkBlue),
+                        token.i,
+                        token.i + token.l,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            mTextInputDialog.setDescription(StringFormatter.coordinates(" ", result.coordinates.getLatitude(), result.coordinates.getLongitude()));
+        } catch (IllegalArgumentException e) {
+            s.setSpan(
+                    new ForegroundColorSpan(mColorRed),
+                    0,
+                    s.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mTextInputDialog.setDescription("");
+        }
+    }
+
+    @Override
     public void onTextInputPositiveClick(String id, String inputText) {
+        mTextInputDialog = null;
         try {
             GeoPoint geoPoint = CoordinatesParser.parse(inputText);
             mMapHolder.setMapLocation(geoPoint);
@@ -261,6 +315,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
 
     @Override
     public void onTextInputNegativeClick(String id) {
+        mTextInputDialog = null;
     }
 
     @Override

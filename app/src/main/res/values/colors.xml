@@ -19,4 +19,5 @@
     <color name="trackColor">#e64a19</color>
     <color name="dim">#33000000</color>
     <color name="red">#cc0000</color>
+    <color name="darkBlue">#000090</color>
 </resources>

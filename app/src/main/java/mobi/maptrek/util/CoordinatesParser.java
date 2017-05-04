@@ -26,17 +26,21 @@ import gov.nasa.worldwind.geom.coords.UTMCoord;
  * 15SUD6393628605
  */
 public class CoordinatesParser {
-    protected enum Type {
+    enum Type {
         H_PREFIX, H_SUFFIX, DEG, MIN, SEC, UTM_ZONE, UTM_EASTING, UTM_NORTHING, MGRS
     }
 
-    protected static class Token {
+    public static class Token {
         public final Type t;
         public final String c;
+        public final int i;
+        public final int l;
 
-        public Token(Type t, String c) {
+        Token(Type t, String c, int i, int l) {
             this.t = t;
             this.c = c;
+            this.i = i;
+            this.l = l;
         }
 
         @Override
@@ -47,38 +51,43 @@ public class CoordinatesParser {
         @Override
         public String toString() {
             if (t == Type.H_PREFIX) {
-                return "HPREF<" + c + ">";
+                return "HPREF<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.H_SUFFIX) {
-                return "HSUFF<" + c + ">";
+                return "HSUFF<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.DEG) {
-                return "DEG<" + c + ">";
+                return "DEG<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.MIN) {
-                return "MIN<" + c + ">";
+                return "MIN<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.SEC) {
-                return "SEC<" + c + ">";
+                return "SEC<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.UTM_ZONE) {
-                return "UTM_ZONE<" + c + ">";
+                return "UTM_ZONE<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.UTM_EASTING) {
-                return "UTM_EASTING<" + c + ">";
+                return "UTM_EASTING<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.UTM_NORTHING) {
-                return "UTM_NORTHING<" + c + ">";
+                return "UTM_NORTHING<" + c + ">[" + i + "," + l + "]";
             }
             if (t == Type.MGRS) {
-                return "MGRS<" + c + ">";
+                return "MGRS<" + c + ">[" + i + "," + l + "]";
             }
-            return t.toString();
+            return t.toString() + "[" + i + "," + l + "]";
         }
     }
 
+    public static class Result {
+        public List<Token> tokens;
+        public GeoPoint coordinates;
+    }
+
     @NonNull
-    protected static List<Token> lex(@NonNull String input) throws IllegalArgumentException {
+    private static List<Token> lex(@NonNull String input) throws IllegalArgumentException {
         List<Token> result = new ArrayList<>();
         StringBuilder atom = null;
         int i = 0;
@@ -100,36 +109,36 @@ public class CoordinatesParser {
                 break;
             } else if (c == 'N' || c == 'E' || c == '+') {
                 // North or east hemisphere
-                result.add(new Token(before ? Type.H_PREFIX : Type.H_SUFFIX, String.valueOf(c)));
+                result.add(new Token(before ? Type.H_PREFIX : Type.H_SUFFIX, String.valueOf(c), i, 1));
             } else if (c == 'S' || c == 'W' || c == '-') {
                 // South or west hemisphere
-                result.add(new Token(before ? Type.H_PREFIX : Type.H_SUFFIX, String.valueOf(c)));
+                result.add(new Token(before ? Type.H_PREFIX : Type.H_SUFFIX, String.valueOf(c), i, 1));
             } else if (Character.isWhitespace(c)) {
                 if (atom != null) {
-                    result.add(new Token(Type.DEG, atom.toString()));
+                    result.add(new Token(Type.DEG, atom.toString(), i - atom.length(), atom.length()));
                 }
                 atom = null;
                 before = true;
             } else if (c == '\u00B0') {
                 if (atom != null) {
-                    result.add(new Token(Type.DEG, atom.toString()));
+                    result.add(new Token(Type.DEG, atom.toString(), i - atom.length(), atom.length() + 1));
                 }
                 atom = null;
             } else if (c == '\'') {
                 if (atom != null) {
-                    result.add(new Token(Type.MIN, atom.toString()));
+                    result.add(new Token(Type.MIN, atom.toString(), i - atom.length(), atom.length() + 1));
                 }
                 atom = null;
             } else if (c == '"') {
                 if (atom != null) {
-                    result.add(new Token(Type.SEC, atom.toString()));
+                    result.add(new Token(Type.SEC, atom.toString(), i - atom.length(), atom.length() + 1));
                 }
                 atom = null;
             }
             i++;
         }
         if (atom != null) {
-            result.add(new Token(Type.DEG, atom.toString()));
+            result.add(new Token(Type.DEG, atom.toString(), i - atom.length(), atom.length()));
         }
         return result;
     }
@@ -139,7 +148,7 @@ public class CoordinatesParser {
         Type type = null;
         int si = 0, ws = 0;
         StringBuilder buffer = new StringBuilder();
-        Token zone = new Token(Type.UTM_ZONE, atom.toString());
+        Token zone = new Token(Type.UTM_ZONE, atom.toString(), i - atom.length(), atom.length());
         Token easting = null;
         while (i < len) {
             char c = input.charAt(i);
@@ -149,7 +158,7 @@ public class CoordinatesParser {
                 if (ws == 3)
                     throw new IllegalArgumentException("Not a MGRS coordinate");
                 if (type == Type.UTM_EASTING) {
-                    easting = new Token(Type.UTM_EASTING, buffer.toString());
+                    easting = new Token(Type.UTM_EASTING, buffer.toString(), i - buffer.length(), buffer.length());
                     buffer.setLength(0);
                     type = Type.UTM_NORTHING;
                 }
@@ -170,30 +179,33 @@ public class CoordinatesParser {
             i++;
         }
         if (type == Type.MGRS) {
-            result.add(new Token(type, atom.toString()));
+            result.add(new Token(type, atom.toString(), start - 2, atom.length() + ws));
         } else {
             result.add(zone);
             result.add(easting);
-            result.add(new Token(Type.UTM_NORTHING, buffer.toString()));
+            result.add(new Token(Type.UTM_NORTHING, buffer.toString(), i - buffer.length(), buffer.length()));
         }
     }
 
     @NonNull
-    public static GeoPoint parse(@NonNull String input) throws IllegalArgumentException {
-        List<Token> tokens = lex(input);
-        if (tokens.size() == 0)
+    public static Result parseWithResult(@NonNull String input) throws IllegalArgumentException {
+        Result result = new Result();
+        result.tokens = lex(input);
+        if (result.tokens.size() == 0)
             throw new IllegalArgumentException("Wrong coordinates format");
-        switch (tokens.get(0).t) {
+        switch (result.tokens.get(0).t) {
             case MGRS: {
-                MGRSCoord coord = MGRSCoord.fromString(tokens.get(0).c);
-                return new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
+                MGRSCoord coord = MGRSCoord.fromString(result.tokens.get(0).c);
+                result.coordinates = new GeoPoint(coord.getLatitude().degrees, coord.getLongitude().degrees);
+                return result;
             }
             case UTM_ZONE: {
-                return parseUtmTokens(tokens);
+                result.coordinates = parseUtmTokens(result.tokens);
+                return result;
             }
         }
         double lat = Double.NaN, lon = Double.NaN, latSign = 1, lonSign = 1;
-        for (Token token : tokens) {
+        for (Token token : result.tokens) {
             if (token.t == Type.H_PREFIX) {
                 if (Double.isNaN(lat))
                     latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
@@ -235,7 +247,14 @@ public class CoordinatesParser {
         }
         if (Double.isNaN(lat) || Double.isNaN(lon))
             throw new IllegalArgumentException("Wrong coordinates format");
-        return new GeoPoint(lat * latSign, lon * lonSign);
+        result.coordinates = new GeoPoint(lat * latSign, lon * lonSign);
+        return result;
+    }
+
+    @NonNull
+    public static GeoPoint parse(@NonNull String input) throws IllegalArgumentException {
+        Result result = parseWithResult(input);
+        return result.coordinates;
     }
 
     @NonNull
