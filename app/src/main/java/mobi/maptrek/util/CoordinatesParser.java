@@ -182,8 +182,10 @@ public class CoordinatesParser {
             result.add(new Token(type, atom.toString(), start - 2, atom.length() + ws));
         } else {
             result.add(zone);
-            result.add(easting);
-            result.add(new Token(Type.UTM_NORTHING, buffer.toString(), i - buffer.length(), buffer.length()));
+            if (easting != null)
+                result.add(easting);
+            if (buffer.length() > 0)
+                result.add(new Token(Type.UTM_NORTHING, buffer.toString(), i - buffer.length(), buffer.length()));
         }
     }
 
