@@ -110,6 +110,7 @@ public class MapTrekTileSource extends TileSource {
                 mMapFileDataSource.query(tile, proxyDataSink);
 
             if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS) {
+                mapDataSink.process(mSea);
                 int dz = tile.zoomLevel - 7;
                 MapTile baseTile = new MapTile(tile.node, tile.tileX >> dz, tile.tileY >> dz, 7);
                 TransformTileDataSink transformDataSink = new TransformTileDataSink(baseTile, tile, mapDataSink);
