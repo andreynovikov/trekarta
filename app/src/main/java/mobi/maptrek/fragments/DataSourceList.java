@@ -166,7 +166,7 @@ public class DataSourceList extends ListFragment {
         DataSourceListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             Activity activity = getActivity();
-            mAccentColor = activity.getColor(R.color.colorAccent);
+            mAccentColor = activity.getColor(R.color.colorAccentLight);
             mDisabledColor = activity.getColor(R.color.colorPrimary);
         }
 
