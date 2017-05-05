@@ -86,24 +86,28 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         final EditText textEdit = (EditText) dialogView.findViewById(R.id.textEdit);
 
         textEdit.setInputType(inputType);
-        textEdit.setText(oldValue);
+        if (!"".equals(oldValue))
+            textEdit.setText(oldValue);
         textEdit.setSelectAllOnFocus(selectAllOnFocus);
         textEdit.requestFocus();
 
         textEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                mCallback.beforeTextChanged(s, start, count, after);
+                if (mCallback != null)
+                    mCallback.beforeTextChanged(s, start, count, after);
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mCallback.onTextChanged(s, start, before, count);
+                if (mCallback != null)
+                    mCallback.onTextChanged(s, start, before, count);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                mCallback.afterTextChanged(s);
+                if (mCallback != null)
+                    mCallback.afterTextChanged(s);
             }
         });
 
@@ -135,7 +139,6 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //FIXME Handle orientation change
                 mCallback.onTextInputPositiveClick(id, textEdit.getText().toString());
             }
         });
@@ -164,6 +167,10 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
     public void setDescription(@NonNull CharSequence text) {
         mDescription.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
         mDescription.setText(text);
+    }
+
+    public void setCallback(TextInputDialogCallback callback) {
+        mCallback = callback;
     }
 
     public static class Builder {
@@ -234,7 +241,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
                 args.putBoolean("showPasteButton", mShowPasteButton);
             if (mId != null)
                 args.putString("id", mId);
-            dialogFragment.mCallback = mCallbacks;
+            dialogFragment.setCallback(mCallbacks);
             dialogFragment.setArguments(args);
             return dialogFragment;
         }

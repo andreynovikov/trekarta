@@ -112,8 +112,8 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
                     startActivity(mapIntent);
             }
         });
-        ImageButton imageButton = (ImageButton) mRootView.findViewById(R.id.inputButton);
-        imageButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton inputButton = (ImageButton) mRootView.findViewById(R.id.inputButton);
+        inputButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
@@ -165,12 +165,19 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onResume() {
         super.onResume();
+
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
         if (BuildConfig.FULL_VERSION) {
             HelperUtils.showAdvice(Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, mFragmentHolder.getCoordinatorLayout());
         }
+
+        TextInputDialogFragment coordinatesInput = (TextInputDialogFragment) getFragmentManager().findFragmentByTag("coordinatesInput");
+        if (coordinatesInput != null) {
+            coordinatesInput.setCallback(this);
+        }
     }
+
 
     @Override
     public void onPause() {
