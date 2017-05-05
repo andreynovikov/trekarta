@@ -60,7 +60,7 @@
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
     <string name="msgWaypointDeleted">Точка удалена</string>
     <string name="msgWaypointSaved">Точка сохранена</string>
-    <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку долгим нажатием на кнопку Точки.</string>
+    <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку, введя её координаты или с помощью долгого нажатия на кнопку Точки.</string>
     <string name="msgTrackDeleted">Трек удалён</string>
     <string name="msgTracked" formatted="false">%s пройдено с %s</string>
     <string name="msgTracking">MapTrek записывает ваше перемещение</string>

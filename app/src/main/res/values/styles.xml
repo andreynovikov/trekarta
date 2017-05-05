@@ -42,6 +42,11 @@
         <item name="layout_anchorGravity">top|end</item>
     </style>
 
+    <style name="ListFloatingActionButton">
+        <item name="layout_anchorGravity">bottom|end</item>
+        <item name="android:layout_marginEnd">@dimen/list_fab_margin</item>
+    </style>
+
     <style name="PanelHolder">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

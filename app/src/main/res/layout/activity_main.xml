@@ -240,5 +240,15 @@
             android:visibility="gone"
             app:layout_anchor="@id/contentPanel" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/listActionButton"
+            style="@style/ListFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_location"
+            android:tint="@color/colorBackground"
+            android:visibility="gone"
+            app:layout_anchor="@id/extendPanel"/>
+
     </android.support.design.widget.CoordinatorLayout>
 </FrameLayout>

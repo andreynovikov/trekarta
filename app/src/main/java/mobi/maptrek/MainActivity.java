@@ -293,6 +293,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private TextView mLicense;
     private ProgressBar mProgressBar;
     private FloatingActionButton mActionButton;
+    private FloatingActionButton mListActionButton;
     private CoordinatorLayout mCoordinatorLayout;
     private View mPopupAnchor;
     private boolean mVerticalOrientation;
@@ -434,6 +435,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         mActionButton = (FloatingActionButton) findViewById(R.id.actionButton);
+        mListActionButton = (FloatingActionButton) findViewById(R.id.listActionButton);
         mLocationButton = (ImageButton) findViewById(R.id.locationButton);
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
@@ -1212,7 +1214,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             case R.id.actionAddWaypointHere: {
                 removeMarker();
                 String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
-                onWaypointCreate(mSelectedPoint, name, false);
+                onWaypointCreate(mSelectedPoint, name, false, true);
                 return true;
             }
             case R.id.actionNavigateHere: {
@@ -1458,7 +1460,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             geoPoint = mMap.getMapPosition().getGeoPoint();
         }
         String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
-        onWaypointCreate(geoPoint, name, false);
+        onWaypointCreate(geoPoint, name, false, true);
     }
 
     private void onMapsClicked() {
@@ -2081,7 +2083,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     @Override
-    public void onWaypointCreate(GeoPoint point, String name, boolean locked) {
+    public void onWaypointCreate(GeoPoint point, String name, boolean locked, boolean customize) {
         final Waypoint waypoint = new Waypoint(name, point.getLatitude(), point.getLongitude());
         waypoint.date = new Date();
         waypoint.locked = locked;
@@ -2089,6 +2091,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         MarkerItem marker = new MarkerItem(waypoint, name, null, point);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
+        if (!customize)
+            return;
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, R.string.msgWaypointSaved, Snackbar.LENGTH_LONG)
                 .setAction(R.string.actionCustomize, new View.OnClickListener() {
@@ -2967,6 +2971,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public FloatingActionButton enableActionButton() {
+        if (mListActionButton.getVisibility() == View.VISIBLE)
+            mListActionButton.setVisibility(View.INVISIBLE);
         TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
         mActionButton.setVisibility(View.VISIBLE);
         return mActionButton;
@@ -2975,6 +2981,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     @Override
     public void disableActionButton() {
         mActionButton.setVisibility(View.GONE);
+        if (mListActionButton.getVisibility() == View.INVISIBLE)
+            mListActionButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public FloatingActionButton enableListActionButton() {
+        TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
+        mListActionButton.setVisibility(View.VISIBLE);
+        return mListActionButton;
+    }
+
+    @Override
+    public void disableListActionButton() {
+        mListActionButton.setVisibility(View.GONE);
     }
 
     @Override

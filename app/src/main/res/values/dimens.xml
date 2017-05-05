@@ -30,4 +30,5 @@
     <dimen name="circle_progress">200dp</dimen>
     <dimen name="fragment_with_fab_top_padding">32dp</dimen>
     <dimen name="fragment_with_fab_start_padding">16dp</dimen>
+    <dimen name="list_fab_margin">40dp</dimen>
 </resources>

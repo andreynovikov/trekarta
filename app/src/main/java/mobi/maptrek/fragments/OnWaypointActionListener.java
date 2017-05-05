@@ -7,7 +7,7 @@ import java.util.Set;
 import mobi.maptrek.data.Waypoint;
 
 public interface OnWaypointActionListener {
-    void onWaypointCreate(GeoPoint point, String name, boolean locked);
+    void onWaypointCreate(GeoPoint point, String name, boolean locked, boolean customize);
 
     /**
      * Position map so that waypoint is visible

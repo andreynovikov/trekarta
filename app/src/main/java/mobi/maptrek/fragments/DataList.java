@@ -9,6 +9,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.design.widget.FloatingActionButton;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import org.oscim.core.GeoPoint;
 
 import java.util.HashSet;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
@@ -34,9 +36,12 @@ import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.DataSourceUpdateListener;
 import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
+import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.util.CoordinatesParser;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 
-public class DataList extends ListFragment implements DataSourceUpdateListener {
+public class DataList extends ListFragment implements DataSourceUpdateListener, CoordinatesInputDialog.CoordinatesInputDialogCallback {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_NO_EXTRA_SOURCES = "msg";
@@ -50,6 +55,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
     private FragmentHolder mFragmentHolder;
 
     private GeoPoint mCoordinates;
+
+    private String mLineSeparator = System.getProperty("line.separator");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,8 +91,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(getString(R.string.msgEmptyWaypointList));
             if (noExtraSources) {
-                stringBuilder.append(System.getProperty("line.separator"));
-                stringBuilder.append(System.getProperty("line.separator"));
+                stringBuilder.append(mLineSeparator);
+                stringBuilder.append(mLineSeparator);
                 stringBuilder.append(getString(R.string.msgNoFileDataSources));
             }
             emptyView.setText(stringBuilder.toString());
@@ -107,6 +114,21 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         if (noExtraSources) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false));
+        }
+
+        if (mDataSource instanceof WaypointDbDataSource) {
+            FloatingActionButton floatingButton = mFragmentHolder.enableListActionButton();
+            floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_add_location));
+            floatingButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
+                    CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
+                            .setTitle(getString(R.string.titleCoordinatesInput))
+                            .create();
+                    coordinatesInput.show(getFragmentManager(), "pointCoordinatesInput");
+                }
+            });
         }
     }
 
@@ -132,7 +154,17 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         mDataSource.removeListener(this);
         mWaypointActionListener = null;
         mTrackActionListener = null;
+        mFragmentHolder.disableListActionButton();
         mFragmentHolder = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        CoordinatesInputDialog coordinatesInput = (CoordinatesInputDialog) getFragmentManager().findFragmentByTag("pointCoordinatesInput");
+        if (coordinatesInput != null) {
+            coordinatesInput.setCallback(this);
+        }
     }
 
     @Override
@@ -191,7 +223,35 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
             mTrackActionListener.onTracksDelete(tracks);
     }
 
-    public class DataListAdapter extends CursorAdapter {
+    @Override
+    public void onTextInputPositiveClick(String id, String inputText) {
+        String[] lines = inputText.split(mLineSeparator);
+        boolean errors = false;
+        for (String line : lines) {
+            if (line.length() == 0)
+                continue;
+            try {
+                CoordinatesParser.Result result = CoordinatesParser.parseWithResult(line);
+                int offset = result.tokens.get(0).i;
+                String name;
+                if (offset > 0)
+                    name = line.substring(0, offset).trim();
+                else
+                    name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+                mWaypointActionListener.onWaypointCreate(result.coordinates, name, true, false);
+            } catch (IllegalArgumentException e) {
+                errors = true;
+            }
+        }
+        if (errors)
+            HelperUtils.showError(getString(R.string.msgParseMultipleCoordinatesFailed), mFragmentHolder.getCoordinatorLayout());
+    }
+
+    @Override
+    public void onTextInputNegativeClick(String id) {
+    }
+
+    private class DataListAdapter extends CursorAdapter {
         private static final int STATE_UNKNOWN = 0;
         private static final int STATE_SECTIONED_CELL = 1;
         private static final int STATE_REGULAR_CELL = 2;
@@ -204,7 +264,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mAccentColor = getResources().getColor(R.color.colorAccent, context.getTheme());
+            mAccentColor = getResources().getColor(R.color.colorAccentLightest, context.getTheme());
             mCellStates = cursor == null ? null : new int[cursor.getCount()];
         }
 
@@ -288,6 +348,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
                     @Override
                     public void onClick(View v) {
                         mWaypointActionListener.onWaypointView(waypoint);
+                        mFragmentHolder.disableListActionButton();
                         mFragmentHolder.popAll();
                     }
                 });
@@ -302,6 +363,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener {
                     @Override
                     public void onClick(View v) {
                         mTrackActionListener.onTrackView(track);
+                        mFragmentHolder.disableListActionButton();
                         mFragmentHolder.popAll();
                     }
                 });
