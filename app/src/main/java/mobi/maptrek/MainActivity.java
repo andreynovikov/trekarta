@@ -1098,6 +1098,19 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 dialog.show();
                 return true;
             }
+            case R.id.actionFontSize: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.actionFontSize);
+                builder.setItems(R.array.font_size_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Configuration.setMapFontSize(which);
+                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            }
             case R.id.action_language: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionLanguage);
@@ -1484,6 +1497,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 MenuItem item = menu.findItem(R.id.action_night_mode);
                 String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                 ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+                item = menu.findItem(R.id.actionFontSize);
+                String[] fontSizes = getResources().getStringArray(R.array.font_size_array);
+                ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
                 item = menu.findItem(R.id.action_language);
                 ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                 menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
@@ -3569,8 +3585,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private void setNightMode(boolean night) {
         ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.DEFAULT;
         IRenderTheme theme = ThemeLoader.load(themeFile);
-        //TODO Let user set text scale
-        theme.scaleTextSize(.7f * MapTrek.density);
+        float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
+        theme.scaleTextSize(fontSize * MapTrek.density);
         mMap.setTheme(theme, true);
         mNightMode = night;
     }

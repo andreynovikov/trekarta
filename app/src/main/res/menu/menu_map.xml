@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/actionFontSize"
+        android:title="@string/actionFontSize"
+        android:actionLayout="@layout/menu_item_action" />
+    <item
         android:id="@+id/action_night_mode"
         android:title="@string/actionNightMode"
         android:actionLayout="@layout/menu_item_action" />

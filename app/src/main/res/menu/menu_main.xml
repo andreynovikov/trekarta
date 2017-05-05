@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/actionManageMaps"
-        android:title="@string/actionManageMaps" />
-    <item
         android:id="@+id/actionHideSystemUI"
         android:checkable="true"
         android:title="@string/actionHideSystemUI" />
+    <item
+        android:id="@+id/actionManageMaps"
+        android:title="@string/actionManageMaps" />
     <item
         android:id="@+id/actionAddGauge"
         android:title="@string/actionAddGauge" />
