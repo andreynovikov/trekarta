@@ -160,4 +160,9 @@
     <string name="pref_unit_precision_title">Повышенная точность</string>
     <string name="pref_unit_speed_title">Скорость</string>
     <string name="pref_units">Единицы измерения</string>
+    <string name="actionFontSize">Размер шрифта</string>
+    <string name="msgCoordinatesInputExplanation">Вы можете вводить координаты в различных поддерживаемых форматах. Если формат распознан, то координаты выделяются синим цветом, если нет, то красным. Вы можете ввести несколько координат сразу при условии, что они распологаются на отдельных строках. Если вы напишете что-нибудь перед координатами, то это будет использовано в качестве названия точки. Пожалуйста, используйте эту функцию с осторожностью, так как разбор координат пока ещё не совершенен.</string>
+    <string name="msgParseMultipleCoordinatesFailed">Не удалось обнаружить координаты в некоторых строках</string>
+    <string name="msgWaypointLocked">Точка заблокирована</string>
+    <string name="titleCoordinatesInput">Введите координаты</string>
 </resources>
