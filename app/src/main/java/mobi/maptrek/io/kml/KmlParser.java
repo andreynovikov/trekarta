@@ -248,6 +248,7 @@ public class KmlParser {
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             throw new XmlPullParserException("Wrong coordinates format", parser, e);
         }
+        waypoint.locked = true;
         return waypoint;
     }
 
