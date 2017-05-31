@@ -1243,10 +1243,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 return true;
             }
             case R.id.actionRememberScale: {
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mPopupAnchor, true);
                 removeMarker();
                 mMap.getMapPosition(mMapPosition);
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
-                HelperUtils.showAdvice(Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mCoordinatorLayout);
                 return true;
             }
             case R.id.actionRememberTilt: {
@@ -1964,6 +1964,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         gaugePanelAnimator.setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                if (mLocationState == LocationState.NORTH)
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mGaugePanel, true);
+                //HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
                 if (mLocationState == LocationState.SEARCHING)
                     mSatellitesText.animate().translationY(8);
                 gaugePanelAnimator.setListener(null);
@@ -2004,7 +2007,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
                 mGaugePanel.onVisibilityChanged(true);
-                HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);

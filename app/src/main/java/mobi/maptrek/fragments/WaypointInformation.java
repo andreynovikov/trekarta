@@ -467,7 +467,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             editsState = View.VISIBLE;
 
             if (mWaypoint.source instanceof FileDataSource)
-                HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFragmentHolder.getCoordinatorLayout());
+                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFloatingButton, false);
         } else {
             setFloatingPointDrawable();
             ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);

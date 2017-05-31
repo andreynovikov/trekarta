@@ -431,7 +431,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             editsState = View.VISIBLE;
 
             if (!mTrack.source.isNativeTrack())
-                HelperUtils.showAdvice(Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFragmentHolder.getCoordinatorLayout());
+                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mMoreButton, false);
         } else {
             mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_more_vert));
             ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);

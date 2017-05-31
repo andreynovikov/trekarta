@@ -15,6 +15,7 @@ import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -141,6 +142,18 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
         }
 
+        ViewTreeObserver vto = mRootView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (BuildConfig.FULL_VERSION) {
+                    View view = mSunrise.getVisibility() == View.VISIBLE ? mSunrise : mSunset;
+                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, view, true);
+                }
+            }
+        });
+
         return mRootView;
     }
 
@@ -168,9 +181,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
 
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
-        if (BuildConfig.FULL_VERSION) {
-            HelperUtils.showAdvice(Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, mFragmentHolder.getCoordinatorLayout());
-        }
 
         TextInputDialogFragment coordinatesInput = (TextInputDialogFragment) getFragmentManager().findFragmentByTag("coordinatesInput");
         if (coordinatesInput != null) {

@@ -1,10 +1,17 @@
 package mobi.maptrek.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
+import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
@@ -42,5 +49,34 @@ public class HelperUtils {
             snackbarTextView.setMaxLines(99);
             snackbar.show();
         }
+    }
+
+    public static void showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
+        if (!Configuration.getAdviceState(advice))
+            return;
+
+        TapTarget target;
+        if (transparent) {
+            Rect r = new Rect();
+            focusOn.getGlobalVisibleRect(r);
+            Log.e("HU", "R: " + r.toString());
+            target = TapTarget.forBounds(r, activity.getString(messageResId))
+                    .transparentTarget(true);
+        } else {
+            target = TapTarget.forView(focusOn, activity.getString(messageResId));
+        }
+        target.tintTarget(false);
+        TapTargetView.showFor(activity, target,
+                new TapTargetView.Listener() {
+                    @Override
+                    public void onOuterCircleClick(TapTargetView view) {
+                        view.dismiss(false);
+                    }
+
+                    @Override
+                    public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+                        Configuration.setAdviceState(advice);
+                    }
+                });
     }
 }
