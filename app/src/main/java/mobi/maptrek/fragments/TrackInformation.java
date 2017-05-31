@@ -79,6 +79,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                     mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
                     popup.inflate(R.menu.context_menu_track);
                     Menu menu = popup.getMenu();
+                    menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
                     menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
                     popup.setOnMenuItemClickListener(TrackInformation.this);
                     popup.show();
