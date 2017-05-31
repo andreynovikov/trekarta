@@ -186,7 +186,7 @@ public class DataImportActivity extends Activity {
     }
 
     @SuppressLint("HandlerLeak")
-    public class ImportProgressHandler extends ProgressHandler {
+    private class ImportProgressHandler extends ProgressHandler {
         ImportProgressHandler(ProgressBar progressBar) {
             super(progressBar);
         }
@@ -197,7 +197,7 @@ public class DataImportActivity extends Activity {
             if (msg.what == STOP_PROGRESS) {
                 mFileNameView.setText(R.string.msgDataImported);
                 mProgressBar.setVisibility(View.GONE);
-                mActionButton.setText(R.string.startApplication);
+                mActionButton.setText(MapTrek.isMainActivityRunning ? R.string.ok : R.string.startApplication);
                 mActionButton.setTag(true);
             }
         }

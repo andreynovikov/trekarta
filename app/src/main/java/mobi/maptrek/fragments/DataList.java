@@ -29,11 +29,13 @@ import org.oscim.core.GeoPoint;
 import java.util.HashSet;
 
 import mobi.maptrek.Configuration;
+import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.DataSourceUpdateListener;
+import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
@@ -53,6 +55,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     private OnWaypointActionListener mWaypointActionListener;
     private OnTrackActionListener mTrackActionListener;
     private FragmentHolder mFragmentHolder;
+    private DataHolder mDataHolder;
+    private FloatingActionButton mFloatingButton;
 
     private GeoPoint mCoordinates;
 
@@ -67,6 +71,12 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.list_with_empty_view, container, false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFloatingButton = null;
     }
 
     @Override
@@ -117,9 +127,9 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         }
 
         if (mDataSource instanceof WaypointDbDataSource) {
-            FloatingActionButton floatingButton = mFragmentHolder.enableListActionButton();
-            floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_add_location));
-            floatingButton.setOnClickListener(new View.OnClickListener() {
+            mFloatingButton = mFragmentHolder.enableListActionButton();
+            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_add_location));
+            mFloatingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
@@ -145,6 +155,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
         }
+        try {
+            mDataHolder = (DataHolder) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement DataHolder");
+        }
         mFragmentHolder = (FragmentHolder) context;
     }
 
@@ -156,6 +171,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         mTrackActionListener = null;
         mFragmentHolder.disableListActionButton();
         mFragmentHolder = null;
+        mDataHolder = null;
     }
 
     @Override
@@ -200,10 +216,28 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         }
     }
 
-    private void deleteSelectedItems() {
-        SparseBooleanArray positions = getListView().getCheckedItemPositions();
+    private void shareSelectedItems() {
         HashSet<Waypoint> waypoints = new HashSet<>();
         HashSet<Track> tracks = new HashSet<>();
+        populateSelectedItems(waypoints, tracks);
+        MemoryDataSource dataSource = new MemoryDataSource();
+        dataSource.waypoints.addAll(waypoints);
+        dataSource.tracks.addAll(tracks);
+        mDataHolder.onDataSourceShare(dataSource);
+    }
+
+    private void deleteSelectedItems() {
+        HashSet<Waypoint> waypoints = new HashSet<>();
+        HashSet<Track> tracks = new HashSet<>();
+        populateSelectedItems(waypoints, tracks);
+        if (waypoints.size() > 0)
+            mWaypointActionListener.onWaypointsDelete(waypoints);
+        if (tracks.size() > 0)
+            mTrackActionListener.onTracksDelete(tracks);
+    }
+
+    private void populateSelectedItems(HashSet<Waypoint> waypoints, HashSet<Track> tracks) {
+        SparseBooleanArray positions = getListView().getCheckedItemPositions();
         for (int position = 0; position < mAdapter.getCount(); position++) {
             if (positions.get(position)) {
                 Cursor cursor = (Cursor) mAdapter.getItem(position);
@@ -217,10 +251,6 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 }
             }
         }
-        if (waypoints.size() > 0)
-            mWaypointActionListener.onWaypointsDelete(waypoints);
-        if (tracks.size() > 0)
-            mTrackActionListener.onTracksDelete(tracks);
     }
 
     @Override
@@ -430,6 +460,10 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
+                case R.id.action_share:
+                    shareSelectedItems();
+                    mode.finish();
+                    return true;
                 case R.id.action_delete:
                     deleteSelectedItems();
                     mode.finish();
@@ -443,11 +477,15 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.context_menu_waypoint_list, menu);
+            if (mFloatingButton != null)
+                mFloatingButton.setVisibility(View.GONE);
             return true;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            if (mFloatingButton != null)
+                mFloatingButton.setVisibility(View.VISIBLE);
         }
 
         @Override

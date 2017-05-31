@@ -66,6 +66,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -146,7 +147,7 @@ import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.Settings;
-import mobi.maptrek.fragments.TrackExport;
+import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -878,6 +879,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
+
+        MapTrek.isMainActivityRunning = true;
     }
 
     @Override
@@ -986,6 +989,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     protected void onStop() {
         super.onStop();
         logger.debug("onStop()");
+
+        MapTrek.isMainActivityRunning = false;
 
         unregisterReceiver(mBroadcastReceiver);
 
@@ -2428,10 +2433,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                TrackExport.Builder builder = new TrackExport.Builder();
-                @TrackExport.ExportFormat int format = selected.get();
-                TrackExport trackExport = builder.setTrack(track).setFormat(format).create();
-                trackExport.show(mFragmentManager, "trackExport");
+                DataExport.Builder builder = new DataExport.Builder();
+                @DataExport.ExportFormat int format = selected.get();
+                DataExport dataExport = builder.setTrack(track).setFormat(format).create();
+                dataExport.show(mFragmentManager, "trackExport");
             }
         });
         builder.setNeutralButton(R.string.explain, null);
@@ -2442,7 +2447,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(R.string.msgTrackFormatExplanation);
+                String msgNative = getString(R.string.msgNativeFormatExplanation);
+                String msgOther = getString(R.string.msgOtherFormatsExplanation);
+                builder.setMessage(msgNative + " " + msgOther);
                 builder.setPositiveButton(R.string.ok, null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -3489,6 +3496,80 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         ft.add(R.id.extendPanel, fragment, "dataList");
         ft.addToBackStack("dataList");
         ft.commit();
+    }
+
+    @Override
+    public void onDataSourceShare(@NonNull final DataSource dataSource) {
+        final boolean askName = dataSource.name == null || dataSource instanceof WaypointDbDataSource;
+        final AtomicInteger selected = new AtomicInteger(0);
+        final EditText inputView = new EditText(this);
+        final DialogInterface.OnClickListener exportAction = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (askName)
+                    dataSource.name = inputView.getText().toString();
+                DataExport.Builder builder = new DataExport.Builder();
+                @DataExport.ExportFormat int format = dataSource.isNativeTrack() ? selected.get() : selected.get() + 1;
+                DataExport dataExport = builder.setDataSource(dataSource).setFormat(format).create();
+                dataExport.show(mFragmentManager, "dataExport");
+            }
+        };
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.title_select_format);
+        builder.setSingleChoiceItems(dataSource.isNativeTrack() ? R.array.track_format_array : R.array.data_format_array,
+                selected.get(), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                selected.set(which);
+            }
+        });
+        if (askName) {
+            builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    AlertDialog.Builder nameBuilder = new AlertDialog.Builder(MainActivity.this);
+                    nameBuilder.setTitle(R.string.title_input_name);
+                    nameBuilder.setPositiveButton(R.string.actionContinue, null);
+                    final AlertDialog dialog = nameBuilder.create();
+                    if (dataSource.name != null)
+                        inputView.setText(dataSource.name);
+                    int margin = getResources().getDimensionPixelOffset(R.dimen.dialogContentMargin);
+                    dialog.setView(inputView, margin, margin >> 1, margin, 0);
+                    dialog.show();
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (! inputView.getText().toString().trim().isEmpty()) {
+                                exportAction.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                }
+            });
+
+        } else {
+            builder.setPositiveButton(R.string.actionContinue, exportAction);
+        }
+        builder.setNeutralButton(R.string.explain, null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        // Workaround to prevent dialog dismissing
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                StringBuilder stringBuilder = new StringBuilder();
+                if (dataSource.isNativeTrack()) {
+                    stringBuilder.append(getString(R.string.msgNativeFormatExplanation));
+                    stringBuilder.append(" ");
+                }
+                stringBuilder.append(getString(R.string.msgOtherFormatsExplanation));
+                builder.setMessage(stringBuilder.toString());
+                builder.setPositiveButton(R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
     }
 
     @Override

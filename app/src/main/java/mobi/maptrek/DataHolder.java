@@ -1,7 +1,6 @@
 package mobi.maptrek;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -19,6 +18,8 @@ public interface DataHolder {
     void setDataSourceAvailability(FileDataSource source, boolean available);
 
     void onDataSourceSelected(@NonNull DataSource source);
+
+    void onDataSourceShare(@NonNull DataSource source);
 
     void onDataSourceDelete(@NonNull DataSource source);
 }

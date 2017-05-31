@@ -34,6 +34,8 @@ public class MapTrek extends Application {
     public static float density = 1f;
     public static float ydpi = 160f;
 
+    public static boolean isMainActivityRunning = false;
+
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
     // Configure global defaults

@@ -68,14 +68,17 @@ public class DataSourceList extends ListFragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 final DataSource dataSource = mAdapter.getItem(position);
-                if (dataSource instanceof WaypointDbDataSource)
-                    return false;
                 PopupMenu popup = new PopupMenu(getContext(), view);
-                popup.inflate(R.menu.context_menu_track_list);
+                popup.inflate(R.menu.context_menu_data_list);
+                if (dataSource instanceof WaypointDbDataSource)
+                    popup.getMenu().findItem(R.id.action_delete).setVisible(false);
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
+                            case R.id.action_share:
+                                mDataHolder.onDataSourceShare(dataSource);
+                                return true;
                             case R.id.action_delete:
                                 mDataHolder.onDataSourceDelete(dataSource);
                                 return true;
@@ -158,7 +161,7 @@ public class DataSourceList extends ListFragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    public class DataSourceListAdapter extends BaseAdapter {
+    private class DataSourceListAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
         private int mAccentColor;
         private int mDisabledColor;
@@ -274,7 +277,6 @@ public class DataSourceList extends ListFragment {
                 });
             }
 
-            //TODO Set appropriate icons: track, waypoints, file format, etc
             Drawable background = itemHolder.icon.getBackground().mutate();
             if (background instanceof ShapeDrawable) {
                 ((ShapeDrawable) background).getPaint().setColor(color);
