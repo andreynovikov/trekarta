@@ -67,8 +67,7 @@ public class CurrentTrackLayer extends TrackLayer {
     private ITrackingListener mTrackingListener = new ITrackingListener() {
         public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
             if (point != null) {
-                // We do not need distance in this track
-                mTrack.addPointFast(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
+                mTrack.addPoint(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
                 updatePoints();
             }
             point = mTrack.new TrackPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
