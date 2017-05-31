@@ -16,9 +16,9 @@ public class CoordinatesParserTest {
     public void testNumericLexer() throws Exception {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39.095973 -94.573414");
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94.573414")
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973", 0, 9),
+                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-", 11, 1),
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94.573414", 12, 9)
         );
         assertEquals(expected, actual);
     }
@@ -27,9 +27,9 @@ public class CoordinatesParserTest {
     public void testDegreesLexer() throws Exception {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39.095973\u00B0 -94.573414\u00B0");
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94.573414")
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973", 0, 10),
+                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-", 12, 1),
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94.573414", 13, 10)
         );
         assertEquals(expected, actual);
     }
@@ -38,11 +38,11 @@ public class CoordinatesParserTest {
     public void testMinutesLexer() throws Exception {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39\u00B0 05.7584' -94\u00B0 34.4048'");
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "05.7584"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "34.4048")
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39", 0, 3),
+                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "05.7584", 4, 8),
+                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "34.4048", 0, 0)
         );
         assertEquals(expected, actual);
     }
@@ -51,13 +51,13 @@ public class CoordinatesParserTest {
     public void testSecondsLexer() throws Exception {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39\u00B0 05' 45.503\" -94\u00B0 34' 24.290\"");
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "05"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.SEC, "45.503"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "34"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.SEC, "24.290")
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "05", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.SEC, "45.503", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.H_PREFIX, "-", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "94", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.MIN, "34", 0, 0),
+                new CoordinatesParser.Token(CoordinatesParser.Type.SEC, "24.290", 0, 0)
         );
         assertEquals(expected, actual);
     }
@@ -66,9 +66,9 @@ public class CoordinatesParserTest {
     public void testUtmLexer() throws Exception {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("15N 363936 4328605");
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_ZONE, "15N"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_EASTING, "363936"),
-                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_NORTHING, "4328605")
+                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_ZONE, "15N", 0, 3),
+                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_EASTING, "363936", 4, 6),
+                new CoordinatesParser.Token(CoordinatesParser.Type.UTM_NORTHING, "4328605", 11, 6)
         );
         assertEquals(expected, actual);
     }
@@ -77,7 +77,7 @@ public class CoordinatesParserTest {
     public void testMgrsLexer() throws Exception {
         //noinspection ArraysAsListWithZeroOrOneArgument
         List<CoordinatesParser.Token> expected = Arrays.asList(
-                new CoordinatesParser.Token(CoordinatesParser.Type.MGRS, "15SUD6393628605")
+                new CoordinatesParser.Token(CoordinatesParser.Type.MGRS, "15SUD6393628605", 0, 17)
         );
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("15SUD 63936 28605");
         assertEquals(expected, actual);

@@ -185,7 +185,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         int pointCount = mTrack.points.size();
         ((TextView) rootView.findViewById(R.id.pointCount)).setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
 
-        String distance = StringFormatter.distanceH(mTrack.getDistance());
+        String distance = StringFormatter.distanceHP(mTrack.getDistance());
         ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
 
         Track.TrackPoint ftp = mTrack.points.get(0);

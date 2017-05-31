@@ -87,7 +87,7 @@ public class CoordinatesParser {
     }
 
     @NonNull
-    private static List<Token> lex(@NonNull String input) throws IllegalArgumentException {
+    static List<Token> lex(@NonNull String input) throws IllegalArgumentException {
         List<Token> result = new ArrayList<>();
         StringBuilder atom = null;
         int i = 0;
