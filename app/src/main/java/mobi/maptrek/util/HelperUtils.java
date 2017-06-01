@@ -51,9 +51,9 @@ public class HelperUtils {
         }
     }
 
-    public static void showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
+    public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
         if (!Configuration.getAdviceState(advice))
-            return;
+            return false;
 
         TapTarget target;
         if (transparent) {
@@ -78,5 +78,6 @@ public class HelperUtils {
                         Configuration.setAdviceState(advice);
                     }
                 });
+        return true;
     }
 }

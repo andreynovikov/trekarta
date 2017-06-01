@@ -1412,6 +1412,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     private void onRecordClicked() {
+        if (HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mRecordButton, false))
+            return;
+
         if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission();
@@ -2882,6 +2885,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         ft.commit();
 
         setPanelState(panel);
+
+        if ("dataList".equals(name) || "dataSourceList".equals(name))
+            HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_ADDING_PLACE, R.string.advice_adding_place, mPlacesButton, false);
     }
 
     private void setPanelState(PANEL_STATE state) {
@@ -3041,6 +3047,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     @Override
     public void popCurrent() {
         logger.debug("popCurrent()");
+        int count = mFragmentManager.getBackStackEntryCount();
+        if (count > 0) {
+            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+            if ("trackProperties".equals(bse.getName()))
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
+        }
         mFragmentManager.popBackStack();
     }
 
@@ -3079,6 +3091,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
         int count = mFragmentManager.getBackStackEntryCount();
         if (count > 0) {
+            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+            if ("settings".equals(bse.getName()))
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mMapsButton, false);
+            if ("trackProperties".equals(bse.getName()))
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
             super.onBackPressed();
             if (count == 1 && mPanelState != PANEL_STATE.NONE)
                 setPanelState(PANEL_STATE.NONE);
@@ -3189,6 +3206,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 logger.debug("onGlobalLayout()");
+
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                }
 
                 if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
                     mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
@@ -3336,6 +3357,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                                 @Override
                                 public void onClick(View view) {
                                     onTrackProperties(extras.getString("path"));
+                                }
+                            })
+                            .setCallback(new Snackbar.Callback() {
+                                @Override
+                                public void onDismissed(Snackbar transientBottomBar, int event) {
+                                    if (event != DISMISS_EVENT_ACTION)
+                                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
                                 }
                             });
                     snackbar.show();

@@ -54,6 +54,11 @@ public class Configuration {
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
     public static final long ADVICE_MORE_GAUGES = 0x0000000000000004;
     public static final long ADVICE_REMEMBER_SCALE = 0x0000000000000008;
+    public static final long ADVICE_ENABLE_LOCATIONS = 0x0000000000000010;
+    public static final long ADVICE_MAP_SETTINGS = 0x0000000000000020;
+    public static final long ADVICE_ADDING_PLACE = 0x0000000000000040;
+    public static final long ADVICE_RECORD_TRACK = 0x0000000000000080;
+    public static final long ADVICE_RECORDED_TRACKS = 0x0000000000000100;
 
     private static SharedPreferences mSharedPreferences;
 
