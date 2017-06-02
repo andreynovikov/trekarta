@@ -49,6 +49,12 @@ public class TrackLayer extends Layer {
         mUpdatePoints = true;
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mWorker.submit(10);
+    }
+
     public Track getTrack() {
         return mTrack;
     }
@@ -64,7 +70,6 @@ public class TrackLayer extends Layer {
     private final class RenderPath extends BucketRenderer {
 
         RenderPath() {
-
             buckets.addLineBucket(0, mLineStyle);
         }
 
@@ -163,7 +168,7 @@ public class TrackLayer extends Layer {
                 }
             }
 
-            if (size == 0) {
+            if (size == 0 || !isEnabled()) {
                 if (task.bucket.get() != null) {
                     task.bucket.clear();
                     mMap.render();

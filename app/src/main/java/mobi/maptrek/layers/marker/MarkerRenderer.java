@@ -112,7 +112,7 @@ class MarkerRenderer extends BucketRenderer {
 
         long flip = (long) (Tile.SIZE * v.pos.scale) >> 1;
 
-        if (mItems == null) {
+        if (mItems == null || !mMarkerLayer.isEnabled()) {
             if (buckets.get() != null) {
                 buckets.clear();
                 compile();

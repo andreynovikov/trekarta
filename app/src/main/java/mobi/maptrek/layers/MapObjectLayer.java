@@ -29,6 +29,8 @@ import java.util.Iterator;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.MapObject;
 
+//TODO Implement layer enabling/disabling
+
 public class MapObjectLayer extends Layer {
     public MapObjectLayer(Map map, float scale) {
         super(map);

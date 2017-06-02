@@ -57,6 +57,12 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 		mRenderer = mMarkerRenderer;
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		mMarkerRenderer.update();
+	}
+
 	/**
 	 * Utility method to perform all processing on a new ItemizedOverlay.
 	 * Subclasses provide Items through the createItem(int) method. The subclass
