@@ -53,6 +53,7 @@ import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.Pair;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -91,6 +92,7 @@ import org.oscim.event.Event;
 import org.oscim.event.Gesture;
 import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
+import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
@@ -164,6 +166,7 @@ import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
+import mobi.maptrek.layers.marker.MarkerLayer;
 import mobi.maptrek.layers.marker.MarkerSymbol;
 import mobi.maptrek.location.BaseLocationService;
 import mobi.maptrek.location.BaseNavigationService;
@@ -1890,6 +1893,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     public boolean onGesture(Gesture gesture, MotionEvent event) {
         mMap.getMapPosition(mMapPosition);
         if (gesture == Gesture.LONG_PRESS) {
+            if (!mMap.getEventLayer().moveEnabled())
+                return true;
             mPopupAnchor.setX(event.getX() + mFingerTipSize);
             mPopupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
@@ -3471,6 +3476,52 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private void removeWaypointMarker(Waypoint waypoint) {
         MarkerItem marker = mMarkerLayer.getByUid(waypoint);
         mMarkerLayer.removeItem(marker);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+            if (mMap.getEventLayer().moveEnabled()) {
+                AbstractMapEventLayer eventLayer = mMap.getEventLayer();
+                eventLayer.enableMove(false);
+                eventLayer.enableRotation(false);
+                eventLayer.enableTilt(false);
+                eventLayer.enableZoom(false);
+                mCrosshairLayer.lock(mColorAccent);
+            }
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            for (Layer layer : mMap.layers()) {
+                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer || layer instanceof MarkerLayer)
+                    layer.setEnabled(false);
+            }
+            mMap.updateMap(true);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+            AbstractMapEventLayer eventLayer = mMap.getEventLayer();
+            eventLayer.enableMove(true);
+            eventLayer.enableRotation(true);
+            eventLayer.enableTilt(true);
+            eventLayer.enableZoom(true);
+            mCrosshairLayer.unlock();
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            for (Layer layer : mMap.layers()) {
+                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer || layer instanceof MarkerLayer)
+                    layer.setEnabled(true);
+            }
+            mMap.updateMap(true);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
