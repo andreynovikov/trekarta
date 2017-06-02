@@ -9,6 +9,7 @@ import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.renderer.GLShader;
 import org.oscim.renderer.GLState;
+import org.oscim.renderer.GLUtils;
 import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.LayerRenderer;
 import org.oscim.renderer.MapRenderer;
@@ -16,6 +17,8 @@ import org.oscim.renderer.MapRenderer;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class CrosshairLayer extends Layer implements Map.UpdateListener {
+    private static final int DEFAULT_COLOR = 0xff333333;
+
     public CrosshairLayer(Map map, float scale) {
         super(map);
         mRenderer = new CrosshairRenderer(scale);
@@ -27,24 +30,37 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             return;
         super.setEnabled(enabled);
         if (enabled)
-            ((CrosshairRenderer)mRenderer).show();
+            ((CrosshairRenderer) mRenderer).show();
     }
 
     @Override
     public void onMapEvent(Event event, MapPosition mapPosition) {
         if (isEnabled() && (event == Map.MOVE_EVENT || event == Map.POSITION_EVENT)) {
-            ((CrosshairRenderer)mRenderer).show();
+            ((CrosshairRenderer) mRenderer).show();
         }
+    }
+
+    public void lock(int color) {
+        ((CrosshairRenderer) mRenderer).setColor(color);
+        ((CrosshairRenderer) mRenderer).setFading(false);
+        ((CrosshairRenderer) mRenderer).show();
+    }
+
+    public void unlock() {
+        ((CrosshairRenderer) mRenderer).setColor(DEFAULT_COLOR);
+        ((CrosshairRenderer) mRenderer).setFading(true);
     }
 
     private class CrosshairRenderer extends LayerRenderer {
         private float mScale;
+        private int mColor;
         private float mAlpha;
+        private boolean mFading;
         private int mShaderProgram;
         private int hVertexPosition;
         private int hMatrixPosition;
         private int hScale;
-        private int hPhase;
+        private int hColor;
 
         private final static long ANIM_RATE = 50;
         private final static long FADE_DURATION = 1000;
@@ -54,19 +70,33 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
 
         private boolean mRunAnim;
         private long mAnimStart;
-
         private long mLastShown;
 
         CrosshairRenderer(float scale) {
             super();
             mScale = scale;
+            mColor = DEFAULT_COLOR;
             mAlpha = 1f;
+            mFading = true;
+        }
+
+        void setColor(int color) {
+            mColor = color;
+            mMap.render();
+        }
+
+        void setFading(boolean fading) {
+            mFading = fading;
+            if (mFading)
+                animate(true);
         }
 
         void show() {
             animate(false);
             mAlpha = 1f;
             mLastShown = SystemClock.elapsedRealtime();
+            if (!mFading)
+                return;
             mMap.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -142,7 +172,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             v.mvp.setAsUniform(hMatrixPosition);
 
             gl.uniform1f(hScale, mScale);
-            gl.uniform1f(hPhase, mAlpha);
+            GLUtils.setColor(hColor, mColor, mAlpha);
 
             gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
         }
@@ -156,7 +186,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             hVertexPosition = gl.getAttribLocation(shader, "a_pos");
             hMatrixPosition = gl.getUniformLocation(shader, "u_mvp");
             hScale = gl.getUniformLocation(shader, "u_scale");
-            hPhase = gl.getUniformLocation(shader, "u_phase");
+            hColor = gl.getUniformLocation(shader, "u_color");
 
             return true;
         }
