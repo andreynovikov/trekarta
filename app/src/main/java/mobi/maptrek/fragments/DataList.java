@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
@@ -70,7 +71,23 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_with_empty_view, container, false);
+        final View rootView = inflater.inflate(R.layout.list_with_empty_view, container, false);
+
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_VIEW_DATA_ITEM)) {
+            ViewTreeObserver vto = rootView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    if (mAdapter.getCount() > 0) {
+                        View view = getListView().getChildAt(0).findViewById(R.id.view);
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_VIEW_DATA_ITEM, R.string.advice_view_data_item, view, false);
+                    }
+                }
+            });
+        }
+
+        return rootView;
     }
 
     @Override

@@ -227,7 +227,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
-    private int mStatusBarHeight;
 
     public enum TRACKING_STATE {
         DISABLED,
@@ -251,6 +250,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     private float mFingerTipSize;
+    private int mStatusBarHeight;
     private int mColorAccent;
     private int mColorPrimaryDark;
     private int mPanelSolidBackground;
@@ -269,6 +269,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private TRACKING_STATE mTrackingState;
     private MapPosition mMapPosition = new MapPosition();
     private GeoPoint mSelectedPoint;
+    private boolean mPositionLocked = false;
     private int mMovingOffset = 0;
     private int mTrackingOffset = 0;
     private double mTrackingOffsetFactor = 1;
@@ -348,6 +349,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
     private Track mEditedTrack;
+    private int mTotalDataItems = 0;
+    private boolean mFirstMove = true;
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -647,6 +650,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
                 mEditedWaypoint = waypoint;
             addWaypointMarker(waypoint);
+            mTotalDataItems++;
         }
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
@@ -1322,11 +1326,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             double dx = offset * Math.sin(rad);
             double dy = offset * Math.cos(rad);
 
-            mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
-            mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
-            mMapPosition.setBearing(-mAveragedBearing);
-            //FIXME VTM
-            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, rotate);
+            if (!mPositionLocked) {
+                mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
+                mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
+                mMapPosition.setBearing(-mAveragedBearing);
+                //FIXME VTM
+                mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, rotate);
+            }
         }
 
         mLocationOverlay.setPosition(lat, lon, bearing);
@@ -1870,6 +1876,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mLocationState = LocationState.ENABLED;
                 updateLocationDrawable();
             }
+            if (mFirstMove) {
+                mFirstMove = false;
+                mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mPopupAnchor, R.drawable.ic_volume_down);
+            }
         }
         if (mMapDownloadButton.getVisibility() != View.GONE) {
             if (mapPosition.zoomLevel < 8) {
@@ -2267,6 +2279,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                                 }
                             }, mProgressHandler);
                         }
+                        mTotalDataItems--;
                     }
                 })
                 .setAction(R.string.actionUndo, new View.OnClickListener() {
@@ -2308,6 +2321,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                                 ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
                                 sources.add((FileDataSource) waypoint.source);
                             }
+                            mTotalDataItems--;
                         }
                         for (FileDataSource source : sources) {
                             Manager.save(getApplicationContext(), source, new Manager.OnSaveListener() {
@@ -2561,6 +2575,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                                 HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                             }
                         }, mProgressHandler);
+                        mTotalDataItems--;
                     }
                 })
                 .setAction(R.string.actionUndo, new View.OnClickListener() {
@@ -3214,6 +3229,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
+                    mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                    mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
                 }
 
                 if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
@@ -3436,16 +3455,19 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private void addSourceToMap(FileDataSource source) {
         for (Waypoint waypoint : source.waypoints) {
             addWaypointMarker(waypoint);
+            mTotalDataItems++;
         }
         for (Track track : source.tracks) {
             TrackLayer trackLayer = new TrackLayer(mMap, track);
             mMap.layers().add(trackLayer, MAP_DATA);
+            mTotalDataItems++;
         }
     }
 
     private void removeSourceFromMap(FileDataSource source) {
         for (Waypoint waypoint : source.waypoints) {
             removeWaypointMarker(waypoint);
+            mTotalDataItems--;
         }
         for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
             Layer layer = i.next();
@@ -3454,6 +3476,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             if (source.tracks.contains(((TrackLayer) layer).getTrack())) {
                 i.remove();
                 layer.onDetach();
+                mTotalDataItems--;
             }
         }
     }
@@ -3488,6 +3511,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 eventLayer.enableTilt(false);
                 eventLayer.enableZoom(false);
                 mCrosshairLayer.lock(mColorAccent);
+                mPositionLocked = true;
             }
             return true;
         }
@@ -3511,6 +3535,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             eventLayer.enableTilt(true);
             eventLayer.enableZoom(true);
             mCrosshairLayer.unlock();
+            mPositionLocked = false;
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {

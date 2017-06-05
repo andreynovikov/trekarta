@@ -59,6 +59,11 @@ public class Configuration {
     public static final long ADVICE_ADDING_PLACE = 0x0000000000000040;
     public static final long ADVICE_RECORD_TRACK = 0x0000000000000080;
     public static final long ADVICE_RECORDED_TRACKS = 0x0000000000000100;
+    public static final long ADVICE_VIEW_DATA_ITEM = 0x0000000000000200;
+    public static final long ADVICE_SWITCH_COORDINATES_FORMAT = 0x0000000000000400;
+    public static final long ADVICE_LOCKED_COORDINATES = 0x0000000000000800;
+    public static final long ADVICE_HIDE_MAP_OBJECTS = 0x0000000000001000;
+    public static final long ADVICE_LOCK_MAP_POSITION = 0x0000000000002000;
 
     private static SharedPreferences mSharedPreferences;
 

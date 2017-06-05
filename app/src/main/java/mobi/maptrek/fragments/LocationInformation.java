@@ -142,17 +142,19 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
         }
 
-        ViewTreeObserver vto = mRootView.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                if (BuildConfig.FULL_VERSION) {
-                    View view = mSunrise.getVisibility() == View.VISIBLE ? mSunrise : mSunset;
-                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, view, true);
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SUNRISE_SUNSET)) {
+            ViewTreeObserver vto = mRootView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    if (BuildConfig.FULL_VERSION) {
+                        View view = mSunrise.getVisibility() == View.VISIBLE ? mSunrise : mSunset;
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, view, true);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         return mRootView;
     }

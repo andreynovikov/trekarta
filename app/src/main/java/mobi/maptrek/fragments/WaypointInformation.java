@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -283,7 +285,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
     private void updateWaypointInformation(double latitude, double longitude) {
         Activity activity = getActivity();
-        View rootView = getView();
+        final View rootView = getView();
         assert rootView != null;
 
         TextView nameView = (TextView) rootView.findViewById(R.id.name);
@@ -351,7 +353,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                     if (event.getAction() == MotionEvent.ACTION_UP) {
                         if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
                             // your action for drawable click event
-                            mWaypoint.locked = ! mWaypoint.locked;
+                            mWaypoint.locked = !mWaypoint.locked;
                             mListener.onWaypointSave(mWaypoint);
                             mListener.onWaypointFocus(mWaypoint);
                             updateWaypointInformation(mLatitude, mLongitude);
@@ -366,6 +368,27 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                     return true;
                 }
             });
+
+            if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)
+                    || HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
+                ViewTreeObserver vto = rootView.getViewTreeObserver();
+                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        Rect r = new Rect();
+                        coordsView.getGlobalVisibleRect(r);
+                        if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r)) {
+                            if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                                r.left = r.right - coordsView.getTotalPaddingRight();
+                            } else {
+                                r.right = r.left + coordsView.getTotalPaddingLeft();
+                            }
+                            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
+                        }
+                    }
+                });
+            }
         }
 
         TextView altitudeView = (TextView) rootView.findViewById(R.id.altitude);

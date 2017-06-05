@@ -3,10 +3,10 @@ package mobi.maptrek.util;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -51,6 +51,16 @@ public class HelperUtils {
         }
     }
 
+    public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, @DrawableRes int icon) {
+        if (!Configuration.getAdviceState(advice))
+            return false;
+
+        TapTarget target = TapTarget.forView(focusOn, activity.getString(messageResId));
+        target.icon(activity.getDrawable(icon));
+        showTargetedAdvice(activity, advice, target);
+        return true;
+    }
+
     public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
         if (!Configuration.getAdviceState(advice))
             return false;
@@ -59,12 +69,24 @@ public class HelperUtils {
         if (transparent) {
             Rect r = new Rect();
             focusOn.getGlobalVisibleRect(r);
-            Log.e("HU", "R: " + r.toString());
-            target = TapTarget.forBounds(r, activity.getString(messageResId))
-                    .transparentTarget(true);
+            target = TapTarget.forBounds(r, activity.getString(messageResId)).transparentTarget(true);
         } else {
             target = TapTarget.forView(focusOn, activity.getString(messageResId));
         }
+        showTargetedAdvice(activity, advice, target);
+        return true;
+    }
+
+    public static boolean showTargetedAdvice(Activity activity, long advice, @StringRes int messageResId, Rect rect) {
+        if (!Configuration.getAdviceState(advice))
+            return false;
+
+        TapTarget target = TapTarget.forBounds(rect, activity.getString(messageResId)).transparentTarget(true);
+        showTargetedAdvice(activity, advice, target);
+        return true;
+    }
+
+    private static void showTargetedAdvice(Activity activity, final long advice, TapTarget target) {
         target.tintTarget(false);
         TapTargetView.showFor(activity, target,
                 new TapTargetView.Listener() {
@@ -78,6 +100,9 @@ public class HelperUtils {
                         Configuration.setAdviceState(advice);
                     }
                 });
-        return true;
+    }
+
+    public static boolean needsTargetedAdvice(long advice) {
+        return Configuration.getAdviceState(advice);
     }
 }
