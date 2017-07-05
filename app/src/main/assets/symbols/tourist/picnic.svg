@@ -21,5 +21,5 @@
   </metadata>
   <defs id="defs6"/>
   <rect width="16" height="16" x="0" y="0" id="canvas" style="fill:none;stroke:none;visibility:hidden"/>
-  <path d="m 2,1 2,12 6,0 2,-12 z m 1.25,1 7.5,0 -0.33,2 -6.86,0 z" id="pub" style="fill:#734a08;fill-opacity:1;stroke:none" transform="translate(1,1)"/>
+  <path d="m 2.9995255,2 c -1.322034,0 -1.322034,1.5 0,1.5 l 8.0000005,0 c 1.33909,0 1.338983,-1.5 0,-1.5 L 2.9995255,2 z m 1,2 -0.75,3 -2.25,0 c -1.322034,0 -1.322034,1.5 0,1.5 l 1.875,0 -0.875,3.5 1.5,0 0.875,-3.5 5.25,0 0.8750005,3.5 1.5,0 -0.875,-3.5 1.875,0 c 1.33909,0 1.338983,-1.5 0,-1.5 l -2.25,0 -0.7500005,-3 -1.5,0 0.75,3 -4.5,0 0.75,-3 -1.5,0 z" id="table" style="fill:#734a08;fill-opacity:1;stroke:none" transform="translate(1,1)"/>
 </svg>
