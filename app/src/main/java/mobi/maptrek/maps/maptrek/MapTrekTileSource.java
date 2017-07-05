@@ -21,6 +21,7 @@ import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
 
 public class MapTrekTileSource extends TileSource {
     private static final MapElement mSea = new MapElement();
+    private static final MapElement mLand = new MapElement();
 
     static {
         mSea.tags.add(new Tag("natural", "sea"));
@@ -29,6 +30,12 @@ public class MapTrekTileSource extends TileSource {
         mSea.addPoint(Tile.SIZE + 16, -16);
         mSea.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
         mSea.addPoint(-16, Tile.SIZE + 16);
+        mLand.tags.add(new Tag("natural", "land"));
+        mLand.startPolygon();
+        mLand.addPoint(-16, -16);
+        mLand.addPoint(Tile.SIZE + 16, -16);
+        mLand.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
+        mLand.addPoint(-16, Tile.SIZE + 16);
     }
 
     private final MultiMapFileTileSource mMultiMapFileTileSource;
@@ -103,11 +110,13 @@ public class MapTrekTileSource extends TileSource {
                 mBaseDataSource.query(tile, new LocalizedTileDataSink(mapDataSink));
                 return;
             }
+            mapDataSink.process(mLand);
+
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             mDetailedDataSource.query(tile, proxyDataSink);
 
-            if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
-                mMapFileDataSource.query(tile, proxyDataSink);
+            //if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
+            //    mMapFileDataSource.query(tile, proxyDataSink);
 
             if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mSea);
