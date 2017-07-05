@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/actionAmenityZooms"
+        android:title="@string/actionAmenityZooms"
+        android:actionLayout="@layout/menu_item_action" />
+    <item
+        android:id="@+id/action_3dbuildings"
+        android:checkable="true"
+        android:title="@string/action3dBuildings" />
+    <item
         android:id="@+id/actionFontSize"
         android:title="@string/actionFontSize"
         android:actionLayout="@layout/menu_item_action" />
@@ -16,10 +24,6 @@
         android:id="@+id/actionAutoTilt"
         android:checkable="true"
         android:title="@string/actionAutoTilt" />
-    <item
-        android:id="@+id/action_3dbuildings"
-        android:checkable="true"
-        android:title="@string/action3dBuildings" />
     <item
         android:id="@+id/action_grid"
         android:checkable="true"

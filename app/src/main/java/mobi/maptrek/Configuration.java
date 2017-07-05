@@ -10,6 +10,7 @@ import org.oscim.core.MapPosition;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.maps.MapFile;
+import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.view.GaugePanel;
 
 @SuppressWarnings("WeakerAccess")
@@ -378,6 +379,23 @@ public class Configuration {
         editor.putString(key, value);
         editor.apply();
         EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    public static void loadKindZoomState() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        for (int i = 0; i < Tags.kinds.length; i++) {
+            Tags.kindZooms[i] = mSharedPreferences.getInt(Tags.kinds[i], Tags.kindZooms[i]);
+        }
+    }
+
+    public static void saveKindZoomState() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        for (int i = 0; i < Tags.kinds.length; i++) {
+            editor.putInt(Tags.kinds[i], Tags.kindZooms[i]);
+            EventBus.getDefault().post(new ChangedEvent(Tags.kinds[i]));
+        }
+        editor.apply();
     }
 
     /**

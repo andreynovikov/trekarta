@@ -82,6 +82,7 @@ public class MapTrek extends Application {
         boolean precision = Configuration.getUnitPrecision();
         StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
         StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();
+        Configuration.loadKindZoomState();
     }
 
     public static MapTrek getApplication() {

@@ -135,6 +135,7 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
+import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.CrashReport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
@@ -207,7 +208,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
-        OnDataMissingListener {
+        OnDataMissingListener, AmenitySetupDialog.AmenitySetupDialogCallback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
@@ -594,7 +595,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
-        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "world.mtiles"));
+        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "77-40.mtiles"));
 
         mNativeTileSource = new MapTrekTileSource(worldMapSource, detailedMapHelper, mMapFileSource);
         String language = Configuration.getLanguage();
@@ -1140,6 +1141,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                return true;
+            }
+            case R.id.actionAmenityZooms: {
+                AmenitySetupDialog.Builder builder = new AmenitySetupDialog.Builder();
+                AmenitySetupDialog dialog = builder.setCallback(this).create();
+                dialog.show(getFragmentManager(), "amenitySetup");
                 return true;
             }
             case R.id.action_3dbuildings: {
@@ -3710,6 +3717,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         dialog.show();
     }
 
+    @Override
+    public void onAmenityKindVisibilityChanged() {
+        Configuration.saveKindZoomState();
+        mMap.clearMap();
+    }
+
     @Subscribe
     public void onConfigurationChanged(Configuration.ChangedEvent event) {
         switch (event.key) {
@@ -3770,7 +3783,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     }
 
     private void setNightMode(boolean night) {
-        ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.DEFAULT;
+        ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
         IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
         theme.scaleTextSize(fontSize * MapTrek.density);

@@ -84,5 +84,12 @@
         <item>s.mil</item>
         <item>gon</item>
     </string-array>
+    <string-array name="zooms_array">
+        <item>Soonest</item>
+        <item>Soon</item>
+        <item>Later</item>
+        <item>Latest</item>
+        <item>Never</item>
+    </string-array>
 
 </resources>
