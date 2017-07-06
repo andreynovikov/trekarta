@@ -2,7 +2,6 @@ package mobi.maptrek.maps.maptrek;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
@@ -113,12 +112,14 @@ class MapTrekDatabase implements ITileDataSource {
         }
 
         @Override
-        public void process(MapElement element) {
+        public void process(MapElement el) {
+            ExtendedMapElement element = (ExtendedMapElement) el;
             //if (zoom == 9)
             //    Log.e("MTD", zoom + "/" + dx + "/" + dy + " " + element.toString());
             //if (element.tags.containsKey("waterway")) {
             //    logger.error(element.toString());
             //}
+            //TODO replace with building_part flag
             if (zoom < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
                 return;
             if (rescale) {
@@ -134,8 +135,8 @@ class MapTrekDatabase implements ITileDataSource {
                         element.labelPosition = null;
                 }
             }
-            String id = element.tags.getValue("id");
-            if (id != null) {
+            if (element.id != 0L) {
+                String id = String.valueOf(element.id); //element.tags.getValue("id");
                 String[] args = {id};
                 try (Cursor c = mDatabase.rawQuery(SQL_GET_NAME, args)) {
                     if (c.moveToFirst()) {

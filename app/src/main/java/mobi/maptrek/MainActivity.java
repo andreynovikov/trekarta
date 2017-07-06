@@ -96,7 +96,6 @@ import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
-import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -137,6 +136,7 @@ import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.CrashReport;
+import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
@@ -150,7 +150,6 @@ import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.Settings;
-import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -165,6 +164,7 @@ import mobi.maptrek.layers.MapEventLayer;
 import mobi.maptrek.layers.MapObjectLayer;
 import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
+import mobi.maptrek.layers.building.BuildingLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
 import mobi.maptrek.layers.marker.MarkerLayer;
@@ -3510,7 +3510,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             if (mMap.getEventLayer().moveEnabled()) {
                 AbstractMapEventLayer eventLayer = mMap.getEventLayer();
                 eventLayer.enableMove(false);
@@ -3535,7 +3535,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             AbstractMapEventLayer eventLayer = mMap.getEventLayer();
             eventLayer.enableMove(true);
             eventLayer.enableRotation(true);
@@ -3631,10 +3631,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         builder.setTitle(R.string.title_select_format);
         builder.setSingleChoiceItems(dataSource.isNativeTrack() ? R.array.track_format_array : R.array.data_format_array,
                 selected.get(), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                selected.set(which);
-            }
-        });
+                    public void onClick(DialogInterface dialog, int which) {
+                        selected.set(which);
+                    }
+                });
         if (askName) {
             builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
                 @Override
@@ -3651,7 +3651,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (! inputView.getText().toString().trim().isEmpty()) {
+                            if (!inputView.getText().toString().trim().isEmpty()) {
                                 exportAction.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
                                 dialog.dismiss();
                             }

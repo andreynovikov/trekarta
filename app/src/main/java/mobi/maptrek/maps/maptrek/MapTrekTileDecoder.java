@@ -6,7 +6,6 @@ package mobi.maptrek.maps.maptrek;
  */
 
 import org.oscim.core.GeometryBuffer;
-import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
 import org.oscim.core.Tile;
@@ -58,13 +57,15 @@ class MapTrekTileDecoder extends PbfDecoder {
     private static final int TAG_ELEM_KIND = 32;
     private static final int TAG_ELEM_HEIGHT = 34;
     private static final int TAG_ELEM_MIN_HEIGHT = 35;
-    private static final int TAG_ELEM_HOUSE_NUMBER = 36;
+    private static final int TAG_ELEM_BUILDING_COLOR = 36;
+    private static final int TAG_ELEM_ROOF_COLOR = 37;
+    private static final int TAG_ELEM_HOUSE_NUMBER = 38;
 
     private int[] mSArray = new int[100];
 
     private Tile mTile;
 
-    private final MapElement mElem;
+    private final ExtendedMapElement mElem;
     private final GeometryBuffer mLabel;
 
     private final TagSet mTileTags;
@@ -75,7 +76,7 @@ class MapTrekTileDecoder extends PbfDecoder {
     private final float mScaleFactor = REF_TILE_SIZE / Tile.SIZE;
 
     MapTrekTileDecoder() {
-        mElem = new MapElement();
+        mElem = new ExtendedMapElement();
         mLabel = new GeometryBuffer(2, 1);
         mTileTags = new TagSet(100);
     }
@@ -216,8 +217,6 @@ class MapTrekTileDecoder extends PbfDecoder {
             // FIXME filter out all variable tags
             // might depend on theme though
             if (Tag.KEY_NAME.equals(key)
-                    || Tag.KEY_HEIGHT.equals(key)
-                    || Tag.KEY_MIN_HEIGHT.equals(key)
                     || Tag.KEY_HOUSE_NUMBER.equals(key)
                     || Tag.KEY_REF.equals(key)
                     || Tag.KEY_ELE.equals(key))
@@ -252,13 +251,13 @@ class MapTrekTileDecoder extends PbfDecoder {
     }
 
     private boolean decodeTileElement(Tile tile, int type) throws IOException {
+        mElem.clearData();
 
         int bytes = decodeVarint32();
 
         int end = position() + bytes;
         int numIndices = 1;
         int numTags = 1;
-        long id = 0L;
 
         //boolean skip = false;
         boolean fail = false;
@@ -269,12 +268,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             mElem.index[0] = 2;
         }
 
-        mElem.layer = 5;
-        mElem.hasLabelPosition = true;
-        mElem.labelPosition = null;
         int kind = -1;
-        int height = Integer.MIN_VALUE;
-        int min_height = Integer.MIN_VALUE;
         String houseNumber = null;
 
         while (position() < end) {
@@ -288,7 +282,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
             switch (tag) {
                 case TAG_ELEM_ID:
-                    id = decodeVarint64();
+                    mElem.id = decodeVarint64();
                     break;
 
                 case TAG_ELEM_TAGS:
@@ -365,11 +359,19 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_ELEM_HEIGHT:
-                    height = decodeVarint32();
+                    mElem.buildingHeight = decodeVarint32();
                     break;
 
                 case TAG_ELEM_MIN_HEIGHT:
-                    min_height = decodeVarint32();
+                    mElem.buildingMinHeight = decodeVarint32();
+                    break;
+
+                case TAG_ELEM_BUILDING_COLOR:
+                    mElem.buildingColor = decodeVarint32();
+                    break;
+
+                case TAG_ELEM_ROOF_COLOR:
+                    mElem.roofColor = decodeVarint32();
                     break;
 
                 case TAG_ELEM_HOUSE_NUMBER:
@@ -419,21 +421,12 @@ class MapTrekTileDecoder extends PbfDecoder {
                 }
                 kind = kind >> 1;
             }
-            if (!hasKind && (type == TAG_TILE_POINT  || (!road && !building)))
+            if (!hasKind && (type == TAG_TILE_POINT || (!road && !building)))
                 return true;
         }
 
-        if (height != Integer.MIN_VALUE)
-            mElem.tags.add(new Tag(Tag.KEY_HEIGHT, String.valueOf(height), false));
-
-        if (min_height != Integer.MIN_VALUE)
-            mElem.tags.add(new Tag(Tag.KEY_MIN_HEIGHT, String.valueOf(min_height), false));
-
         if (houseNumber != null)
             mElem.tags.add(new Tag(Tag.KEY_HOUSE_NUMBER, houseNumber, false));
-
-        if (id != 0L)
-            mElem.tags.add(new Tag("id", String.valueOf(id), false));
 
         mMapDataSink.process(mElem);
 
