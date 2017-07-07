@@ -50,23 +50,19 @@ class MapTrekDatabase implements ITileDataSource {
         int x = tile.tileX;
         int y = tile.tileY;
         int z = tile.zoomLevel;
-        int s = 1, dx = 0, dy = 0;
+        int dz = z - MAX_NATIVE_ZOOM;
         if (z > MAX_NATIVE_ZOOM) {
-            int dz = z - MAX_NATIVE_ZOOM;
             x = x >> dz;
             y = y >> dz;
             z = MAX_NATIVE_ZOOM;
-            s = 1 << dz;
-            dx = (tile.tileX - (x << dz)) * Tile.SIZE;
-            dy = (tile.tileY - (y << dz)) * Tile.SIZE;
         }
-        y = (1 << z) - y - 1;
-        String[] args = {String.valueOf(z), String.valueOf(x), String.valueOf(y)};
+        int yi = (1 << z) - y - 1;
+        String[] args = {String.valueOf(z), String.valueOf(x), String.valueOf(yi)};
         QueryResult result = tile.zoomLevel > 7 ? TILE_NOT_FOUND : SUCCESS;
         try (Cursor c = mDatabase.rawQuery(SQL_GET_TILE, args)) {
             if (c.moveToFirst()) {
                 byte[] bytes = c.getBlob(0);
-                NativeTileDataSink proxyDataSink = new NativeTileDataSink(sink, tile.zoomLevel, s, dx, dy);
+                NativeTileDataSink proxyDataSink = new NativeTileDataSink(sink, tile, dz, x, y);
                 boolean ok = mTileDecoder.decode(tile, proxyDataSink, new ByteArrayInputStream(bytes));
                 result = ok ? SUCCESS : FAILED;
             }
@@ -87,42 +83,33 @@ class MapTrekDatabase implements ITileDataSource {
     }
 
     private class NativeTileDataSink implements ITileDataSink {
-        private final int zoom;
+        private final Tile tile;
         private final int scale;
-        private final int dx;
-        private final int dy;
-        private final boolean rescale;
+        private int dx;
+        private int dy;
         private TileClipper mTileClipper;
         ITileDataSink mapDataSink;
         QueryResult result;
 
-        NativeTileDataSink(ITileDataSink mapDataSink, int zoom, int scale, int dx, int dy) {
+        NativeTileDataSink(ITileDataSink mapDataSink, Tile tile, int dz, int x, int y) {
             this.mapDataSink = mapDataSink;
-            this.zoom = zoom;
-            this.scale = scale;
-            this.dx = dx;
-            this.dy = dy;
-            rescale = scale != 1;
-            if (rescale) {
-                dx -= CLIP_BUFFER;
-                dy -= CLIP_BUFFER;
-                int tileSize = Tile.SIZE + 2 * CLIP_BUFFER;
-                mTileClipper = new TileClipper(1f * dx / scale, 1f * dy / scale, 1f * (dx + tileSize) / scale, 1f * (dy + tileSize) / scale);
+            this.tile = tile;
+            scale = 1 << dz;
+            if (scale != 1) {
+                dx = (tile.tileX - (x << dz)) * Tile.SIZE;
+                dy = (tile.tileY - (y << dz)) * Tile.SIZE;
+                mTileClipper = new TileClipper(1f * dx / scale - CLIP_BUFFER, 1f * dy / scale - CLIP_BUFFER,
+                        1f * (dx + Tile.SIZE) / scale + CLIP_BUFFER, 1f * (dy + Tile.SIZE) / scale +  CLIP_BUFFER);
             }
         }
 
         @Override
         public void process(MapElement el) {
             ExtendedMapElement element = (ExtendedMapElement) el;
-            //if (zoom == 9)
-            //    Log.e("MTD", zoom + "/" + dx + "/" + dy + " " + element.toString());
-            //if (element.tags.containsKey("waterway")) {
-            //    logger.error(element.toString());
-            //}
             //TODO replace with building_part flag
-            if (zoom < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
+            if (tile.zoomLevel < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
                 return;
-            if (rescale) {
+            if (scale != 1) {
                 if (!mTileClipper.clip(element))
                     return;
                 element.scale(scale, scale);
@@ -136,7 +123,7 @@ class MapTrekDatabase implements ITileDataSource {
                 }
             }
             if (element.id != 0L) {
-                String id = String.valueOf(element.id); //element.tags.getValue("id");
+                String id = String.valueOf(element.id);
                 String[] args = {id};
                 try (Cursor c = mDatabase.rawQuery(SQL_GET_NAME, args)) {
                     if (c.moveToFirst()) {
@@ -147,6 +134,11 @@ class MapTrekDatabase implements ITileDataSource {
                     logger.error("Query error", e);
                 }
             }
+            /*
+            if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
+                logger.error(element.id + ": " + element.tags.toString());
+            }
+            */
             mapDataSink.process(element);
         }
 
