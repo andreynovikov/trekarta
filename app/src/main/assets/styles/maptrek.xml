@@ -380,6 +380,9 @@
                 stipple-stroke="#888888" width="20" />
         </m>
     </m>
+    <m k="natural" v="tree" zoom-min="16">
+        <area mesh="true" use="wood" fade="16" />
+    </m>
 
     <!-- Roads -->
     <m e="way" k="highway">
@@ -661,9 +664,6 @@
             </m>
             <m v="spring">
                 <symbol src="assets:symbols/natural/spring.svg" />
-            </m>
-            <m v="tree" zoom-min="16">
-                <symbol src="assets:symbols/natural/tree.svg" />
             </m>
         </m>
         <m select="when-matched">
