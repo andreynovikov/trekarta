@@ -16,27 +16,18 @@
  */
 package mobi.maptrek.layers.building;
 
-import android.util.Log;
-
 import org.oscim.backend.canvas.Color;
 import org.oscim.core.MapElement;
 import org.oscim.core.MercatorProjection;
-import org.oscim.layers.Layer;
 import org.oscim.layers.tile.MapTile;
-import org.oscim.layers.tile.buildings.BuildingRenderer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
-import org.oscim.layers.tile.vector.VectorTileLayer.TileLoaderThemeHook;
 import org.oscim.map.Map;
-import org.oscim.renderer.OffscreenRenderer;
-import org.oscim.renderer.OffscreenRenderer.Mode;
 import org.oscim.renderer.bucket.ExtrusionBucket;
 import org.oscim.renderer.bucket.ExtrusionBuckets;
 import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.theme.styles.ExtrusionStyle;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.utils.pool.Inlist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.maps.maptrek.ExtendedMapElement;
 
