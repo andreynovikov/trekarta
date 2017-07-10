@@ -166,11 +166,13 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_TILE_VERSION:
                     int version = decodeVarint32();
+                    /*
                     if (version < 4) {
                         log.debug("{} invalid version:{}",
                                 mTile, version);
                         return false;
                     }
+                    */
                     break;
 
                 default:
