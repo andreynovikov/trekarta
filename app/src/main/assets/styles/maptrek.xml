@@ -381,7 +381,7 @@
         </m>
     </m>
     <m k="natural" v="tree" zoom-min="16">
-        <area mesh="true" use="wood" fade="16" />
+        <area fade="16" mesh="true" use="wood" />
     </m>
 
     <!-- Roads -->
@@ -632,6 +632,37 @@
                 <line fix="true" stipple="6" stipple-stroke="#888888" stipple-width="1.0"
                     stroke="#00000000" width="1.8" />
             </m>
+        </m>
+    </m>
+
+    <!-- Contour lines -->
+    <m k="contour">
+        <m v="elevation_major">
+            <m zoom-max="14">
+                <line fade="11" fix="true" stroke="#808E8072" width="0.3" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#808E8072" width="0.8" />
+            </m>
+            <m zoom-min="14">
+                <text style="bold" fill="#6E5A46" k="ele" priority="20" size="10" stroke="#E5FFFFFF"
+                    stroke-width="1.0" />
+            </m>
+        </m>
+        <m v="elevation_medium">
+            <m zoom-max="14">
+                <line fade="14" fix="true" stroke="#808E8072" width="0.15" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#8E8072" width="0.3" />
+            </m>
+            <m zoom-min="16">
+                <text fill="#6E5A46" k="ele" priority="30" size="9" stroke="#E5FFFFFF"
+                    stroke-width="1.0" />
+            </m>
+        </m>
+        <m v="elevation_minor" zoom-min="16">
+            <line fade="16" fix="true" stroke="#808E8072" width="0.15" />
         </m>
     </m>
 
