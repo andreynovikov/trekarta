@@ -84,7 +84,7 @@ class MapTrekDatabase implements ITileDataSource {
 
     private class NativeTileDataSink implements ITileDataSink {
         private final Tile tile;
-        private final int scale;
+        private int scale;
         private int dx;
         private int dy;
         private TileClipper mTileClipper;
@@ -94,8 +94,9 @@ class MapTrekDatabase implements ITileDataSource {
         NativeTileDataSink(ITileDataSink mapDataSink, Tile tile, int dz, int x, int y) {
             this.mapDataSink = mapDataSink;
             this.tile = tile;
-            scale = 1 << dz;
-            if (scale != 1) {
+            scale = 1;
+            if (dz > 0) {
+                scale = 1 << dz;
                 dx = (tile.tileX - (x << dz)) * Tile.SIZE;
                 dy = (tile.tileY - (y << dz)) * Tile.SIZE;
                 mTileClipper = new TileClipper(1f * dx / scale - CLIP_BUFFER, 1f * dy / scale - CLIP_BUFFER,
