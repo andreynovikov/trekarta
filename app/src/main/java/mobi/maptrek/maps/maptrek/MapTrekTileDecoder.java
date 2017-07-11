@@ -55,6 +55,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
     private static final int TAG_ELEM_LABEL = 31;
     private static final int TAG_ELEM_KIND = 32;
+    private static final int TAG_ELEM_ELEVATION = 33;
     private static final int TAG_ELEM_HEIGHT = 34;
     private static final int TAG_ELEM_MIN_HEIGHT = 35;
     private static final int TAG_ELEM_BUILDING_COLOR = 36;
@@ -360,12 +361,16 @@ class MapTrekTileDecoder extends PbfDecoder {
                     mElem.layer = decodeVarint32();
                     break;
 
+                case TAG_ELEM_ELEVATION:
+                    mElem.elevation = deZigZag(decodeVarint32());
+                    break;
+
                 case TAG_ELEM_HEIGHT:
-                    mElem.buildingHeight = decodeVarint32();
+                    mElem.buildingHeight = deZigZag(decodeVarint32());
                     break;
 
                 case TAG_ELEM_MIN_HEIGHT:
-                    mElem.buildingMinHeight = decodeVarint32();
+                    mElem.buildingMinHeight = deZigZag(decodeVarint32());
                     break;
 
                 case TAG_ELEM_BUILDING_COLOR:

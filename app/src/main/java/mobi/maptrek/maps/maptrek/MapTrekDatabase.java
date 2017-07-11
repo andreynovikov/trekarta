@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 
+import mobi.maptrek.util.StringFormatter;
+
 import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
@@ -123,6 +125,11 @@ class MapTrekDatabase implements ITileDataSource {
                         element.labelPosition = null;
                 }
             }
+            /*
+            if (element.isLine() && element.tags.containsKey("highway")) {
+                logger.error(element.id + ": " + element.tags.toString());
+            }
+            */
             if (element.id != 0L) {
                 String id = String.valueOf(element.id);
                 String[] args = {id};
@@ -140,6 +147,9 @@ class MapTrekDatabase implements ITileDataSource {
                 logger.error(element.id + ": " + element.tags.toString());
             }
             */
+            if (element.elevation != 0) {
+                element.tags.add(new Tag(Tag.KEY_ELE, StringFormatter.elevationC(element.elevation), false));
+            }
             mapDataSink.process(element);
         }
 

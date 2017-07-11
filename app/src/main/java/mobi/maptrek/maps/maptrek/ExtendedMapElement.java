@@ -8,6 +8,7 @@ public class ExtendedMapElement extends MapElement {
     public int buildingMinHeight = 0;
     public int buildingColor = 0;
     public int roofColor = 0;
+    public int elevation = 0;
 
     public void clearData() {
         layer = 5;
@@ -15,6 +16,7 @@ public class ExtendedMapElement extends MapElement {
         labelPosition = null;
 
         id = 0L;
+        elevation = 0;
         buildingHeight = 0;
         buildingMinHeight = 0;
         buildingColor = 0;
