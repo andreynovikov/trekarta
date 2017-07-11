@@ -8,13 +8,12 @@
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     http://wiki.openstreetmap.org/wiki/Key:lock
     railway:subway
-    tourism:motel
-    amenity:bureau_de_change
     http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
+    http://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
+    http://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
     http://wiki.openstreetmap.org/wiki/Tag:natural%3Dscrub - add symbols
-    http://wiki.openstreetmap.org/wiki/Tag:natural%3Dheath
-    http://wiki.openstreetmap.org/wiki/Tag:landuse%3Dorchard
-    picnic_site, zoo, etc as area
+    protect_class:1
+    fuel:lpg
     -->
 
     <!--
@@ -51,6 +50,7 @@
     <style-area fade="12" fill="#c9dc91" id="garden" />
     <style-area fill="#e8e7e3" id="residential" />
     <style-area fade="10" fill="#e7e2e6" id="industrial" />
+    <style-area fade="12" fill="#e1dce0" id="construction" />
     <style-area fade="12" fill="#ddddcc" id="quarry" />
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
@@ -62,7 +62,7 @@
     <style-line id="secondary" use="primary" width="-0.1" />
     <style-line id="unclassified" stroke="#ffffff" width="1.1" />
     <style-line id="tertiary" stroke="#f4f3ae" use="unclassified" width="0.1" />
-    <style-line id="construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
+    <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="1.0" />
     <style-line id="residential" stroke="#ffffff" width="1.0" />
     <style-line id="highway-service" use="residential" width="-0.3" />
@@ -131,13 +131,16 @@
         <m v="industrial">
             <area use="industrial" />
         </m>
+        <m v="construction|brownfield|landfill">
+            <area use="construction" />
+        </m>
         <m v="quarry">
             <area use="quarry" />
         </m>
         <m v="allotments">
             <area use="allotments" />
         </m>
-        <m v="farmland|vineyard|greenhouse_horticulture|plant_nursery">
+        <m v="farmland|vineyard|greenhouse_horticulture|plant_nursery|orchard">
             <area use="farmland" />
         </m>
         <m v="farmyard">
@@ -216,7 +219,7 @@
         <m v="sand" zoom-min="10">
             <area fill="#fffad1" />
         </m>
-        <m v="grassland|scrub">
+        <m v="grassland|scrub|heath">
             <area use="scrub" />
         </m>
         <m v="scree|shingle">
@@ -229,6 +232,9 @@
             <area src="assets:patterns/wetland.svg" />
             <text area-size="0.05" caption="true" use="water" />
         </m>
+    </m>
+    <m k="man_made" v="cutline">
+        <line cap="butt" stroke="#d3dcb9" width="2.0" />
     </m>
 
     <!-- Landuse -->
@@ -384,6 +390,22 @@
         <area fade="16" mesh="true" use="wood" />
     </m>
 
+    <m k="man_made">
+        <m v="pier" zoom-min="15">
+            <m closed="no">
+                <line cap="butt" stroke="#d0d0d0" width="0.4" />
+                <line cap="butt" stroke="#e4e4e4" width="0.3" />
+            </m>
+            <m closed="yes">
+                <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.05" />
+            </m>
+        </m>
+        <m closed="yes" v="bridge">
+            <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.0" />
+            <text use="road-name" />
+        </m>
+    </m>
+
     <!-- Roads -->
     <m e="way" k="highway">
         <outline-layer id="road" stroke="#aa807040" width="0.1" />
@@ -447,7 +469,7 @@
                         <text use="road" />
                     </m>
                     <m v="road|construction">
-                        <line outline="road" use="construction" />
+                        <line outline="road" use="road-construction" />
                         <text use="road-name" />
                     </m>
                     <m v="pedestrian">
@@ -666,6 +688,26 @@
         </m>
     </m>
 
+    <!-- Man made objects above ground -->
+    <m k="aerialway">
+        <line cap="butt" fix="true" stroke="#202020" width="1.8" />
+        <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
+            width="12" />
+        <m k="aerialway" v="cable_car">
+            <symbol src="assets:symbols/transport/cable_car.svg" />
+        </m>
+        <m k="aerialway" v="chair_lift">
+            <symbol src="assets:symbols/transport/chair_lift.svg" />
+        </m>
+        <m k="aerialway" v="gondola">
+            <symbol src="assets:symbols/transport/gondola.svg" />
+        </m>
+        <m zoom-min="14">
+            <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                stroke-width="2.0" />
+        </m>
+    </m>
+
     <!-- Topological (orientational) objects above ground -->
     <m k="power">
         <m e="way" v="line" zoom-min="14">
@@ -673,6 +715,13 @@
         </m>
         <m v="tower" zoom-min="16">
             <symbol src="assets:symbols/power/tower.svg" />
+        </m>
+        <m v="generator" zoom-min="14">
+            <m k="generator:source" select="first">
+                <m v="wind">
+                    <symbol src="assets:symbols/power/wind.svg" />
+                </m>
+            </m>
         </m>
     </m>
     <m k="man_made">
@@ -893,7 +942,7 @@
                 <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-            <m v="crossing|level_crossing">
+            <m v="crossing|level_crossing" zoom-min="16">
                 <symbol src="assets:symbols/transport/level_crossing.svg" />
             </m>
         </m>
@@ -1041,6 +1090,9 @@
                         <symbol src="assets:symbols/amenity/telephone.svg" />
                     </m>
                 </m>
+                <m k="emergency" v="phone">
+                    <symbol src="assets:symbols/amenity/emergency_phone.svg" />
+                </m>
             </m>
             <m k="kind_pets">
                 <m k="shop">
@@ -1074,6 +1126,14 @@
                 </m>
             </m>
             <m k="kind_attraction">
+                <m k="man_made">
+                    <m v="lighthouse">
+                        <symbol src="assets:symbols/tourist/lighthouse.svg" />
+                    </m>
+                    <m v="windmill">
+                        <symbol src="assets:symbols/tourist/windmill.svg" />
+                    </m>
+                </m>
                 <m k="tourism">
                     <m v="museum">
                         <symbol src="assets:symbols/tourist/museum.svg" />
@@ -1131,7 +1191,7 @@
                 </m>
             </m>
             <m k="kind_vehicles">
-                <m k="amenity|shop">
+                <m k="amenity|shop|leisure">
                     <m v="car">
                         <symbol src="assets:symbols/shopping/car.svg" />
                     </m>
@@ -1140,6 +1200,9 @@
                     </m>
                     <m v="fuel">
                         <symbol src="assets:symbols/transport/fuel.svg" />
+                    </m>
+                    <m v="slipway">
+                        <symbol src="assets:symbols/amenity/slipway.svg" />
                     </m>
                     <m v="parking">
                         <m select="first">
@@ -1220,6 +1283,9 @@
                     </m>
                     <m v="atm">
                         <symbol src="assets:symbols/money/atm.svg" />
+                    </m>
+                    <m v="bureau_de_change">
+                        <symbol src="assets:symbols/money/exchange.svg" />
                     </m>
                     <m v="post_box">
                         <symbol src="assets:symbols/amenity/post_box.svg" />
