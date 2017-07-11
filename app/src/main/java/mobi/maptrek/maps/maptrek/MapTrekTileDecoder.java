@@ -414,10 +414,11 @@ class MapTrekTileDecoder extends PbfDecoder {
         }
 
         if (kind >= 0) {
-            boolean road = (kind & 0x00000001) > 0;
-            boolean building = (kind & 0x00000002) > 0;
+            boolean place = (kind & 0x00000001) > 0;
+            boolean road = (kind & 0x00000002) > 0;
+            boolean building = (kind & 0x00000004) > 0;
             boolean hasKind = false;
-            kind = kind >> 2;
+            kind = kind >> 3;
             for (int i = 0; i < 11; i++) {
                 if ((kind & 0x00000001) > 0) {
                     int zoom = Tags.kindZooms[i];
