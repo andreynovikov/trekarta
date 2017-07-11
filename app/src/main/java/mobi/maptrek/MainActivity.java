@@ -595,7 +595,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
-        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "77-40.mtiles"));
+        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "80-47.mtiles"));
 
         mNativeTileSource = new MapTrekTileSource(worldMapSource, detailedMapHelper, mMapFileSource);
         String language = Configuration.getLanguage();
@@ -3750,6 +3750,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 StringFormatter.elevationFactor = Float.parseFloat(resources.getStringArray(R.array.elevation_factors)[unit]);
                 StringFormatter.elevationAbbr = resources.getStringArray(R.array.elevation_abbreviations)[unit];
                 mGaugePanel.refreshGauges();
+                mMap.clearMap();
                 break;
             }
             case Configuration.PREF_ANGLE_UNIT: {
