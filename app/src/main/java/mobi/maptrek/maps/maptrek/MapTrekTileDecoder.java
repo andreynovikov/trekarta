@@ -429,7 +429,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 }
                 kind = kind >> 1;
             }
-            if (!hasKind && (type == TAG_TILE_POINT || (!road && !building)))
+            if (!hasKind && (type == TAG_TILE_POINT || (!place && !road && !building)))
                 return true;
         }
 
