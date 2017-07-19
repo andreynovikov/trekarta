@@ -324,6 +324,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private VectorTileLayer mBaseLayer;
     private BuildingLayer mBuildingsLayer;
     private MapScaleBarLayer mMapScaleBarLayer;
+    private LabelTileLoaderHook mLabelTileLoaderHook;
     private LabelLayer mLabelsLayer;
     private TileGridLayer mGridLayer;
     private NavigationLayer mNavigationLayer;
@@ -624,7 +625,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
             layers.add(mBuildingsLayer, MAP_3D);
         }
-        mLabelsLayer = new LabelLayer(mMap, mBaseLayer);
+
+        mLabelTileLoaderHook = new LabelTileLoaderHook();
+        if (!"none".equals(language))
+            mLabelTileLoaderHook.setPreferredLanguage(language);
+        mLabelsLayer = new LabelLayer(mMap, mBaseLayer, mLabelTileLoaderHook);
         layers.add(mLabelsLayer, MAP_LABELS);
 
         DefaultMapScaleBar mapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f);
@@ -1128,10 +1133,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     public void onClick(DialogInterface dialog, int which) {
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
                         String language = languageCodes[which];
-                        if ("none".equals(language))
+                        if ("none".equals(language)) {
                             mNativeTileSource.setPreferredLanguage(null);
-                        else
+                            mLabelTileLoaderHook.setPreferredLanguage(null);
+                        } else {
                             mNativeTileSource.setPreferredLanguage(language);
+                            mLabelTileLoaderHook.setPreferredLanguage(language);
+                        }
                         mMap.clearMap();
                         Configuration.setLanguage(language);
                     }

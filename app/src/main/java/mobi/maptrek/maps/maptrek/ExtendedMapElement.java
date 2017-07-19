@@ -9,14 +9,15 @@ public class ExtendedMapElement extends MapElement {
     public int buildingColor = 0;
     public int roofColor = 0;
     public int elevation = 0;
-    public boolean hasLabelPosition = true;
+    boolean hasLabelPosition = true;
+    public MapTrekDatabase database;
 
-    public void clearData() {
+    void clearData() {
+        id = 0L;
         layer = 5;
         hasLabelPosition = true;
         labelPosition = null;
-
-        id = 0L;
+        database = null;
         elevation = 0;
         buildingHeight = 0;
         buildingMinHeight = 0;

@@ -41,7 +41,6 @@ class MapTrekDatabase implements ITileDataSource {
 
     private final MapTrekTileDecoder mTileDecoder;
     private final SQLiteDatabase mDatabase;
-    private String mLocalizedName;
 
     MapTrekDatabase(SQLiteDatabase database) {
         mDatabase = database;
@@ -85,11 +84,15 @@ class MapTrekDatabase implements ITileDataSource {
     public void cancel() {
     }
 
-    void setPreferredLanguage(String preferredLanguage) {
-        if (preferredLanguage != null)
-            mLocalizedName = "name_" + preferredLanguage;
-        else
-            mLocalizedName = null;
+    public String getName(String nameKey, long elementId) {
+        String[] args = {String.valueOf(elementId)};
+        try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, nameKey), args)) {
+            if (c.moveToFirst())
+                return c.getString(0);
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
+        return null;
     }
 
     private class NativeTileDataSink implements ITileDataSink {
@@ -110,7 +113,7 @@ class MapTrekDatabase implements ITileDataSource {
                 dx = (tile.tileX - (x << dz)) * Tile.SIZE;
                 dy = (tile.tileY - (y << dz)) * Tile.SIZE;
                 mTileClipper = new TileClipper(1f * dx / scale - CLIP_BUFFER, 1f * dy / scale - CLIP_BUFFER,
-                        1f * (dx + Tile.SIZE) / scale + CLIP_BUFFER, 1f * (dy + Tile.SIZE) / scale +  CLIP_BUFFER);
+                        1f * (dx + Tile.SIZE) / scale + CLIP_BUFFER, 1f * (dy + Tile.SIZE) / scale + CLIP_BUFFER);
             }
         }
 
@@ -134,26 +137,7 @@ class MapTrekDatabase implements ITileDataSource {
                 }
             }
             if (element.id != 0L) {
-                String name = null;
-                String[] args = {String.valueOf(element.id)};
-                if (mLocalizedName != null) {
-                    try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, mLocalizedName), args)) {
-                        if (c.moveToFirst())
-                            name = c.getString(0);
-                    } catch (Exception e) {
-                        logger.error("Query error", e);
-                    }
-                }
-                if (name == null) {
-                    try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, "name"), args)) {
-                        if (c.moveToFirst())
-                            name = c.getString(0);
-                    } catch (Exception e) {
-                        logger.error("Query error", e);
-                    }
-                }
-                if (name != null)
-                    element.tags.add(new Tag(Tag.KEY_NAME, name, false));
+                element.database = MapTrekDatabase.this;
             }
             /*
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
