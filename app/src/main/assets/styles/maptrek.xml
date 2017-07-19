@@ -7,6 +7,7 @@
     TODO:
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     http://wiki.openstreetmap.org/wiki/Key:lock
+    http://wiki.openstreetmap.org/wiki/Tag:craft=winery
     railway:subway
     http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
@@ -688,6 +689,18 @@
         </m>
     </m>
 
+    <!-- Buildings -->
+    <m e="way" zoom-min="14">
+        <m k="building">
+            <area fade="14" use="building" />
+        </m>
+        <m k="building:part" zoom-min="17">
+            <m k="building:part" v="-|no">
+                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
+            </m>
+        </m>
+    </m>
+    
     <!-- Man made objects above ground -->
     <m k="aerialway">
         <line cap="butt" fix="true" stroke="#202020" width="1.8" />
@@ -773,18 +786,6 @@
             <line fade="7" use="military" />
             <text style="bold_italic" area-size="0.3" caption="true" fill="#990000" k="name"
                 priority="6" size="18" stroke="#ffcccc" stroke-width="2.0" />
-        </m>
-    </m>
-
-    <!-- Buildings -->
-    <m e="way" zoom-min="14">
-        <m k="building">
-            <area fade="14" use="building" />
-        </m>
-        <m k="building:part" zoom-min="17">
-            <m k="building:part" v="-|no">
-                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
-            </m>
         </m>
     </m>
 
