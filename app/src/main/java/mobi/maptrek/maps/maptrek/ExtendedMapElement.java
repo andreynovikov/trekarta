@@ -11,10 +11,12 @@ public class ExtendedMapElement extends MapElement {
     public int elevation = 0;
     boolean hasLabelPosition = true;
     public MapTrekDatabase database;
+    public int kind = 0;
 
     void clearData() {
         id = 0L;
         layer = 5;
+        kind = 0;
         hasLabelPosition = true;
         labelPosition = null;
         database = null;
@@ -23,5 +25,9 @@ public class ExtendedMapElement extends MapElement {
         buildingMinHeight = 0;
         buildingColor = 0;
         roofColor = 0;
+    }
+
+    boolean isBuilding() {
+        return (kind & 0x00000004) > 0;
     }
 }

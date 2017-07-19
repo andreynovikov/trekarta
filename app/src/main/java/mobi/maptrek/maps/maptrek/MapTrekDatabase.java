@@ -101,6 +101,7 @@ class MapTrekDatabase implements ITileDataSource {
         private int dx;
         private int dy;
         private TileClipper mTileClipper;
+        private TileClipper mBuildingTileClipper;
         ITileDataSink mapDataSink;
         QueryResult result;
 
@@ -114,6 +115,8 @@ class MapTrekDatabase implements ITileDataSource {
                 dy = (tile.tileY - (y << dz)) * Tile.SIZE;
                 mTileClipper = new TileClipper(1f * dx / scale - CLIP_BUFFER, 1f * dy / scale - CLIP_BUFFER,
                         1f * (dx + Tile.SIZE) / scale + CLIP_BUFFER, 1f * (dy + Tile.SIZE) / scale + CLIP_BUFFER);
+                mBuildingTileClipper = new TileClipper(1f * dx / scale, 1f * dy / scale,
+                        1f * (dx + Tile.SIZE) / scale, 1f * (dy + Tile.SIZE) / scale);
             }
         }
 
@@ -124,7 +127,8 @@ class MapTrekDatabase implements ITileDataSource {
             if (tile.zoomLevel < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
                 return;
             if (scale != 1) {
-                if (!mTileClipper.clip(element))
+                TileClipper clipper = element.isBuilding() ? mBuildingTileClipper : mTileClipper;
+                if (!clipper.clip(element))
                     return;
                 element.scale(scale, scale);
                 element.translate(-dx, -dy);
