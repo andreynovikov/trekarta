@@ -41,6 +41,8 @@ public class MapTrek extends Application {
     // Configure global defaults
     static {
         org.oscim.map.Map.NEW_GESTURES = true;
+        org.oscim.theme.ThemeLoader.USE_ATLAS = true;
+        org.oscim.theme.ThemeLoader.POT_TEXTURES = true;
     }
 
     @Override
