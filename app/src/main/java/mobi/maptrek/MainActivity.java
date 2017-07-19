@@ -180,6 +180,7 @@ import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
+import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.util.FileUtils;
@@ -580,10 +581,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        //TileSource baseMapSource = OSciMap4TileSource.builder().url("http://maptrek.mobi/tiles/all").zoomMin(2).zoomMax(7).build();
-        //File cacheDir = getExternalCacheDir();
-        //baseMapSource.setCache(new TileCache(this, cacheDir.getAbsolutePath(), "tile_cache.db"));
-
         SQLiteTileSource worldMapSource;
         File worldMapFile = new File(getExternalFilesDir(null), "world.mbtiles");
         if (worldMapFile.exists() && worldMapFile.canRead()) {
@@ -595,7 +592,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
-        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "80-47.mtiles"));
+        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "77-40.mtiles"));
 
         mNativeTileSource = new MapTrekTileSource(worldMapSource, detailedMapHelper, mMapFileSource);
         String language = Configuration.getLanguage();
@@ -3787,7 +3784,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
         IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
-        theme.scaleTextSize(fontSize * MapTrek.density);
+        theme.scaleTextSize(fontSize);
         mMap.setTheme(theme, true);
         mNightMode = night;
     }

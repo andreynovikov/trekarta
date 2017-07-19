@@ -39,6 +39,6 @@ public class MapTrekUrlTileSource extends UrlTileSource {
 
     @Override
     public ITileDataSource getDataSource() {
-        return new UrlTileDataSource(this, new MapboxTileDecoder(), getHttpEngine());
+        return new UrlTileDataSource(this, new MapTrekTileDecoder(), getHttpEngine());
     }
 }

@@ -37,4 +37,8 @@ enum VtmThemes implements ThemeFile {
     public InputStream getRenderThemeAsStream() {
         return AssetAdapter.readFileAsStream(mPath);
     }
+
+    @Override
+    public void setMenuCallback(XmlRenderThemeMenuCallback xmlRenderThemeMenuCallback) {
+    }
 }

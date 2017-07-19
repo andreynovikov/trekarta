@@ -9,6 +9,7 @@ public class ExtendedMapElement extends MapElement {
     public int buildingColor = 0;
     public int roofColor = 0;
     public int elevation = 0;
+    public boolean hasLabelPosition = true;
 
     public void clearData() {
         layer = 5;
