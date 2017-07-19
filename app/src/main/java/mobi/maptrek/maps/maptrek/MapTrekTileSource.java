@@ -16,6 +16,8 @@ import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.geom.TileClipper;
 
+import java.util.HashSet;
+
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
 
@@ -39,9 +41,11 @@ public class MapTrekTileSource extends TileSource {
     }
 
     private final MultiMapFileTileSource mMultiMapFileTileSource;
+    private final HashSet<NativeDataSource> mNativeDataSources;
     private SQLiteDatabase mDetailedDatabase;
     private final SQLiteTileSource mBaseMapTileSource;
     private final SQLiteOpenHelper mDetailedMapOpenHelper;
+    private String mPreferredLanguage;
     private String mLocalizedName;
 
     public MapTrekTileSource(SQLiteTileSource baseMapTileSource, SQLiteOpenHelper detailedMapOpenHelper, MultiMapFileTileSource multiMapFileTileSource) {
@@ -49,9 +53,14 @@ public class MapTrekTileSource extends TileSource {
         mBaseMapTileSource = baseMapTileSource;
         mDetailedMapOpenHelper = detailedMapOpenHelper;
         mMultiMapFileTileSource = multiMapFileTileSource;
+        mNativeDataSources = new HashSet<>();
+
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
+        mPreferredLanguage = preferredLanguage;
+        for (NativeDataSource nativeDataSource : mNativeDataSources)
+            nativeDataSource.setPreferredLanguage(preferredLanguage);
         mMultiMapFileTileSource.setPreferredLanguage(preferredLanguage);
         if (preferredLanguage != null)
             mLocalizedName = "name:" + preferredLanguage;
@@ -66,10 +75,13 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         ITileDataSource baseDataSource = mBaseMapTileSource.getDataSource();
-        ITileDataSource detailedDataSource = new MapTrekDatabase(mDetailedDatabase);
+        MapTrekDatabase detailedDataSource = new MapTrekDatabase(mDetailedDatabase);
         ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
+        detailedDataSource.setPreferredLanguage(mPreferredLanguage);
 
-        return new NativeDataSource(baseDataSource, detailedDataSource, mapFileDataSource);
+        NativeDataSource nativeDataSource = new NativeDataSource(baseDataSource, detailedDataSource, mapFileDataSource);
+        mNativeDataSources.add(nativeDataSource);
+        return nativeDataSource;
     }
 
     @Override
@@ -90,14 +102,15 @@ public class MapTrekTileSource extends TileSource {
         mBaseMapTileSource.close();
         mDetailedDatabase.close();
         mMultiMapFileTileSource.close();
+        mNativeDataSources.clear();
     }
 
     private class NativeDataSource implements ITileDataSource {
         private ITileDataSource mBaseDataSource;
-        private ITileDataSource mDetailedDataSource;
+        private MapTrekDatabase mDetailedDataSource;
         private ITileDataSource mMapFileDataSource;
 
-        NativeDataSource(ITileDataSource baseDataSource, ITileDataSource detailedDataSource, ITileDataSource mapFileDataSource) {
+        NativeDataSource(ITileDataSource baseDataSource, MapTrekDatabase detailedDataSource, ITileDataSource mapFileDataSource) {
             mBaseDataSource = baseDataSource;
             mDetailedDataSource = detailedDataSource;
             mMapFileDataSource = mapFileDataSource;
@@ -140,6 +153,10 @@ public class MapTrekTileSource extends TileSource {
             mDetailedDataSource.cancel();
             mMapFileDataSource.cancel();
         }
+
+        void setPreferredLanguage(String preferredLanguage) {
+            mDetailedDataSource.setPreferredLanguage(preferredLanguage);
+        }
     }
 
     private class TransformTileDataSink implements ITileDataSink {
@@ -177,6 +194,7 @@ public class MapTrekTileSource extends TileSource {
         }
     }
 
+    @Deprecated
     private class LocalizedTileDataSink implements ITileDataSink {
         ITileDataSink mapDataSink;
 

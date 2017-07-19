@@ -34,13 +34,14 @@ class MapTrekDatabase implements ITileDataSource {
     @SuppressWarnings("unused")
     private static final String SQL_GET_PARAM = "SELECT value FROM metadata WHERE name = ?";
     private static final String SQL_GET_TILE = "SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?";
-    private static final String SQL_GET_NAME = "SELECT name FROM names WHERE ref = (SELECT name FROM features WHERE id = ?)";
+    private static final String SQL_GET_NAME = "SELECT name FROM names WHERE ref = (SELECT %s FROM features WHERE id = ?)";
 
     private static final int MAX_NATIVE_ZOOM = 14;
     private static final int CLIP_BUFFER = 32;
 
     private final MapTrekTileDecoder mTileDecoder;
     private final SQLiteDatabase mDatabase;
+    private String mLocalizedName;
 
     MapTrekDatabase(SQLiteDatabase database) {
         mDatabase = database;
@@ -84,6 +85,13 @@ class MapTrekDatabase implements ITileDataSource {
     public void cancel() {
     }
 
+    void setPreferredLanguage(String preferredLanguage) {
+        if (preferredLanguage != null)
+            mLocalizedName = "name_" + preferredLanguage;
+        else
+            mLocalizedName = null;
+    }
+
     private class NativeTileDataSink implements ITileDataSink {
         private final Tile tile;
         private int scale;
@@ -125,22 +133,27 @@ class MapTrekDatabase implements ITileDataSource {
                         element.labelPosition = null;
                 }
             }
-            /*
-            if (element.isLine() && element.tags.containsKey("highway")) {
-                logger.error(element.id + ": " + element.tags.toString());
-            }
-            */
             if (element.id != 0L) {
-                String id = String.valueOf(element.id);
-                String[] args = {id};
-                try (Cursor c = mDatabase.rawQuery(SQL_GET_NAME, args)) {
-                    if (c.moveToFirst()) {
-                        String name = c.getString(0);
-                        element.tags.add(new Tag(Tag.KEY_NAME, name, false));
+                String name = null;
+                String[] args = {String.valueOf(element.id)};
+                if (mLocalizedName != null) {
+                    try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, mLocalizedName), args)) {
+                        if (c.moveToFirst())
+                            name = c.getString(0);
+                    } catch (Exception e) {
+                        logger.error("Query error", e);
                     }
-                } catch (Exception e) {
-                    logger.error("Query error", e);
                 }
+                if (name == null) {
+                    try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, "name"), args)) {
+                        if (c.moveToFirst())
+                            name = c.getString(0);
+                    } catch (Exception e) {
+                        logger.error("Query error", e);
+                    }
+                }
+                if (name != null)
+                    element.tags.add(new Tag(Tag.KEY_NAME, name, false));
             }
             /*
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
