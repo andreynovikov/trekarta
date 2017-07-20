@@ -58,15 +58,15 @@
     <!-- Roads -->
     <style-line id="trunk" stroke="#fedb52" width="1.4" />
     <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.2" />
-    <style-line id="highway" stroke="#fcba5a" width="1.6" />
-    <style-line id="primary" stroke="#f4d26e" width="1.3" />
-    <style-line id="secondary" use="primary" width="-0.1" />
-    <style-line id="unclassified" stroke="#ffffff" width="1.1" />
-    <style-line id="tertiary" stroke="#f4f3ae" use="unclassified" width="0.1" />
+    <style-line id="highway" stroke="#fcba5a" width="1.5" />
+    <style-line id="primary" stroke="#f4d26e" width="1.2" />
+    <style-line id="secondary" stroke="#f4f3ae" use="primary" width="-0.1" />
+    <style-line id="unclassified" stroke="#ffffff" width="1.0" />
+    <style-line id="tertiary" use="secondary" width="-0.1" />
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="1.0" />
-    <style-line id="residential" stroke="#ffffff" width="1.0" />
-    <style-line id="highway-service" use="residential" width="-0.3" />
+    <style-line id="residential" stroke="#ffffff" width="0.9" />
+    <style-line id="highway-service" use="residential" width="-0.2" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
     <style-line cap="butt" id="highway:track:g1" stroke="#C19A6B" width="0.7" />
     <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#C19A6B"
@@ -76,6 +76,8 @@
     <style-line id="highway:track:g5" stipple="18" stroke="#44ff8888" use="highway:track:g4" />
     <style-line cap="butt" id="footway" stipple="4" stipple-stroke="#d37c58" stroke="#00ffffff"
         width="0.3" />
+    <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
+
     <style-line id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.1" />
     <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
     <style-line cap="butt" id="bridleway" stipple-stroke="#7b8358" stroke="#d3cb98" use="footway"
@@ -360,7 +362,7 @@
                     <text priority="10" use="water" />
                 </m>
                 <m v="dam">
-                    <line fade="12" stroke="#ababab" use="fix" width="0.2" />
+                    <line fade="12" stroke="#333333" use="fix" width="0.5" />
                 </m>
                 <m v="stream">
                     <line fade="13" use="water" width="0.5" />
@@ -402,13 +404,14 @@
             </m>
         </m>
         <m closed="yes" v="bridge">
-            <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.0" />
+            <area fill="#e4e4e4" />
             <text use="road-name" />
         </m>
     </m>
 
     <!-- Roads -->
     <m e="way" k="highway">
+        <outline-layer fade="14" id="service-road" stroke="#aa807040" width="0.1" />
         <outline-layer id="road" stroke="#aa807040" width="0.1" />
         <outline-layer id="primary" stroke="#aa7f7700" width="0.1" />
         <outline-layer id="motorway" stroke="#aa805f2e" width="0.1" />
@@ -428,78 +431,294 @@
             </m>
         </m>
         <m zoom-min="8">
-            <!-- when tunnel|bridge is present it must be 'no' -->
-            <m k="tunnel|bridge" v="~|no|0">
-                <m k="area" v="~|no|false">
-                    <m v="steps">
-                        <m zoom-min="16">
-                            <line use="steps" />
+            <!-- when tunnel is present it must be 'no' -->
+            <m k="tunnel" v="~|no">
+                <m k="area" v="yes" zoom-min="16">
+                    <m v="footway">
+                        <area fill="#fefefe" mesh="true" />
+                        <line cap="butt" fix="true" stroke="#c0c0c0" width="1.0" />
+                    </m>
+                    <m v="service|unclassified|residential|road|living_street">
+                        <area fill="#ffffff" mesh="true" />
+                        <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
+                    </m>
+                    <m v="pedestrian">
+                        <area mesh="true" use="pedestrian" />
+                    </m>
+                    <!-- <m v="path" zoom-min="14">
+                      <area fill="#d0d0d0" />
+                      </m> -->
+                </m>
+                <!-- when bridge is present it must be 'no' -->
+                <m k="bridge" v="~|no">
+                    <m k="area" v="~|no">
+                        <m v="steps">
+                            <m zoom-min="16">
+                                <line use="steps" />
+                            </m>
+                            <m zoom-max="15" zoom-min="14">
+                                <line use="footway" />
+                            </m>
                         </m>
-                        <m zoom-max="15" zoom-min="14">
+                        <m v="footway">
                             <line use="footway" />
+                        </m>
+                        <m v="path">
+                            <line use="path" />
+                        </m>
+                        <m v="cycleway">
+                            <line use="cycleway" />
+                        </m>
+                        <m v="bridleway">
+                            <line use="bridleway" />
+                        </m>
+                        <m v="track">
+                            <m k="tracktype" v="grade1">
+                                <line use="highway:track:g1" />
+                            </m>
+                            <m k="tracktype" v="~|grade2">
+                                <line use="highway:track:g2" />
+                            </m>
+                            <m k="tracktype" v="grade3">
+                                <line use="highway:track:g3" />
+                            </m>
+                            <m k="tracktype" v="grade4">
+                                <line use="highway:track:g4" />
+                            </m>
+                            <m k="tracktype" v="grade5">
+                                <line use="highway:track:g5" />
+                            </m>
+                            <text use="road" />
+                        </m>
+                        <m v="service">
+                            <!-- matches every service but parking_isle -->
+                            <m k="service" v="-|parking_aisle">
+                                <line fade="14" outline="service-road" use="highway-service" />
+                                <m k="access" v="private">
+                                    <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                                        use="highway-service" />
+                                </m>
+                                <m k="access" v="no">
+                                    <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                                        use="highway-service" />
+                                </m>
+                            </m>
+                            <m k="service" v="parking_aisle" zoom-min="16">
+                                <line outline="road" use="highway-service" width="-0.4" />
+                                <m k="access" v="private">
+                                    <line stipple="15" stipple-stroke="#eeeeee"
+                                        use="highway-service" width="-0.4" />
+                                </m>
+                                <m k="access" v="no">
+                                    <line stipple="15" stipple-stroke="#ffdddd"
+                                        use="highway-service" width="-0.4" />
+                                </m>
+                            </m>
+                        </m>
+                        <m v="tertiary_link">
+                            <line outline="road" use="tertiary" />
+                            <text use="road-name" />
+                        </m>
+                        <m v="secondary_link">
+                            <line outline="road" use="secondary" />
+                            <text use="road-name" />
+                        </m>
+                        <m v="primary_link">
+                            <line outline="primary" use="primary" />
+                            <text use="major-road-name" />
+                            <text use="major-road-ref" />
+                        </m>
+                        <m v="trunk_link|motorway_link">
+                            <line outline="motorway" use="trunk_link" />
+                            <text use="major-road-name" />
+                        </m>
+                        <m v="road|construction">
+                            <line outline="road" use="road-construction" />
+                            <text use="road-name" />
+                        </m>
+                        <m v="pedestrian">
+                            <line outline="road" use="pedestrian" />
+                            <text use="road-name" />
+                        </m>
+                        <m v="residential|living_street">
+                            <line outline="road" use="residential" />
+                            <m k="access" v="private">
+                                <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
+                            </m>
+                            <m k="access" v="no">
+                                <line stipple="15" stipple-stroke="#ffdddd" use="residential" />
+                            </m>
+                            <text use="road-name" />
+                        </m>
+                        <m v="unclassified">
+                            <line outline="road" use="unclassified" />
+                            <m k="access" v="private">
+                                <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
+                            </m>
+                            <m k="access" v="no">
+                                <line stipple="15" stipple-stroke="#ffdddd" use="unclassified" />
+                            </m>
+                            <text use="road-name" />
+                        </m>
+                        <m v="tertiary">
+                            <line outline="road" use="tertiary" />
+                            <text use="road-name" />
+                            <!--
+                            <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
+                                <line use="tertiary" stroke="#fdf6ed" cap="square" />
+                            </m>
+                            -->
+                        </m>
+                        <m v="secondary">
+                            <line outline="primary" use="secondary" />
+                            <text use="major-road-name" />
+                            <text use="major-road-ref" />
+                        </m>
+                        <m v="primary">
+                            <line outline="primary" use="primary" />
+                            <text use="major-road-name" />
+                            <text use="major-road-ref" />
+                        </m>
+                        <m v="trunk">
+                            <line outline="motorway" use="trunk" />
+                            <text use="major-road-name" />
+                            <text use="trunk-road-ref" />
+                        </m>
+                        <m v="motorway">
+                            <line outline="motorway" use="highway" />
+                            <text use="major-road-name" />
+                            <text use="trunk-road-ref" />
+                        </m>
+                        <m k="oneway" v="1" zoom-min="16">
+                            <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
+                                stipple-stroke="#888888" width="26" />
+                        </m>
+                    </m> <!-- area: no -->
+                </m> <!-- bridge: no -->
+            </m> <!-- tunnel: no -->
+            <outline-layer id="ford" stroke="#a4bbcc" width="0.7" />
+            <m k="ford">
+                <!-- except ford=no|false -->
+                <m k="ford" v="-|no|false">
+                    <m v="track">
+                        <line cap="square" outline="ford" use="highway:track:g1" width="-0.5" />
+                    </m>
+                </m>
+            </m>
+        </m>
+    </m>
+
+    <!-- Railways (no tunnel) -->
+    <m e="way" k="railway" zoom-min="12">
+        <m k="tunnel" v="~|false|no|0">
+            <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
+            <!-- railway bridge casings -->
+            <m zoom-min="14">
+                <m k="bridge">
+                    <m k="bridge" v="-|no">
+                        <m k="railway" v="tram|miniature" zoom-min="16">
+                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                                width="4.0" />
+                        </m>
+                        <m k="railway" v="monorail|funicular" zoom-min="15">
+                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                                width="2.0" />
+                        </m>
+                        <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
+                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                                width="1.5" />
+                        </m>
+                        <m k="railway" v="rail">
+                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                                width="5.0" />
+                        </m>
+                    </m>
+                </m>
+            </m>
+            <!-- railway casings and cores -->
+            <m k="railway" v="monorail|funicular" zoom-min="15">
+                <line cap="butt" fix="true" stroke="#663322" width="2.0" />
+            </m>
+            <m k="railway" v="tram|miniature" zoom-min="15">
+                <m zoom-min="16">
+                    <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                        stroke="#aa9988" width="4.0" />
+                </m>
+                <line cap="butt" fade="15" fix="true" stroke="#aa9988" width="1.5" />
+            </m>
+            <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
+                <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff" stroke="#999999"
+                    width="4.0" />
+                <line cap="butt" fix="true" stroke="#999999" width="1.5" />
+            </m>
+            <m k="railway" v="rail" zoom-max="13">
+                <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
+            </m>
+            <m k="railway" v="rail" zoom-min="14">
+                <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
+                    stipple-width="0.8" stroke="#999999" width="3.0" />
+            </m>
+            <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                <m zoom-min="16">
+                <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff" stroke="#cccccc"
+                    width="3.0" />
+                </m>
+                <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
+            </m>
+        </m>
+    </m>
+
+    <!-- Bridge casings should be above other roads -->
+    <m e="way" k="highway">
+        <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
+        <!-- must contain bridge -->
+        <m k="bridge">
+            <!-- except bridge=no|false -->
+            <m k="bridge" v="-|no">
+                <!-- no areas -->
+                <m k="area" v="~|no">
+                    <m zoom-min="16">
+                        <m v="steps">
+                            <line cap="square" outline="bridge" stroke="#ffffff" width="0.5" />
+                            <line use="steps" />
                         </m>
                     </m>
                     <m v="footway">
+                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.2" />
                         <line use="footway" />
                     </m>
                     <m v="path">
+                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
                         <line use="path" />
                     </m>
                     <m v="cycleway">
+                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
                         <line use="cycleway" />
                     </m>
                     <m v="bridleway">
+                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.2" />
                         <line use="bridleway" />
                     </m>
                     <m v="track">
-                        <m k="tracktype" v="grade1">
-                            <line use="highway:track:g1" />
-                        </m>
-                        <m k="tracktype" v="~|grade2">
-                            <line use="highway:track:g2" />
-                        </m>
-                        <m k="tracktype" v="grade3">
-                            <line use="highway:track:g3" />
-                        </m>
-                        <m k="tracktype" v="grade4">
-                            <line use="highway:track:g4" />
-                        </m>
-                        <m k="tracktype" v="grade5">
-                            <line use="highway:track:g5" />
-                        </m>
+                        <line cap="square" outline="bridge" use="highway:track:g1" />
                         <text use="road" />
-                    </m>
-                    <m v="road|construction">
-                        <line outline="road" use="road-construction" />
-                        <text use="road-name" />
-                    </m>
-                    <m v="pedestrian">
-                        <line outline="road" use="pedestrian" />
-                        <text use="road-name" />
-                    </m>
-                    <m v="residential|living_street">
-                        <line outline="road" use="residential" />
-                        <m k="access" v="private">
-                            <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
-                        </m>
-                        <m k="access" v="no">
-                            <line stipple="15" stipple-stroke="#ffdddd" use="residential" />
-                        </m>
-                        <text use="road-name" />
                     </m>
                     <m v="service">
                         <!-- matches every service but parking_isle -->
                         <m k="service" v="-|parking_aisle">
-                            <line outline="road" use="highway-service" />
+                            <line cap="square" fade="14" outline="bridge" use="highway-service" />
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="#eeeeee" use="highway-service" />
+                                <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                                    use="highway-service" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="#ffdddd" use="highway-service" />
+                                <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                                    use="highway-service" />
                             </m>
                         </m>
                         <m k="service" v="parking_aisle" zoom-min="16">
-                            <line outline="road" use="highway-service" width="-0.4" />
+                            <line cap="square" outline="bridge" use="highway-service"
+                                width="-0.4" />
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="#eeeeee" use="highway-service"
                                     width="-0.4" />
@@ -510,8 +729,42 @@
                             </m>
                         </m>
                     </m>
+                    <m v="tertiary_link">
+                        <line cap="square" outline="bridge" use="tertiary" />
+                        <text use="road-name" />
+                    </m>
+                    <m v="tertiary_link">
+                        <line cap="square" outline="bridge" use="secondary" />
+                        <text use="road-name" />
+                    </m>
+                    <m v="primary_link">
+                        <line cap="square" outline="bridge" use="primary" />
+                        <text use="major-road-name" />
+                    </m>
+                    <m v="trunk_link|motorway_link">
+                        <line cap="square" outline="bridge" use="trunk_link" />
+                        <text use="major-road-name" />
+                    </m>
+                    <m v="road|construction">
+                        <line cap="square" outline="bridge" use="road-construction" />
+                        <text use="road-name" />
+                    </m>
+                    <m v="pedestrian">
+                        <line cap="square" outline="bridge" use="pedestrian" />
+                        <text use="road-name" />
+                    </m>
+                    <m v="residential|living_street">
+                        <line cap="square" outline="bridge" use="residential" />
+                        <m k="access" v="private">
+                            <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
+                        </m>
+                        <m k="access" v="no">
+                            <line stipple="15" stipple-stroke="#ffdddd" use="residential" />
+                        </m>
+                        <text use="road-name" />
+                    </m>
                     <m v="unclassified">
-                        <line outline="road" use="unclassified" />
+                        <line cap="square" outline="bridge" use="unclassified" />
                         <m k="access" v="private">
                             <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
                         </m>
@@ -520,87 +773,37 @@
                         </m>
                         <text use="road-name" />
                     </m>
-                    <m v="tertiary|secondary_link|tertiary_link">
-                        <line outline="road" use="tertiary" />
+                    <m v="tertiary">
+                        <line cap="square" outline="bridge" use="tertiary" />
                         <text use="road-name" />
-                        <!--
-                        <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
-                            <line use="tertiary" stroke="#fdf6ed" cap="square" />
-                        </m>
-                        -->
                     </m>
-                    <m v="secondary|primary_link">
-                        <line outline="primary" use="secondary" />
+                    <m v="secondary">
+                        <line cap="square" outline="bridge" use="secondary" />
                         <text use="major-road-name" />
-                        <text use="major-road-ref" />
                     </m>
                     <m v="primary">
-                        <line outline="primary" use="primary" />
+                        <line cap="square" outline="bridge" use="primary" />
                         <text use="major-road-name" />
-                        <text use="major-road-ref" />
                     </m>
-                    <m v="trunk_link|motorway_link">
-                        <line outline="motorway" use="trunk_link" />
+                    <m v="trunk_link">
+                        <line cap="square" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
                     <m v="trunk">
-                        <line outline="motorway" use="trunk" />
+                        <line cap="square" outline="bridge" use="trunk" />
                         <text use="major-road-name" />
-                        <text use="trunk-road-ref" />
                     </m>
                     <m v="motorway">
-                        <line outline="motorway" use="highway" />
+                        <line cap="square" outline="bridge" use="highway" />
                         <text use="major-road-name" />
-                        <text use="trunk-road-ref" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
                         <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
                             stipple-stroke="#888888" width="26" />
                     </m>
-                </m> <!-- area: no -->
-            </m> <!-- tunnel|bridge: no -->
-        </m>
-    </m>
-
-    <!-- Railways (no tunnel) -->
-    <m e="way" k="railway" zoom-min="12">
-        <m k="tunnel" v="~|false|no|0">
-            <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
-            <!-- railway bridge casings -->
-            <m zoom-min="14">
-                <m k="bridge" v="yes|true|1">
-                    <m k="railway" v="tram|monorail|miniature|funicular">
-                        <line cap="square" fix="true" outline="bridge" stroke="#ffffff"
-                            width="2.0" />
-                    </m>
-                    <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
-                        <line cap="square" fix="true" outline="bridge" stroke="#ffffff"
-                            width="1.2" />
-                    </m>
-                    <m k="railway" v="rail">
-                        <line cap="square" fix="true" outline="bridge" stroke="#ffffff"
-                            width="5.0" />
-                    </m>
-                </m>
+                </m> <!-- end area=no -->
             </m>
-            <!-- railway casings and cores -->
-            <m k="railway" v="tram|monorail|miniature|funicular" zoom-min="15">
-                <line fix="true" stroke="#aa9988" width="2.0" />
-            </m>
-            <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
-                <line cap="butt" fix="true" stroke="#a0a0a0" width="0.9" />
-            </m>
-            <m k="railway" v="rail" zoom-max="13">
-                <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
-            </m>
-            <m k="railway" v="rail" zoom-min="14">
-                <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
-                    stipple-width="0.8" stroke="#999999" width="3.0" />
-            </m>
-            <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
-                <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="0.8" />
-            </m>
-        </m>
+        </m> <!-- end bridge=yes -->
     </m>
 
     <!-- Barriers -->
@@ -700,7 +903,7 @@
             </m>
         </m>
     </m>
-    
+
     <!-- Man made objects above ground -->
     <m k="aerialway">
         <line cap="butt" fix="true" stroke="#202020" width="1.8" />
