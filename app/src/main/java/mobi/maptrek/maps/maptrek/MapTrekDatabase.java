@@ -34,7 +34,7 @@ class MapTrekDatabase implements ITileDataSource {
     @SuppressWarnings("unused")
     private static final String SQL_GET_PARAM = "SELECT value FROM metadata WHERE name = ?";
     private static final String SQL_GET_TILE = "SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?";
-    private static final String SQL_GET_NAME = "SELECT name FROM names WHERE ref = (SELECT %s FROM features WHERE id = ?)";
+    private static final String SQL_GET_NAME = "SELECT names.name, lang FROM names INNER JOIN feature_names ON (ref = feature_names.name) WHERE id = ? AND lang IN (0, ?) ORDER BY lang";
 
     private static final int MAX_NATIVE_ZOOM = 14;
     private static final int CLIP_BUFFER = 32;
@@ -84,11 +84,17 @@ class MapTrekDatabase implements ITileDataSource {
     public void cancel() {
     }
 
-    public String getName(String nameKey, long elementId) {
-        String[] args = {String.valueOf(elementId)};
-        try (Cursor c = mDatabase.rawQuery(String.format(SQL_GET_NAME, nameKey), args)) {
+    String[] getNames(int lang, long elementId) {
+        String[] args = {String.valueOf(elementId), String.valueOf(lang)};
+        try (Cursor c = mDatabase.rawQuery(SQL_GET_NAME, args)) {
+            String result[] = new String[c.getCount()];
+            int i = 0;
             if (c.moveToFirst())
-                return c.getString(0);
+                do {
+                    result[i] = c.getString(0);
+                    i++;
+                } while (c.moveToNext());
+            return result;
         } catch (Exception e) {
             logger.error("Query error", e);
         }

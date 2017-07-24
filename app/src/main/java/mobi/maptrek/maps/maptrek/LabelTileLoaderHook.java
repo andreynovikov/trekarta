@@ -37,7 +37,7 @@ import static org.oscim.core.GeometryBuffer.GeometryType.POLY;
 import static org.oscim.layers.tile.vector.labeling.LabelLayer.LABEL_DATA;
 
 public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook {
-    private String mLocalizedName;
+    private int mLang = 0;
 
     //public final static LabelTileData EMPTY = new LabelTileData();
 
@@ -168,21 +168,30 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             ExtendedMapElement extendedElement = (ExtendedMapElement) element;
             if (extendedElement.id == 0L)
                 return null;
-            String name = null;
-            if (mLocalizedName != null)
-                name = extendedElement.database.getName(mLocalizedName, extendedElement.id);
-            if (name == null)
-                name = extendedElement.database.getName("name", extendedElement.id);
-            if (name != null)
-                return name;
+            String[] names = extendedElement.database.getNames(mLang, extendedElement.id);
+            if (names != null) {
+                if (names.length == 2 && names[1] != null)
+                    return names[1];
+                return names[0];
+            }
         }
         return null;
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
-        if (preferredLanguage != null)
-            mLocalizedName = "name_" + preferredLanguage;
-        else
-            mLocalizedName = null;
+        if (preferredLanguage == null) {
+            mLang = 0;
+            return;
+        }
+        switch (preferredLanguage) {
+            case "en":
+                mLang = 840;
+                return;
+            case "de":
+                mLang = 276;
+                return;
+            case "ru":
+                mLang = 643;
+        }
     }
 }
