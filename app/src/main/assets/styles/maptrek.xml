@@ -6,6 +6,7 @@
     <!--
     TODO:
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
+    waterway:lock_gate
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
     railway:subway
@@ -466,9 +467,6 @@
                         <m v="path">
                             <line use="path" />
                         </m>
-                        <m v="cycleway">
-                            <line use="cycleway" />
-                        </m>
                         <m v="bridleway">
                             <line use="bridleway" />
                         </m>
@@ -589,6 +587,9 @@
                             <text use="major-road-name" />
                             <text use="trunk-road-ref" />
                         </m>
+                        <m v="cycleway">
+                            <line use="cycleway" />
+                        </m>
                         <m k="oneway" v="1" zoom-min="16">
                             <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
                                 stipple-stroke="#888888" width="26" />
@@ -691,10 +692,6 @@
                         <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
                         <line use="path" />
                     </m>
-                    <m v="cycleway">
-                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
-                        <line use="cycleway" />
-                    </m>
                     <m v="bridleway">
                         <line cap="square" outline="bridge" stroke="#ffffff" width="0.2" />
                         <line use="bridleway" />
@@ -796,6 +793,10 @@
                     <m v="motorway">
                         <line cap="square" outline="bridge" use="highway" />
                         <text use="major-road-name" />
+                    </m>
+                    <m v="cycleway">
+                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
+                        <line use="cycleway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
                         <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
