@@ -415,7 +415,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
         if (kind >= 0) {
             mElem.kind = kind;
-            boolean place_road_building = (mElem.kind & 0x00000007) > 0;
+            boolean place_road_building = (kind & 0x00000007) > 0;
             boolean hasKind = false;
             kind = kind >> 3;
             for (int i = 0; i < 11; i++) {
@@ -428,7 +428,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 }
                 kind = kind >> 1;
             }
-            if (!hasKind && (type == TAG_TILE_POINT || !place_road_building))
+            if (!(hasKind || place_road_building || type != TAG_TILE_POINT))
                 return true;
         }
 
