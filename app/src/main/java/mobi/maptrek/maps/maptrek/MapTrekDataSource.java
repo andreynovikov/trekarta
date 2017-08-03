@@ -24,13 +24,14 @@ import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 
-class MapTrekDatabase implements ITileDataSource {
-    private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabase.class);
+class MapTrekDataSource implements ITileDataSource {
+    private static final Logger logger = LoggerFactory.getLogger(MapTrekDataSource.class);
 
     static final String SQL_CREATE_INFO = "CREATE TABLE IF NOT EXISTS metadata (name TEXT, value TEXT, PRIMARY KEY (name))";
     static final String SQL_CREATE_TILES = "CREATE TABLE IF NOT EXISTS tiles (zoom_level INTEGER, tile_column INTEGER, tile_row INTEGER, tile_data BLOB, PRIMARY KEY (zoom_level, tile_column, tile_row))";
     static final String SQL_CREATE_NAMES = "CREATE TABLE IF NOT EXISTS names (ref INTEGER, name TEXT, PRIMARY KEY (ref))";
     static final String SQL_CREATE_FEATURES = "CREATE TABLE IF NOT EXISTS features (id INTEGER, name INTEGER, kind INTEGER, lat REAL, lon REAL, PRIMARY KEY (id))";
+
     @SuppressWarnings("unused")
     private static final String SQL_GET_PARAM = "SELECT value FROM metadata WHERE name = ?";
     private static final String SQL_GET_TILE = "SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?";
@@ -42,7 +43,7 @@ class MapTrekDatabase implements ITileDataSource {
     private final MapTrekTileDecoder mTileDecoder;
     private final SQLiteDatabase mDatabase;
 
-    MapTrekDatabase(SQLiteDatabase database) {
+    MapTrekDataSource(SQLiteDatabase database) {
         mDatabase = database;
         mTileDecoder = new MapTrekTileDecoder();
     }
@@ -147,7 +148,7 @@ class MapTrekDatabase implements ITileDataSource {
                 }
             }
             if (element.id != 0L) {
-                element.database = MapTrekDatabase.this;
+                element.database = MapTrekDataSource.this;
             }
             /*
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {

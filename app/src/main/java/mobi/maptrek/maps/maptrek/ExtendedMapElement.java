@@ -10,7 +10,7 @@ public class ExtendedMapElement extends MapElement {
     public int roofColor = 0;
     public int elevation = 0;
     boolean hasLabelPosition = true;
-    public MapTrekDatabase database;
+    public MapTrekDataSource database;
     public int kind = 0;
 
     void clearData() {

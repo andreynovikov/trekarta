@@ -66,7 +66,7 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         ITileDataSource baseDataSource = mBaseMapTileSource.getDataSource();
-        MapTrekDatabase detailedDataSource = new MapTrekDatabase(mDetailedDatabase);
+        MapTrekDataSource detailedDataSource = new MapTrekDataSource(mDetailedDatabase);
         ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
 
         return new NativeDataSource(baseDataSource, detailedDataSource, mapFileDataSource);
@@ -94,10 +94,10 @@ public class MapTrekTileSource extends TileSource {
 
     private class NativeDataSource implements ITileDataSource {
         private ITileDataSource mBaseDataSource;
-        private MapTrekDatabase mDetailedDataSource;
+        private MapTrekDataSource mDetailedDataSource;
         private ITileDataSource mMapFileDataSource;
 
-        NativeDataSource(ITileDataSource baseDataSource, MapTrekDatabase detailedDataSource, ITileDataSource mapFileDataSource) {
+        NativeDataSource(ITileDataSource baseDataSource, MapTrekDataSource detailedDataSource, ITileDataSource mapFileDataSource) {
             mBaseDataSource = baseDataSource;
             mDetailedDataSource = detailedDataSource;
             mMapFileDataSource = mapFileDataSource;
