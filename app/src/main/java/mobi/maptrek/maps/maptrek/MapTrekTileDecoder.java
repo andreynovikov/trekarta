@@ -416,13 +416,14 @@ class MapTrekTileDecoder extends PbfDecoder {
         if (kind >= 0) {
             mElem.kind = kind;
             boolean place_road_building = (kind & 0x00000007) > 0;
-            boolean hasKind = false;
             kind = kind >> 3;
+            boolean someKind = kind > 0;
+            boolean hasKind = false;
             for (int i = 0; i < 11; i++) {
                 if ((kind & 0x00000001) > 0) {
                     int zoom = Tags.kindZooms[i];
                     if (zoom <= tile.zoomLevel) {
-                        mElem.tags.add(new Tag(Tags.kinds[i], "1"));
+                        mElem.tags.add(new Tag(Tags.kinds[i], "yes"));
                         hasKind = true;
                     }
                 }
@@ -430,6 +431,8 @@ class MapTrekTileDecoder extends PbfDecoder {
             }
             if (!(hasKind || place_road_building || type != TAG_TILE_POINT))
                 return true;
+            if (someKind)
+                mElem.tags.add(new Tag("kind", "yes"));
         }
 
         if (houseNumber != null)
