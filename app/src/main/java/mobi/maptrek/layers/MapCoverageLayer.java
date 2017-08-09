@@ -29,17 +29,16 @@ import org.oscim.utils.FastMath;
 
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.maps.MapFile;
-import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapStateListener;
+import mobi.maptrek.maps.maptrek.Index;
 
-public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, MapStateListener {
+public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, Index.MapStateListener {
     private static final float TILE_SCALE = 1f / (1 << 7);
-    private static final long MAP_EXPIRE_PERIOD = 7 * 24 * 3600 * 1000; // one week
+    private static final long MAP_EXPIRE_PERIOD = 7; // one week
     private static final int MIN_ZOOM = 3;
     public static final int TEXT_MIN_ZOOM = 6;
     private static final int TEXT_MAX_ZOOM = 8;
 
-    private final MapIndex mMapIndex;
+    private final Index mMapIndex;
     private final AreaStyle mPresentAreaStyle;
     private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
@@ -52,7 +51,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final TextStyle mSmallTextStyle;
     private Context mContext;
 
-    public MapCoverageLayer(Context context, Map map, MapIndex mapIndex, float scale) {
+    public MapCoverageLayer(Context context, Map map, Index mapIndex, float scale) {
         super(map);
         mContext = context;
         mMapIndex = mapIndex;
@@ -127,22 +126,21 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     }
 
                     if (hasSizes) {
-                        MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
-                        if (mapFile.downloadSize == 0L)
+                        Index.MapStatus mapStatus = mMapIndex.getNativeMap(tileXX, tileY);
+                        if (mapStatus.downloadSize == 0L)
                             continue;
                     }
 
                     GeometryBuffer areas = missingAreas;
-                    MapFile mapFile = mMapIndex.getNativeMap(tileXX, tileY);
-                    if (mapFile.downloading != 0L) {
+                    Index.MapStatus mapStatus = mMapIndex.getNativeMap(tileXX, tileY);
+                    if (mapStatus.downloading != 0L) {
                         areas = downloadingAreas;
-                    } else if (mapFile.action == MapIndex.ACTION.REMOVE) {
+                    } else if (mapStatus.action == Index.ACTION.REMOVE) {
                         areas = deletedAreas;
-                    } else if (mapFile.action == MapIndex.ACTION.DOWNLOAD) {
+                    } else if (mapStatus.action == Index.ACTION.DOWNLOAD) {
                         areas = selectedAreas;
-                    } else if (mapFile.downloaded) {
-                        long downloadCreated = mapFile.downloadCreated * 24 * 3600000L;
-                        if (hasSizes && mapFile.created + MAP_EXPIRE_PERIOD < downloadCreated) {
+                    } else if (mapStatus.created > 0) {
+                        if (hasSizes && mapStatus.created + MAP_EXPIRE_PERIOD < mapStatus.downloadCreated) {
                             areas = outdatedAreas;
                         } else {
                             areas = presentAreas;
@@ -178,11 +176,11 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             text.addText(ti);
                         }
                         ti = TextItem.pool.get();
-                        ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapFile.downloadSize), mTextStyle);
+                        ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapStatus.downloadSize), mTextStyle);
                         text.addText(ti);
                         ty += TILE_SCALE / 8 * scale;
                         ti = TextItem.pool.get();
-                        ti.set(tx, ty, mDateFormat.format(mapFile.downloadCreated * 24 * 3600000L), mSmallTextStyle);
+                        ti.set(tx, ty, mDateFormat.format(mapStatus.downloadCreated * 24 * 3600000L), mSmallTextStyle);
                         text.addText(ti);
                     }
                 }
@@ -244,22 +242,22 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         int tileY = (int) (point.getY() / TILE_SCALE);
         if (tileX < 0 || tileX > 127 || tileY < 0 || tileY > 127)
             return false;
-        MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
+        Index.MapStatus mapStatus = mMapIndex.getNativeMap(tileX, tileY);
         if (gesture instanceof Gesture.LongPress) {
-            if (mapFile.downloading != 0L)
-                mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.CANCEL);
-            else if (mapFile.downloaded)
-                mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.REMOVE);
+            if (mapStatus.downloading != 0L)
+                mMapIndex.selectNativeMap(tileX, tileY, Index.ACTION.CANCEL);
+            else if (mapStatus.created > 0)
+                mMapIndex.selectNativeMap(tileX, tileY, Index.ACTION.REMOVE);
             return true;
         }
         if (gesture instanceof Gesture.Tap || gesture instanceof Gesture.DoubleTap) {
-            if (mapFile.downloading != 0L)
+            if (mapStatus.downloading != 0L)
                 return true;
             if (mMapIndex.hasDownloadSizes()) {
-                if (mapFile.downloadSize == 0L)
+                if (mapStatus.downloadSize == 0L)
                     return true;
             }
-            mMapIndex.selectNativeMap(tileX, tileY, MapIndex.ACTION.DOWNLOAD);
+            mMapIndex.selectNativeMap(tileX, tileY, Index.ACTION.DOWNLOAD);
             return true;
         }
         return false;
@@ -271,12 +269,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     }
 
     @Override
-    public void onStatsChanged(MapIndex.IndexStats stats) {
+    public void onStatsChanged(Index.IndexStats stats) {
         update();
     }
 
     @Override
-    public void onMapSelected(int x, int y, MapIndex.ACTION action, MapIndex.IndexStats stats) {
+    public void onMapSelected(int x, int y, Index.ACTION action, Index.IndexStats stats) {
         update();
     }
 }

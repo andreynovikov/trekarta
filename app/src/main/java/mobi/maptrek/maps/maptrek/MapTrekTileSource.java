@@ -2,7 +2,6 @@ package mobi.maptrek.maps.maptrek;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
@@ -39,15 +38,14 @@ public class MapTrekTileSource extends TileSource {
     }
 
     private final MultiMapFileTileSource mMultiMapFileTileSource;
-    private SQLiteDatabase mDetailedDatabase;
     private final SQLiteTileSource mBaseMapTileSource;
-    private final SQLiteOpenHelper mDetailedMapOpenHelper;
+    private final SQLiteDatabase mDetailedMapDatabase;
     private String mLocalizedName;
 
-    public MapTrekTileSource(SQLiteTileSource baseMapTileSource, SQLiteOpenHelper detailedMapOpenHelper, MultiMapFileTileSource multiMapFileTileSource) {
+    public MapTrekTileSource(SQLiteTileSource baseMapTileSource, SQLiteDatabase detailedMapDatabase, MultiMapFileTileSource multiMapFileTileSource) {
         super(2, 17);
         mBaseMapTileSource = baseMapTileSource;
-        mDetailedMapOpenHelper = detailedMapOpenHelper;
+        mDetailedMapDatabase = detailedMapDatabase;
         mMultiMapFileTileSource = multiMapFileTileSource;
     }
 
@@ -66,7 +64,7 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         ITileDataSource baseDataSource = mBaseMapTileSource.getDataSource();
-        MapTrekDataSource detailedDataSource = new MapTrekDataSource(mDetailedDatabase);
+        MapTrekDataSource detailedDataSource = new MapTrekDataSource(mDetailedMapDatabase);
         ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
 
         return new NativeDataSource(baseDataSource, detailedDataSource, mapFileDataSource);
@@ -76,8 +74,6 @@ public class MapTrekTileSource extends TileSource {
     public OpenResult open() {
         try {
             mBaseMapTileSource.open();
-            mDetailedDatabase = mDetailedMapOpenHelper.getReadableDatabase();
-            mDetailedDatabase.enableWriteAheadLogging();
             mMultiMapFileTileSource.open();
             return TileSource.OpenResult.SUCCESS;
         } catch (SQLiteException e) {
@@ -88,7 +84,6 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public void close() {
         mBaseMapTileSource.close();
-        mDetailedDatabase.close();
         mMultiMapFileTileSource.close();
     }
 

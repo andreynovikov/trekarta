@@ -19,6 +19,7 @@ import java.util.HashSet;
 
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.maptrek.Index;
 
 import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
@@ -78,7 +79,7 @@ public class MultiMapFileTileSource extends TileSource {
     private boolean openFile(int x, int y, MapFile mapFile) {
         synchronized (FORGEMAP_MAGIC) {
             logger.debug("openFile({},{})", x, y);
-            int key = MapIndex.getNativeKey(x, y);
+            int key = Index.getNativeKey(x, y);
             if (mMapFileTileSources.containsKey(key)) {
                 logger.debug("   already opened");
                 return true;
@@ -126,13 +127,15 @@ public class MultiMapFileTileSource extends TileSource {
 
             int tileX = tile.tileX >> (tile.zoomLevel - 7);
             int tileY = tile.tileY >> (tile.zoomLevel - 7);
-            int key = MapIndex.getNativeKey(tileX, tileY);
+            int key = Index.getNativeKey(tileX, tileY);
             if (!mTileDataSources.containsKey(key)) {
-                MapFile mapFile = mMapIndex.getNativeMap(tileX, tileY);
-                if (!mapFile.downloaded) {
+                MapFile mapFile = mMapIndex.getNativeMap(key);
+                if (mapFile == null) {
                     mapDataSink.completed(TILE_NOT_FOUND);
+                    /*
                     if (mapFile.downloading == 0L && tile.distance == 0d && onDataMissingListener != null)
                         onDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
+                    */
                     return;
                 }
                 if (!openFile(tileX, tileY, mapFile)) {

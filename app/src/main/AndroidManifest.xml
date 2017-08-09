@@ -101,6 +101,10 @@
             android:name=".location.NavigationService"
             android:exported="false" />
 
+        <service
+            android:name=".maps.ImportService"
+            android:exported="false" />
+
         <provider
             android:name=".provider.ExportProvider"
             android:authorities="${applicationId}.files"

@@ -19,6 +19,9 @@ import java.io.ByteArrayInputStream;
 
 import mobi.maptrek.util.StringFormatter;
 
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_TILES_DATA;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_TILES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_TILE_ZXY;
 import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
@@ -27,14 +30,7 @@ import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 class MapTrekDataSource implements ITileDataSource {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDataSource.class);
 
-    static final String SQL_CREATE_INFO = "CREATE TABLE IF NOT EXISTS metadata (name TEXT, value TEXT, PRIMARY KEY (name))";
-    static final String SQL_CREATE_TILES = "CREATE TABLE IF NOT EXISTS tiles (zoom_level INTEGER, tile_column INTEGER, tile_row INTEGER, tile_data BLOB, PRIMARY KEY (zoom_level, tile_column, tile_row))";
-    static final String SQL_CREATE_NAMES = "CREATE TABLE IF NOT EXISTS names (ref INTEGER, name TEXT, PRIMARY KEY (ref))";
-    static final String SQL_CREATE_FEATURES = "CREATE TABLE IF NOT EXISTS features (id INTEGER, name INTEGER, kind INTEGER, lat REAL, lon REAL, PRIMARY KEY (id))";
-
-    @SuppressWarnings("unused")
-    private static final String SQL_GET_PARAM = "SELECT value FROM metadata WHERE name = ?";
-    private static final String SQL_GET_TILE = "SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?";
+    private static final String SQL_GET_TILE = "SELECT " + COLUMN_TILES_DATA + " FROM " + TABLE_TILES + " WHERE " + WHERE_TILE_ZXY;
     private static final String SQL_GET_NAME = "SELECT names.name, lang FROM names INNER JOIN feature_names ON (ref = feature_names.name) WHERE id = ? AND lang IN (0, ?) ORDER BY lang";
 
     private static final int MAX_NATIVE_ZOOM = 14;

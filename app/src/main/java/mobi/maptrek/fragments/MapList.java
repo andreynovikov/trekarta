@@ -164,7 +164,7 @@ public class MapList extends Fragment {
         map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
         if (mapFile.boundingBox.contains(mLocation)) {
             int zoomLevel = mapFile.tileSource.getZoomLevelMax();
-            if (mapFile.fileName == null || (mZoomLevel < mapFile.tileSource.getZoomLevelMax() &&
+            if (mapFile.tileSource.getOption("path") == null || (mZoomLevel < mapFile.tileSource.getZoomLevelMax() &&
                     mZoomLevel > mapFile.tileSource.getZoomLevelMin()))
                 zoomLevel = mZoomLevel;
             map.setLocation(mLocation, zoomLevel);

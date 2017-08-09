@@ -32,10 +32,9 @@ import java.net.URL;
 
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.R;
-import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapStateListener;
+import mobi.maptrek.maps.maptrek.Index;
 
-public class MapSelection extends Fragment implements OnBackPressedListener, MapStateListener {
+public class MapSelection extends Fragment implements OnBackPressedListener, Index.MapStateListener {
     private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
 
     private static final long INDEX_CACHE_TIMEOUT = 7 * 24 * 3600 * 1000; // One week
@@ -43,7 +42,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
     private FloatingActionButton mFloatingButton;
-    private MapIndex mMapIndex;
+    private Index mMapIndex;
     private TextView mMessageView;
     private TextView mStatusView;
     private TextView mCounterView;
@@ -148,8 +147,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     @Override
-    public void onMapSelected(final int x, final int y, MapIndex.ACTION action, MapIndex.IndexStats stats) {
-        if (action == MapIndex.ACTION.CANCEL) {
+    public void onMapSelected(final int x, final int y, Index.ACTION action, Index.IndexStats stats) {
+        if (action == Index.ACTION.CANCEL) {
             final Activity activity = getActivity();
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(R.string.msgCancelDownload);
@@ -170,17 +169,17 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
             return;
         }
         updateUI(stats);
-        if (action == MapIndex.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
+        if (action == Index.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
             mIsDownloadingIndex = true;
             new LoadMapIndex().execute(false);
         }
     }
 
-    public void setMapIndex(MapIndex mapIndex) {
+    public void setMapIndex(Index mapIndex) {
         mMapIndex = mapIndex;
     }
 
-    private void updateUI(MapIndex.IndexStats stats) {
+    private void updateUI(Index.IndexStats stats) {
         if (!isVisible())
             return;
 
@@ -234,7 +233,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
     }
 
     @Override
-    public void onStatsChanged(MapIndex.IndexStats stats) {
+    public void onStatsChanged(Index.IndexStats stats) {
         updateUI(stats);
     }
 
@@ -258,7 +257,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Map
                 if (useCache) {
                     in = new FileInputStream(mCacheFile);
                 } else {
-                    URL url = new URL(MapIndex.getIndexUri().toString());
+                    URL url = new URL(Index.getIndexUri().toString());
                     urlConnection = (HttpURLConnection) url.openConnection();
                     in = urlConnection.getInputStream();
                     out = new FileOutputStream(mCacheFile);

@@ -11,15 +11,7 @@ public class MapFile {
     public BoundingBox boundingBox;
     public TileSource tileSource;
     public transient TileLayer tileLayer;
-    // Native map fields
-    public String fileName;
     public double[] polygonPoints;
-    public long created = 0L;
-    public short downloadCreated;
-    public long downloadSize;
-    public long downloading;
-    public boolean downloaded;
-    public MapIndex.ACTION action = MapIndex.ACTION.NONE;
 
     MapFile() {
     }

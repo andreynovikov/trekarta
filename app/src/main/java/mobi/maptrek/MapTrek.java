@@ -3,6 +3,7 @@ package mobi.maptrek;
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,6 +22,8 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 
 import mobi.maptrek.data.MapObject;
+import mobi.maptrek.maps.maptrek.Index;
+import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.LongSparseArrayIterator;
 import mobi.maptrek.util.StringFormatter;
 
@@ -35,6 +38,10 @@ public class MapTrek extends Application {
     public static float ydpi = 160f;
 
     public static boolean isMainActivityRunning = false;
+
+    private Index mIndex;
+    private MapTrekDatabaseHelper mDetailedMapHelper;
+    private SQLiteDatabase mDetailedMapDatabase;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -89,6 +96,21 @@ public class MapTrek extends Application {
 
     public static MapTrek getApplication() {
         return mSelf;
+    }
+
+    public synchronized SQLiteDatabase getDetailedMapDatabase() {
+        if (mDetailedMapHelper == null) {
+            mDetailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "detailed.mtiles"));
+            mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
+            mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+        }
+        return mDetailedMapDatabase;
+    }
+
+    public Index getMapIndex() {
+        if (mIndex == null)
+            mIndex = new Index(this, getDetailedMapDatabase());
+        return mIndex;
     }
 
     public boolean hasPreviousRunsExceptions() {

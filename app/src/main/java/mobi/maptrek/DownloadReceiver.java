@@ -10,7 +10,7 @@ import android.net.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.ImportService;
 
 public class DownloadReceiver extends BroadcastReceiver
 {
@@ -34,9 +34,8 @@ public class DownloadReceiver extends BroadcastReceiver
                     String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
                     Uri uri = Uri.parse(fileName);
                     logger.debug("Downloaded: {}", fileName);
-					int key = MapIndex.processDownloadedMap(uri.getPath());
-                    if (key > 0)
-    					context.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED).putExtra("key", key));
+					Intent importIntent = new Intent(Intent.ACTION_SYNC, uri, context, ImportService.class);
+					context.startService(importIntent);
 				}
 			}
 		}

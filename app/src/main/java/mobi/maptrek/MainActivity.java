@@ -180,6 +180,7 @@ import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
+import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
@@ -345,6 +346,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     private Toast mBackToast;
 
     private MapIndex mMapIndex;
+    private Index mNativeMapIndex;
     private MapTrekTileSource mNativeTileSource;
     private MultiMapFileTileSource mMapFileSource;
     private MapFile mBitmapLayerMap;
@@ -396,12 +398,12 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
         TrackStyle.DEFAULT_WIDTH = resources.getInteger(R.integer.trackWidth);
 
-        File mapsDir = getExternalFilesDir("maps");
-
         // find the retained fragment on activity restarts
         mFragmentManager = getFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
         mDataFragment = (DataFragment) mFragmentManager.findFragmentByTag("data");
+
+        File mapsDir = getExternalFilesDir("maps");
 
         if (mDataFragment == null) {
             // add the fragment
@@ -409,6 +411,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
             // Provide application context so that maps can be cached on rotation
+            mNativeMapIndex = MapTrek.getApplication().getMapIndex();
             mMapIndex = new MapIndex(getApplicationContext(), mapsDir);
             if (BuildConfig.FULL_VERSION) {
                 initializePlugins();
@@ -593,9 +596,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
         }
 
-        MapTrekDatabaseHelper detailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "77-40.mtiles"));
-
-        mNativeTileSource = new MapTrekTileSource(worldMapSource, detailedMapHelper, mMapFileSource);
+        mNativeTileSource = new MapTrekTileSource(worldMapSource, MapTrek.getApplication().getDetailedMapDatabase(), mMapFileSource);
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mNativeTileSource.setPreferredLanguage(language);
@@ -2682,7 +2683,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
         }
         MapSelection fragment = (MapSelection) Fragment.instantiate(this, MapSelection.class.getName());
-        fragment.setMapIndex(mMapIndex);
+        fragment.setMapIndex(mNativeMapIndex);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "mapSelection");
@@ -2726,7 +2727,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mMapIndex, MapTrek.density);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -2737,7 +2738,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         }
         int[] xy = (int[]) mMapDownloadButton.getTag();
         if (xy != null)
-            mMapIndex.selectNativeMap(xy[0], xy[1], MapIndex.ACTION.DOWNLOAD);
+            mNativeMapIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
     }
 
     @Override
@@ -2745,13 +2746,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.onDetach();
         mMap.updateMap(true);
-        mMapIndex.clearSelections();
+        mNativeMapIndex.clearSelections();
         mMapCoverageLayer = null;
     }
 
     @Override
     public void onManageNativeMaps() {
-        boolean removed = mMapIndex.manageNativeMaps();
+        boolean removed = mNativeMapIndex.manageNativeMaps();
         if (removed)
             mMap.clearMap();
     }
@@ -3206,11 +3207,11 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             return;
 
         // Do not show button if this map is already downloading
-        if (mMapIndex.isDownloading(x, y))
+        if (mNativeMapIndex.isDownloading(x, y))
             return;
 
         // Do not show button if there is no map for that area
-        if (mMapIndex.hasDownloadSizes() && mMapIndex.getNativeMap(x, y).downloadSize == 0L)
+        if (mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(x, y).downloadSize == 0L)
             return;
 
         // Do not show button if custom map is shown
@@ -3378,8 +3379,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
             if (action.equals(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED)) {
-                int key = intent.getIntExtra("key", 0);
-                mMapIndex.setNativeMapTileSource(key);
                 mMap.clearMap();
             }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
@@ -3495,7 +3494,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     protected void onMapLimitChanged(int limit) {
-        mMapIndex.setLimit(limit);
+        mNativeMapIndex.setLimit(limit);
         mMap.clearMap();
     }
 

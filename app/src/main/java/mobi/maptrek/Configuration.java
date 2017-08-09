@@ -198,7 +198,7 @@ public class Configuration {
 
     public static void setBitmapMap(@Nullable MapFile mapFile) {
         if (mapFile != null)
-            saveString(PREF_BITMAP_MAP, mapFile.fileName);
+            saveString(PREF_BITMAP_MAP, mapFile.tileSource.getOption("path"));
         else
             saveString(PREF_BITMAP_MAP, null);
     }
