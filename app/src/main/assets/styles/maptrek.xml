@@ -86,16 +86,17 @@
     <style-line cap="butt" id="steps" stipple="3" stipple-stroke="#be6253" stroke="#aaffffff"
         width="0.7" />
 
-    <style-text style="bold" fill="#101010" id="major-road-name" k="name" priority="1" size="16"
+    <style-text style="bold" fill="#101010" id="major-road-name" k="name" priority="5" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
-    <style-text fill="#101010" id="road-name" k="name" priority="2" size="16" stroke="#eeeeee"
+    <style-text fill="#101010" id="road-name" k="name" priority="7" size="16" stroke="#eeeeee"
         stroke-width="2.0" />
-    <style-text style="bold" fill="#c35817" id="trunk-road-ref" k="ref" priority="1" size="18"
+    <style-text style="bold" fill="#c35817" id="trunk-road-ref" k="ref" priority="5" size="18"
         stroke="#eeeeee" stroke-width="2.0" />
     <style-text fill="#7f462c" id="major-road-ref" size="16" use="trunk-road-ref" />
 
     <!-- Protected areas -->
     <style-area fill="#2000a000" id="protected_area" />
+    <style-area fill="#1000a000" id="protected_area_light" />
     <style-line cap="butt" fix="true" id="protected_area" stroke="#4000a000" width="2.5" />
     <style-area fill="#20d40000" id="military" />
     <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="2.5" />
@@ -340,7 +341,11 @@
         <area mesh="true" use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
-    <m v="riverbank|dock">
+    <m closed="yes" k="landuse" v="reservoir|basin">
+        <area use="water" />
+        <text area-size="0.1" caption="true" priority="3" use="water" />
+    </m>
+    <m closed="yes" k="waterway" v="riverbank|dock">
         <area use="water" />
     </m>
     <m closed="no" e="way">
@@ -661,8 +666,8 @@
             </m>
             <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
                 <m zoom-min="16">
-                <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff" stroke="#cccccc"
-                    width="3.0" />
+                    <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                        stroke="#cccccc" width="3.0" />
                 </m>
                 <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
             </m>
@@ -980,7 +985,12 @@
     <m closed="yes" k="landuse" zoom-min="6">
         <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
         <m v="national_park|protected_area|nature_reserve">
-            <area fade="6" mesh="true" use="protected_area" />
+            <m zoom-max="13">
+                <area fade="6" mesh="true" use="protected_area" />
+            </m>
+            <m zoom-max="14" zoom-min="14">
+                <area mesh="true" use="protected_area_light" />
+            </m>
             <line fade="6" use="protected_area" />
             <text style="bold_italic" area-size="0.1" caption="true" fill="#006600" k="name"
                 priority="3" size="18" stroke="#ccffcc" stroke-width="2.0" />
@@ -1147,7 +1157,10 @@
                 <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-            <m v="crossing|level_crossing" zoom-min="16">
+            <m v="crossing" zoom-min="16">
+                <symbol src="assets:symbols/transport/crossing.svg" />
+            </m>
+            <m v="level_crossing" zoom-min="16">
                 <symbol src="assets:symbols/transport/level_crossing.svg" />
             </m>
         </m>
@@ -1216,6 +1229,29 @@
                 </m>
             </m>
             <m k="kind_food">
+                <m k="shop">
+                    <m v="ice_cream">
+                        <symbol src="assets:symbols/shopping/ice_cream.svg" />
+                    </m>
+                    <m v="confectionery">
+                        <symbol src="assets:symbols/shopping/confectionery.svg" />
+                    </m>
+                    <m v="alcohol">
+                        <symbol src="assets:symbols/shopping/alcohol.svg" />
+                    </m>
+                    <m v="beverages">
+                        <symbol src="assets:symbols/shopping/beverages.svg" />
+                    </m>
+                    <m v="bakery">
+                        <symbol src="assets:symbols/shopping/bakery.svg" />
+                    </m>
+                    <m v="greengrocer|farm">
+                        <symbol src="assets:symbols/shopping/greengrocer.svg" />
+                    </m>
+                    <m v="supermarket|convenience">
+                        <symbol src="assets:symbols/shopping/supermarket.svg" />
+                    </m>
+                </m>
                 <m k="amenity">
                     <m v="cafe">
                         <symbol src="assets:symbols/food/cafe.svg" />
@@ -1311,21 +1347,51 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_shopping">
+            <m k="kind_kids">
                 <m k="shop">
-                    <m v="bakery">
-                        <symbol src="assets:symbols/shopping/bakery.svg" />
+                    <m v="toys">
+                        <symbol src="assets:symbols/shopping/toys.svg" />
                     </m>
-                    <m v="hairdresser">
-                        <symbol src="assets:symbols/shopping/hairdresser.svg" />
+                </m>
+                <m k="leisure" v="playground">
+                    <symbol src="assets:symbols/amenity/playground.svg" />
+                </m>
+                <m k="amenity">
+                    <m v="kindergarten">
+                        <symbol src="assets:symbols/education/nursery.svg" />
                     </m>
-                    <m v="supermarket">
+                </m>
+            </m>
+            <m k="kind_shopping" select="first">
+                <m k="shop">
+                    <m v="bicycle">
+                        <symbol src="assets:symbols/shopping/bicycle.svg" />
+                    </m>
+                    <m v="outdoor">
+                        <symbol src="assets:symbols/shopping/outdoor.svg" />
+                    </m>
+                    <m v="gift">
+                        <symbol src="assets:symbols/shopping/gift.svg" />
+                    </m>
+                    <m v="jewelry">
+                        <symbol src="assets:symbols/shopping/jewelry.svg" />
+                    </m>
+                    <m v="photo">
+                        <symbol src="assets:symbols/shopping/photo.svg" />
+                    </m>
+                    <m v="books">
+                        <symbol src="assets:symbols/shopping/books.svg" />
+                    </m>
+                    <m v="variety_store">
+                        <symbol src="assets:symbols/shopping/variety_store.svg" />
+                    </m>
+                    <m v="supermarket|convenience">
                         <symbol src="assets:symbols/shopping/supermarket.svg" />
                     </m>
-                    <m v="doityourself">
+                    <m v="doityourself|hardware">
                         <symbol src="assets:symbols/shopping/diy.svg" />
                     </m>
-                    <m v="mall">
+                    <m v="mall|department_store">
                         <symbol src="assets:symbols/shopping/department_store.svg" />
                     </m>
                 </m>
@@ -1372,9 +1438,6 @@
                 </m>
             </m>
             <m k="kind_urban">
-                <m k="leisure" v="playground">
-                    <symbol src="assets:symbols/amenity/playground.svg" />
-                </m>
                 <m k="amenity" v="fountain">
                     <symbol src="assets:symbols/amenity/fountain.svg" />
                 </m>
@@ -1386,9 +1449,6 @@
                     </m>
                     <m v="university|college">
                         <symbol src="assets:symbols/education/university.svg" />
-                    </m>
-                    <m v="kindergarten">
-                        <symbol src="assets:symbols/education/nursery.svg" />
                     </m>
                     <m v="library">
                         <symbol src="assets:symbols/amenity/library.svg" />
@@ -1463,6 +1523,14 @@
                 </m>
             </m>
             <m k="kind_hikebike">
+                <m k="shop">
+                    <m v="bicycle">
+                        <symbol src="assets:symbols/shopping/bicycle.svg" />
+                    </m>
+                    <m v="outdoor">
+                        <symbol src="assets:symbols/shopping/outdoor.svg" />
+                    </m>
+                </m>
                 <m k="amenity">
                     <m v="bicycle_rental">
                         <symbol src="assets:symbols/transport/rental_bicycle.svg" />
@@ -1478,7 +1546,18 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_moneymail">
+            <m k="kind_service">
+                <m k="shop">
+                    <m v="hairdresser">
+                        <symbol src="assets:symbols/shopping/hairdresser.svg" />
+                    </m>
+                    <m v="copyshop">
+                        <symbol src="assets:symbols/shopping/copyshop.svg" />
+                    </m>
+                    <m v="laundry|dry_cleaning">
+                        <symbol src="assets:symbols/shopping/laundry.svg" />
+                    </m>
+                </m>
                 <m k="amenity">
                     <m v="bank">
                         <symbol src="assets:symbols/money/bank.svg" />
@@ -1504,15 +1583,18 @@
                 </m>
             </m>
         </m>
-
         <!-- house numbers -->
         <m k="building|building:part" zoom-min="17">
             <m k="addr:housenumber">
-                <text dy="-14" use="house-name" />
+                <m k="kind" v="~">
+                    <text dy="-14" use="house-name" />
+                </m>
                 <text use="house-number" />
             </m>
             <m k="addr:housenumber" v="~">
-                <text use="house-name" />
+                <m k="kind" v="~">
+                    <text use="house-name" />
+                </m>
             </m>
         </m>
         <!-- house numbers -->
