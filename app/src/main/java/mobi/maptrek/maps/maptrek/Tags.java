@@ -27,7 +27,7 @@ public class Tags {
             "kind_attraction",
             "kind_entertainment",
             "kind_shopping",
-            "kind_moneymail",
+            "kind_service",
             "kind_religion",
             "kind_education",
             "kind_kids",
@@ -46,14 +46,14 @@ public class Tags {
             15, // attraction
             16, // entertainment
             16, // shopping
-            16, // money"n"mail
+            16, // service
             16, // religion
             17, // education
             16, // kids
             16, // pets
             16, // vehicles
             17, // transportation
-            17, // hike"n"bike
+            17, // hike'n'bike
             17, // urban
             16  // barrier
     };
