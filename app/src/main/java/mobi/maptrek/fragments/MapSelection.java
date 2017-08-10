@@ -233,8 +233,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     }
 
     @Override
-    public void onStatsChanged(Index.IndexStats stats) {
-        updateUI(stats);
+    public void onStatsChanged() {
+        updateUI(mMapIndex.getMapStats());
     }
 
     private class LoadMapIndex extends AsyncTask<Boolean, Integer, Boolean> {

@@ -3380,6 +3380,9 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             logger.debug("Broadcast: {}", action);
             if (action.equals(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED)) {
                 mMap.clearMap();
+                //FIXME Hack!
+                if (mMapCoverageLayer != null)
+                    mMapCoverageLayer.onStatsChanged();
             }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
                 final Bundle extras = intent.getExtras();

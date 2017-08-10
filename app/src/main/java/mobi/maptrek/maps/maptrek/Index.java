@@ -37,10 +37,15 @@ import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DATE;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DOWNLOADING;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_X;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_Y;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURE_NAMES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_NAMES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_TILES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_FEATURE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_INFO;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_MAPS;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_MAP_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_TILES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_INFO_NAME;
@@ -152,6 +157,37 @@ public class Index {
             return;
         if (mMaps[x][y].created == 0)
             return;
+
+        logger.error("Removing map: {} {}", x, y);
+        try {
+            // remove tiles
+            for (int z = 8; z < 15; z++) {
+                int s = z - 7;
+                int cmin = x << s;
+                int cmax = ((x + 1) << s) - 1;
+                int rmin = y << s;
+                int rmax = ((y + 1) << s) - 1;
+                mDatabase.rawQuery(SQL_REMOVE_TILES, new String[] {
+                        String.valueOf(z),
+                        String.valueOf(cmin),
+                        String.valueOf(cmax),
+                        String.valueOf(rmin),
+                        String.valueOf(rmax)
+                });
+            }
+            logger.error("  removed tiles");
+            // remove features
+            mDatabase.rawQuery(SQL_REMOVE_FEATURES, null);
+            logger.error("  removed features");
+            mDatabase.rawQuery(SQL_REMOVE_FEATURE_NAMES, null);
+            logger.error("  removed feature names");
+            // remove names
+            mDatabase.rawQuery(SQL_REMOVE_NAMES, null);
+            logger.error("  removed names");
+            setDownloaded(x, y, (short) 0);
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
     }
 
     public void setNativeMapStatus(int x, int y, short date, long size) {
@@ -183,9 +219,8 @@ public class Index {
     public boolean processDownloadedMap(int x, int y, String filePath, @Nullable ProgressListener progressListener) {
         File mapFile = new File(filePath);
         try {
-            logger.error("Start import from {}", mapFile.getName());
+            logger.error("Importing from {}", mapFile.getName());
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
-            //TODO Perform data move
             //mDatabase.beginTransaction();
 
             int total = 0, progress = 0;
@@ -198,7 +233,7 @@ public class Index {
             }
 
             // copy names
-            SQLiteStatement statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_NAMES + " VALUES (?,?);");
+            SQLiteStatement statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_NAMES + " VALUES (?,?)");
             Cursor cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -216,7 +251,10 @@ public class Index {
             logger.error("  imported names");
 
             // copy features
-            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " VALUES (?,?,?,?);");
+            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " VALUES (?,?,?,?)");
+            SQLiteStatement extraStatement = mDatabase.compileStatement("REPLACE INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
+            extraStatement.bindLong(1, x);
+            extraStatement.bindLong(2, y);
             cursor = database.query(TABLE_FEATURES, ALL_COLUMNS_FEATURES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -226,6 +264,8 @@ public class Index {
                 statement.bindDouble(3, cursor.getDouble(2));
                 statement.bindDouble(4, cursor.getDouble(3));
                 statement.execute();
+                extraStatement.bindLong(3, cursor.getLong(0));
+                extraStatement.execute();
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
@@ -236,7 +276,7 @@ public class Index {
             logger.error("  imported features");
 
             // copy feature names
-            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURE_NAMES + " VALUES (?,?,?);");
+            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURE_NAMES + " VALUES (?,?,?)");
             cursor = database.query(TABLE_FEATURE_NAMES, ALL_COLUMNS_FEATURE_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -255,7 +295,7 @@ public class Index {
             logger.error("  imported feature names");
 
             // copy tiles
-            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_TILES + " VALUES (?,?,?,?);");
+            statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_TILES + " VALUES (?,?,?,?)");
             cursor = database.query(TABLE_TILES, ALL_COLUMNS_TILES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -283,14 +323,14 @@ public class Index {
             cursor.close();
             database.close();
             setDownloaded(x, y, date);
-            if (progressListener != null) {
-                progressListener.onProgressFinished();
-            }
         } catch (SQLiteException e) {
             logger.error("Import failed", e);
+            setDownloading(x, y, 0L);
             return false;
         } finally {
             //mDatabase.endTransaction();
+            if (progressListener != null)
+                progressListener.onProgressFinished();
             //noinspection ResultOfMethodCallIgnored
             mapFile.delete();
         }
@@ -375,8 +415,8 @@ public class Index {
             mDatabase.insert(TABLE_MAPS, null, values);
         }
         MapStatus mapStatus = getNativeMap(x, y);
-        mapStatus.downloading = 0L;
         mapStatus.created = date;
+        mapStatus.downloading = 0L;
     }
 
     private void setDownloading(int x, int y, long enqueue) {
@@ -391,6 +431,12 @@ public class Index {
         }
         MapStatus mapStatus = getNativeMap(x, y);
         mapStatus.downloading = enqueue;
+        for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+            MapStateListener mapStateListener = weakRef.get();
+            if (mapStateListener != null) {
+                mapStateListener.onStatsChanged();
+            }
+        }
     }
 
     private int checkDownloadStatus(long enqueue) {
@@ -476,7 +522,7 @@ public class Index {
     public interface MapStateListener {
         void onHasDownloadSizes();
 
-        void onStatsChanged(Index.IndexStats stats);
+        void onStatsChanged();
 
         void onMapSelected(int x, int y, Index.ACTION action, Index.IndexStats stats);
     }

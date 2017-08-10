@@ -42,7 +42,7 @@ public class ImportService extends IntentService {
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification.Builder builder = new Notification.Builder(this);
-        builder.setContentTitle("Map import")
+        builder.setContentTitle(getString(R.string.title_map_import))
                 .setSmallIcon(R.drawable.ic_import_export)
                 .setGroup("maptrek")
                 .setCategory(Notification.CATEGORY_SERVICE)
