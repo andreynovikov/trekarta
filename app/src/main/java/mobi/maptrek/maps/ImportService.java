@@ -17,6 +17,7 @@ import mobi.maptrek.MainActivity;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
+import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED;
 
@@ -39,10 +40,10 @@ public class ImportService extends IntentService {
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification.Builder builder = new Notification.Builder(this);
+        final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        final Notification.Builder builder = new Notification.Builder(this);
         builder.setContentTitle("Map import")
-                .setSmallIcon(R.drawable.ic_file_download)
+                .setSmallIcon(R.drawable.ic_import_export)
                 .setGroup("maptrek")
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setPriority(Notification.PRIORITY_LOW)
@@ -54,7 +55,7 @@ public class ImportService extends IntentService {
         Uri uri = intent.getData();
 
         String[] parts = uri.getLastPathSegment().split("[\\-\\.]");
-        int x, y;
+        final int x, y;
         try {
             if (parts.length != 3)
                 throw new NumberFormatException("unexpected name");
@@ -70,21 +71,64 @@ public class ImportService extends IntentService {
             return;
         }
 
-        builder.setContentTitle(getString(R.string.mapTitle, x, y))
-                .setContentText(getString(R.string.importing))
-                .setProgress(0, 0, true);
+        builder.setContentTitle(getString(R.string.mapTitle, x, y));
         notificationManager.notify(0, builder.build());
 
         Index mapIndex = application.getMapIndex();
-        if (mapIndex.processDownloadedMap(x, y, uri.getPath())) {
+        if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
             application.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED));
-            builder.setContentText(getString(R.string.complete)).setProgress(0, 0, false);
+            builder.setContentText(getString(R.string.complete));
             notificationManager.notify(0, builder.build());
             notificationManager.cancel(0);
         } else {
             builder.setContentIntent(pendingIntent);
             builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
             notificationManager.notify(0, builder.build());
+        }
+    }
+
+    private class ImportProgressListener implements ProgressListener {
+        private final NotificationManager notificationManager;
+        private final Notification.Builder builder;
+        int progress = 0;
+        int step = 0;
+
+        ImportProgressListener(NotificationManager notificationManager, Notification.Builder builder) {
+            this.notificationManager = notificationManager;
+            this.builder = builder;
+        }
+
+        @Override
+        public void onProgressStarted(int length) {
+            step = length / 100;
+            if (step == 0)
+                return;
+            builder.setContentText(getString(R.string.processed, 0)).setProgress(100, 0, false);
+            notificationManager.notify(0, builder.build());
+        }
+
+        @Override
+        public void onProgressChanged(int progress) {
+            if (step == 0)
+                return;
+            int percent = progress / step;
+            if (percent > this.progress) {
+                this.progress = percent;
+                builder.setContentText(getString(R.string.processed, this.progress)).setProgress(100, this.progress, false);
+                notificationManager.notify(0, builder.build());
+            }
+        }
+
+        @Override
+        public void onProgressFinished() {
+            if (step == 0)
+                return;
+            builder.setProgress(0, 0, false);
+            notificationManager.notify(0, builder.build());
+        }
+
+        @Override
+        public void onProgressAnnotated(String annotation) {
         }
     }
 }

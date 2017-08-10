@@ -5,11 +5,13 @@ import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import java.util.Set;
 
 import mobi.maptrek.BasePaymentActivity;
 import mobi.maptrek.R;
+import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURE_NAMES;
@@ -177,12 +180,22 @@ public class Index {
         return mMaps[x][y] != null && mMaps[x][y].downloading != 0L;
     }
 
-    public boolean processDownloadedMap(int x, int y, String filePath) {
+    public boolean processDownloadedMap(int x, int y, String filePath, @Nullable ProgressListener progressListener) {
         File mapFile = new File(filePath);
         try {
             logger.error("Start import from {}", mapFile.getName());
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
             //TODO Perform data move
+            //mDatabase.beginTransaction();
+
+            int total = 0, progress = 0;
+            if (progressListener != null) {
+                total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
+                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
+                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES);
+                total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                progressListener.onProgressStarted(total);
+            }
 
             // copy names
             SQLiteStatement statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_NAMES + " VALUES (?,?);");
@@ -193,6 +206,10 @@ public class Index {
                 statement.bindLong(1, cursor.getLong(0));
                 statement.bindString(2, cursor.getString(1));
                 statement.execute();
+                if (progressListener != null) {
+                    progress++;
+                    progressListener.onProgressChanged(progress);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -209,6 +226,10 @@ public class Index {
                 statement.bindDouble(3, cursor.getDouble(2));
                 statement.bindDouble(4, cursor.getDouble(3));
                 statement.execute();
+                if (progressListener != null) {
+                    progress++;
+                    progressListener.onProgressChanged(progress);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -224,6 +245,10 @@ public class Index {
                 statement.bindLong(2, cursor.getInt(1));
                 statement.bindLong(3, cursor.getLong(2));
                 statement.execute();
+                if (progressListener != null) {
+                    progress++;
+                    progressListener.onProgressChanged(progress);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -231,8 +256,6 @@ public class Index {
 
             // copy tiles
             statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_TILES + " VALUES (?,?,?,?);");
-            //mDatabase.beginTransaction();
-
             cursor = database.query(TABLE_TILES, ALL_COLUMNS_TILES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -242,7 +265,10 @@ public class Index {
                 statement.bindLong(3, cursor.getInt(2));
                 statement.bindBlob(4, cursor.getBlob(3));
                 statement.execute();
-
+                if (progressListener != null) {
+                    progress++;
+                    progressListener.onProgressChanged(progress);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -257,6 +283,9 @@ public class Index {
             cursor.close();
             database.close();
             setDownloaded(x, y, date);
+            if (progressListener != null) {
+                progressListener.onProgressFinished();
+            }
         } catch (SQLiteException e) {
             logger.error("Import failed", e);
             return false;
@@ -345,7 +374,9 @@ public class Index {
             values.put(COLUMN_MAPS_Y, y);
             mDatabase.insert(TABLE_MAPS, null, values);
         }
-        getNativeMap(x, y).created = date;
+        MapStatus mapStatus = getNativeMap(x, y);
+        mapStatus.downloading = 0L;
+        mapStatus.created = date;
     }
 
     private void setDownloading(int x, int y, long enqueue) {
@@ -358,6 +389,8 @@ public class Index {
             values.put(COLUMN_MAPS_Y, y);
             mDatabase.insert(TABLE_MAPS, null, values);
         }
+        MapStatus mapStatus = getNativeMap(x, y);
+        mapStatus.downloading = enqueue;
     }
 
     private int checkDownloadStatus(long enqueue) {
