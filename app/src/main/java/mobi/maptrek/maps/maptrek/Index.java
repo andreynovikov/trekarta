@@ -180,9 +180,8 @@ public class Index {
     public boolean processDownloadedMap(int x, int y, String filePath) {
         File mapFile = new File(filePath);
         try {
-            MapTrekDatabaseHelper databaseHelper = new MapTrekDatabaseHelper(mContext, mapFile);
             logger.error("Start import from {}", mapFile.getName());
-            SQLiteDatabase database = databaseHelper.getReadableDatabase();
+            SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
             //TODO Perform data move
 
             // copy names
@@ -190,18 +189,10 @@ public class Index {
             Cursor cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                //long ref = cursor.getLong(0);
-                //String name = cursor.getString(1);
                 statement.clearBindings();
                 statement.bindLong(1, cursor.getLong(0));
                 statement.bindString(2, cursor.getString(1));
                 statement.execute();
-                /*
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_NAMES_REF, ref);
-                values.put(COLUMN_NAMES_NAME, name);
-                mDatabase.insertWithOnConflict(TABLE_NAMES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-                */
                 cursor.moveToNext();
             }
             cursor.close();
@@ -218,14 +209,6 @@ public class Index {
                 statement.bindDouble(3, cursor.getDouble(2));
                 statement.bindDouble(4, cursor.getDouble(3));
                 statement.execute();
-                /*
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_FEATURES_ID, cursor.getLong(0));
-                values.put(COLUMN_FEATURES_KIND, cursor.getInt(1));
-                values.put(COLUMN_FEATURES_LAT, cursor.getDouble(2));
-                values.put(COLUMN_FEATURES_LON, cursor.getDouble(3));
-                mDatabase.insertWithOnConflict(TABLE_FEATURES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-                */
                 cursor.moveToNext();
             }
             cursor.close();
@@ -241,13 +224,6 @@ public class Index {
                 statement.bindLong(2, cursor.getInt(1));
                 statement.bindLong(3, cursor.getLong(2));
                 statement.execute();
-                /*
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_FEATURES_ID, cursor.getLong(0));
-                values.put(COLUMN_FEATURES_NAMES_LANG, cursor.getInt(1));
-                values.put(COLUMN_FEATURES_NAMES_NAME, cursor.getLong(2));
-                mDatabase.insertWithOnConflict(TABLE_FEATURE_NAMES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-                */
                 cursor.moveToNext();
             }
             cursor.close();
@@ -260,30 +236,6 @@ public class Index {
             cursor = database.query(TABLE_TILES, ALL_COLUMNS_TILES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                //ContentValues values = new ContentValues();
-                /*
-                int tz = cursor.getInt(0);
-                int tx = cursor.getInt(1);
-                int ty = cursor.getInt(2);
-                values.put(COLUMN_TILES_DATA, cursor.getBlob(3));
-                int updated = mDatabase.update(TABLE_TILES, values, WHERE_TILE_ZXY,
-                        new String[]{String.valueOf(tz), String.valueOf(tx), String.valueOf(ty)});
-                if (updated == 0) {
-                    values.put(COLUMN_TILES_ZOOM_LEVEL, tz);
-                    values.put(COLUMN_TILES_COLUMN, tx);
-                    values.put(COLUMN_TILES_ROW, ty);
-                    mDatabase.insert(TABLE_TILES, null, values);
-                }
-                */
-
-                /*
-                values.put(COLUMN_TILES_ZOOM_LEVEL, cursor.getInt(0));
-                values.put(COLUMN_TILES_COLUMN, cursor.getInt(1));
-                values.put(COLUMN_TILES_ROW, cursor.getInt(2));
-                values.put(COLUMN_TILES_DATA, cursor.getBlob(3));
-                mDatabase.insertWithOnConflict(TABLE_TILES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-                */
-
                 statement.clearBindings();
                 statement.bindLong(1, cursor.getInt(0));
                 statement.bindLong(2, cursor.getInt(1));
@@ -295,7 +247,6 @@ public class Index {
             }
             cursor.close();
             //mDatabase.setTransactionSuccessful();
-            //mDatabase.endTransaction();
             logger.error("  imported tiles");
 
             short date = 0;
@@ -309,6 +260,10 @@ public class Index {
         } catch (SQLiteException e) {
             logger.error("Import failed", e);
             return false;
+        } finally {
+            //mDatabase.endTransaction();
+            //noinspection ResultOfMethodCallIgnored
+            mapFile.delete();
         }
         return true;
     }
