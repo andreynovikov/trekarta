@@ -116,10 +116,10 @@ class MapTrekDataSource implements ITileDataSource {
                 scale = 1 << dz;
                 dx = (tile.tileX - (x << dz)) * Tile.SIZE;
                 dy = (tile.tileY - (y << dz)) * Tile.SIZE;
-                mTileClipper = new TileClipper(1f * dx / scale - CLIP_BUFFER, 1f * dy / scale - CLIP_BUFFER,
-                        1f * (dx + Tile.SIZE) / scale + CLIP_BUFFER, 1f * (dy + Tile.SIZE) / scale + CLIP_BUFFER);
-                mBuildingTileClipper = new TileClipper(1f * dx / scale, 1f * dy / scale,
-                        1f * (dx + Tile.SIZE) / scale, 1f * (dy + Tile.SIZE) / scale);
+                mTileClipper = new TileClipper((dx - CLIP_BUFFER) / scale, (dy - CLIP_BUFFER) / scale,
+                        (dx + Tile.SIZE + CLIP_BUFFER) / scale, (dy + Tile.SIZE + CLIP_BUFFER) / scale);
+                mBuildingTileClipper = new TileClipper(dx / scale, dy / scale,
+                        (dx + Tile.SIZE) / scale, (dy + Tile.SIZE) / scale);
             }
         }
 

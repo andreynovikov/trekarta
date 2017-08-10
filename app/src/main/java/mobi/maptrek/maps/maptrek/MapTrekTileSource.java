@@ -22,6 +22,8 @@ public class MapTrekTileSource extends TileSource {
     private static final MapElement mSea = new MapElement();
     private static final MapElement mLand = new MapElement();
 
+    private static final int CLIP_BUFFER = 32;
+
     static {
         mSea.tags.add(new Tag("natural", "sea"));
         mSea.startPolygon();
@@ -113,7 +115,7 @@ public class MapTrekTileSource extends TileSource {
             //if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
             //    mMapFileDataSource.query(tile, proxyDataSink);
 
-            if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS) {
+            if (/*!proxyDataSink.hasElements ||*/ proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mSea);
                 int dz = tile.zoomLevel - 7;
                 MapTile baseTile = new MapTile(tile.node, tile.tileX >> dz, tile.tileY >> dz, 7);
@@ -150,7 +152,8 @@ public class MapTrekTileSource extends TileSource {
             scale = (float) Math.pow(2, dz);
             dx = (tile.tileX - (baseTile.tileX << dz)) * Tile.SIZE;
             dy = (tile.tileY - (baseTile.tileY << dz)) * Tile.SIZE;
-            mTileClipper = new TileClipper(dx / scale, dy / scale, (dx + Tile.SIZE) / scale, (dy + Tile.SIZE) / scale);
+            mTileClipper = new TileClipper((dx - CLIP_BUFFER) / scale, (dy - CLIP_BUFFER) / scale,
+                    (dx + Tile.SIZE + CLIP_BUFFER) / scale, (dy + Tile.SIZE + CLIP_BUFFER) / scale);
         }
 
         @Override
