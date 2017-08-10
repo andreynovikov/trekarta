@@ -395,9 +395,6 @@
                 stipple-stroke="#888888" width="20" />
         </m>
     </m>
-    <m k="natural" v="tree" zoom-min="16">
-        <area fade="16" mesh="true" use="wood" />
-    </m>
 
     <m k="man_made">
         <m v="pier" zoom-min="15">
@@ -596,8 +593,14 @@
                             <line use="cycleway" />
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
-                            <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
-                                stipple-stroke="#888888" width="26" />
+                            <m k="highway" v="-|cycleway">
+                                <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
+                                    stipple-stroke="#888888" width="26" />
+                            </m>
+                            <m k="highway" v="cycleway" zoom-min="17">
+                                <line fix="true" src="assets:symbols/oneway.svg" stipple="320"
+                                    stipple-stroke="#3333ff" width="48" />
+                            </m>
                         </m>
                     </m> <!-- area: no -->
                 </m> <!-- bridge: no -->
@@ -829,6 +832,10 @@
         <m v="city_wall" zoom-min="13">
             <line use="fence" width="1.4" />
         </m>
+    </m>
+
+    <m k="natural" v="tree" zoom-min="16">
+        <area fade="16" mesh="true" use="wood" />
     </m>
 
     <!-- Administrative boundaries -->
