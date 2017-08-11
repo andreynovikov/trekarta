@@ -220,7 +220,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
         logger.info("Vacuuming maps database");
-        db.execSQL(PRAGMA_VACUUM);
+        db.rawQuery(PRAGMA_VACUUM, null);
     }
 
     @Override

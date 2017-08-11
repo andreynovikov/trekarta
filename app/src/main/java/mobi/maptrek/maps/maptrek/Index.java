@@ -167,7 +167,7 @@ public class Index {
                 int cmax = ((x + 1) << s) - 1;
                 int rmin = y << s;
                 int rmax = ((y + 1) << s) - 1;
-                mDatabase.rawQuery(SQL_REMOVE_TILES, new String[] {
+                mDatabase.execSQL(SQL_REMOVE_TILES, new String[] {
                         String.valueOf(z),
                         String.valueOf(cmin),
                         String.valueOf(cmax),
@@ -177,12 +177,12 @@ public class Index {
             }
             logger.error("  removed tiles");
             // remove features
-            mDatabase.rawQuery(SQL_REMOVE_FEATURES, null);
+            mDatabase.execSQL(SQL_REMOVE_FEATURES);
             logger.error("  removed features");
-            mDatabase.rawQuery(SQL_REMOVE_FEATURE_NAMES, null);
+            mDatabase.execSQL(SQL_REMOVE_FEATURE_NAMES);
             logger.error("  removed feature names");
             // remove names
-            mDatabase.rawQuery(SQL_REMOVE_NAMES, null);
+            mDatabase.execSQL(SQL_REMOVE_NAMES);
             logger.error("  removed names");
             setDownloaded(x, y, (short) 0);
         } catch (Exception e) {
