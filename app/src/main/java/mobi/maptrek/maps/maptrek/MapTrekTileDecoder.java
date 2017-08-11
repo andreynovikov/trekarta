@@ -419,7 +419,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             kind = kind >> 3;
             boolean someKind = kind > 0;
             boolean hasKind = false;
-            for (int i = 0; i < 11; i++) {
+            for (int i = 0; i < 16; i++) {
                 if ((kind & 0x00000001) > 0) {
                     int zoom = Tags.kindZooms[i];
                     if (zoom <= tile.zoomLevel) {

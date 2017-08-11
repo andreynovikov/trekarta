@@ -40,17 +40,17 @@ public class Tags {
     };
 
     public static final int[] kindZooms = {
-            14, // emergency
-            15, // accommodation
+            15, // emergency
+            16, // accommodation
             16, // food
-            15, // attraction
+            14, // attraction
             16, // entertainment
-            16, // shopping
-            16, // service
+            17, // shopping
+            17, // service
             16, // religion
-            17, // education
-            16, // kids
-            16, // pets
+            18, // education
+            18, // kids
+            18, // pets
             16, // vehicles
             17, // transportation
             17, // hike'n'bike

@@ -1013,7 +1013,11 @@
     <!-- POI symbols, names and house numbers -->
     <!-- places -->
     <m k="place">
-        <m v="hamlet|isolated_dwelling|neighbourhood">
+        <m v="neighbourhood|allotments">
+            <caption style="italic" fill="#444411" k="name" priority="10" size="14" stroke="#ffffff"
+                stroke-width="1.6" />
+        </m>
+        <m v="hamlet|isolated_dwelling">
             <caption fill="#444411" k="name" priority="8" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
@@ -1290,7 +1294,10 @@
                 <m v="lift_gate">
                     <symbol src="assets:symbols/barrier/lift_gate.svg" />
                 </m>
-                <m v="gate|swing_gate|chain|yes">
+                <m v="gate|swing_gate|chain">
+                    <symbol src="assets:symbols/barrier/gate.svg" />
+                </m>
+                <m k="barrier" v="yes">
                     <symbol src="assets:symbols/barrier/gate.svg" />
                 </m>
             </m>
