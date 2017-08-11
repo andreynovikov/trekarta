@@ -4,10 +4,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
+    private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
+
     private static final int DATABASE_VERSION = 2;
 
     static final String TABLE_MAPS = "maps";
@@ -196,6 +201,10 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_INDEX_FEATURE_LANG = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_lang ON feature_names (id, lang)";
     private static final String SQL_INDEX_FEATURE_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
 
+    private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
+    private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
+    private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(1000)";
+
     public MapTrekDatabaseHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
         if (!file.exists())
@@ -208,7 +217,16 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        logger.info("Vacuuming maps database");
+        db.execSQL(PRAGMA_VACUUM);
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(PRAGMA_ENABLE_VACUUM);
+        db.execSQL(PRAGMA_PAGE_SIZE);
         db.execSQL(SQL_CREATE_MAPS);
         db.execSQL(SQL_CREATE_MAP_FEATURES);
         db.execSQL(SQL_CREATE_INFO);
