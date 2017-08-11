@@ -21,10 +21,10 @@ import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED;
 
-public class ImportService extends IntentService {
-    private static final Logger logger = LoggerFactory.getLogger(ImportService.class);
+public class MapService extends IntentService {
+    private static final Logger logger = LoggerFactory.getLogger(MapService.class);
 
-    public ImportService() {
+    public MapService() {
         super("ImportService");
     }
 
