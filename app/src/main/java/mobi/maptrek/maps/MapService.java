@@ -24,6 +24,9 @@ import static mobi.maptrek.DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED;
 public class MapService extends IntentService {
     private static final Logger logger = LoggerFactory.getLogger(MapService.class);
 
+    public static final String EXTRA_X = "x";
+    public static final String EXTRA_Y = "y";
+
     public MapService() {
         super("ImportService");
     }
@@ -32,6 +35,9 @@ public class MapService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent == null)
             return;
+
+        boolean actionImport = Intent.ACTION_INSERT.equals(intent.getAction());
+        boolean actionRemoval = Intent.ACTION_DELETE.equals(intent.getAction());
 
         //TODO Pass-through to map management
         Intent launchIntent = new Intent(Intent.ACTION_MAIN);
@@ -42,7 +48,8 @@ public class MapService extends IntentService {
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification.Builder builder = new Notification.Builder(this);
-        builder.setContentTitle(getString(R.string.title_map_import))
+        int titleRes = actionImport ? R.string.title_map_import : R.string.title_map_removal;
+        builder.setContentTitle(getString(titleRes))
                 .setSmallIcon(R.drawable.ic_import_export)
                 .setGroup("maptrek")
                 .setCategory(Notification.CATEGORY_SERVICE)
@@ -52,38 +59,49 @@ public class MapService extends IntentService {
         notificationManager.notify(0, builder.build());
 
         MapTrek application = MapTrek.getApplication();
-        Uri uri = intent.getData();
+        Index mapIndex = application.getMapIndex();
 
-        String[] parts = uri.getLastPathSegment().split("[\\-\\.]");
-        final int x, y;
-        try {
-            if (parts.length != 3)
-                throw new NumberFormatException("unexpected name");
-            x = Integer.valueOf(parts[0]);
-            y = Integer.valueOf(parts[1]);
-            if (x > 127 || y > 127)
-                throw new NumberFormatException("out of range");
-        } catch (NumberFormatException e) {
-            logger.error(e.getMessage());
-            builder.setContentIntent(pendingIntent);
-            builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+        if (actionImport) {
+            Uri uri = intent.getData();
+            String[] parts = uri.getLastPathSegment().split("[\\-\\.]");
+            final int x, y;
+            try {
+                if (parts.length != 3)
+                    throw new NumberFormatException("unexpected name");
+                x = Integer.valueOf(parts[0]);
+                y = Integer.valueOf(parts[1]);
+                if (x > 127 || y > 127)
+                    throw new NumberFormatException("out of range");
+            } catch (NumberFormatException e) {
+                logger.error(e.getMessage());
+                builder.setContentIntent(pendingIntent);
+                builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+                notificationManager.notify(0, builder.build());
+                return;
+            }
+
+            builder.setContentTitle(getString(R.string.mapTitle, x, y));
             notificationManager.notify(0, builder.build());
-            return;
+
+            if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
+                application.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED));
+                builder.setContentText(getString(R.string.complete));
+                notificationManager.notify(0, builder.build());
+                notificationManager.cancel(0);
+            } else {
+                builder.setContentIntent(pendingIntent);
+                builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+                notificationManager.notify(0, builder.build());
+            }
         }
 
-        builder.setContentTitle(getString(R.string.mapTitle, x, y));
-        notificationManager.notify(0, builder.build());
-
-        Index mapIndex = application.getMapIndex();
-        if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
+        if (actionRemoval) {
+            int x = intent.getIntExtra(EXTRA_X, -1);
+            int y = intent.getIntExtra(EXTRA_Y, -1);
+            mapIndex.removeNativeMap(x, y);
+            //TODO Rename broadcast
             application.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED));
-            builder.setContentText(getString(R.string.complete));
-            notificationManager.notify(0, builder.build());
             notificationManager.cancel(0);
-        } else {
-            builder.setContentIntent(pendingIntent);
-            builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-            notificationManager.notify(0, builder.build());
         }
     }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import mobi.maptrek.BasePaymentActivity;
 import mobi.maptrek.R;
+import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
@@ -152,7 +154,7 @@ public class Index {
         }
     }
 
-    private void removeNativeMap(int x, int y) {
+    public void removeNativeMap(int x, int y) {
         if (mMaps[x][y] == null)
             return;
         if (mMaps[x][y].created == 0)
@@ -161,28 +163,36 @@ public class Index {
         logger.error("Removing map: {} {}", x, y);
         try {
             // remove tiles
+            SQLiteStatement statement = mDatabase.compileStatement(SQL_REMOVE_TILES);
             for (int z = 8; z < 15; z++) {
                 int s = z - 7;
                 int cmin = x << s;
                 int cmax = ((x + 1) << s) - 1;
                 int rmin = y << s;
+                int rmini = (1 << z) - rmin - 1;
                 int rmax = ((y + 1) << s) - 1;
-                mDatabase.execSQL(SQL_REMOVE_TILES, new String[] {
-                        String.valueOf(z),
-                        String.valueOf(cmin),
-                        String.valueOf(cmax),
-                        String.valueOf(rmin),
-                        String.valueOf(rmax)
-                });
+                int rmaxi = (1 << z) - rmax - 1;
+                statement.clearBindings();
+                statement.bindLong(1, z);
+                statement.bindLong(2, cmin);
+                statement.bindLong(3, cmax);
+                statement.bindLong(4, rmaxi);
+                statement.bindLong(5, rmini);
+                statement.executeUpdateDelete();
             }
             logger.error("  removed tiles");
             // remove features
-            mDatabase.execSQL(SQL_REMOVE_FEATURES);
+            statement = mDatabase.compileStatement(SQL_REMOVE_FEATURES);
+            statement.bindLong(1, x);
+            statement.bindLong(2, y);
+            statement.executeUpdateDelete();
             logger.error("  removed features");
-            mDatabase.execSQL(SQL_REMOVE_FEATURE_NAMES);
+            statement = mDatabase.compileStatement(SQL_REMOVE_FEATURE_NAMES);
+            statement.executeUpdateDelete();
             logger.error("  removed feature names");
             // remove names
-            mDatabase.execSQL(SQL_REMOVE_NAMES);
+            statement = mDatabase.compileStatement(SQL_REMOVE_NAMES);
+            statement.executeUpdateDelete();
             logger.error("  removed names");
             setDownloaded(x, y, (short) 0);
         } catch (Exception e) {
@@ -365,17 +375,18 @@ public class Index {
         return stats;
     }
 
-    public boolean manageNativeMaps() {
-        boolean removed = false;
+    public void manageNativeMaps() {
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++) {
                 MapStatus mapStatus = getNativeMap(x, y);
                 if (mapStatus.action == ACTION.NONE)
                     continue;
                 if (mapStatus.action == ACTION.REMOVE) {
-                    removeNativeMap(x, y);
+                    Intent deleteIntent = new Intent(Intent.ACTION_DELETE, null, mContext, MapService.class);
+                    deleteIntent.putExtra(MapService.EXTRA_X, x);
+                    deleteIntent.putExtra(MapService.EXTRA_Y, y);
+                    mContext.startService(deleteIntent);
                     mapStatus.action = ACTION.NONE;
-                    removed = true;
                     continue;
                 }
                 String fileName = String.format(Locale.ENGLISH, "%d-%d.mtiles", x, y);
@@ -400,7 +411,6 @@ public class Index {
                 setDownloading(x, y, mDownloadManager.enqueue(request));
                 mapStatus.action = ACTION.NONE;
             }
-        return removed;
     }
 
     private void setDownloaded(int x, int y, short date) {

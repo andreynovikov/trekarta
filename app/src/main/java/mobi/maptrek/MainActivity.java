@@ -2752,9 +2752,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public void onManageNativeMaps() {
-        boolean removed = mNativeMapIndex.manageNativeMaps();
-        if (removed)
-            mMap.clearMap();
+        mNativeMapIndex.manageNativeMaps();
     }
 
     private void showBitmapMap(MapFile mapFile) {
