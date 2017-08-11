@@ -69,8 +69,8 @@
     <style-line id="residential" stroke="#ffffff" width="0.9" />
     <style-line id="highway-service" use="residential" width="-0.2" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
-    <style-line cap="butt" id="highway:track:g1" stroke="#C19A6B" width="0.7" />
-    <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#C19A6B"
+    <style-line cap="butt" id="highway:track:g1" stroke="#99764D" width="0.7" />
+    <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#99764D"
         stroke="#00ffffff" width="0.7" />
     <style-line id="highway:track:g3" stipple="12" use="highway:track:g2" />
     <style-line id="highway:track:g4" stipple="15" use="highway:track:g2" width="-0.2" />
