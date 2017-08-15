@@ -415,9 +415,9 @@
     <!-- Roads -->
     <m e="way" k="highway">
         <outline-layer fade="14" id="service-road" stroke="#aa807040" width="0.1" />
-        <outline-layer id="road" stroke="#aa807040" width="0.1" />
-        <outline-layer id="primary" stroke="#aa7f7700" width="0.1" />
-        <outline-layer id="motorway" stroke="#aa805f2e" width="0.1" />
+        <outline-layer id="road" stroke="#807040" width="0.15" />
+        <outline-layer id="primary" stroke="#7f7700" width="0.15" />
+        <outline-layer id="motorway" stroke="#805f2e" width="0.15" />
 
         <m select="first" zoom-max="7" zoom-min="6">
             <m v="trunk_link|motorway_link" zoom-min="7">
