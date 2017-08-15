@@ -169,15 +169,13 @@ public class Index {
                 int cmin = x << s;
                 int cmax = ((x + 1) << s) - 1;
                 int rmin = y << s;
-                int rmini = (1 << z) - rmin - 1;
                 int rmax = ((y + 1) << s) - 1;
-                int rmaxi = (1 << z) - rmax - 1;
                 statement.clearBindings();
                 statement.bindLong(1, z);
                 statement.bindLong(2, cmin);
                 statement.bindLong(3, cmax);
-                statement.bindLong(4, rmaxi);
-                statement.bindLong(5, rmini);
+                statement.bindLong(4, rmin);
+                statement.bindLong(5, rmax);
                 statement.executeUpdateDelete();
             }
             logger.error("  removed tiles");

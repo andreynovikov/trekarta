@@ -55,8 +55,7 @@ class MapTrekDataSource implements ITileDataSource {
             y = y >> dz;
             z = MAX_NATIVE_ZOOM;
         }
-        int yi = (1 << z) - y - 1;
-        String[] args = {String.valueOf(z), String.valueOf(x), String.valueOf(yi)};
+        String[] args = {String.valueOf(z), String.valueOf(x), String.valueOf(y)};
         QueryResult result = tile.zoomLevel > 7 ? TILE_NOT_FOUND : SUCCESS;
         try (Cursor c = mDatabase.rawQuery(SQL_GET_TILE, args)) {
             if (c.moveToFirst()) {
