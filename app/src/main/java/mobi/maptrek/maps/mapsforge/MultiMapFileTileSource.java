@@ -50,8 +50,6 @@ public class MultiMapFileTileSource extends TileSource {
     private final MapIndex mMapIndex;
     private String mPreferredLanguage;
 
-    private OnDataMissingListener onDataMissingListener;
-
     public MultiMapFileTileSource(MapIndex mapIndex) {
         super(2, 17);
         mMapFileTileSources = new DatabaseIndex();
@@ -107,10 +105,6 @@ public class MultiMapFileTileSource extends TileSource {
         }
     }
 
-    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
-        this.onDataMissingListener = onDataMissingListener;
-    }
-
     private class CombinedMapDatabase implements ITileDataSource {
         private HashMap<Integer, ITileDataSource> mTileDataSources;
 
@@ -132,10 +126,6 @@ public class MultiMapFileTileSource extends TileSource {
                 MapFile mapFile = mMapIndex.getNativeMap(key);
                 if (mapFile == null) {
                     mapDataSink.completed(TILE_NOT_FOUND);
-                    /*
-                    if (mapFile.downloading == 0L && tile.distance == 0d && onDataMissingListener != null)
-                        onDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
-                    */
                     return;
                 }
                 if (!openFile(tileX, tileY, mapFile)) {

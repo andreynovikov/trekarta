@@ -179,10 +179,8 @@ import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
-import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
-import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
@@ -210,7 +208,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
-        OnDataMissingListener, AmenitySetupDialog.AmenitySetupDialogCallback {
+        MapTrekTileSource.OnDataMissingListener, AmenitySetupDialog.AmenitySetupDialogCallback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;

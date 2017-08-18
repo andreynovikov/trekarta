@@ -16,7 +16,6 @@ import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.geom.TileClipper;
 
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
-import mobi.maptrek.maps.mapsforge.OnDataMissingListener;
 
 public class MapTrekTileSource extends TileSource {
     private static final MapElement mSea = new MapElement();
@@ -43,6 +42,8 @@ public class MapTrekTileSource extends TileSource {
     private final SQLiteTileSource mBaseMapTileSource;
     private final SQLiteDatabase mDetailedMapDatabase;
     private String mLocalizedName;
+    private OnDataMissingListener mOnDataMissingListener;
+
 
     public MapTrekTileSource(SQLiteTileSource baseMapTileSource, SQLiteDatabase detailedMapDatabase, MultiMapFileTileSource multiMapFileTileSource) {
         super(2, 17);
@@ -60,7 +61,7 @@ public class MapTrekTileSource extends TileSource {
     }
 
     public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
-        mMultiMapFileTileSource.setOnDataMissingListener(onDataMissingListener);
+        mOnDataMissingListener = onDataMissingListener;
     }
 
     @Override
@@ -112,10 +113,17 @@ public class MapTrekTileSource extends TileSource {
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             mDetailedDataSource.query(tile, proxyDataSink);
 
+            if (proxyDataSink.result == QueryResult.TILE_NOT_FOUND) {
+                if (tile.distance == 0d && mOnDataMissingListener != null) {
+                    int tileX = tile.tileX >> (tile.zoomLevel - 7);
+                    int tileY = tile.tileY >> (tile.zoomLevel - 7);
+                    mOnDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
+                }
+            }
             //if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
             //    mMapFileDataSource.query(tile, proxyDataSink);
 
-            if (/*!proxyDataSink.hasElements ||*/ proxyDataSink.result != QueryResult.SUCCESS) {
+            if (proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mSea);
                 int dz = tile.zoomLevel - 7;
                 MapTile baseTile = new MapTile(tile.node, tile.tileX >> dz, tile.tileY >> dz, 7);
@@ -234,5 +242,9 @@ public class MapTrekTileSource extends TileSource {
         public void completed(QueryResult result) {
             this.result = result;
         }
+    }
+
+    public interface OnDataMissingListener {
+        void onDataMissing(int x, int y, byte zoom);
     }
 }
