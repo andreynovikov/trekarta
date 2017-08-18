@@ -35,6 +35,7 @@
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
         stroke="#00ffffff" width="2.0" />
+    <style-line id="ferry-overview" stipple="5" stipple-width="0.5" use="ferry" width="0.5" />
     <style-area fade="-1" fill="#a4bbcc" id="water" />
 
     <!-- Natural -->
@@ -345,8 +346,14 @@
         <area use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
-    <m closed="yes" k="waterway" v="riverbank|dock">
-        <area use="water" />
+    <m closed="yes" k="waterway">
+        <m v="riverbank|dock">
+            <area use="water" />
+        </m>
+        <m v="dam">
+            <area fade="12" fill="#999999" />
+            <line fade="12" stroke="#333333" use="fix" width="0.5" />
+        </m>
     </m>
     <m closed="no" e="way">
         <!-- overview map rivers -->
@@ -354,7 +361,7 @@
             <line use="water" />
         </m>
         <m k="waterway">
-            <m k="tunnel" v="~|false|no|0">
+            <m k="tunnel" v="~|false">
                 <m v="river">
                     <line fade="10" use="river" width="0.3" />
                     <m zoom-min="17">
@@ -367,19 +374,24 @@
                     <line fade="10" use="river" width="-0.3" />
                     <text priority="10" use="water" />
                 </m>
-                <m v="dam">
-                    <line fade="12" stroke="#333333" use="fix" width="0.5" />
-                </m>
                 <m v="stream">
                     <line fade="13" use="water" width="0.5" />
                 </m>
                 <m v="ditch|drain">
                     <line fade="14" use="water" width="0.2" />
                 </m>
+                <m v="dam">
+                    <line fade="12" stroke="#333333" use="fix" width="0.5" />
+                </m>
             </m>
         </m>
         <m k="route" v="ferry">
-            <line fade="12" use="ferry" />
+            <m zoom-max="9">
+                <line use="ferry-overview" />
+            </m>
+            <m zoom-min="10">
+                <line use="ferry" />
+            </m>
         </m>
     </m>
 
