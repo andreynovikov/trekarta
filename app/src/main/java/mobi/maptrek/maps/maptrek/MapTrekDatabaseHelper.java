@@ -1,6 +1,7 @@
 package mobi.maptrek.maps.maptrek;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -203,7 +204,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
     private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
-    private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(1000)";
+    private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
 
     public MapTrekDatabaseHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
@@ -220,7 +221,10 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
         logger.info("Vacuuming maps database");
-        db.rawQuery(PRAGMA_VACUUM, null);
+        Cursor cursor = db.rawQuery(PRAGMA_VACUUM, null);
+        if (cursor.moveToFirst())
+            logger.debug("  removed {} pages", cursor.getCount());
+        cursor.close();
     }
 
     @Override
