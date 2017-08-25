@@ -186,10 +186,12 @@ public class MapIndex implements Serializable {
         return mMaps;
     }
 
-    @SuppressWarnings("unused")
     public void removeMap(MapFile map) {
         mMaps.remove(map);
         map.tileSource.close();
+        File file = new File(map.tileSource.getOption("file"));
+        //noinspection ResultOfMethodCallIgnored
+        file.delete();
     }
 
     public void clear() {

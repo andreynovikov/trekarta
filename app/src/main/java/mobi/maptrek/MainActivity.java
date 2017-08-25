@@ -178,6 +178,7 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
@@ -884,7 +885,8 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED));
         registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
@@ -2725,7 +2727,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, MapTrek.density);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, mMapIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -3210,6 +3212,10 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         if (mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(x, y).downloadSize == 0L)
             return;
 
+        // Do not show button if old map exists
+        if (mMapIndex.getNativeMap(Index.getNativeKey(x, y)) != null)
+            return;
+
         // Do not show button if custom map is shown
         mMap.getMapPosition(mMapPosition);
         if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
@@ -3374,8 +3380,15 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (action.equals(DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED)) {
+            if (action.equals(MapService.BROADCAST_MAP_ADDED) || action.equals(MapService.BROADCAST_MAP_REMOVED)) {
                 mMap.clearMap();
+                if (action.equals(MapService.BROADCAST_MAP_ADDED)) {
+                    int x = intent.getIntExtra(MapService.EXTRA_X, -1);
+                    int y = intent.getIntExtra(MapService.EXTRA_Y, -1);
+                    MapFile oldMap = mMapIndex.getNativeMap(Index.getNativeKey(x, y));
+                    if (oldMap != null)
+                        mMapIndex.removeMap(oldMap);
+                }
                 //FIXME Hack!
                 if (mMapCoverageLayer != null)
                     mMapCoverageLayer.onStatsChanged();

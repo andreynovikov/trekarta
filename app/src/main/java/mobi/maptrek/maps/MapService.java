@@ -19,10 +19,11 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.util.ProgressListener;
 
-import static mobi.maptrek.DownloadReceiver.BROADCAST_DOWNLOAD_PROCESSED;
-
 public class MapService extends IntentService {
     private static final Logger logger = LoggerFactory.getLogger(MapService.class);
+
+    public static final String BROADCAST_MAP_ADDED = "mobi.maptrek.MapAdded";
+    public static final String BROADCAST_MAP_REMOVED = "mobi.maptrek.MapRemoved";
 
     public static final String EXTRA_X = "x";
     public static final String EXTRA_Y = "y";
@@ -84,7 +85,7 @@ public class MapService extends IntentService {
             notificationManager.notify(0, builder.build());
 
             if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
-                application.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED));
+                application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
                 notificationManager.notify(0, builder.build());
                 notificationManager.cancel(0);
@@ -100,7 +101,7 @@ public class MapService extends IntentService {
             int y = intent.getIntExtra(EXTRA_Y, -1);
             mapIndex.removeNativeMap(x, y);
             //TODO Rename broadcast
-            application.sendBroadcast(new Intent(BROADCAST_DOWNLOAD_PROCESSED));
+            application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
             notificationManager.cancel(0);
         }
     }

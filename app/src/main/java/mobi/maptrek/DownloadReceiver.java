@@ -16,8 +16,6 @@ public class DownloadReceiver extends BroadcastReceiver
 {
 	private static final Logger logger = LoggerFactory.getLogger(DownloadReceiver.class);
 
-    public static final String BROADCAST_DOWNLOAD_PROCESSED = "DownloadProcessed";
-
     @Override
 	public void onReceive(Context context, Intent intent)
 	{

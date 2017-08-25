@@ -120,8 +120,9 @@ public class MapTrekTileSource extends TileSource {
                     mOnDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
                 }
             }
-            //if (!proxyDataSink.hasElements || proxyDataSink.result != QueryResult.SUCCESS)
-            //    mMapFileDataSource.query(tile, proxyDataSink);
+
+            if (proxyDataSink.result != QueryResult.SUCCESS)
+                mMapFileDataSource.query(tile, proxyDataSink);
 
             if (proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mSea);
