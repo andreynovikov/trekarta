@@ -648,7 +648,27 @@ public class Tags {
             "mixed",
             "patio",
             "water_tower",
-            "sauna"
+            "sauna",
+            "convenience",
+            "department_store",
+            "greengrocer",
+            "hardware",
+            "alcohol",
+            "outdoor",
+            "gift",
+            "toys",
+            "variety_store",
+            "jewelry",
+            "books",
+            "confectionery",
+            "bicycle",
+            "beverages",
+            "copyshop",
+            "photo",
+            "laundry",
+            "dry_cleaning",
+            "ice_cream",
+            "bare_rock"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
