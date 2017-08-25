@@ -43,7 +43,7 @@
     <style-area fade="10" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" />
     <style-area fade="10" fill="#c2cba5" id="scrub" />
-    <style-area fade="12" fill="#c2b280" id="scree" />
+    <style-area fade="12" fill="#eee5dc" id="scree" />
     <style-area fade="12" fill="#e4dab5" id="farmyard" />
     <style-area fade="12" fill="#e6ddd0" id="farmland" />
 
@@ -231,10 +231,19 @@
         <m v="scree|shingle">
             <area use="scree" />
         </m>
+        <m v="bare_rock">
+            <area use="scree" />
+            <area src="assets:patterns/rock_overlay.png" />
+        </m>
         <m v="forest|wood">
             <area use="wood" />
         </m>
-        <m v="marsh|wetland">
+        <m v="marsh">
+            <area src="assets:patterns/wetland.svg" />
+            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
+            <text area-size="0.05" caption="true" use="water" />
+        </m>
+        <m v="wetland">
             <area src="assets:patterns/wetland.svg" />
             <text area-size="0.05" caption="true" use="water" />
         </m>
