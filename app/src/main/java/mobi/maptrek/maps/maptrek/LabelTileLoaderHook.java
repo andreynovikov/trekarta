@@ -31,6 +31,8 @@ import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.geom.PolyLabel;
 
+import mobi.maptrek.util.StringFormatter;
+
 import static org.oscim.core.GeometryBuffer.GeometryType.LINE;
 import static org.oscim.core.GeometryBuffer.GeometryType.POINT;
 import static org.oscim.core.GeometryBuffer.GeometryType.POLY;
@@ -174,6 +176,17 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                     return names[1];
                 return names[0];
             }
+        }
+        if ("ele".equals(key) && element instanceof ExtendedMapElement) {
+            ExtendedMapElement extendedElement = (ExtendedMapElement) element;
+            if (extendedElement.elevation != 0) {
+                //TODO Replace with kind flag
+                if (element.tags.containsKey("contour"))
+                    return StringFormatter.elevationC(extendedElement.elevation);
+                else
+                    return StringFormatter.elevationH(extendedElement.elevation);
+            }
+
         }
         return null;
     }

@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
-import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
@@ -16,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-
-import mobi.maptrek.util.StringFormatter;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_TILES_DATA;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_TILES;
@@ -150,9 +147,6 @@ class MapTrekDataSource implements ITileDataSource {
                 logger.error(element.id + ": " + element.tags.toString());
             }
             */
-            if (element.elevation != 0) {
-                element.tags.add(new Tag(Tag.KEY_ELE, StringFormatter.elevationC(element.elevation), false));
-            }
             mapDataSink.process(element);
         }
 
