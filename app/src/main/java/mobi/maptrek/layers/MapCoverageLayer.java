@@ -34,7 +34,7 @@ import mobi.maptrek.maps.maptrek.Index;
 
 public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, Index.MapStateListener {
     private static final float TILE_SCALE = 1f / (1 << 7);
-    private static final long MAP_EXPIRE_PERIOD = 7; // one week
+    private static final long MAP_EXPIRE_PERIOD = 6; // one week
     private static final int MIN_ZOOM = 3;
     public static final int TEXT_MIN_ZOOM = 6;
     private static final int TEXT_MAX_ZOOM = 8;
