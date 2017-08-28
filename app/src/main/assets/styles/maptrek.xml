@@ -40,7 +40,7 @@
 
     <!-- Natural -->
     <style-area blend="11" blend-fill="#83aa5b" fade="8" fill="#b3d095" id="wood" />
-    <style-area fade="10" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
+    <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" />
     <style-area fade="10" fill="#c2cba5" id="scrub" />
     <style-area fade="12" fill="#eee5dc" id="scree" />
@@ -225,10 +225,16 @@
         <m v="sand" zoom-min="10">
             <area fill="#fffad1" />
         </m>
-        <m v="grassland|scrub|heath">
+        <m v="scrub">
             <area use="scrub" />
         </m>
-        <m v="scree|shingle">
+        <m v="grassland|heath">
+            <area fade="12" use="scrub" />
+        </m>
+        <m v="scree">
+            <area fade="10" use="scree" />
+        </m>
+        <m v="shingle">
             <area use="scree" />
         </m>
         <m v="bare_rock">
