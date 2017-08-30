@@ -6,7 +6,6 @@
     <!--
     TODO:
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
-    waterway:lock_gate
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
     railway:subway
@@ -36,7 +35,7 @@
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
         stroke="#00ffffff" width="2.0" />
     <style-line id="ferry-overview" stipple="5" stipple-width="0.5" use="ferry" width="0.5" />
-    <style-area fade="-1" fill="#a4bbcc" id="water" />
+    <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-area blend="11" blend-fill="#83aa5b" fade="8" fill="#b3d095" id="wood" />
@@ -122,7 +121,7 @@
     -->
 
     <m closed="yes" e="way" k="natural" v="sea">
-        <area mesh="true" use="water" />
+        <area use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
     <m closed="yes" e="way" k="natural" v="land">
@@ -354,7 +353,7 @@
 
     <!-- Water -->
     <m closed="yes" e="way" k="natural" v="water">
-        <area mesh="true" use="water" />
+        <area use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
     <m closed="yes" k="landuse" v="reservoir|basin">
@@ -398,6 +397,9 @@
                 <m v="dam">
                     <line fade="12" stroke="#333333" use="fix" width="0.5" />
                 </m>
+                <m v="lock_gate">
+                    <line fade="12" stroke="#aaaaaa" use="fix" width="0.7" />
+                </m>
             </m>
         </m>
         <m k="route" v="ferry">
@@ -407,6 +409,11 @@
             <m zoom-min="10">
                 <line use="ferry" />
             </m>
+        </m>
+    </m>
+    <m e="node">
+        <m k="waterway" v="lock_gate" zoom-min="14">
+            <symbol src="assets:symbols/lock_gate.svg" />
         </m>
     </m>
 
