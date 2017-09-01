@@ -154,6 +154,9 @@
         <m k="tourism" v="zoo">
             <area fill="#c0d69a" />
         </m>
+        <m v="parking" zoom-min="16">
+            <area fill="#fefefe" />
+        </m>
         <m k="amenity" v="kindergarten|school|college|university">
             <area fill="#e6e4c5" />
             <line cap="butt" fix="true" stroke="#9aabae" width="1.0" />
@@ -772,7 +775,7 @@
                         <line cap="square" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                     </m>
-                    <m v="tertiary_link">
+                    <m v="secondary_link">
                         <line cap="square" outline="bridge" use="secondary" />
                         <text use="road-name" />
                     </m>
@@ -1519,14 +1522,16 @@
                     </m>
                     <m v="parking">
                         <m select="first">
-                            <m k="fee" v="-|no">
-                                <symbol src="assets:symbols/transport/parking_car_paid.svg" />
+                            <m k="fee">
+                                <m k="fee" v="-|no">
+                                    <symbol src="assets:symbols/transport/parking_car_paid.svg" />
+                                </m>
                             </m>
                             <m k="access" v="private">
                                 <symbol src="assets:symbols/transport/parking_private.svg" />
-                                <m>
-                                    <symbol src="assets:symbols/transport/parking.svg" />
-                                </m>
+                            </m>
+                            <m>
+                                <symbol src="assets:symbols/transport/parking.svg" />
                             </m>
                         </m>
                     </m>
