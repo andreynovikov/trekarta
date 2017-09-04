@@ -25,7 +25,7 @@
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
 
-    <style-area fade="-1" fill="#faf7f1" id="land" />
+    <style-area fade="-1" fill="#faf7f1" id="land" mesh="true" />
 
     <!-- Water -->
     <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
@@ -120,12 +120,11 @@
     ==== RULES ====
     -->
 
-    <m closed="yes" e="way" k="natural" v="sea">
+    <m e="way" k="natural" v="sea">
         <area use="water" />
-        <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
-    <m closed="yes" e="way" k="natural" v="land">
-        <area mesh="true" use="land" />
+    <m closed="yes" e="way" k="natural" v="land|nosea">
+        <area use="land" />
     </m>
 
     <!-- Land usages -->

@@ -108,6 +108,7 @@ public class Index {
             cursor.moveToNext();
         }
         cursor.close();
+        //TODO Remove old basemap file
     }
 
     public short getBaseMapVersion() {

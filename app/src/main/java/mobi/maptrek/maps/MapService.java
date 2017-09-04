@@ -107,7 +107,6 @@ public class MapService extends IntentService {
             int x = intent.getIntExtra(EXTRA_X, -1);
             int y = intent.getIntExtra(EXTRA_Y, -1);
             mapIndex.removeNativeMap(x, y);
-            //TODO Rename broadcast
             application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
             notificationManager.cancel(0);
         }

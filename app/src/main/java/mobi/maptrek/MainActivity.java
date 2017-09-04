@@ -75,8 +75,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
 import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.MapView;
 import org.oscim.android.cache.PreCachedTileCache;
@@ -107,7 +105,6 @@ import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
-import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -585,18 +582,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        SQLiteTileSource worldMapSource;
-        File worldMapFile = new File(getExternalFilesDir(null), "world.mbtiles");
-        if (worldMapFile.exists() && worldMapFile.canRead()) {
-            worldMapSource = new SQLiteTileSource();
-            worldMapSource.setMapFile(worldMapFile.getAbsolutePath());
-        } else {
-            SQLiteAssetHelper worldDatabaseHelper = new SQLiteAssetHelper(this, "world.mbtiles", getDir("databases", 0).getAbsolutePath(), null, 2);
-            worldDatabaseHelper.setForcedUpgrade();
-            worldMapSource = new SQLiteTileSource(worldDatabaseHelper);
-        }
-
-        mNativeTileSource = new MapTrekTileSource(worldMapSource, MapTrek.getApplication().getDetailedMapDatabase(), mMapFileSource);
+        mNativeTileSource = new MapTrekTileSource(MapTrek.getApplication().getDetailedMapDatabase(), mMapFileSource);
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mNativeTileSource.setPreferredLanguage(language);
@@ -604,7 +590,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(mNativeTileSource);
 
-        //mBaseLayer.setNumLoaders(1);
         mMap.setBaseMap(mBaseLayer); // will go to base group
         mNativeTileSource.setOnDataMissingListener(this);
 

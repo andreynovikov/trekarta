@@ -76,7 +76,6 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:1.5.2'
     compile 'org.openstreetmap.osmosis:osmosis-osm-binary:0.44.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'
-    compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:2.0.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.2.9'
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.9.1'
