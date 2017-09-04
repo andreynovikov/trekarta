@@ -522,21 +522,31 @@
                             <line use="bridleway" />
                         </m>
                         <m v="track">
-                            <line use="highway:track:back" />
-                            <m k="tracktype" v="grade1">
-                                <line use="highway:track:g1" />
+                            <m zoom-max="13" zoom-min="13">
+                                <m k="tracktype" v="grade1">
+                                    <line use="highway:track:g1" width="-0.8" />
+                                </m>
+                                <m k="tracktype" v="~|grade2|grade3|grade4|grade5">
+                                    <line use="highway:track:g2" width="-0.8" />
+                                </m>
                             </m>
-                            <m k="tracktype" v="~|grade2">
-                                <line use="highway:track:g2" />
-                            </m>
-                            <m k="tracktype" v="grade3">
-                                <line use="highway:track:g3" />
-                            </m>
-                            <m k="tracktype" v="grade4">
-                                <line use="highway:track:g4" />
-                            </m>
-                            <m k="tracktype" v="grade5">
-                                <line use="highway:track:g5" />
+                            <m zoom-min="14">
+                                <line use="highway:track:back" />
+                                <m k="tracktype" v="grade1">
+                                    <line use="highway:track:g1" />
+                                </m>
+                                <m k="tracktype" v="~|grade2">
+                                    <line use="highway:track:g2" />
+                                </m>
+                                <m k="tracktype" v="grade3">
+                                    <line use="highway:track:g3" />
+                                </m>
+                                <m k="tracktype" v="grade4">
+                                    <line use="highway:track:g4" />
+                                </m>
+                                <m k="tracktype" v="grade5">
+                                    <line use="highway:track:g5" />
+                                </m>
                             </m>
                             <text use="road" />
                         </m>
@@ -656,8 +666,8 @@
                     </m> <!-- area: no -->
                 </m> <!-- bridge: no -->
             </m> <!-- tunnel: no -->
-            <outline-layer id="ford" stroke="#a4bbcc" width="3.0" fix="true" />
-            <m k="ford">
+            <outline-layer fix="true" id="ford" stroke="#a4bbcc" width="3.0" />
+            <m k="ford" zoom-min="14">
                 <!-- except ford=no|false -->
                 <m k="ford" v="-|no|false">
                     <m v="track">
