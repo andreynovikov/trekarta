@@ -14,7 +14,6 @@
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
     http://wiki.openstreetmap.org/wiki/Tag:natural%3Dscrub - add symbols
     protect_class:1
-    fuel:lpg
     -->
 
     <!--
@@ -69,22 +68,24 @@
     <style-line id="residential" stroke="#ffffff" width="0.9" />
     <style-line id="highway-service" use="residential" width="-0.2" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
-    <style-line cap="butt" id="highway:track:g1" stroke="#99764D" width="0.7" />
-    <style-line cap="butt" id="highway:track:g2" stipple="8" stipple-stroke="#99764D"
-        stroke="#00ffffff" width="0.7" />
-    <style-line id="highway:track:g3" stipple="12" use="highway:track:g2" />
-    <style-line id="highway:track:g4" stipple="15" use="highway:track:g2" width="-0.2" />
-    <style-line id="highway:track:g5" stipple="18" stroke="#44ff8888" use="highway:track:g4" />
-    <style-line cap="butt" id="footway" stipple="4" stipple-stroke="#d37c58" stroke="#00ffffff"
-        width="0.3" />
+    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
+    <style-line cap="butt" fix="true" id="highway:track:g1" stroke="#99764D" width="1.8" />
+    <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#99764D"
+        stroke="#00ffffff" width="1.8" />
+    <style-line id="highway:track:g3" stipple="14" use="highway:track:g2" />
+    <style-line id="highway:track:g4" stipple="16" use="highway:track:g2" width="-0.3" />
+    <style-line id="highway:track:g5" stipple="20" stroke="#44ff8888" use="highway:track:g4" />
+    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
+    <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
+        stroke="#00ffffff" width="1.2" />
     <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
 
-    <style-line id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.1" />
+    <style-line fix="true" id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.2" />
     <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
     <style-line cap="butt" id="bridleway" stipple-stroke="#7b8358" stroke="#d3cb98" use="footway"
         width="0.2" />
-    <style-line cap="butt" id="steps" stipple="3" stipple-stroke="#be6253" stroke="#aaffffff"
-        width="0.7" />
+    <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#be6253"
+        stroke="#aaffffff" width="3.5" />
 
     <style-text style="bold" fill="#101010" id="major-road-name" k="name" priority="5" size="16"
         stroke="#eeeeee" stroke-width="2.0" />
@@ -496,19 +497,32 @@
                                 <line use="steps" />
                             </m>
                             <m zoom-max="15" zoom-min="14">
+                                <m zoom-min="15">
+                                    <line use="footway:back" />
+                                </m>
                                 <line use="footway" />
                             </m>
                         </m>
                         <m v="footway">
+                            <m zoom-min="15">
+                                <line use="footway:back" />
+                            </m>
                             <line use="footway" />
                         </m>
                         <m v="path">
+                            <m zoom-min="15">
+                                <line use="footway:back" />
+                            </m>
                             <line use="path" />
                         </m>
                         <m v="bridleway">
+                            <m zoom-min="15">
+                                <line use="footway:back" />
+                            </m>
                             <line use="bridleway" />
                         </m>
                         <m v="track">
+                            <line use="highway:track:back" />
                             <m k="tracktype" v="grade1">
                                 <line use="highway:track:g1" />
                             </m>
@@ -626,6 +640,7 @@
                             <text use="trunk-road-ref" />
                         </m>
                         <m v="cycleway">
+                            <line use="footway:back" width="0.2" />
                             <line use="cycleway" />
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
@@ -641,12 +656,12 @@
                     </m> <!-- area: no -->
                 </m> <!-- bridge: no -->
             </m> <!-- tunnel: no -->
-            <outline-layer id="ford" stroke="#a4bbcc" width="0.7" />
+            <outline-layer id="ford" stroke="#a4bbcc" width="3.0" fix="true" />
             <m k="ford">
                 <!-- except ford=no|false -->
                 <m k="ford" v="-|no|false">
                     <m v="track">
-                        <line cap="square" outline="ford" use="highway:track:g1" width="-0.5" />
+                        <line cap="square" outline="ford" use="highway:track:g1" />
                     </m>
                 </m>
             </m>
@@ -716,6 +731,7 @@
     <!-- Bridge casings should be above other roads -->
     <m e="way" k="highway">
         <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
+        <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.1" />
         <!-- must contain bridge -->
         <m k="bridge">
             <!-- except bridge=no|false -->
@@ -724,24 +740,30 @@
                 <m k="area" v="~|no">
                     <m zoom-min="16">
                         <m v="steps">
-                            <line cap="square" outline="bridge" stroke="#ffffff" width="0.5" />
+                            <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="4.5" />
                             <line use="steps" />
                         </m>
                     </m>
                     <m v="footway">
-                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.2" />
+                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
                         <line use="footway" />
                     </m>
                     <m v="path">
-                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
+                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
                         <line use="path" />
                     </m>
                     <m v="bridleway">
-                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.2" />
+                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
                         <line use="bridleway" />
                     </m>
                     <m v="track">
-                        <line cap="square" outline="bridge" use="highway:track:g1" />
+                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.4" />
+                        <line cap="square" use="highway:track:g1" />
                         <text use="road" />
                     </m>
                     <m v="service">
@@ -839,7 +861,8 @@
                         <text use="major-road-name" />
                     </m>
                     <m v="cycleway">
-                        <line cap="square" outline="bridge" stroke="#ffffff" width="0.1" />
+                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.2" />
                         <line use="cycleway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
