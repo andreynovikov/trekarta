@@ -103,11 +103,6 @@ public class MapTrekTileSource extends TileSource {
 
         @Override
         public void query(MapTile tile, ITileDataSink mapDataSink) {
-            if (tile.zoomLevel < 8) {
-                mapDataSink.process(mSea);
-                mBaseDataSource.query(tile, new LocalizedTileDataSink(mapDataSink));
-                return;
-            }
             mapDataSink.process(mLand);
 
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
@@ -126,10 +121,14 @@ public class MapTrekTileSource extends TileSource {
 
             if (proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mSea);
-                int dz = tile.zoomLevel - 7;
-                MapTile baseTile = new MapTile(tile.node, tile.tileX >> dz, tile.tileY >> dz, 7);
-                TransformTileDataSink transformDataSink = new TransformTileDataSink(baseTile, tile, mapDataSink);
-                mBaseDataSource.query(baseTile, new LocalizedTileDataSink(transformDataSink));
+                MapTile baseTile = tile;
+                ITileDataSink dataSink = mapDataSink;
+                if (tile.zoomLevel > 7) {
+                    int dz = tile.zoomLevel - 7;
+                    baseTile = new MapTile(tile.node, tile.tileX >> dz, tile.tileY >> dz, 7);
+                    dataSink = new TransformTileDataSink(baseTile, tile, mapDataSink);
+                }
+                mDetailedDataSource.query(baseTile, dataSink);
                 return;
             }
             mapDataSink.completed(proxyDataSink.result);

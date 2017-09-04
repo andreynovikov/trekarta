@@ -57,6 +57,7 @@ import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_MAPS_XY;
 public class Index {
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
+    public static final String BASEMAP_FILENAME = "basemap.mtiles";
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
     private final Context mContext;
@@ -66,6 +67,8 @@ public class Index {
     private boolean mHasDownloadSizes;
     private int mMapsLimit = BasePaymentActivity.MAPS_LIMIT;
     private int mLoadedMaps = 0;
+    private short mBaseMapVersion = 0;
+    private long mBaseMapSize = 0L;
 
     private final Set<WeakReference<MapStateListener>> mMapStateListeners = new HashSet<>();
 
@@ -80,6 +83,11 @@ public class Index {
             int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
             int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
             short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
+            if (x == -1 && y == -1) {
+                mBaseMapVersion = date;
+                cursor.moveToNext();
+                continue;
+            }
             long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
             MapStatus mapStatus = getNativeMap(x, y);
             mapStatus.created = date;
@@ -95,11 +103,19 @@ public class Index {
                 setDownloading(x, y, 0L);
                 logger.debug("  cleared");
             }
-            if (date > 0L)
+            if (date > 0)
                 mLoadedMaps++;
             cursor.moveToNext();
         }
         cursor.close();
+    }
+
+    public short getBaseMapVersion() {
+        return mBaseMapVersion;
+    }
+
+    public long getBaseMapSize() {
+        return mBaseMapSize > 0L ? mBaseMapSize : 20 * 1024 * 1024;
     }
 
     /**
@@ -373,6 +389,27 @@ public class Index {
         return stats;
     }
 
+    public void downloadBaseMap() {
+        Uri uri = new Uri.Builder()
+                .scheme("http")
+                .authority("maptrek.mobi")
+                .appendPath("maps")
+                .appendPath(BASEMAP_FILENAME)
+                .build();
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setTitle(mContext.getString(R.string.baseMapTitle));
+        request.setDescription(mContext.getString(R.string.app_name));
+        File root = new File(mDatabase.getPath()).getParentFile();
+        File file = new File(root, BASEMAP_FILENAME);
+        if (file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+        request.setDestinationInExternalFilesDir(mContext, root.getName(), BASEMAP_FILENAME);
+        request.setVisibleInDownloadsUi(false);
+        mDownloadManager.enqueue(request);
+    }
+
     public void manageNativeMaps() {
         for (int x = 0; x < 128; x++)
             for (int y = 0; y < 128; y++) {
@@ -422,9 +459,11 @@ public class Index {
             values.put(COLUMN_MAPS_Y, y);
             mDatabase.insert(TABLE_MAPS, null, values);
         }
-        MapStatus mapStatus = getNativeMap(x, y);
-        mapStatus.created = date;
-        mapStatus.downloading = 0L;
+        if (x >= 0 && y >= 0) {
+            MapStatus mapStatus = getNativeMap(x, y);
+            mapStatus.created = date;
+            mapStatus.downloading = 0L;
+        }
     }
 
     private void setDownloading(int x, int y, long enqueue) {

@@ -135,6 +135,7 @@ import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.AmenitySetupDialog;
+import mobi.maptrek.fragments.BaseMapDownload;
 import mobi.maptrek.fragments.CrashReport;
 import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.DataList;
@@ -946,6 +947,14 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
+            ft.commit();
+        } else if (mNativeMapIndex.getBaseMapVersion() == 0) {
+            BaseMapDownload fragment = (BaseMapDownload) Fragment.instantiate(this, BaseMapDownload.class.getName());
+            fragment.setMapIndex(mNativeMapIndex);
+            fragment.setEnterTransition(new Slide());
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "baseMapDownload");
+            ft.addToBackStack("baseMapDownload");
             ft.commit();
         }
 

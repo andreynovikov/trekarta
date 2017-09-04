@@ -64,24 +64,31 @@ public class MapService extends IntentService {
 
         if (actionImport) {
             Uri uri = intent.getData();
-            String[] parts = uri.getLastPathSegment().split("[\\-\\.]");
+            String filename = uri.getLastPathSegment();
             final int x, y;
-            try {
-                if (parts.length != 3)
-                    throw new NumberFormatException("unexpected name");
-                x = Integer.valueOf(parts[0]);
-                y = Integer.valueOf(parts[1]);
-                if (x > 127 || y > 127)
-                    throw new NumberFormatException("out of range");
-            } catch (NumberFormatException e) {
-                logger.error(e.getMessage());
-                builder.setContentIntent(pendingIntent);
-                builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                notificationManager.notify(0, builder.build());
-                return;
-            }
+            if (Index.BASEMAP_FILENAME.equals(filename)) {
+                x = -1;
+                y = -1;
+                builder.setContentTitle(getString(R.string.baseMapTitle));
+            } else {
+                String[] parts = filename.split("[\\-\\.]");
+                try {
+                    if (parts.length != 3)
+                        throw new NumberFormatException("unexpected name");
+                    x = Integer.valueOf(parts[0]);
+                    y = Integer.valueOf(parts[1]);
+                    if (x > 127 || y > 127)
+                        throw new NumberFormatException("out of range");
+                } catch (NumberFormatException e) {
+                    logger.error(e.getMessage());
+                    builder.setContentIntent(pendingIntent);
+                    builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+                    notificationManager.notify(0, builder.build());
+                    return;
+                }
 
-            builder.setContentTitle(getString(R.string.mapTitle, x, y));
+                builder.setContentTitle(getString(R.string.mapTitle, x, y));
+            }
             notificationManager.notify(0, builder.build());
 
             if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
