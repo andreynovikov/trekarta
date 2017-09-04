@@ -57,7 +57,9 @@ import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_MAPS_XY;
 public class Index {
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
+    public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
+
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
     private final Context mContext;
@@ -112,7 +114,11 @@ public class Index {
     }
 
     public short getBaseMapVersion() {
-        return mBaseMapVersion;
+        short version = mBaseMapVersion;
+        // report no base map only once
+        if (mBaseMapVersion == 0)
+            mBaseMapVersion = -1;
+        return version;
     }
 
     public long getBaseMapSize() {

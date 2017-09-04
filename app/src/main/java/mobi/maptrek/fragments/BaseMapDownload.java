@@ -14,16 +14,13 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 
 public class BaseMapDownload extends Fragment implements OnBackPressedListener {
-    private OnMapActionListener mListener;
-
     private FragmentHolder mFragmentHolder;
     private Index mMapIndex;
-    private TextView mMessageView;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_basemap_download, container, false);
-        mMessageView = (TextView) rootView.findViewById(R.id.message);
-        mMessageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
+        TextView messageView = (TextView) rootView.findViewById(R.id.message);
+        messageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
         return rootView;
     }
 
@@ -47,11 +44,6 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnMapActionListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnMapActionListener");
-        }
-        try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
@@ -64,7 +56,6 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
         super.onDetach();
         mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
-        mListener = null;
     }
 
     @Override

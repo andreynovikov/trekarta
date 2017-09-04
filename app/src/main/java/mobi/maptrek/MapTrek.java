@@ -17,7 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 
@@ -100,7 +104,10 @@ public class MapTrek extends Application {
 
     public synchronized SQLiteDatabase getDetailedMapDatabase() {
         if (mDetailedMapHelper == null) {
-            mDetailedMapHelper = new MapTrekDatabaseHelper(this, new File(getExternalFilesDir("native"), "detailed.mtiles"));
+            File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
+            if (!dbFile.exists())
+                copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
+            mDetailedMapHelper = new MapTrekDatabaseHelper(this, dbFile);
             mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
             mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
         }
@@ -111,6 +118,22 @@ public class MapTrek extends Application {
         if (mIndex == null)
             mIndex = new Index(this, getDetailedMapDatabase());
         return mIndex;
+    }
+
+    private void copyAsset(String asset, File outFile) {
+        try {
+            InputStream in = getAssets().open(asset);
+            OutputStream out = new FileOutputStream(outFile);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            logger.error("Failed to copy world map asset", e);
+        }
     }
 
     public boolean hasPreviousRunsExceptions() {
