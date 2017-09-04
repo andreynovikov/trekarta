@@ -1112,6 +1112,12 @@
                 </m>
             </m>
         </m>
+        <m v="state">
+            <m zoom-max="6" zoom-min="3">
+                <caption fill="#000000" k="name" priority="3" size="16" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+        </m>
         <m v="country">
             <m zoom-max="10" zoom-min="5">
                 <caption fill="#000000" k="name" priority="5" size="24" stroke="#ffffff"
