@@ -13,6 +13,8 @@ import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import org.slf4j.Logger;
@@ -43,6 +45,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     private FragmentHolder mFragmentHolder;
     private FloatingActionButton mFloatingButton;
     private Index mMapIndex;
+    private View mDownloadCheckboxHolder;
+    private CheckBox mDownloadBasemap;
     private TextView mMessageView;
     private TextView mStatusView;
     private TextView mCounterView;
@@ -70,6 +74,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
+        mDownloadCheckboxHolder = rootView.findViewById(R.id.downloadCheckboxHolder);
+        mDownloadBasemap = (CheckBox) rootView.findViewById(R.id.downloadBasemap);
+        mDownloadBasemap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateUI(mMapIndex.getMapStats());
+            }
+        });
         mMessageView = (TextView) rootView.findViewById(R.id.message);
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
         mStatusView = (TextView) rootView.findViewById(R.id.status);
@@ -88,6 +100,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mDownloadBasemap.isChecked()) {
+                    mMapIndex.downloadBaseMap();
+                }
                 if (mCounter == 0 && !BuildConfig.FULL_VERSION) {
                     mListener.onPurchaseMaps();
                     return;
@@ -183,15 +198,20 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         if (!isVisible())
             return;
 
+        if (mMapIndex.isBaseMapOutdated()) {
+            mDownloadBasemap.setText(getString(R.string.downloadBasemap, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
+            mDownloadCheckboxHolder.setVisibility(View.VISIBLE);
+        }
+
         mCounter = stats.download + stats.remove;
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, mCounter, mCounter));
         // can be null when fragment is not yet visible
         if (mFloatingButton != null) {
-            if (stats.download == 0 && stats.remove > 0) {
-                mFloatingButton.setImageResource(R.drawable.ic_delete);
-                mFloatingButton.setVisibility(View.VISIBLE);
-            } else if (stats.download > 0) {
+            if (mDownloadBasemap.isChecked() || stats.download > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
+                mFloatingButton.setVisibility(View.VISIBLE);
+            } else if (stats.remove > 0) {
+                mFloatingButton.setImageResource(R.drawable.ic_delete);
                 mFloatingButton.setVisibility(View.VISIBLE);
             } else if (!BuildConfig.FULL_VERSION) {
                 mFloatingButton.setImageResource(R.drawable.ic_add_shopping_cart_black);
@@ -281,8 +301,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                             publishProgress(progress);
                         }
                     }
-                if (!useCache)
+                short date = data.readShort();
+                int size = data.readInt();
+                mMapIndex.setBaseMapStatus(date, size);
+                if (!useCache) {
+                    dataOut.writeShort(date);
+                    dataOut.writeInt(size);
                     dataOut.close();
+                }
             } catch (Exception e) {
                 logger.error("Failed to load index", e);
                 // remove cache on any error

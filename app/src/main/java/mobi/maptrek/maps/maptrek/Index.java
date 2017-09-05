@@ -69,8 +69,9 @@ public class Index {
     private boolean mHasDownloadSizes;
     private int mMapsLimit = BasePaymentActivity.MAPS_LIMIT;
     private int mLoadedMaps = 0;
+    private short mBaseMapDownloadVersion = 0;
     private short mBaseMapVersion = 0;
-    private long mBaseMapSize = 0L;
+    private long mBaseMapDownloadSize = 0L;
 
     private final Set<WeakReference<MapStateListener>> mMapStateListeners = new HashSet<>();
 
@@ -121,8 +122,17 @@ public class Index {
         return version;
     }
 
+    public boolean isBaseMapOutdated() {
+        return mBaseMapVersion > 0 && mBaseMapVersion < mBaseMapDownloadVersion;
+    }
+
     public long getBaseMapSize() {
-        return mBaseMapSize > 0L ? mBaseMapSize : 20 * 1024 * 1024;
+        return mBaseMapDownloadSize > 0L ? mBaseMapDownloadSize : 20 * 1024 * 1024;
+    }
+
+    public void setBaseMapStatus(short date, int size) {
+        mBaseMapDownloadVersion = date;
+        mBaseMapDownloadSize = size;
     }
 
     /**

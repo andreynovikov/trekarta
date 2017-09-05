@@ -31,4 +31,18 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:id="@+id/downloadCheckboxHolder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/textPadding"
+        android:paddingTop="@dimen/textPadding"
+        android:visibility="gone">
+
+        <CheckBox
+            android:id="@+id/downloadBasemap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
 </LinearLayout>
