@@ -35,6 +35,7 @@ class MapTrekDataSource implements ITileDataSource {
 
     private final MapTrekTileDecoder mTileDecoder;
     private final SQLiteDatabase mDatabase;
+    private boolean mContoursEnabled = true;
 
     MapTrekDataSource(SQLiteDatabase database) {
         mDatabase = database;
@@ -94,6 +95,10 @@ class MapTrekDataSource implements ITileDataSource {
         return null;
     }
 
+    void setContoursEnabled(boolean enabled) {
+        mContoursEnabled = enabled;
+    }
+
     private class NativeTileDataSink implements ITileDataSink {
         private final Tile tile;
         private int scale;
@@ -125,6 +130,8 @@ class MapTrekDataSource implements ITileDataSource {
             //TODO replace with building_part flag
             if (tile.zoomLevel < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
                 return;
+            if (!mContoursEnabled && element.tags.containsKey("contour"))
+                return;
             if (scale != 1) {
                 TileClipper clipper = element.isBuilding() ? mBuildingTileClipper : mTileClipper;
                 if (!clipper.clip(element))
@@ -142,6 +149,11 @@ class MapTrekDataSource implements ITileDataSource {
             if (element.id != 0L) {
                 element.database = MapTrekDataSource.this;
             }
+            /*
+            if (tile.zoomLevel < 8) {
+                logger.error(element.tags.toString());
+            }
+            */
             /*
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
                 logger.error(element.id + ": " + element.tags.toString());

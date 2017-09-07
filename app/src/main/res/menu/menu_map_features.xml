@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action3dBuildings"
+        android:checkable="true"
+        android:title="@string/action3dBuildings" />
+    <item
+        android:id="@+id/actionContours"
+        android:checkable="true"
+        android:title="@string/actionContours" />
+    <item
+        android:id="@+id/actionGrid"
+        android:checkable="true"
+        android:title="@string/actionGrid" />
+</menu>

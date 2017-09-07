@@ -2,30 +2,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/actionAmenityZooms"
-        android:title="@string/actionAmenityZooms"
-        android:actionLayout="@layout/menu_item_action" />
+        android:title="@string/actionAmenityZooms" />
     <item
-        android:id="@+id/action_3dbuildings"
-        android:checkable="true"
-        android:title="@string/action3dBuildings" />
+        android:id="@+id/actionOtherFeatures"
+        android:title="@string/actionOtherFeatures" />
     <item
         android:id="@+id/actionFontSize"
-        android:title="@string/actionFontSize"
-        android:actionLayout="@layout/menu_item_action" />
+        android:actionLayout="@layout/menu_item_action"
+        android:title="@string/actionFontSize" />
     <item
-        android:id="@+id/action_night_mode"
-        android:title="@string/actionNightMode"
-        android:actionLayout="@layout/menu_item_action" />
+        android:id="@+id/actionNightMode"
+        android:actionLayout="@layout/menu_item_action"
+        android:title="@string/actionNightMode" />
     <item
-        android:id="@+id/action_language"
-        android:title="@string/actionLanguage"
-        android:actionLayout="@layout/menu_item_action" />
+        android:id="@+id/actionLanguage"
+        android:actionLayout="@layout/menu_item_action"
+        android:title="@string/actionLanguage" />
     <item
         android:id="@+id/actionAutoTilt"
         android:checkable="true"
         android:title="@string/actionAutoTilt" />
-    <item
-        android:id="@+id/action_grid"
-        android:checkable="true"
-        android:title="@string/actionGrid" />
 </menu>

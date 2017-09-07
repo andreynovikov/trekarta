@@ -586,6 +586,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mNativeTileSource.setPreferredLanguage(language);
+        mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
 
         mBaseLayer = new OsmTileLayer(mMap);
         mBaseLayer.setTileSource(mNativeTileSource);
@@ -1091,7 +1092,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_night_mode: {
+            case R.id.actionNightMode: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionNightMode);
                 builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
@@ -1121,7 +1122,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 dialog.show();
                 return true;
             }
-            case R.id.action_language: {
+            case R.id.actionLanguage: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionLanguage);
                 builder.setItems(R.array.language_array, new DialogInterface.OnClickListener() {
@@ -1149,7 +1150,20 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 dialog.show(getFragmentManager(), "amenitySetup");
                 return true;
             }
-            case R.id.action_3dbuildings: {
+            case R.id.actionOtherFeatures: {
+                PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
+                fragment.setMenu(R.menu.menu_map_features, new PanelMenu.OnPrepareMenuListener() {
+                    @Override
+                    public void onPrepareMenu(PanelMenu menu) {
+                        menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
+                        menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
+                        menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
+                    }
+                });
+                showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
+                return true;
+            }
+            case R.id.action3dBuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
                     mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
@@ -1164,7 +1178,13 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mMap.updateMap(true);
                 return true;
             }
-            case R.id.action_grid: {
+            case R.id.actionContours: {
+                mNativeTileSource.setContoursEnabled(item.isChecked());
+                mMap.clearMap();
+                Configuration.setContoursEnabled(item.isChecked());
+                return true;
+            }
+            case R.id.actionGrid: {
                 if (item.isChecked()) {
                     mMap.layers().add(mGridLayer, MAP_OVERLAYS);
                 } else {
@@ -1518,19 +1538,17 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
             public void onPrepareMenu(PanelMenu menu) {
-                MenuItem item = menu.findItem(R.id.action_night_mode);
+                MenuItem item = menu.findItem(R.id.actionNightMode);
                 String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                 ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
                 item = menu.findItem(R.id.actionFontSize);
                 String[] fontSizes = getResources().getStringArray(R.array.font_size_array);
                 ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
-                item = menu.findItem(R.id.action_language);
+                item = menu.findItem(R.id.actionLanguage);
                 ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                 menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-                menu.findItem(R.id.action_3dbuildings).setChecked(mBuildingsLayerEnabled);
-                menu.findItem(R.id.action_grid).setChecked(mMap.layers().contains(mGridLayer));
                 if (!BuildConfig.FULL_VERSION) {
-                    menu.removeItem(R.id.action_night_mode);
+                    menu.removeItem(R.id.actionNightMode);
                 }
             }
         });

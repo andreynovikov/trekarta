@@ -14,21 +14,16 @@ import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.geom.TileClipper;
 
+import java.util.HashSet;
+
 import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 
 public class MapTrekTileSource extends TileSource {
-    private static final MapElement mSea = new MapElement();
     private static final MapElement mLand = new MapElement();
 
     private static final int CLIP_BUFFER = 32;
 
     static {
-        mSea.tags.add(new Tag("natural", "sea"));
-        mSea.startPolygon();
-        mSea.addPoint(-16, -16);
-        mSea.addPoint(Tile.SIZE + 16, -16);
-        mSea.addPoint(Tile.SIZE + 16, Tile.SIZE + 16);
-        mSea.addPoint(-16, Tile.SIZE + 16);
         mLand.tags.add(new Tag("natural", "land"));
         mLand.startPolygon();
         mLand.addPoint(-16, -16);
@@ -38,18 +33,25 @@ public class MapTrekTileSource extends TileSource {
     }
 
     private final MultiMapFileTileSource mMultiMapFileTileSource;
-    private final SQLiteDatabase mDetailedMapDatabase;
+    private final SQLiteDatabase mNativeMapDatabase;
+    private final HashSet<MapTrekDataSource> mMapTrekDataSources;
     private OnDataMissingListener mOnDataMissingListener;
 
 
-    public MapTrekTileSource(SQLiteDatabase detailedMapDatabase, MultiMapFileTileSource multiMapFileTileSource) {
+    public MapTrekTileSource(SQLiteDatabase nativeMapDatabase, MultiMapFileTileSource multiMapFileTileSource) {
         super(2, 17);
-        mDetailedMapDatabase = detailedMapDatabase;
+        mNativeMapDatabase = nativeMapDatabase;
         mMultiMapFileTileSource = multiMapFileTileSource;
+        mMapTrekDataSources = new HashSet<>();
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
         mMultiMapFileTileSource.setPreferredLanguage(preferredLanguage);
+    }
+
+    public void setContoursEnabled(boolean enabled) {
+        for (MapTrekDataSource source : mMapTrekDataSources)
+            source.setContoursEnabled(enabled);
     }
 
     public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
@@ -58,10 +60,10 @@ public class MapTrekTileSource extends TileSource {
 
     @Override
     public ITileDataSource getDataSource() {
-        MapTrekDataSource detailedDataSource = new MapTrekDataSource(mDetailedMapDatabase);
+        MapTrekDataSource mapTrekDataSource = new MapTrekDataSource(mNativeMapDatabase);
         ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
-
-        return new NativeDataSource(detailedDataSource, mapFileDataSource);
+        mMapTrekDataSources.add(mapTrekDataSource);
+        return new NativeDataSource(mapTrekDataSource, mapFileDataSource);
     }
 
     @Override
@@ -107,9 +109,6 @@ public class MapTrekTileSource extends TileSource {
                 mapDataSink.process(mLand);
             } else {
                 mMapFileDataSource.query(tile, proxyDataSink);
-                //mapDataSink.process(mLand);
-                //if (proxyDataSink.result == QueryResult.SUCCESS)
-                //    mapDataSink.process(mSea);
             }
             if (proxyDataSink.result != QueryResult.SUCCESS) {
                 mapDataSink.process(mLand);
