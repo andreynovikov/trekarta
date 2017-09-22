@@ -156,11 +156,19 @@ public class MapTrekTileSource extends TileSource {
         }
 
         @Override
-        public void process(MapElement element) {
+        public void process(MapElement el) {
+            ExtendedMapElement element = (ExtendedMapElement) el;
             if (!mTileClipper.clip(element))
                 return;
             element.scale(scale, scale);
             element.translate(-dx, -dy);
+            if (element.hasLabelPosition && element.labelPosition != null) {
+                element.labelPosition.x = element.labelPosition.x * scale - dx;
+                element.labelPosition.y = element.labelPosition.y * scale - dy;
+                if (element.labelPosition.x < 0 || element.labelPosition.x > Tile.SIZE
+                        || element.labelPosition.y < 0 || element.labelPosition.y > Tile.SIZE)
+                    element.labelPosition = null;
+            }
             mapDataSink.process(element);
         }
 
