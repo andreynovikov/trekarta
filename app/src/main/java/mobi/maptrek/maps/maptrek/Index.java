@@ -59,6 +59,7 @@ public class Index {
 
     public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
+    private static final int BASEMAP_SIZE_STUB = 36;
 
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
@@ -127,7 +128,7 @@ public class Index {
     }
 
     public long getBaseMapSize() {
-        return mBaseMapDownloadSize > 0L ? mBaseMapDownloadSize : 20 * 1024 * 1024;
+        return mBaseMapDownloadSize > 0L ? mBaseMapDownloadSize : BASEMAP_SIZE_STUB * 1024 * 1024;
     }
 
     public void setBaseMapStatus(short date, int size) {
