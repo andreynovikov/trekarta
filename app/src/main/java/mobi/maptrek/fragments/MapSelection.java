@@ -109,6 +109,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 }
                 if (mCounter > 0) {
                     mListener.onManageNativeMaps();
+                }
+                if (mDownloadBasemap.isChecked() || mCounter > 0) {
                     mListener.onFinishMapManagement();
                 }
                 mFragmentHolder.disableActionButton();
