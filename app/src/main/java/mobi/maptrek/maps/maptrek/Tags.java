@@ -113,7 +113,8 @@ public class Tags {
             "surface",
             "toll",
             "tower:type",
-            "wetland"
+            "wetland",
+            "maritime"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -668,7 +669,8 @@ public class Tags {
             "laundry",
             "dry_cleaning",
             "ice_cream",
-            "bare_rock"
+            "bare_rock",
+            "lock_gate"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
