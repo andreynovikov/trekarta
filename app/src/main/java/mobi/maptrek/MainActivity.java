@@ -2774,7 +2774,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         if ("vtm".equals(mapFile.tileSource.getOption("format"))) {
             OsmTileLayer layer = new OsmTileLayer(mMap);
             layer.setTileSource(mapFile.tileSource);
-            layer.setRenderTheme(ThemeLoader.load(VtmThemes.DEFAULT));
+            layer.setRenderTheme(ThemeLoader.load(VtmThemes.MAPTREK));
             mapFile.tileLayer = layer;
         } else {
             mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);

@@ -12,7 +12,6 @@ import java.io.InputStream;
 enum VtmThemes implements ThemeFile {
 
     MAPTREK("styles/maptrek.xml"),
-    DEFAULT("styles/default.xml"),
     NEWTRON("styles/newtron.xml");
 
     public static final float[] MAP_FONT_SIZES = {.3f, .5f, .7f, .9f, 1.1f};
