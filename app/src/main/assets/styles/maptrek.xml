@@ -1206,7 +1206,7 @@
         </m>
         <m v="sea">
             <m zoom-min="5">
-                <text caption="true" priority="0" size="18" use="water" />
+                <text caption="true" priority="6" size="18" use="water" />
             </m>
         </m>
         <m v="ocean">
