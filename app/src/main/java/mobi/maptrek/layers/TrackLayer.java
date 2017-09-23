@@ -155,6 +155,7 @@ public class TrackLayer extends Layer {
                     for (int i = 0; i < size; i++) {
                         Track.TrackPoint point = mTrack.points.get(i);
                         MercatorProjection.project(point, points, i);
+
                         if (!point.continuous && i > 0) {
                             if (indexPos + 1 >= index.length)
                                 ensureIndexSize(indexPos + 1, true);
@@ -163,7 +164,6 @@ public class TrackLayer extends Layer {
                             if (index.length > indexPos + 1)
                                 index[indexPos] = -1;
                         }
-
                     }
                 }
             }
@@ -223,6 +223,15 @@ public class TrackLayer extends Layer {
                 x = (int) ((mPreprojected[j + 0] - mx) * scale);
                 y = (int) ((mPreprojected[j + 1] - my) * scale);
 
+                int flipDirection = 0;
+                if (x > maxx) {
+                    x -= maxx * 2;
+                    flipDirection = -1;
+                } else if (x < -maxx) {
+                    x += maxx * 2;
+                    flipDirection = 1;
+                }
+
                 if (index[indexPos] == (j >> 1)) {
                     if (i > 2)
                         ll.addLine(projected, i, false);
@@ -231,15 +240,6 @@ public class TrackLayer extends Layer {
                     i = addPoint(projected, 0, x, y);
                     indexPos++;
                     continue;
-                }
-
-                int flipDirection = 0;
-                if (x > maxx) {
-                    x -= maxx * 2;
-                    flipDirection = -1;
-                } else if (x < -maxx) {
-                    x += maxx * 2;
-                    flipDirection = 1;
                 }
 
                 if (flip != flipDirection) {
