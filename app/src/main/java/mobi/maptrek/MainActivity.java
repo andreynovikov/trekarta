@@ -143,6 +143,7 @@ import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
+import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
@@ -192,7 +193,7 @@ import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
 import mobi.maptrek.view.PanelMenu;
 
-public class MainActivity extends BasePaymentActivity implements ILocationListener,
+public class MainActivity extends BasePluginActivity implements ILocationListener,
         DataHolder,
         MapHolder,
         Map.InputListener,
@@ -203,6 +204,7 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
         TrackProperties.OnTrackPropertiesChangedListener,
         OnWaypointActionListener,
         OnTrackActionListener,
+        OnMapActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
@@ -3401,9 +3403,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                     if (oldMap != null)
                         mMapIndex.removeMap(oldMap);
                 }
-                //FIXME Hack!
-                if (mMapCoverageLayer != null)
-                    mMapCoverageLayer.onStatsChanged();
             }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
                 final Bundle extras = intent.getExtras();
@@ -3514,12 +3513,6 @@ public class MainActivity extends BasePaymentActivity implements ILocationListen
                 mTotalDataItems--;
             }
         }
-    }
-
-    @Override
-    protected void onMapLimitChanged(int limit) {
-        mNativeMapIndex.setLimit(limit);
-        mMap.clearMap();
     }
 
     private void addWaypointMarker(Waypoint waypoint) {

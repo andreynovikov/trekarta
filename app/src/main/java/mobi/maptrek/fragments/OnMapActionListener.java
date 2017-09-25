@@ -9,5 +9,4 @@ public interface OnMapActionListener {
     void onBeginMapManagement();
     void onFinishMapManagement();
     void onManageNativeMaps();
-    void onPurchaseMaps();
 }

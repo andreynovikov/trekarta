@@ -32,7 +32,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import mobi.maptrek.BuildConfig;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 
@@ -102,10 +101,6 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             public void onClick(View v) {
                 if (mDownloadBasemap.isChecked()) {
                     mMapIndex.downloadBaseMap();
-                }
-                if (mCounter == 0 && !BuildConfig.FULL_VERSION) {
-                    mListener.onPurchaseMaps();
-                    return;
                 }
                 if (mCounter > 0) {
                     mListener.onManageNativeMaps();
@@ -215,9 +210,6 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
                 mFloatingButton.setVisibility(View.VISIBLE);
-            } else if (!BuildConfig.FULL_VERSION) {
-                mFloatingButton.setImageResource(R.drawable.ic_add_shopping_cart_black);
-                mFloatingButton.setVisibility(View.VISIBLE);
             } else {
                 mFloatingButton.setVisibility(View.GONE);
             }
@@ -237,11 +229,6 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 stringBuilder.append(", ");
             stringBuilder.append(mResources.getQuantityString(R.plurals.downloading, stats.downloading, stats.downloading));
         }
-        if (stats.remaining >= 0) {
-            if (stringBuilder.length() > 0)
-                stringBuilder.append(", ");
-            stringBuilder.append(mResources.getQuantityString(R.plurals.remaining, stats.remaining, stats.remaining));
-        }
         if (stringBuilder.length() > 0) {
             mCounterView.setVisibility(View.VISIBLE);
             mCounterView.setText(stringBuilder);
@@ -256,7 +243,12 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     @Override
     public void onStatsChanged() {
-        updateUI(mMapIndex.getMapStats());
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateUI(mMapIndex.getMapStats());
+            }
+        });
     }
 
     private class LoadMapIndex extends AsyncTask<Boolean, Integer, Boolean> {

@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import mobi.maptrek.BasePaymentActivity;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
@@ -59,7 +58,7 @@ public class Index {
 
     public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
-    private static final int BASEMAP_SIZE_STUB = 36;
+    private static final int BASEMAP_SIZE_STUB = 40;
 
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
@@ -68,7 +67,6 @@ public class Index {
     private final DownloadManager mDownloadManager;
     private MapStatus[][] mMaps = new MapStatus[128][128];
     private boolean mHasDownloadSizes;
-    private int mMapsLimit = BasePaymentActivity.MAPS_LIMIT;
     private int mLoadedMaps = 0;
     private short mBaseMapDownloadVersion = 0;
     private short mBaseMapVersion = 0;
@@ -157,28 +155,18 @@ public class Index {
                 stats.download--;
                 if (mHasDownloadSizes)
                     stats.downloadSize -= mapStatus.downloadSize;
-                if (stats.remaining >= 0)
-                    stats.remaining++;
             }
             if (action == ACTION.REMOVE) {
                 stats.remove--;
-                if (stats.remaining > 0)
-                    stats.remaining--;
             }
-        } else if (action != ACTION.DOWNLOAD || stats.remaining != 0) {
+        } else if (action == ACTION.DOWNLOAD) {
             mapStatus.action = action;
-            if (action == ACTION.DOWNLOAD) {
-                stats.download++;
-                if (mHasDownloadSizes)
-                    stats.downloadSize += mapStatus.downloadSize;
-                if (stats.remaining > 0)
-                    stats.remaining--;
-            }
-            if (action == ACTION.REMOVE) {
-                stats.remove++;
-                if (stats.remaining >= 0)
-                    stats.remaining++;
-            }
+            stats.download++;
+            if (mHasDownloadSizes)
+                stats.downloadSize += mapStatus.downloadSize;
+        } else if (action == ACTION.REMOVE) {
+            mapStatus.action = action;
+            stats.remove++;
         }
         for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
             MapStateListener mapStateListener = weakRef.get();
@@ -399,10 +387,6 @@ public class Index {
                     stats.downloading++;
             }
         stats.loaded = mLoadedMaps;
-        if (mMapsLimit != Integer.MAX_VALUE)
-            stats.remaining = mMapsLimit - stats.loaded - stats.download - stats.downloading + stats.remove;
-        else
-            stats.remaining = -1;
 
         return stats;
     }
@@ -477,10 +461,18 @@ public class Index {
             values.put(COLUMN_MAPS_Y, y);
             mDatabase.insert(TABLE_MAPS, null, values);
         }
-        if (x >= 0 && y >= 0) {
+        if (x == -1 && y == -1) {
+            mBaseMapVersion = date;
+        } else if (x >= 0 && y >= 0) {
             MapStatus mapStatus = getNativeMap(x, y);
             mapStatus.created = date;
             mapStatus.downloading = 0L;
+            for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+                MapStateListener mapStateListener = weakRef.get();
+                if (mapStateListener != null) {
+                    mapStateListener.onStatsChanged();
+                }
+            }
         }
     }
 
@@ -563,10 +555,6 @@ public class Index {
                 .build();
     }
 
-    public void setLimit(int limit) {
-        //TODO Implement
-    }
-
     public static class MapStatus {
         public short created = 0;
         public short downloadCreated;
@@ -580,7 +568,6 @@ public class Index {
         public int download = 0;
         public int remove = 0;
         public int downloading = 0;
-        public int remaining = 0;
         public long downloadSize = 0L;
     }
 
