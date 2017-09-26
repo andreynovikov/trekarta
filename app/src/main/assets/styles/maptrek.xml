@@ -68,6 +68,7 @@
     <style-line id="residential" stroke="#ffffff" width="0.9" />
     <style-line id="highway-service" use="residential" width="-0.2" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
+    <style-area fill="#e0e0e0" id="pedestrian" />
     <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
     <style-line cap="butt" fix="true" id="highway:track:g1" stroke="#99764D" width="1.8" />
     <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#99764D"
@@ -343,8 +344,7 @@
             <m k="piste:difficulty" v="~">
                 <line stroke="#aaaaaa" width="2.0" />
             </m>
-            <line fix="true" src="assets:symbols/oneway.svg" stipple="120" stipple-stroke="#444444"
-                width="32" />
+            <lineSymbol src="assets:symbols/oneway.svg" />
         </m>
     </m>
     <m k="piste:type" v="sled">
@@ -382,8 +382,7 @@
                 <m v="river">
                     <line fade="10" use="river" width="0.3" />
                     <m zoom-min="17">
-                        <line fix="true" src="assets:symbols/oneway_long.svg" stipple="600"
-                            stipple-stroke="#587f9d" width="36" />
+                        <lineSymbol src="assets:symbols/oneway_river.svg" />
                     </m>
                     <text priority="4" use="water" />
                 </m>
@@ -424,12 +423,11 @@
     <m k="natural" v="cliff">
         <line cap="butt" fix="true" stroke="#888888" width="3" />
         <m zoom-min="14">
-            <line fix="true" src="assets:symbols/natural/cliff.svg" stipple="80"
-                stipple-stroke="#888888" width="20" />
+            <lineSymbol repeat-gap="1" repeat-start="1" src="assets:symbols/natural/cliff.svg" />
         </m>
         <m zoom-max="13" zoom-min="13">
-            <line fix="true" src="assets:symbols/natural/cliff.svg" stipple="40"
-                stipple-stroke="#888888" width="20" />
+            <lineSymbol repeat-gap="30" repeat-start="0" src="assets:symbols/natural/cliff.svg"
+                symbol-percent="80" />
         </m>
     </m>
 
@@ -545,7 +543,7 @@
                                     <line use="highway:track:g5" />
                                 </m>
                             </m>
-                            <text use="road" />
+                            <text use="road-name" />
                         </m>
                         <m v="service">
                             <!-- matches every service but parking_isle -->
@@ -652,12 +650,10 @@
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
                             <m k="highway" v="-|cycleway">
-                                <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
-                                    stipple-stroke="#888888" width="26" />
+                                <lineSymbol src="assets:symbols/oneway.svg" />
                             </m>
                             <m k="highway" v="cycleway" zoom-min="17">
-                                <line fix="true" src="assets:symbols/oneway.svg" stipple="320"
-                                    stipple-stroke="#3333ff" width="48" />
+                                <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
                             </m>
                         </m>
                     </m> <!-- area: no -->
@@ -771,7 +767,7 @@
                         <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
                         <line cap="square" use="highway:track:g1" />
-                        <text use="road" />
+                        <text use="road-name" />
                     </m>
                     <m v="service">
                         <!-- matches every service but parking_isle -->
@@ -873,8 +869,7 @@
                         <line use="cycleway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
-                        <line fix="true" src="assets:symbols/oneway.svg" stipple="120"
-                            stipple-stroke="#888888" width="26" />
+                        <lineSymbol src="assets:symbols/oneway.svg" />
                     </m>
                 </m> <!-- end area=no -->
             </m>
@@ -1009,13 +1004,13 @@
         <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
             width="12" />
         <m k="aerialway" v="cable_car">
-            <symbol src="assets:symbols/transport/cable_car.svg" />
+            <lineSymbol src="assets:symbols/transport/cable_car.svg" symbol-percent="70" />
         </m>
         <m k="aerialway" v="chair_lift">
-            <symbol src="assets:symbols/transport/chair_lift.svg" />
+            <lineSymbol src="assets:symbols/transport/chair_lift.svg" symbol-percent="70" />
         </m>
         <m k="aerialway" v="gondola">
-            <symbol src="assets:symbols/transport/gondola.svg" />
+            <lineSymbol src="assets:symbols/transport/gondola.svg" symbol-percent="70" />
         </m>
         <m zoom-min="14">
             <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
@@ -1126,7 +1121,7 @@
             <caption fill="#444411" k="name" priority="7" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
-        <m select="first" v="town">
+        <m e="node" select="first" v="town">
             <m k="admin_level" v="2">
                 <caption dy="14" fill="#000000" k="name" priority="2" size="18" stroke="#ffffff"
                     stroke-width="2.0" symbol="assets:symbols/star.svg" />
