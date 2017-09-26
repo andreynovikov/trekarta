@@ -61,7 +61,6 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -366,9 +365,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onCreate(savedInstanceState);
         logger.debug("onCreate()");
         Window window = getWindow();
-        window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        //w.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        //w.setStatusBarColor(Color.TRANSPARENT);
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_main);
 
         Resources resources = getResources();
@@ -404,13 +401,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         File mapsDir = getExternalFilesDir("maps");
 
+        // Provide application context so that maps can be cached on rotation
+        mNativeMapIndex = MapTrek.getApplication().getMapIndex();
+
         if (mDataFragment == null) {
             // add the fragment
             mDataFragment = new DataFragment();
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
             // Provide application context so that maps can be cached on rotation
-            mNativeMapIndex = MapTrek.getApplication().getMapIndex();
             mMapIndex = new MapIndex(getApplicationContext(), mapsDir);
             if (BuildConfig.FULL_VERSION) {
                 initializePlugins();
@@ -754,6 +753,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() ^ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         // Get back to full screen mode after edge swipe
+        /*
         decorView.setOnSystemUiVisibilityChangeListener(
                 new View.OnSystemUiVisibilityChangeListener() {
                     @Override
@@ -771,19 +771,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         }
                     }
                 });
+        */
 
+        /*
         mCoordinatorLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @Override
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                 final int statusBar = insets.getSystemWindowInsetTop();
                 final int navigationBar = insets.getSystemWindowInsetBottom();
-                mStatusBarHeight = statusBar;
+                //mStatusBarHeight = statusBar;
+                logger.debug("setOnApplyWindowInsetsListener({}, {})", statusBar, navigationBar);
                 FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) v.getLayoutParams();
-                p.setMargins(0, statusBar, 0, 0);
-                v.requestLayout();
-                return insets;
+                //p.topMargin = mStatusBarHeight;
+                //v.requestLayout();
+                return insets.consumeSystemWindowInsets();
             }
         });
+        */
 
         onNewIntent(getIntent());
     }
@@ -2816,7 +2820,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
 
         if (animate)
-            mMoreButton.animate().rotationBy(180).setDuration(duration * 5);
+            mMoreButton.animate().rotationBy(180).setDuration(duration * 5).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mMoreButton.setRotation(0f);
+                }
+            });
         if (show) {
             mAPB.setVisibility(View.VISIBLE);
             if (animate)
@@ -2840,6 +2849,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                         mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
+                                                mExtendPanel.postInvalidate();
                                             }
                                         });
                                     }
@@ -3255,6 +3265,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 logger.debug("onGlobalLayout()");
+
+                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mCoordinatorLayout.getLayoutParams();
+                p.topMargin = mStatusBarHeight;
 
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
@@ -3825,19 +3838,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         // for some reason visibility is not updated if application menu was previously shown
         decorView.invalidate();
+        updateMapViewArea();
     }
 
     private void showSystemUI() {
+        mMainHandler.removeMessages(R.id.msgHideSystemUI);
         Configuration.setHideSystemUI(false);
         mStatusBarHeight = getStatusBarHeight();
         final View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         // for some reason visibility is not updated if application menu was previously shown
         decorView.invalidate();
-        mMainHandler.removeMessages(R.id.msgHideSystemUI);
     }
 
     private int getStatusBarHeight() {
