@@ -378,6 +378,24 @@
             <line use="water" />
         </m>
         <m k="waterway">
+            <!-- match tunnel-tag (to ensure tunnel key is present) -->
+            <m k="tunnel">
+                <!-- match tunnel-tag that are not 'no' -->
+                <m k="tunnel" v="-|no">
+                    <m v="river">
+                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5"
+                            stroke="#00ffffff" width="1.3" />
+                    </m>
+                    <m v="canal">
+                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5"
+                            stroke="#00ffffff" width="0.7" />
+                    </m>
+                    <m v="stream">
+                        <line cap="square" fix="true" stipple="20" stipple-stroke="#b4c7d5"
+                            stroke="#00ffffff" width="1.5" />
+                    </m>
+                </m>
+            </m>
             <m k="tunnel" v="~|false">
                 <m v="river">
                     <line fade="10" use="river" width="0.3" />
@@ -466,6 +484,122 @@
             </m>
         </m>
         <m zoom-min="8">
+            <!-- match tunnel-tag (to ensure tunnel key is present) -->
+            <m k="tunnel">
+                <!-- match tunnel-tag that are not 'no' -->
+                <m k="tunnel" v="-|no">
+                    <!-- match area-tag that are 'no' or not present -->
+                    <m k="area" v="~|no|false">
+                        <!-- highway tunnels -->
+                        <m k="highway">
+                            <m v="footway">
+                                <!--TODO Add stipple outline -->
+                                <line use="footway" />
+                            </m>
+                            <m v="path">
+                                <!--TODO Add stipple outline -->
+                                <line use="path" />
+                            </m>
+                            <m v="bridleway">
+                                <!--TODO Add stipple outline -->
+                                <line use="bridleway" />
+                            </m>
+                            <m v="track">
+                                <m zoom-max="13" zoom-min="13">
+                                    <line use="highway:track:g2" width="-0.8" />
+                                </m>
+                                <m zoom-min="14">
+                                    <!--TODO Add stipple outline -->
+                                    <line use="highway:track:g2" />
+                                </m>
+                                <text use="road-name" />
+                            </m>
+                            <m v="service">
+                                <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                    stroke="#00ffffff" width="0.8" />
+                            </m>
+                            <m v="tertiary_link">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.3" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="secondary_link">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.4" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="primary_link">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.5" />
+                                <text use="major-road-name" />
+                                <text use="major-road-ref" />
+                            </m>
+                            <m v="trunk_link|motorway_link">
+                                <line cap="square" stipple="20" stipple-stroke="#feeba1"
+                                    stroke="#00ffffff" width="1.5" />
+                                <text use="major-road-name" />
+                            </m>
+                            <m v="road|construction">
+                                <line stroke="#00ffffff" use="road-construction" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="pedestrian">
+                                <line cap="square" stipple="20" stipple-stroke="#ededed"
+                                    stroke="#00ffffff" width="1.0" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="residential|living_street">
+                                <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                    stroke="#00ffffff" width="1.2" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="unclassified">
+                                <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                    stroke="#00ffffff" width="1.3" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="tertiary">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.3" />
+                                <text use="road-name" />
+                            </m>
+                            <m v="secondary">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.4" />
+                                <text use="major-road-name" />
+                                <text use="major-road-ref" />
+                            </m>
+                            <m v="primary">
+                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                    stroke="#00ffffff" width="1.5" />
+                                <text use="major-road-name" />
+                                <text use="major-road-ref" />
+                            </m>
+                            <m v="trunk">
+                                <line cap="square" stipple="20" stipple-stroke="#fee685"
+                                    stroke="#00ffffff" width="1.7" />
+                                <text use="major-road-name" />
+                                <text use="trunk-road-ref" />
+                            </m>
+                            <m v="motorway">
+                                <line cap="square" stipple="20" stipple-stroke="#fdcf8c"
+                                    stroke="#00ffffff" width="1.8" />
+                                <text use="major-road-name" />
+                                <text use="trunk-road-ref" />
+                            </m>
+                        </m>
+                        <m k="oneway" v="1" zoom-min="16">
+                            <m k="highway" v="-|cycleway">
+                                <lineSymbol src="assets:symbols/oneway.svg" />
+                            </m>
+                            <m k="highway" v="cycleway" zoom-min="17">
+                                <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
+                            </m>
+                        </m>
+                    </m>
+                </m>
+            </m>
+
             <!-- when tunnel is present it must be 'no' -->
             <m k="tunnel" v="~|no">
                 <m k="area" v="yes" zoom-min="16">
@@ -673,7 +807,33 @@
 
     <!-- Railways (no tunnel) -->
     <m e="way" k="railway" zoom-min="12">
-        <m k="tunnel" v="~|false|no|0">
+        <!-- match tunnel-tag (to ensure tunnel key is present) -->
+        <m k="tunnel">
+            <!-- match tunnel-tag that are not 'no' -->
+            <m k="tunnel" v="-|no">
+                <m k="railway" v="tram|miniature" zoom-min="15">
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#aa9988" width="2.0" />
+                </m>
+                <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#777777" width="1.5" />
+                </m>
+                <m k="railway" v="rail" zoom-max="13">
+                    <line cap="butt" fade="12" fix="true" stipple="10" stipple-stroke="#00ffffff"
+                        stroke="#999999" width="1.0" />
+                </m>
+                <m k="railway" v="rail" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#777777" width="3.0" />
+                </m>
+                <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#cccccc" width="1.5" />
+                </m>
+            </m>
+        </m>
+        <m k="tunnel" v="~|no">
             <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
             <!-- railway bridge casings -->
             <m zoom-min="14">
@@ -712,14 +872,14 @@
             <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
                 <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff" stroke="#999999"
                     width="4.0" />
-                <line cap="butt" fix="true" stroke="#999999" width="1.5" />
+                <line cap="butt" fix="true" stroke="#777777" width="1.5" />
             </m>
             <m k="railway" v="rail" zoom-max="13">
                 <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
             </m>
             <m k="railway" v="rail" zoom-min="14">
                 <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
-                    stipple-width="0.8" stroke="#999999" width="3.0" />
+                    stipple-width="0.8" stroke="#777777" width="3.0" />
             </m>
             <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
                 <m zoom-min="16">
@@ -1004,13 +1164,13 @@
         <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
             width="12" />
         <m k="aerialway" v="cable_car">
-            <lineSymbol src="assets:symbols/transport/cable_car.svg" symbol-percent="70" />
+            <symbol src="assets:symbols/transport/cable_car.svg" />
         </m>
         <m k="aerialway" v="chair_lift">
-            <lineSymbol src="assets:symbols/transport/chair_lift.svg" symbol-percent="70" />
+            <symbol src="assets:symbols/transport/chair_lift.svg" />
         </m>
         <m k="aerialway" v="gondola">
-            <lineSymbol src="assets:symbols/transport/gondola.svg" symbol-percent="70" />
+            <symbol src="assets:symbols/transport/gondola.svg" />
         </m>
         <m zoom-min="14">
             <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
