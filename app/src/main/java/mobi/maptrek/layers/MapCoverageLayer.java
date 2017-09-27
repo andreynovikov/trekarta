@@ -36,7 +36,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static final float TILE_SCALE = 1f / (1 << 7);
     private static final long MAP_EXPIRE_PERIOD = 6; // one week
     private static final int MIN_ZOOM = 3;
-    public static final int TEXT_MIN_ZOOM = 6;
+    public static final int TEXT_MIN_ZOOM = 5;
     private static final int TEXT_MAX_ZOOM = 8;
 
     private final Index mMapIndex;
@@ -65,8 +65,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mSelectedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
         mDeletedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
         mLineStyle = LineStyle.builder().fadeScale(MIN_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(0.5f * scale).fixed(true).build();
-        mTextStyle = TextStyle.builder().fontSize(10 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
-        mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).build();
+        mTextStyle = TextStyle.builder().fontSize(10 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
+        mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
         mDateFormat = DateFormat.getDateFormat(context);
         mMapIndex.addMapStateListener(this);
     }
