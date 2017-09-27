@@ -12,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
 
 import org.greenrobot.eventbus.EventBus;
+import org.oscim.utils.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +52,9 @@ public class MapTrek extends Application {
 
     // Configure global defaults
     static {
-        org.oscim.map.Map.NEW_GESTURES = true;
-        org.oscim.theme.ThemeLoader.USE_ATLAS = true;
-        org.oscim.theme.ThemeLoader.POT_TEXTURES = true;
+        Parameters.MAP_EVENT_LAYER2 = true;
+        Parameters.TEXTURE_ATLAS = true;
+        Parameters.POT_TEXTURES = true;
     }
 
     @Override

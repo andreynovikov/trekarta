@@ -21,6 +21,7 @@ import org.oscim.core.PointF;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.vector.VectorTileLayer;
+import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.layers.tile.vector.labeling.LabelTileData;
 import org.oscim.layers.tile.vector.labeling.WayDecorator;
 import org.oscim.renderer.bucket.RenderBuckets;
@@ -36,9 +37,10 @@ import mobi.maptrek.util.StringFormatter;
 import static org.oscim.core.GeometryBuffer.GeometryType.LINE;
 import static org.oscim.core.GeometryBuffer.GeometryType.POINT;
 import static org.oscim.core.GeometryBuffer.GeometryType.POLY;
-import static org.oscim.layers.tile.vector.labeling.LabelLayer.LABEL_DATA;
 
 public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook {
+    private static final String LABEL_DATA = LabelLayer.class.getName();
+
     private int mLang = 0;
 
     //public final static LabelTileData EMPTY = new LabelTileData();
