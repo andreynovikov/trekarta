@@ -132,6 +132,10 @@ class MapTrekDataSource implements ITileDataSource {
                 return;
             if (!mContoursEnabled && element.tags.containsKey("contour"))
                 return;
+            if (element.tags.containsKey("tunnel")) {
+                if (element.layer < 5)
+                    element.layer = 5;
+            }
             if (scale != 1) {
                 TileClipper clipper = element.isBuilding() ? mBuildingTileClipper : mTileClipper;
                 if (!clipper.clip(element))
