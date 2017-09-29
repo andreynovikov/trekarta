@@ -31,6 +31,8 @@ import org.oscim.theme.styles.RenderStyle;
 import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.geom.PolyLabel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.util.StringFormatter;
 
@@ -39,6 +41,8 @@ import static org.oscim.core.GeometryBuffer.GeometryType.POINT;
 import static org.oscim.core.GeometryBuffer.GeometryType.POLY;
 
 public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook {
+    private static final Logger logger = LoggerFactory.getLogger(LabelTileLoaderHook.class);
+
     private static final String LABEL_DATA = LabelLayer.class.getName();
 
     private int mLang = 0;
@@ -80,9 +84,6 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                 PointF label = element.labelPosition;
 
                 if (element instanceof ExtendedMapElement) {
-                    // skip if element has no name
-                    if (((ExtendedMapElement) element).id == 0L)
-                        return false;
                     // skip any calculations if element has label position but it is not defined
                     if (((ExtendedMapElement) element).hasLabelPosition && label == null)
                         return false;
@@ -162,12 +163,6 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
     }
 
     private String getTextValue(MapElement element, String key) {
-        String value = element.tags.getValue(key);
-        if (value != null) {
-            if (value.length() == 0)
-                return null;
-            return value;
-        }
         if ("name".equals(key) && element instanceof ExtendedMapElement) {
             ExtendedMapElement extendedElement = (ExtendedMapElement) element;
             if (extendedElement.id == 0L)
@@ -190,6 +185,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             }
 
         }
+        String value = element.tags.getValue(key);
+        if (value != null && value.length() > 0)
+            return value;
         return null;
     }
 
