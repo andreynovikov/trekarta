@@ -173,7 +173,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         float tx = (x + TILE_SCALE / 2) * scale;
                         float ty = (y + TILE_SCALE / 2) * scale;
                         TextItem ti;
-                        if (!BuildConfig.DEBUG) {
+                        if (BuildConfig.DEBUG) {
                             ti = TextItem.pool.get();
                             ti.set(tx, ty - mTextStyle.fontHeight / 5, tileXX + "-" + tileY, mTextStyle);
                             text.addText(ti);
