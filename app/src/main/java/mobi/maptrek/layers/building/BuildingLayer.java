@@ -88,13 +88,9 @@ public class BuildingLayer extends org.oscim.layers.tile.buildings.BuildingLayer
         }
 
         double lat = MercatorProjection.toLatitude(tile.y);
-        float groundScale = (float) MercatorProjection
-                .groundResolution(lat, 1 << tile.zoomLevel);
+        float groundScale = (float) MercatorProjection.groundResolutionWithScale(lat, 1 << tile.zoomLevel);
 
-        ebs.buckets = Inlist.push(ebs.buckets,
-                new ExtrusionBucket(0, groundScale,
-                        colors));
-
+        ebs.buckets = Inlist.push(ebs.buckets, new ExtrusionBucket(0, groundScale, colors));
         ebs.buckets.add(element, height, minHeight);
 
         return true;
