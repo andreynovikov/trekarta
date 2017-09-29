@@ -251,7 +251,6 @@ public class Index {
         try {
             logger.error("Importing from {}", mapFile.getName());
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
-            //mDatabase.beginTransaction();
 
             int total = 0, progress = 0;
             if (progressListener != null) {
@@ -264,6 +263,7 @@ public class Index {
 
             // copy names
             SQLiteStatement statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_NAMES + " VALUES (?,?)");
+            mDatabase.beginTransaction();
             Cursor cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -278,6 +278,8 @@ public class Index {
                 cursor.moveToNext();
             }
             cursor.close();
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
             logger.error("  imported names");
 
             // copy features
@@ -285,6 +287,7 @@ public class Index {
             SQLiteStatement extraStatement = mDatabase.compileStatement("REPLACE INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
             extraStatement.bindLong(1, x);
             extraStatement.bindLong(2, y);
+            mDatabase.beginTransaction();
             cursor = database.query(TABLE_FEATURES, ALL_COLUMNS_FEATURES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -303,10 +306,13 @@ public class Index {
                 cursor.moveToNext();
             }
             cursor.close();
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
             logger.error("  imported features");
 
             // copy feature names
             statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURE_NAMES + " VALUES (?,?,?)");
+            mDatabase.beginTransaction();
             cursor = database.query(TABLE_FEATURE_NAMES, ALL_COLUMNS_FEATURE_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -322,10 +328,13 @@ public class Index {
                 cursor.moveToNext();
             }
             cursor.close();
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
             logger.error("  imported feature names");
 
             // copy tiles
             statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_TILES + " VALUES (?,?,?,?)");
+            mDatabase.beginTransaction();
             cursor = database.query(TABLE_TILES, ALL_COLUMNS_TILES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -342,7 +351,8 @@ public class Index {
                 cursor.moveToNext();
             }
             cursor.close();
-            //mDatabase.setTransactionSuccessful();
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
             logger.error("  imported tiles");
 
             short date = 0;
@@ -358,7 +368,8 @@ public class Index {
             setDownloading(x, y, 0L);
             return false;
         } finally {
-            //mDatabase.endTransaction();
+            if (mDatabase.inTransaction())
+                mDatabase.endTransaction();
             if (progressListener != null)
                 progressListener.onProgressFinished();
             //noinspection ResultOfMethodCallIgnored
