@@ -35,9 +35,10 @@ import mobi.maptrek.maps.maptrek.Index;
 public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, Index.MapStateListener {
     private static final float TILE_SCALE = 1f / (1 << 7);
     private static final long MAP_EXPIRE_PERIOD = 6; // one week
-    private static final int MIN_ZOOM = 3;
-    public static final int TEXT_MIN_ZOOM = 5;
-    private static final int TEXT_MAX_ZOOM = 8;
+    private static final int FADE_ZOOM = 3;
+    private static final double MIN_SCALE = 10d;
+    public static final double TEXT_MIN_SCALE = 40d;
+    private static final double TEXT_MAX_SCALE = 260d;
 
     private final Index mMapIndex;
     private final MapIndex mOldMapIndex;
@@ -58,13 +59,13 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mContext = context;
         mMapIndex = mapIndex;
         mOldMapIndex = oldMapIndex;
-        mPresentAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
-        mOutdatedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
-        mMissingAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.GRAY).blendScale(10).color(Color.fade(Color.GRAY, 0.4f)).build();
-        mDownloadingAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.GREEN & Color.GRAY).blendScale(10).color(Color.fade(Color.GREEN & Color.GRAY, 0.4f)).build();
-        mSelectedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
-        mDeletedAreaStyle = AreaStyle.builder().fadeScale(MIN_ZOOM).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
-        mLineStyle = LineStyle.builder().fadeScale(MIN_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(0.5f * scale).fixed(true).build();
+        mPresentAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
+        mOutdatedAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
+        mMissingAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.GRAY).blendScale(10).color(Color.fade(Color.GRAY, 0.4f)).build();
+        mDownloadingAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.GREEN & Color.GRAY).blendScale(10).color(Color.fade(Color.GREEN & Color.GRAY, 0.4f)).build();
+        mSelectedAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.BLUE).blendScale(10).color(Color.fade(Color.BLUE, 0.4f)).build();
+        mDeletedAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.RED).blendScale(10).color(Color.fade(Color.RED, 0.4f)).build();
+        mLineStyle = LineStyle.builder().fadeScale(FADE_ZOOM + 1).color(Color.fade(Color.DKGRAY, 0.6f)).strokeWidth(0.5f * scale).fixed(true).build();
         mTextStyle = TextStyle.builder().fontSize(10 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
         mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
         mDateFormat = DateFormat.getDateFormat(context);
@@ -84,8 +85,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     protected void processFeatures(AbstractVectorLayer.Task t, Box b) {
-        int zoom = t.position.getZoomLevel();
-        if (zoom < MIN_ZOOM)
+        if (t.position.scale < MIN_SCALE)
             return;
 
         float scale = (float) (t.position.scale * Tile.SIZE / UNSCALE_COORD);
@@ -110,7 +110,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             GeometryBuffer deletedAreas = new GeometryBuffer();
 
             TextBucket text = null;
-            if (zoom >= TEXT_MIN_ZOOM && zoom <= TEXT_MAX_ZOOM)
+            if (t.position.scale >= TEXT_MIN_SCALE && t.position.scale <= TEXT_MAX_SCALE)
                 text = t.buckets.getTextBucket(-1);
 
             for (int tileX = tileXMin; tileX <= tileXMax; tileX++) {
@@ -173,16 +173,16 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         float tx = (x + TILE_SCALE / 2) * scale;
                         float ty = (y + TILE_SCALE / 2) * scale;
                         TextItem ti;
-                        if (BuildConfig.DEBUG) {
+                        if (!BuildConfig.DEBUG) {
                             ti = TextItem.pool.get();
-                            ti.set(tx, ty - TILE_SCALE / 8 * scale, tileXX + "-" + tileY, mTextStyle);
+                            ti.set(tx, ty - mTextStyle.fontHeight / 5, tileXX + "-" + tileY, mTextStyle);
                             text.addText(ti);
                         }
                         ti = TextItem.pool.get();
                         if (hasSizes) {
                             ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapStatus.downloadSize), mTextStyle);
                             text.addText(ti);
-                            ty += TILE_SCALE / 8 * scale;
+                            ty += mTextStyle.fontHeight / 5; // why 5?
                         }
                         if (hasSizes || mapStatus.created > 0) {
                             int date = mapStatus.created > 0 ? mapStatus.created : mapStatus.downloadCreated;

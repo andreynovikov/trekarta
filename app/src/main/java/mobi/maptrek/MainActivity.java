@@ -2695,7 +2695,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         if (zoom) {
             MapPosition mapPosition = mMap.getMapPosition();
-            mapPosition.setScale((1 << MapCoverageLayer.TEXT_MIN_ZOOM) + 5f);
+            mapPosition.setScale(MapCoverageLayer.TEXT_MIN_SCALE + 5f);
             mapPosition.setBearing(0f);
             mapPosition.setTilt(0f);
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
