@@ -168,7 +168,7 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             if (extendedElement.id == 0L)
                 return null;
             String[] names = extendedElement.database.getNames(mLang, extendedElement.id);
-            if (names != null) {
+            if (names != null && names.length > 0) {
                 if (names.length == 2 && names[1] != null)
                     return names[1];
                 return names[0];
