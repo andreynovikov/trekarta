@@ -148,6 +148,7 @@ import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.Settings;
+import mobi.maptrek.fragments.TextSearchFragment;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -1263,6 +1264,29 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 ft.replace(R.id.contentPanel, fragment, "settings");
                 ft.addToBackStack("settings");
                 ft.commit();
+                return true;
+            }
+            case R.id.actionSearch: {
+                Bundle args = new Bundle(2);
+                if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                    Location location = mLocationService.getLocation();
+                    args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+                    args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                } else {
+                    MapPosition position = mMap.getMapPosition();
+                    args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+                    args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                }
+                if (mFragmentManager.getBackStackEntryCount() > 0) {
+                    popAll();
+                }
+                Fragment fragment = Fragment.instantiate(this, TextSearchFragment.class.getName(), args);
+                fragment.setEnterTransition(new Slide());
+                FragmentTransaction ft = mFragmentManager.beginTransaction();
+                ft.replace(R.id.contentPanel, fragment, "search");
+                ft.addToBackStack("search");
+                ft.commit();
+                updateMapViewArea();
                 return true;
             }
             case R.id.actionAbout: {
