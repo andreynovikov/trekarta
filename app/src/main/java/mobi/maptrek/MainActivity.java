@@ -388,7 +388,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mSunriseSunset = new SunriseSunset();
         //noinspection ConstantConditions
-        mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
+        //mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
+        mNightModeState = NIGHT_MODE_STATE.DAY;
 
         // Apply default styles at start
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
@@ -651,8 +652,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap);
 
-        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
-                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
+        setNightMode(false);
+        //setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
+        //        savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -699,7 +701,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMapsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMapsClicked();
+                if (BuildConfig.FULL_VERSION) {
+                    onMapsClicked();
+                } else {
+                    onMapsLongClicked();
+                }
             }
         });
         mMapsButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1372,8 +1378,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mNavigationLayer != null)
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
-        if (mNightModeState == NIGHT_MODE_STATE.AUTO)
-            checkNightMode(location);
+        //if (mNightModeState == NIGHT_MODE_STATE.AUTO)
+        //    checkNightMode(location);
 
         for (WeakReference<LocationChangeListener> weakRef : mLocationChangeListeners) {
             LocationChangeListener locationChangeListener = weakRef.get();
@@ -1553,9 +1559,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 item = menu.findItem(R.id.actionLanguage);
                 ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                 menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-                if (!BuildConfig.FULL_VERSION) {
-                    menu.removeItem(R.id.actionNightMode);
-                }
+                //if (!BuildConfig.FULL_VERSION) {
+                menu.removeItem(R.id.actionNightMode);
+                //}
             }
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
@@ -3147,7 +3153,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = mFragmentManager.getBackStackEntryCount();
         if (count > 0) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            if ("settings".equals(bse.getName()))
+            if (BuildConfig.FULL_VERSION && "settings".equals(bse.getName()))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mMapsButton, false);
             if ("trackProperties".equals(bse.getName()))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
