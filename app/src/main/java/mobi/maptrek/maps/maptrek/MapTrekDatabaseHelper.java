@@ -53,7 +53,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_FEATURES_NAMES_LANG = "lang";
     private static final String COLUMN_FEATURES_NAMES_NAME = "name";
 
-    private static final String SQL_CREATE_MAPS =
+    static final String SQL_CREATE_MAPS =
             "CREATE TABLE IF NOT EXISTS "
                     + TABLE_MAPS + " ("
                     + COLUMN_MAPS_X + " INTEGER NOT NULL, "
@@ -193,7 +193,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
 
     private static final String SQL_INDEX_INFO = "CREATE UNIQUE INDEX IF NOT EXISTS property ON metadata (name)";
-    private static final String SQL_INDEX_MAPS = "CREATE UNIQUE INDEX IF NOT EXISTS maps_x_y ON maps (x, y)";
+    static final String SQL_INDEX_MAPS = "CREATE UNIQUE INDEX IF NOT EXISTS maps_x_y ON maps (x, y)";
     private static final String SQL_INDEX_MAP_FEATURES = "CREATE UNIQUE INDEX IF NOT EXISTS map_feature_ids ON map_features (feature)";
     private static final String SQL_INDEX_MAP_FEATURE_REFS = "CREATE UNIQUE INDEX IF NOT EXISTS map_feature_refs ON map_features (x, y, feature)";
     private static final String SQL_INDEX_TILES = "CREATE UNIQUE INDEX IF NOT EXISTS coord ON tiles (zoom_level, tile_column, tile_row)";

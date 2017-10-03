@@ -79,37 +79,43 @@ public class Index {
         mDatabase = database;
         mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
-        Cursor cursor = mDatabase.query(TABLE_MAPS, ALL_COLUMNS_MAPS, WHERE_MAPS_PRESENT, null, null, null, null);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
-            int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
-            short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
-            if (x == -1 && y == -1) {
-                mBaseMapVersion = date;
+        try {
+            Cursor cursor = mDatabase.query(TABLE_MAPS, ALL_COLUMNS_MAPS, WHERE_MAPS_PRESENT, null, null, null, null);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
+                int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
+                short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
+                if (x == -1 && y == -1) {
+                    mBaseMapVersion = date;
+                    cursor.moveToNext();
+                    continue;
+                }
+                long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
+                MapStatus mapStatus = getNativeMap(x, y);
+                mapStatus.created = date;
+                logger.debug("index({}, {}, {})", x, y, date);
+                int status = checkDownloadStatus(downloading);
+                if (status == DownloadManager.STATUS_PAUSED
+                        || status == DownloadManager.STATUS_PENDING
+                        || status == DownloadManager.STATUS_RUNNING) {
+                    mapStatus.downloading = downloading;
+                    logger.debug("  downloading: {}", downloading);
+                } else {
+                    mapStatus.downloading = 0L;
+                    setDownloading(x, y, 0L);
+                    logger.debug("  cleared");
+                }
+                if (date > 0)
+                    mLoadedMaps++;
                 cursor.moveToNext();
-                continue;
             }
-            long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
-            MapStatus mapStatus = getNativeMap(x, y);
-            mapStatus.created = date;
-            logger.debug("index({}, {}, {})", x, y, date);
-            int status = checkDownloadStatus(downloading);
-            if (status == DownloadManager.STATUS_PAUSED
-                    || status == DownloadManager.STATUS_PENDING
-                    || status == DownloadManager.STATUS_RUNNING) {
-                mapStatus.downloading = downloading;
-                logger.debug("  downloading: {}", downloading);
-            } else {
-                mapStatus.downloading = 0L;
-                setDownloading(x, y, 0L);
-                logger.debug("  cleared");
-            }
-            if (date > 0)
-                mLoadedMaps++;
-            cursor.moveToNext();
+            cursor.close();
+        } catch (SQLiteException e) {
+            logger.error("Failed to read map index", e);
+            mDatabase.execSQL(MapTrekDatabaseHelper.SQL_CREATE_MAPS);
+            mDatabase.execSQL(MapTrekDatabaseHelper.SQL_INDEX_MAPS);
         }
-        cursor.close();
         //TODO Remove old basemap file
     }
 
@@ -497,6 +503,8 @@ public class Index {
             values.put(COLUMN_MAPS_Y, y);
             mDatabase.insert(TABLE_MAPS, null, values);
         }
+        if (x < 0 || y < 0)
+            return;
         MapStatus mapStatus = getNativeMap(x, y);
         mapStatus.downloading = enqueue;
         for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
