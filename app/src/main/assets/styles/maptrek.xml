@@ -652,6 +652,14 @@
                         </m>
                         <m v="track">
                             <m zoom-max="13" zoom-min="13">
+                                <m select="first">
+                                    <m k="ice_road" v="yes">
+                                        <line stroke="#9bc8c8" use="highway:track:back" />
+                                    </m>
+                                    <m k="winter_road" v="yes">
+                                        <line stroke="#bed8d8" use="highway:track:back" />
+                                    </m>
+                                </m>
                                 <m k="tracktype" v="grade1">
                                     <line use="highway:track:g1" width="-0.8" />
                                 </m>
@@ -660,7 +668,19 @@
                                 </m>
                             </m>
                             <m zoom-min="14">
-                                <line use="highway:track:back" />
+                                <m select="first">
+                                    <m k="ice_road" v="yes">
+                                        <line stroke="#9bc8c8" use="highway:track:back"
+                                            width="0.8" />
+                                    </m>
+                                    <m k="winter_road" v="yes">
+                                        <line stroke="#bed8d8" use="highway:track:back"
+                                            width="0.8" />
+                                    </m>
+                                    <m>
+                                        <line use="highway:track:back" />
+                                    </m>
+                                </m>
                                 <m k="tracktype" v="grade1">
                                     <line use="highway:track:g1" />
                                 </m>
@@ -682,14 +702,29 @@
                         <m v="service">
                             <!-- matches every service but parking_isle -->
                             <m k="service" v="-|parking_aisle">
-                                <line fade="14" outline="service-road" use="highway-service" />
-                                <m k="access" v="private">
-                                    <line fade="14" stipple="15" stipple-stroke="#eeeeee"
-                                        use="highway-service" />
-                                </m>
-                                <m k="access" v="no">
-                                    <line fade="14" stipple="15" stipple-stroke="#ffdddd"
-                                        use="highway-service" />
+                                <m select="first">
+                                    <m k="ice_road" v="yes">
+                                        <line fade="14" outline="service-road" stroke="#bcdada"
+                                            use="highway-service" />
+                                    </m>
+                                    <m k="winter_road" v="yes">
+                                        <line fade="14" outline="service-road" stroke="#deebeb"
+                                            use="highway-service" />
+                                    </m>
+                                    <m>
+                                        <line fade="14" outline="service-road"
+                                            use="highway-service" />
+                                    </m>
+                                    <m select="when-matched">
+                                        <m k="access" v="private">
+                                            <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                                                use="highway-service" />
+                                        </m>
+                                        <m k="access" v="no">
+                                            <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                                                use="highway-service" />
+                                        </m>
+                                    </m>
                                 </m>
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
@@ -705,20 +740,60 @@
                             </m>
                         </m>
                         <m v="tertiary_link">
-                            <line outline="road" use="tertiary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="road" stroke="#bcdada" use="tertiary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="road" stroke="#deebeb" use="tertiary" />
+                                </m>
+                                <m>
+                                    <line outline="road" use="tertiary" />
+                                </m>
+                            </m>
                             <text use="road-name" />
                         </m>
                         <m v="secondary_link">
-                            <line outline="road" use="secondary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="road" stroke="#bcdada" use="secondary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="road" stroke="#deebeb" use="secondary" />
+                                </m>
+                                <m>
+                                    <line outline="road" use="secondary" />
+                                </m>
+                            </m>
                             <text use="road-name" />
                         </m>
                         <m v="primary_link">
-                            <line outline="primary" use="primary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="primary" stroke="#bcdada" use="primary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="primary" stroke="#deebeb" use="primary" />
+                                </m>
+                                <m>
+                                    <line outline="primary" use="primary" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                         </m>
                         <m v="trunk_link|motorway_link">
-                            <line outline="motorway" use="trunk_link" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="motorway" stroke="#bcdada" use="trunk_link" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="motorway" stroke="#deebeb" use="trunk_link" />
+                                </m>
+                                <m>
+                                    <line outline="motorway" use="trunk_link" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                         </m>
                         <m v="road|construction">
@@ -730,7 +805,17 @@
                             <text use="road-name" />
                         </m>
                         <m v="residential|living_street">
-                            <line outline="road" use="residential" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="road" stroke="#bcdada" use="residential" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="road" stroke="#deebeb" use="residential" />
+                                </m>
+                                <m>
+                                    <line outline="road" use="residential" />
+                                </m>
+                            </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
                             </m>
@@ -740,7 +825,17 @@
                             <text use="road-name" />
                         </m>
                         <m v="unclassified">
-                            <line outline="road" use="unclassified" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="road" stroke="#bcdada" use="unclassified" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="road" stroke="#deebeb" use="unclassified" />
+                                </m>
+                                <m>
+                                    <line outline="road" use="unclassified" />
+                                </m>
+                            </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
                             </m>
@@ -750,7 +845,17 @@
                             <text use="road-name" />
                         </m>
                         <m v="tertiary">
-                            <line outline="road" use="tertiary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="road" stroke="#bcdada" use="tertiary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="road" stroke="#deebeb" use="tertiary" />
+                                </m>
+                                <m>
+                                    <line outline="road" use="tertiary" />
+                                </m>
+                            </m>
                             <text use="road-name" />
                             <!--
                             <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
@@ -759,22 +864,62 @@
                             -->
                         </m>
                         <m v="secondary">
-                            <line outline="primary" use="secondary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="primary" stroke="#bcdada" use="secondary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="primary" stroke="#deebeb" use="secondary" />
+                                </m>
+                                <m>
+                                    <line outline="primary" use="secondary" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                         </m>
                         <m v="primary">
-                            <line outline="primary" use="primary" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="primary" stroke="#bcdada" use="primary" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="primary" stroke="#deebeb" use="primary" />
+                                </m>
+                                <m>
+                                    <line outline="primary" use="primary" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                         </m>
                         <m v="trunk">
-                            <line outline="motorway" use="trunk" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="motorway" stroke="#bcdada" use="trunk" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="motorway" stroke="#deebeb" use="trunk" />
+                                </m>
+                                <m>
+                                    <line outline="motorway" use="trunk" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                             <text use="trunk-road-ref" />
                         </m>
                         <m v="motorway">
-                            <line outline="motorway" use="highway" />
+                            <m select="first">
+                                <m k="ice_road" v="yes">
+                                    <line outline="motorway" stroke="#bcdada" use="highway" />
+                                </m>
+                                <m k="winter_road" v="yes">
+                                    <line outline="motorway" stroke="#deebeb" use="highway" />
+                                </m>
+                                <m>
+                                    <line outline="motorway" use="highway" />
+                                </m>
+                            </m>
                             <text use="major-road-name" />
                             <text use="trunk-road-ref" />
                         </m>
