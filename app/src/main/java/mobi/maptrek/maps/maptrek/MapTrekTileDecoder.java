@@ -196,9 +196,12 @@ class MapTrekTileDecoder extends PbfDecoder {
             String key, val;
 
             if (k < Tags.ATTRIB_OFFSET) {
-                if (k > Tags.MAX_KEY)
-                    return false;
-                key = Tags.keys[k];
+                if (k > Tags.MAX_KEY) {
+                    log.warn("unknown tag key: {}", k);
+                    key = String.valueOf(k);
+                } else {
+                    key = Tags.keys[k];
+                }
             } else {
                 k -= Tags.ATTRIB_OFFSET;
                 if (k >= keys.length)
@@ -207,9 +210,12 @@ class MapTrekTileDecoder extends PbfDecoder {
             }
 
             if (v < Tags.ATTRIB_OFFSET) {
-                if (v > Tags.MAX_VALUE)
-                    return false;
-                val = Tags.values[v];
+                if (v > Tags.MAX_VALUE) {
+                    log.warn("unknown tag value: {}", v);
+                    val = "";
+                } else {
+                    val = Tags.values[v];
+                }
             } else {
                 v -= Tags.ATTRIB_OFFSET;
                 if (v >= vals.length)
@@ -324,9 +330,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                         int cnt = decodeInterleavedPoints3D(mElem.points, 1);
 
                         if (cnt != (3 * coordCnt)) {
-                            log.debug("{} wrong number of coordintes {}/{}", mTile,
-                                    coordCnt,
-                                    cnt);
+                            log.error("{} wrong number of coordintes {}/{}", mTile, coordCnt, cnt);
                             fail = true;
                         }
                         mElem.pointPos = cnt;
@@ -335,9 +339,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                         int cnt = decodeInterleavedPoints(mElem, mScaleFactor);
 
                         if (cnt != coordCnt) {
-                            log.debug("{} wrong number of coordintes {}/{}", mTile,
-                                    coordCnt,
-                                    cnt);
+                            log.error("{} wrong number of coordintes {}/{}", mTile, coordCnt, cnt);
                             fail = true;
                         }
                     }
@@ -458,9 +460,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             int idx = tagIds[i];
 
             if (idx < 0 || idx > max) {
-                log.debug("{} invalid tag:{}", mTile,
-                        idx,
-                        i);
+                log.error("{} invalid tag: {}", mTile, idx, i);
                 return false;
             }
             mElem.tags.add(mTileTags.tags[idx]);
