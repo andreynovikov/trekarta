@@ -28,6 +28,6 @@ public class ExtendedMapElement extends MapElement {
     }
 
     boolean isBuilding() {
-        return (kind & 0x00000004) > 0;
+        return Tags.isBuilding(kind);
     }
 }

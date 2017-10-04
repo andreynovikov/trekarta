@@ -105,7 +105,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_FEATURE_NAMES =
             "CREATE TABLE IF NOT EXISTS "
                     + TABLE_FEATURE_NAMES + " ("
-                    + COLUMN_FEATURES_ID + "  INTEGER NOT NULL, "
+                    + COLUMN_FEATURES_ID + " INTEGER NOT NULL, "
                     + COLUMN_FEATURES_NAMES_LANG + " INTEGER NOT NULL, "
                     + COLUMN_FEATURES_NAMES_NAME + " INTEGER NOT NULL"
                     + ")";
@@ -201,6 +201,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_INDEX_FEATURES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_id ON features (id)";
     private static final String SQL_INDEX_FEATURE_LANG = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_lang ON feature_names (id, lang)";
     private static final String SQL_INDEX_FEATURE_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
+    private static final String SQL_INDEX_FEATURE_NAME = "CREATE INDEX IF NOT EXISTS feature_names_ref ON feature_names (name)";
 
     private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
     private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";

@@ -39,6 +39,65 @@ public class Tags {
             "kind_barrier"
     };
 
+
+    public static boolean isPlace(int kind) {
+        return (kind & 0x00000001) > 0;
+    }
+    public static boolean isRoad(int kind) {
+        return (kind & 0x00000002) > 0;
+    }
+    public static boolean isBuilding(int kind) {
+        return (kind & 0x00000004) > 0;
+    }
+    public static boolean isEmergency(int kind) {
+        return (kind & 0x00000008) > 0;
+    }
+    public static boolean isAccommodation(int kind) {
+        return (kind & 0x00000010) > 0;
+    }
+    public static boolean isFood(int kind) {
+        return (kind & 0x00000020) > 0;
+    }
+    public static boolean isAttraction(int kind) {
+        return (kind & 0x00000040) > 0;
+    }
+    public static boolean isEntertainment(int kind) {
+        return (kind & 0x00000080) > 0;
+    }
+    public static boolean isShopping(int kind) {
+        return (kind & 0x00000100) > 0;
+    }
+    public static boolean isService(int kind) {
+        return (kind & 0x00000200) > 0;
+    }
+    public static boolean isReligion(int kind) {
+        return (kind & 0x00000400) > 0;
+    }
+    public static boolean isEducation(int kind) {
+        return (kind & 0x00000800) > 0;
+    }
+    public static boolean isKids(int kind) {
+        return (kind & 0x00001000) > 0;
+    }
+    public static boolean isPets(int kind) {
+        return (kind & 0x00002000) > 0;
+    }
+    public static boolean isVehicles(int kind) {
+        return (kind & 0x00004000) > 0;
+    }
+    public static boolean isTransportation(int kind) {
+        return (kind & 0x00008000) > 0;
+    }
+    public static boolean isHikeBike(int kind) {
+        return (kind & 0x00010000) > 0;
+    }
+    public static boolean isUrban(int kind) {
+        return (kind & 0x00020000) > 0;
+    }
+    public static boolean isBarrier(int kind) {
+        return (kind & 0x00040000) > 0;
+    }
+
     public static final int[] kindZooms = {
             15, // emergency
             16, // accommodation
