@@ -21,7 +21,7 @@
     <dimen name="table_padding">8dp</dimen>
     <dimen name="waypoint_table_padding">16dp</dimen>
     <dimen name="list_item_padding">4dp</dimen>
-    <dimen name="panelTopMargin">96dp</dimen>
+    <dimen name="panelTopMargin">160dp</dimen>
     <dimen name="image_button_size_margin">52dp</dimen>
     <dimen name="menuListWidth">240dp</dimen>
     <dimen name="mapListItemHeight">128dp</dimen>

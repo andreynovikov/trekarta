@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/panelTopMargin"
     android:background="@color/panelSolidBackground"
-    android:padding="@dimen/fragment_padding"
     android:orientation="vertical"
     tools:context=".fragments.TextSearchFragment">
 
@@ -18,17 +18,20 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 
-
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@null"
+        android:dividerHeight="0dp" />
 
     <LinearLayout
         android:id="@+id/searchFooter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="@dimen/fragment_padding">
 
         <EditText
             android:id="@+id/textEdit"

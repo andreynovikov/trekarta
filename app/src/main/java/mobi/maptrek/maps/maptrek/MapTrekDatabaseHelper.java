@@ -14,7 +14,7 @@ import java.io.IOException;
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String TABLE_MAPS = "maps";
     static final String TABLE_MAP_FEATURES = "map_features";
@@ -251,5 +251,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        logger.error("Upgrade from {} to {}", oldVersion, newVersion);
+        if (oldVersion == 2) {
+            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS names_fts USING fts4(tokenize=unicode61, content=\"names\", name)");
+            logger.error("Populate fts");
+            db.execSQL("INSERT INTO names_fts (docid, name) SELECT ref, name FROM names");
+            logger.error("Finished populating fts");
+        }
     }
 }

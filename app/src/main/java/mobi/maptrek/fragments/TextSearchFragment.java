@@ -30,7 +30,11 @@ public class TextSearchFragment extends ListFragment {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
 
+    private static final String[] columns = new String[]{"_id", "name"};
+
+    private SQLiteDatabase mDatabase;
     private DataListAdapter mAdapter;
+    private MatrixCursor mEmptyCursor = new MatrixCursor(columns);
 
     private GeoPoint mCoordinates;
 
@@ -58,8 +62,15 @@ public class TextSearchFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 0)
+                if (s.length() == 0) {
+                    mAdapter.changeCursor(mEmptyCursor);
                     return;
+                }
+                String text = s.toString();
+                String sql = "SELECT ref AS _id, names.name FROM names_fts INNER JOIN names ON (names_fts.docid = names.ref) WHERE names_fts MATCH ?";
+                String[] selectionArgs = {text};
+                Cursor cursor = mDatabase.rawQuery(sql, selectionArgs);
+                mAdapter.changeCursor(cursor);
             }
         });
 
@@ -81,14 +92,10 @@ public class TextSearchFragment extends ListFragment {
 
         mCoordinates = new GeoPoint(latitude, longitude);
 
-        SQLiteDatabase mDatabase = MapTrek.getApplication().getDetailedMapDatabase();
+        mDatabase = MapTrek.getApplication().getDetailedMapDatabase();
 
-        String[] columns = new String[]{"_id", "name"};
-
-        MatrixCursor matrixCursor = new MatrixCursor(columns);
-
-        mAdapter = new DataListAdapter(getActivity(), matrixCursor, 0);
-        //setListAdapter(mAdapter);
+        mAdapter = new DataListAdapter(getActivity(), mEmptyCursor, 0);
+        setListAdapter(mAdapter);
     }
 
     private class DataListAdapter extends CursorAdapter {
@@ -116,8 +123,6 @@ public class TextSearchFragment extends ListFragment {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             ItemHolder holder = (ItemHolder) view.getTag();
-
-            //holder.separator.setVisibility(View.GONE);
 
             @DrawableRes int icon = R.drawable.ic_place;
             @ColorInt int color = R.color.colorPrimaryDark;
