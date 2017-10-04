@@ -173,11 +173,13 @@ public class Tags {
             "toll",
             "tower:type",
             "wetland",
-            "maritime"
+            "maritime",
+            "winter_road",
+            "ice_road"
     };
     final static int MAX_KEY = keys.length - 1;
 
-    // most popular values for the selected key (created from taginfo db)
+    // most popular values for the selected keys
     public final static String[] values = {
             "elevation_major",
             "elevation_medium",
