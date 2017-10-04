@@ -120,8 +120,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_TILE_TAG_KEYS:
                     if (keys == null || curKey >= numKeys) {
-                        log.debug("{} wrong number of keys {}",
-                                mTile, numKeys);
+                        log.error("{} wrong number of keys {}", mTile, numKeys);
                         return false;
                     }
                     keys[curKey++] = decodeString().intern();
@@ -129,8 +128,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_TILE_TAG_VALUES:
                     if (values == null || curValue >= numValues) {
-                        log.debug("{} wrong number of values {}",
-                                mTile, numValues);
+                        log.error("{} wrong number of values {}", mTile, numValues);
                         return false;
                     }
                     values[curValue++] = decodeString();
@@ -160,7 +158,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                     decodeVarintArray(len, mSArray);
                     if (!decodeTileTags(numTags, mSArray, keys, values)) {
-                        log.debug("{} invalid tags", mTile);
+                        log.error("{} invalid tags", mTile);
                         return false;
                     }
                     break;
@@ -177,8 +175,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 default:
-                    log.debug("{} invalid type for tile:{}",
-                            mTile, tag);
+                    log.error("{} invalid type for tile: {}", mTile, tag);
                     return false;
             }
         }
@@ -186,9 +183,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         return true;
     }
 
-    private boolean decodeTileTags(int numTags, int[] tagIdx,
-                                   String[] keys, String[] vals) {
-
+    private boolean decodeTileTags(int numTags, int[] tagIdx, String[] keys, String[] vals) {
         Tag tag;
         for (int i = 0, n = (numTags << 1); i < n; i += 2) {
             int k = tagIdx[i];
@@ -383,6 +378,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_HOUSE_NUMBER:
                     houseNumber = decodeString();
+                    break;
 
                 default:
                     log.debug("{} invalid type for way: {}", mTile, tag);
