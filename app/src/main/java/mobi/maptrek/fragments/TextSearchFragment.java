@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
 
+import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;
@@ -31,6 +32,9 @@ import mobi.maptrek.util.StringFormatter;
 public class TextSearchFragment extends ListFragment {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
+
+    private FragmentHolder mFragmentHolder;
+    private MapHolder mMapHolder;
 
     private static final String[] columns = new String[]{"_id", "name", "kind", "lat", "lon"};
 
@@ -74,7 +78,7 @@ public class TextSearchFragment extends ListFragment {
                         " INNER JOIN names ON (names_fts.docid = names.ref)" +
                         " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
                         " INNER JOIN features ON (feature_names.id = features.id)" +
-                        " WHERE names_fts MATCH ?";
+                        " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)";
                 //String sql = "SELECT feature_names.id AS _id, names.name FROM feature_names" +
                 //        " INNER JOIN names ON (names.ref = feature_names.name)" +
                 //        " WHERE feature_names.name IN (SELECT docid FROM names_fts WHERE names_fts MATCH ?)";
@@ -108,6 +112,29 @@ public class TextSearchFragment extends ListFragment {
         setListAdapter(mAdapter);
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mMapHolder = (MapHolder) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement MapHolder");
+        }
+        try {
+            mFragmentHolder = (FragmentHolder) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mFragmentHolder = null;
+        mMapHolder = null;
+    }
+
     private class DataListAdapter extends CursorAdapter {
         private LayoutInflater mInflater;
 
@@ -137,13 +164,13 @@ public class TextSearchFragment extends ListFragment {
             @DrawableRes int icon = R.drawable.ic_place;
             @ColorInt int color = R.color.colorPrimaryDark;
 
-            long id = cursor.getLong(cursor.getColumnIndex("_id"));
+            //long id = cursor.getLong(cursor.getColumnIndex("_id"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
             int kind = cursor.getInt(cursor.getColumnIndex("kind"));
             float lat = cursor.getFloat(cursor.getColumnIndex("lat"));
             float lon = cursor.getFloat(cursor.getColumnIndex("lon"));
 
-            GeoPoint coordinates = new GeoPoint(lat, lon);
+            final GeoPoint coordinates = new GeoPoint(lat, lon);
             double dist = mCoordinates.vincentyDistance(coordinates);
             double bearing = mCoordinates.bearingTo(coordinates);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
@@ -152,6 +179,8 @@ public class TextSearchFragment extends ListFragment {
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mMapHolder.setMapLocation(coordinates);
+                    //mFragmentHolder.popAll();
                 }
             });
 
