@@ -383,12 +383,12 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <m v="river">
-                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5"
-                            stroke="#00ffffff" width="1.3" />
+                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                            width="1.3" />
                     </m>
                     <m v="canal">
-                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5"
-                            stroke="#00ffffff" width="0.7" />
+                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                            width="0.7" />
                     </m>
                     <m v="stream">
                         <line cap="square" fix="true" stipple="20" stipple-stroke="#b4c7d5"
@@ -1266,19 +1266,19 @@
     <!-- places -->
     <m k="place">
         <m v="neighbourhood|allotments">
-            <caption style="italic" fill="#444411" k="name" priority="10" size="14" stroke="#ffffff"
+            <caption style="italic" fill="#444411" k="name" priority="12" size="14" stroke="#ffffff"
                 stroke-width="1.6" />
         </m>
         <m v="hamlet|isolated_dwelling">
-            <caption fill="#444411" k="name" priority="8" size="16" stroke="#ffffff"
+            <caption fill="#444411" k="name" priority="10" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m v="suburb" zoom-max="14">
-            <caption style="italic" fill="#606060" k="name" priority="8" size="16" stroke="#ffffff"
+            <caption style="italic" fill="#606060" k="name" priority="10" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m v="village">
-            <caption fill="#444411" k="name" priority="7" size="16" stroke="#ffffff"
+            <caption fill="#444411" k="name" priority="9" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m e="node" select="first" v="town">
