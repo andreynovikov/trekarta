@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/panelTopMargin"
     android:background="@color/panelSolidBackground"
     android:orientation="vertical"
     tools:context=".fragments.TextSearchFragment">
