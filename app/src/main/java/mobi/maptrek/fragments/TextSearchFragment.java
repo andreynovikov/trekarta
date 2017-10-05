@@ -184,7 +184,9 @@ public class TextSearchFragment extends ListFragment {
                 }
             });
 
-            if (Tags.isEmergency(kind))
+            if (Tags.isPlace(kind))
+                icon = R.drawable.ic_adjust;
+            else if (Tags.isEmergency(kind))
                 icon = R.drawable.ic_local_hospital;
             else if (Tags.isAccommodation(kind))
                 icon = R.drawable.ic_hotel;
@@ -213,7 +215,7 @@ public class TextSearchFragment extends ListFragment {
             else if (Tags.isHikeBike(kind))
                 icon = R.drawable.ic_directions_bike;
             else if (Tags.isBuilding(kind))
-                icon = R.drawable.ic_business;
+                icon = R.drawable.ic_location_city;
             else if (Tags.isUrban(kind))
                 icon = R.drawable.ic_nature_people;
             else if (Tags.isRoad(kind))
