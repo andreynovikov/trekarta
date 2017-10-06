@@ -1601,6 +1601,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                     } else {
                         menu.removeItem(R.id.actionHideSystemUI);
+                        menu.removeItem(R.id.actionSearch);
                     }
                     if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                         menu.removeItem(R.id.actionAddGauge);
