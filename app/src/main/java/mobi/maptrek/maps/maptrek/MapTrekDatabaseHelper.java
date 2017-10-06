@@ -46,7 +46,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String COLUMN_TILES_DATA = "tile_data";
 
     private static final String COLUMN_NAMES_REF = "ref";
-    private static final String COLUMN_NAMES_NAME = "name";
+    static final String COLUMN_NAMES_NAME = "name";
 
     private static final String COLUMN_FEATURES_ID = "id";
     private static final String COLUMN_FEATURES_KIND = "kind";
@@ -153,15 +153,21 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + TABLE_FEATURES + "." + COLUMN_FEATURES_ID + ") WHERE "
                     + TABLE_FEATURES + "." + COLUMN_FEATURES_ID + " IS NULL)";
 
-    static final String SQL_REMOVE_NAMES =
-            "DELETE FROM " + TABLE_NAMES + " WHERE "
-                    + COLUMN_NAMES_REF + " IN (SELECT "
+    static final String SQL_SELECT_UNUSED_NAMES =
+            "SELECT "
                     + COLUMN_NAMES_REF + " FROM "
                     + TABLE_NAMES + " LEFT JOIN "
                     + TABLE_FEATURE_NAMES + " ON ("
                     + COLUMN_NAMES_REF + " = "
                     + TABLE_FEATURE_NAMES + "." + COLUMN_FEATURES_NAMES_NAME + ") WHERE "
-                    + COLUMN_FEATURES_ID + " IS NULL)";
+                    + COLUMN_FEATURES_ID + " IS NULL";
+
+    static final String SQL_REMOVE_NAMES =
+            "DELETE FROM " + TABLE_NAMES + " WHERE "
+                    + COLUMN_NAMES_REF + " IN (" + SQL_SELECT_UNUSED_NAMES + ")";
+
+    static final String SQL_REMOVE_NAMES_FTS =
+            "DELETE FROM " + TABLE_NAMES_FTS + " WHERE docid IN (";
 
     static final String[] ALL_COLUMNS_MAPS = {
             COLUMN_MAPS_X,
@@ -221,6 +227,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
     private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
     private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
+    private static final String FTS_MERGE = "INSERT INTO names_fts(names_fts) VALUES('merge=300,8')";
 
     public MapTrekDatabaseHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
@@ -241,6 +248,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst())
             logger.debug("  removed {} pages", cursor.getCount());
         cursor.close();
+        if (hasFullTextIndex(db)) {
+            cursor = db.rawQuery(FTS_MERGE, null);
+            if (cursor.moveToFirst())
+                logger.debug("  merged FTS index");
+            cursor.close();
+        }
     }
 
     @Override
@@ -267,7 +280,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        logger.error("Upgrade from {} to {}", oldVersion, newVersion);
+        logger.debug("Upgrade from {} to {}", oldVersion, newVersion);
         if (oldVersion == 2) {
             db.execSQL(SQL_INDEX_FEATURE_NAMES);
         }
@@ -275,9 +288,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
     public static void createFtsTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_NAMES_FTS);
-        logger.error("Populate fts");
+        logger.debug("Populate fts");
         db.execSQL(SQL_INSERT_NAMES_FTS);
-        logger.error("Finished populating fts");
+        logger.debug("Finished populating fts");
     }
 
     public static boolean hasFullTextIndex(SQLiteDatabase db) {
