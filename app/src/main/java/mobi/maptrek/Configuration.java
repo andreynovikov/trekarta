@@ -66,6 +66,7 @@ public class Configuration {
     public static final long ADVICE_LOCKED_COORDINATES = 0x0000000000000800;
     public static final long ADVICE_HIDE_MAP_OBJECTS = 0x0000000000001000;
     public static final long ADVICE_LOCK_MAP_POSITION = 0x0000000000002000;
+    public static final long ADVICE_TEXT_SEARCH = 0x0000000000004000;
 
     private static SharedPreferences mSharedPreferences;
 

@@ -19,7 +19,7 @@
         CircleProgressView:cpv_rimWidth="25dp"
         CircleProgressView:cpv_seekMode="true"
         CircleProgressView:cpv_showUnit="true"
-        CircleProgressView:cpv_spinColor="@color/colorPrimaryDark"
+        CircleProgressView:cpv_spinColor="@color/colorAccent"
         CircleProgressView:cpv_textColor="@color/colorPrimaryDark"
         CircleProgressView:cpv_textScale="1"
         CircleProgressView:cpv_unit="%"

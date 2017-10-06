@@ -3,6 +3,7 @@ package mobi.maptrek.maps.maptrek;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String TABLE_INFO = "metadata";
     static final String TABLE_TILES = "tiles";
     static final String TABLE_NAMES = "names";
+    @SuppressWarnings("WeakerAccess")
+    static final String TABLE_NAMES_FTS = "names_fts";
     static final String TABLE_FEATURES = "features";
     static final String TABLE_FEATURE_NAMES = "feature_names";
 
@@ -91,6 +94,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + TABLE_NAMES + " ("
                     + COLUMN_NAMES_REF + " INTEGER NOT NULL, "
                     + COLUMN_NAMES_NAME + " TEXT NOT NULL"
+                    + ")";
+
+    private static final String SQL_CREATE_NAMES_FTS =
+            "CREATE VIRTUAL TABLE IF NOT EXISTS "
+                    + TABLE_NAMES_FTS + " USING fts4(tokenize=unicode61, content=\""
+                    + TABLE_NAMES + "\", " + COLUMN_NAMES_NAME
                     + ")";
 
     private static final String SQL_CREATE_FEATURES =
@@ -191,6 +200,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String WHERE_MAPS_PRESENT = COLUMN_MAPS_DATE + " > 0 OR " + COLUMN_MAPS_DOWNLOADING + " > 0";
     static final String WHERE_TILE_ZXY = COLUMN_TILES_ZOOM_LEVEL + " = ? AND " + COLUMN_TILES_COLUMN + " = ? AND " + COLUMN_TILES_ROW + " = ?";
 
+    private static final String SQL_INSERT_NAMES_FTS = "INSERT INTO "
+            + TABLE_NAMES_FTS + "(docid, "
+            + COLUMN_NAMES_NAME + ") SELECT "
+            + COLUMN_NAMES_REF + ", "
+            + COLUMN_NAMES_NAME + " FROM "
+            + TABLE_NAMES;
 
     private static final String SQL_INDEX_INFO = "CREATE UNIQUE INDEX IF NOT EXISTS property ON metadata (name)";
     static final String SQL_INDEX_MAPS = "CREATE UNIQUE INDEX IF NOT EXISTS maps_x_y ON maps (x, y)";
@@ -200,8 +215,8 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_INDEX_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS name_ref ON names (ref)";
     private static final String SQL_INDEX_FEATURES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_id ON features (id)";
     private static final String SQL_INDEX_FEATURE_LANG = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_lang ON feature_names (id, lang)";
-    private static final String SQL_INDEX_FEATURE_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
-    private static final String SQL_INDEX_FEATURE_NAME = "CREATE INDEX IF NOT EXISTS feature_names_ref ON feature_names (name)";
+    private static final String SQL_INDEX_FEATURE_NAME = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
+    private static final String SQL_INDEX_FEATURE_NAMES = "CREATE INDEX IF NOT EXISTS feature_names_ref ON feature_names (name)";
 
     private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
     private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
@@ -247,17 +262,33 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_INDEX_NAMES);
         db.execSQL(SQL_INDEX_FEATURES);
         db.execSQL(SQL_INDEX_FEATURE_LANG);
-        db.execSQL(SQL_INDEX_FEATURE_NAMES);
+        db.execSQL(SQL_INDEX_FEATURE_NAME);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         logger.error("Upgrade from {} to {}", oldVersion, newVersion);
         if (oldVersion == 2) {
-            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS names_fts USING fts4(tokenize=unicode61, content=\"names\", name)");
-            logger.error("Populate fts");
-            db.execSQL("INSERT INTO names_fts (docid, name) SELECT ref, name FROM names");
-            logger.error("Finished populating fts");
+            db.execSQL(SQL_INDEX_FEATURE_NAMES);
+        }
+    }
+
+    public static void createFtsTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_NAMES_FTS);
+        logger.error("Populate fts");
+        db.execSQL(SQL_INSERT_NAMES_FTS);
+        logger.error("Finished populating fts");
+    }
+
+    public static boolean hasFullTextIndex(SQLiteDatabase db) {
+        try {
+            String[] selectionArgs = {"Antarctica"};
+            Cursor cursor = db.rawQuery("SELECT docid FROM " + TABLE_NAMES_FTS + " WHERE " +
+                    TABLE_NAMES_FTS + " MATCH ?", selectionArgs);
+            cursor.close();
+            return true;
+        } catch (SQLiteException ignore) {
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
@@ -7,13 +8,27 @@
     android:orientation="vertical"
     tools:context=".fragments.TextSearchFragment">
 
+    <at.grabner.circleprogress.CircleProgressView
+        android:id="@+id/ftsWait"
+        android:layout_width="@dimen/circle_progress"
+        android:layout_height="@dimen/circle_progress"
+        android:layout_gravity="center"
+        android:padding="@dimen/fragment_padding"
+        android:visibility="gone"
+        CircleProgressView:cpv_barColor="@color/colorAccent"
+        CircleProgressView:cpv_barWidth="25dp"
+        CircleProgressView:cpv_contourSize="0dp"
+        CircleProgressView:cpv_rimColor="@color/colorAccentLightest"
+        CircleProgressView:cpv_rimWidth="25dp"
+        CircleProgressView:cpv_showTextInSpinningMode="false"
+        CircleProgressView:cpv_spinColor="@color/colorAccent" />
+
     <TextView
-        android:id="@android:id/empty"
+        android:id="@id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="48dp"
-        android:text="@string/msgEmptyTestSearchList"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 
@@ -36,8 +51,28 @@
             android:id="@+id/textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint="@string/name"
             android:maxLines="1" />
+
+        <at.grabner.circleprogress.CircleProgressView
+            android:id="@+id/searchWait"
+            android:layout_width="@dimen/color_swatch_large"
+            android:layout_height="@dimen/color_swatch_large"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0"
+            android:paddingBottom="@dimen/fragment_padding"
+            android:paddingEnd="@dimen/textPadding"
+            android:paddingStart="@dimen/textPadding"
+            android:visibility="invisible"
+            CircleProgressView:cpv_barColor="@color/colorAccent"
+            CircleProgressView:cpv_barWidth="8dp"
+            CircleProgressView:cpv_contourSize="0dp"
+            CircleProgressView:cpv_rimColor="@color/colorAccentLightest"
+            CircleProgressView:cpv_rimWidth="8dp"
+            CircleProgressView:cpv_showTextInSpinningMode="false"
+            CircleProgressView:cpv_spinColor="@color/colorAccent" />
+
 
     </LinearLayout>
 
