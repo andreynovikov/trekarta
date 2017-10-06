@@ -16,6 +16,7 @@ import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,7 +99,13 @@ public class TextSearchFragment extends ListFragment {
                     mAdapter.changeCursor(mEmptyCursor);
                     return;
                 }
-                final String text = s.toString();
+                String text = s.toString();
+                String[] words = text.split(" ");
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].length() > 2)
+                        words[i] = words[i] + "*";
+                }
+                final String match = TextUtils.join(" ", words);
                 // SELECT * FROM "accounts" WHERE ("privileges" & 3) == 3;
                 final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
                         " INNER JOIN names ON (names_fts.docid = names.ref)" +
@@ -113,7 +120,7 @@ public class TextSearchFragment extends ListFragment {
                 final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
                     @Override
                     public void run() {
-                        String[] selectionArgs = {text};
+                        String[] selectionArgs = {match};
                         final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs);
                         Activity activity = getActivity();
                         if (activity == null)
