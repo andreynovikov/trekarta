@@ -205,4 +205,7 @@
     <string name="kind_attraction">Достопримечательности</string>
     <string name="actionContours">Изолинии</string>
     <string name="actionOtherFeatures">Детали</string>
+    <string name="actionSearch">Поиск</string>
+    <string name="advice_text_search">Напишите название объекта на любом поддерживаем или местном языке</string>
+    <string name="msgWaitForFtsTable">Пожалуйста, подождите, пока база карт обновляется для поддержки полнотекстового поиска. В зависимости от того, как много вы успели скачать областей карт, это может занять до нескольких минут.</string>
 </resources>
