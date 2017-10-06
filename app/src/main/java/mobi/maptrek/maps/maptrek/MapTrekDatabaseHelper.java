@@ -265,6 +265,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INFO);
         db.execSQL(SQL_CREATE_TILES);
         db.execSQL(SQL_CREATE_NAMES);
+        db.execSQL(SQL_CREATE_NAMES_FTS);
         db.execSQL(SQL_CREATE_FEATURES);
         db.execSQL(SQL_CREATE_FEATURE_NAMES);
         db.execSQL(SQL_INDEX_MAPS);
@@ -276,6 +277,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_INDEX_FEATURES);
         db.execSQL(SQL_INDEX_FEATURE_LANG);
         db.execSQL(SQL_INDEX_FEATURE_NAME);
+        db.execSQL(SQL_INDEX_FEATURE_NAMES);
     }
 
     @Override
