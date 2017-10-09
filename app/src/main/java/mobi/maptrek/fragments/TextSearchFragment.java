@@ -54,7 +54,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
-    private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
 
     private static final String[] columns = new String[]{"_id", "name", "kind", "lat", "lon"};
@@ -143,11 +142,13 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         setListAdapter(mAdapter);
 
         Resources resources = activity.getResources();
-        mKinds = new CharSequence[Tags.kinds.length + 1];
+        String packageName = activity.getPackageName();
+        mKinds = new CharSequence[Tags.kinds.length + 2];
         mKinds[0] = activity.getString(R.string.any);
+        mKinds[1] = resources.getString(R.string.kind_place);
         for (int i = 0; i < Tags.kinds.length; i++) {
-            int id = resources.getIdentifier(Tags.kinds[i], "string", getActivity().getPackageName());
-            mKinds[i + 1] = id != 0 ? resources.getString(id) : Tags.kinds[i];
+            int id = resources.getIdentifier(Tags.kinds[i], "string", packageName);
+            mKinds[i + 2] = id != 0 ? resources.getString(id) : Tags.kinds[i];
         }
 
         if (mUpdating || !MapTrekDatabaseHelper.hasFullTextIndex(mDatabase)) {
@@ -191,17 +192,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
-        try {
-            mFragmentHolder = (FragmentHolder) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mFragmentHolder = null;
         mMapHolder = null;
     }
 
@@ -256,10 +251,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 words[i] = words[i] + "*";
         }
         final String match = TextUtils.join(" ", words);
-        // SELECT * FROM "accounts" WHERE ("privileges" & 3) == 3;
         String kindFilter = "";
         if (mSelectedKind > 0) {
-            int mask = 1 << (mSelectedKind + 2);
+            int mask = mSelectedKind == 1 ? 1 : 1 << (mSelectedKind + 1);
             kindFilter = " AND (kind & " + mask + ") == " + mask;
         }
         final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
