@@ -21,6 +21,7 @@ import android.support.annotation.DrawableRes;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
@@ -105,6 +108,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
                     mAdapter.changeCursor(mEmptyCursor);
+                    updateListHeight();
                     mText = null;
                     return;
                 }
@@ -280,16 +284,34 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        mAdapter.changeCursor(cursor);
                         mFilterButton.setImageResource(R.drawable.ic_filter);
                         mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
                         mFilterButton.setOnClickListener(TextSearchFragment.this);
-                        mAdapter.changeCursor(cursor);
+                        updateListHeight();
                     }
                 });
             }
         });
         m.what = MSG_SEARCH;
         mBackgroundHandler.sendMessage(m);
+    }
+
+    private void updateListHeight() {
+        ListView listView = getListView();
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) listView.getLayoutParams();
+        if (mAdapter.getCount() > 5)
+            params.height = (int) (5.5 * getItemHeight());
+        else
+            params.height = 0;
+        listView.setLayoutParams(params);
+        mMapHolder.updateMapViewArea();
+    }
+
+    public float getItemHeight() {
+        TypedValue value = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.listPreferredItemHeight, value, true);
+        return TypedValue.complexToDimension(value.data, getResources().getDisplayMetrics());
     }
 
     private class DataListAdapter extends CursorAdapter {

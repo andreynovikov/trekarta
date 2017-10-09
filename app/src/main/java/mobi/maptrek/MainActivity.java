@@ -3336,6 +3336,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         area.right = mExtendPanel.getLeft();
                 }
 
+                // This part does not currently make sense as map center is not adjusted yet
+                int count = mFragmentManager.getBackStackEntryCount();
+                if (count > 0) {
+                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+                    View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
+                    logger.error(bse.getName() + " " + contentPanel.getTop());
+                    if ("search".equals(bse.getName()))
+                        if (mVerticalOrientation)
+                            area.bottom = contentPanel.getTop();
+                        else
+                            area.right = contentPanel.getLeft();
+                }
+
                 if (!area.isEmpty()) {
                     int pointerOffset = (int) (50 * MapTrek.density);
                     int centerX = mapWidth / 2;
