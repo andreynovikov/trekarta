@@ -3341,7 +3341,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (count > 0) {
                     FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
                     View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
-                    logger.error(bse.getName() + " " + contentPanel.getTop());
                     if ("search".equals(bse.getName()))
                         if (mVerticalOrientation)
                             area.bottom = contentPanel.getTop();

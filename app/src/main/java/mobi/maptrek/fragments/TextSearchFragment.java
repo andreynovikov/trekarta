@@ -261,9 +261,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
                 " INNER JOIN features ON (feature_names.id = features.id)" +
                 " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter;
-        //String sql = "SELECT feature_names.id AS _id, names.name FROM feature_names" +
-        //        " INNER JOIN names ON (names.ref = feature_names.name)" +
-        //        " WHERE feature_names.name IN (SELECT docid FROM names_fts WHERE names_fts MATCH ?)";
         mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
         mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
         mFilterButton.setOnClickListener(null);
