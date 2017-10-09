@@ -55,24 +55,18 @@
             android:hint="@string/name"
             android:maxLines="1" />
 
-        <at.grabner.circleprogress.CircleProgressView
-            android:id="@+id/searchWait"
-            android:layout_width="@dimen/color_swatch_large"
-            android:layout_height="@dimen/color_swatch_large"
+        <ImageButton
+            android:id="@+id/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="0"
-            android:paddingBottom="@dimen/fragment_padding"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:paddingEnd="@dimen/textPadding"
             android:paddingStart="@dimen/textPadding"
-            android:visibility="invisible"
-            CircleProgressView:cpv_barColor="@color/colorAccent"
-            CircleProgressView:cpv_barWidth="8dp"
-            CircleProgressView:cpv_contourSize="0dp"
-            CircleProgressView:cpv_rimColor="@color/colorAccentLightest"
-            CircleProgressView:cpv_rimWidth="8dp"
-            CircleProgressView:cpv_showTextInSpinningMode="false"
-            CircleProgressView:cpv_spinColor="@color/colorAccent" />
-
+            android:src="@drawable/ic_filter"
+            android:tint="@color/colorPrimaryDark"
+            android:visibility="visible" />
 
     </LinearLayout>
 

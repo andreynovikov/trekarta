@@ -1,8 +1,11 @@
 package mobi.maptrek.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,7 +42,7 @@ import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 
-public class TextSearchFragment extends ListFragment {
+public class TextSearchFragment extends ListFragment implements View.OnClickListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
 
@@ -57,11 +61,14 @@ public class TextSearchFragment extends ListFragment {
     private DataListAdapter mAdapter;
     private MatrixCursor mEmptyCursor = new MatrixCursor(columns);
     private GeoPoint mCoordinates;
+    private CharSequence[] mKinds;
+    private int mSelectedKind;
 
     private CircleProgressView mFtsWait;
-    private CircleProgressView mSearchWait;
     private TextView mMessage;
+    private ImageButton mFilterButton;
     private View mSearchFooter;
+    private String mText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,8 +85,9 @@ public class TextSearchFragment extends ListFragment {
         final View rootView = inflater.inflate(R.layout.fragment_search_list, container, false);
 
         mFtsWait = (CircleProgressView) rootView.findViewById(R.id.ftsWait);
-        mSearchWait = (CircleProgressView) rootView.findViewById(R.id.searchWait);
         mMessage = (TextView) rootView.findViewById(R.id.message);
+        mFilterButton = (ImageButton) rootView.findViewById(R.id.filterButton);
+        mFilterButton.setOnClickListener(this);
         mSearchFooter = rootView.findViewById(R.id.searchFooter);
         final EditText textEdit = (EditText) rootView.findViewById(R.id.textEdit);
         textEdit.requestFocus();
@@ -97,46 +105,11 @@ public class TextSearchFragment extends ListFragment {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
                     mAdapter.changeCursor(mEmptyCursor);
+                    mText = null;
                     return;
                 }
-                String text = s.toString();
-                String[] words = text.split(" ");
-                for (int i = 0; i < words.length; i++) {
-                    if (words[i].length() > 2)
-                        words[i] = words[i] + "*";
-                }
-                final String match = TextUtils.join(" ", words);
-                // SELECT * FROM "accounts" WHERE ("privileges" & 3) == 3;
-                final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
-                        " INNER JOIN names ON (names_fts.docid = names.ref)" +
-                        " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
-                        " INNER JOIN features ON (feature_names.id = features.id)" +
-                        " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)";
-                //String sql = "SELECT feature_names.id AS _id, names.name FROM feature_names" +
-                //        " INNER JOIN names ON (names.ref = feature_names.name)" +
-                //        " WHERE feature_names.name IN (SELECT docid FROM names_fts WHERE names_fts MATCH ?)";
-                mSearchWait.spin();
-                mSearchWait.setVisibility(View.VISIBLE);
-                final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] selectionArgs = {match};
-                        final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs);
-                        Activity activity = getActivity();
-                        if (activity == null)
-                            return;
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mSearchWait.setVisibility(View.INVISIBLE);
-                                mSearchWait.stopSpinning();
-                                mAdapter.changeCursor(cursor);
-                            }
-                        });
-                    }
-                });
-                m.what = MSG_SEARCH;
-                mBackgroundHandler.sendMessage(m);
+                mText = s.toString();
+                search();
             }
         });
 
@@ -156,12 +129,22 @@ public class TextSearchFragment extends ListFragment {
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
         }
 
+        Activity activity = getActivity();
+
         mCoordinates = new GeoPoint(latitude, longitude);
 
         mDatabase = MapTrek.getApplication().getDetailedMapDatabase();
 
-        mAdapter = new DataListAdapter(getActivity(), mEmptyCursor, 0);
+        mAdapter = new DataListAdapter(activity, mEmptyCursor, 0);
         setListAdapter(mAdapter);
+
+        Resources resources = activity.getResources();
+        mKinds = new CharSequence[Tags.kinds.length + 1];
+        mKinds[0] = activity.getString(R.string.any);
+        for (int i = 0; i < Tags.kinds.length; i++) {
+            int id = resources.getIdentifier(Tags.kinds[i], "string", getActivity().getPackageName());
+            mKinds[i + 1] = id != 0 ? resources.getString(id) : Tags.kinds[i];
+        }
 
         if (mUpdating || !MapTrekDatabaseHelper.hasFullTextIndex(mDatabase)) {
             mSearchFooter.setVisibility(View.GONE);
@@ -241,6 +224,72 @@ public class TextSearchFragment extends ListFragment {
                 HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view != mFilterButton)
+            return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setSingleChoiceItems(mKinds, mSelectedKind, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                boolean changed = which != mSelectedKind;
+                mSelectedKind = which;
+                mFilterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+                if (changed && mText != null)
+                    search();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void search() {
+        String[] words = mText.split(" ");
+        for (int i = 0; i < words.length; i++) {
+            if (words[i].length() > 2)
+                words[i] = words[i] + "*";
+        }
+        final String match = TextUtils.join(" ", words);
+        // SELECT * FROM "accounts" WHERE ("privileges" & 3) == 3;
+        String kindFilter = "";
+        if (mSelectedKind > 0) {
+            int mask = 1 << (mSelectedKind + 2);
+            kindFilter = " AND (kind & " + mask + ") == " + mask;
+        }
+        final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
+                " INNER JOIN names ON (names_fts.docid = names.ref)" +
+                " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
+                " INNER JOIN features ON (feature_names.id = features.id)" +
+                " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter;
+        //String sql = "SELECT feature_names.id AS _id, names.name FROM feature_names" +
+        //        " INNER JOIN names ON (names.ref = feature_names.name)" +
+        //        " WHERE feature_names.name IN (SELECT docid FROM names_fts WHERE names_fts MATCH ?)";
+        mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
+        mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
+        mFilterButton.setOnClickListener(null);
+        final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
+            @Override
+            public void run() {
+                String[] selectionArgs = {match};
+                final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs);
+                final Activity activity = getActivity();
+                if (activity == null)
+                    return;
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFilterButton.setImageResource(R.drawable.ic_filter);
+                        mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+                        mFilterButton.setOnClickListener(TextSearchFragment.this);
+                        mAdapter.changeCursor(cursor);
+                    }
+                });
+            }
+        });
+        m.what = MSG_SEARCH;
+        mBackgroundHandler.sendMessage(m);
     }
 
     private class DataListAdapter extends CursorAdapter {
