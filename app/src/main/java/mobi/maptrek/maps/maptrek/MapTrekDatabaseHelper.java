@@ -5,12 +5,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+
+import mobi.maptrek.data.Waypoint;
 
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
@@ -201,6 +204,8 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_FEATURES_NAMES_NAME
     };
 
+    private static final String SQL_GET_NAME = "SELECT names.name, lang FROM names INNER JOIN feature_names ON (ref = feature_names.name) WHERE id = ? AND lang IN (0, ?) ORDER BY lang";
+
     static final String WHERE_MAPS_XY = COLUMN_MAPS_X + " = ? AND " + COLUMN_MAPS_Y + " = ?";
     static final String WHERE_INFO_NAME = COLUMN_INFO_NAME + " = ?";
     static final String WHERE_MAPS_PRESENT = COLUMN_MAPS_DATE + " > 0 OR " + COLUMN_MAPS_DOWNLOADING + " > 0";
@@ -305,5 +310,61 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         } catch (SQLiteException ignore) {
             return false;
         }
+    }
+
+    public static Waypoint getAmenityData(int lang, long elementId, SQLiteDatabase db) {
+        String[] args = {String.valueOf(elementId)};
+        Waypoint waypoint = null;
+        try (Cursor c = db.query(TABLE_FEATURES, ALL_COLUMNS_FEATURES, "id = ?", args, null, null, null)) {
+            if (c.moveToFirst()) {
+                int kind = c.getInt(c.getColumnIndex(COLUMN_FEATURES_KIND));
+                double lat = c.getDouble(c.getColumnIndex(COLUMN_FEATURES_LAT));
+                double lon = c.getDouble(c.getColumnIndex(COLUMN_FEATURES_LON));
+                String name = getFeatureName(lang, elementId, db);
+                waypoint = new Waypoint(name, lat, lon);
+                waypoint._id = elementId;
+                waypoint.proximity = kind; //TODO It's a hack
+                waypoint.description = Tags.getKindName(kind);
+            }
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
+        return waypoint;
+    }
+
+    static String getFeatureName(int lang, long elementId, SQLiteDatabase db) {
+        String[] args = {String.valueOf(elementId), String.valueOf(lang)};
+        try (Cursor c = db.rawQuery(SQL_GET_NAME, args)) {
+            String result[] = new String[c.getCount()];
+            int i = 0;
+            if (c.moveToFirst())
+                do {
+                    result[i] = c.getString(0);
+                    i++;
+                } while (c.moveToNext());
+
+            if (result.length > 0) {
+                if (result.length == 2 && result[1] != null)
+                    return result[1];
+                return result[0];
+            }
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
+        return null;
+    }
+
+    public static int getLanguageId(@Nullable String lang) {
+        if (lang == null)
+            return 0;
+        switch (lang) {
+            case "en":
+                return 840;
+            case "de":
+                return 276;
+            case "ru":
+                return 643;
+        }
+        return 0;
     }
 }

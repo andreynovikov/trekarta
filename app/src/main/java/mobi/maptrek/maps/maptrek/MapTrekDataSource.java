@@ -28,7 +28,6 @@ class MapTrekDataSource implements ITileDataSource {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDataSource.class);
 
     private static final String SQL_GET_TILE = "SELECT " + COLUMN_TILES_DATA + " FROM " + TABLE_TILES + " WHERE " + WHERE_TILE_ZXY;
-    private static final String SQL_GET_NAME = "SELECT names.name, lang FROM names INNER JOIN feature_names ON (ref = feature_names.name) WHERE id = ? AND lang IN (0, ?) ORDER BY lang";
 
     private static final int MAX_NATIVE_ZOOM = 14;
     private static final int CLIP_BUFFER = 32;
@@ -78,21 +77,8 @@ class MapTrekDataSource implements ITileDataSource {
     public void cancel() {
     }
 
-    String[] getNames(int lang, long elementId) {
-        String[] args = {String.valueOf(elementId), String.valueOf(lang)};
-        try (Cursor c = mDatabase.rawQuery(SQL_GET_NAME, args)) {
-            String result[] = new String[c.getCount()];
-            int i = 0;
-            if (c.moveToFirst())
-                do {
-                    result[i] = c.getString(0);
-                    i++;
-                } while (c.moveToNext());
-            return result;
-        } catch (Exception e) {
-            logger.error("Query error", e);
-        }
-        return null;
+    String getName(int lang, long elementId) {
+        return MapTrekDatabaseHelper.getFeatureName(lang, elementId, mDatabase);
     }
 
     void setContoursEnabled(boolean enabled) {

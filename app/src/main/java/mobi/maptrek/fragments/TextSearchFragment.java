@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -25,6 +24,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -43,6 +43,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.HelperUtils;
+import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
 
 public class TextSearchFragment extends ListFragment implements View.OnClickListener {
@@ -55,6 +56,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private MapHolder mMapHolder;
+    private OnFeatureActionListener mFeatureActionListener;
 
     private static final String[] columns = new String[]{"_id", "name", "kind", "lat", "lon"};
 
@@ -186,7 +188,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
+        try {
+            mFeatureActionListener = (OnFeatureActionListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnFeatureActionListener");
+        }
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
@@ -197,6 +203,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     @Override
     public void onDetach() {
         super.onDetach();
+        mFeatureActionListener = null;
         mMapHolder = null;
     }
 
@@ -207,6 +214,17 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.quit();
         mBackgroundThread = null;
+    }
+
+    @Override
+    public void onListItemClick(ListView lv, View v, int position, long id) {
+        View view = getView();
+        if (view != null) {
+            // Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        mFeatureActionListener.onFeatureDetails(id);
     }
 
     private void hideProgress() {
@@ -306,11 +324,13 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     private class DataListAdapter extends CursorAdapter {
+        private final int mAccentColor;
         private LayoutInflater mInflater;
 
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mAccentColor = getResources().getColor(R.color.colorAccentLight, context.getTheme());
         }
 
         @Override
@@ -330,9 +350,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             ItemHolder holder = (ItemHolder) view.getTag();
-
-            @DrawableRes int icon = R.drawable.ic_place;
-            @ColorInt int color = R.color.colorAccentLight;
 
             //long id = cursor.getLong(cursor.getColumnIndex("_id"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
@@ -354,45 +371,10 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 }
             });
 
-            if (Tags.isPlace(kind))
-                icon = R.drawable.ic_adjust;
-            else if (Tags.isEmergency(kind))
-                icon = R.drawable.ic_local_hospital;
-            else if (Tags.isAccommodation(kind))
-                icon = R.drawable.ic_hotel;
-            else if (Tags.isFood(kind))
-                icon = R.drawable.ic_local_dining;
-            else if (Tags.isAttraction(kind))
-                icon = R.drawable.ic_account_balance;
-            else if (Tags.isEntertainment(kind))
-                icon = R.drawable.ic_local_see;
-            else if (Tags.isShopping(kind))
-                icon = R.drawable.ic_shopping_cart;
-            else if (Tags.isService(kind))
-                icon = R.drawable.ic_local_laundry_service;
-            else if (Tags.isReligion(kind))
-                icon = R.drawable.ic_change_history;
-            else if (Tags.isEducation(kind))
-                icon = R.drawable.ic_school;
-            else if (Tags.isKids(kind))
-                icon = R.drawable.ic_child_care;
-            else if (Tags.isPets(kind))
-                icon = R.drawable.ic_pets;
-            else if (Tags.isVehicles(kind))
-                icon = R.drawable.ic_directions_car;
-            else if (Tags.isTransportation(kind))
-                icon = R.drawable.ic_directions_bus;
-            else if (Tags.isHikeBike(kind))
-                icon = R.drawable.ic_directions_bike;
-            else if (Tags.isBuilding(kind))
-                icon = R.drawable.ic_location_city;
-            else if (Tags.isUrban(kind))
-                icon = R.drawable.ic_nature_people;
-            else if (Tags.isRoad(kind))
-                icon = R.drawable.ic_drag_handle;
-            else if (Tags.isBarrier(kind))
-                icon = R.drawable.ic_do_not_disturb_on;
-
+            int color = mAccentColor;
+            @DrawableRes int icon = ResUtils.getKindIcon(kind);
+            if (icon == 0)
+                icon = R.drawable.ic_place;
             //color = waypoint.style.color;
             holder.icon.setImageResource(icon);
             Drawable background = holder.icon.getBackground().mutate();

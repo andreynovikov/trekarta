@@ -167,12 +167,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             ExtendedMapElement extendedElement = (ExtendedMapElement) element;
             if (extendedElement.id == 0L)
                 return null;
-            String[] names = extendedElement.database.getNames(mLang, extendedElement.id);
-            if (names != null && names.length > 0) {
-                if (names.length == 2 && names[1] != null)
-                    return names[1];
-                return names[0];
-            }
+            String name = extendedElement.database.getName(mLang, extendedElement.id);
+            if (name != null)
+                return name;
         }
         if ("ele".equals(key) && element instanceof ExtendedMapElement) {
             ExtendedMapElement extendedElement = (ExtendedMapElement) element;
@@ -192,19 +189,6 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
-        if (preferredLanguage == null) {
-            mLang = 0;
-            return;
-        }
-        switch (preferredLanguage) {
-            case "en":
-                mLang = 840;
-                return;
-            case "de":
-                mLang = 276;
-                return;
-            case "ru":
-                mLang = 643;
-        }
+        mLang = MapTrekDatabaseHelper.getLanguageId(preferredLanguage);
     }
 }

@@ -130,6 +130,7 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
+import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.BaseMapDownload;
 import mobi.maptrek.fragments.CrashReport;
@@ -142,6 +143,7 @@ import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
+import mobi.maptrek.fragments.OnFeatureActionListener;
 import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
@@ -205,6 +207,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         OnWaypointActionListener,
         OnTrackActionListener,
         OnMapActionListener,
+        OnFeatureActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
@@ -1281,12 +1284,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     popAll();
                 }
                 Fragment fragment = Fragment.instantiate(this, TextSearchFragment.class.getName(), args);
-                fragment.setEnterTransition(new Slide());
-                FragmentTransaction ft = mFragmentManager.beginTransaction();
-                ft.replace(R.id.contentPanel, fragment, "search");
-                ft.addToBackStack("search");
-                ft.commit();
-                updateMapViewArea();
+                showExtendPanel(PANEL_STATE.MORE, "search", fragment);
                 return true;
             }
             case R.id.actionAbout: {
@@ -1707,7 +1705,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void setMapLocation(GeoPoint point) {
+    public void setMapLocation(@NonNull GeoPoint point) {
         if (mSavedLocationState == LocationState.NORTH || mSavedLocationState == LocationState.TRACK) {
             mSavedLocationState = LocationState.ENABLED;
         }
@@ -1721,7 +1719,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MarkerItem mMarker;
 
     @Override
-    public void showMarker(GeoPoint point, String name) {
+    public void showMarker(@NonNull GeoPoint point, String name) {
         // There can be only one marker at a time
         removeMarker();
         mMarker = new MarkerItem(name, null, point);
@@ -1836,7 +1834,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public boolean isNavigatingTo(GeoPoint coordinates) {
+    public void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name) {
+        startNavigation(new MapObject(name, coordinates));
+    }
+
+    @Override
+    public boolean isNavigatingTo(@NonNull GeoPoint coordinates) {
         if (mNavigationService == null)
             return false;
         if (!mNavigationService.isNavigating())
@@ -2704,6 +2707,57 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 });
         snackbar.show();
         */
+    }
+
+    @Override
+    public void onFeatureDetails(long id) {
+        Bundle args = new Bundle(3);
+        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+            Location location = mLocationService.getLocation();
+            args.putDouble(AmenityInformation.ARG_LATITUDE, location.getLatitude());
+            args.putDouble(AmenityInformation.ARG_LONGITUDE, location.getLongitude());
+        } else {
+            MapPosition position = mMap.getMapPosition();
+            args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
+            args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
+        }
+        args.putString(AmenityInformation.ARG_LANG, Configuration.getLanguage());
+
+        Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, AmenityInformation.class.getName(), args);
+            Slide slide = new Slide(Gravity.BOTTOM);
+            // Required to sync with FloatingActionButton
+            slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            fragment.setEnterTransition(slide);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "amenityInformation");
+            ft.addToBackStack("amenityInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((AmenityInformation) fragment).setAmenity(id);
+        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
+        mExtendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
+    }
+
+    @Override
+    public void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name) {
+        int zoom = mMap.getMapPosition().getZoomLevel();
+        String location;
+        if (name == null)
+            location = String.format(Locale.US, "%.6f %.6f <%s>", coordinates.getLatitude(), coordinates.getLongitude(),
+                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
+        else
+            location = String.format(Locale.US, "%s @ %.6f %.6f <%s>", name, coordinates.getLatitude(), coordinates.getLongitude(),
+                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
+        startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
     }
 
     private void showHideMapObjects(boolean hasBitmapMap) {
