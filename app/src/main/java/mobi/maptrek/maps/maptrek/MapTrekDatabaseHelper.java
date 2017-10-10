@@ -3,7 +3,9 @@ package mobi.maptrek.maps.maptrek;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,16 +13,20 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+import mobi.maptrek.data.Waypoint;
+
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String TABLE_MAPS = "maps";
     static final String TABLE_MAP_FEATURES = "map_features";
     static final String TABLE_INFO = "metadata";
     static final String TABLE_TILES = "tiles";
     static final String TABLE_NAMES = "names";
+    @SuppressWarnings("WeakerAccess")
+    static final String TABLE_NAMES_FTS = "names_fts";
     static final String TABLE_FEATURES = "features";
     static final String TABLE_FEATURE_NAMES = "feature_names";
 
@@ -43,7 +49,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String COLUMN_TILES_DATA = "tile_data";
 
     private static final String COLUMN_NAMES_REF = "ref";
-    private static final String COLUMN_NAMES_NAME = "name";
+    static final String COLUMN_NAMES_NAME = "name";
 
     private static final String COLUMN_FEATURES_ID = "id";
     private static final String COLUMN_FEATURES_KIND = "kind";
@@ -93,6 +99,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_NAMES_NAME + " TEXT NOT NULL"
                     + ")";
 
+    private static final String SQL_CREATE_NAMES_FTS =
+            "CREATE VIRTUAL TABLE IF NOT EXISTS "
+                    + TABLE_NAMES_FTS + " USING fts4(tokenize=unicode61, content=\""
+                    + TABLE_NAMES + "\", " + COLUMN_NAMES_NAME
+                    + ")";
+
     private static final String SQL_CREATE_FEATURES =
             "CREATE TABLE IF NOT EXISTS "
                     + TABLE_FEATURES + " ("
@@ -105,7 +117,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_FEATURE_NAMES =
             "CREATE TABLE IF NOT EXISTS "
                     + TABLE_FEATURE_NAMES + " ("
-                    + COLUMN_FEATURES_ID + "  INTEGER NOT NULL, "
+                    + COLUMN_FEATURES_ID + " INTEGER NOT NULL, "
                     + COLUMN_FEATURES_NAMES_LANG + " INTEGER NOT NULL, "
                     + COLUMN_FEATURES_NAMES_NAME + " INTEGER NOT NULL"
                     + ")";
@@ -144,15 +156,21 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + TABLE_FEATURES + "." + COLUMN_FEATURES_ID + ") WHERE "
                     + TABLE_FEATURES + "." + COLUMN_FEATURES_ID + " IS NULL)";
 
-    static final String SQL_REMOVE_NAMES =
-            "DELETE FROM " + TABLE_NAMES + " WHERE "
-                    + COLUMN_NAMES_REF + " IN (SELECT "
+    static final String SQL_SELECT_UNUSED_NAMES =
+            "SELECT "
                     + COLUMN_NAMES_REF + " FROM "
                     + TABLE_NAMES + " LEFT JOIN "
                     + TABLE_FEATURE_NAMES + " ON ("
                     + COLUMN_NAMES_REF + " = "
                     + TABLE_FEATURE_NAMES + "." + COLUMN_FEATURES_NAMES_NAME + ") WHERE "
-                    + COLUMN_FEATURES_ID + " IS NULL)";
+                    + COLUMN_FEATURES_ID + " IS NULL";
+
+    static final String SQL_REMOVE_NAMES =
+            "DELETE FROM " + TABLE_NAMES + " WHERE "
+                    + COLUMN_NAMES_REF + " IN (" + SQL_SELECT_UNUSED_NAMES + ")";
+
+    static final String SQL_REMOVE_NAMES_FTS =
+            "DELETE FROM " + TABLE_NAMES_FTS + " WHERE docid IN (";
 
     static final String[] ALL_COLUMNS_MAPS = {
             COLUMN_MAPS_X,
@@ -186,11 +204,19 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_FEATURES_NAMES_NAME
     };
 
+    private static final String SQL_GET_NAME = "SELECT names.name, lang FROM names INNER JOIN feature_names ON (ref = feature_names.name) WHERE id = ? AND lang IN (0, ?) ORDER BY lang";
+
     static final String WHERE_MAPS_XY = COLUMN_MAPS_X + " = ? AND " + COLUMN_MAPS_Y + " = ?";
     static final String WHERE_INFO_NAME = COLUMN_INFO_NAME + " = ?";
     static final String WHERE_MAPS_PRESENT = COLUMN_MAPS_DATE + " > 0 OR " + COLUMN_MAPS_DOWNLOADING + " > 0";
     static final String WHERE_TILE_ZXY = COLUMN_TILES_ZOOM_LEVEL + " = ? AND " + COLUMN_TILES_COLUMN + " = ? AND " + COLUMN_TILES_ROW + " = ?";
 
+    private static final String SQL_INSERT_NAMES_FTS = "INSERT INTO "
+            + TABLE_NAMES_FTS + "(docid, "
+            + COLUMN_NAMES_NAME + ") SELECT "
+            + COLUMN_NAMES_REF + ", "
+            + COLUMN_NAMES_NAME + " FROM "
+            + TABLE_NAMES;
 
     private static final String SQL_INDEX_INFO = "CREATE UNIQUE INDEX IF NOT EXISTS property ON metadata (name)";
     static final String SQL_INDEX_MAPS = "CREATE UNIQUE INDEX IF NOT EXISTS maps_x_y ON maps (x, y)";
@@ -200,11 +226,13 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_INDEX_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS name_ref ON names (ref)";
     private static final String SQL_INDEX_FEATURES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_id ON features (id)";
     private static final String SQL_INDEX_FEATURE_LANG = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_lang ON feature_names (id, lang)";
-    private static final String SQL_INDEX_FEATURE_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
+    private static final String SQL_INDEX_FEATURE_NAME = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
+    private static final String SQL_INDEX_FEATURE_NAMES = "CREATE INDEX IF NOT EXISTS feature_names_ref ON feature_names (name)";
 
     private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
     private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
     private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
+    private static final String FTS_MERGE = "INSERT INTO names_fts(names_fts) VALUES('merge=300,8')";
 
     public MapTrekDatabaseHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
@@ -225,6 +253,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst())
             logger.debug("  removed {} pages", cursor.getCount());
         cursor.close();
+        if (hasFullTextIndex(db)) {
+            cursor = db.rawQuery(FTS_MERGE, null);
+            if (cursor.moveToFirst())
+                logger.debug("  merged FTS index");
+            cursor.close();
+        }
     }
 
     @Override
@@ -236,6 +270,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INFO);
         db.execSQL(SQL_CREATE_TILES);
         db.execSQL(SQL_CREATE_NAMES);
+        db.execSQL(SQL_CREATE_NAMES_FTS);
         db.execSQL(SQL_CREATE_FEATURES);
         db.execSQL(SQL_CREATE_FEATURE_NAMES);
         db.execSQL(SQL_INDEX_MAPS);
@@ -246,10 +281,90 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_INDEX_NAMES);
         db.execSQL(SQL_INDEX_FEATURES);
         db.execSQL(SQL_INDEX_FEATURE_LANG);
+        db.execSQL(SQL_INDEX_FEATURE_NAME);
         db.execSQL(SQL_INDEX_FEATURE_NAMES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        logger.debug("Upgrade from {} to {}", oldVersion, newVersion);
+        if (oldVersion == 2) {
+            db.execSQL(SQL_INDEX_FEATURE_NAMES);
+        }
+    }
+
+    public static void createFtsTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_NAMES_FTS);
+        logger.debug("Populate fts");
+        db.execSQL(SQL_INSERT_NAMES_FTS);
+        logger.debug("Finished populating fts");
+    }
+
+    public static boolean hasFullTextIndex(SQLiteDatabase db) {
+        try {
+            String[] selectionArgs = {"Antarctica"};
+            Cursor cursor = db.rawQuery("SELECT docid FROM " + TABLE_NAMES_FTS + " WHERE " +
+                    TABLE_NAMES_FTS + " MATCH ?", selectionArgs);
+            cursor.close();
+            return true;
+        } catch (SQLiteException ignore) {
+            return false;
+        }
+    }
+
+    public static Waypoint getAmenityData(int lang, long elementId, SQLiteDatabase db) {
+        String[] args = {String.valueOf(elementId)};
+        Waypoint waypoint = null;
+        try (Cursor c = db.query(TABLE_FEATURES, ALL_COLUMNS_FEATURES, "id = ?", args, null, null, null)) {
+            if (c.moveToFirst()) {
+                int kind = c.getInt(c.getColumnIndex(COLUMN_FEATURES_KIND));
+                double lat = c.getDouble(c.getColumnIndex(COLUMN_FEATURES_LAT));
+                double lon = c.getDouble(c.getColumnIndex(COLUMN_FEATURES_LON));
+                String name = getFeatureName(lang, elementId, db);
+                waypoint = new Waypoint(name, lat, lon);
+                waypoint._id = elementId;
+                waypoint.proximity = kind; //TODO It's a hack
+                waypoint.description = Tags.getKindName(kind);
+            }
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
+        return waypoint;
+    }
+
+    static String getFeatureName(int lang, long elementId, SQLiteDatabase db) {
+        String[] args = {String.valueOf(elementId), String.valueOf(lang)};
+        try (Cursor c = db.rawQuery(SQL_GET_NAME, args)) {
+            String result[] = new String[c.getCount()];
+            int i = 0;
+            if (c.moveToFirst())
+                do {
+                    result[i] = c.getString(0);
+                    i++;
+                } while (c.moveToNext());
+
+            if (result.length > 0) {
+                if (result.length == 2 && result[1] != null)
+                    return result[1];
+                return result[0];
+            }
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
+        return null;
+    }
+
+    public static int getLanguageId(@Nullable String lang) {
+        if (lang == null)
+            return 0;
+        switch (lang) {
+            case "en":
+                return 840;
+            case "de":
+                return 276;
+            case "ru":
+                return 643;
+        }
+        return 0;
     }
 }

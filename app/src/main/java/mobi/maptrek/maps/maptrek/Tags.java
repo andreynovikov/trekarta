@@ -16,6 +16,8 @@ package mobi.maptrek.maps.maptrek;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.support.annotation.NonNull;
+
 public class Tags {
     public static final String[] kinds = {
             //"place",
@@ -38,6 +40,128 @@ public class Tags {
             "kind_urban",
             "kind_barrier"
     };
+
+    //TODO Return multiple kinds if applicable
+    static
+    @NonNull
+    String getKindName(int kind) {
+        if (Tags.isPlace(kind))
+            return "kind_place";
+        else if (Tags.isEmergency(kind))
+            return kinds[0];
+        else if (Tags.isAccommodation(kind))
+            return kinds[1];
+        else if (Tags.isFood(kind))
+            return kinds[2];
+        else if (Tags.isAttraction(kind))
+            return kinds[3];
+        else if (Tags.isEntertainment(kind))
+            return kinds[4];
+        else if (Tags.isShopping(kind))
+            return kinds[5];
+        else if (Tags.isService(kind))
+            return kinds[6];
+        else if (Tags.isReligion(kind))
+            return kinds[7];
+        else if (Tags.isEducation(kind))
+            return kinds[8];
+        else if (Tags.isKids(kind))
+            return kinds[9];
+        else if (Tags.isPets(kind))
+            return kinds[10];
+        else if (Tags.isVehicles(kind))
+            return kinds[11];
+        else if (Tags.isTransportation(kind))
+            return kinds[12];
+        else if (Tags.isHikeBike(kind))
+            return kinds[13];
+        else if (Tags.isBuilding(kind))
+            return "kind_building";
+        else if (Tags.isUrban(kind))
+            return kinds[14];
+        else if (Tags.isRoad(kind))
+            return "kind_road";
+        else if (Tags.isBarrier(kind))
+            return kinds[15];
+        else
+            return "";
+    }
+
+    public static boolean isPlace(int kind) {
+        return (kind & 0x00000001) > 0;
+    }
+
+    public static boolean isRoad(int kind) {
+        return (kind & 0x00000002) > 0;
+    }
+
+    public static boolean isBuilding(int kind) {
+        return (kind & 0x00000004) > 0;
+    }
+
+    public static boolean isEmergency(int kind) {
+        return (kind & 0x00000008) > 0;
+    }
+
+    public static boolean isAccommodation(int kind) {
+        return (kind & 0x00000010) > 0;
+    }
+
+    public static boolean isFood(int kind) {
+        return (kind & 0x00000020) > 0;
+    }
+
+    public static boolean isAttraction(int kind) {
+        return (kind & 0x00000040) > 0;
+    }
+
+    public static boolean isEntertainment(int kind) {
+        return (kind & 0x00000080) > 0;
+    }
+
+    public static boolean isShopping(int kind) {
+        return (kind & 0x00000100) > 0;
+    }
+
+    public static boolean isService(int kind) {
+        return (kind & 0x00000200) > 0;
+    }
+
+    public static boolean isReligion(int kind) {
+        return (kind & 0x00000400) > 0;
+    }
+
+    public static boolean isEducation(int kind) {
+        return (kind & 0x00000800) > 0;
+    }
+
+    public static boolean isKids(int kind) {
+        return (kind & 0x00001000) > 0;
+    }
+
+    public static boolean isPets(int kind) {
+        return (kind & 0x00002000) > 0;
+    }
+
+    public static boolean isVehicles(int kind) {
+        return (kind & 0x00004000) > 0;
+    }
+
+    public static boolean isTransportation(int kind) {
+        return (kind & 0x00008000) > 0;
+    }
+
+    public static boolean isHikeBike(int kind) {
+        return (kind & 0x00010000) > 0;
+    }
+
+    public static boolean isUrban(int kind) {
+        return (kind & 0x00020000) > 0;
+    }
+
+    public static boolean isBarrier(int kind) {
+        return (kind & 0x00040000) > 0;
+    }
 
     public static final int[] kindZooms = {
             15, // emergency

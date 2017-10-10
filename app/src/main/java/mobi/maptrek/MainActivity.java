@@ -130,6 +130,7 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.fragments.About;
+import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.BaseMapDownload;
 import mobi.maptrek.fragments.CrashReport;
@@ -142,12 +143,14 @@ import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
+import mobi.maptrek.fragments.OnFeatureActionListener;
 import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.Settings;
+import mobi.maptrek.fragments.TextSearchFragment;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
@@ -204,6 +207,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         OnWaypointActionListener,
         OnTrackActionListener,
         OnMapActionListener,
+        OnFeatureActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
@@ -1265,6 +1269,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 ft.commit();
                 return true;
             }
+            case R.id.actionSearch: {
+                Bundle args = new Bundle(2);
+                if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                    Location location = mLocationService.getLocation();
+                    args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+                    args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                } else {
+                    MapPosition position = mMap.getMapPosition();
+                    args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+                    args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                }
+                if (mFragmentManager.getBackStackEntryCount() > 0) {
+                    popAll();
+                }
+                Fragment fragment = Fragment.instantiate(this, TextSearchFragment.class.getName(), args);
+                showExtendPanel(PANEL_STATE.MORE, "search", fragment);
+                return true;
+            }
             case R.id.actionAbout: {
                 Fragment fragment = Fragment.instantiate(this, About.class.getName());
                 fragment.setEnterTransition(new Slide(mSlideGravity));
@@ -1577,6 +1599,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                     } else {
                         menu.removeItem(R.id.actionHideSystemUI);
+                        menu.removeItem(R.id.actionSearch);
                     }
                     if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                         menu.removeItem(R.id.actionAddGauge);
@@ -1682,7 +1705,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void setMapLocation(GeoPoint point) {
+    public void setMapLocation(@NonNull GeoPoint point) {
         if (mSavedLocationState == LocationState.NORTH || mSavedLocationState == LocationState.TRACK) {
             mSavedLocationState = LocationState.ENABLED;
         }
@@ -1696,7 +1719,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MarkerItem mMarker;
 
     @Override
-    public void showMarker(GeoPoint point, String name) {
+    public void showMarker(@NonNull GeoPoint point, String name) {
         // There can be only one marker at a time
         removeMarker();
         mMarker = new MarkerItem(name, null, point);
@@ -1811,7 +1834,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public boolean isNavigatingTo(GeoPoint coordinates) {
+    public void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name) {
+        startNavigation(new MapObject(name, coordinates));
+    }
+
+    @Override
+    public boolean isNavigatingTo(@NonNull GeoPoint coordinates) {
         if (mNavigationService == null)
             return false;
         if (!mNavigationService.isNavigating())
@@ -2681,6 +2709,57 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         */
     }
 
+    @Override
+    public void onFeatureDetails(long id) {
+        Bundle args = new Bundle(3);
+        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+            Location location = mLocationService.getLocation();
+            args.putDouble(AmenityInformation.ARG_LATITUDE, location.getLatitude());
+            args.putDouble(AmenityInformation.ARG_LONGITUDE, location.getLongitude());
+        } else {
+            MapPosition position = mMap.getMapPosition();
+            args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
+            args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
+        }
+        args.putString(AmenityInformation.ARG_LANG, Configuration.getLanguage());
+
+        Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, AmenityInformation.class.getName(), args);
+            Slide slide = new Slide(Gravity.BOTTOM);
+            // Required to sync with FloatingActionButton
+            slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            fragment.setEnterTransition(slide);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "amenityInformation");
+            ft.addToBackStack("amenityInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((AmenityInformation) fragment).setAmenity(id);
+        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
+        mExtendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
+    }
+
+    @Override
+    public void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name) {
+        int zoom = mMap.getMapPosition().getZoomLevel();
+        String location;
+        if (name == null)
+            location = String.format(Locale.US, "%.6f %.6f <%s>", coordinates.getLatitude(), coordinates.getLongitude(),
+                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
+        else
+            location = String.format(Locale.US, "%s @ %.6f %.6f <%s>", name, coordinates.getLatitude(), coordinates.getLongitude(),
+                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
+        startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
+    }
+
     private void showHideMapObjects(boolean hasBitmapMap) {
         Layers layers = mMap.layers();
         if (hasBitmapMap && mHideMapObjects && layers.contains(mLabelsLayer)) {
@@ -3309,6 +3388,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         area.bottom = mExtendPanel.getTop();
                     else
                         area.right = mExtendPanel.getLeft();
+                }
+
+                // This part does not currently make sense as map center is not adjusted yet
+                int count = mFragmentManager.getBackStackEntryCount();
+                if (count > 0) {
+                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+                    View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
+                    if ("search".equals(bse.getName()))
+                        if (mVerticalOrientation)
+                            area.bottom = contentPanel.getTop();
+                        else
+                            area.right = contentPanel.getLeft();
                 }
 
                 if (!area.isEmpty()) {

@@ -1,5 +1,8 @@
 package mobi.maptrek;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.oscim.core.GeoPoint;
 import org.oscim.map.Map;
 
@@ -12,7 +15,11 @@ public interface MapHolder {
 
     void disableTracking();
 
-    boolean isNavigatingTo(GeoPoint coordinates);
+    void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name);
+
+    void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name);
+
+    boolean isNavigatingTo(@NonNull GeoPoint coordinates);
 
     void stopNavigation();
 
@@ -27,9 +34,9 @@ public interface MapHolder {
 
     void removeLocationChangeListener(LocationChangeListener listener);
 
-    void setMapLocation(GeoPoint point);
+    void setMapLocation(@NonNull GeoPoint point);
 
-    void showMarker(GeoPoint point, String name);
+    void showMarker(@NonNull GeoPoint point, @Nullable String name);
 
     void removeMarker();
 }

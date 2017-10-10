@@ -30,6 +30,11 @@ public class MapObject {
         coordinates = new GeoPoint(latitudeE6, longitudeE6);
     }
 
+    public MapObject(String name, GeoPoint coordinates) {
+        this.name = name;
+        this.coordinates = coordinates;
+    }
+
     public void setCoordinates(GeoPoint coordinates) {
         this.coordinates = coordinates;
     }

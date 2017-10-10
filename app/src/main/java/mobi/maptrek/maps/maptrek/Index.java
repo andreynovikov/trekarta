@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -27,6 +28,7 @@ import java.util.Set;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
+import mobi.maptrek.util.StringFormatter;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURE_NAMES;
@@ -38,16 +40,20 @@ import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DATE;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DOWNLOADING;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_X;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_Y;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_NAMES_NAME;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_NAMES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_NAMES_FTS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_TILES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_SELECT_UNUSED_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_FEATURE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_INFO;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_MAPS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_MAP_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_NAMES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_NAMES_FTS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_TILES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_INFO_NAME;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_MAPS_PRESENT;
@@ -217,6 +223,30 @@ public class Index {
             statement.executeUpdateDelete();
             logger.error("  removed feature names");
             // remove names
+            if (MapTrekDatabaseHelper.hasFullTextIndex(mDatabase)) {
+                ArrayList<Long> ids = new ArrayList<>();
+                Cursor cursor = mDatabase.rawQuery(SQL_SELECT_UNUSED_NAMES, null);
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    ids.add(cursor.getLong(0));
+                    cursor.moveToNext();
+                }
+                cursor.close();
+                if (ids.size() > 0) {
+                    StringBuilder sql = new StringBuilder();
+                    sql.append(SQL_REMOVE_NAMES_FTS);
+                    String sep = "";
+                    for (Long id : ids) {
+                        sql.append(sep);
+                        sql.append(String.valueOf(id));
+                        sep = ",";
+                    }
+                    sql.append(")");
+                    statement = mDatabase.compileStatement(sql.toString());
+                    statement.executeUpdateDelete();
+                }
+                logger.error("  removed names fts");
+            }
             statement = mDatabase.compileStatement(SQL_REMOVE_NAMES);
             statement.executeUpdateDelete();
             logger.error("  removed names");
@@ -266,9 +296,15 @@ public class Index {
                 total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
                 progressListener.onProgressStarted(total);
             }
+            boolean hasFts = MapTrekDatabaseHelper.hasFullTextIndex(mDatabase);
 
             // copy names
             SQLiteStatement statement = mDatabase.compileStatement("REPLACE INTO " + TABLE_NAMES + " VALUES (?,?)");
+            SQLiteStatement statementFts = null;
+            if (hasFts) {
+                statementFts = mDatabase.compileStatement("INSERT INTO " + TABLE_NAMES_FTS
+                        + " (docid, " + COLUMN_NAMES_NAME + ") VALUES (?,?)");
+            }
             mDatabase.beginTransaction();
             Cursor cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
@@ -277,6 +313,12 @@ public class Index {
                 statement.bindLong(1, cursor.getLong(0));
                 statement.bindString(2, cursor.getString(1));
                 statement.execute();
+                if (statementFts != null) {
+                    statementFts.clearBindings();
+                    statementFts.bindLong(1, cursor.getLong(0));
+                    statementFts.bindString(2, cursor.getString(1));
+                    statementFts.execute();
+                }
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);

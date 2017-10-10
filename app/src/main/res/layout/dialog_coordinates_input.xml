@@ -16,6 +16,7 @@
             android:gravity="start"
             android:inputType="text|textMultiLine"
             android:lines="5"
-            android:maxLines="10" />
+            android:maxLines="10"
+            tools:ignore="LabelFor" />
 
 </LinearLayout>
