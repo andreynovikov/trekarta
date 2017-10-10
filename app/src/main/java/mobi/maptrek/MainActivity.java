@@ -1297,6 +1297,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 ft.commit();
                 return true;
             }
+            case R.id.actionShareCoordinates: {
+                removeMarker();
+                shareLocation(mSelectedPoint, null);
+                return true;
+            }
             case R.id.actionAddWaypointHere: {
                 removeMarker();
                 String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
