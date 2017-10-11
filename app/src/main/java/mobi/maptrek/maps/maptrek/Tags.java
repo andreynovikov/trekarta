@@ -240,7 +240,8 @@ public class Tags {
             "wetland",
             "maritime",
             "winter_road",
-            "ice_road"
+            "ice_road",
+            "4wd_only"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -796,7 +797,9 @@ public class Tags {
             "dry_cleaning",
             "ice_cream",
             "bare_rock",
-            "lock_gate"
+            "lock_gate",
+            "unpaved",
+            "dirt"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

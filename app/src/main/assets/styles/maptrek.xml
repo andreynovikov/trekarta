@@ -56,6 +56,8 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <!-- Roads -->
+    <style-line id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
+        width="1.0" />
     <style-line id="trunk" stroke="#fedb52" width="1.4" />
     <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.2" />
     <style-line id="highway" stroke="#fcba5a" width="1.5" />
@@ -711,11 +713,22 @@
                                         <line fade="14" outline="service-road" stroke="#deebeb"
                                             use="highway-service" />
                                     </m>
+                                    <m k="surface" v="dirt">
+                                        <line fade="14" outline="service-road" stroke="#b28f67"
+                                            use="highway-service" />
+                                    </m>
+                                    <m k="surface" v="unpaved">
+                                        <line fade="14" outline="service-road" stroke="#d4c1aa"
+                                            use="highway-service" />
+                                    </m>
                                     <m>
                                         <line fade="14" outline="service-road"
                                             use="highway-service" />
                                     </m>
                                     <m select="when-matched">
+                                        <m k="4wd_only" v="yes">
+                                            <line use="4wd_only" width="-0.3" />
+                                        </m>
                                         <m k="access" v="private">
                                             <line fade="14" stipple="15" stipple-stroke="#eeeeee"
                                                 use="highway-service" />
@@ -747,6 +760,12 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="road" stroke="#deebeb" use="tertiary" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="road" stroke="#b28f67" use="tertiary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="road" stroke="#d4c1aa" use="tertiary" />
+                                </m>
                                 <m>
                                     <line outline="road" use="tertiary" />
                                 </m>
@@ -761,6 +780,12 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="road" stroke="#deebeb" use="secondary" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="road" stroke="#b28f67" use="secondary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="road" stroke="#d4c1aa" use="secondary" />
+                                </m>
                                 <m>
                                     <line outline="road" use="secondary" />
                                 </m>
@@ -774,6 +799,12 @@
                                 </m>
                                 <m k="winter_road" v="yes">
                                     <line outline="primary" stroke="#deebeb" use="primary" />
+                                </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="primary" stroke="#b28f67" use="primary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="primary" stroke="#d4c1aa" use="primary" />
                                 </m>
                                 <m>
                                     <line outline="primary" use="primary" />
@@ -812,9 +843,18 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="road" stroke="#deebeb" use="residential" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="road" stroke="#b28f67" use="residential" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="road" stroke="#d4c1aa" use="residential" />
+                                </m>
                                 <m>
                                     <line outline="road" use="residential" />
                                 </m>
+                            </m>
+                            <m k="4wd_only" v="yes">
+                                <line use="4wd_only" width="-0.2" />
                             </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
@@ -832,9 +872,18 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="road" stroke="#deebeb" use="unclassified" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="road" stroke="#b28f67" use="unclassified" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="road" stroke="#d4c1aa" use="unclassified" />
+                                </m>
                                 <m>
                                     <line outline="road" use="unclassified" />
                                 </m>
+                            </m>
+                            <m k="4wd_only" v="yes">
+                                <line use="4wd_only" />
                             </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
@@ -852,16 +901,20 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="road" stroke="#deebeb" use="tertiary" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="road" stroke="#b28f67" use="tertiary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="road" stroke="#d4c1aa" use="tertiary" />
+                                </m>
                                 <m>
                                     <line outline="road" use="tertiary" />
                                 </m>
                             </m>
-                            <text use="road-name" />
-                            <!--
-                            <m k="surface" v="unpaved|compacted|dirt|earth|grass|ground|mud|sand">
-                                <line use="tertiary" stroke="#fdf6ed" cap="square" />
+                            <m k="4wd_only" v="yes">
+                                <line use="4wd_only" />
                             </m>
-                            -->
+                            <text use="road-name" />
                         </m>
                         <m v="secondary">
                             <m select="first">
@@ -871,9 +924,18 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="primary" stroke="#deebeb" use="secondary" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="primary" stroke="#b28f67" use="secondary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="primary" stroke="#d4c1aa" use="secondary" />
+                                </m>
                                 <m>
                                     <line outline="primary" use="secondary" />
                                 </m>
+                            </m>
+                            <m k="4wd_only" v="yes">
+                                <line use="4wd_only" width="0.1" />
                             </m>
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
@@ -886,9 +948,18 @@
                                 <m k="winter_road" v="yes">
                                     <line outline="primary" stroke="#deebeb" use="primary" />
                                 </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="primary" stroke="#b28f67" use="primary" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="primary" stroke="#d4c1aa" use="primary" />
+                                </m>
                                 <m>
                                     <line outline="primary" use="primary" />
                                 </m>
+                            </m>
+                            <m k="4wd_only" v="yes">
+                                <line use="4wd_only" width="0.2" />
                             </m>
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
@@ -900,6 +971,12 @@
                                 </m>
                                 <m k="winter_road" v="yes">
                                     <line outline="motorway" stroke="#deebeb" use="trunk" />
+                                </m>
+                                <m k="surface" v="dirt">
+                                    <line outline="motorway" stroke="#b28f67" use="trunk" />
+                                </m>
+                                <m k="surface" v="unpaved">
+                                    <line outline="motorway" stroke="#d4c1aa" use="trunk" />
                                 </m>
                                 <m>
                                     <line outline="motorway" use="trunk" />
