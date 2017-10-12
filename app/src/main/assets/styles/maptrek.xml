@@ -5,6 +5,7 @@
 
     <!--
     TODO:
+    https://wiki.openstreetmap.org/wiki/Tag:natural%3Dsaddle
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
@@ -260,7 +261,7 @@
         </m>
     </m>
     <m k="man_made" v="cutline">
-        <line cap="butt" stroke="#d3dcb9" width="2.0" />
+        <line cap="square" fade="14" stroke="#d3dcb9" width="2.0" />
     </m>
 
     <!-- Landuse -->
@@ -1056,59 +1057,38 @@
             </m>
         </m>
         <m k="tunnel" v="~|no">
-            <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
             <!-- railway bridge casings -->
-            <m zoom-min="14">
-                <m k="bridge">
-                    <m k="bridge" v="-|no">
-                        <m k="railway" v="tram|miniature" zoom-min="16">
-                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
-                                width="4.0" />
-                        </m>
-                        <m k="railway" v="monorail|funicular" zoom-min="15">
-                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
-                                width="2.0" />
-                        </m>
-                        <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
-                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
-                                width="1.5" />
-                        </m>
-                        <m k="railway" v="rail">
-                            <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
-                                width="5.0" />
-                        </m>
+            <m k="bridge" v="~|no">
+                <!-- railway casings and cores -->
+                <m k="railway" v="monorail|funicular" zoom-min="15">
+                    <line cap="butt" fix="true" stroke="#663322" width="2.0" />
+                </m>
+                <m k="railway" v="tram|miniature" zoom-min="15">
+                    <m zoom-min="16">
+                        <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                            stroke="#aa9988" width="4.0" />
                     </m>
+                    <line cap="butt" fade="15" fix="true" stroke="#aa9988" width="1.5" />
                 </m>
-            </m>
-            <!-- railway casings and cores -->
-            <m k="railway" v="monorail|funicular" zoom-min="15">
-                <line cap="butt" fix="true" stroke="#663322" width="2.0" />
-            </m>
-            <m k="railway" v="tram|miniature" zoom-min="15">
-                <m zoom-min="16">
+                <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
                     <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
-                        stroke="#aa9988" width="4.0" />
+                        stroke="#999999" width="4.0" />
+                    <line cap="butt" fix="true" stroke="#777777" width="1.5" />
                 </m>
-                <line cap="butt" fade="15" fix="true" stroke="#aa9988" width="1.5" />
-            </m>
-            <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
-                <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff" stroke="#999999"
-                    width="4.0" />
-                <line cap="butt" fix="true" stroke="#777777" width="1.5" />
-            </m>
-            <m k="railway" v="rail" zoom-max="13">
-                <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
-            </m>
-            <m k="railway" v="rail" zoom-min="14">
-                <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
-                    stipple-width="0.8" stroke="#777777" width="3.0" />
-            </m>
-            <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
-                <m zoom-min="16">
-                    <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
-                        stroke="#cccccc" width="3.0" />
+                <m k="railway" v="rail" zoom-max="13">
+                    <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
                 </m>
-                <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
+                <m k="railway" v="rail" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
+                        stipple-width="0.8" stroke="#777777" width="3.0" />
+                </m>
+                <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                    <m zoom-min="16">
+                        <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                            stroke="#cccccc" width="3.0" />
+                    </m>
+                    <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
+                </m>
             </m>
         </m>
     </m>
@@ -1256,6 +1236,63 @@
                 </m> <!-- end area=no -->
             </m>
         </m> <!-- end bridge=yes -->
+    </m>
+
+    <!-- Railway bridges -->
+    <m e="way" k="railway" zoom-min="14">
+        <m k="tunnel" v="~|no">
+            <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
+            <m k="bridge">
+                <m k="bridge" v="-|no">
+                    <m k="railway" v="tram|miniature" zoom-min="16">
+                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                            width="4.0" />
+                    </m>
+                    <m k="railway" v="monorail|funicular" zoom-min="15">
+                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                            width="2.0" />
+                    </m>
+                    <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
+                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                            width="1.5" />
+                    </m>
+                    <m k="railway" v="rail">
+                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                            width="5.0" />
+                    </m>
+                    <!-- railway casings and cores -->
+                    <m k="railway" v="monorail|funicular" zoom-min="15">
+                        <line cap="butt" fix="true" stroke="#663322" width="2.0" />
+                    </m>
+                    <m k="railway" v="tram|miniature" zoom-min="15">
+                        <m zoom-min="16">
+                            <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                                stroke="#aa9988" width="4.0" />
+                        </m>
+                        <line cap="butt" fade="15" fix="true" stroke="#aa9988" width="1.5" />
+                    </m>
+                    <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
+                        <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                            stroke="#999999" width="4.0" />
+                        <line cap="butt" fix="true" stroke="#777777" width="1.5" />
+                    </m>
+                    <m k="railway" v="rail" zoom-max="13">
+                        <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
+                    </m>
+                    <m k="railway" v="rail" zoom-min="14">
+                        <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
+                            stipple-width="0.8" stroke="#777777" width="3.0" />
+                    </m>
+                    <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                        <m zoom-min="16">
+                            <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                                stroke="#cccccc" width="3.0" />
+                        </m>
+                        <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
+                    </m>
+                </m>
+            </m>
+        </m>
     </m>
 
     <!-- Barriers -->
@@ -1418,7 +1455,10 @@
     </m>
     <m k="man_made">
         <m v="tower" zoom-min="16">
-            <symbol src="assets:symbols/tower.svg" />
+            <!-- building tag should not be present -->
+            <m k="building" v="~">
+                <symbol src="assets:symbols/tower.svg" />
+            </m>
         </m>
     </m>
     <m k="natural">
@@ -1452,10 +1492,10 @@
     </m>
 
     <!-- Protected areas -->
-    <m closed="yes" k="landuse|leisure" zoom-min="6">
+    <m closed="yes" k="boundary|leisure" zoom-min="6">
         <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
         <!-- TODO Remove protected area -->
-        <m v="national_park|nature_reserve|protected_area">
+        <m v="national_park|nature_reserve">
             <m zoom-max="13">
                 <area mesh="true" use="nature_reserve" />
             </m>
@@ -1471,6 +1511,8 @@
             <text style="bold_italic" area-size="0.1" caption="true" fill="#006600" k="name"
                 priority="3" size="18" stroke="#ccffcc" stroke-width="2.0" />
         </m>
+    </m>
+    <m closed="yes" k="landuse" zoom-min="7">
         <m v="military">
             <area fade="7" mesh="true" use="military" />
             <m zoom-max="7">
@@ -1503,7 +1545,7 @@
             <caption fill="#444411" k="name" priority="9" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
-        <m e="node" select="first" v="town">
+        <m select="first" v="town">
             <m k="admin_level" v="2">
                 <caption dy="14" fill="#000000" k="name" priority="2" size="18" stroke="#ffffff"
                     stroke-width="2.0" symbol="assets:symbols/star.svg" />
