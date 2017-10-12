@@ -38,6 +38,7 @@ public class MapTrek extends Application {
 
     private static MapTrek mSelf;
     private File mExceptionLog;
+    private DefaultExceptionHandler mExceptionHandler;
 
     public static float density = 1f;
     public static float ydpi = 160f;
@@ -67,7 +68,8 @@ public class MapTrek extends Application {
             //noinspection ResultOfMethodCallIgnored
             exportDir.mkdir();
         mExceptionLog = new File(exportDir, EXCEPTION_PATH);
-        Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
+        mExceptionHandler = new DefaultExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(mExceptionHandler);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
         initializeSettings();
@@ -202,6 +204,10 @@ public class MapTrek extends Application {
         return mExceptionLog;
     }
 
+    public void registerException(Throwable ex) {
+        mExceptionHandler.caughtException(Thread.currentThread(), ex);
+    }
+
     private class DefaultExceptionHandler implements Thread.UncaughtExceptionHandler {
         private Thread.UncaughtExceptionHandler defaultHandler;
 
@@ -209,8 +215,7 @@ public class MapTrek extends Application {
             defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         }
 
-        @Override
-        public void uncaughtException(final Thread thread, final Throwable ex) {
+        void caughtException(final Thread thread, final Throwable ex) {
             try {
                 StringBuilder msg = new StringBuilder();
                 msg.append(DateFormat.format("dd.MM.yyyy hh:mm:ss", System.currentTimeMillis()));
@@ -234,11 +239,16 @@ public class MapTrek extends Application {
                     writer.write("\n\n");
                     writer.close();
                 }
-                defaultHandler.uncaughtException(thread, ex);
             } catch (Exception e) {
                 // swallow all exceptions
                 logger.error("Exception while handle other exception", e);
             }
+        }
+
+        @Override
+        public void uncaughtException(final Thread thread, final Throwable ex) {
+            caughtException(thread, ex);
+            defaultHandler.uncaughtException(thread, ex);
         }
     }
 

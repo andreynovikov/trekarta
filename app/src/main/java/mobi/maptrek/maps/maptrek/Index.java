@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
@@ -412,6 +413,7 @@ public class Index {
             database.close();
             setDownloaded(x, y, date);
         } catch (SQLiteException e) {
+            MapTrek.getApplication().registerException(e);
             logger.error("Import failed", e);
             setDownloading(x, y, 0L);
             return false;
