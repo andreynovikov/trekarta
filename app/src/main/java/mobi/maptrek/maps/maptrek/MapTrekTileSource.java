@@ -69,9 +69,10 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public OpenResult open() {
         try {
-            mMultiMapFileTileSource.open();
+            if (mMultiMapFileTileSource != null)
+                mMultiMapFileTileSource.open();
             return TileSource.OpenResult.SUCCESS;
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
             return new OpenResult(e.getMessage());
         }
     }
