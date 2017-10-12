@@ -34,7 +34,7 @@ import mobi.maptrek.util.StringFormatter;
 
 public class MapTrek extends Application {
     private static final Logger logger = LoggerFactory.getLogger(MapTrek.class);
-    public static final String EXCEPTION_PATH = "exception.log";
+    public static final String EXCEPTION_PATH = "exception.txt";
 
     private static MapTrek mSelf;
     private File mExceptionLog;
