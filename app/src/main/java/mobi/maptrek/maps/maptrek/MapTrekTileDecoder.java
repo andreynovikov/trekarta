@@ -427,7 +427,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 }
                 kind = kind >> 1;
             }
-            if (!(hasKind || place_road_building || type != TAG_TILE_POINT))
+            if (!(hasKind || place_road_building || type != TAG_TILE_POINT || mElem.tags.numTags > 1))
                 return true;
             if (someKind)
                 mElem.tags.add(new Tag("kind", "yes"));
