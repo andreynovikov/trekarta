@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -62,6 +63,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     private boolean mUpdating;
     private SQLiteDatabase mDatabase;
+    private CancellationSignal mCancellationSignal;
     private DataListAdapter mAdapter;
     private MatrixCursor mEmptyCursor = new MatrixCursor(columns);
     private GeoPoint mCoordinates;
@@ -210,6 +212,8 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mCancellationSignal != null)
+            mCancellationSignal.cancel();
         mBackgroundThread.interrupt();
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.quit();
@@ -285,8 +289,16 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
             @Override
             public void run() {
+                if (mCancellationSignal != null)
+                    mCancellationSignal.cancel();
+                mCancellationSignal = new CancellationSignal();
                 String[] selectionArgs = {match};
-                final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs);
+                final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs, mCancellationSignal);
+                if (mCancellationSignal.isCanceled()) {
+                    mCancellationSignal = null;
+                    return;
+                }
+                mCancellationSignal = null;
                 final Activity activity = getActivity();
                 if (activity == null)
                     return;
