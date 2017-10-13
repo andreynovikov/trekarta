@@ -2068,6 +2068,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mNavigationNorthDrawable.setTint(mColorPrimaryDark);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
+                if (mGaugePanel.getWidth() > 0) {
+                    gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
+                    mGaugePanel.onVisibilityChanged(false);
+                }
                 break;
             case SEARCHING:
                 mLocationSearchingDrawable.setTint(mColorAccent);
