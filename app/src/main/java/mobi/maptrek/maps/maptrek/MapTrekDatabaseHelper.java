@@ -18,7 +18,7 @@ import mobi.maptrek.data.Waypoint;
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     static final String TABLE_MAPS = "maps";
     static final String TABLE_MAP_FEATURES = "map_features";
@@ -220,7 +220,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String SQL_INDEX_INFO = "CREATE UNIQUE INDEX IF NOT EXISTS property ON metadata (name)";
     static final String SQL_INDEX_MAPS = "CREATE UNIQUE INDEX IF NOT EXISTS maps_x_y ON maps (x, y)";
-    private static final String SQL_INDEX_MAP_FEATURES = "CREATE UNIQUE INDEX IF NOT EXISTS map_feature_ids ON map_features (feature)";
+    private static final String SQL_INDEX_MAP_FEATURES = "CREATE INDEX IF NOT EXISTS map_feature_ids ON map_features (feature)";
     private static final String SQL_INDEX_MAP_FEATURE_REFS = "CREATE UNIQUE INDEX IF NOT EXISTS map_feature_refs ON map_features (x, y, feature)";
     private static final String SQL_INDEX_TILES = "CREATE UNIQUE INDEX IF NOT EXISTS coord ON tiles (zoom_level, tile_column, tile_row)";
     private static final String SQL_INDEX_NAMES = "CREATE UNIQUE INDEX IF NOT EXISTS name_ref ON names (ref)";
@@ -248,6 +248,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
+        createWorldMapTables(db);
         logger.info("Vacuuming maps database");
         Cursor cursor = db.rawQuery(PRAGMA_VACUUM, null);
         if (cursor.moveToFirst())
@@ -270,7 +271,6 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INFO);
         db.execSQL(SQL_CREATE_TILES);
         db.execSQL(SQL_CREATE_NAMES);
-        db.execSQL(SQL_CREATE_NAMES_FTS);
         db.execSQL(SQL_CREATE_FEATURES);
         db.execSQL(SQL_CREATE_FEATURE_NAMES);
         db.execSQL(SQL_INDEX_MAPS);
@@ -288,8 +288,30 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         logger.debug("Upgrade from {} to {}", oldVersion, newVersion);
-        if (oldVersion == 2) {
+        if (oldVersion <= 2) {
             db.execSQL(SQL_INDEX_FEATURE_NAMES);
+        }
+        if (oldVersion <= 3) {
+            db.execSQL("DROP INDEX IF EXISTS map_feature_ids");
+            db.execSQL(SQL_INDEX_MAP_FEATURES);
+        }
+    }
+
+    private static void createWorldMapTables(SQLiteDatabase db) {
+        try {
+            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MAPS + " LIMIT 1", null);
+            cursor.close();
+        } catch (SQLiteException ignore) {
+            db.execSQL(SQL_CREATE_MAPS);
+            db.execSQL(SQL_INDEX_MAPS);
+        }
+        try {
+            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MAP_FEATURES + " LIMIT 1", null);
+            cursor.close();
+        } catch (SQLiteException ignore) {
+            db.execSQL(SQL_CREATE_MAP_FEATURES);
+            db.execSQL(SQL_INDEX_MAP_FEATURES);
+            db.execSQL(SQL_INDEX_MAP_FEATURE_REFS);
         }
     }
 
