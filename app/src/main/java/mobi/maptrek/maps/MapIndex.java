@@ -48,7 +48,18 @@ public class MapIndex implements Serializable {
             List<File> files = FileList.getFileListing(root, new MapFilenameFilter());
             for (File file : files)
                 loadMap(file);
+            File nativeDir = new File(root, "native");
+            if (nativeDir.exists())
+                deleteRecursive(nativeDir);
         }
+    }
+
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+        //noinspection ResultOfMethodCallIgnored
+        fileOrDirectory.delete();
     }
 
     private void loadMap(@NonNull File file) {

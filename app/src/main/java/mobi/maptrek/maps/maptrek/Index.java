@@ -29,7 +29,6 @@ import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
-import mobi.maptrek.util.StringFormatter;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURE_NAMES;
@@ -426,10 +425,6 @@ public class Index {
             mapFile.delete();
         }
         return true;
-    }
-
-    public static int getNativeKey(int x, int y) {
-        return (x << 7) + y;
     }
 
     public IndexStats getMapStats() {
