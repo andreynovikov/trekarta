@@ -29,6 +29,7 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.colorpicker.ColorPickerDialog;
@@ -237,7 +238,12 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
         rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.source).setVisibility(View.GONE);
-        rootView.findViewById(R.id.destination).setVisibility(View.GONE);
+        TextView destination = (TextView) rootView.findViewById(R.id.destination);
+        destination.setTextAppearance(android.R.style.TextAppearance_Small);
+        destination.setTextColor(getContext().getColor(R.color.colorAccent));
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) destination.getLayoutParams();
+        params.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.fragment_padding);
+        destination.setLayoutParams(params);
 
         rootView.findViewById(R.id.navigateButton).setVisibility(View.GONE);
         rootView.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
@@ -299,36 +305,17 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         if (sourceView != null)
             sourceView.setText(mWaypoint.source.name);
 
-        if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-            if (mExpanded) {
-                View destinationRow = rootView.findViewById(R.id.destinationRow);
-                if (destinationRow != null)
-                    destinationRow.setVisibility(View.GONE);
+        TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
+        if (destinationView != null) {
+            if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
+                destinationView.setVisibility(View.GONE);
             } else {
-                TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
-                if (destinationView != null)
-                    destinationView.setVisibility(View.GONE);
-            }
-        } else {
-            GeoPoint point = new GeoPoint(latitude, longitude);
-            double dist = point.vincentyDistance(mWaypoint.coordinates);
-            double bearing = point.bearingTo(mWaypoint.coordinates);
-            String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            if (mExpanded) {
-                View destinationRow = rootView.findViewById(R.id.destinationRow);
-                if (destinationRow != null) {
-                    destinationRow.setVisibility(View.VISIBLE);
-                    destinationRow.setTag(true);
-                    TextView destinationView = (TextView) rootView.findViewById(R.id.destinationExtended);
-                    if (destinationView != null)
-                        destinationView.setText(distance);
-                }
-            } else {
-                TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
-                if (destinationView != null) {
-                    destinationView.setVisibility(View.VISIBLE);
-                    destinationView.setText(distance);
-                }
+                GeoPoint point = new GeoPoint(latitude, longitude);
+                double dist = point.vincentyDistance(mWaypoint.coordinates);
+                double bearing = point.bearingTo(mWaypoint.coordinates);
+                String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
+                destinationView.setVisibility(View.VISIBLE);
+                destinationView.setText(distance);
             }
         }
 
@@ -514,7 +501,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         colorSwatch.setVisibility(editsState);
 
         if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
-            rootView.findViewById(R.id.destinationRow).setVisibility(viewsState);
+            rootView.findViewById(R.id.destination).setVisibility(viewsState);
         }
         if (mWaypoint.date != null) {
             rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
@@ -583,6 +570,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
     @Override
     public void onLocationChanged(Location location) {
-        updateWaypointInformation(location.getLatitude(), location.getLongitude());
+        if (!mEditorMode)
+            updateWaypointInformation(location.getLatitude(), location.getLongitude());
     }
 }

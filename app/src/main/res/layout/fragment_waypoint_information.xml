@@ -35,10 +35,8 @@
         android:layout_above="@+id/extendTable"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/dottedLine"
-        android:gravity="center_vertical"
-        android:paddingStart="@dimen/textPadding"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        tools:ignore="RtlSymmetry" />
+        android:layout_marginStart="@dimen/textPadding"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <FrameLayout
         android:id="@+id/namePlaceholder"

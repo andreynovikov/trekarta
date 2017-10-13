@@ -45,27 +45,6 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/destinationRow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/waypoint_table_padding">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_navigate"
-            android:tint="@color/colorPrimaryDark" />
-
-        <TextView
-            android:id="@+id/destinationExtended"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:textColorPrimary" />
-
-    </TableRow>
-
-    <TableRow
         android:id="@+id/descriptionRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
