@@ -57,8 +57,9 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <!-- Roads -->
-    <style-line id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
-        width="1.0" />
+    <style-line cap="square" id="ford" stroke="#83a3ba" width="0.8" />
+    <style-line cap="square" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
+        width="0.8" />
     <style-line id="trunk" stroke="#fedb52" width="1.4" />
     <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.2" />
     <style-line id="highway" stroke="#fcba5a" width="1.5" />
@@ -672,6 +673,9 @@
                             </m>
                             <m zoom-min="14">
                                 <m select="first">
+                                    <m k="ford" v="yes">
+                                        <line fix="true" use="ford" width="4.0" />
+                                    </m>
                                     <m k="ice_road" v="yes">
                                         <line stroke="#9bc8c8" use="highway:track:back"
                                             width="0.8" />
@@ -727,6 +731,9 @@
                                             use="highway-service" />
                                     </m>
                                     <m select="when-matched">
+                                        <m k="ford" v="yes">
+                                            <line use="ford" width="-0.3" />
+                                        </m>
                                         <m k="4wd_only" v="yes">
                                             <line use="4wd_only" width="-0.3" />
                                         </m>
@@ -830,6 +837,9 @@
                         </m>
                         <m v="road|construction">
                             <line outline="road" use="road-construction" />
+                            <m k="ford" v="yes">
+                                <line use="ford" width="-0.2" />
+                            </m>
                             <text use="road-name" />
                         </m>
                         <m v="pedestrian">
@@ -853,6 +863,9 @@
                                 <m>
                                     <line outline="road" use="residential" />
                                 </m>
+                            </m>
+                            <m k="ford" v="yes">
+                                <line use="ford" width="-0.2" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" width="-0.2" />
@@ -883,6 +896,9 @@
                                     <line outline="road" use="unclassified" />
                                 </m>
                             </m>
+                            <m k="ford" v="yes">
+                                <line use="ford" />
+                            </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
                             </m>
@@ -912,6 +928,9 @@
                                     <line outline="road" use="tertiary" />
                                 </m>
                             </m>
+                            <m k="ford" v="yes">
+                                <line use="ford" />
+                            </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
                             </m>
@@ -934,6 +953,9 @@
                                 <m>
                                     <line outline="primary" use="secondary" />
                                 </m>
+                            </m>
+                            <m k="ford" v="yes">
+                                <line use="ford" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" width="0.1" />
@@ -958,6 +980,9 @@
                                 <m>
                                     <line outline="primary" use="primary" />
                                 </m>
+                            </m>
+                            <m k="ford" v="yes">
+                                <line use="ford" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" width="0.2" />
@@ -1016,15 +1041,6 @@
                     </m> <!-- area: no -->
                 </m> <!-- bridge: no -->
             </m> <!-- tunnel: no -->
-            <outline-layer fix="true" id="ford" stroke="#a4bbcc" width="3.0" />
-            <m k="ford" zoom-min="14">
-                <!-- except ford=no|false -->
-                <m k="ford" v="-|no|false">
-                    <m v="track">
-                        <line cap="square" outline="ford" use="highway:track:g1" />
-                    </m>
-                </m>
-            </m>
         </m>
     </m>
 
