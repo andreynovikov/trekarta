@@ -180,7 +180,6 @@ import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapService;
-import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
@@ -350,7 +349,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MapIndex mMapIndex;
     private Index mNativeMapIndex;
     private MapTrekTileSource mNativeTileSource;
-    private MultiMapFileTileSource mMapFileSource;
     private MapFile mBitmapLayerMap;
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<FileDataSource> mData = new ArrayList<>();
@@ -427,7 +425,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
-            mMapFileSource = new MultiMapFileTileSource(mMapIndex);
             String language = Configuration.getLanguage();
             if (language == null) {
                 language = resources.getConfiguration().locale.getLanguage();
@@ -440,7 +437,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
             mWaypointDbDataSource = mDataFragment.getWaypointDbDataSource();
             mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
-            mMapFileSource = mDataFragment.getMapFileSource();
         }
 
         mLocationState = LocationState.DISABLED;
@@ -588,10 +584,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        mNativeTileSource = new MapTrekTileSource(MapTrek.getApplication().getDetailedMapDatabase(), mMapFileSource);
-        String language = Configuration.getLanguage();
-        if (!"none".equals(language))
-            mNativeTileSource.setPreferredLanguage(language);
+        mNativeTileSource = new MapTrekTileSource(MapTrek.getApplication().getDetailedMapDatabase());
         mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
 
         mBaseLayer = new OsmTileLayer(mMap);
@@ -620,6 +613,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
 
         mLabelTileLoaderHook = new LabelTileLoaderHook();
+        String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mLabelTileLoaderHook.setPreferredLanguage(language);
         mLabelsLayer = new LabelLayer(mMap, mBaseLayer, mLabelTileLoaderHook);
@@ -1070,7 +1064,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
         mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
         mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
-        mDataFragment.setMapFileSource(mMapFileSource);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
@@ -1146,10 +1139,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
                         String language = languageCodes[which];
                         if ("none".equals(language)) {
-                            mNativeTileSource.setPreferredLanguage(null);
                             mLabelTileLoaderHook.setPreferredLanguage(null);
                         } else {
-                            mNativeTileSource.setPreferredLanguage(language);
                             mLabelTileLoaderHook.setPreferredLanguage(language);
                         }
                         mMap.clearMap();
@@ -2839,7 +2830,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, mMapIndex, MapTrek.density);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -3330,10 +3321,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(x, y).downloadSize == 0L)
             return;
 
-        // Do not show button if old map exists
-        if (mMapIndex.getNativeMap(Index.getNativeKey(x, y)) != null)
-            return;
-
         // Do not show button if custom map is shown
         mMap.getMapPosition(mMapPosition);
         if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
@@ -3515,13 +3502,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             logger.debug("Broadcast: {}", action);
             if (action.equals(MapService.BROADCAST_MAP_ADDED) || action.equals(MapService.BROADCAST_MAP_REMOVED)) {
                 mMap.clearMap();
-                if (action.equals(MapService.BROADCAST_MAP_ADDED)) {
-                    int x = intent.getIntExtra(MapService.EXTRA_X, -1);
-                    int y = intent.getIntExtra(MapService.EXTRA_Y, -1);
-                    MapFile oldMap = mMapIndex.getNativeMap(Index.getNativeKey(x, y));
-                    if (oldMap != null)
-                        mMapIndex.removeMap(oldMap);
-                }
             }
             if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
                 final Bundle extras = intent.getExtras();

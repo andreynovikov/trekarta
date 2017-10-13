@@ -29,7 +29,6 @@ import org.oscim.utils.FastMath;
 
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.maps.MapFile;
-import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.maptrek.Index;
 
 public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements GestureListener, Index.MapStateListener {
@@ -41,7 +40,6 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static final double TEXT_MAX_SCALE = 260d;
 
     private final Index mMapIndex;
-    private final MapIndex mOldMapIndex;
     private final AreaStyle mPresentAreaStyle;
     private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
@@ -54,11 +52,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final TextStyle mSmallTextStyle;
     private Context mContext;
 
-    public MapCoverageLayer(Context context, Map map, Index mapIndex, MapIndex oldMapIndex, float scale) {
+    public MapCoverageLayer(Context context, Map map, Index mapIndex, float scale) {
         super(map);
         mContext = context;
         mMapIndex = mapIndex;
-        mOldMapIndex = oldMapIndex;
         mPresentAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.GREEN).blendScale(10).color(Color.fade(Color.GREEN, 0.4f)).build();
         mOutdatedAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.YELLOW).blendScale(10).color(Color.fade(Color.YELLOW, 0.4f)).build();
         mMissingAreaStyle = AreaStyle.builder().fadeScale(FADE_ZOOM).blendColor(Color.GRAY).blendScale(10).color(Color.fade(Color.GRAY, 0.4f)).build();
@@ -146,8 +143,6 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         } else {
                             areas = presentAreas;
                         }
-                    } else if (mOldMapIndex.getNativeMap(Index.getNativeKey(tileXX, tileY)) != null) {
-                        areas = outdatedAreas;
                     }
 
                     areas.startPolygon();

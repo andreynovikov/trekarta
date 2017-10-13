@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import org.oscim.android.cache.TileCache;
 import org.oscim.core.BoundingBox;
 import org.oscim.tiling.TileSource;
-import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.sqlite.SQLiteMapInfo;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.slf4j.Logger;
@@ -23,16 +22,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.online.OnlineTileSource;
 import mobi.maptrek.maps.online.TileSourceFactory;
 import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
-import mobi.maptrek.util.NativeMapFilenameFilter;
 
 public class MapIndex implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(MapIndex.class);
@@ -41,26 +37,17 @@ public class MapIndex implements Serializable {
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
     private final Context mContext;
-    private final File mRootDir;
     private HashSet<MapFile> mMaps;
-    private HashMap<Integer, MapFile> mNativeMaps;
 
     @SuppressLint("UseSparseArrays")
     public MapIndex(@NonNull Context context, @Nullable File root) {
         mContext = context;
-        mRootDir = root;
         mMaps = new HashSet<>();
-        mNativeMaps = new HashMap<>();
-        if (mRootDir != null) {
-            logger.debug("MapIndex({})", mRootDir.getAbsolutePath());
-            List<File> files = FileList.getFileListing(mRootDir, new MapFilenameFilter());
-            for (File file : files) {
+        if (root != null) {
+            logger.debug("MapIndex({})", root.getAbsolutePath());
+            List<File> files = FileList.getFileListing(root, new MapFilenameFilter());
+            for (File file : files)
                 loadMap(file);
-            }
-            files = FileList.getFileListing(mRootDir, new NativeMapFilenameFilter());
-            for (File file : files) {
-                loadNativeMap(file);
-            }
         }
     }
 
@@ -97,50 +84,6 @@ public class MapIndex implements Serializable {
 
         logger.debug("  added {}", mapFile.boundingBox);
         mMaps.add(mapFile);
-    }
-
-    private void loadNativeMap(@NonNull File file) {
-        String fileName = file.getName();
-        logger.debug("load({})", fileName);
-        if (!file.canRead())
-            return;
-        String[] parts = fileName.split("[\\-\\.]");
-        try {
-            if (parts.length < 3 || parts.length > 4)
-                throw new NumberFormatException("unexpected name");
-            int x = Integer.valueOf(parts[0]);
-            int y = Integer.valueOf(parts[1]);
-            if (x > 127 || y > 127)
-                throw new NumberFormatException("out of range");
-            if (fileName.endsWith(".map")) {
-                MapFile mapFile = new MapFile("7-" + x + "-" + y);
-                String filePath = file.getAbsolutePath();
-                //TODO Check if tile source exists and close it
-                MapFileTileSource tileSource = new MapFileTileSource();
-                if (tileSource.setMapFile(filePath)) {
-                    TileSource.OpenResult openResult = tileSource.open();
-                    if (openResult.isSuccess()) {
-                        mapFile.tileSource = tileSource;
-                        mNativeMaps.put(Index.getNativeKey(x, y), mapFile);
-                        logger.debug("  indexed");
-                    } else {
-                        logger.warn("Failed to open file: {}", openResult.getErrorMessage());
-                        logger.debug("  skipped");
-                    }
-                    tileSource.close();
-                }
-            }
-        } catch (NumberFormatException e) {
-            logger.warn("  skipped: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * Returns native map for a specified square.
-     */
-    @Nullable
-    public MapFile getNativeMap(int key) {
-        return mNativeMaps.get(key);
     }
 
     public void initializeOnlineMapProviders() {
@@ -184,14 +127,6 @@ public class MapIndex implements Serializable {
     @NonNull
     public Collection<MapFile> getMaps() {
         return mMaps;
-    }
-
-    public void removeMap(MapFile map) {
-        mMaps.remove(map);
-        map.tileSource.close();
-        File file = new File(map.tileSource.getOption("file"));
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
     }
 
     public void clear() {

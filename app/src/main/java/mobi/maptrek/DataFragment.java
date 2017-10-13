@@ -7,7 +7,6 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 
 public class DataFragment extends Fragment {
 
@@ -15,7 +14,6 @@ public class DataFragment extends Fragment {
     private Waypoint mEditedWaypoint;
     private WaypointDbDataSource mWaypointDbDataSource;
     private MapFile mBitmapLayerMap;
-    private MultiMapFileTileSource mMapFileSource;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,13 +52,5 @@ public class DataFragment extends Fragment {
 
     public void setBitmapLayerMap(MapFile bitmapLayerMap) {
         mBitmapLayerMap = bitmapLayerMap;
-    }
-
-    public MultiMapFileTileSource getMapFileSource() {
-        return mMapFileSource;
-    }
-
-    public void setMapFileSource(MultiMapFileTileSource mapFileSource) {
-        mMapFileSource = mapFileSource;
     }
 }

@@ -1,7 +1,6 @@
 package mobi.maptrek.maps.maptrek;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
@@ -15,8 +14,6 @@ import org.oscim.tiling.TileSource;
 import org.oscim.utils.geom.TileClipper;
 
 import java.util.HashSet;
-
-import mobi.maptrek.maps.mapsforge.MultiMapFileTileSource;
 
 public class MapTrekTileSource extends TileSource {
     private static final MapElement mLand = new MapElement();
@@ -32,21 +29,15 @@ public class MapTrekTileSource extends TileSource {
         mLand.addPoint(-16, Tile.SIZE + 16);
     }
 
-    private final MultiMapFileTileSource mMultiMapFileTileSource;
     private final SQLiteDatabase mNativeMapDatabase;
     private final HashSet<MapTrekDataSource> mMapTrekDataSources;
     private OnDataMissingListener mOnDataMissingListener;
 
 
-    public MapTrekTileSource(SQLiteDatabase nativeMapDatabase, MultiMapFileTileSource multiMapFileTileSource) {
+    public MapTrekTileSource(SQLiteDatabase nativeMapDatabase) {
         super(2, 17);
         mNativeMapDatabase = nativeMapDatabase;
-        mMultiMapFileTileSource = multiMapFileTileSource;
         mMapTrekDataSources = new HashSet<>();
-    }
-
-    public void setPreferredLanguage(String preferredLanguage) {
-        mMultiMapFileTileSource.setPreferredLanguage(preferredLanguage);
     }
 
     public void setContoursEnabled(boolean enabled) {
@@ -61,16 +52,13 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         MapTrekDataSource mapTrekDataSource = new MapTrekDataSource(mNativeMapDatabase);
-        ITileDataSource mapFileDataSource = mMultiMapFileTileSource.getDataSource();
         mMapTrekDataSources.add(mapTrekDataSource);
-        return new NativeDataSource(mapTrekDataSource, mapFileDataSource);
+        return new NativeDataSource(mapTrekDataSource);
     }
 
     @Override
     public OpenResult open() {
         try {
-            if (mMultiMapFileTileSource != null)
-                mMultiMapFileTileSource.open();
             return TileSource.OpenResult.SUCCESS;
         } catch (Exception e) {
             return new OpenResult(e.getMessage());
@@ -79,21 +67,18 @@ public class MapTrekTileSource extends TileSource {
 
     @Override
     public void close() {
-        mMultiMapFileTileSource.close();
     }
 
     private class NativeDataSource implements ITileDataSource {
         private MapTrekDataSource mNativeDataSource;
-        private ITileDataSource mMapFileDataSource;
 
-        NativeDataSource(MapTrekDataSource nativeDataSource, ITileDataSource mapFileDataSource) {
+        NativeDataSource(MapTrekDataSource nativeDataSource) {
             mNativeDataSource = nativeDataSource;
-            mMapFileDataSource = mapFileDataSource;
         }
 
         @Override
         public void query(MapTile tile, ITileDataSink mapDataSink) {
-            //mapDataSink.process(mLand);
+            mapDataSink.process(mLand);
 
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             mNativeDataSource.query(tile, proxyDataSink);
@@ -106,13 +91,7 @@ public class MapTrekTileSource extends TileSource {
                 }
             }
 
-            if (proxyDataSink.result == QueryResult.SUCCESS) {
-                mapDataSink.process(mLand);
-            } else {
-                mMapFileDataSource.query(tile, proxyDataSink);
-            }
             if (proxyDataSink.result != QueryResult.SUCCESS) {
-                mapDataSink.process(mLand);
                 MapTile baseTile = tile;
                 ITileDataSink dataSink = mapDataSink;
                 if (tile.zoomLevel > 7) {
@@ -129,13 +108,11 @@ public class MapTrekTileSource extends TileSource {
         @Override
         public void dispose() {
             mNativeDataSource.dispose();
-            mMapFileDataSource.dispose();
         }
 
         @Override
         public void cancel() {
             mNativeDataSource.cancel();
-            mMapFileDataSource.cancel();
         }
     }
 
