@@ -13,12 +13,25 @@
     tools:context=".fragments.WaypointInformation">
 
     <TextView
+        android:id="@+id/destination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/textPadding"
+        android:layout_marginTop="@dimen/fragment_padding"
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/colorAccent"
+        tools:ignore="RtlSymmetry" />
+
+    <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/destination"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -73,11 +86,11 @@
                     android:id="@+id/coordinates"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?android:textColorPrimary"
-                    android:textIsSelectable="true"
                     android:drawableEnd="@drawable/ic_share_small"
+                    android:drawablePadding="@dimen/textPadding"
                     android:drawableTint="@color/colorPrimaryDark"
-                    android:drawablePadding="@dimen/textPadding" />
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true" />
 
                 <TextView
                     android:id="@+id/elevation"
@@ -86,27 +99,6 @@
                     android:visibility="gone" />
 
             </LinearLayout>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/destinationRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_navigate"
-                android:tint="@color/colorPrimaryDark" />
-
-            <TextView
-                android:id="@+id/destination"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?android:textColorPrimary" />
-
         </TableRow>
 
     </TableLayout>

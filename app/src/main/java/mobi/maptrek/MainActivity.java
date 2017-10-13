@@ -2726,7 +2726,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
             args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
         }
-        args.putString(AmenityInformation.ARG_LANG, Configuration.getLanguage());
 
         Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
         if (fragment == null) {
@@ -2741,6 +2740,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.commit();
             updateMapViewArea();
         }
+        ((AmenityInformation) fragment).setPreferredLanguage(Configuration.getLanguage());
         ((AmenityInformation) fragment).setAmenity(id);
         mExtendPanel.setForeground(getDrawable(R.drawable.dim));
         mExtendPanel.getForeground().setAlpha(0);

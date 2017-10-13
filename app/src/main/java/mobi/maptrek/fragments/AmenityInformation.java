@@ -63,8 +63,6 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
 
         double latitude = getArguments().getDouble(ARG_LATITUDE, Double.NaN);
         double longitude = getArguments().getDouble(ARG_LONGITUDE, Double.NaN);
-        String lang = getArguments().getString(ARG_LANG, null);
-        mLang = MapTrekDatabaseHelper.getLanguageId(lang);
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
@@ -171,21 +169,19 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             iconView.setImageResource(icon);
         }
 
-        View destinationRow = rootView.findViewById(R.id.destinationRow);
+        TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
         if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-            if (destinationRow != null)
-                destinationRow.setVisibility(View.GONE);
+            if (destinationView != null)
+                destinationView.setVisibility(View.GONE);
         } else {
             GeoPoint point = new GeoPoint(latitude, longitude);
             double dist = point.vincentyDistance(mWaypoint.coordinates);
             double bearing = point.bearingTo(mWaypoint.coordinates);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            if (destinationRow != null) {
-                destinationRow.setVisibility(View.VISIBLE);
-                destinationRow.setTag(true);
-                TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
-                if (destinationView != null)
-                    destinationView.setText(distance);
+            if (destinationView != null) {
+                destinationView.setVisibility(View.VISIBLE);
+                destinationView.setTag(true);
+                destinationView.setText(distance);
             }
         }
 
@@ -248,5 +244,9 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     @Override
     public void onLocationChanged(Location location) {
         updateAmenityInformation(location.getLatitude(), location.getLongitude());
+    }
+
+    public void setPreferredLanguage(String lang) {
+        mLang = MapTrekDatabaseHelper.getLanguageId(lang);
     }
 }
