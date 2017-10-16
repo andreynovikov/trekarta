@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/actionAbout"
+        android:title="@string/actionAbout" />
+    <item
+        android:id="@+id/actionSettings"
+        android:title="@string/actionSettings" />
+    <item
         android:id="@+id/actionHideSystemUI"
         android:checkable="true"
         android:title="@string/actionHideSystemUI" />
@@ -11,13 +17,6 @@
         android:id="@+id/actionAddGauge"
         android:title="@string/actionAddGauge" />
     <item
-        android:id="@+id/actionSettings"
-        android:title="@string/actionSettings" />
-    <item
         android:id="@+id/actionSearch"
         android:title="@string/actionSearch" />
-    <item
-        android:id="@+id/actionAbout"
-        android:title="@string/actionAbout" />
-
 </menu>
