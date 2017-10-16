@@ -12,8 +12,8 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 36
-        versionName "36"
+        versionCode 43
+        versionName "43"
     }
 
     compileOptions {
@@ -30,7 +30,7 @@ android {
 
     productFlavors {
         full {
-            versionName "2017.09"
+            versionName "2017.10"
             applicationId "mobi.maptrek"
             buildConfigField "boolean", "FULL_VERSION", "true"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
