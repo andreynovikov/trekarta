@@ -1709,7 +1709,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mLocationState = LocationState.ENABLED;
             updateLocationDrawable();
         }
-        mMap.animator().animateTo(point);
+        MapPosition mapPosition = mMap.getMapPosition();
+        if (mapPosition.scale > (2 << 7)) {
+            mMap.animator().animateTo(point);
+        } else {
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, point, 2 << 14, false);
+        }
     }
 
     private MarkerItem mMarker;
