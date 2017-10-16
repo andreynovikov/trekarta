@@ -15,6 +15,7 @@
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
     http://wiki.openstreetmap.org/wiki/Tag:natural%3Dscrub - add symbols
     protect_class:1
+    https://wiki.openstreetmap.org/wiki/Key:depth - for fords and waterways
     -->
 
     <!--
@@ -34,7 +35,7 @@
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
         stroke="#00ffffff" width="2.0" />
-    <style-line id="ferry-overview" stipple="5" stipple-width="0.5" use="ferry" width="0.5" />
+    <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
     <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
@@ -57,19 +58,19 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <!-- Roads -->
-    <style-line cap="square" id="ford" stroke="#83a3ba" width="0.8" />
+    <style-line cap="square" id="ford" stroke="#83a3ba" width="0.7" />
     <style-line cap="square" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
-        width="0.8" />
-    <style-line id="trunk" stroke="#fedb52" width="1.4" />
-    <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.2" />
-    <style-line id="highway" stroke="#fcba5a" width="1.5" />
-    <style-line id="primary" stroke="#f4d26e" width="1.2" />
+        width="0.7" />
+    <style-line id="trunk" stroke="#fedb52" width="1.3" />
+    <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.0" />
+    <style-line id="highway" stroke="#fcba5a" width="1.2" />
+    <style-line id="primary" stroke="#f4d26e" width="1.0" />
     <style-line id="secondary" stroke="#f4f3ae" use="primary" width="-0.1" />
-    <style-line id="unclassified" stroke="#ffffff" width="1.0" />
+    <style-line id="unclassified" stroke="#ffffff" width="0.8" />
     <style-line id="tertiary" use="secondary" width="-0.1" />
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
-        width="1.0" />
-    <style-line id="residential" stroke="#ffffff" width="0.9" />
+        width="0.8" />
+    <style-line id="residential" stroke="#ffffff" use="unclassified" width="-0.1" />
     <style-line id="highway-service" use="residential" width="-0.2" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
     <style-area fill="#e0e0e0" id="pedestrian" />
