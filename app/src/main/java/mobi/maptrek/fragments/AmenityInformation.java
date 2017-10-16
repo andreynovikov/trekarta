@@ -190,14 +190,23 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
 
             if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)) {
+                // We need this very bulky code to wait until layout is settled and keyboard is completely hidden
+                // otherwise we get wrong position for advice
                 ViewTreeObserver vto = rootView.getViewTreeObserver();
                 vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
                         rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        Rect r = new Rect();
-                        coordsView.getGlobalVisibleRect(r);
-                        HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
+                        rootView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isVisible()) {
+                                    Rect r = new Rect();
+                                    coordsView.getGlobalVisibleRect(r);
+                                    HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
+                                }
+                            }
+                        }, 1000);
                     }
                 });
             }
