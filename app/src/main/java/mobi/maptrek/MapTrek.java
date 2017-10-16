@@ -108,11 +108,14 @@ public class MapTrek extends Application {
     public synchronized SQLiteDatabase getDetailedMapDatabase() {
         if (mDetailedMapHelper == null) {
             File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
-            if (!dbFile.exists())
+            boolean fresh = !dbFile.exists();
+            if (fresh)
                 copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
             mDetailedMapHelper = new MapTrekDatabaseHelper(this, dbFile);
             mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
             mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+            if (fresh)
+                MapTrekDatabaseHelper.createFtsTable(mDetailedMapDatabase);
         }
         return mDetailedMapDatabase;
     }
