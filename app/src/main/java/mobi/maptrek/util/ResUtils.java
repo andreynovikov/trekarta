@@ -8,7 +8,7 @@ import mobi.maptrek.maps.maptrek.Tags;
 public class ResUtils {
     public static @DrawableRes int getKindIcon(int kind) {
         if (Tags.isPlace(kind))
-            return R.drawable.ic_adjust;
+            return R.drawable.ic_location_city;
         else if (Tags.isEmergency(kind))
             return R.drawable.ic_local_hospital;
         else if (Tags.isAccommodation(kind))
@@ -38,7 +38,7 @@ public class ResUtils {
         else if (Tags.isHikeBike(kind))
             return R.drawable.ic_directions_bike;
         else if (Tags.isBuilding(kind))
-            return R.drawable.ic_location_city;
+            return R.drawable.ic_business;
         else if (Tags.isUrban(kind))
             return R.drawable.ic_nature_people;
         else if (Tags.isRoad(kind))
