@@ -76,7 +76,6 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.MapView;
-import org.oscim.android.cache.PreCachedTileCache;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
@@ -336,9 +335,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private LocationOverlay mLocationOverlay;
     private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
-
-    @SuppressWarnings("unused")
-    private PreCachedTileCache mCache;
 
     private FragmentManager mFragmentManager;
     private DataFragment mDataFragment;
@@ -1023,8 +1019,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mMap.destroy();
         //mMapScaleBar.destroy();
-        if (mCache != null)
-            mCache.dispose();
 
         for (FileDataSource source : mData)
             source.setVisible(false);
