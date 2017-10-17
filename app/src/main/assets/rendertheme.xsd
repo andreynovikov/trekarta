@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:tns="http://opensciencemap.org/rendertheme"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://opensciencemap.org/rendertheme" xml:lang="en">
+
+    <!-- attribute types -->
+    <xs:simpleType name="cap">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="butt" />
+            <xs:enumeration value="round" />
+            <xs:enumeration value="square" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="closed">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="yes" />
+            <xs:enumeration value="no" />
+            <xs:enumeration value="any" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="color">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="elementList">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="node" />
+            <xs:enumeration value="way" />
+            <xs:enumeration value="any" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="selectorList">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="first" />
+            <xs:enumeration value="any" />
+            <xs:enumeration value="when-matched" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="fontFamily">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="default" />
+            <xs:enumeration value="default_bold" />
+            <xs:enumeration value="monospace" />
+            <xs:enumeration value="sans_serif" />
+            <xs:enumeration value="serif" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="fontStyle">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="bold" />
+            <xs:enumeration value="bold_italic" />
+            <xs:enumeration value="italic" />
+            <xs:enumeration value="normal" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="nonNegativeFloat">
+        <xs:restriction base="xs:float">
+            <xs:minInclusive value="0" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="src">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((file|assets):)?.+" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="strokeDasharray">
+        <xs:restriction base="xs:string">
+            <xs:pattern
+                value="([0-9]+(\.[0-9]+)? *, *[0-9]+(\.[0-9]+)? *, *)*[0-9]+(\.[0-9]+)? *, *[0-9]+(\.[0-9]+)?" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="textKey">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ele" />
+            <xs:enumeration value="addr:housenumber" />
+            <xs:enumeration value="addr_housenumber" /> <!-- Mapzen -->
+            <xs:enumeration value="name" />
+            <xs:enumeration value="ref" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- style menu cat element -->
+    <xs:complexType name="cat">
+        <xs:attribute name="id" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- style menu name element -->
+    <xs:complexType name="name">
+        <xs:attribute name="lang" type="xs:string" use="required" />
+        <xs:attribute name="value" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- style menu overlay element -->
+    <xs:complexType name="overlay">
+        <xs:attribute name="id" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- style menu layer element -->
+    <xs:complexType name="layer">
+        <xs:sequence maxOccurs="1" minOccurs="0">
+            <xs:element name="name" maxOccurs="unbounded" minOccurs="0" type="tns:name" />
+            <xs:element name="cat" maxOccurs="unbounded" minOccurs="0" type="tns:cat" />
+            <xs:element name="overlay" maxOccurs="unbounded" minOccurs="0" type="tns:overlay" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required" />
+        <xs:attribute name="parent" type="xs:string" use="optional" />
+        <xs:attribute name="visible" default="false" type="xs:boolean" use="optional" />
+        <xs:attribute name="enabled" default="false" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <!-- rendering instructions -->
+    <xs:complexType name="area">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="id" default="0" type="xs:string" use="optional" />
+        <xs:attribute name="use" default="0" type="xs:string" use="optional" />
+        <xs:attribute name="src" type="tns:src" use="optional" />
+        <xs:attribute name="symbol-width" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="fill" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke" default="#00000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke-width" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <xs:attribute name="fade" default="-1" type="xs:integer" use="optional" />
+        <xs:attribute name="blend" default="-1" type="xs:integer" use="optional" />
+        <xs:attribute name="blend-fill" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="mesh" default="false" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="caption">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="k" type="tns:textKey" use="required" />
+        <xs:attribute name="dy" default="0" type="xs:float" use="optional" />
+        <xs:attribute name="font-family" default="default" type="tns:fontFamily" use="optional" />
+        <xs:attribute name="style" default="normal" type="tns:fontStyle" use="optional" />
+        <xs:attribute name="size" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <xs:attribute name="fill" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke-width" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <!-- polygon area expressed as a ratio to tile area, e.g. 0.1 for 10% of tile area -->
+        <xs:attribute name="area-size" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <!-- priority for label placement, 0 = highest priority -->
+        <xs:attribute name="priority" default="0" type="xs:integer" use="optional" />
+        <!-- symbol src name -->
+        <xs:attribute name="symbol" type="tns:src" use="optional" />
+        <xs:attribute name="symbol-width" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="circle">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="radius" type="tns:nonNegativeFloat" use="required" />
+        <xs:attribute name="scale-radius" default="false" type="xs:boolean" use="optional" />
+        <xs:attribute name="fill" default="#00000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke" default="#00000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke-width" default="0" type="tns:nonNegativeFloat" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="line">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+
+        <!-- style: TODO only in style-line-->
+        <xs:attribute name="id" default="0" type="xs:string" use="optional" />
+
+        <!-- inherited style -->
+        <xs:attribute name="use" default="0" type="xs:string" use="optional" />
+
+        <xs:attribute name="src" type="tns:src" use="optional" />
+        <xs:attribute name="symbol-width" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="stroke" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="width" default="0" type="xs:float" use="optional" />
+        <!-- minimum scaled width to draw outline -->
+        <xs:attribute name="min" default="0" type="xs:float" use="optional" />
+        <xs:attribute name="dasharray" type="tns:strokeDasharray" use="optional" />
+        <xs:attribute name="cap" default="round" type="tns:cap" use="optional" />
+        <xs:attribute name="outline" default="" type="xs:string" use="optional" />
+        <xs:attribute name="fade" default="-1" type="xs:integer" use="optional" />
+        <xs:attribute name="blur" default="-1" type="xs:float" use="optional" />
+        <xs:attribute name="fix" default="false" type="xs:boolean" use="optional" />
+        <xs:attribute name="repeat-gap" default="200" type="xs:float" use="optional" />
+        <xs:attribute name="repeat-start" default="30" type="xs:float" use="optional" />
+
+        <!-- stipple repeat in 'pixel' -->
+        <xs:attribute name="stipple" default="0" type="xs:integer" use="optional" />
+        <!-- stipple color -->
+        <xs:attribute name="stipple-stroke" default="#000000" type="tns:color" use="optional" />
+        <!-- stipple width relative to line width, i.e 0.0-1.0 -->
+        <xs:attribute name="stipple-width" default="0" type="xs:float" use="optional" />
+
+    </xs:complexType>
+
+    <xs:complexType name="text">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+
+        <xs:attribute name="id" default="0" type="xs:string" use="optional" />
+        <xs:attribute name="use" default="0" type="xs:string" use="optional" />
+
+        <xs:attribute name="k" default="name" type="tns:textKey" use="optional" />
+        <xs:attribute name="dy" default="0" type="xs:float" use="optional" />
+        <xs:attribute name="font-family" default="default" type="tns:fontFamily" use="optional" />
+        <xs:attribute name="style" default="normal" type="tns:fontStyle" use="optional" />
+        <xs:attribute name="size" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <xs:attribute name="fill" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke" default="#000000" type="tns:color" use="optional" />
+        <xs:attribute name="stroke-width" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <xs:attribute name="caption" default="false" type="xs:boolean" use="optional" />
+        <!-- polygon area expressed as a ratio to tile area, e.g. 0.1 for 10% of tile area -->
+        <xs:attribute name="area-size" default="0" type="tns:nonNegativeFloat" use="optional" />
+        <!-- priority for label placement, 0 = highest priority -->
+        <xs:attribute name="priority" default="0" type="xs:integer" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="symbol">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="src" type="tns:src" use="required" />
+        <xs:attribute name="symbol-width" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="repeat-gap" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="merge" default="false" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="extrusion">
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="line-color" type="tns:color" use="optional" />
+        <xs:attribute name="side-color" type="tns:color" use="required" />
+        <xs:attribute name="top-color" type="tns:color" use="required" />
+    </xs:complexType>
+
+    <!-- match elements -->
+    <xs:complexType name="m">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <!-- recursion to allow for nested m -->
+            <xs:element name="m" type="tns:m" />
+
+            <xs:element name="area" type="tns:area" />
+            <xs:element name="caption" type="tns:caption" />
+            <xs:element name="circle" type="tns:circle" />
+            <xs:element name="line" type="tns:line" />
+            <xs:element name="outline" type="tns:line" />
+            <xs:element name="lineSymbol" type="tns:line" />
+            <xs:element name="text" type="tns:text" />
+            <xs:element name="extrusion" type="tns:extrusion" />
+            <xs:element name="symbol" type="tns:symbol" />
+
+            <!-- outline is defined within rules to match layering -->
+            <xs:element name="outline-layer" type="tns:line" />
+        </xs:choice>
+
+        <xs:attribute name="select" default="any" type="tns:selectorList" use="optional" />
+        <xs:attribute name="e" type="tns:elementList" use="optional" />
+        <xs:attribute name="k" type="xs:string" use="optional" />
+        <xs:attribute name="v" type="xs:string" use="optional" />
+        <xs:attribute name="cat" type="xs:string" use="optional" />
+        <xs:attribute name="closed" default="any" type="tns:closed" use="optional" />
+        <xs:attribute name="zoom-min" default="0" type="xs:unsignedByte" use="optional" />
+        <xs:attribute name="zoom-max" default="127" type="xs:unsignedByte" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="atlasRect">
+        <xs:attribute name="id" type="xs:string" use="required" />
+        <xs:attribute name="pos" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="atlas">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="rect" type="tns:atlasRect" />
+        </xs:choice>
+        <xs:attribute name="img" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- stylemenu element -->
+    <xs:complexType name="stylemenu">
+        <xs:sequence maxOccurs="1" minOccurs="0">
+            <xs:element name="layer" maxOccurs="unbounded" minOccurs="0" type="tns:layer" />
+        </xs:sequence>
+        <xs:attribute name="defaultvalue" type="xs:string" use="required" />
+        <xs:attribute name="defaultlang" type="xs:string" use="required" />
+        <xs:attribute name="id" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- rendertheme element -->
+    <xs:complexType name="rendertheme">
+        <xs:sequence maxOccurs="1" minOccurs="0">
+            <xs:element name="stylemenu" maxOccurs="1" minOccurs="0" type="tns:stylemenu" />
+
+            <!-- style definitions -->
+            <xs:sequence maxOccurs="256" minOccurs="0">
+                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="style-text" type="tns:text" />
+                    <xs:element name="style-area" type="tns:area" />
+                    <xs:element name="style-line" type="tns:line" />
+                    <!-- <xs:element name="style-outline" type="tns:line" /> -->
+                </xs:choice>
+            </xs:sequence>
+
+            <xs:choice maxOccurs="1" minOccurs="0">
+                <xs:element name="atlas" type="tns:atlas" />
+            </xs:choice>
+
+            <!-- matching rules -->
+            <xs:sequence maxOccurs="unbounded" minOccurs="0">
+                <xs:element name="m" type="tns:m" />
+            </xs:sequence>
+        </xs:sequence>
+        <xs:attribute name="version" type="xs:positiveInteger" use="required" />
+        <xs:attribute name="map-background" default="#ffffff" type="tns:color" use="optional" />
+        <xs:attribute name="base-stroke-width" default="1" type="tns:nonNegativeFloat"
+            use="optional" />
+        <xs:attribute name="base-text-scale" default="1" type="tns:nonNegativeFloat"
+            use="optional" />
+    </xs:complexType>
+
+    <!-- root element -->
+    <xs:element name="rendertheme" type="tns:rendertheme" />
+</xs:schema>

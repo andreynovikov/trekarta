@@ -138,7 +138,15 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                     ld.symbols.push(it);
                 }
             } else if (element.type == LINE) {
-                //TODO: implement
+                int offset = 0;
+                for (int i = 0, n = element.index.length; i < n; i++) {
+                    int length = element.index[i];
+                    if (length < 4)
+                        break;
+
+                    WayDecorator.renderSymbol(null, element.points, symbol, offset, length, ld);
+                    offset += length;
+                }
             } else if (element.type == POLY) {
                 PointF centroid = element.labelPosition;
                 if (centroid == null)
