@@ -23,21 +23,21 @@
     -->
 
     <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
-        <layer id="base">
+        <layer id="base" enabled="true">
             <cat id="land" />
             <cat id="water" />
             <cat id="administrative" />
             <cat id="places" />
         </layer>
 
-        <layer id="nature">
+        <layer id="nature" enabled="true">
             <cat id="forest" />
             <cat id="nature" />
             <cat id="insignificant-water" />
             <cat id="underground-water" />
         </layer>
 
-        <layer id="roads" parent="base">
+        <layer id="roads" parent="base" enabled="true">
             <cat id="landclasses" />
             <cat id="roads" />
             <cat id="ferries" />
@@ -45,7 +45,7 @@
             <cat id="buildings" />
         </layer>
 
-        <layer id="urban" parent="roads">
+        <layer id="urban" parent="roads" enabled="true">
             <cat id="urban" />
             <cat id="aeroways" />
             <cat id="aerialways" />
@@ -56,7 +56,7 @@
             <cat id="insignificant-water" />
         </layer>
 
-        <layer id="topo" parent="urban">
+        <layer id="topo" parent="urban" enabled="true">
             <cat id="agriculture" />
             <cat id="tracks" />
             <cat id="contours" />
