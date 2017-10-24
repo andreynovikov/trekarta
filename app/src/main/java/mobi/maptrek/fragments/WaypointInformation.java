@@ -253,6 +253,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!isVisible())
+                    return;
                 if (mEditorMode) {
                     mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
                     mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
