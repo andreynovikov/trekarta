@@ -241,7 +241,11 @@ public class Tags {
             "maritime",
             "winter_road",
             "ice_road",
-            "4wd_only"
+            "4wd_only",
+            "sac_scale",
+            "trail_visibility",
+            "osmc:symbol",
+            "network"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -799,7 +803,28 @@ public class Tags {
             "bare_rock",
             "lock_gate",
             "unpaved",
-            "dirt"
+            "dirt",
+            "hiking",
+            "bicycle",
+            "mtb",
+            "iwn",
+            "nwn",
+            "rwn",
+            "lwn",
+            "icn",
+            "ncn",
+            "rcn",
+            "lcn",
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5",
+            "t6",
+            "excellent",
+            "good",
+            "bad",
+            "horrible"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
