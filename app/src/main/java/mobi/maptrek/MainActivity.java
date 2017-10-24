@@ -933,6 +933,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         m.what = R.id.msgRemoveLicense;
         mMainHandler.sendMessageDelayed(m, 10000);
 
+        String userNotification = MapTrek.getApplication().getUserNotification();
+        if (userNotification != null)
+            HelperUtils.showError(userNotification, mCoordinatorLayout);
+
         if (MapTrek.getApplication().hasPreviousRunsExceptions()) {
             Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
             fragment.setEnterTransition(new Slide());

@@ -214,4 +214,5 @@
     <string name="kind_road">Дороги</string>
     <string name="actionShareCoordinates">Поделиться координатами</string>
     <string name="actionStyle">Стиль</string>
+    <string name="msgMapDatabaseError">При попытке чтения подробных карт произошла ошибка, база данных была обнулена</string>
 </resources>

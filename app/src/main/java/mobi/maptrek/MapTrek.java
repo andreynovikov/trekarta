@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,6 +49,7 @@ public class MapTrek extends Application {
     private Index mIndex;
     private MapTrekDatabaseHelper mDetailedMapHelper;
     private SQLiteDatabase mDetailedMapDatabase;
+    private String mUserNotification;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -113,7 +115,19 @@ public class MapTrek extends Application {
                 copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
             mDetailedMapHelper = new MapTrekDatabaseHelper(this, dbFile);
             mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
-            mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+            try {
+                mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+            } catch (SQLiteException ignore) {
+                mDetailedMapHelper.close();
+                if (dbFile.delete()) {
+                    copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
+                    mDetailedMapHelper = new MapTrekDatabaseHelper(this, dbFile);
+                    mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
+                    mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+                    fresh = true;
+                    mUserNotification = getString(R.string.msgMapDatabaseError);
+                }
+            }
             if (fresh)
                 MapTrekDatabaseHelper.createFtsTable(mDetailedMapDatabase);
         }
@@ -155,6 +169,12 @@ public class MapTrek extends Application {
             }
         }
         return false;
+    }
+
+    public String getUserNotification() {
+        String notification = mUserNotification;
+        mUserNotification = null;
+        return notification;
     }
 
     /****************************
