@@ -103,9 +103,6 @@ import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
-import org.oscim.theme.XmlRenderThemeMenuCallback;
-import org.oscim.theme.XmlRenderThemeStyleLayer;
-import org.oscim.theme.XmlRenderThemeStyleMenu;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -427,7 +424,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String language = Configuration.getLanguage();
             if (language == null) {
                 language = resources.getConfiguration().locale.getLanguage();
-                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
+                if (!Arrays.asList(new String[]{"en", "de", "ru" }).contains(language))
                     language = "none";
                 Configuration.setLanguage(language);
             }
@@ -1104,11 +1101,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         mNightModeState = NIGHT_MODE_STATE.values()[which];
-                        if (mNightModeState == NIGHT_MODE_STATE.DAY && mNightMode)
-                            setNightMode(false);
-                        if (mNightModeState == NIGHT_MODE_STATE.NIGHT && !mNightMode)
-                            setNightMode(true);
-                        Configuration.setNightModeState(mNightModeState.ordinal());
+                        if ((mNightModeState == NIGHT_MODE_STATE.NIGHT) != mNightMode) {
+                            // With rule categories it became a long lasting operation
+                            // so it has to be run in background
+                            mBackgroundHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                                }
+                            });
+                            Configuration.setNightModeState(mNightModeState.ordinal());
+                        }
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -1121,8 +1124,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 builder.setItems(R.array.mapStyles, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Configuration.setMapStyle(which);
-                        //TODO Refactor
-                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                        // With rule categories it became a long lasting operation
+                        // so it has to be run in background
+                        mBackgroundHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO Refactor
+                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                            }
+                        });
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -1135,7 +1145,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 builder.setItems(R.array.font_size_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Configuration.setMapFontSize(which);
-                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                        // With rule categories it became a long lasting operation
+                        // so it has to be run in background
+                        mBackgroundHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO Refactor
+                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                            }
+                        });
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -3913,15 +3931,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return;
 
         mSunriseSunset.setLocation(location.getLatitude(), location.getLongitude());
-        boolean isNightTime = !mSunriseSunset.isDaytime((location.getTime() * 1d / 3600000) % 24);
+        final boolean isNightTime = !mSunriseSunset.isDaytime((location.getTime() * 1d / 3600000) % 24);
 
-        if (isNightTime ^ mNightMode)
-            setNightMode(isNightTime);
+        if (isNightTime ^ mNightMode) {
+            // With rule categories it became a long lasting operation
+            // so it has to be run in background
+            mBackgroundHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    setNightMode(isNightTime);
+                }
+            });
+        }
 
         mNextNightCheck = mLastLocationMilliseconds + NIGHT_CHECK_PERIOD;
     }
 
-    private void setNightMode(boolean night) {
+    private void setNightMode(final boolean night) {
         ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
         IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
