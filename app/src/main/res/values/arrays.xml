@@ -91,5 +91,10 @@
         <item>Latest</item>
         <item>Never</item>
     </string-array>
+    <string-array name="mapStyles">
+        <item>Roads</item>
+        <item>Urban</item>
+        <item>Topo</item>
+    </string-array>
 
 </resources>

@@ -37,6 +37,7 @@ public class Configuration {
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
     private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
+    private static final String PREF_MAP_STYLE = "map_style";
     private static final String PREF_MAP_FONT_SIZE = "map_font_size";
     private static final String PREF_LANGUAGE = "language";
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
@@ -232,6 +233,14 @@ public class Configuration {
 
     public static void setNightModeState(int nightModeState) {
         saveInt(PREF_NIGHT_MODE_STATE, nightModeState);
+    }
+
+    public static int getMapStyle() {
+        return loadInt(PREF_MAP_STYLE, 2);
+    }
+
+    public static void setMapStyle(int style) {
+        saveInt(PREF_MAP_STYLE, style);
     }
 
     public static int getMapFontSize() {

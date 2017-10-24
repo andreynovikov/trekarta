@@ -103,6 +103,9 @@ import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
+import org.oscim.theme.XmlRenderThemeMenuCallback;
+import org.oscim.theme.XmlRenderThemeStyleLayer;
+import org.oscim.theme.XmlRenderThemeStyleMenu;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1112,6 +1115,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 dialog.show();
                 return true;
             }
+            case R.id.actionStyle: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.actionStyle);
+                builder.setItems(R.array.mapStyles, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Configuration.setMapStyle(which);
+                        //TODO Refactor
+                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            }
             case R.id.actionFontSize: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionFontSize);
@@ -1565,6 +1582,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 MenuItem item = menu.findItem(R.id.actionNightMode);
                 String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
                 ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+                item = menu.findItem(R.id.actionStyle);
+                String[] mapStyles = getResources().getStringArray(R.array.mapStyles);
+                ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
                 item = menu.findItem(R.id.actionFontSize);
                 String[] fontSizes = getResources().getStringArray(R.array.font_size_array);
                 ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);

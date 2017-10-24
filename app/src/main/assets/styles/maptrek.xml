@@ -19,6 +19,52 @@
     -->
 
     <!--
+    ==== LAYERS ====
+    -->
+
+    <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
+        <layer id="base">
+            <cat id="land" />
+            <cat id="water" />
+            <cat id="administrative" />
+            <cat id="places" />
+        </layer>
+
+        <layer id="nature">
+            <cat id="forest" />
+            <cat id="nature" />
+            <cat id="insignificant-water" />
+            <cat id="underground-water" />
+        </layer>
+
+        <layer id="roads" parent="base">
+            <cat id="landclasses" />
+            <cat id="roads" />
+            <cat id="ferries" />
+            <cat id="railways" />
+            <cat id="buildings" />
+        </layer>
+
+        <layer id="urban" parent="roads">
+            <cat id="urban" />
+            <cat id="aeroways" />
+            <cat id="aerialways" />
+            <cat id="pedestrian" />
+            <cat id="cycling" />
+            <cat id="forest" />
+            <cat id="grass" />
+            <cat id="insignificant-water" />
+        </layer>
+
+        <layer id="topo" parent="urban">
+            <cat id="agriculture" />
+            <cat id="tracks" />
+            <cat id="contours" />
+            <overlay id="nature" />
+        </layer>
+    </stylemenu>
+
+    <!--
     ==== STYLES ====
     -->
 
@@ -127,50 +173,50 @@
     ==== RULES ====
     -->
 
-    <m e="way" k="natural" v="sea">
+    <m cat="water" e="way" k="natural" v="sea">
         <area use="water" />
     </m>
-    <m closed="yes" e="way" k="natural" v="land|nosea">
+    <m cat="land" closed="yes" e="way" k="natural" v="land|nosea">
         <area use="land" />
     </m>
 
     <!-- Land usages -->
     <m closed="yes" e="way" k="landuse|leisure|amenity|tourizm">
-        <m v="residential|commercial|retail">
+        <m cat="landclasses" v="residential|commercial|retail">
             <area use="residential" />
         </m>
-        <m v="industrial">
+        <m cat="landclasses" v="industrial">
             <area use="industrial" />
         </m>
-        <m v="construction|brownfield|landfill">
+        <m cat="urban" v="construction|brownfield|landfill">
             <area use="construction" />
         </m>
-        <m v="quarry">
+        <m cat="urban" v="quarry">
             <area use="quarry" />
         </m>
-        <m v="allotments">
+        <m cat="landclasses" v="allotments">
             <area use="allotments" />
         </m>
-        <m v="farmland|vineyard|greenhouse_horticulture|plant_nursery|orchard">
+        <m cat="agriculture" v="farmland|vineyard|greenhouse_horticulture|plant_nursery|orchard">
             <area use="farmland" />
         </m>
-        <m v="farmyard">
+        <m cat="agriculture" v="farmyard">
             <area use="farmyard" />
         </m>
-        <m k="tourism" v="zoo">
+        <m cat="urban" k="tourism" v="zoo">
             <area fill="#c0d69a" />
         </m>
         <m v="parking" zoom-min="16">
             <area fill="#fefefe" />
         </m>
-        <m k="amenity" v="kindergarten|school|college|university">
+        <m cat="urban" k="amenity" v="kindergarten|school|college|university">
             <area fill="#e6e4c5" />
             <line cap="butt" fix="true" stroke="#9aabae" width="1.0" />
         </m>
-        <m k="amenity" v="hospital">
+        <m cat="urban" k="amenity" v="hospital">
             <area fill="#f2d9b1" />
         </m>
-        <m v="village_green|recreation_ground|park|golf_course|common">
+        <m cat="urban" v="village_green|recreation_ground|park|golf_course|common">
             <area use="park" />
             <m zoom-min="14">
                 <line use="park" />
@@ -178,42 +224,42 @@
                     priority="4" size="16" stroke="#ccffcc" stroke-width="2.0" />
             </m>
         </m>
-        <m v="garden">
+        <m cat="urban" v="garden">
             <area use="garden" />
         </m>
-        <m v="sports_centre|water_park">
+        <m cat="urban" v="sports_centre|water_park">
             <area fill="#daefdb" />
             <text use="poi" />
         </m>
-        <m v="stadium">
+        <m cat="urban" v="stadium">
             <line cap="butt" fix="true" stroke="#c9c3c1" width="1.0" />
             <area fill="#e9e6e3" />
         </m>
-        <m v="playground">
+        <m cat="urban" v="playground">
             <area fill="#f4f4de" />
             <line use="park" />
         </m>
-        <m v="pitch">
+        <m cat="urban" v="pitch">
             <area fill="#f4f4de" />
             <line cap="butt" fix="true" stroke="#d9d9a3" width="1.0" />
         </m>
-        <m v="meadow">
+        <m cat="nature" v="meadow">
             <area use="greens" />
         </m>
-        <m v="grass">
+        <m cat="grass" v="grass">
             <area use="grass" />
         </m>
-        <m v="dog_park">
+        <m cat="urban" v="dog_park">
             <area src="assets:patterns/dog_park.svg" />
             <line use="park" />
         </m>
-        <m v="fountain">
+        <m cat="urban" v="fountain">
             <area fill="#b4cbdc" stroke="#000080" stroke-width="0.15" />
         </m>
     </m>
 
     <!-- Base landuse areas -->
-    <m k="aeroway">
+    <m cat="landclasses" k="aeroway">
         <m closed="yes" v="aerodrome">
             <area fill="#e8ecde" />
         </m>
@@ -221,54 +267,54 @@
 
     <!-- Natural -->
     <m closed="yes" e="way" k="natural">
-        <m v="glacier">
+        <m cat="nature" v="glacier">
             <area fill="#ddecec" />
         </m>
-        <m v="beach">
+        <m cat="nature" v="beach">
             <area fill="#f7f5c8" />
         </m>
-        <m v="mud">
+        <m cat="nature" v="mud">
             <area fill="#ab9d6f" />
         </m>
-        <m v="sand" zoom-min="10">
+        <m cat="nature" v="sand" zoom-min="10">
             <area fill="#fffad1" />
         </m>
-        <m v="scrub">
+        <m cat="nature" v="scrub">
             <area use="scrub" />
         </m>
-        <m v="grassland|heath">
+        <m cat="nature" v="grassland|heath">
             <area fade="12" use="scrub" />
         </m>
-        <m v="scree">
+        <m cat="nature" v="scree">
             <area fade="10" use="scree" />
         </m>
-        <m v="shingle">
+        <m cat="nature" v="shingle">
             <area use="scree" />
         </m>
-        <m v="bare_rock">
+        <m cat="nature" v="bare_rock">
             <area use="scree" />
             <area src="assets:patterns/rock_overlay.png" />
         </m>
-        <m v="forest|wood">
+        <m cat="forest" v="forest|wood">
             <area use="wood" />
         </m>
-        <m v="marsh">
+        <m cat="nature" v="marsh">
             <area src="assets:patterns/wetland.svg" />
             <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
             <text area-size="0.05" caption="true" use="water" />
         </m>
-        <m v="wetland">
+        <m cat="nature" v="wetland">
             <area src="assets:patterns/wetland.svg" />
             <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
-    <m k="man_made" v="cutline">
+    <m cat="nature" k="man_made" v="cutline">
         <line cap="square" fade="14" stroke="#d3dcb9" width="2.0" />
     </m>
 
     <!-- Landuse -->
     <m closed="yes" e="way" k="landuse">
-        <m v="cemetery" zoom-min="11">
+        <m cat="urban" v="cemetery" zoom-min="11">
             <area src="assets:patterns/cemetery.svg" />
             <m zoom-min="14">
                 <line use="park" />
@@ -278,108 +324,110 @@
         </m>
     </m>
     <m k="aeroway">
-        <m closed="yes" v="apron">
+        <m cat="aeroways" closed="yes" v="apron">
             <area fill="#f0f0f0" />
         </m>
-        <m closed="yes" v="terminal|hangar">
+        <m cat="aeroways" closed="yes" v="terminal|hangar">
             <area use="building" />
         </m>
-        <m closed="no" v="runway">
+        <m cat="aeroways" closed="no" v="runway">
             <line use="aeroway:runway" />
             <m zoom-min="13">
                 <text fill="#444444" k="ref" size="14" stroke="#eeeeee" stroke-width="2.0" />
             </m>
         </m>
-        <m closed="no" v="taxiway">
+        <m cat="aeroways" closed="no" v="taxiway">
             <line use="aeroway:runway" width="-1.0" />
             <m zoom-min="15">
                 <text fill="#444444" k="ref" size="10" stroke="#eeeeee" stroke-width="2.0" />
             </m>
         </m>
-        <m closed="yes" v="runway|taxiway">
+        <m cat="aeroways" closed="yes" v="runway|taxiway">
             <area use="aeroway:runway" />
             <text caption="true" fill="#444444" k="ref" size="14" stroke="#eeeeee"
                 stroke-width="2.0" />
         </m>
     </m>
 
-    <m k="piste:type" v="downhill" zoom-min="13">
-        <m closed="yes">
-            <m k="piste:difficulty" v="novice">
-                <area fill="#aaffaa" />
+    <m cat="skiing" k="piste:type">
+        <m k="piste:type" v="downhill" zoom-min="13">
+            <m closed="yes">
+                <m k="piste:difficulty" v="novice">
+                    <area fill="#aaffaa" />
+                </m>
+                <m k="piste:difficulty" v="easy">
+                    <area fill="#aaaaff" />
+                </m>
+                <m k="piste:difficulty" v="intermediate">
+                    <area fill="#ffaaaa" />
+                </m>
+                <m k="piste:difficulty" v="advanced">
+                    <area fill="#666666" />
+                </m>
+                <m k="piste:difficulty" v="expert">
+                    <area fill="#ffd0aa" />
+                </m>
+                <m k="piste:difficulty" v="freeride">
+                    <area fill="#fffdaa" />
+                </m>
+                <m k="piste:difficulty" v="~">
+                    <area fill="#aaaaaa" />
+                </m>
             </m>
-            <m k="piste:difficulty" v="easy">
-                <area fill="#aaaaff" />
-            </m>
-            <m k="piste:difficulty" v="intermediate">
-                <area fill="#ffaaaa" />
-            </m>
-            <m k="piste:difficulty" v="advanced">
-                <area fill="#666666" />
-            </m>
-            <m k="piste:difficulty" v="expert">
-                <area fill="#ffd0aa" />
-            </m>
-            <m k="piste:difficulty" v="freeride">
-                <area fill="#fffdaa" />
-            </m>
-            <m k="piste:difficulty" v="~">
-                <area fill="#aaaaaa" />
+            <m closed="no">
+                <m k="piste:difficulty" v="novice">
+                    <line stroke="#aaffaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="easy">
+                    <line stroke="#aaaaff" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="intermediate">
+                    <line stroke="#ffaaaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="advanced">
+                    <line stroke="#666666" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="expert">
+                    <line stroke="#ffd0aa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="freeride">
+                    <line stroke="#fffdaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="~">
+                    <line stroke="#aaaaaa" width="2.0" />
+                </m>
+                <lineSymbol src="assets:symbols/oneway.svg" />
             </m>
         </m>
-        <m closed="no">
-            <m k="piste:difficulty" v="novice">
-                <line stroke="#aaffaa" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="easy">
-                <line stroke="#aaaaff" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="intermediate">
-                <line stroke="#ffaaaa" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="advanced">
-                <line stroke="#666666" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="expert">
-                <line stroke="#ffd0aa" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="freeride">
-                <line stroke="#fffdaa" width="2.0" />
-            </m>
-            <m k="piste:difficulty" v="~">
-                <line stroke="#aaaaaa" width="2.0" />
-            </m>
-            <lineSymbol src="assets:symbols/oneway.svg" />
+        <m k="piste:type" v="sled">
+            <line cap="butt" dasharray="0,5,5,5" stroke="#8098F5FF" width="1.2" />
         </m>
-    </m>
-    <m k="piste:type" v="sled">
-        <line cap="butt" dasharray="0,5,5,5" stroke="#8098F5FF" width="1.2" />
-    </m>
-    <m k="piste:type" v="nordic">
-        <line cap="butt" dasharray="20,15" stroke="#5598F5FF" width="0.6" />
+        <m k="piste:type" v="nordic">
+            <line cap="butt" dasharray="20,15" stroke="#5598F5FF" width="0.6" />
+        </m>
     </m>
 
     <!-- Water -->
-    <m closed="yes" e="way" k="natural" v="water">
+    <m cat="water" closed="yes" e="way" k="natural" v="water">
         <area use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
-    <m closed="yes" k="landuse" v="reservoir|basin">
+    <m cat="water" closed="yes" k="landuse" v="reservoir|basin">
         <area use="water" />
         <text area-size="0.1" caption="true" priority="3" use="water" />
     </m>
     <m closed="yes" k="waterway">
-        <m v="riverbank|dock">
+        <m cat="water" v="riverbank|dock">
             <area use="water" />
         </m>
-        <m v="dam">
+        <m cat="water" v="dam">
             <area fade="12" fill="#999999" />
             <line fade="12" stroke="#333333" use="fix" width="0.5" />
         </m>
     </m>
     <m closed="no" e="way">
         <!-- overview map rivers -->
-        <m k="natural" v="water">
+        <m cat="water" k="natural" v="water">
             <line use="water" />
         </m>
         <m k="waterway">
@@ -387,47 +435,47 @@
             <m k="tunnel">
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
-                    <m v="river">
+                    <m cat="underground-water" v="river">
                         <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
                             width="1.3" />
                     </m>
-                    <m v="canal">
+                    <m cat="underground-water" v="canal">
                         <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
                             width="0.7" />
                     </m>
-                    <m v="stream">
+                    <m cat="underground-water" v="stream">
                         <line cap="square" fix="true" stipple="20" stipple-stroke="#b4c7d5"
                             stroke="#00ffffff" width="1.5" />
                     </m>
                 </m>
             </m>
             <m k="tunnel" v="~|false">
-                <m v="river">
+                <m cat="water" v="river">
                     <line fade="10" use="river" width="0.3" />
                     <m zoom-min="17">
                         <lineSymbol src="assets:symbols/oneway_river.svg" />
                     </m>
                     <text priority="4" use="water" />
                 </m>
-                <m v="canal">
+                <m cat="water" v="canal">
                     <line fade="10" use="river" width="-0.3" />
                     <text priority="10" use="water" />
                 </m>
-                <m v="stream">
+                <m cat="insignificant-water" v="stream">
                     <line fade="13" use="water" width="0.5" />
                 </m>
-                <m v="ditch|drain">
+                <m cat="insignificant-water" v="ditch|drain">
                     <line fade="14" use="water" width="0.2" />
                 </m>
-                <m v="dam">
+                <m cat="urban" v="dam">
                     <line fade="12" stroke="#333333" use="fix" width="0.5" />
                 </m>
-                <m v="lock_gate">
+                <m cat="urban" v="lock_gate">
                     <line fade="12" stroke="#aaaaaa" use="fix" width="0.7" />
                 </m>
             </m>
         </m>
-        <m k="route" v="ferry">
+        <m cat="ferries" k="route" v="ferry">
             <m zoom-max="10">
                 <line use="ferry-overview" />
             </m>
@@ -436,14 +484,14 @@
             </m>
         </m>
     </m>
-    <m e="node">
-        <m k="waterway" v="lock_gate" zoom-min="14">
+    <m e="node" k="waterway">
+        <m cat="urban" v="lock_gate" zoom-min="14">
             <symbol src="assets:symbols/lock_gate.svg" />
         </m>
     </m>
 
     <!-- Topological (orientational) objects on ground -->
-    <m k="natural" v="cliff">
+    <m cat="nature" k="natural" v="cliff">
         <line cap="butt" fix="true" stroke="#888888" width="3" />
         <m zoom-min="14">
             <lineSymbol repeat-gap="1" repeat-start="1" src="assets:symbols/natural/cliff.svg" />
@@ -455,7 +503,7 @@
     </m>
 
     <m k="man_made">
-        <m v="pier" zoom-min="15">
+        <m cat="urban" v="pier" zoom-min="15">
             <m closed="no">
                 <line cap="butt" stroke="#d0d0d0" width="0.4" />
                 <line cap="butt" stroke="#e4e4e4" width="0.3" />
@@ -464,9 +512,41 @@
                 <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.05" />
             </m>
         </m>
-        <m closed="yes" v="bridge">
+        <m cat="urban" closed="yes" v="bridge">
             <area fill="#e4e4e4" />
             <text use="road-name" />
+        </m>
+    </m>
+
+    <!-- Hiking routes -->
+    <m cat="hiking" e="way" k="route" v="hiking">
+        <m zoom-max="13">
+            <m k="network" v="iwn">
+                <line stroke="#880000ff" width="4" />
+            </m>
+            <m k="network" v="nwn">
+                <line stroke="#88ff0000" width="4" />
+            </m>
+            <m k="network" v="rwn">
+                <line stroke="#8800ff00" width="4" />
+            </m>
+            <m k="network" v="lwn">
+                <line stroke="#88ffff00" width="4" />
+            </m>
+        </m>
+        <m zoom-min="14">
+            <m k="network" v="iwn">
+                <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
+            </m>
+            <m k="network" v="nwn">
+                <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
+            </m>
+            <m k="network" v="rwn">
+                <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
+            </m>
+            <m k="network" v="lwn">
+                <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
+            </m>
         </m>
     </m>
 
@@ -477,7 +557,7 @@
         <outline-layer id="primary" stroke="#7f7700" width="0.15" />
         <outline-layer id="motorway" stroke="#805f2e" width="0.15" />
 
-        <m select="first" zoom-max="7">
+        <m cat="roads" select="first" zoom-max="7">
             <m v="motorway">
                 <line fade="6" stroke="#deb683" use="fix" width="0.6" />
             </m>
@@ -489,6 +569,129 @@
             </m>
         </m>
         <m zoom-min="8">
+            <!-- Hiking -->
+            <m cat="hiking" k="highway" zoom-min="13">
+                <m v="path|footway">
+                    <line cap="butt" fix="true" stroke="#ffffff" width="5.2" />
+                    <m k="sac_scale" v="~">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#aab28f67"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stroke="#aab28f67" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#aab28f67"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#aab28f67"
+                                stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                </m>
+                <m k="sac_scale" select="first">
+                    <m v="t1">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stroke="#cce6ad00" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                    <m v="t2">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#880000ff"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stroke="#880000ff" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#880000ff"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#880000ff"
+                                stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                    <m v="t3">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stroke="#88ff0000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                    <m v="t4">
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stipple="8" stipple-stroke="#cc000000"
+                                stroke="#880000ff" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="~|intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#cc000000"
+                                stroke="#880000ff" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#cc000000"
+                                stroke="#880000ff" width="4" />
+                        </m>
+                    </m>
+                    <m v="t5">
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stipple="8" stipple-stroke="#aa000000"
+                                stroke="#88ff0000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="~|intermediate">
+                            <line fix="true" stipple="16" stipple-stroke="#aa000000"
+                                stroke="#88ff0000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="24" stipple-stroke="#aa000000"
+                                stroke="#88ff0000" width="4" />
+                        </m>
+                    </m>
+                    <m v="t6">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="16" stipple-stroke="#aa000000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent|good">
+                            <line fix="true" stipple="8" stipple-stroke="#aa000000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="24" stipple-stroke="#aa000000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible|no">
+                            <line fix="true" stipple="32" stipple-stroke="#aa000000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                </m>
+            </m>
+
             <!-- match tunnel-tag (to ensure tunnel key is present) -->
             <m k="tunnel">
                 <!-- match tunnel-tag that are not 'no' -->
@@ -497,11 +700,11 @@
                     <m k="area" v="~|no|false">
                         <!-- highway tunnels -->
                         <m k="highway">
-                            <m v="footway">
+                            <m cat="pedestrian" v="footway">
                                 <!--TODO Add stipple outline -->
                                 <line use="footway" />
                             </m>
-                            <m v="path">
+                            <m cat="pedestrian" v="path">
                                 <!--TODO Add stipple outline -->
                                 <line use="path" />
                             </m>
@@ -509,7 +712,7 @@
                                 <!--TODO Add stipple outline -->
                                 <line use="bridleway" />
                             </m>
-                            <m v="track">
+                            <m cat="tracks" v="track">
                                 <m zoom-max="13" zoom-min="13">
                                     <line use="highway:track:g2" width="-0.8" />
                                 </m>
@@ -519,52 +722,54 @@
                                 </m>
                                 <text use="road-name" />
                             </m>
-                            <m v="service">
+                            <m cat="roads" v="service">
                                 <line cap="square" stipple="20" stipple-stroke="#ffffff"
                                     stroke="#00ffffff" width="0.8" />
                             </m>
-                            <m v="tertiary_link">
+                            <m cat="roads" v="tertiary_link">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.3" />
                                 <text use="road-name" />
                             </m>
-                            <m v="secondary_link">
+                            <m cat="roads" v="secondary_link">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.4" />
                                 <text use="road-name" />
                             </m>
-                            <m v="primary_link">
+                            <m cat="roads" v="primary_link">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
                             </m>
-                            <m v="trunk_link|motorway_link">
+                            <m cat="roads" v="trunk_link|motorway_link">
                                 <line cap="square" stipple="20" stipple-stroke="#feeba1"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                             </m>
-                            <m v="road|construction">
+                            <m cat="roads" v="road|construction">
                                 <line stroke="#00ffffff" use="road-construction" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="pedestrian">
+                            <m cat="pedestrian" v="pedestrian">
                                 <line cap="square" stipple="20" stipple-stroke="#ededed"
                                     stroke="#00ffffff" width="1.0" />
                                 <text use="road-name" />
                             </m>
-                            <m v="residential|living_street">
+                            <m cat="roads" v="residential|living_street">
                                 <line cap="square" stipple="20" stipple-stroke="#ffffff"
                                     stroke="#00ffffff" width="1.2" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="unclassified">
+                            <m cat="roads" v="unclassified">
                                 <m select="first">
                                     <m k="surface" v="dirt">
                                         <line cap="square" stipple="20" stipple-stroke="#b28f67"
@@ -581,59 +786,65 @@
                                 </m>
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="tertiary">
+                            <m cat="roads" v="tertiary">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.3" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="secondary">
+                            <m cat="roads" v="secondary">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.4" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="primary">
+                            <m cat="roads" v="primary">
                                 <line cap="square" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="trunk">
+                            <m cat="roads" v="trunk">
                                 <line cap="square" stipple="20" stipple-stroke="#fee685"
                                     stroke="#00ffffff" width="1.7" />
                                 <text use="major-road-name" />
                                 <text use="trunk-road-ref" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
-                            <m v="motorway">
+                            <m cat="roads" v="motorway">
                                 <line cap="square" stipple="20" stipple-stroke="#fdcf8c"
                                     stroke="#00ffffff" width="1.8" />
                                 <text use="major-road-name" />
                                 <text use="trunk-road-ref" />
                                 <m k="toll" v="yes">
-                                    <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                    <symbol merge="true" repeat-gap="150"
+                                        src="assets:symbols/transport/toll_road.svg" />
                                 </m>
                             </m>
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
-                            <m k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway">
                                 <lineSymbol src="assets:symbols/oneway.svg" />
                             </m>
-                            <m k="highway" v="cycleway" zoom-min="17">
+                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
                             </m>
                         </m>
@@ -644,15 +855,15 @@
             <!-- when tunnel is present it must be 'no' -->
             <m k="tunnel" v="~|no">
                 <m k="area" v="yes" zoom-min="16">
-                    <m v="footway">
+                    <m cat="pedestrian" v="footway">
                         <area fill="#fefefe" mesh="true" />
                         <line cap="butt" fix="true" stroke="#c0c0c0" width="1.0" />
                     </m>
-                    <m v="service|unclassified|residential|road|living_street">
+                    <m cat="roads" v="service|unclassified|residential|road|living_street">
                         <area fill="#ffffff" mesh="true" />
                         <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
                     </m>
-                    <m v="pedestrian">
+                    <m cat="pedestrian" v="pedestrian">
                         <area mesh="true" use="pedestrian" />
                     </m>
                     <!-- <m v="path" zoom-min="14">
@@ -662,7 +873,7 @@
                 <!-- when bridge is present it must be 'no' -->
                 <m k="bridge" v="~|no">
                     <m k="area" v="~|no">
-                        <m v="steps">
+                        <m cat="pedestrian" v="steps">
                             <m zoom-min="16">
                                 <line use="steps" />
                             </m>
@@ -673,13 +884,13 @@
                                 <line use="footway" />
                             </m>
                         </m>
-                        <m v="footway">
+                        <m cat="pedestrian" v="footway">
                             <m zoom-min="15">
                                 <line use="footway:back" />
                             </m>
                             <line use="footway" />
                         </m>
-                        <m v="path">
+                        <m cat="pedestrian" v="path">
                             <m zoom-min="15">
                                 <line use="footway:back" />
                             </m>
@@ -692,7 +903,7 @@
                             <line use="bridleway" />
                         </m>
                         <m v="track">
-                            <m zoom-max="13" zoom-min="13">
+                            <m cat="tracks" zoom-max="13" zoom-min="13">
                                 <m select="first">
                                     <m k="ice_road" v="yes">
                                         <line stroke="#9bc8c8" use="highway:track:back" />
@@ -711,39 +922,51 @@
                             <m zoom-min="14">
                                 <m select="first">
                                     <m k="ford" v="yes">
-                                        <line fix="true" use="ford" width="4.0" />
+                                        <line cat="tracks" fix="true" use="ford" width="4.0" />
+                                        <line cat="hiking" fix="true" use="ford" width="6.0" />
                                     </m>
                                     <m k="ice_road" v="yes">
-                                        <line stroke="#9bc8c8" use="highway:track:back"
+                                        <line cat="tracks" stroke="#9bc8c8" use="highway:track:back"
                                             width="0.8" />
+                                        <line cat="hiking" stroke="#9bc8c8" use="highway:track:back"
+                                            width="4.0" />
                                     </m>
                                     <m k="winter_road" v="yes">
-                                        <line stroke="#bed8d8" use="highway:track:back"
+                                        <line cat="tracks" stroke="#bed8d8" use="highway:track:back"
                                             width="0.8" />
+                                        <line cat="hiking" stroke="#bed8d8" use="highway:track:back"
+                                            width="4.0" />
                                     </m>
                                     <m>
-                                        <line use="highway:track:back" />
+                                        <line cat="tracks" use="highway:track:back" />
+                                        <line cap="butt" cat="hiking" fix="true" stroke="#ffffff"
+                                            width="5.2" />
                                     </m>
                                 </m>
                                 <m k="tracktype" v="grade1">
-                                    <line use="highway:track:g1" />
+                                    <line cat="tracks" use="highway:track:g1" />
+                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="~|grade2">
-                                    <line use="highway:track:g2" />
+                                    <line cat="tracks" use="highway:track:g2" />
+                                    <line cat="hiking" use="highway:track:g2" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade3">
-                                    <line use="highway:track:g3" />
+                                    <line cat="tracks" use="highway:track:g3" />
+                                    <line cat="hiking" use="highway:track:g3" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade4">
-                                    <line use="highway:track:g4" />
+                                    <line cat="tracks" use="highway:track:g4" />
+                                    <line cat="hiking" use="highway:track:g4" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade5">
-                                    <line use="highway:track:g5" />
+                                    <line cat="tracks" use="highway:track:g5" />
+                                    <line cat="hiking" use="highway:track:g5" width="2.2" />
                                 </m>
                             </m>
                             <text use="road-name" />
                         </m>
-                        <m v="service">
+                        <m cat="roads" v="service">
                             <!-- matches every service but parking_isle -->
                             <m k="service" v="-|parking_aisle">
                                 <m select="first">
@@ -786,18 +1009,18 @@
                                 </m>
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
-                                <line outline="road" use="highway-service" width="-0.4" />
+                                <line outline="service-road" use="highway-service" width="-0.3" />
                                 <m k="access" v="private">
                                     <line stipple="15" stipple-stroke="#eeeeee"
-                                        use="highway-service" width="-0.4" />
+                                        use="highway-service" width="-0.3" />
                                 </m>
                                 <m k="access" v="no">
                                     <line stipple="15" stipple-stroke="#ffdddd"
-                                        use="highway-service" width="-0.4" />
+                                        use="highway-service" width="-0.3" />
                                 </m>
                             </m>
                         </m>
-                        <m v="tertiary_link">
+                        <m cat="roads" v="tertiary_link">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="road" stroke="#bcdada" use="tertiary" />
@@ -817,7 +1040,7 @@
                             </m>
                             <text use="road-name" />
                         </m>
-                        <m v="secondary_link">
+                        <m cat="roads" v="secondary_link">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="road" stroke="#bcdada" use="secondary" />
@@ -837,7 +1060,7 @@
                             </m>
                             <text use="road-name" />
                         </m>
-                        <m v="primary_link">
+                        <m cat="roads" v="primary_link">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="primary" stroke="#bcdada" use="primary" />
@@ -858,7 +1081,7 @@
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                         </m>
-                        <m v="trunk_link|motorway_link">
+                        <m cat="roads" v="trunk_link|motorway_link">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="motorway" stroke="#bcdada" use="trunk_link" />
@@ -872,21 +1095,22 @@
                             </m>
                             <text use="major-road-name" />
                         </m>
-                        <m v="road|construction">
+                        <m cat="roads" v="road|construction">
                             <line outline="road" use="road-construction" />
                             <m k="ford" v="yes">
                                 <line use="ford" width="-0.2" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="pedestrian">
+                        <m cat="pedestrian" v="pedestrian">
                             <line outline="road" use="pedestrian" />
                             <text use="road-name" />
                         </m>
-                        <m v="residential|living_street">
+                        <m cat="roads" v="residential|living_street">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="road" stroke="#bcdada" use="residential" />
@@ -918,11 +1142,11 @@
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
-
                         </m>
-                        <m v="unclassified">
+                        <m cat="roads" v="unclassified">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="road" stroke="#bcdada" use="unclassified" />
@@ -954,10 +1178,11 @@
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="tertiary">
+                        <m cat="roads" v="tertiary">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="road" stroke="#bcdada" use="tertiary" />
@@ -983,10 +1208,11 @@
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="secondary">
+                        <m cat="roads" v="secondary">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="primary" stroke="#bcdada" use="secondary" />
@@ -1013,10 +1239,11 @@
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="primary">
+                        <m cat="roads" v="primary">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="primary" stroke="#bcdada" use="primary" />
@@ -1043,10 +1270,11 @@
                             <text use="major-road-name" />
                             <text use="major-road-ref" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="trunk">
+                        <m cat="roads" v="trunk">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="motorway" stroke="#bcdada" use="trunk" />
@@ -1067,10 +1295,11 @@
                             <text use="major-road-name" />
                             <text use="trunk-road-ref" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="motorway">
+                        <m cat="roads" v="motorway">
                             <m select="first">
                                 <m k="ice_road" v="yes">
                                     <line outline="motorway" stroke="#bcdada" use="highway" />
@@ -1085,18 +1314,19 @@
                             <text use="major-road-name" />
                             <text use="trunk-road-ref" />
                             <m k="toll" v="yes">
-                                <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                                <symbol merge="true" repeat-gap="150"
+                                    src="assets:symbols/transport/toll_road.svg" />
                             </m>
                         </m>
-                        <m v="cycleway">
+                        <m cat="cycling" v="cycleway">
                             <line use="footway:back" width="0.2" />
                             <line use="cycleway" />
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
-                            <m k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway">
                                 <lineSymbol src="assets:symbols/oneway.svg" />
                             </m>
-                            <m k="highway" v="cycleway" zoom-min="17">
+                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
                             </m>
                         </m>
@@ -1107,7 +1337,7 @@
     </m>
 
     <!-- Railways (no tunnel) -->
-    <m e="way" k="railway" zoom-min="12">
+    <m cat="railways" e="way" k="railway" zoom-min="12">
         <!-- match tunnel-tag (to ensure tunnel key is present) -->
         <m k="tunnel">
             <!-- match tunnel-tag that are not 'no' -->
@@ -1182,18 +1412,18 @@
                 <!-- no areas -->
                 <m k="area" v="~|no">
                     <m zoom-min="16">
-                        <m v="steps">
+                        <m cat="pedestrian" v="steps">
                             <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                                 width="4.5" />
                             <line use="steps" />
                         </m>
                     </m>
-                    <m v="footway">
+                    <m cat="pedestrian" v="footway">
                         <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.0" />
                         <line use="footway" />
                     </m>
-                    <m v="path">
+                    <m cat="pedestrian" v="path">
                         <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.0" />
                         <line use="path" />
@@ -1203,13 +1433,13 @@
                             width="2.0" />
                         <line use="bridleway" />
                     </m>
-                    <m v="track">
+                    <m cat="tracks" v="track">
                         <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
                         <line cap="square" use="highway:track:g1" />
                         <text use="road-name" />
                     </m>
-                    <m v="service">
+                    <m cat="roads" v="service">
                         <!-- matches every service but parking_isle -->
                         <m k="service" v="-|parking_aisle">
                             <line cap="square" fade="14" outline="bridge" use="highway-service" />
@@ -1235,34 +1465,35 @@
                             </m>
                         </m>
                     </m>
-                    <m v="tertiary_link">
+                    <m cat="roads" v="tertiary_link">
                         <line cap="square" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                     </m>
-                    <m v="secondary_link">
+                    <m cat="roads" v="secondary_link">
                         <line cap="square" outline="bridge" use="secondary" />
                         <text use="road-name" />
                     </m>
-                    <m v="primary_link">
+                    <m cat="roads" v="primary_link">
                         <line cap="square" outline="bridge" use="primary" />
                         <text use="major-road-name" />
                     </m>
-                    <m v="trunk_link|motorway_link">
+                    <m cat="roads" v="trunk_link|motorway_link">
                         <line cap="square" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
-                    <m v="road|construction">
+                    <m cat="roads" v="road|construction">
                         <line cap="square" outline="bridge" use="road-construction" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="pedestrian">
+                    <m cat="pedestrian" v="pedestrian">
                         <line cap="square" outline="bridge" use="pedestrian" />
                         <text use="road-name" />
                     </m>
-                    <m v="residential|living_street">
+                    <m cat="roads" v="residential|living_street">
                         <line cap="square" outline="bridge" use="residential" />
                         <m k="access" v="private">
                             <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
@@ -1272,10 +1503,11 @@
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="unclassified">
+                    <m cat="roads" v="unclassified">
                         <line cap="square" outline="bridge" use="unclassified" />
                         <m k="access" v="private">
                             <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
@@ -1285,54 +1517,60 @@
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="tertiary">
+                    <m cat="roads" v="tertiary">
                         <line cap="square" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="secondary">
+                    <m cat="roads" v="secondary">
                         <line cap="square" outline="bridge" use="secondary" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="primary">
+                    <m cat="roads" v="primary">
                         <line cap="square" outline="bridge" use="primary" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="trunk_link">
+                    <m cat="roads" v="trunk_link">
                         <line cap="square" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
-                    <m v="trunk">
+                    <m cat="roads" v="trunk">
                         <line cap="square" outline="bridge" use="trunk" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="motorway">
+                    <m cat="roads" v="motorway">
                         <line cap="square" outline="bridge" use="highway" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
-                            <symbol src="assets:symbols/transport/toll_road.svg" repeat-gap="150" merge="true" />
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
                         </m>
                     </m>
-                    <m v="cycleway">
+                    <m cat="cycling" v="cycleway">
                         <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.2" />
                         <line use="cycleway" />
                     </m>
-                    <m k="oneway" v="1" zoom-min="16">
+                    <m cat="roads" k="oneway" v="1" zoom-min="16">
                         <lineSymbol src="assets:symbols/oneway.svg" />
                     </m>
                 </m> <!-- end area=no -->
@@ -1341,7 +1579,7 @@
     </m>
 
     <!-- Railway bridges -->
-    <m e="way" k="railway" zoom-min="14">
+    <m cat="railways" e="way" k="railway" zoom-min="14">
         <m k="tunnel" v="~|no">
             <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
             <m k="bridge">
@@ -1399,29 +1637,29 @@
 
     <!-- Barriers -->
     <m e="way" k="barrier">
-        <m v="hedge" zoom-min="15">
+        <m cat="urban" v="hedge" zoom-min="15">
             <line use="hedge" />
         </m>
-        <m v="retaining_wall" zoom-min="15">
+        <m cat="urban" v="retaining_wall" zoom-min="15">
             <line use="fence" width="-0.3" />
         </m>
-        <m v="fence" zoom-min="15">
+        <m cat="urban" v="fence" zoom-min="15">
             <line use="fence" />
         </m>
-        <m v="wall" zoom-min="15">
+        <m cat="urban" v="wall" zoom-min="15">
             <line use="fence" width="0.5" />
         </m>
-        <m v="city_wall" zoom-min="13">
+        <m cat="buildings" v="city_wall" zoom-min="13">
             <line use="fence" width="1.4" />
         </m>
     </m>
 
-    <m k="natural" v="tree" zoom-min="16">
+    <m cat="nature" k="natural" v="tree" zoom-min="16">
         <area fade="16" mesh="true" use="wood" />
     </m>
 
     <!-- Administrative boundaries -->
-    <m k="boundary" v="administrative">
+    <m cat="administrative" k="boundary" v="administrative">
         <m k="admin_level">
             <m k="admin_level" v="4">
                 <m zoom-min="8">
@@ -1477,7 +1715,7 @@
     </m>
 
     <!-- Contour lines -->
-    <m k="contour">
+    <m cat="contours" k="contour">
         <m v="elevation_major">
             <m zoom-max="14">
                 <line fade="11" fix="true" stroke="#808E8072" width="0.3" />
@@ -1508,7 +1746,7 @@
     </m>
 
     <!-- Buildings -->
-    <m e="way" zoom-min="14">
+    <m cat="buildings" e="way" zoom-min="14">
         <m k="building">
             <area fade="14" use="building" />
         </m>
@@ -1520,7 +1758,7 @@
     </m>
 
     <!-- Man made objects above ground -->
-    <m k="aerialway">
+    <m cat="aerialways" k="aerialway">
         <line cap="butt" fix="true" stroke="#202020" width="1.8" />
         <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
             width="12" />
@@ -1540,7 +1778,7 @@
     </m>
 
     <!-- Topological (orientational) objects above ground -->
-    <m k="power">
+    <m cat="urban" k="power">
         <m e="way" v="line" zoom-min="14">
             <line cap="butt" fix="true" stroke="#6e6e6e" width="1.5" />
         </m>
@@ -1555,7 +1793,7 @@
             </m>
         </m>
     </m>
-    <m k="man_made">
+    <m cat="urban" k="man_made">
         <m v="tower" zoom-min="16">
             <!-- building tag should not be present -->
             <m k="building" v="~">
@@ -1563,13 +1801,20 @@
             </m>
         </m>
     </m>
-    <m k="natural">
+    <m cat="nature" k="natural">
         <m select="first" zoom-min="13">
             <m v="volcano">
                 <symbol src="assets:symbols/natural/volcano.svg" />
+                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                    stroke-width="2.0" />
             </m>
             <m v="peak">
                 <symbol src="assets:symbols/natural/peak.svg" />
+                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+            <m v="saddle">
+                <symbol src="assets:symbols/natural/saddle.svg" />
                 <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
@@ -1585,7 +1830,7 @@
                 stroke-width="2.0" />
         </m>
     </m>
-    <m k="mountain_pass" v="yes|true|1">
+    <m cat="roads" k="mountain_pass" v="yes|true|1">
         <symbol src="assets:symbols/natural/mountain_pass.svg" />
         <caption style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
             stroke-width="2.0" />
@@ -1594,7 +1839,7 @@
     </m>
 
     <!-- Protected areas -->
-    <m closed="yes" k="boundary|leisure" zoom-min="6">
+    <m cat="nature" closed="yes" k="boundary|leisure" zoom-min="6">
         <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
         <!-- TODO Remove protected area -->
         <m v="national_park|nature_reserve">
@@ -1614,7 +1859,7 @@
                 priority="3" size="18" stroke="#ccffcc" stroke-width="2.0" />
         </m>
     </m>
-    <m closed="yes" k="landuse" zoom-min="7">
+    <m cat="urban" closed="yes" k="landuse" zoom-min="7">
         <m v="military">
             <area fade="7" mesh="true" use="military" />
             <m zoom-max="7">
@@ -1630,7 +1875,7 @@
 
     <!-- POI symbols, names and house numbers -->
     <!-- places -->
-    <m k="place">
+    <m cat="places" k="place">
         <m v="neighbourhood|allotments">
             <caption style="italic" fill="#444411" k="name" priority="12" size="14" stroke="#ffffff"
                 stroke-width="1.6" />
@@ -1742,7 +1987,7 @@
 
     <!-- symbols -->
     <m e="node" select="first">
-        <m k="barrier">
+        <m cat="roads" k="barrier">
             <m v="border_control">
                 <symbol src="assets:symbols/barrier/border_control.svg" />
             </m>
@@ -1779,7 +2024,7 @@
         </m>
         <!-- railway -->
         <m k="railway">
-            <m select="first" v="station" zoom-min="14">
+            <m cat="urban" select="first" v="station" zoom-min="14">
                 <m k="station" v="subway" zoom-max="16" zoom-min="15">
                     <symbol src="assets:symbols/transport/subway.svg" />
                 </m>
@@ -1791,29 +2036,29 @@
                         stroke="#ffffff" stroke-width="2.0" />
                 </m>
             </m>
-            <m v="halt">
+            <m cat="urban" v="halt">
                 <symbol src="assets:symbols/transport/train_station2.svg" />
                 <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
-            <m v="crossing" zoom-min="16">
+            <m cat="pedestrian" v="crossing" zoom-min="16">
                 <symbol src="assets:symbols/transport/crossing.svg" />
             </m>
-            <m v="level_crossing" zoom-min="16">
+            <m cat="roads" v="level_crossing" zoom-min="16">
                 <symbol src="assets:symbols/transport/level_crossing.svg" />
             </m>
         </m>
         <!-- aeroway -->
         <m k="aeroway">
-            <m k="aeroway" v="helipad">
+            <m cat="urban" k="aeroway" v="helipad" zoom-min="15">
                 <symbol src="assets:symbols/transport/helicopter.svg" />
                 <text use="poi" />
             </m>
-            <m k="aeroway" v="heliport">
+            <m cat="urban" k="aeroway" v="heliport">
                 <symbol src="assets:symbols/transport/helicopter.svg" />
                 <text use="poi" />
             </m>
-            <m k="aeroway" v="aerodrome">
+            <m cat="urban" k="aeroway" v="aerodrome">
                 <m zoom-min="11">
                     <symbol src="assets:symbols/transport/airport.svg" />
                     <text caption="true" dy="18" priority="5" use="poi" />
@@ -2228,7 +2473,7 @@
             </m>
         </m>
         <!-- house numbers -->
-        <m k="building|building:part" zoom-min="17">
+        <m cat="buildings" k="building|building:part" zoom-min="17">
             <m k="addr:housenumber">
                 <m k="kind" v="~">
                     <text dy="-14" use="house-name" />

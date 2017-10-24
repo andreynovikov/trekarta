@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/actionAmenityZooms"
-        android:title="@string/actionAmenityZooms" />
-    <item
-        android:id="@+id/actionOtherFeatures"
-        android:title="@string/actionOtherFeatures" />
+        android:id="@+id/actionAutoTilt"
+        android:checkable="true"
+        android:title="@string/actionAutoTilt" />
     <item
         android:id="@+id/actionFontSize"
         android:actionLayout="@layout/menu_item_action"
@@ -19,7 +17,13 @@
         android:actionLayout="@layout/menu_item_action"
         android:title="@string/actionLanguage" />
     <item
-        android:id="@+id/actionAutoTilt"
-        android:checkable="true"
-        android:title="@string/actionAutoTilt" />
+        android:id="@+id/actionStyle"
+        android:actionLayout="@layout/menu_item_action"
+        android:title="@string/actionStyle" />
+    <item
+        android:id="@+id/actionAmenityZooms"
+        android:title="@string/actionAmenityZooms" />
+    <item
+        android:id="@+id/actionOtherFeatures"
+        android:title="@string/actionOtherFeatures" />
 </menu>

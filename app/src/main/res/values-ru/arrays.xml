@@ -73,4 +73,9 @@
         <item>тыс</item>
         <item>гон</item>
     </string-array>
+    <string-array name="mapStyles">
+        <item>Дороги</item>
+        <item>Город</item>
+        <item>Топо</item>
+    </string-array>
 </resources>

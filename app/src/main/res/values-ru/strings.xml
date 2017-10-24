@@ -213,4 +213,5 @@
     <string name="kind_place">Населённые пункты</string>
     <string name="kind_road">Дороги</string>
     <string name="actionShareCoordinates">Поделиться координатами</string>
+    <string name="actionStyle">Стиль</string>
 </resources>
