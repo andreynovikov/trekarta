@@ -91,7 +91,7 @@ public class MapService extends IntentService {
             }
             notificationManager.notify(0, builder.build());
 
-            if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new ImportProgressListener(notificationManager, builder))) {
+            if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new OperationProgressListener(notificationManager, builder))) {
                 application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
                 notificationManager.notify(0, builder.build());
@@ -106,19 +106,19 @@ public class MapService extends IntentService {
         if (actionRemoval) {
             int x = intent.getIntExtra(EXTRA_X, -1);
             int y = intent.getIntExtra(EXTRA_Y, -1);
-            mapIndex.removeNativeMap(x, y);
+            mapIndex.removeNativeMap(x, y, new OperationProgressListener(notificationManager, builder));
             application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
             notificationManager.cancel(0);
         }
     }
 
-    private class ImportProgressListener implements ProgressListener {
+    private class OperationProgressListener implements ProgressListener {
         private final NotificationManager notificationManager;
         private final Notification.Builder builder;
         int progress = 0;
         int step = 0;
 
-        ImportProgressListener(NotificationManager notificationManager, Notification.Builder builder) {
+        OperationProgressListener(NotificationManager notificationManager, Notification.Builder builder) {
             this.notificationManager = notificationManager;
             this.builder = builder;
         }

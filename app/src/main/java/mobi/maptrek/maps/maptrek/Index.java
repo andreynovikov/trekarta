@@ -188,13 +188,15 @@ public class Index {
         }
     }
 
-    public void removeNativeMap(int x, int y) {
+    public void removeNativeMap(int x, int y, @Nullable ProgressListener progressListener) {
         if (mMaps[x][y] == null)
             return;
         if (mMaps[x][y].created == 0)
             return;
 
         logger.error("Removing map: {} {}", x, y);
+        if (progressListener != null)
+            progressListener.onProgressStarted(100);
         try {
             // remove tiles
             SQLiteStatement statement = mDatabase.compileStatement(SQL_REMOVE_TILES);
@@ -212,15 +214,21 @@ public class Index {
                 statement.bindLong(5, rmax);
                 statement.executeUpdateDelete();
             }
+            if (progressListener != null)
+                progressListener.onProgressChanged(5);
             logger.error("  removed tiles");
             // remove features
             statement = mDatabase.compileStatement(SQL_REMOVE_FEATURES);
             statement.bindLong(1, x);
             statement.bindLong(2, y);
             statement.executeUpdateDelete();
+            if (progressListener != null)
+                progressListener.onProgressChanged(10);
             logger.error("  removed features");
             statement = mDatabase.compileStatement(SQL_REMOVE_FEATURE_NAMES);
             statement.executeUpdateDelete();
+            if (progressListener != null)
+                progressListener.onProgressChanged(30);
             logger.error("  removed feature names");
             // remove names
             if (MapTrekDatabaseHelper.hasFullTextIndex(mDatabase)) {
@@ -245,12 +253,18 @@ public class Index {
                     statement = mDatabase.compileStatement(sql.toString());
                     statement.executeUpdateDelete();
                 }
+                if (progressListener != null)
+                    progressListener.onProgressChanged(60);
                 logger.error("  removed names fts");
             }
             statement = mDatabase.compileStatement(SQL_REMOVE_NAMES);
             statement.executeUpdateDelete();
+            if (progressListener != null)
+                progressListener.onProgressChanged(100);
             logger.error("  removed names");
             setDownloaded(x, y, (short) 0);
+            if (progressListener != null)
+                progressListener.onProgressFinished();
         } catch (Exception e) {
             logger.error("Query error", e);
         }
