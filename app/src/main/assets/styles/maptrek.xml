@@ -59,6 +59,7 @@
         <layer id="topo" parent="urban" enabled="true">
             <cat id="agriculture" />
             <cat id="tracks" />
+            <cat id="topo" />
             <cat id="contours" />
             <overlay id="nature" />
         </layer>
@@ -167,7 +168,7 @@
 
     <!-- Aeroways -->
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
-    <style-area fill="#c8ccbe" id="aeroway:runway" />
+    <style-area fill="#c8ccbe" id="aeroway:runway" mesh="true" />
 
     <!--
     ==== RULES ====
@@ -1778,14 +1779,14 @@
     </m>
 
     <!-- Topological (orientational) objects above ground -->
-    <m cat="urban" k="power">
-        <m e="way" v="line" zoom-min="14">
+    <m k="power">
+        <m cat="topo" e="way" v="line" zoom-min="14">
             <line cap="butt" fix="true" stroke="#6e6e6e" width="1.5" />
         </m>
-        <m v="tower" zoom-min="16">
+        <m cat="topo" v="tower" zoom-min="16">
             <symbol src="assets:symbols/power/tower.svg" />
         </m>
-        <m v="generator" zoom-min="14">
+        <m cat="urban" v="generator" zoom-min="14">
             <m k="generator:source" select="first">
                 <m v="wind">
                     <symbol src="assets:symbols/power/wind.svg" />
@@ -1793,7 +1794,7 @@
             </m>
         </m>
     </m>
-    <m cat="urban" k="man_made">
+    <m cat="topo" k="man_made">
         <m v="tower" zoom-min="16">
             <!-- building tag should not be present -->
             <m k="building" v="~">
