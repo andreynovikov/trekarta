@@ -55,6 +55,7 @@ public class MapTrek extends Application {
 
     // Configure global defaults
     static {
+        Parameters.CUSTOM_TILE_SIZE = true;
         Parameters.MAP_EVENT_LAYER2 = true;
         //Parameters.TEXTURE_ATLAS = true;
         Parameters.POT_TEXTURES = true;
