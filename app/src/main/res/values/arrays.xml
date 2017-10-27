@@ -96,5 +96,9 @@
         <item>Urban</item>
         <item>Topo</item>
     </string-array>
-
+    <string-array name="activities">
+        <item>None</item>
+        <item>Hiking</item>
+        <item>Skiing</item>
+    </string-array>
 </resources>

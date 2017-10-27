@@ -182,6 +182,7 @@ import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
+import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -1203,6 +1204,29 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
                 return true;
             }
+            case R.id.actionActivity: {
+                int activity = Configuration.getActivity();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.actionActivity);
+                builder.setSingleChoiceItems(R.array.activities, activity, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Configuration.setActivity(which);
+                        // With rule categories it became a long lasting operation
+                        // so it has to be run in background
+                        mBackgroundHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO Refactor
+                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                            }
+                        });
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            }
             case R.id.action3dBuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
@@ -1601,18 +1625,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
             @Override
             public void onPrepareMenu(PanelMenu menu) {
+                Resources resources = getResources();
                 MenuItem item = menu.findItem(R.id.actionNightMode);
-                String[] nightModes = getResources().getStringArray(R.array.night_mode_array);
+                String[] nightModes = resources.getStringArray(R.array.night_mode_array);
                 ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
                 item = menu.findItem(R.id.actionStyle);
-                String[] mapStyles = getResources().getStringArray(R.array.mapStyles);
+                String[] mapStyles = resources.getStringArray(R.array.mapStyles);
                 ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
                 item = menu.findItem(R.id.actionFontSize);
-                String[] fontSizes = getResources().getStringArray(R.array.font_size_array);
+                String[] fontSizes = resources.getStringArray(R.array.font_size_array);
                 ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
                 item = menu.findItem(R.id.actionLanguage);
                 ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                 menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
+                item = menu.findItem(R.id.actionActivity);
+                String[] activities = resources.getStringArray(R.array.activities);
+                int activity = Configuration.getActivity();
+                if (activity > 0)
+                    ((TextView) item.getActionView()).setText(activities[activity]);
                 //if (!BuildConfig.FULL_VERSION) {
                 menu.removeItem(R.id.actionNightMode);
                 //}
@@ -3952,7 +3982,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void setNightMode(final boolean night) {
-        ThemeFile themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
+        Configuration.loadKindZoomState();
+        ThemeFile themeFile;
+        switch (Configuration.getActivity()) {
+            case 2:
+            case 1:
+                if (Tags.kindZooms[13] == 18)
+                    Tags.kindZooms[13] = 14;
+                themeFile = VtmThemes.MAPTREK;
+                break;
+            case 0:
+            default:
+                themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
+        }
         IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
         theme.scaleTextSize(fontSize);

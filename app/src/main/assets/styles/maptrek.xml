@@ -23,21 +23,21 @@
     -->
 
     <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
-        <layer id="base" enabled="true">
+        <layer enabled="true" id="base">
             <cat id="land" />
             <cat id="water" />
             <cat id="administrative" />
             <cat id="places" />
         </layer>
 
-        <layer id="nature" enabled="true">
+        <layer enabled="true" id="nature">
             <cat id="forest" />
             <cat id="nature" />
             <cat id="insignificant-water" />
             <cat id="underground-water" />
         </layer>
 
-        <layer id="roads" parent="base" enabled="true">
+        <layer enabled="true" id="roads" parent="base">
             <cat id="landclasses" />
             <cat id="roads" />
             <cat id="ferries" />
@@ -45,7 +45,7 @@
             <cat id="buildings" />
         </layer>
 
-        <layer id="urban" parent="roads" enabled="true">
+        <layer enabled="true" id="urban" parent="roads">
             <cat id="urban" />
             <cat id="aeroways" />
             <cat id="aerialways" />
@@ -56,7 +56,7 @@
             <cat id="insignificant-water" />
         </layer>
 
-        <layer id="topo" parent="urban" enabled="true">
+        <layer enabled="true" id="topo" parent="urban">
             <cat id="agriculture" />
             <cat id="tracks" />
             <cat id="topo" />
@@ -105,8 +105,8 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <!-- Roads -->
-    <style-line cap="square" id="ford" stroke="#83a3ba" width="0.7" />
-    <style-line cap="square" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
+    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
+    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
         width="0.7" />
     <style-line id="trunk" stroke="#fedb52" width="1.3" />
     <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.0" />
@@ -310,7 +310,7 @@
         </m>
     </m>
     <m cat="nature" k="man_made" v="cutline">
-        <line cap="square" fade="14" stroke="#d3dcb9" width="2.0" />
+        <line cap="butt" fade="14" stroke="#d3dcb9" width="2.0" />
     </m>
 
     <!-- Landuse -->
@@ -437,15 +437,15 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <m cat="underground-water" v="river">
-                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
                             width="1.3" />
                     </m>
                     <m cat="underground-water" v="canal">
-                        <line cap="square" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
                             width="0.7" />
                     </m>
                     <m cat="underground-water" v="stream">
-                        <line cap="square" fix="true" stipple="20" stipple-stroke="#b4c7d5"
+                        <line cap="butt" fix="true" stipple="20" stipple-stroke="#b4c7d5"
                             stroke="#00ffffff" width="1.5" />
                     </m>
                 </m>
@@ -724,27 +724,27 @@
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="service">
-                                <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                <line cap="butt" stipple="20" stipple-stroke="#ffffff"
                                     stroke="#00ffffff" width="0.8" />
                             </m>
                             <m cat="roads" v="tertiary_link">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.3" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="secondary_link">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.4" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="primary_link">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
                             </m>
                             <m cat="roads" v="trunk_link|motorway_link">
-                                <line cap="square" stipple="20" stipple-stroke="#feeba1"
+                                <line cap="butt" stipple="20" stipple-stroke="#feeba1"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                             </m>
@@ -757,12 +757,12 @@
                                 </m>
                             </m>
                             <m cat="pedestrian" v="pedestrian">
-                                <line cap="square" stipple="20" stipple-stroke="#ededed"
+                                <line cap="butt" stipple="20" stipple-stroke="#ededed"
                                     stroke="#00ffffff" width="1.0" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="residential|living_street">
-                                <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                <line cap="butt" stipple="20" stipple-stroke="#ffffff"
                                     stroke="#00ffffff" width="1.2" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
@@ -773,15 +773,15 @@
                             <m cat="roads" v="unclassified">
                                 <m select="first">
                                     <m k="surface" v="dirt">
-                                        <line cap="square" stipple="20" stipple-stroke="#b28f67"
+                                        <line cap="butt" stipple="20" stipple-stroke="#b28f67"
                                             stroke="#00ffffff" width="1.3" />
                                     </m>
                                     <m k="surface" v="unpaved">
-                                        <line cap="square" stipple="20" stipple-stroke="#d4c1aa"
+                                        <line cap="butt" stipple="20" stipple-stroke="#d4c1aa"
                                             stroke="#00ffffff" width="1.3" />
                                     </m>
                                     <m>
-                                        <line cap="square" stipple="20" stipple-stroke="#ffffff"
+                                        <line cap="butt" stipple="20" stipple-stroke="#ffffff"
                                             stroke="#00ffffff" width="1.3" />
                                     </m>
                                 </m>
@@ -792,7 +792,7 @@
                                 </m>
                             </m>
                             <m cat="roads" v="tertiary">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.3" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
@@ -801,7 +801,7 @@
                                 </m>
                             </m>
                             <m cat="roads" v="secondary">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.4" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
@@ -811,7 +811,7 @@
                                 </m>
                             </m>
                             <m cat="roads" v="primary">
-                                <line cap="square" stipple="20" stipple-stroke="#f8e19d"
+                                <line cap="butt" stipple="20" stipple-stroke="#f8e19d"
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                                 <text use="major-road-ref" />
@@ -821,7 +821,7 @@
                                 </m>
                             </m>
                             <m cat="roads" v="trunk">
-                                <line cap="square" stipple="20" stipple-stroke="#fee685"
+                                <line cap="butt" stipple="20" stipple-stroke="#fee685"
                                     stroke="#00ffffff" width="1.7" />
                                 <text use="major-road-name" />
                                 <text use="trunk-road-ref" />
@@ -831,7 +831,7 @@
                                 </m>
                             </m>
                             <m cat="roads" v="motorway">
-                                <line cap="square" stipple="20" stipple-stroke="#fdcf8c"
+                                <line cap="butt" stipple="20" stipple-stroke="#fdcf8c"
                                     stroke="#00ffffff" width="1.8" />
                                 <text use="major-road-name" />
                                 <text use="trunk-road-ref" />
@@ -1000,11 +1000,11 @@
                                         </m>
                                         <m k="access" v="private">
                                             <line fade="14" stipple="15" stipple-stroke="#eeeeee"
-                                                use="highway-service" />
+                                                stroke="#00ffffff" use="highway-service" />
                                         </m>
                                         <m k="access" v="no">
                                             <line fade="14" stipple="15" stipple-stroke="#ffdddd"
-                                                use="highway-service" />
+                                                stroke="#00ffffff" use="highway-service" />
                                         </m>
                                     </m>
                                 </m>
@@ -1012,11 +1012,11 @@
                             <m k="service" v="parking_aisle" zoom-min="16">
                                 <line outline="service-road" use="highway-service" width="-0.3" />
                                 <m k="access" v="private">
-                                    <line stipple="15" stipple-stroke="#eeeeee"
+                                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
                                         use="highway-service" width="-0.3" />
                                 </m>
                                 <m k="access" v="no">
-                                    <line stipple="15" stipple-stroke="#ffdddd"
+                                    <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
                                         use="highway-service" width="-0.3" />
                                 </m>
                             </m>
@@ -1136,10 +1136,12 @@
                                 <line use="4wd_only" width="-0.2" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
+                                <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                    use="residential" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="#ffdddd" use="residential" />
+                                <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                    use="residential" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -1172,10 +1174,12 @@
                                 <line use="4wd_only" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
+                                <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                    use="unclassified" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="#ffdddd" use="unclassified" />
+                                <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                    use="unclassified" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -1402,9 +1406,8 @@
         </m>
     </m>
 
-    <!-- Bridge casings should be above other roads -->
     <m e="way" k="highway">
-        <outline-layer id="bridge" stroke="#aa202020" width="0.15" />
+        <outline-layer id="bridge" stroke="#aa202020" width="0.3" />
         <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.1" />
         <!-- must contain bridge -->
         <m k="bridge">
@@ -1414,76 +1417,76 @@
                 <m k="area" v="~|no">
                     <m zoom-min="16">
                         <m cat="pedestrian" v="steps">
-                            <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                                 width="4.5" />
                             <line use="steps" />
                         </m>
                     </m>
                     <m cat="pedestrian" v="footway">
-                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.0" />
                         <line use="footway" />
                     </m>
                     <m cat="pedestrian" v="path">
-                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.0" />
                         <line use="path" />
                     </m>
                     <m v="bridleway">
-                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.0" />
                         <line use="bridleway" />
                     </m>
                     <m cat="tracks" v="track">
-                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
-                        <line cap="square" use="highway:track:g1" />
+                        <line cap="butt" use="highway:track:g1" />
                         <text use="road-name" />
                     </m>
+                    -->
                     <m cat="roads" v="service">
                         <!-- matches every service but parking_isle -->
                         <m k="service" v="-|parking_aisle">
-                            <line cap="square" fade="14" outline="bridge" use="highway-service" />
+                            <line cap="butt" fade="14" outline="bridge" use="highway-service" />
                             <m k="access" v="private">
                                 <line fade="14" stipple="15" stipple-stroke="#eeeeee"
-                                    use="highway-service" />
+                                    stroke="#00ffffff" use="highway-service" />
                             </m>
                             <m k="access" v="no">
                                 <line fade="14" stipple="15" stipple-stroke="#ffdddd"
-                                    use="highway-service" />
+                                    stroke="#00ffffff" use="highway-service" />
                             </m>
                         </m>
                         <m k="service" v="parking_aisle" zoom-min="16">
-                            <line cap="square" outline="bridge" use="highway-service"
-                                width="-0.4" />
+                            <line cap="butt" outline="bridge" use="highway-service" width="-0.4" />
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="#eeeeee" use="highway-service"
-                                    width="-0.4" />
+                                <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                    use="highway-service" width="-0.4" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="#ffdddd" use="highway-service"
-                                    width="-0.4" />
+                                <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                    use="highway-service" width="-0.4" />
                             </m>
                         </m>
                     </m>
                     <m cat="roads" v="tertiary_link">
-                        <line cap="square" outline="bridge" use="tertiary" />
+                        <line cap="butt" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                     </m>
                     <m cat="roads" v="secondary_link">
-                        <line cap="square" outline="bridge" use="secondary" />
+                        <line cap="butt" outline="bridge" use="secondary" />
                         <text use="road-name" />
                     </m>
                     <m cat="roads" v="primary_link">
-                        <line cap="square" outline="bridge" use="primary" />
+                        <line cap="butt" outline="bridge" use="primary" />
                         <text use="major-road-name" />
                     </m>
                     <m cat="roads" v="trunk_link|motorway_link">
-                        <line cap="square" outline="bridge" use="trunk_link" />
+                        <line cap="butt" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
                     <m cat="roads" v="road|construction">
-                        <line cap="square" outline="bridge" use="road-construction" />
+                        <line cap="butt" outline="bridge" use="road-construction" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1491,16 +1494,18 @@
                         </m>
                     </m>
                     <m cat="pedestrian" v="pedestrian">
-                        <line cap="square" outline="bridge" use="pedestrian" />
+                        <line cap="butt" outline="bridge" use="pedestrian" />
                         <text use="road-name" />
                     </m>
                     <m cat="roads" v="residential|living_street">
-                        <line cap="square" outline="bridge" use="residential" />
+                        <line cap="butt" outline="bridge" use="residential" />
                         <m k="access" v="private">
-                            <line stipple="15" stipple-stroke="#eeeeee" use="residential" />
+                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                use="residential" />
                         </m>
                         <m k="access" v="no">
-                            <line stipple="15" stipple-stroke="#ffdddd" use="residential" />
+                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                use="residential" />
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
@@ -1509,12 +1514,14 @@
                         </m>
                     </m>
                     <m cat="roads" v="unclassified">
-                        <line cap="square" outline="bridge" use="unclassified" />
+                        <line cap="butt" outline="bridge" use="unclassified" />
                         <m k="access" v="private">
-                            <line stipple="15" stipple-stroke="#eeeeee" use="unclassified" />
+                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                use="unclassified" />
                         </m>
                         <m k="access" v="no">
-                            <line stipple="15" stipple-stroke="#ffdddd" use="unclassified" />
+                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                use="unclassified" />
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
@@ -1523,7 +1530,7 @@
                         </m>
                     </m>
                     <m cat="roads" v="tertiary">
-                        <line cap="square" outline="bridge" use="tertiary" />
+                        <line cap="butt" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1531,7 +1538,7 @@
                         </m>
                     </m>
                     <m cat="roads" v="secondary">
-                        <line cap="square" outline="bridge" use="secondary" />
+                        <line cap="butt" outline="bridge" use="secondary" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1539,7 +1546,7 @@
                         </m>
                     </m>
                     <m cat="roads" v="primary">
-                        <line cap="square" outline="bridge" use="primary" />
+                        <line cap="butt" outline="bridge" use="primary" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1547,11 +1554,11 @@
                         </m>
                     </m>
                     <m cat="roads" v="trunk_link">
-                        <line cap="square" outline="bridge" use="trunk_link" />
+                        <line cap="butt" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
                     <m cat="roads" v="trunk">
-                        <line cap="square" outline="bridge" use="trunk" />
+                        <line cap="butt" outline="bridge" use="trunk" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1559,7 +1566,7 @@
                         </m>
                     </m>
                     <m cat="roads" v="motorway">
-                        <line cap="square" outline="bridge" use="highway" />
+                        <line cap="butt" outline="bridge" use="highway" />
                         <text use="major-road-name" />
                         <m k="toll" v="yes">
                             <symbol merge="true" repeat-gap="150"
@@ -1567,7 +1574,7 @@
                         </m>
                     </m>
                     <m cat="cycling" v="cycleway">
-                        <line cap="square" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.2" />
                         <line use="cycleway" />
                     </m>
@@ -1586,19 +1593,19 @@
             <m k="bridge">
                 <m k="bridge" v="-|no">
                     <m k="railway" v="tram|miniature" zoom-min="16">
-                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="4.0" />
                     </m>
                     <m k="railway" v="monorail|funicular" zoom-min="15">
-                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="2.0" />
                     </m>
                     <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
-                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="1.5" />
                     </m>
                     <m k="railway" v="rail">
-                        <line cap="square" fix="true" outline="rail-bridge" stroke="#ffffff"
+                        <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="5.0" />
                     </m>
                     <!-- railway casings and cores -->
@@ -1815,9 +1822,11 @@
                     stroke-width="2.0" />
             </m>
             <m v="saddle">
-                <symbol src="assets:symbols/natural/saddle.svg" />
-                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
-                    stroke-width="2.0" />
+                <m k="mountain_pass" v="~|no">
+                    <symbol src="assets:symbols/natural/saddle.svg" />
+                    <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                        stroke-width="2.0" />
+                </m>
             </m>
             <m v="cave_entrance" zoom-min="15">
                 <symbol src="assets:symbols/natural/cave.svg" />
@@ -1831,7 +1840,7 @@
                 stroke-width="2.0" />
         </m>
     </m>
-    <m cat="roads" k="mountain_pass" v="yes|true|1">
+    <m cat="roads" k="mountain_pass" v="yes">
         <symbol src="assets:symbols/natural/mountain_pass.svg" />
         <caption style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
             stroke-width="2.0" />

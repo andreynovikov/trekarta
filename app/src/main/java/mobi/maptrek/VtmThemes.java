@@ -50,6 +50,12 @@ enum VtmThemes implements ThemeFile {
                         categories.addAll(overlay.getCategories());
                 }
 
+                switch (Configuration.getActivity()) {
+                    case 1:
+                        categories.add("hiking");
+                        break;
+                }
+
                 // This is the whole categories set to be enabled
                 return categories;
             }
