@@ -245,7 +245,8 @@ public class Tags {
             "sac_scale",
             "trail_visibility",
             "osmc:symbol",
-            "network"
+            "network",
+            "route:network"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -824,7 +825,8 @@ public class Tags {
             "excellent",
             "good",
             "bad",
-            "horrible"
+            "horrible",
+            "saddle"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
