@@ -518,35 +518,38 @@
             <text use="road-name" />
         </m>
     </m>
+    <m cat="urban" closed="yes" k="railway" v="platform">
+        <area fill="#e4e4e4" />
+    </m>
 
     <!-- Hiking routes -->
     <m cat="hiking" e="way" k="route" v="hiking">
         <m zoom-max="13">
             <m k="network" v="iwn">
-                <line stroke="#880000ff" width="4" />
+                <line stroke="#880000ff" width="3" />
             </m>
             <m k="network" v="nwn">
-                <line stroke="#88ff0000" width="4" />
+                <line stroke="#88ff0000" width="3" />
             </m>
             <m k="network" v="rwn">
-                <line stroke="#8800ff00" width="4" />
+                <line stroke="#8800ff00" width="3" />
             </m>
             <m k="network" v="lwn">
-                <line stroke="#88ffff00" width="4" />
+                <line stroke="#88ffff00" width="3" />
             </m>
         </m>
         <m zoom-min="14">
             <m k="network" v="iwn">
-                <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
+                <line cap="butt" fix="true" stroke="#0000ff" width="1.5" />
             </m>
             <m k="network" v="nwn">
-                <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
+                <line cap="butt" fix="true" stroke="#ff0000" width="1.5" />
             </m>
             <m k="network" v="rwn">
-                <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
+                <line cap="butt" fix="true" stroke="#00ff00" width="1.5" />
             </m>
             <m k="network" v="lwn">
-                <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
+                <line cap="butt" fix="true" stroke="#ffff00" width="1.5" />
             </m>
         </m>
     </m>
@@ -571,8 +574,22 @@
         </m>
         <m zoom-min="8">
             <!-- Hiking -->
-            <m cat="hiking" k="highway" zoom-min="13">
+            <m cat="hiking" k="highway" zoom-min="14">
                 <m v="path|footway">
+                    <m k="route:network">
+                        <m v="iwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
+                        </m>
+                        <m v="nwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
+                        </m>
+                        <m v="rwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
+                        </m>
+                        <m v="lwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
+                        </m>
+                    </m>
                     <line cap="butt" fix="true" stroke="#ffffff" width="5.2" />
                     <m k="sac_scale" v="~">
                         <m k="trail_visibility" v="~">
@@ -688,6 +705,66 @@
                         <m k="trail_visibility" v="bad|horrible|no">
                             <line fix="true" stipple="32" stipple-stroke="#aa000000"
                                 stroke="#00000000" width="4" />
+                        </m>
+                    </m>
+                </m>
+                <m v="track|bridleway">
+                    <m k="route:network">
+                        <m v="iwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
+                        </m>
+                        <m v="nwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
+                        </m>
+                        <m v="rwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
+                        </m>
+                        <m v="lwn">
+                            <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
+                        </m>
+                    </m>
+                </m>
+                <m v="pedestrian|service|road|residential|unclassified|tertiary|secondary|primary|trunk|motorway">
+                    <m k="route:network" zoom-max="15">
+                        <m v="iwn">
+                            <line blur="1" cap="butt" stroke="#0000ff" width="2.5" />
+                        </m>
+                        <m v="nwn">
+                            <line blur="1" cap="butt" stroke="#ff0000" width="2.5" />
+                        </m>
+                        <m v="rwn">
+                            <line blur="1" cap="butt" stroke="#00ff00" width="2.5" />
+                        </m>
+                        <m v="lwn">
+                            <line blur="1" cap="butt" stroke="#ffff00" width="2.5" />
+                        </m>
+                    </m>
+                    <m k="route:network" zoom-min="16" zoom-max="16">
+                        <m v="iwn">
+                            <line blur="1" cap="butt" stroke="#0000ff" width="2.0" />
+                        </m>
+                        <m v="nwn">
+                            <line blur="1" cap="butt" stroke="#ff0000" width="2.0" />
+                        </m>
+                        <m v="rwn">
+                            <line blur="1" cap="butt" stroke="#00ff00" width="2.0" />
+                        </m>
+                        <m v="lwn">
+                            <line blur="1" cap="butt" stroke="#ffff00" width="2.0" />
+                        </m>
+                    </m>
+                    <m k="route:network" zoom-min="17">
+                        <m v="iwn">
+                            <line blur="1" cap="butt" stroke="#0000ff" width="1.5" />
+                        </m>
+                        <m v="nwn">
+                            <line blur="1" cap="butt" stroke="#ff0000" width="1.5" />
+                        </m>
+                        <m v="rwn">
+                            <line blur="1" cap="butt" stroke="#00ff00" width="1.5" />
+                        </m>
+                        <m v="lwn">
+                            <line blur="1" cap="butt" stroke="#ffff00" width="1.5" />
                         </m>
                     </m>
                 </m>
