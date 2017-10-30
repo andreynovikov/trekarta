@@ -9,3 +9,20 @@ __MapTrek__ is designed for hiking, geocaching, off-roading, cycling, boating an
 MapTrek is developed as a hobby for personal use but is generously shared to public on as-is basis. Developers are welcome to contribute to the project. Specifically experts in OpenGL and PostGIS are much needed.
 
 The development is in beta stage now. Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/maptrek/issues), for questions and general discussions [Google Groups Q&A Forum](https://groups.google.com/forum/#!forum/maptrek) should be preferred.
+
+## How to build
+
+1. Clone maptrek repository
+2. Clone maptrek branch of vtm repository
+3. Run the following graddle tasks (these will install required vtm snapshots in local Maven repository):
+
+    vtm:vtm imstall
+    vtm:vtm-android install
+    vtm:vtm-android install
+
+4. Clone maptrek submodules
+
+    git submodule update --init --recursive
+
+5. Build maptrek project
+
