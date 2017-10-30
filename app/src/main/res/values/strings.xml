@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">MapTrek</string>
+    <string name="title_select_format">Select format</string>
+    <string name="title_export_track">Track export</string>
+    <string name="title_map_import">Map import</string>
+    <string name="title_map_removal">Removing map</string>
+    <string name="title_input_name">Name</string>
+    <string name="titleCoordinatesInput">Enter coordinates</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="error">Error</string>
+    <string name="name">Name</string>
+    <string name="degrees">Degrees</string>
+    <string name="coordinate_utmups">UTM/UPS</string>
+    <string name="coordinate_mgrs">MGRS</string>
+    <string name="declination">Declination</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="sunset">Sunset</string>
+    <string name="unknown">Unknown</string>
+    <string name="description">Description</string>
+    <string name="waypoints">Waypoints</string>
+    <string name="tracks">Tracks</string>
+    <string name="explain">Explain</string>
+    <string name="copyright">Copyright</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="credits">Credits</string>
+    <string name="failed">failed</string>
+    <string name="complete">compete</string>
+    <string name="processed">%d%% processed</string>
+    <string name="any">Any</string>
+    <string name="baseMapTitle">World map</string>
+    <string name="downloadBasemap">Download updated world map (%s)</string>
+
+    <string name="actionSave">Save</string>
+    <string name="actionStop">Stop</string>
+    <string name="actionPause">Pause</string>
+    <string name="actionCustomize">Customize</string>
+    <string name="actionUndo">Undo</string>
+    <string name="actionDismiss">Dismiss</string>
+    <string name="actionDelete">Delete</string>
+    <string name="action3dBuildings">3D buildings</string>
+    <string name="actionGrid" tools:ignore="Typos">Tile grid</string>
+    <string name="actionStopNavigation">Stop navigation</string>
+    <string name="actionAbout">About</string>
+    <string name="actionGotIt">Got it</string>
+    <string name="actionEdit">Edit</string>
+    <string name="actionShare">Share</string>
+    <string name="actionView">View</string>
+    <string name="actionContinue">Continue</string>
+    <string name="actionNightMode">Night mode</string>
+    <string name="actionLanguage">Language</string>
+    <string name="actionManageMaps">Manage maps</string>
+    <string name="actionAddWaypointHere">Add waypoint</string>
+    <string name="actionNavigateHere">Navigate here</string>
+    <string name="actionRememberScale">Remember zoom</string>
+    <string name="actionOverviewRoute">Overview route</string>
+    <string name="actionAutoTilt">Tilt on track up</string>
+    <string name="actionRememberTilt">Remember tilt</string>
+    <string name="actionHideSystemUI">Fullscreen</string>
+    <string name="actionResetAdvices">Reset advices</string>
+    <string name="actionAddGauge">Add gauge</string>
+    <string name="actionContours">Contours</string>
+    <string name="actionOtherFeatures">Features</string>
+    <string name="actionSearch">Search</string>
+    <string name="actionShareCoordinates">Share coordinates</string>
+    <string name="actionStyle">Style</string>
+    <string name="actionActivity">Activity</string>
+    <string name="actionSettings">Settings</string>
+    <string name="actionAmenityZooms">Amenities</string>
+    <string name="actionFontSize">Font size</string>
+
+    <string name="share_location_intent_title">Share location via:</string>
+    <string name="share_data_intent_title">Share data to:</string>
+
+    <string name="notifTracking">Recording track</string>
+    <string name="notifTrackingFailure">Track writing error</string>
+    <string name="notifLocationWaiting">Waiting for location</string>
+
+    <string name="msgNavigationProgress" formatted="false">%s left, proceed on a course of %s</string>
+    <string name="msgNavigating" formatted="false">Navigating to %s</string>
+    <string name="msgNavigationActions">You can stop navigation completely or pause it until next application start</string>
+    <string name="msgBackQuit">Press Back once more to quit</string>
+    <string name="msgWaypointDeleted">Waypoint deleted</string>
+    <string name="msgWaypointSaved">Waypoint saved</string>
+    <string name="msgEmptyWaypointList">Your waypoints will appear here. You can create waypoint by entering its coordinates or by long pressing Places button.</string>
+    <string name="msgTrackDeleted">Track deleted</string>
+    <string name="msgTracked" formatted="false">%s tracked since %s</string>
+    <string name="msgTracking">MapTrek is recording your movement</string>
+    <string name="msgTrackingActions">You can stop recording to save the track or pause it to resume on next application start</string>
+    <string name="msgTrackSaved">Track saved</string>
+    <string name="msgTrackNotSavedPeriod">Track was not saved: too short period of time</string>
+    <string name="msgTrackNotSavedDistance">Track was not saved: too small distance passed</string>
+    <string name="msgEmptyTrackList">Your recorded tracks will appear here.</string>
+    <string name="msgNoFileDataSources">You can also import GPX and KML files.</string>
+    <string name="msgDataImported">File is saved in application folder.</string>
+    <string name="msgSaveFailed">Failed to save: %s</string>
+    <string name="msgReadExternalStorageRationale">MapTrek requests to %s to be able to access the file you want to open</string>
+    <string name="msgFailedToGetFileName">Failed to get file name</string>
+    <string name="msgCancelDownload">Cancel map download?</string>
+    <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
+    <string name="msgIndexDownloadFailed">Download size not available</string>
+    <string name="msgEstimateDownloadSize">Estimating download size</string>
+    <string name="msgEstimateDownloadSizePlaceholder" formatted="false" translatable="false">%s (%d%%)</string>
+    <string name="msgDownloadSize">Download size: %s</string>
+    <string name="msgAdvicesReset">Advices will be shown from the very beginning</string>
+    <string name="msgParseCoordinatesFailed">Failed to get coordinates from string</string>
+    <string name="msgParseMultipleCoordinatesFailed">Failed to get some of coordinates</string>
+    <string name="msgEmptyMapList">Your installed custom tile maps will appear here.</string>
+    <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
+    <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
+    <string name="msgDeleteFailed">Failed to delete data source</string>
+    <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek.</string>
+    <string name="msgOtherFormatsExplanation">GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
+    <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line before coordinates that will be used as a point name. Please use this feature carefully as coordinate parsing is not perfect yet.</string>
+    <string name="msgFailedToGetFile">Failed to get file</string>
+    <string name="msgUnsupportedFileFormat">Unsupported file format</string>
+    <string name="msgWaypointLocked">Waypoint is locked</string>
+    <string name="msgRestoreWaypointsFailed">Failed to restore Places</string>
+    <string name="msgBaseMapDownload">For better experience, download detailed world map (%s). You can do it now or later at any time.</string>
+    <string name="msgMapDatabaseError">An error occurred while reading detailed maps, database was reset</string>
+    <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
+
+    <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
+    <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>
+    <string name="advice_more_gauges">You can add more gauges by long pressing gauge panel</string>
+    <string name="advice_remember_scale">You can quickly return to remembered zoom by triple tapping the map</string>
+    <string name="advice_enable_locations">Press location button to enable real time positioning</string>
+    <string name="advice_map_settings">You can long press maps button to access extra map settings</string>
+    <string name="advice_adding_place">You can quickly create waypoint in current map position by long pressing Places button</string>
+    <string name="advice_record_track">Press Record button to start track recording, during recording press it to see current track statistics or to stop recording. You can close application during recording, the track will be recorded in background.</string>
+    <string name="advice_recorded_tracks">Long press Record button to access your recorded tracks</string>
+    <string name="advice_view_data_item">Press right arrow button to position map on corresponding item</string>
+    <string name="advice_switch_coordinates_format">Press coordinates to cycle through different formats</string>
+    <string name="advice_locked_coordinates">You can lock place coordinates to prevent accidental dragging of it\'s marker. All places that come from external sources are considered precisely positioned and are locked by default while places that you create on map are treated as approximate and are initially unlocked.</string>
+    <string name="advice_hide_map_objects">You can shortly clear all data from map by holding volume up button</string>
+    <string name="advice_lock_map_position">You can shortly lock map position by holding volume down button to prevent undesirable map movement when depressing finger</string>
+    <string name="advice_text_search">Type amenity name in any supported or native language</string>
+
+    <string name="datetime" formatted="false" translatable="false">%s %s</string>
+    <string name="waypoint_name">Place #%d</string>
+    <string name="remove_gauge">Remove %s</string>
+    <string name="add_gauge">Add %s</string>
+    <string name="gauge_speed">Speed</string>
+    <string name="gauge_bearing">Bearing</string>
+    <string name="gauge_distance">Distance</string>
+    <string name="gauge_track">Track</string>
+    <string name="gauge_altitude">Altitude</string>
+    <string name="gauge_turn">Turn</string>
+    <string name="gauge_vmg">VMG</string>
+    <string name="gauge_xtk">XTK</string>
+    <string name="gauge_ete">ETE</string>
+    <string name="gauge_elevation">Elevation</string>
+    <string name="waypoint_altitude" formatted="false" translatable="false">&#2336; %s</string>
+    <string name="waypoint_proximity" formatted="false" translatable="false">~ %s</string>
+    <string name="waypointStoreName">My places</string>
+    <string name="version" formatted="false">Version: %s</string>
+    <string name="about">MapTrek is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import waypoints and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
+    <string name="intentCopyMap">Install map</string>
+    <string name="intentImportData">MapTrek data import</string>
+    <string name="mapDownloadText">Download missing map</string>
+    <string name="mapTitle" formatted="false">Area %d-%d map</string>
+    <string name="startApplication">Open MapTrek</string>
+    <string name="utc_offset">UTC Offset</string>
+    <string name="coordinates">Coordinates</string>
+    <string name="statistics">Statistics</string>
+    <string name="start_point">Start point</string>
+    <string name="finish_point">Finish point</string>
+    <string name="max_speed">Maximum speed</string>
+    <string name="average_speed">Average speed</string>
+    <string name="elevation_profile">Elevation profile</string>
+    <string name="speed_profile">Speed profile</string>
+    <string name="currentTrack">Current track</string>
+    <string name="title_delete_permanently">Delete permanently?</string>
+    <string name="share_track_intent_title">Share track to:</string>
+    <string name="never_rises">Sun never rises</string>
+    <string name="never_sets">Sun never sets</string>
+    <string name="transparency">Transparency</string>
+    <string name="hide_map_objects">Hide map objects</string>
+    <string name="send_crash_report">Send crash report</string>
+    <string name="selectedLocation">selected location</string>
+    <string name="osmLicense"><![CDATA[&#169; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors]]></string>
+
+    <string name="permReadFilesLabel">read user files</string>
+    <string name="permReadFilesDescription">Allows the app to read MapTrek user data files such as places and tracks.</string>
+    <string name="permWriteFilesLabel">write user files</string>
+    <string name="permWriteFilesDescription">Allows the app to add or replace MapTrek user data files such as places and tracks.</string>
+    <string name="permReceiveLocationLabel">get location</string>
+    <string name="permReceiveLocationDescription">Allows the app to get current location from MapTrek.</string>
+    <string name="permReadPreferencesLabel">read user preferences</string>
+    <string name="permReadPreferencesDescription">Allows the app to read MapTrek user preferences.</string>
+    <string name="permReadMapDataLabel">get map data</string>
+    <string name="permReadMapDataDescription">Allows app to get map data from MapTrek.</string>
+    <string name="permWriteMapDataLabel">put data on map</string>
+    <string name="permWriteMapDataDescription">Allows app to put data on MapTrek map.</string>
+    <string name="permAddPluginEntriesLabel">add menu entries</string>
+    <string name="permAddPluginEntriesDescription">Allows the app to add entries to MapTrek menu.</string>
+
+    <string name="pref_units">Units</string>
+    <string name="pref_unit_speed_title">Speed</string>
+    <string name="pref_unit_distance_title">Distance</string>
+    <string name="pref_unit_elevation_title">Elevation</string>
+    <string name="pref_unit_angle_title">Angle</string>
+    <string name="pref_unit_precision_title">Extra precision</string>
+    <string name="pref_advanced">Advanced</string>
+
+    <string name="kind_place">Localities</string>
+    <string name="kind_road">Roads</string>
+    <string name="kind_building">Buildings</string>
+    <string name="kind_accommodation">Accommodation</string>
+    <string name="kind_food">Food and drinks</string>
+    <string name="kind_barrier">Barriers</string>
+    <string name="kind_entertainment">Entertainment</string>
+    <string name="kind_emergency">Emergency</string>
+    <string name="kind_kids">Kids</string>
+    <string name="kind_pets">Pets</string>
+    <string name="kind_shopping">Shopping</string>
+    <string name="kind_attraction">Attractions</string>
+    <string name="kind_education">Education</string>
+    <string name="kind_vehicles">Vehicles</string>
+    <string name="kind_transportation">Transportation</string>
+    <string name="kind_religion">Religion</string>
+    <string name="kind_hikebike">Hike and bike</string>
+    <string name="kind_service">Service</string>
+    <string name="kind_urban">Urban</string>
+
+</resources>
