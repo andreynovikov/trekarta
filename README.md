@@ -13,7 +13,7 @@ The development is in beta stage now. Bug reports and feature proposals are welc
 ## How to build
 
 1. Clone maptrek repository
-2. Clone maptrek branch of vtm repository
+2. Clone _maptrek_ branch of vtm repository
 3. Run the following graddle tasks (these will install required vtm snapshots in local Maven repository):
 
 ````
@@ -22,13 +22,5 @@ The development is in beta stage now. Bug reports and feature proposals are welc
     vtm:vtm-android install
 ````
 
-4. Clone androidcolorpicker repository
-5. Run install task
-6. Clone maptrek submodules
-
-````
-    git submodule update --init --recursive
-````
-
-7. Build maptrek project
+4. Build maptrek project
 
