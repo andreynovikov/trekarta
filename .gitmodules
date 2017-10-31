@@ -1,3 +1,0 @@
-[submodule "libraries/geo-coordinate-conversion"]
-	path = libraries/geo-coordinate-conversion
-	url = ../Geo-Coordinate-Conversion-Java.git
