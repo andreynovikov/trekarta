@@ -71,6 +71,7 @@ dependencies {
     compile 'org.mapsforge:vtm-android:master-SNAPSHOT:natives-mips64'
     compile 'org.mapsforge:vtm-android:master-SNAPSHOT:natives-x86'
     compile 'org.mapsforge:vtm-android:master-SNAPSHOT:natives-x86_64'
+    compile 'info.andreynovikov.androidcolorpicker:library:0.0.2'
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'com.noveogroup.android:android-logger:1.3.6'
     compile 'org.greenrobot:eventbus:3.0.0'
@@ -80,6 +81,5 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.2.9'
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.9.1'
-    compile project(':libraries:colorpicker')
     compile project(':libraries:geo-coordinate-conversion')
 }

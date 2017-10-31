@@ -1,3 +1,2 @@
 include ':app'
-include ':libraries:colorpicker'
 include ':libraries:geo-coordinate-conversion'

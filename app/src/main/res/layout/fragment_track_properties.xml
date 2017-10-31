@@ -26,7 +26,7 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <mobi.maptrek.view.ColorSwatch
+    <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
         android:id="@+id/colorSwatch"
         android:layout_width="@dimen/color_swatch_small"
         android:layout_height="@dimen/color_swatch_small"
