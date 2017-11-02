@@ -96,7 +96,14 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private Location mLastWrittenLocation = null;
     private float mDistanceTracked = 0f;
-    private long mTrackingStarted = 0;
+    /**
+     * Time in milliseconds when the current track was started
+     */
+    private long mTrackStarted = 0;
+    /**
+     * Start time of tracking in milliseconds, for internal use
+     */
+    private long mTrackingStarted;
     private float mDistanceNotified;
     private Track mLastTrack;
 
@@ -141,7 +148,8 @@ public class LocationService extends BaseLocationService implements LocationList
             mContinuous = false;
             mDistanceNotified = 0f;
             openDatabase();
-            mTrackingStarted = System.currentTimeMillis();
+            mTrackingStarted = SystemClock.uptimeMillis();
+            mTrackStarted = System.currentTimeMillis();
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
@@ -149,6 +157,8 @@ public class LocationService extends BaseLocationService implements LocationList
             updateDistanceTracked();
             closeDatabase();
             stopForeground(true);
+            long trackedTime = (SystemClock.uptimeMillis() - mTrackingStarted) / 60000;
+            Configuration.updateTrackingTime(trackedTime);
             if (action.equals(DISABLE_TRACK)) {
                 if (intent.getBooleanExtra("self", false)) // Preference is normally updated by Activity but not in this case
                     Configuration.setTrackingState(MainActivity.TRACKING_STATE.DISABLED.ordinal());
@@ -261,7 +271,7 @@ public class LocationService extends BaseLocationService implements LocationList
             ntfId = R.mipmap.ic_stat_failure;
         }
 
-        String timeTracked = (String) DateUtils.getRelativeTimeSpanString(getApplicationContext(), mTrackingStarted);
+        String timeTracked = (String) DateUtils.getRelativeTimeSpanString(getApplicationContext(), mTrackStarted);
         String distanceTracked = StringFormatter.distanceH(mDistanceTracked);
 
         StringBuilder sb = new StringBuilder(40);
@@ -346,7 +356,7 @@ public class LocationService extends BaseLocationService implements LocationList
                 propertiesCursor.close();
             }
             cursor.close();
-            mTrackingStarted = getTrackStartTime();
+            mTrackStarted = getTrackStartTime();
         } catch (SQLiteException e) {
             mTrackDB = null;
             logger.error("openDatabase", e);

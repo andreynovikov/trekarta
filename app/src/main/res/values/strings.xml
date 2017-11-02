@@ -34,6 +34,7 @@
     <string name="any">Any</string>
     <string name="baseMapTitle">World map</string>
     <string name="downloadBasemap">Download updated world map (%s)</string>
+    <string name="iamin">Yes, I\'m in</string>
 
     <string name="actionSave">Save</string>
     <string name="actionStop">Stop</string>
@@ -72,6 +73,7 @@
     <string name="actionSettings">Settings</string>
     <string name="actionAmenityZooms">Amenities</string>
     <string name="actionFontSize">Font size</string>
+    <string name="actionRate">Say thanks</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -123,6 +125,7 @@
     <string name="msgBaseMapDownload">For better experience, download detailed world map (%s). You can do it now or later at any time.</string>
     <string name="msgMapDatabaseError">An error occurred while reading detailed maps, database was reset</string>
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
+    <string name="msgRateApplication">If you are enjoying MapTrek please rate it and leave comment on the Google Play Store to boost its spread</string>
 
     <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
     <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>

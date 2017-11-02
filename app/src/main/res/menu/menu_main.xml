@@ -4,6 +4,9 @@
         android:id="@+id/actionAbout"
         android:title="@string/actionAbout" />
     <item
+        android:id="@+id/actionRate"
+        android:title="@string/actionRate" />
+    <item
         android:id="@+id/actionSettings"
         android:title="@string/actionSettings" />
     <item
