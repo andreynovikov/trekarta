@@ -13,6 +13,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,6 +41,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -308,6 +310,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private boolean mVerticalOrientation;
     private int mSlideGravity;
 
+    private long mStartTime;
     private long mLastLocationMilliseconds = 0L;
     private int mMovementAnimationDuration = BaseLocationService.LOCATION_DELAY;
     private float mAveragedBearing = 0f;
@@ -425,7 +428,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String language = Configuration.getLanguage();
             if (language == null) {
                 language = resources.getConfiguration().locale.getLanguage();
-                if (!Arrays.asList(new String[]{"en", "de", "ru" }).contains(language))
+                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
                     language = "none";
                 Configuration.setLanguage(language);
             }
@@ -790,6 +793,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         });
         */
 
+        mStartTime = SystemClock.uptimeMillis();
+
         onNewIntent(getIntent());
     }
 
@@ -1021,6 +1026,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     protected void onDestroy() {
         super.onDestroy();
         logger.debug("onDestroy()");
+
+        long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
+        Configuration.updateRunningTime(runningTime);
 
         mMap.destroy();
         //mMapScaleBar.destroy();
@@ -1305,6 +1313,30 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
             case R.id.actionAddGauge: {
                 mGaugePanel.onLongClick(mGaugePanel);
+                return true;
+            }
+            case R.id.actionRate: {
+                Snackbar snackbar = Snackbar
+                        .make(mCoordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.iamin, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String packageName = getPackageName();
+                                try {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
+                                } catch (ActivityNotFoundException ignore) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+                                }
+                            }
+                        }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                            @Override
+                            public void onDismissed(Snackbar transientBottomBar, int event) {
+                                Configuration.setRatingActionPerformed();
+                            }
+                        });
+                TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+                snackbarTextView.setMaxLines(99);
+                snackbar.show();
                 return true;
             }
             case R.id.actionSettings: {
@@ -1662,6 +1694,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     } else {
                         menu.removeItem(R.id.actionHideSystemUI);
                     }
+                    if (Configuration.ratingActionPerformed() ||
+                            (Configuration.getRunningTime() < 120 &&
+                            mWaypointDbDataSource.getWaypointsCount() < 3 &&
+                            mData.size() == 0 &&
+                            mMapIndex.getMaps().size() == 0)) {
+                        menu.removeItem(R.id.actionRate);
+                    }
                     if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                         menu.removeItem(R.id.actionAddGauge);
                     java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
@@ -1801,6 +1840,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return;
         mMarkerLayer.removeItem(mMarker);
         mMap.updateMap(true);
+        mMarker.getMarker().getBitmap().recycle();
         mMarker = null;
     }
 
@@ -4004,6 +4044,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void hideSystemUI() {
         Configuration.setHideSystemUI(true);
+        Configuration.accountFullScreen();
         mStatusBarHeight = 0;
         // Set the IMMERSIVE flag to make content appear under the system bars so that the content
         // doesn't resize when the system bars hide and show.

@@ -53,6 +53,10 @@ public class Configuration {
     private static final String PREF_REMEMBERED_SCALE = "remembered_scale";
     private static final String PREF_AUTO_TILT = "auto_tilt";
     private static final String PREF_HIDE_SYSTEM_UI = "hide_system_ui";
+    private static final String PREF_ACTION_RATING = "action_rating";
+    private static final String PREF_RUNNING_TIME = "running_time";
+    private static final String PREF_TRACKING_TIME = "tracking_time";
+    private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
@@ -342,6 +346,38 @@ public class Configuration {
 
     public static void setHideSystemUI(boolean hide) {
         saveBoolean(PREF_HIDE_SYSTEM_UI, hide);
+    }
+
+    public static boolean ratingActionPerformed() {
+        return loadBoolean(PREF_ACTION_RATING, false);
+    }
+
+    public static void setRatingActionPerformed() {
+        saveBoolean(PREF_ACTION_RATING, true);
+    }
+
+    public static long getRunningTime() {
+        return loadLong(PREF_RUNNING_TIME, 0L);
+    }
+
+    public static void updateRunningTime(long time) {
+        saveLong(PREF_RUNNING_TIME, Configuration.getRunningTime() + time);
+    }
+
+    public static long getTrackingTime() {
+        return loadLong(PREF_TRACKING_TIME, 0L);
+    }
+
+    public static void updateTrackingTime(long time) {
+        saveLong(PREF_TRACKING_TIME, Configuration.getTrackingTime() + time);
+    }
+
+    public static int getFullScreenTimes() {
+        return loadInt(PREF_FULLSCREEN_TIMES, 0);
+    }
+
+    public static void accountFullScreen() {
+        saveInt(PREF_FULLSCREEN_TIMES, Configuration.getFullScreenTimes() + 1);
     }
 
     private static int loadInt(String key, int defValue) {
