@@ -13,6 +13,9 @@ import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
 
 import org.greenrobot.eventbus.EventBus;
+import org.oscim.tiling.TileSource;
+import org.oscim.tiling.source.sqlite.MBTilesDatabase;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +136,18 @@ public class MapTrek extends Application {
                 MapTrekDatabaseHelper.createFtsTable(mDetailedMapDatabase);
         }
         return mDetailedMapDatabase;
+    }
+
+    public @Nullable SQLiteTileSource getHillShadeTileSource() {
+        File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
+        MBTilesDatabase.MBTilesDatabaseHelper helper = new MBTilesDatabase.MBTilesDatabaseHelper(this, file);
+        helper.setWriteAheadLoggingEnabled(true);
+        SQLiteTileSource tileSource = new SQLiteTileSource(helper);
+        TileSource.OpenResult result = tileSource.open();
+        if (result.isSuccess())
+            return tileSource;
+        else
+            return null;
     }
 
     public Index getMapIndex() {

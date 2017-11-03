@@ -105,6 +105,7 @@ import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,6 +328,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private MapEventLayer mMapEventLayer;
     private VectorTileLayer mBaseLayer;
+    private BitmapTileLayer mHillShadeLayer;
     private BuildingLayer mBuildingsLayer;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelTileLoaderHook mLabelTileLoaderHook;
@@ -370,6 +372,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_main);
 
+        MapTrek application = MapTrek.getApplication();
+
         Resources resources = getResources();
         Resources.Theme theme = getTheme();
         mColorAccent = resources.getColor(R.color.colorAccent, theme);
@@ -405,7 +409,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         File mapsDir = getExternalFilesDir("maps");
 
         // Provide application context so that maps can be cached on rotation
-        mNativeMapIndex = MapTrek.getApplication().getMapIndex();
+        mNativeMapIndex = application.getMapIndex();
 
         if (mDataFragment == null) {
             // add the fragment
@@ -584,7 +588,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        mNativeTileSource = new MapTrekTileSource(MapTrek.getApplication().getDetailedMapDatabase());
+        mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
         mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
 
         mBaseLayer = new OsmTileLayer(mMap);
@@ -601,6 +605,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_3D_DATA);
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
+
+        if (Configuration.getHillShadeEnabled())
+            showHillShade();
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
@@ -2966,6 +2973,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onManageNativeMaps() {
         mNativeMapIndex.manageNativeMaps();
+    }
+
+    private void showHillShade() {
+        SQLiteTileSource hillShadeTileSource = MapTrek.getApplication().getHillShadeTileSource();
+        if (hillShadeTileSource != null) {
+            mHillShadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource);
+            mHillShadeLayer.tileRenderer().setBitmapAlpha(0.4f);
+            mMap.layers().add(mHillShadeLayer, MAP_MAPS);
+            mMap.updateMap(true);
+        }
+    }
+
+    private void hideHillShade() {
+        mMap.layers().remove(mHillShadeLayer);
+        mHillShadeLayer.onDetach();
+        mMap.updateMap(true);
+        mHillShadeLayer = null;
     }
 
     private void showBitmapMap(MapFile mapFile) {
