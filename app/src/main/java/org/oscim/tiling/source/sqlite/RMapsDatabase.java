@@ -1,19 +1,21 @@
 package org.oscim.tiling.source.sqlite;
 
+import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import org.oscim.core.BoundingBox;
 import org.oscim.core.MercatorProjection;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.ITileDecoder;
 
+import java.io.File;
+import java.io.IOException;
+
 public class RMapsDatabase extends SQLiteTileDatabase {
-    @SuppressWarnings("unused")
-    private static final String SQL_CREATE_TILES = "CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s));";
-    @SuppressWarnings("unused")
-    private static final String SQL_CREATE_INFO = "CREATE TABLE IF NOT EXISTS info (maxzoom Int, minzoom Int, params VARCHAR);";
-    @SuppressWarnings("unused")
+    private static final String SQL_CREATE_TILES = "CREATE TABLE IF NOT EXISTS tiles (x INTEGER, y INTEGER, z INTEGER, s INTEGER, image BLOB, PRIMARY KEY (x,y,z,s));";
+    private static final String SQL_CREATE_INFO = "CREATE TABLE IF NOT EXISTS info (maxzoom INTEGER, minzoom INTEGER, params VARCHAR);";
     private static final String SQL_SELECT_PARAMS = "SELECT * FROM info";
     private static final String SQL_GET_IMAGE = "SELECT image FROM tiles WHERE x = ? AND y = ? AND z = (17 - ?)";
     private static final String SQL_GET_MIN_ZOOM = "SELECT DISTINCT 17 - z FROM tiles ORDER BY z DESC LIMIT 1;";
@@ -32,7 +34,7 @@ public class RMapsDatabase extends SQLiteTileDatabase {
         return SQL_GET_IMAGE;
     }
 
-    protected static TileSource.OpenResult initialize(SQLiteTileSource tileSource, SQLiteDatabase database) {
+    static TileSource.OpenResult initialize(SQLiteTileSource tileSource, SQLiteDatabase database) {
         try {
             int minZoom = (int) database.compileStatement(SQL_GET_MIN_ZOOM).simpleQueryForLong();
             int maxZoom = (int) database.compileStatement(SQL_GET_MAX_ZOOM).simpleQueryForLong();
@@ -58,5 +60,30 @@ public class RMapsDatabase extends SQLiteTileDatabase {
             return new TileSource.OpenResult(e.getMessage());
         }
         return TileSource.OpenResult.SUCCESS;
+    }
+
+    public static class RMapsDatabaseHelper extends SQLiteOpenHelper {
+        private static final int DATABASE_VERSION = 1;
+
+        public RMapsDatabaseHelper(Context context, File file) {
+            super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
+            if (!file.exists())
+                try {
+                    //noinspection ResultOfMethodCallIgnored
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(SQL_CREATE_INFO);
+            db.execSQL(SQL_CREATE_TILES);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
     }
 }
