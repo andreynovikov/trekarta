@@ -627,6 +627,10 @@ public class Index {
                 .build();
     }
 
+    public int getMapsCount() {
+        return mLoadedMaps;
+    }
+
     public static class MapStatus {
         public short created = 0;
         public short downloadCreated;

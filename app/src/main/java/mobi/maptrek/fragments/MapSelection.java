@@ -271,7 +271,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 if (useCache) {
                     in = new FileInputStream(mCacheFile);
                 } else {
-                    URL url = new URL(Index.getIndexUri().toString());
+                    URL url = new URL(Index.getIndexUri().toString() + "?" + mFragmentHolder.getStatsString());
                     urlConnection = (HttpURLConnection) url.openConnection();
                     in = urlConnection.getInputStream();
                     out = new FileOutputStream(mCacheFile);

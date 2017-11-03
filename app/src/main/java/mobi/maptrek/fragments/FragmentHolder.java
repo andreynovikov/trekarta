@@ -21,4 +21,6 @@ public interface FragmentHolder {
     void popAll();
 
     CoordinatorLayout getCoordinatorLayout();
+
+    String getStatsString();
 }
