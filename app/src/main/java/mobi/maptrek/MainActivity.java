@@ -1696,9 +1696,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                     if (Configuration.ratingActionPerformed() ||
                             (Configuration.getRunningTime() < 120 &&
-                            mWaypointDbDataSource.getWaypointsCount() < 3 &&
-                            mData.size() == 0 &&
-                            mMapIndex.getMaps().size() == 0)) {
+                                    mWaypointDbDataSource.getWaypointsCount() < 3 &&
+                                    mData.size() == 0 &&
+                                    mMapIndex.getMaps().size() == 0)) {
                         menu.removeItem(R.id.actionRate);
                     }
                     if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
@@ -4077,6 +4077,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return getResources().getDimensionPixelSize(resourceId);
         else
             return 0;
+    }
+
+    @Override
+    public String getStatsString() {
+        return Configuration.getRunningTime() + "," +
+                Configuration.getTrackingTime() + "," +
+                mWaypointDbDataSource.getWaypointsCount() + "," +
+                mData.size() + "," +
+                mNativeMapIndex.getMapsCount() + "," +
+                mMapIndex.getMaps().size() + "," +
+                Configuration.getFullScreenTimes();
     }
 
     private double movingAverage(double current, double previous) {
