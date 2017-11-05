@@ -34,6 +34,8 @@ import org.oscim.utils.geom.PolyLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 import mobi.maptrek.util.StringFormatter;
 
 import static org.oscim.core.GeometryBuffer.GeometryType.LINE;
@@ -120,6 +122,21 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             }
         } else if (style instanceof SymbolStyle) {
             SymbolStyle symbol = (SymbolStyle) style.current();
+
+            /*
+            if (symbol.src != null) {
+                logger.error("{}", symbol.src);
+                if (symbol.src.endsWith("/primary")) {
+                    try {
+                        if (bitmap == null)
+                            bitmap = CanvasAdapter.getBitmapAsset("", "symbols/dot_magenta.svg");
+                        symbol = mSymbolBuilder.set(symbol).bitmap(bitmap).build();
+                    } catch (IOException e) {
+                        logger.error("Failed to load bitmap", e);
+                    }
+                }
+            }
+            */
 
             if (symbol.bitmap == null && symbol.texture == null)
                 return false;
