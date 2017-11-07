@@ -38,7 +38,7 @@ import mobi.maptrek.maps.maptrek.Index;
 public class MapSelection extends Fragment implements OnBackPressedListener, Index.MapStateListener {
     private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
 
-    private static final long INDEX_CACHE_TIMEOUT = 7 * 24 * 3600 * 1000; // One week
+    private static final long INDEX_CACHE_TIMEOUT = 24 * 3600 * 1000; // One day
 
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
@@ -63,12 +63,12 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     @Override
     public void onResume() {
         super.onResume();
-        if (!mMapIndex.hasDownloadSizes() && mCacheFile.exists()
-                && mCacheFile.lastModified() + INDEX_CACHE_TIMEOUT > System.currentTimeMillis()) {
-            mIsDownloadingIndex = true;
-            new LoadMapIndex().execute(true);
-        }
         updateUI(mMapIndex.getMapStats());
+        if (!mMapIndex.hasDownloadSizes() && mCacheFile.exists()) {
+            mIsDownloadingIndex = true;
+            boolean valid = mCacheFile.lastModified() + INDEX_CACHE_TIMEOUT > System.currentTimeMillis();
+            new LoadMapIndex().execute(valid);
+        }
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -217,7 +217,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         if (stats.downloadSize > 0L) {
             mStatusView.setVisibility(View.VISIBLE);
             mStatusView.setText(getString(R.string.msgDownloadSize, Formatter.formatFileSize(getContext(), stats.downloadSize)));
-        } else {
+        } else if (!mIsDownloadingIndex) {
             mStatusView.setVisibility(View.GONE);
         }
         StringBuilder stringBuilder = new StringBuilder();
@@ -318,13 +318,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
         @Override
         protected void onPostExecute(Boolean result) {
+            mIsDownloadingIndex = false;
             if (result) {
-                mMapIndex.setHasDownloadSizes(true);
+                boolean expired = mCacheFile.lastModified() + INDEX_CACHE_TIMEOUT < System.currentTimeMillis();
+                mMapIndex.setHasDownloadSizes(true, expired);
                 updateUI(mMapIndex.getMapStats());
             } else {
                 mStatusView.setText(R.string.msgIndexDownloadFailed);
             }
-            mIsDownloadingIndex = false;
         }
 
         @Override

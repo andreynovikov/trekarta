@@ -74,6 +74,7 @@ public class Index {
     private final DownloadManager mDownloadManager;
     private MapStatus[][] mMaps = new MapStatus[128][128];
     private boolean mHasDownloadSizes;
+    private boolean mExpiredDownloadSizes;
     private int mLoadedMaps = 0;
     private short mBaseMapDownloadVersion = 0;
     private short mBaseMapVersion = 0;
@@ -584,8 +585,13 @@ public class Index {
         return mHasDownloadSizes;
     }
 
-    public void setHasDownloadSizes(boolean hasSizes) {
+    public boolean expiredDownloadSizes() {
+        return mExpiredDownloadSizes;
+    }
+
+    public void setHasDownloadSizes(boolean hasSizes, boolean expired) {
         mHasDownloadSizes = hasSizes;
+        mExpiredDownloadSizes = expired;
         if (hasSizes) {
             for (int x = 0; x < 128; x++)
                 for (int y = 0; y < 128; y++) {

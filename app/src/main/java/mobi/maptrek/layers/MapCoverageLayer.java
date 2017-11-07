@@ -96,6 +96,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             tileXMin--;
 
         boolean hasSizes = mMapIndex.hasDownloadSizes();
+        boolean validSizes = hasSizes && !mMapIndex.expiredDownloadSizes();
 
         synchronized (this) {
             GeometryBuffer lines = new GeometryBuffer();
@@ -174,12 +175,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             text.addText(ti);
                         }
                         ti = TextItem.pool.get();
-                        if (hasSizes) {
+                        if (validSizes) {
                             ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapStatus.downloadSize), mTextStyle);
                             text.addText(ti);
                             ty += mTextStyle.fontHeight / 5; // why 5?
                         }
-                        if (hasSizes || mapStatus.created > 0) {
+                        if (validSizes || mapStatus.created > 0) {
                             int date = mapStatus.created > 0 ? mapStatus.created : mapStatus.downloadCreated;
                             ti = TextItem.pool.get();
                             ti.set(tx, ty, mDateFormat.format(date * 24 * 3600000L), mSmallTextStyle);
