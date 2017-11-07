@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 
@@ -45,7 +46,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     private FloatingActionButton mFloatingButton;
     private Index mMapIndex;
     private View mDownloadCheckboxHolder;
+    private View mHillshadesCheckboxHolder;
     private CheckBox mDownloadBasemap;
+    private CheckBox mDownloadHillshades;
     private TextView mMessageView;
     private TextView mStatusView;
     private TextView mCounterView;
@@ -73,6 +76,15 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
+        mHillshadesCheckboxHolder = rootView.findViewById(R.id.hillshadesCheckboxHolder);
+        mDownloadHillshades = (CheckBox) rootView.findViewById(R.id.downloadHillshades);
+        mDownloadHillshades.setChecked(Configuration.getHillShadeEnabled());
+        mDownloadHillshades.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateUI(mMapIndex.getMapStats());
+            }
+        });
         mDownloadCheckboxHolder = rootView.findViewById(R.id.downloadCheckboxHolder);
         mDownloadBasemap = (CheckBox) rootView.findViewById(R.id.downloadBasemap);
         mDownloadBasemap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -207,11 +219,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             if (mDownloadBasemap.isChecked() || stats.download > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
                 mFloatingButton.setVisibility(View.VISIBLE);
+                mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
                 mFloatingButton.setVisibility(View.VISIBLE);
+                mHillshadesCheckboxHolder.setVisibility(View.GONE);
             } else {
                 mFloatingButton.setVisibility(View.GONE);
+                mHillshadesCheckboxHolder.setVisibility(View.GONE);
             }
         }
         if (stats.downloadSize > 0L) {

@@ -32,6 +32,21 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/hillshadesCheckboxHolder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/textPadding"
+        android:paddingTop="@dimen/textPadding"
+        android:visibility="gone">
+
+        <CheckBox
+            android:id="@+id/downloadHillshades"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/downloadHillshades"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/downloadCheckboxHolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
