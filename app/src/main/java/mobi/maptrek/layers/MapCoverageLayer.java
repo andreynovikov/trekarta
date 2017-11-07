@@ -40,6 +40,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static final double TEXT_MAX_SCALE = 260d;
 
     private final Index mMapIndex;
+    private boolean mAccountHillshades;
+
     private final AreaStyle mPresentAreaStyle;
     private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
@@ -131,6 +133,11 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     if (hasSizes && mapStatus.downloadSize == 0L)
                         continue;
 
+                    Index.HillshadeStatus hillshadeStatus = null;
+                    if (mAccountHillshades)
+                        hillshadeStatus = mMapIndex.getHillshade(tileXX, tileY);
+
+
                     GeometryBuffer areas = missingAreas;
                     if (mapStatus.downloading != 0L) {
                         areas = downloadingAreas;
@@ -176,7 +183,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         }
                         ti = TextItem.pool.get();
                         if (validSizes) {
-                            ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapStatus.downloadSize), mTextStyle);
+                            long size = mapStatus.downloadSize;
+                            if (hillshadeStatus != null)
+                                size += hillshadeStatus.downloadSize;
+                            ti.set(tx, ty, Formatter.formatShortFileSize(mContext, size), mTextStyle);
                             text.addText(ti);
                             ty += mTextStyle.fontHeight / 5; // why 5?
                         }
@@ -274,6 +284,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     public void onStatsChanged() {
+        update();
+    }
+
+    @Override
+    public void onHillshadeAccountingChanged(boolean account) {
+        mAccountHillshades = account;
         update();
     }
 

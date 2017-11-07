@@ -1,6 +1,5 @@
 package mobi.maptrek.maps.maptrek;
 
-import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -73,8 +72,10 @@ public class Index {
     private SQLiteDatabase mDatabase;
     private final DownloadManager mDownloadManager;
     private MapStatus[][] mMaps = new MapStatus[128][128];
+    private HillshadeStatus[][] mHillshades = new HillshadeStatus[128][128];
     private boolean mHasDownloadSizes;
     private boolean mExpiredDownloadSizes;
+    private boolean mAccountHillshades;
     private int mLoadedMaps = 0;
     private short mBaseMapDownloadVersion = 0;
     private short mBaseMapVersion = 0;
@@ -151,7 +152,6 @@ public class Index {
     /**
      * Returns native map for a specified square.
      */
-    @SuppressLint("DefaultLocale")
     @NonNull
     public MapStatus getNativeMap(int x, int y) {
         if (mMaps[x][y] == null) {
@@ -167,8 +167,13 @@ public class Index {
             mapStatus.action = ACTION.NONE;
             if (action == ACTION.DOWNLOAD) {
                 stats.download--;
-                if (mHasDownloadSizes)
+                if (mHasDownloadSizes) {
                     stats.downloadSize -= mapStatus.downloadSize;
+                    if (mAccountHillshades) {
+                        HillshadeStatus hillshadeStatus = getHillshade(x, y);
+                        stats.downloadSize -= hillshadeStatus.downloadSize;
+                    }
+                }
             }
             if (action == ACTION.REMOVE) {
                 stats.remove--;
@@ -176,8 +181,13 @@ public class Index {
         } else if (action == ACTION.DOWNLOAD) {
             mapStatus.action = action;
             stats.download++;
-            if (mHasDownloadSizes)
+            if (mHasDownloadSizes) {
                 stats.downloadSize += mapStatus.downloadSize;
+                if (mAccountHillshades) {
+                    HillshadeStatus hillshadeStatus = getHillshade(x, y);
+                    stats.downloadSize += hillshadeStatus.downloadSize;
+                }
+            }
         } else if (action == ACTION.REMOVE) {
             mapStatus.action = action;
             stats.remove++;
@@ -277,6 +287,34 @@ public class Index {
             getNativeMap(x, y);
         mMaps[x][y].downloadCreated = date;
         mMaps[x][y].downloadSize = size;
+    }
+
+    public void accountHillshades(boolean account) {
+        mAccountHillshades = account;
+        for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+            MapStateListener mapStateListener = weakRef.get();
+            if (mapStateListener != null) {
+                mapStateListener.onHillshadeAccountingChanged(account);
+            }
+        }
+    }
+
+    /**
+     * Returns native map for a specified square.
+     */
+    @NonNull
+    public HillshadeStatus getHillshade(int x, int y) {
+        if (mHillshades[x][y] == null) {
+            mHillshades[x][y] = new HillshadeStatus();
+        }
+        return mHillshades[x][y];
+    }
+
+    public void setHillshadeStatus(int x, int y, byte version, long size) {
+        if (mHillshades[x][y] == null)
+            getHillshade(x, y);
+        mHillshades[x][y].downloadVersion = version;
+        mHillshades[x][y].downloadSize = size;
     }
 
     public void clearSelections() {
@@ -450,8 +488,13 @@ public class Index {
                 MapStatus mapStatus = getNativeMap(x, y);
                 if (mapStatus.action == ACTION.DOWNLOAD) {
                     stats.download++;
-                    if (mHasDownloadSizes)
+                    if (mHasDownloadSizes) {
                         stats.downloadSize += mapStatus.downloadSize;
+                        if (mAccountHillshades) {
+                            HillshadeStatus hillshadeStatus = getHillshade(x, y);
+                            stats.downloadSize += hillshadeStatus.downloadSize;
+                        }
+                    }
                 }
                 if (mapStatus.action == ACTION.REMOVE)
                     stats.remove++;
@@ -624,7 +667,6 @@ public class Index {
         }
     }
 
-    @SuppressLint("DefaultLocale")
     public static Uri getIndexUri() {
         return new Uri.Builder()
                 .scheme("http")
@@ -633,6 +675,16 @@ public class Index {
                 .appendPath("nativeindex")
                 .build();
     }
+
+    public static Uri getHillshadeIndexUri() {
+        return new Uri.Builder()
+                .scheme("http")
+                .authority("maptrek.mobi")
+                .appendPath("hillshades")
+                .appendPath("index")
+                .build();
+    }
+
 
     public int getMapsCount() {
         return mLoadedMaps;
@@ -644,6 +696,12 @@ public class Index {
         public long downloadSize;
         public long downloading;
         public ACTION action = ACTION.NONE;
+    }
+
+    public static class HillshadeStatus {
+        public byte version = 0;
+        public byte downloadVersion;
+        public long downloadSize;
     }
 
     public static class IndexStats {
@@ -658,6 +716,8 @@ public class Index {
         void onHasDownloadSizes();
 
         void onStatsChanged();
+
+        void onHillshadeAccountingChanged(boolean account);
 
         void onMapSelected(int x, int y, Index.ACTION action, Index.IndexStats stats);
     }

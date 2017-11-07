@@ -39,7 +39,8 @@ import mobi.maptrek.maps.maptrek.Index;
 public class MapSelection extends Fragment implements OnBackPressedListener, Index.MapStateListener {
     private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
 
-    private static final long INDEX_CACHE_TIMEOUT = 24 * 3600 * 1000; // One day
+    private static final long INDEX_CACHE_TIMEOUT = 24 * 3600 * 1000L; // One day
+    private static final long HILLSHADE_CACHE_TIMEOUT = 60 * 24 * 3600 * 1000L; // Two months
 
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
@@ -55,6 +56,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     private Resources mResources;
     private boolean mIsDownloadingIndex;
     private File mCacheFile;
+    private File mHillshadeCacheFile;
     private int mCounter;
 
     @Override
@@ -69,8 +71,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         updateUI(mMapIndex.getMapStats());
         if (!mMapIndex.hasDownloadSizes() && mCacheFile.exists()) {
             mIsDownloadingIndex = true;
-            boolean valid = mCacheFile.lastModified() + INDEX_CACHE_TIMEOUT > System.currentTimeMillis();
-            new LoadMapIndex().execute(valid);
+            new LoadMapIndex().execute();
         }
     }
 
@@ -82,6 +83,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         mDownloadHillshades.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mMapIndex.accountHillshades(isChecked);
                 updateUI(mMapIndex.getMapStats());
             }
         });
@@ -144,6 +146,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
         File cacheDir = context.getExternalCacheDir();
         mCacheFile = new File(cacheDir, "mapIndex");
+        mHillshadeCacheFile = new File(cacheDir, "hillshadeIndex");
 
         mMapIndex.addMapStateListener(this);
     }
@@ -195,7 +198,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         updateUI(stats);
         if (action == Index.ACTION.DOWNLOAD && !mMapIndex.hasDownloadSizes() && !mIsDownloadingIndex) {
             mIsDownloadingIndex = true;
-            new LoadMapIndex().execute(false);
+            new LoadMapIndex().execute();
         }
     }
 
@@ -266,7 +269,11 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         });
     }
 
-    private class LoadMapIndex extends AsyncTask<Boolean, Integer, Boolean> {
+    @Override
+    public void onHillshadeAccountingChanged(boolean account) {
+    }
+
+    private class LoadMapIndex extends AsyncTask<Void, Integer, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -275,15 +282,20 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         }
 
         @Override
-        protected Boolean doInBackground(Boolean... params) {
-            boolean useCache = params[0];
+        protected Boolean doInBackground(Void... params) {
             HttpURLConnection urlConnection = null;
             InputStream in;
             DataInputStream data;
             OutputStream out;
             DataOutputStream dataOut = null;
+            long now = System.currentTimeMillis();
+            boolean validCache = mCacheFile.lastModified() + INDEX_CACHE_TIMEOUT > now;
+            boolean validHillshadeCache = mHillshadeCacheFile.lastModified() + HILLSHADE_CACHE_TIMEOUT > now;
+            int divider = validHillshadeCache ? 1 : 2;
+            int progress = 0;
+            // load map index
             try {
-                if (useCache) {
+                if (validCache) {
                     in = new FileInputStream(mCacheFile);
                 } else {
                     URL url = new URL(Index.getIndexUri().toString() + "?" + mFragmentHolder.getStatsString());
@@ -294,17 +306,16 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 }
                 data = new DataInputStream(new BufferedInputStream(in));
 
-                int progress = 0;
                 for (int x = 0; x < 128; x++)
                     for (int y = 0; y < 128; y++) {
                         short date = data.readShort();
                         int size = data.readInt();
-                        if (!useCache) {
+                        if (!validCache) {
                             dataOut.writeShort(date);
                             dataOut.writeInt(size);
                         }
                         mMapIndex.setNativeMapStatus(x, y, date, size);
-                        int p = (int) ((x * 128 + y) / 163.84);
+                        int p = (int) ((x * 128 + y) / 163.84 / divider);
                         if (p > progress) {
                             progress = p;
                             publishProgress(progress);
@@ -313,7 +324,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 short date = data.readShort();
                 int size = data.readInt();
                 mMapIndex.setBaseMapStatus(date, size);
-                if (!useCache) {
+                if (!validCache) {
                     dataOut.writeShort(date);
                     dataOut.writeInt(size);
                     dataOut.close();
@@ -323,6 +334,47 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 // remove cache on any error
                 //noinspection ResultOfMethodCallIgnored
                 mCacheFile.delete();
+                return false;
+            } finally {
+                if (urlConnection != null)
+                    urlConnection.disconnect();
+            }
+            // load hillshade index
+            try {
+                if (validHillshadeCache) {
+                    in = new FileInputStream(mHillshadeCacheFile);
+                } else {
+                    URL url = new URL(Index.getHillshadeIndexUri().toString());
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    in = urlConnection.getInputStream();
+                    out = new FileOutputStream(mHillshadeCacheFile);
+                    dataOut = new DataOutputStream(new BufferedOutputStream(out));
+                }
+                data = new DataInputStream(new BufferedInputStream(in));
+
+                for (int x = 0; x < 128; x++)
+                    for (int y = 0; y < 128; y++) {
+                        byte version = data.readByte();
+                        int size = data.readInt();
+                        if (!validHillshadeCache) {
+                            dataOut.writeByte(version);
+                            dataOut.writeInt(size);
+                        }
+                        mMapIndex.setHillshadeStatus(x, y, version, size);
+                        int p = (int) ((x * 128 + y) / 163.84 / divider);
+                        if (p > progress) {
+                            progress = p;
+                            publishProgress(progress);
+                        }
+                    }
+                if (!validHillshadeCache) {
+                    dataOut.close();
+                }
+            } catch (Exception e) {
+                logger.error("Failed to load hillshade index", e);
+                // remove cache on any error
+                //noinspection ResultOfMethodCallIgnored
+                mHillshadeCacheFile.delete();
                 return false;
             } finally {
                 if (urlConnection != null)
