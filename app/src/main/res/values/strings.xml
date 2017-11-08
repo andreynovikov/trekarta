@@ -117,7 +117,23 @@
     <string name="msgDeleteFailed">Failed to delete data source</string>
     <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek.</string>
     <string name="msgOtherFormatsExplanation">GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
-    <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line before coordinates that will be used as a point name. Please use this feature carefully as coordinate parsing is not perfect yet.</string>
+    <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats including UTM and MGRS. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line after coordinates it will be used as a point name. Some examples:\n\n
+        &#183; 49.29918 -19.24788\n
+        &#183; 49.29918&#176; 19.24788&#176;\n
+        &#183; N 49.29918 E 19.24788\n
+        &#183; W 49&#176;29.918\' S 19&#176;24.788\'\n
+        &#183; N 49&#176;29\'04\" E 19&#176;24\'43\"\n
+        &#183; 49.29918 N, 19.24788 E\n
+        &#183; 49&#176;29\'21\" N 19&#176;24\'38\" E\n
+        &#183; 49 29 51, 19 24 18\n
+        &#183; 49 29.4 19 24.5\n
+        &#183; E 49 29, N 19 24\n
+        &#183; N 49&#176; 29, W 19&#176; 24\n
+        &#183; N 49 29.918; E 19 15.88\n
+        &#183; 15N 363936 4328605\n
+        &#183; 15SUD 639 286\n
+        &#183; 15SUD6393628605
+        </string>
     <string name="msgFailedToGetFile">Failed to get file</string>
     <string name="msgUnsupportedFileFormat">Unsupported file format</string>
     <string name="msgWaypointLocked">Waypoint is locked</string>
