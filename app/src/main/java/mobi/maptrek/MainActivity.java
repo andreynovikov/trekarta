@@ -606,7 +606,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        if (Configuration.getHillShadeEnabled())
+        if (Configuration.getHillshadesEnabled())
             showHillShade();
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
@@ -1212,6 +1212,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     @Override
                     public void onPrepareMenu(PanelMenu menu) {
                         menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
+                        menu.findItem(R.id.actionHillshades).setChecked(Configuration.getHillshadesEnabled());
                         menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
                         menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
                     }
@@ -1255,6 +1256,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 Configuration.setBuildingsLayerEnabled(mBuildingsLayerEnabled);
                 mMap.updateMap(true);
+                return true;
+            }
+            case R.id.actionHillshades: {
+                // layer is managed in event subscription as it can be configured in other places
+                Configuration.setHillshadesEnabled(item.isChecked());
                 return true;
             }
             case R.id.actionContours: {
@@ -2971,8 +2977,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onManageNativeMaps() {
-        mNativeMapIndex.manageNativeMaps();
+    public void onManageNativeMaps(boolean hillshadesEnabled) {
+        mNativeMapIndex.manageNativeMaps(hillshadesEnabled);
     }
 
     private void showHillShade() {
@@ -4019,6 +4025,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 boolean precision = Configuration.getUnitPrecision();
                 StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
                 mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_MAP_HILLSHADES: {
+                boolean enabled = Configuration.getHillshadesEnabled();
+                if (enabled)
+                    showHillShade();
+                else
+                    hideHillShade();
+                mMap.clearMap();
                 break;
             }
         }

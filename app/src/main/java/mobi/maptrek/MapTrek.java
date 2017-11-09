@@ -14,7 +14,6 @@ import android.util.LongSparseArray;
 
 import org.greenrobot.eventbus.EventBus;
 import org.oscim.tiling.TileSource;
-import org.oscim.tiling.source.sqlite.MBTilesDatabase;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Parameters;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 
 import mobi.maptrek.data.MapObject;
+import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.LongSparseArrayIterator;
@@ -52,6 +52,8 @@ public class MapTrek extends Application {
     private Index mIndex;
     private MapTrekDatabaseHelper mDetailedMapHelper;
     private SQLiteDatabase mDetailedMapDatabase;
+    private HillshadeDatabaseHelper mHillshadeHelper;
+    private SQLiteDatabase mHillshadeDatabase;
     private String mUserNotification;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
@@ -138,11 +140,35 @@ public class MapTrek extends Application {
         return mDetailedMapDatabase;
     }
 
-    public @Nullable SQLiteTileSource getHillShadeTileSource() {
-        File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
-        MBTilesDatabase.MBTilesDatabaseHelper helper = new MBTilesDatabase.MBTilesDatabaseHelper(this, file);
-        helper.setWriteAheadLoggingEnabled(true);
-        SQLiteTileSource tileSource = new SQLiteTileSource(helper);
+    private synchronized HillshadeDatabaseHelper getHillshadeDatabaseHelper(boolean reset) {
+        if (mHillshadeHelper == null) {
+            File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
+            if (reset)
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            mHillshadeHelper = new HillshadeDatabaseHelper(this, file);
+            mHillshadeHelper.setWriteAheadLoggingEnabled(true);
+        }
+        return mHillshadeHelper;
+    }
+
+    public synchronized SQLiteDatabase getHillshadeDatabase() {
+        if (mHillshadeDatabase == null) {
+            try {
+                mHillshadeDatabase = getHillshadeDatabaseHelper(false).getWritableDatabase();
+            } catch (SQLiteException ignore) {
+                mHillshadeHelper.close();
+                mHillshadeHelper = null;
+                mHillshadeDatabase = getHillshadeDatabaseHelper(true).getWritableDatabase();
+                mUserNotification = getString(R.string.msgHillshadeDatabaseError);
+            }
+        }
+        return mHillshadeDatabase;
+    }
+
+    public @Nullable
+    SQLiteTileSource getHillShadeTileSource() {
+        SQLiteTileSource tileSource = new SQLiteTileSource(getHillshadeDatabaseHelper(false));
         TileSource.OpenResult result = tileSource.open();
         if (result.isSuccess())
             return tileSource;
@@ -152,7 +178,7 @@ public class MapTrek extends Application {
 
     public Index getMapIndex() {
         if (mIndex == null)
-            mIndex = new Index(this, getDetailedMapDatabase());
+            mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
         return mIndex;
     }
 

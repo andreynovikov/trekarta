@@ -140,6 +140,7 @@
     <string name="msgRestoreWaypointsFailed">Failed to restore Places</string>
     <string name="msgBaseMapDownload">For better experience, download detailed world map (%s). You can do it now or later at any time.</string>
     <string name="msgMapDatabaseError">An error occurred while reading detailed maps, database was reset</string>
+    <string name="msgHillshadeDatabaseError">An error occurred while reading hillshades, database was reset</string>
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
     <string name="msgRateApplication">If you are enjoying MapTrek please rate it and leave comment on the Google Play Store to boost its spread</string>
 
@@ -182,6 +183,7 @@
     <string name="intentImportData">MapTrek data import</string>
     <string name="mapDownloadText">Download missing map</string>
     <string name="mapTitle" formatted="false">Area %d-%d map</string>
+    <string name="hillshadeTitle" formatted="false">Area %d-%d hillshade</string>
     <string name="startApplication">Open MapTrek</string>
     <string name="utc_offset">UTC Offset</string>
     <string name="coordinates">Coordinates</string>
@@ -245,6 +247,7 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
-    <string name="downloadHillshades">Download hillshades</string>
+    <string name="downloadHillshades">Download concomitant hillshades</string>
+    <string name="actionHillshades">Hillshades</string>
 
 </resources>

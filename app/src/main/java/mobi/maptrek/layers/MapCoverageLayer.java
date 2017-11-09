@@ -133,11 +133,6 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                     if (hasSizes && mapStatus.downloadSize == 0L)
                         continue;
 
-                    Index.HillshadeStatus hillshadeStatus = null;
-                    if (mAccountHillshades)
-                        hillshadeStatus = mMapIndex.getHillshade(tileXX, tileY);
-
-
                     GeometryBuffer areas = missingAreas;
                     if (mapStatus.downloading != 0L) {
                         areas = downloadingAreas;
@@ -184,8 +179,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         ti = TextItem.pool.get();
                         if (validSizes) {
                             long size = mapStatus.downloadSize;
-                            if (hillshadeStatus != null)
-                                size += hillshadeStatus.downloadSize;
+                            if (mAccountHillshades)
+                                size += mapStatus.hillshadeDownloadSize;
                             ti.set(tx, ty, Formatter.formatShortFileSize(mContext, size), mTextStyle);
                             text.addText(ti);
                             ty += mTextStyle.fontHeight / 5; // why 5?

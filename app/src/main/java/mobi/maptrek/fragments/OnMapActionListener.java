@@ -8,5 +8,5 @@ public interface OnMapActionListener {
     void onTransparencyChanged(int transparency);
     void onBeginMapManagement();
     void onFinishMapManagement();
-    void onManageNativeMaps();
+    void onManageNativeMaps(boolean hillshadesEnabled);
 }

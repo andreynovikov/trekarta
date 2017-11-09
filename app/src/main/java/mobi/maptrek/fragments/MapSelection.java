@@ -79,7 +79,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
         mHillshadesCheckboxHolder = rootView.findViewById(R.id.hillshadesCheckboxHolder);
         mDownloadHillshades = (CheckBox) rootView.findViewById(R.id.downloadHillshades);
-        mDownloadHillshades.setChecked(Configuration.getHillShadeEnabled());
+        mDownloadHillshades.setChecked(Configuration.getHillshadesEnabled());
         mDownloadHillshades.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -117,7 +117,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                     mMapIndex.downloadBaseMap();
                 }
                 if (mCounter > 0) {
-                    mListener.onManageNativeMaps();
+                    mListener.onManageNativeMaps(mDownloadHillshades.isChecked());
                 }
                 if (mDownloadBasemap.isChecked() || mCounter > 0) {
                     mListener.onFinishMapManagement();
