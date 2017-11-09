@@ -28,6 +28,7 @@ import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.FastMath;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.Configuration;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.maptrek.Index;
 
@@ -69,6 +70,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
         mDateFormat = DateFormat.getDateFormat(context);
         mMapIndex.addMapStateListener(this);
+        mAccountHillshades = Configuration.getHillshadesEnabled();
     }
 
     @Override
