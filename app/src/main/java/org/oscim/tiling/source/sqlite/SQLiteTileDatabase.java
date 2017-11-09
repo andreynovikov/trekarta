@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.source.ITileDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,10 @@ abstract class SQLiteTileDatabase implements ITileDataSource {
 
     @Override
     public void query(MapTile tile, ITileDataSink sink) {
+        if (tile.zoomLevel < mSQLiteTileSource.sourceZoomMin) {
+            sink.completed(SUCCESS);
+            return;
+        }
         String[] args = {String.valueOf(tile.tileX), String.valueOf(tile.tileY), String.valueOf(tile.zoomLevel)};
         boolean ok = false;
         try (Cursor c = mSQLiteTileSource.mDatabase.rawQuery(getTileQuery(args), args)) {

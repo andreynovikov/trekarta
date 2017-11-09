@@ -3023,8 +3023,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             position.setScale((1 << mapFile.tileSource.getZoomLevelMax()) - 5);
             positionChanged = true;
         }
-        if (position.getZoomLevel() < mapFile.tileSource.getZoomLevelMin()) {
-            position.setScale((1 << mapFile.tileSource.getZoomLevelMin()) + 5);
+        int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
+        if (mapFile.tileSource instanceof SQLiteTileSource) {
+            minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
+        }
+        if (position.getZoomLevel() < minZoomLevel) {
+            position.setScale((1 << minZoomLevel) + 5);
             positionChanged = true;
         }
         if (positionChanged)

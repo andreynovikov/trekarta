@@ -30,6 +30,7 @@ public class SQLiteTileSource extends TileSource {
     private SQLiteOpenHelper mOpenHelper;
     private Class<? extends SQLiteTileDatabase> mTileDatabase;
     BoundingBox mBoundingBox;
+    public int sourceZoomMin = 0;
 
     public SQLiteTileSource() {
     }
@@ -135,7 +136,8 @@ public class SQLiteTileSource extends TileSource {
     }
 
     void setMinZoom(int minZoom) {
-        mZoomMin = minZoom;
+        sourceZoomMin = minZoom;
+        mZoomMin = 0;
     }
 
     void setMaxZoom(int maxZoom) {
