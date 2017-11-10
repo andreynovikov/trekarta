@@ -26,10 +26,11 @@ public class MBTilesDatabase extends SQLiteTileDatabase {
     private static final String SQL_GET_MAX_X = "SELECT MAX(tile_column) FROM tiles WHERE zoom_level = ?";
     private static final String SQL_GET_MAX_Y = "SELECT MAX(tile_row) FROM tiles WHERE zoom_level = ?";
 
-    private static boolean tmsSchema;
+    private boolean tmsSchema;
 
     public MBTilesDatabase(SQLiteTileSource tileSource, ITileDecoder tileDecoder) {
         super(tileSource, tileDecoder);
+        tmsSchema = "tms".equals(tileSource.getOption("schema"));
     }
 
     @Override
@@ -90,7 +91,8 @@ public class MBTilesDatabase extends SQLiteTileDatabase {
                 tileSource.setOption("format", format);
 
             String schema = getString(database, SQL_SELECT_PARAM, new String[]{"tile_row_type"});
-            tmsSchema = schema == null || !("xyz".equals(schema) || "osm".equals(schema));
+            boolean tmsSchema = schema == null || !("xyz".equals(schema) || "osm".equals(schema));
+            tileSource.setOption("schema", tmsSchema ? "tms" : "xyz");
         } catch (SQLException e) {
             return new TileSource.OpenResult(e.getMessage());
         }
