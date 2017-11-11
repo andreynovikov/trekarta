@@ -537,6 +537,9 @@
             <m k="network" v="lwn">
                 <line stroke="#88ffff00" width="3" />
             </m>
+            <m k="osmc:symbol">
+                <symbol src="gen:/osmc-symbol" merge="true" />
+            </m>
         </m>
         <m zoom-min="14">
             <m k="network" v="iwn">
@@ -550,6 +553,9 @@
             </m>
             <m k="network" v="lwn">
                 <line cap="butt" fix="true" stroke="#ffff00" width="1.5" />
+            </m>
+            <m k="osmc:symbol">
+                <symbol src="gen:/osmc-symbol" merge="true" />
             </m>
         </m>
     </m>

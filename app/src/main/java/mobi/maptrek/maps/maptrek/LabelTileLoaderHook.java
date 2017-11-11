@@ -16,6 +16,7 @@ package mobi.maptrek.maps.maptrek;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.core.PointF;
 import org.oscim.core.Tile;
@@ -34,8 +35,7 @@ import org.oscim.utils.geom.PolyLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
+import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.StringFormatter;
 
 import static org.oscim.core.GeometryBuffer.GeometryType.LINE;
@@ -47,7 +47,14 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
     private static final String LABEL_DATA = LabelLayer.class.getName();
 
+    private final OsmcSymbolFactory mOsmcSymbolFactory;
+    private final SymbolStyle.SymbolBuilder<?> mSymbolBuilder = SymbolStyle.builder();
+
     private int mLang = 0;
+
+    public LabelTileLoaderHook(OsmcSymbolFactory osmcSymbolFactory) {
+        mOsmcSymbolFactory = osmcSymbolFactory;
+    }
 
     //public final static LabelTileData EMPTY = new LabelTileData();
 
@@ -123,20 +130,13 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
         } else if (style instanceof SymbolStyle) {
             SymbolStyle symbol = (SymbolStyle) style.current();
 
-            /*
             if (symbol.src != null) {
-                logger.error("{}", symbol.src);
-                if (symbol.src.endsWith("/primary")) {
-                    try {
-                        if (bitmap == null)
-                            bitmap = CanvasAdapter.getBitmapAsset("", "symbols/dot_magenta.svg");
+                if (symbol.src.equals("/osmc-symbol")) {
+                    Bitmap bitmap = mOsmcSymbolFactory.getBitmap(element.tags.getValue("osmc:symbol"));
+                    if (bitmap != null)
                         symbol = mSymbolBuilder.set(symbol).bitmap(bitmap).build();
-                    } catch (IOException e) {
-                        logger.error("Failed to load bitmap", e);
-                    }
                 }
             }
-            */
 
             if (symbol.bitmap == null && symbol.texture == null)
                 return false;

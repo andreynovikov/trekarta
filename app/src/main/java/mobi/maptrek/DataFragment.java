@@ -7,6 +7,7 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.util.OsmcSymbolFactory;
 
 public class DataFragment extends Fragment {
 
@@ -14,6 +15,7 @@ public class DataFragment extends Fragment {
     private Waypoint mEditedWaypoint;
     private WaypointDbDataSource mWaypointDbDataSource;
     private MapFile mBitmapLayerMap;
+    private OsmcSymbolFactory mOsmcSymbolFactory;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,5 +54,13 @@ public class DataFragment extends Fragment {
 
     public void setBitmapLayerMap(MapFile bitmapLayerMap) {
         mBitmapLayerMap = bitmapLayerMap;
+    }
+
+    public OsmcSymbolFactory getOsmcSymbolFactory() {
+        return mOsmcSymbolFactory;
+    }
+
+    public void setOsmcSymbolFactory(OsmcSymbolFactory factory) {
+        mOsmcSymbolFactory = factory;
     }
 }

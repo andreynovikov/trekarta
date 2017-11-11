@@ -190,6 +190,7 @@ import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.MathUtils;
+import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
@@ -359,6 +360,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private Track mEditedTrack;
     private int mTotalDataItems = 0;
     private boolean mFirstMove = true;
+    private OsmcSymbolFactory mOsmcSymbolFactory;
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -437,11 +439,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     language = "none";
                 Configuration.setLanguage(language);
             }
+
+            mOsmcSymbolFactory = new OsmcSymbolFactory();
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
             mWaypointDbDataSource = mDataFragment.getWaypointDbDataSource();
             mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
+            mOsmcSymbolFactory = mDataFragment.getOsmcSymbolFactory();
         }
 
         mLocationState = LocationState.DISABLED;
@@ -621,7 +626,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             layers.add(mBuildingsLayer, MAP_3D);
         }
 
-        mLabelTileLoaderHook = new LabelTileLoaderHook();
+        mLabelTileLoaderHook = new LabelTileLoaderHook(mOsmcSymbolFactory);
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mLabelTileLoaderHook.setPreferredLanguage(language);
@@ -1061,6 +1066,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (isFinishing()) {
             mMapIndex.clear();
             sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
+            mOsmcSymbolFactory.dispose();
         }
 
         mFragmentManager = null;
@@ -1080,6 +1086,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
         mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
         mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
+        mDataFragment.setOsmcSymbolFactory(mOsmcSymbolFactory);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
