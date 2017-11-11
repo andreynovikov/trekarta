@@ -21,6 +21,7 @@ public class Configuration {
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
     private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
+    public static final String PREF_MAP_HILLSHADES = "map_hillshade";
     private static final String PREF_MAP_CONTOURS = "map_contours";
     private static final String PREF_MAP_GRID = "map_grid";
     private static final String PREF_BITMAP_MAP = "bitmap_map";
@@ -189,6 +190,14 @@ public class Configuration {
 
     public static void setBuildingsLayerEnabled(boolean buildingsLayerEnabled) {
         saveBoolean(PREF_MAP_3D_BUILDINGS, buildingsLayerEnabled);
+    }
+
+    public static boolean getHillshadesEnabled() {
+        return loadBoolean(PREF_MAP_HILLSHADES, false); // disabled until first time downloaded
+    }
+
+    public static void setHillshadesEnabled(boolean hillshadesEnabled) {
+        saveBoolean(PREF_MAP_HILLSHADES, hillshadesEnabled);
     }
 
     public static boolean getContoursEnabled() {

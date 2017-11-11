@@ -65,6 +65,7 @@ public class MapService extends IntentService {
         if (actionImport) {
             Uri uri = intent.getData();
             String filename = uri.getLastPathSegment();
+            boolean hillshade = false;
             final int x, y;
             if (Index.BASEMAP_FILENAME.equals(filename)) {
                 x = -1;
@@ -77,6 +78,7 @@ public class MapService extends IntentService {
                         throw new NumberFormatException("unexpected name");
                     x = Integer.valueOf(parts[0]);
                     y = Integer.valueOf(parts[1]);
+                    hillshade = "mbtiles".equals(parts[2]);
                     if (x > 127 || y > 127)
                         throw new NumberFormatException("out of range");
                 } catch (NumberFormatException e) {
@@ -86,12 +88,12 @@ public class MapService extends IntentService {
                     notificationManager.notify(0, builder.build());
                     return;
                 }
-
-                builder.setContentTitle(getString(R.string.mapTitle, x, y));
+                builder.setContentTitle(getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y));
             }
             notificationManager.notify(0, builder.build());
 
-            if (mapIndex.processDownloadedMap(x, y, uri.getPath(), new OperationProgressListener(notificationManager, builder))) {
+            if (processDownload(mapIndex, x, y, hillshade, uri.getPath(),
+                    new OperationProgressListener(notificationManager, builder))) {
                 application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
                 notificationManager.notify(0, builder.build());
@@ -110,6 +112,14 @@ public class MapService extends IntentService {
             application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
             notificationManager.cancel(0);
         }
+    }
+
+    private boolean processDownload(Index mapIndex, int x, int y, boolean hillshade, String path,
+                                    OperationProgressListener progressListener) {
+        if (hillshade)
+            return mapIndex.processDownloadedHillshade(x, y, path, progressListener);
+        else
+            return mapIndex.processDownloadedMap(x, y, path, progressListener);
     }
 
     private class OperationProgressListener implements ProgressListener {

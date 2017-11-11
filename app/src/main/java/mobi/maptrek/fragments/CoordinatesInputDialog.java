@@ -11,14 +11,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Scroller;
+import android.widget.TextView;
 
 import mobi.maptrek.R;
-import mobi.maptrek.util.CoordinatesParser;
+import mobi.maptrek.util.JosmCoordinatesParser;
 
 public class CoordinatesInputDialog extends DialogFragment {
     private int mColorTextPrimary;
@@ -81,19 +85,17 @@ public class CoordinatesInputDialog extends DialogFragment {
                 }
                 for (String line : lines) {
                     try {
-                        CoordinatesParser.Result result = CoordinatesParser.parseWithResult(line);
+                        JosmCoordinatesParser.Result result = JosmCoordinatesParser.parseWithResult(line);
+                        s.setSpan(
+                                new ForegroundColorSpan(mColorDarkBlue),
+                                offset,
+                                offset + result.offset,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         s.setSpan(
                                 new ForegroundColorSpan(mColorTextPrimary),
-                                offset,
+                                offset + result.offset,
                                 s.length(),
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        for (CoordinatesParser.Token token : result.tokens) {
-                            s.setSpan(
-                                    new ForegroundColorSpan(mColorDarkBlue),
-                                    offset + token.i,
-                                    offset + token.i + token.l,
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
                     } catch (IllegalArgumentException e) {
                         s.setSpan(
                                 new ForegroundColorSpan(mColorRed),
@@ -128,9 +130,12 @@ public class CoordinatesInputDialog extends DialogFragment {
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                // Hide keyboard
                 mDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mDialog.getWindow().getDecorView().getWindowToken(), 0);
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setMessage(R.string.msgCoordinatesInputExplanation);
                         builder.setPositiveButton(R.string.ok, null);

@@ -20,8 +20,8 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.android.colorpicker.ColorPickerDialog;
-import com.android.colorpicker.ColorPickerSwatch;
+import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
+import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -43,7 +43,6 @@ import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
-import mobi.maptrek.view.ColorSwatch;
 
 public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener, OnBackPressedListener {
     private Track mTrack;
@@ -71,7 +70,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             public void onClick(View v) {
                 if (mEditorMode) {
                     mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                    mTrack.style.color = ((ColorSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+                    mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
                     mListener.onTrackSave(mTrack);
                     setEditorMode(false);
                 } else {
@@ -388,7 +387,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
-        final ColorSwatch colorSwatch = (ColorSwatch) rootView.findViewById(R.id.colorSwatch);
+        final ColorPickerSwatch colorSwatch = (ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch);
 
         int viewsState, editsState;
         if (enabled) {
@@ -398,25 +397,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             colorSwatch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO Implement class that hides this behaviour
-                    ArrayList<Integer> colorList = new ArrayList<>(7);
-                    colorList.add(0xffff0000);
-                    colorList.add(0xff00ff00);
-                    colorList.add(0xff0000ff);
-                    colorList.add(0xffffff00);
-                    colorList.add(0xff00ffff);
-                    colorList.add(0xff000000);
-                    colorList.add(0xffff00ff);
-                    if (!colorList.contains(mTrack.style.color))
-                        colorList.add(mTrack.style.color);
-                    if (!colorList.contains(MarkerStyle.DEFAULT_COLOR))
-                        colorList.add(MarkerStyle.DEFAULT_COLOR);
-                    int[] colors = new int[colorList.size()];
-                    int i = 0;
-                    for (Integer integer : colorList)
-                        colors[i++] = integer;
                     ColorPickerDialog dialog = new ColorPickerDialog();
-                    dialog.setColors(colors, mTrack.style.color);
+                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
                     dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
                     dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
                         @Override

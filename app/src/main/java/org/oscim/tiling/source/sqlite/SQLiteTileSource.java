@@ -30,6 +30,7 @@ public class SQLiteTileSource extends TileSource {
     private SQLiteOpenHelper mOpenHelper;
     private Class<? extends SQLiteTileDatabase> mTileDatabase;
     BoundingBox mBoundingBox;
+    public int sourceZoomMin = 0;
 
     public SQLiteTileSource() {
     }
@@ -90,14 +91,14 @@ public class SQLiteTileSource extends TileSource {
             mDatabase = SQLiteDatabase.openDatabase(file.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
         }
 
-        OpenResult openResult = RMapsDatabase.initialize(this, mDatabase);
+        OpenResult openResult = MBTilesDatabase.initialize(this, mDatabase);
 
         if (openResult.isSuccess()) {
-            mTileDatabase = RMapsDatabase.class;
+            mTileDatabase = MBTilesDatabase.class;
         } else {
-            openResult = MBTilesDatabase.initialize(this, mDatabase);
+            openResult = RMapsDatabase.initialize(this, mDatabase);
             if (openResult.isSuccess()) {
-                mTileDatabase = MBTilesDatabase.class;
+                mTileDatabase = RMapsDatabase.class;
             } else {
                 close();
                 return openResult;
@@ -108,13 +109,13 @@ public class SQLiteTileSource extends TileSource {
             // Construct name
             // 1. remove extension
             String name = file.getName().toLowerCase();
-            int e = name.lastIndexOf(".sqlitedb");
+            int e = name.lastIndexOf(".mbtiles");
             if (e > 0)
                 name = name.substring(0, e);
-            e = name.lastIndexOf(".mbtiles");
+            e = name.lastIndexOf(".sqlitedb");
             if (e > 0)
                 name = name.substring(0, e);
-            // 2. capitalizeFirst first letter
+            // 2. capitalize first letter
             StringBuilder nameSb = new StringBuilder(name);
             nameSb.setCharAt(0, Character.toUpperCase(nameSb.charAt(0)));
             // 3. append zoom interval
@@ -135,7 +136,8 @@ public class SQLiteTileSource extends TileSource {
     }
 
     void setMinZoom(int minZoom) {
-        mZoomMin = minZoom;
+        sourceZoomMin = minZoom;
+        mZoomMin = 0;
     }
 
     void setMaxZoom(int maxZoom) {

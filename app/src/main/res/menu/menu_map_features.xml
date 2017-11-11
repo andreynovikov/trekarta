@@ -5,6 +5,10 @@
         android:checkable="true"
         android:title="@string/action3dBuildings" />
     <item
+        android:id="@+id/actionHillshades"
+        android:checkable="true"
+        android:title="@string/actionHillshades" />
+    <item
         android:id="@+id/actionContours"
         android:checkable="true"
         android:title="@string/actionContours" />

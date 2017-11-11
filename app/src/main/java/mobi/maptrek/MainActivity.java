@@ -105,6 +105,7 @@ import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,12 +222,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private static final int MAP_EVENTS = 1;
     private static final int MAP_BASE = 2;
     private static final int MAP_MAPS = 3;
-    private static final int MAP_3D = 4;
-    private static final int MAP_LABELS = 5;
-    private static final int MAP_DATA = 6;
-    private static final int MAP_3D_DATA = 7;
-    private static final int MAP_POSITIONAL = 8;
-    private static final int MAP_OVERLAYS = 9;
+    private static final int MAP_MAP_OVERLAYS = 4;
+    private static final int MAP_3D = 5;
+    private static final int MAP_LABELS = 6;
+    private static final int MAP_DATA = 7;
+    private static final int MAP_3D_DATA = 8;
+    private static final int MAP_POSITIONAL = 9;
+    private static final int MAP_OVERLAYS = 10;
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
@@ -327,6 +329,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private MapEventLayer mMapEventLayer;
     private VectorTileLayer mBaseLayer;
+    private BitmapTileLayer mHillshadeLayer;
     private BuildingLayer mBuildingsLayer;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelTileLoaderHook mLabelTileLoaderHook;
@@ -370,6 +373,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_main);
 
+        MapTrek application = MapTrek.getApplication();
+
         Resources resources = getResources();
         Resources.Theme theme = getTheme();
         mColorAccent = resources.getColor(R.color.colorAccent, theme);
@@ -405,7 +410,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         File mapsDir = getExternalFilesDir("maps");
 
         // Provide application context so that maps can be cached on rotation
-        mNativeMapIndex = MapTrek.getApplication().getMapIndex();
+        mNativeMapIndex = application.getMapIndex();
 
         if (mDataFragment == null) {
             // add the fragment
@@ -584,7 +589,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        mNativeTileSource = new MapTrekTileSource(MapTrek.getApplication().getDetailedMapDatabase());
+        mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
         mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
 
         mBaseLayer = new OsmTileLayer(mMap);
@@ -595,12 +600,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
+        layers.addGroup(MAP_MAP_OVERLAYS);
         layers.addGroup(MAP_3D);
         layers.addGroup(MAP_LABELS);
         layers.addGroup(MAP_DATA);
         layers.addGroup(MAP_3D_DATA);
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
+
+        if (Configuration.getHillshadesEnabled())
+            showHillShade();
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
@@ -1205,6 +1214,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     @Override
                     public void onPrepareMenu(PanelMenu menu) {
                         menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
+                        menu.findItem(R.id.actionHillshades).setChecked(Configuration.getHillshadesEnabled());
                         menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
                         menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
                     }
@@ -1248,6 +1258,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 Configuration.setBuildingsLayerEnabled(mBuildingsLayerEnabled);
                 mMap.updateMap(true);
+                return true;
+            }
+            case R.id.actionHillshades: {
+                // layer is managed in event subscription as it can be configured in other places
+                Configuration.setHillshadesEnabled(item.isChecked());
                 return true;
             }
             case R.id.actionContours: {
@@ -2964,8 +2979,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onManageNativeMaps() {
-        mNativeMapIndex.manageNativeMaps();
+    public void onManageNativeMaps(boolean hillshadesEnabled) {
+        mNativeMapIndex.manageNativeMaps(hillshadesEnabled);
+    }
+
+    private void showHillShade() {
+        SQLiteTileSource hillShadeTileSource = MapTrek.getApplication().getHillShadeTileSource();
+        if (hillShadeTileSource != null) {
+            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource);
+            mHillshadeLayer.tileRenderer().setBitmapAlpha(0.4f);
+            mMap.layers().add(mHillshadeLayer, MAP_MAP_OVERLAYS);
+            mMap.updateMap(true);
+        }
+    }
+
+    private void hideHillShade() {
+        mMap.layers().remove(mHillshadeLayer);
+        mHillshadeLayer.onDetach();
+        mMap.updateMap(true);
+        mHillshadeLayer = null;
     }
 
     private void showBitmapMap(MapFile mapFile) {
@@ -2993,8 +3025,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             position.setScale((1 << mapFile.tileSource.getZoomLevelMax()) - 5);
             positionChanged = true;
         }
-        if (position.getZoomLevel() < mapFile.tileSource.getZoomLevelMin()) {
-            position.setScale((1 << mapFile.tileSource.getZoomLevelMin()) + 5);
+        int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
+        if (mapFile.tileSource instanceof SQLiteTileSource) {
+            minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
+        }
+        if (position.getZoomLevel() < minZoomLevel) {
+            position.setScale((1 << minZoomLevel) + 5);
             positionChanged = true;
         }
         if (positionChanged)
@@ -3995,6 +4031,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 boolean precision = Configuration.getUnitPrecision();
                 StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
                 mGaugePanel.refreshGauges();
+                break;
+            }
+            case Configuration.PREF_MAP_HILLSHADES: {
+                boolean enabled = Configuration.getHillshadesEnabled();
+                if (enabled)
+                    showHillShade();
+                else
+                    hideHillShade();
+                mMap.clearMap();
                 break;
             }
         }

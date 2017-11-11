@@ -18,7 +18,7 @@ import mobi.maptrek.data.Waypoint;
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     static final String TABLE_MAPS = "maps";
     static final String TABLE_MAP_FEATURES = "map_features";
@@ -33,7 +33,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String COLUMN_MAPS_X = "x";
     static final String COLUMN_MAPS_Y = "y";
     static final String COLUMN_MAPS_DATE = "date";
+    static final String COLUMN_MAPS_VERSION = "version";
     static final String COLUMN_MAPS_DOWNLOADING = "downloading";
+    static final String COLUMN_MAPS_HILLSHADE_DOWNLOADING = "hillshade_downloading";
 
     private static final String COLUMN_MAP_FEATURES_COLUMN = "x";
     private static final String COLUMN_MAP_FEATURES_ROW = "y";
@@ -65,7 +67,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_MAPS_X + " INTEGER NOT NULL, "
                     + COLUMN_MAPS_Y + " INTEGER NOT NULL, "
                     + COLUMN_MAPS_DATE + " INTEGER NOT NULL DEFAULT 0, "
+                    + COLUMN_MAPS_VERSION + " INTEGER NOT NULL DEFAULT 0, "
                     + COLUMN_MAPS_DOWNLOADING + " INTEGER NOT NULL DEFAULT 0"
+                    + COLUMN_MAPS_HILLSHADE_DOWNLOADING + " INTEGER NOT NULL DEFAULT 0"
                     + ")";
 
     private static final String SQL_CREATE_MAP_FEATURES =
@@ -176,7 +180,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_MAPS_X,
             COLUMN_MAPS_Y,
             COLUMN_MAPS_DATE,
-            COLUMN_MAPS_DOWNLOADING
+            COLUMN_MAPS_VERSION,
+            COLUMN_MAPS_DOWNLOADING,
+            COLUMN_MAPS_HILLSHADE_DOWNLOADING
     };
 
     static final String[] ALL_COLUMNS_TILES = {
@@ -229,9 +235,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_INDEX_FEATURE_NAME = "CREATE UNIQUE INDEX IF NOT EXISTS feature_name_ref ON feature_names (id, lang, name)";
     private static final String SQL_INDEX_FEATURE_NAMES = "CREATE INDEX IF NOT EXISTS feature_names_ref ON feature_names (name)";
 
-    private static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
-    private static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
-    private static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
+    public static final String PRAGMA_PAGE_SIZE = "PRAGMA main.page_size = 4096";
+    public static final String PRAGMA_ENABLE_VACUUM = "PRAGMA main.auto_vacuum = INCREMENTAL";
+    public static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
     private static final String FTS_MERGE = "INSERT INTO names_fts(names_fts) VALUES('merge=300,8')";
 
     public MapTrekDatabaseHelper(Context context, File file) {
@@ -294,6 +300,10 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion <= 3) {
             db.execSQL("DROP INDEX IF EXISTS map_feature_ids");
             db.execSQL(SQL_INDEX_MAP_FEATURES);
+        }
+        if (oldVersion <= 4) {
+            db.execSQL("ALTER TABLE " + TABLE_MAPS + " ADD COLUMN " + COLUMN_MAPS_VERSION);
+            db.execSQL("ALTER TABLE " + TABLE_MAPS + " ADD COLUMN " + COLUMN_MAPS_HILLSHADE_DOWNLOADING);
         }
     }
 

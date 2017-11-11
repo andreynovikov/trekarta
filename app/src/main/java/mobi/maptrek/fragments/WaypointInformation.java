@@ -32,13 +32,12 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.colorpicker.ColorPickerDialog;
-import com.android.colorpicker.ColorPickerSwatch;
-
 import org.oscim.core.GeoPoint;
 
 import java.util.ArrayList;
 
+import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
+import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
@@ -49,7 +48,6 @@ import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
-import mobi.maptrek.view.ColorSwatch;
 import mobi.maptrek.view.LimitedWebView;
 
 public class WaypointInformation extends Fragment implements OnBackPressedListener, LocationChangeListener {
@@ -258,7 +256,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 if (mEditorMode) {
                     mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
                     mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
-                    mWaypoint.style.color = ((ColorSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+                    mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
 
                     mListener.onWaypointSave(mWaypoint);
                     mListener.onWaypointFocus(mWaypoint);
@@ -435,7 +433,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
-        final ColorSwatch colorSwatch = (ColorSwatch) rootView.findViewById(R.id.colorSwatch);
+        final ColorPickerSwatch colorSwatch = (ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch);
 
         int viewsState, editsState;
         if (enabled) {
@@ -448,23 +446,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 public void onClick(View v) {
                     // TODO Implement class that hides this behaviour
                     ArrayList<Integer> colorList = new ArrayList<>(7);
-                    colorList.add(0xffff0000);
-                    colorList.add(0xff00ff00);
-                    colorList.add(0xff0000ff);
-                    colorList.add(0xffffff00);
-                    colorList.add(0xff00ffff);
-                    colorList.add(0xff000000);
-                    colorList.add(0xffff00ff);
-                    if (!colorList.contains(mWaypoint.style.color))
-                        colorList.add(mWaypoint.style.color);
-                    if (!colorList.contains(MarkerStyle.DEFAULT_COLOR))
-                        colorList.add(MarkerStyle.DEFAULT_COLOR);
-                    int[] colors = new int[colorList.size()];
-                    int i = 0;
-                    for (Integer integer : colorList)
-                        colors[i++] = integer;
                     ColorPickerDialog dialog = new ColorPickerDialog();
-                    dialog.setColors(colors, mWaypoint.style.color);
+                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, colorSwatch.getColor());
                     dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
                     dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
                         @Override

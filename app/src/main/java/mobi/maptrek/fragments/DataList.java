@@ -40,8 +40,8 @@ import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
-import mobi.maptrek.util.CoordinatesParser;
 import mobi.maptrek.util.HelperUtils;
+import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.StringFormatter;
 
 public class DataList extends ListFragment implements DataSourceUpdateListener, CoordinatesInputDialog.CoordinatesInputDialogCallback {
@@ -278,12 +278,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             if (line.length() == 0)
                 continue;
             try {
-                CoordinatesParser.Result result = CoordinatesParser.parseWithResult(line);
-                int offset = result.tokens.get(0).i;
-                String name;
-                if (offset > 0)
-                    name = line.substring(0, offset).trim();
-                else
+                JosmCoordinatesParser.Result result = JosmCoordinatesParser.parseWithResult(line);
+                String name = null;
+                if (result.offset < line.length())
+                    name = line.substring(result.offset, line.length()).trim();
+                if (name == null || "".equals(name))
                     name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
                 mWaypointActionListener.onWaypointCreate(result.coordinates, name, true, false);
             } catch (IllegalArgumentException e) {

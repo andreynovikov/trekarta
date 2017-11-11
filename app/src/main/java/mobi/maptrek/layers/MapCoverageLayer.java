@@ -28,6 +28,7 @@ import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.FastMath;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.Configuration;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.maptrek.Index;
 
@@ -40,6 +41,8 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static final double TEXT_MAX_SCALE = 260d;
 
     private final Index mMapIndex;
+    private boolean mAccountHillshades;
+
     private final AreaStyle mPresentAreaStyle;
     private final AreaStyle mOutdatedAreaStyle;
     private final AreaStyle mMissingAreaStyle;
@@ -67,6 +70,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         mSmallTextStyle = TextStyle.builder().fontSize(8 * scale).fontStyle(Paint.FontStyle.BOLD).color(Color.get(0, 64, 0)).strokeColor(Color.WHITE).strokeWidth(8f).build();
         mDateFormat = DateFormat.getDateFormat(context);
         mMapIndex.addMapStateListener(this);
+        mAccountHillshades = Configuration.getHillshadesEnabled();
     }
 
     @Override
@@ -96,6 +100,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
             tileXMin--;
 
         boolean hasSizes = mMapIndex.hasDownloadSizes();
+        boolean validSizes = hasSizes && !mMapIndex.expiredDownloadSizes();
 
         synchronized (this) {
             GeometryBuffer lines = new GeometryBuffer();
@@ -174,12 +179,15 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             text.addText(ti);
                         }
                         ti = TextItem.pool.get();
-                        if (hasSizes) {
-                            ti.set(tx, ty, Formatter.formatShortFileSize(mContext, mapStatus.downloadSize), mTextStyle);
+                        if (validSizes) {
+                            long size = mapStatus.downloadSize;
+                            if (mAccountHillshades)
+                                size += mapStatus.hillshadeDownloadSize;
+                            ti.set(tx, ty, Formatter.formatShortFileSize(mContext, size), mTextStyle);
                             text.addText(ti);
                             ty += mTextStyle.fontHeight / 5; // why 5?
                         }
-                        if (hasSizes || mapStatus.created > 0) {
+                        if (validSizes || mapStatus.created > 0) {
                             int date = mapStatus.created > 0 ? mapStatus.created : mapStatus.downloadCreated;
                             ti = TextItem.pool.get();
                             ti.set(tx, ty, mDateFormat.format(date * 24 * 3600000L), mSmallTextStyle);
@@ -273,6 +281,12 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     public void onStatsChanged() {
+        update();
+    }
+
+    @Override
+    public void onHillshadeAccountingChanged(boolean account) {
+        mAccountHillshades = account;
         update();
     }
 

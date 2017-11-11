@@ -35,8 +35,8 @@ import mobi.maptrek.LocationStateChangeListener;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.ui.TextInputDialogFragment;
-import mobi.maptrek.util.CoordinatesParser;
 import mobi.maptrek.util.HelperUtils;
+import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 
@@ -296,20 +296,17 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             return;
         }
         try {
-            CoordinatesParser.Result result = CoordinatesParser.parseWithResult(s.toString());
+            JosmCoordinatesParser.Result result = JosmCoordinatesParser.parseWithResult(s.toString());
+            s.setSpan(
+                    new ForegroundColorSpan(mColorDarkBlue),
+                    0,
+                    result.offset,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             s.setSpan(
                     new ForegroundColorSpan(mColorTextPrimary),
-                    0,
+                    result.offset,
                     s.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            for (CoordinatesParser.Token token : result.tokens) {
-                //Log.e("C", token.toString());
-                s.setSpan(
-                        new ForegroundColorSpan(mColorDarkBlue),
-                        token.i,
-                        token.i + token.l,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
             mTextInputDialog.setDescription(StringFormatter.coordinates(" ", result.coordinates.getLatitude(), result.coordinates.getLongitude()));
         } catch (IllegalArgumentException e) {
             s.setSpan(
@@ -325,7 +322,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     public void onTextInputPositiveClick(String id, String inputText) {
         mTextInputDialog = null;
         try {
-            GeoPoint geoPoint = CoordinatesParser.parse(inputText);
+            GeoPoint geoPoint = JosmCoordinatesParser.parse(inputText);
             mMapHolder.setMapLocation(geoPoint);
         } catch (IllegalArgumentException e) {
             HelperUtils.showError(getString(R.string.msgParseCoordinatesFailed), mFragmentHolder.getCoordinatorLayout());

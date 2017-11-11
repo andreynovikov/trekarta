@@ -37,7 +37,7 @@
             android:tint="@color/colorPrimaryDark"
             android:visibility="gone" />
 
-        <mobi.maptrek.view.ColorSwatch
+        <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
             android:id="@+id/colorSwatch"
             android:layout_width="@dimen/color_swatch_smallest"
             android:layout_height="@dimen/color_swatch_smallest"

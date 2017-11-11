@@ -14,6 +14,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
+import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -164,8 +165,12 @@ public class MapList extends Fragment {
         map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
         if (mapFile.boundingBox.contains(mLocation)) {
             int zoomLevel = mapFile.tileSource.getZoomLevelMax();
-            if (mapFile.tileSource.getOption("path") == null || (mZoomLevel < mapFile.tileSource.getZoomLevelMax() &&
-                    mZoomLevel > mapFile.tileSource.getZoomLevelMin()))
+            int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
+            if (mapFile.tileSource instanceof SQLiteTileSource) {
+                minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
+            }
+            if (mapFile.tileSource.getOption("path") == null ||
+                    (mZoomLevel < zoomLevel && mZoomLevel > minZoomLevel))
                 zoomLevel = mZoomLevel;
             map.setLocation(mLocation, zoomLevel);
         } else {
