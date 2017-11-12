@@ -120,12 +120,13 @@ public class OsmcSymbolFactory {
     }
 
     public @Nullable
-    Bitmap getBitmap(@NonNull String osmcSymbol) {
-        Bitmap bitmap = mBitmapCache.get(osmcSymbol);
+    Bitmap getBitmap(@NonNull String osmcSymbol, int symbolPercent) {
+        String key = osmcSymbol + "%%%" + String.valueOf(symbolPercent);
+        Bitmap bitmap = mBitmapCache.get(key);
         if (bitmap != null)
             return bitmap;
 
-        int size = (int) (20 * MapTrek.density);
+        int size = (int) (symbolPercent * 0.2 * MapTrek.density); // 20dip base
         float hSize = size / 2;
         float pWidth = 3 * MapTrek.density;
         float hWidth = pWidth / 2;
@@ -211,7 +212,7 @@ public class OsmcSymbolFactory {
         }
 
         bitmap = new AndroidBitmap(bmp);
-        mBitmapCache.put(osmcSymbol, bitmap);
+        mBitmapCache.put(key, bitmap);
         return bitmap;
     }
 

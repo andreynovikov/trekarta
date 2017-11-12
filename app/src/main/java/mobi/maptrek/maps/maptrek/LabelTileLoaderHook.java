@@ -132,7 +132,8 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
             if (symbol.src != null) {
                 if (symbol.src.equals("/osmc-symbol")) {
-                    Bitmap bitmap = mOsmcSymbolFactory.getBitmap(element.tags.getValue("osmc:symbol"));
+                    String osmcSymbol = element.tags.getValue("osmc:symbol");
+                    Bitmap bitmap = mOsmcSymbolFactory.getBitmap(osmcSymbol, symbol.symbolPercent);
                     if (bitmap != null)
                         symbol = mSymbolBuilder.set(symbol).bitmap(bitmap).build();
                 }

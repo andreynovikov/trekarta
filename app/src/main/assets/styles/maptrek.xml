@@ -538,7 +538,12 @@
                 <line stroke="#88ffff00" width="3" />
             </m>
             <m k="osmc:symbol">
-                <symbol src="gen:/osmc-symbol" merge="true" />
+                <m zoom-max="11">
+                    <symbol src="gen:/osmc-symbol" merge="true" symbol-percent="50" />
+                </m>
+                <m zoom-min="12">
+                    <symbol src="gen:/osmc-symbol" merge="true" symbol-percent="70" />
+                </m>
             </m>
         </m>
         <m zoom-min="14">
@@ -555,7 +560,12 @@
                 <line cap="butt" fix="true" stroke="#ffff00" width="1.5" />
             </m>
             <m k="osmc:symbol">
-                <symbol src="gen:/osmc-symbol" merge="true" />
+                <m zoom-max="16">
+                    <symbol merge="true" src="gen:/osmc-symbol" />
+                </m>
+                <m zoom-min="17">
+                    <symbol merge="true" src="gen:/osmc-symbol" symbol-percent="130" />
+                </m>
             </m>
         </m>
     </m>
