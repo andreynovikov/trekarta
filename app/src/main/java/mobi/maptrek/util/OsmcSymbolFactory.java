@@ -154,24 +154,27 @@ public class OsmcSymbolFactory {
                 canvas.drawColor(Color.WHITE);
         } else {
             Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(pWidth);
-            if ("white".equals(background[0]))
-                canvas.drawColor(Color.BLACK);
-            else
-                canvas.drawColor(Color.WHITE);
-            if (backgroundColor != null)
-                paint.setColor(backgroundColor);
-            else
-                paint.setColor(Color.BLACK);
+            int fillColor = "white".equals(background[0]) ? Color.BLACK : Color.WHITE;
+            int backColor = backgroundColor != null ? backgroundColor : Color.BLACK;
             if ("round".equals(background[1])) {
                 isRound = true;
-                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(backColor);
                 canvas.drawCircle(hSize, hSize, hSize - hWidth, paint);
             } else if ("circle".equals(background[1])) {
                 isRound = true;
+                paint.setColor(fillColor);
+                canvas.drawCircle(hSize, hSize, hSize - hWidth, paint);
+                paint.setColor(backColor);
                 paint.setStyle(Paint.Style.STROKE);
                 canvas.drawCircle(hSize, hSize, hSize - hWidth, paint);
             } else {
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setColor(fillColor);
+                //noinspection SuspiciousNameCombination
+                canvas.drawRect(hWidth, hWidth, size - hWidth, size - hWidth, paint);
+                paint.setColor(backColor);
                 paint.setStyle(Paint.Style.STROKE);
                 //noinspection SuspiciousNameCombination
                 canvas.drawRect(hWidth, hWidth, size - hWidth, size - hWidth, paint);
