@@ -826,7 +826,8 @@ public class Tags {
             "good",
             "bad",
             "horrible",
-            "saddle"
+            "saddle",
+            "waterfall"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

@@ -6,12 +6,12 @@
     <!--
     TODO:
     http://wiki.openstreetmap.org/wiki/Tag:information=guidepost
-    http://wiki.openstreetmap.org/wiki/Tag:natural%3Dsaddle
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
     http://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
     railway:subway
+    http://wiki.openstreetmap.org/wiki/Tag:aerialway=goods?uselang=en
     http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
@@ -1863,21 +1863,36 @@
 
     <!-- Man made objects above ground -->
     <m cat="aerialways" k="aerialway">
-        <line cap="butt" fix="true" stroke="#202020" width="1.8" />
-        <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
-            width="12" />
-        <m k="aerialway" v="cable_car">
-            <symbol src="assets:symbols/transport/cable_car.svg" />
+        <m e="way">
+            <line cap="butt" fix="true" stroke="#202020" width="1.8" />
+            <m k="aerialway" v="cable_car">
+                <line fix="true" src="assets:symbols/dot_black.svg" stipple="50" stipple-stroke="#202020"
+                    width="12" />
+                <symbol src="assets:symbols/transport/cable_car.svg" />
+            </m>
+            <m k="aerialway" v="chair_lift">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
+                    width="12" />
+                <symbol src="assets:symbols/transport/chair_lift.svg" />
+            </m>
+            <m k="aerialway" v="gondola">
+                <line fix="true" src="assets:symbols/dot_black.svg" stipple="50" stipple-stroke="#202020"
+                    width="12" />
+                <symbol src="assets:symbols/transport/gondola.svg" />
+            </m>
+            <m k="aerialway" v="drag_lift">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
+                    width="12" />
+                <symbol src="assets:symbols/transport/drag_lift.svg" />
+            </m>
+            <m zoom-min="14">
+                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
         </m>
-        <m k="aerialway" v="chair_lift">
-            <symbol src="assets:symbols/transport/chair_lift.svg" />
-        </m>
-        <m k="aerialway" v="gondola">
-            <symbol src="assets:symbols/transport/gondola.svg" />
-        </m>
-        <m zoom-min="14">
-            <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
-                stroke-width="2.0" />
+        <m e="node" k="aerialway" v="station">
+            <symbol src="assets:symbols/transport/station.svg" />
+            <text use="poi" />
         </m>
     </m>
 
@@ -2390,6 +2405,11 @@
                 </m>
             </m>
             <m k="kind_attraction">
+                <m k="waterway">
+                    <m v="waterfall">
+                        <symbol src="assets:symbols/natural/waterfall.svg" />
+                    </m>
+                </m>
                 <m k="man_made">
                     <m v="lighthouse">
                         <symbol src="assets:symbols/tourist/lighthouse.svg" />
