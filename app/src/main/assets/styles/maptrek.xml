@@ -1862,6 +1862,9 @@
         <m k="aerialway" v="gondola">
             <symbol src="assets:symbols/transport/gondola.svg" />
         </m>
+        <m k="aerialway" v="drag_lift">
+            <symbol src="assets:symbols/transport/drag_lift.svg" />
+        </m>
         <m zoom-min="14">
             <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
                 stroke-width="2.0" />
