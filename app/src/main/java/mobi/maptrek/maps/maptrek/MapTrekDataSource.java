@@ -149,6 +149,12 @@ class MapTrekDataSource implements ITileDataSource {
                 logger.error(element.id + ": " + element.tags.toString());
             }
             */
+            /*
+            if (element.id == ((84126396L << 2) + 2) || element.id == ((84126388L << 2) + 2)) {
+                logger.error(tile.toString() + ": " + element.id + ": " + element.layer + " "
+                        + element.kind + " " + element.tags.toString());
+            }
+            */
             mapDataSink.process(element);
         }
 

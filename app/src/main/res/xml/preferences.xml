@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/pref_units">
 
         <ListPreference
@@ -36,7 +37,17 @@
             android:title="@string/pref_unit_precision_title" />
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_advanced">
+    <PreferenceCategory
+        android:key="category_advanced"
+        android:title="@string/pref_advanced">
+        <org.anasthase.androidseekbarpreference.SeekBarPreference
+            android:defaultValue="50"
+            android:key="hillshades_transparency"
+            android:title="@string/pref_hillshades_transparency"
+            app:format="%d%%"
+            app:maxValue="70"
+            app:minValue="30"
+            app:stepValue="10" />
         <Preference
             android:key="reset_advices"
             android:title="@string/actionResetAdvices">

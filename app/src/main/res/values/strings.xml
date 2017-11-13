@@ -34,6 +34,7 @@
     <string name="any">Any</string>
     <string name="baseMapTitle">World map</string>
     <string name="downloadBasemap">Download updated world map (%s)</string>
+    <string name="downloadHillshades">Download concomitant hillshades</string>
     <string name="iamin">Yes, I\'m in</string>
 
     <string name="actionSave">Save</string>
@@ -74,6 +75,7 @@
     <string name="actionAmenityZooms">Amenities</string>
     <string name="actionFontSize">Font size</string>
     <string name="actionRate">Say thanks</string>
+    <string name="actionHillshades">Hillshades</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -227,6 +229,7 @@
     <string name="pref_unit_angle_title">Angle</string>
     <string name="pref_unit_precision_title">Extra precision</string>
     <string name="pref_advanced">Advanced</string>
+    <string name="pref_hillshades_transparency">Hillshades transparency</string>
 
     <string name="kind_place">Localities</string>
     <string name="kind_road">Roads</string>
@@ -247,7 +250,5 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
-    <string name="downloadHillshades">Download concomitant hillshades</string>
-    <string name="actionHillshades">Hillshades</string>
 
 </resources>

@@ -161,6 +161,10 @@ public class Index {
         return mBaseMapVersion > 0 && mBaseMapVersion < mBaseMapDownloadVersion;
     }
 
+    public boolean hasHillshades() {
+        return mHasHillshades;
+    }
+
     public long getBaseMapSize() {
         return mBaseMapDownloadSize > 0L ? mBaseMapDownloadSize : BASEMAP_SIZE_STUB * 1024 * 1024;
     }

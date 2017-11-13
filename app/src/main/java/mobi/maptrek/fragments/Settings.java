@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
@@ -18,12 +19,22 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 
 public class Settings extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final String ARG_HILLSHADES_AVAILABLE = "hillshades_available";
+
     private FragmentHolder mFragmentHolder;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.preferences);
+
+        Bundle args = getArguments();
+        if (!args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
+            PreferenceCategory category = (PreferenceCategory) findPreference("category_advanced");
+            Preference hillshadePref = findPreference("hillshades_transparency");
+            category.removePreference(hillshadePref);
+        }
 
         Preference resetPref = findPreference("reset_advices");
         resetPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -81,6 +92,7 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         updatePreference(findPreference(key), key);
     }
 
+    @SuppressWarnings("unused")
     private void updatePreference(Preference preference, String key) {
         if (preference == null) return;
         if (preference instanceof ListPreference) {

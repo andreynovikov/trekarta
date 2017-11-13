@@ -657,7 +657,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
         if (mBitmapLayerMap != null)
-            showBitmapMap(mBitmapLayerMap);
+            showBitmapMap(mBitmapLayerMap, false);
 
         setNightMode(false);
         //setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
@@ -1355,7 +1355,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return true;
             }
             case R.id.actionSettings: {
-                Fragment fragment = Fragment.instantiate(this, Settings.class.getName());
+                Bundle args = new Bundle(1);
+                args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mNativeMapIndex.hasHillshades());
+                Fragment fragment = Fragment.instantiate(this, Settings.class.getName(), args);
                 fragment.setEnterTransition(new Slide(mSlideGravity));
                 fragment.setReturnTransition(new Slide(mSlideGravity));
                 FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -2932,7 +2934,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return;
             }
         }
-        showBitmapMap(mapFile);
+        showBitmapMap(mapFile, true);
     }
 
     @Override
@@ -2984,7 +2986,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void showHillShade() {
         SQLiteTileSource hillShadeTileSource = MapTrek.getApplication().getHillShadeTileSource();
         if (hillShadeTileSource != null) {
-            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource, 0.4f);
+            int transparency = Configuration.getHillshadesTransparency();
+            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource, transparency * 0.01f);
             mMap.layers().add(mHillshadeLayer, MAP_MAP_OVERLAYS);
             mMap.updateMap(true);
         }
@@ -2997,7 +3000,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mHillshadeLayer = null;
     }
 
-    private void showBitmapMap(MapFile mapFile) {
+    private void showBitmapMap(MapFile mapFile, boolean reposition) {
         logger.debug("showBitmapMap({})", mapFile.name);
         showHideMapObjects(true);
         mapFile.tileSource.open();
@@ -3011,6 +3014,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
+        if (!reposition)
+            return;
+
         MapPosition position = mMap.getMapPosition();
         boolean positionChanged = false;
         if (!mapFile.boundingBox.contains(position.getGeoPoint())) {
@@ -4037,6 +4043,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 else
                     hideHillShade();
                 mMap.clearMap();
+                break;
+            }
+            case Configuration.PREF_HILLSHADES_TRANSPARENCY: {
+                int transparency = Configuration.getHillshadesTransparency();
+                if (mHillshadeLayer != null)
+                    mHillshadeLayer.setTransparency(transparency * 0.01f);
                 break;
             }
         }

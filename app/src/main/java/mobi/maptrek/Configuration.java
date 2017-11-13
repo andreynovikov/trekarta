@@ -21,8 +21,9 @@ public class Configuration {
     private static final String PREF_MAP_BEARING = "map_bearing";
     private static final String PREF_MAP_TILT = "map_tilt";
     private static final String PREF_MAP_3D_BUILDINGS = "map_3d_buildings";
-    public static final String PREF_MAP_HILLSHADES = "map_hillshade";
     private static final String PREF_MAP_CONTOURS = "map_contours";
+    public static final String PREF_MAP_HILLSHADES = "map_hillshades";
+    public static final String PREF_HILLSHADES_TRANSPARENCY = "hillshades_transparency";
     private static final String PREF_MAP_GRID = "map_grid";
     private static final String PREF_BITMAP_MAP = "bitmap_map";
     private static final String PREF_POINTS_COUNTER = "wpt_counter";
@@ -192,6 +193,14 @@ public class Configuration {
         saveBoolean(PREF_MAP_3D_BUILDINGS, buildingsLayerEnabled);
     }
 
+    public static boolean getContoursEnabled() {
+        return loadBoolean(PREF_MAP_CONTOURS, true);
+    }
+
+    public static void setContoursEnabled(boolean contoursEnabled) {
+        saveBoolean(PREF_MAP_CONTOURS, contoursEnabled);
+    }
+
     public static boolean getHillshadesEnabled() {
         return loadBoolean(PREF_MAP_HILLSHADES, false); // disabled until first time downloaded
     }
@@ -200,12 +209,8 @@ public class Configuration {
         saveBoolean(PREF_MAP_HILLSHADES, hillshadesEnabled);
     }
 
-    public static boolean getContoursEnabled() {
-        return loadBoolean(PREF_MAP_CONTOURS, true);
-    }
-
-    public static void setContoursEnabled(boolean contoursEnabled) {
-        saveBoolean(PREF_MAP_CONTOURS, contoursEnabled);
+    public static int getHillshadesTransparency() {
+        return loadInt(PREF_HILLSHADES_TRANSPARENCY, 50);
     }
 
     public static boolean getGridLayerEnabled() {
