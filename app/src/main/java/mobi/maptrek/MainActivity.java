@@ -2946,10 +2946,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onTransparencyChanged(int transparency) {
         mBitmapMapTransparency = transparency;
-        if (mBitmapLayerMap != null) {
-            mBitmapLayerMap.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
-            mMap.updateMap(true);
-        }
+        if (mBitmapLayerMap != null && mBitmapLayerMap.tileLayer instanceof BitmapTileLayer)
+            ((BitmapTileLayer)mBitmapLayerMap.tileLayer).setTransparency(mBitmapMapTransparency * 0.01f);
         Configuration.setBitmapMapTransparency(transparency);
     }
 
@@ -2986,8 +2984,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void showHillShade() {
         SQLiteTileSource hillShadeTileSource = MapTrek.getApplication().getHillShadeTileSource();
         if (hillShadeTileSource != null) {
-            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource);
-            mHillshadeLayer.tileRenderer().setBitmapAlpha(0.4f);
+            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource, 0.4f);
             mMap.layers().add(mHillshadeLayer, MAP_MAP_OVERLAYS);
             mMap.updateMap(true);
         }
@@ -3010,8 +3007,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             layer.setRenderTheme(ThemeLoader.load(VtmThemes.MAPTREK));
             mapFile.tileLayer = layer;
         } else {
-            mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource);
-            mapFile.tileLayer.tileRenderer().setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+            mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, mBitmapMapTransparency * 0.01f);
         }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
@@ -3029,8 +3025,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mapFile.tileSource instanceof SQLiteTileSource) {
             minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
         }
-        if (position.getZoomLevel() < minZoomLevel) {
-            position.setScale((1 << minZoomLevel) + 5);
+        double minScale = (1 << minZoomLevel) * 0.7 + (1 << (minZoomLevel + 1)) * 0.3 + 5;
+        if (position.getScale() < minScale) {
+            position.setScale(minScale);
             positionChanged = true;
         }
         if (positionChanged)

@@ -7,6 +7,7 @@ import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.Tile;
+import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.TileSource;
@@ -126,6 +127,13 @@ public class SQLiteTileSource extends TileSource {
             nameSb.append(")");
             setOption("name", nameSb.toString());
         }
+
+        double scaleStart = 1 << sourceZoomMin;
+        double scaleEnd = scaleStart * 0.7 + (1 << (sourceZoomMin + 1)) * 0.3;
+
+        BitmapTileLayer.FadeStep fadeStep1 = new BitmapTileLayer.FadeStep(scaleStart, scaleEnd, 0, 1);
+        BitmapTileLayer.FadeStep fadeStep2 = new BitmapTileLayer.FadeStep(scaleEnd, 1 << 20, 1, 1);
+        setFadeSteps(new BitmapTileLayer.FadeStep[]{fadeStep1, fadeStep2});
 
         return OpenResult.SUCCESS;
     }
