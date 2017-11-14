@@ -1740,7 +1740,7 @@
     </m>
 
     <m cat="nature" k="natural" v="tree" zoom-min="16">
-        <area fade="16" mesh="true" use="wood" />
+        <area fade="16" mesh="true" fill="#83aa5b" />
     </m>
 
     <!-- Administrative boundaries -->
