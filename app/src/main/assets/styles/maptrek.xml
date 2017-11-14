@@ -135,8 +135,8 @@
 
     <style-line fix="true" id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.2" />
     <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
-    <style-line cap="butt" id="bridleway" stipple-stroke="#7b8358" stroke="#d3cb98" use="footway"
-        width="0.2" />
+    <style-line cap="butt" fix="true" id="bridleway" stipple="6" stipple-stroke="#007700"
+        stroke="#00ffffff" width="1.5" />
     <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#be6253"
         stroke="#aaffffff" width="3.5" />
 
@@ -739,7 +739,7 @@
                             <line blur="1" cap="butt" stroke="#ffff00" width="2.5" />
                         </m>
                     </m>
-                    <m k="route:network" zoom-min="16" zoom-max="16">
+                    <m k="route:network" zoom-max="16" zoom-min="16">
                         <m v="iwn">
                             <line blur="1" cap="butt" stroke="#0000ff" width="2.0" />
                         </m>
@@ -976,7 +976,7 @@
                         </m>
                         <m v="bridleway">
                             <m zoom-min="15">
-                                <line use="footway:back" />
+                                <line use="footway:back" width="0.3" />
                             </m>
                             <line use="bridleway" />
                         </m>
@@ -1740,7 +1740,7 @@
     </m>
 
     <m cat="nature" k="natural" v="tree" zoom-min="16">
-        <area fade="16" mesh="true" fill="#83aa5b" />
+        <area fade="16" fill="#83aa5b" mesh="true" />
     </m>
 
     <!-- Administrative boundaries -->
