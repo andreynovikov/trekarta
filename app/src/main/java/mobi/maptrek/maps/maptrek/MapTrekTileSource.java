@@ -32,7 +32,7 @@ public class MapTrekTileSource extends TileSource {
     private final SQLiteDatabase mNativeMapDatabase;
     private final HashSet<MapTrekDataSource> mMapTrekDataSources;
     private OnDataMissingListener mOnDataMissingListener;
-
+    private boolean mContoursEnabled = true;
 
     public MapTrekTileSource(SQLiteDatabase nativeMapDatabase) {
         super(2, 17);
@@ -41,6 +41,7 @@ public class MapTrekTileSource extends TileSource {
     }
 
     public void setContoursEnabled(boolean enabled) {
+        mContoursEnabled = enabled;
         for (MapTrekDataSource source : mMapTrekDataSources)
             source.setContoursEnabled(enabled);
     }
@@ -52,6 +53,7 @@ public class MapTrekTileSource extends TileSource {
     @Override
     public ITileDataSource getDataSource() {
         MapTrekDataSource mapTrekDataSource = new MapTrekDataSource(mNativeMapDatabase);
+        mapTrekDataSource.setContoursEnabled(mContoursEnabled);
         mMapTrekDataSources.add(mapTrekDataSource);
         return new NativeDataSource(mapTrekDataSource);
     }
