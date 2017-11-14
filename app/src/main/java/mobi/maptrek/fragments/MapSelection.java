@@ -241,6 +241,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         StringBuilder stringBuilder = new StringBuilder();
         if (stats.loaded > 0) {
             stringBuilder.append(mResources.getQuantityString(R.plurals.loadedAreas, stats.loaded, stats.loaded));
+            stringBuilder.append(" (");
+            stringBuilder.append(Formatter.formatFileSize(getContext(), mMapIndex.getMapDatabaseSize()));
+            stringBuilder.append(")");
         }
         if (stats.downloading > 0) {
             if (stringBuilder.length() > 0)

@@ -169,6 +169,12 @@ public class Index {
         return mBaseMapDownloadSize > 0L ? mBaseMapDownloadSize : BASEMAP_SIZE_STUB * 1024 * 1024;
     }
 
+    public long getMapDatabaseSize() {
+        long size = new File(mMapsDatabase.getPath()).length();
+        size += new File(mHillshadeDatabase.getPath()).length();
+        return size;
+    }
+
     public void setBaseMapStatus(short date, int size) {
         mBaseMapDownloadVersion = date;
         mBaseMapDownloadSize = size;
