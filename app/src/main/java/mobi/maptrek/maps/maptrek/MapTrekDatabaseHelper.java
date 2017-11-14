@@ -68,7 +68,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_MAPS_Y + " INTEGER NOT NULL, "
                     + COLUMN_MAPS_DATE + " INTEGER NOT NULL DEFAULT 0, "
                     + COLUMN_MAPS_VERSION + " INTEGER NOT NULL DEFAULT 0, "
-                    + COLUMN_MAPS_DOWNLOADING + " INTEGER NOT NULL DEFAULT 0"
+                    + COLUMN_MAPS_DOWNLOADING + " INTEGER NOT NULL DEFAULT 0, "
                     + COLUMN_MAPS_HILLSHADE_DOWNLOADING + " INTEGER NOT NULL DEFAULT 0"
                     + ")";
 
