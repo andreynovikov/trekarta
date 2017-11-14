@@ -69,6 +69,8 @@
     ==== STYLES ====
     -->
 
+    <!-- Color adjustment tool: http://scg.ar-ch.org/ -->
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -86,7 +88,7 @@
     <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-area blend="11" blend-fill="#83aa5b" fade="8" fill="#b3d095" id="wood" />
+    <style-area blend="11" blend-fill="#90b36c" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" />
     <style-area fade="10" fill="#c2cba5" id="scrub" />
@@ -157,7 +159,7 @@
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="#83aa5b" width="2.0" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="#90b36c" width="2.0" />
 
     <!-- Buildings -->
     <style-line id="building" stroke="#eeb7b6b3" use="fix" />
@@ -221,8 +223,8 @@
             <area use="park" />
             <m zoom-min="14">
                 <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#006600" k="name"
-                    priority="4" size="16" stroke="#ccffcc" stroke-width="2.0" />
+                <text style="bold_italic" area-size="0.1" caption="true" fill="#5d793f" k="name"
+                    priority="4" size="16" stroke="#cfdec0" stroke-width="2.0" />
             </m>
         </m>
         <m cat="urban" v="garden">
@@ -1740,7 +1742,7 @@
     </m>
 
     <m cat="nature" k="natural" v="tree" zoom-min="16">
-        <area fade="16" fill="#83aa5b" mesh="true" />
+        <area fade="16" fill="#90b36c" mesh="true" />
     </m>
 
     <!-- Administrative boundaries -->
