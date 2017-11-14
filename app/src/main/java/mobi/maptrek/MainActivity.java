@@ -368,6 +368,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         logger.debug("onCreate()");
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -805,6 +806,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mStartTime = SystemClock.uptimeMillis();
 
         onNewIntent(getIntent());
+
+        // TODO: 14/11/17 This is temporary solution to properly mark updated installs
+        boolean freshInstall = true;
+        try {
+            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
+            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+            freshInstall = firstInstallTime == lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            logger.error("Can not find myself");
+        }
+        int last = Configuration.getLastSeenIntroduction();
+        if (last < IntroductionActivity.CURRENT_INTRODUCTION) {
+            if (!freshInstall)
+                startActivity(new Intent(this, IntroductionActivity.class));
+            else
+                Configuration.setLastSeenIntroduction(IntroductionActivity.CURRENT_INTRODUCTION);
+        }
     }
 
     protected void onNewIntent(Intent intent) {
@@ -2949,7 +2967,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onTransparencyChanged(int transparency) {
         mBitmapMapTransparency = transparency;
         if (mBitmapLayerMap != null && mBitmapLayerMap.tileLayer instanceof BitmapTileLayer)
-            ((BitmapTileLayer)mBitmapLayerMap.tileLayer).setTransparency(mBitmapMapTransparency * 0.01f);
+            ((BitmapTileLayer) mBitmapLayerMap.tileLayer).setTransparency(mBitmapMapTransparency * 0.01f);
         Configuration.setBitmapMapTransparency(transparency);
     }
 

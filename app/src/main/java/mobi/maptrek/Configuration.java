@@ -56,6 +56,7 @@ public class Configuration {
     private static final String PREF_AUTO_TILT = "auto_tilt";
     private static final String PREF_HIDE_SYSTEM_UI = "hide_system_ui";
     private static final String PREF_ACTION_RATING = "action_rating";
+    private static final String LAST_SEEN_INTRODUCTION = "last_seen_introduction";
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
@@ -368,6 +369,14 @@ public class Configuration {
 
     public static void setRatingActionPerformed() {
         saveBoolean(PREF_ACTION_RATING, true);
+    }
+
+    public static int getLastSeenIntroduction() {
+        return loadInt(LAST_SEEN_INTRODUCTION, 0);
+    }
+
+    public static void setLastSeenIntroduction(int last) {
+        saveInt(LAST_SEEN_INTRODUCTION, last);
     }
 
     public static long getRunningTime() {

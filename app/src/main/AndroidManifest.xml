@@ -44,7 +44,7 @@
         android:protectionLevel="normal" />
 
     <application
-        android:name="mobi.maptrek.MapTrek"
+        android:name=".MapTrek"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
@@ -58,6 +58,7 @@
             android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -88,6 +89,9 @@
                 <data android:host="osm.org" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".IntroductionActivity"
+            android:windowSoftInputMode="stateHidden" />
 
         <service
             android:name=".location.LocationService"
@@ -97,11 +101,9 @@
                 <action android:name="${applicationId}.location.ILocationRemoteService" />
             </intent-filter>
         </service>
-
         <service
             android:name=".location.NavigationService"
             android:exported="false" />
-
         <service
             android:name=".maps.MapService"
             android:exported="false" />
@@ -113,7 +115,6 @@
             android:grantUriPermissions="true"
             android:readPermission="${applicationId}.permission.READ_FILES"
             android:writePermission="${applicationId}.permission.WRITE_FILES" />
-
         <provider
             android:name=".provider.DataProvider"
             android:authorities="${applicationId}.data"
@@ -121,12 +122,11 @@
             android:readPermission="${applicationId}.permission.READ_MAP_DATA"
             android:writePermission="${applicationId}.permission.WRITE_MAP_DATA" />
 
-        <receiver android:name="mobi.maptrek.DownloadReceiver">
+        <receiver android:name=".DownloadReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".WaypointsRestoreReceiver"
             android:exported="false">
@@ -134,7 +134,6 @@
                 <action android:name="mobi.maptrek.event.WaypointsRestored" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".plugin.PluginEntryReceiver"
             android:permission="${applicationId}.permission.ADD_PLUGIN_ENTRIES">
@@ -142,7 +141,6 @@
                 <action android:name="mobi.maptrek.plugin.NewEntry" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

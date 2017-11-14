@@ -82,5 +82,7 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.2.9'
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.9.1'
+    compile 'com.github.apl-devs:appintro:v4.2.2'
+    compile 'de.hdodenhof:circleimageview:2.2.0'
     compile 'com.github.andreynovikov:AndroidSeekBarPreference:master-SNAPSHOT'
 }
