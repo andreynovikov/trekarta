@@ -5,10 +5,12 @@
 
     <!--
     TODO:
-    https://wiki.openstreetmap.org/wiki/Tag:natural%3Dsaddle
+    http://wiki.openstreetmap.org/wiki/Tag:information=guidepost
+    http://wiki.openstreetmap.org/wiki/Tag:natural%3Dsaddle
     http://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
+    http://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
     railway:subway
     http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
@@ -827,7 +829,7 @@
                                     stroke="#00ffffff" width="1.5" />
                                 <text use="major-road-name" />
                             </m>
-                            <m cat="roads" v="road|construction">
+                            <m cat="roads" v="construction">
                                 <line stroke="#00ffffff" use="road-construction" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
@@ -836,6 +838,11 @@
                                 </m>
                             </m>
                             <m cat="pedestrian" v="pedestrian">
+                                <line cap="butt" stipple="20" stipple-stroke="#ededed"
+                                    stroke="#00ffffff" width="1.0" />
+                                <text use="road-name" />
+                            </m>
+                            <m cat="roads" v="road">
                                 <line cap="butt" stipple="20" stipple-stroke="#ededed"
                                     stroke="#00ffffff" width="1.0" />
                                 <text use="road-name" />
@@ -978,9 +985,11 @@
                         </m>
                         <m v="bridleway">
                             <m zoom-min="15">
-                                <line use="footway:back" width="0.3" />
+                                <line cat="tracks" use="footway:back" width="0.3" />
+                                <line cat="hiking" use="footway:back" stroke="#ffffffff" width="4.0" />
                             </m>
-                            <line use="bridleway" />
+                            <line cat="tracks" use="bridleway" />
+                            <line cat="hiking" use="bridleway" width="2.2" />
                         </m>
                         <m v="track">
                             <m cat="tracks" zoom-max="13" zoom-min="13">
@@ -1175,7 +1184,7 @@
                             </m>
                             <text use="major-road-name" />
                         </m>
-                        <m cat="roads" v="road|construction">
+                        <m cat="roads" v="construction">
                             <line outline="road" use="road-construction" />
                             <m k="ford" v="yes">
                                 <line use="ford" width="-0.2" />
@@ -1187,6 +1196,10 @@
                             </m>
                         </m>
                         <m cat="pedestrian" v="pedestrian">
+                            <line outline="road" use="pedestrian" />
+                            <text use="road-name" />
+                        </m>
+                        <m cat="roads" v="road">
                             <line outline="road" use="pedestrian" />
                             <text use="road-name" />
                         </m>
@@ -1564,7 +1577,7 @@
                         <line cap="butt" outline="bridge" use="trunk_link" />
                         <text use="major-road-name" />
                     </m>
-                    <m cat="roads" v="road|construction">
+                    <m cat="roads" v="construction">
                         <line cap="butt" outline="bridge" use="road-construction" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
@@ -1573,6 +1586,10 @@
                         </m>
                     </m>
                     <m cat="pedestrian" v="pedestrian">
+                        <line cap="butt" outline="bridge" use="pedestrian" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="road">
                         <line cap="butt" outline="bridge" use="pedestrian" />
                         <text use="road-name" />
                     </m>
