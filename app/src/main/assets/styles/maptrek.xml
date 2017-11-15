@@ -223,8 +223,8 @@
             <area use="park" />
             <m zoom-min="14">
                 <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#5d793f" k="name"
-                    priority="4" size="16" stroke="#cfdec0" stroke-width="2.0" />
+                <text style="bold_italic" area-size="0.1" caption="true" fill="#5d8236" k="name"
+                    priority="4" size="16" stroke="#dceacd" stroke-width="2.0" />
             </m>
         </m>
         <m cat="urban" v="garden">
@@ -321,8 +321,8 @@
             <area src="assets:patterns/cemetery.svg" />
             <m zoom-min="14">
                 <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#222222" k="name"
-                    priority="4" size="16" stroke="#cccccc" stroke-width="2.0" />
+                <text style="bold_italic" area-size="0.1" caption="true" fill="#777777" k="name"
+                    priority="4" size="16" stroke="#f6f6f6" stroke-width="2.0" />
             </m>
         </m>
     </m>
@@ -1944,8 +1944,8 @@
             <m zoom-min="8">
                 <line use="nature_reserve" />
             </m>
-            <text style="bold_italic" area-size="0.1" caption="true" fill="#006600" k="name"
-                priority="3" size="18" stroke="#ccffcc" stroke-width="2.0" />
+            <text style="bold_italic" area-size="0.1" caption="true" fill="#0a5c0a" k="name"
+                priority="3" size="18" stroke="#d1fad1" stroke-width="2.0" />
         </m>
     </m>
     <m cat="urban" closed="yes" k="landuse" zoom-min="7">
