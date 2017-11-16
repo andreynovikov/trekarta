@@ -16,11 +16,11 @@ import mobi.maptrek.maps.maptrek.Index;
 public class BaseMapDownload extends Fragment implements OnBackPressedListener {
     private FragmentHolder mFragmentHolder;
     private Index mMapIndex;
+    private TextView mMessageView;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_basemap_download, container, false);
-        TextView messageView = (TextView) rootView.findViewById(R.id.message);
-        messageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
+        mMessageView = (TextView) rootView.findViewById(R.id.message);
         return rootView;
     }
 
@@ -38,6 +38,13 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
                 mFragmentHolder.popCurrent();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        long size = mMapIndex != null ? mMapIndex.getBaseMapSize() : Index.BASEMAP_SIZE_STUB * 1024 * 1024;
+        mMessageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
     }
 
     @Override
