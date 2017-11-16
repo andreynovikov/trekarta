@@ -599,7 +599,7 @@ public class Index {
 
     public void downloadBaseMap() {
         Uri uri = new Uri.Builder()
-                .scheme("http")
+                .scheme("https")
                 .authority("maptrek.mobi")
                 .appendPath("maps")
                 .appendPath(BASEMAP_FILENAME)
@@ -645,7 +645,7 @@ public class Index {
         String ext = hillshade ? "mbtiles" : "mtiles";
         String fileName = String.format(Locale.ENGLISH, "%d-%d.%s", x, y, ext);
         Uri uri = new Uri.Builder()
-                .scheme("http")
+                .scheme("https")
                 .authority("maptrek.mobi")
                 .appendPath(hillshade ? "hillshades" : "maps")
                 .appendPath(String.valueOf(x))
@@ -792,16 +792,16 @@ public class Index {
 
     public static Uri getIndexUri() {
         return new Uri.Builder()
-                .scheme("http")
+                .scheme("https")
                 .authority("maptrek.mobi")
                 .appendPath("maps")
-                .appendPath("nativeindex")
+                .appendPath("index")
                 .build();
     }
 
     public static Uri getHillshadeIndexUri() {
         return new Uri.Builder()
-                .scheme("http")
+                .scheme("https")
                 .authority("maptrek.mobi")
                 .appendPath("hillshades")
                 .appendPath("index")
