@@ -3363,7 +3363,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             if ("baseMapDownload".equals(fragmentName)) {
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
-
                 }
             } else if ("trackProperties".equals(fragmentName)) {
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);

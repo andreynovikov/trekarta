@@ -12,8 +12,8 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 44
-        versionName "44"
+        versionCode 45
+        versionName "45"
     }
 
     compileOptions {
@@ -32,7 +32,7 @@ android {
 
     productFlavors {
         full {
-            versionName "2017.beta44"
+            versionName "2017.beta45"
             applicationId "mobi.maptrek"
             buildConfigField "boolean", "FULL_VERSION", "true"
             buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
@@ -59,7 +59,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.google.code.findbugs:annotations:2.0.1'
-    compile 'com.android.support:support-annotations:27.0.0'
+    compile 'com.android.support:support-annotations:27.0.1'
     compile 'com.android.support:design:25.4.0'
     compile 'org.mapsforge:vtm:master-SNAPSHOT'
     compile 'org.mapsforge:vtm-http:master-SNAPSHOT'
