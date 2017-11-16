@@ -126,7 +126,7 @@ public class MapService extends IntentService {
         private final NotificationManager notificationManager;
         private final Notification.Builder builder;
         int progress = 0;
-        int step = 0;
+        float step = 0f;
 
         OperationProgressListener(NotificationManager notificationManager, Notification.Builder builder) {
             this.notificationManager = notificationManager;
@@ -135,8 +135,8 @@ public class MapService extends IntentService {
 
         @Override
         public void onProgressStarted(int length) {
-            step = length / 100;
-            if (step == 0)
+            step = length / 100f;
+            if (step == 0f)
                 return;
             builder.setContentText(getString(R.string.processed, 0)).setProgress(100, 0, false);
             notificationManager.notify(0, builder.build());
@@ -144,9 +144,9 @@ public class MapService extends IntentService {
 
         @Override
         public void onProgressChanged(int progress) {
-            if (step == 0)
+            if (step == 0f)
                 return;
-            int percent = progress / step;
+            int percent = (int) (progress / step);
             if (percent > this.progress) {
                 this.progress = percent;
                 builder.setContentText(getString(R.string.processed, this.progress)).setProgress(100, this.progress, false);
@@ -156,7 +156,7 @@ public class MapService extends IntentService {
 
         @Override
         public void onProgressFinished() {
-            if (step == 0)
+            if (step == 0f)
                 return;
             builder.setProgress(0, 0, false);
             notificationManager.notify(0, builder.build());
