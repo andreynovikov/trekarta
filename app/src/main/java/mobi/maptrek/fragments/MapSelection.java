@@ -204,6 +204,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     public void setMapIndex(Index mapIndex) {
         mMapIndex = mapIndex;
+        mMapIndex.accountHillshades(Configuration.getHillshadesEnabled());
     }
 
     private void updateUI(Index.IndexStats stats) {
