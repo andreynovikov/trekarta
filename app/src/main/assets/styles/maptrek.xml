@@ -1892,7 +1892,8 @@
         </m>
         <m e="node" k="aerialway" v="station">
             <symbol src="assets:symbols/transport/station.svg" />
-            <text use="poi" />
+            <caption style="bold" dy="-10" fill="#ec2d2d" k="name" size="14"
+                stroke="#ffffff" stroke-width="2.0" />
         </m>
     </m>
 
