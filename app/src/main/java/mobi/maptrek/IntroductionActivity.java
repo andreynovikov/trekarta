@@ -22,8 +22,8 @@ public class IntroductionActivity extends AppIntro {
         SliderPage sliderPage = new SliderPage();
         sliderPage.setTitle("Hillshades");
         sliderPage.setDescription("Now you can download and view hillshades atop maps. Your custom maps will be shaded as well.");
-        sliderPage.setImageDrawable(R.mipmap.points);
-        sliderPage.setBgColor(Color.parseColor("#1976D2"));
+        sliderPage.setImageDrawable(R.mipmap.hillshades);
+        sliderPage.setBgColor(Color.parseColor("#2196F3")); // Blue 500
         addSlide(IntroductionFragment.newInstance(sliderPage));
     }
 
