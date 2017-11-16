@@ -150,11 +150,7 @@ public class Index {
     }
 
     public short getBaseMapVersion() {
-        short version = mBaseMapVersion;
-        // report no base map only once
-        if (mBaseMapVersion == 0)
-            mBaseMapVersion = -1;
-        return version;
+        return mBaseMapVersion;
     }
 
     public boolean isBaseMapOutdated() {

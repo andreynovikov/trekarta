@@ -19,6 +19,7 @@ public class HillshadeDatabaseHelper extends MBTilesDatabase.MBTilesDatabaseHelp
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        logger.info("Creating hillshades database");
         super.onCreate(db);
         db.execSQL(MapTrekDatabaseHelper.PRAGMA_ENABLE_VACUUM);
         db.execSQL(MapTrekDatabaseHelper.PRAGMA_PAGE_SIZE);
@@ -29,7 +30,6 @@ public class HillshadeDatabaseHelper extends MBTilesDatabase.MBTilesDatabaseHelp
         db.execSQL("INSERT INTO metadata VALUES ('minzoom', '8')");
         db.execSQL("INSERT INTO metadata VALUES ('maxzoom', '12')");
         db.execSQL("INSERT INTO metadata VALUES ('tile_row_type', 'xyz')");
-
     }
 
     @Override

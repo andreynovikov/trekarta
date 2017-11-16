@@ -116,6 +116,7 @@ class MapTrekDataSource implements ITileDataSource {
             //TODO replace with building_part flag
             if (tile.zoomLevel < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
                 return;
+            //TODO Process this in decoder
             if (!mContoursEnabled && element.tags.containsKey("contour"))
                 return;
             if (element.tags.containsKey("tunnel")) {

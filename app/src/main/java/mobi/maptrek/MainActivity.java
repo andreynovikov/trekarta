@@ -359,6 +359,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private Track mEditedTrack;
     private int mTotalDataItems = 0;
     private boolean mFirstMove = true;
+    private boolean mBaseMapWarningShown = false;
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -977,7 +978,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
-        } else if (mNativeMapIndex.getBaseMapVersion() == 0) {
+        } else if (!mBaseMapWarningShown && mNativeMapIndex.getBaseMapVersion() == 0) {
             BaseMapDownload fragment = (BaseMapDownload) Fragment.instantiate(this, BaseMapDownload.class.getName());
             fragment.setMapIndex(mNativeMapIndex);
             fragment.setEnterTransition(new Slide());
@@ -985,6 +986,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "baseMapDownload");
             ft.addToBackStack("baseMapDownload");
             ft.commit();
+            mBaseMapWarningShown = true;
         }
 
         if (Configuration.getHideSystemUI())
@@ -3357,8 +3359,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = mFragmentManager.getBackStackEntryCount();
         if (count > 0) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            if ("trackProperties".equals(bse.getName()))
+            String fragmentName = bse.getName();
+            if ("baseMapDownload".equals(fragmentName)) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+
+                }
+            } else if ("trackProperties".equals(fragmentName)) {
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
+            }
         }
         mFragmentManager.popBackStack();
     }
@@ -3517,12 +3526,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mCoordinatorLayout.getLayoutParams();
                 p.topMargin = mStatusBarHeight;
 
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
-                } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                    mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                    mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
+                if (mFragmentManager.getBackStackEntryCount() == 0) {
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                    } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
+                        mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                        mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
+                    }
                 }
 
                 if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
