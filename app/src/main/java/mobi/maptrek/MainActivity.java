@@ -146,6 +146,7 @@ import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
 import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnFeatureActionListener;
+import mobi.maptrek.fragments.OnLocationListener;
 import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
@@ -206,6 +207,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         FragmentHolder,
         WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
+        OnLocationListener,
         OnWaypointActionListener,
         OnTrackActionListener,
         OnMapActionListener,
@@ -890,7 +892,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (zoom > 0)
                     position.setZoomLevel(zoom);
                 mMap.setMapPosition(position);
-                showMarker(position, marker);
+                showMarkerInformation(position.getGeoPoint(), marker);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -903,7 +905,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 MapPosition position = Osm.decodeShortLink(path.get(1));
                 String marker = uri.getQueryParameter("m");
                 mMap.setMapPosition(position);
-                showMarker(position, marker);
+                showMarkerInformation(position.getGeoPoint(), marker);
             }
         }
     }
@@ -2311,13 +2313,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             updateMapViewArea();
     }
 
-    private void showMarker(@NonNull MapPosition position, @Nullable String name) {
+    @Override
+    public void showMarkerInformation(@NonNull GeoPoint point, @Nullable String name) {
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
         }
         Bundle args = new Bundle(3);
-        args.putDouble(MarkerInformation.ARG_LATITUDE, position.getLatitude());
-        args.putDouble(MarkerInformation.ARG_LONGITUDE, position.getLongitude());
+        args.putDouble(MarkerInformation.ARG_LATITUDE, point.getLatitude());
+        args.putDouble(MarkerInformation.ARG_LONGITUDE, point.getLongitude());
         args.putString(MarkerInformation.ARG_NAME, name);
         Fragment fragment = Fragment.instantiate(this, MarkerInformation.class.getName(), args);
         fragment.setEnterTransition(new Slide());

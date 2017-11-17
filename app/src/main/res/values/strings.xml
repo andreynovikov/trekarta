@@ -36,6 +36,7 @@
     <string name="downloadBasemap">Download updated world map (%s)</string>
     <string name="downloadHillshades">Download concomitant hillshades</string>
     <string name="iamin">Yes, I\'m in</string>
+    <string name="nameOrCoordinates">Name or coordinates</string>
 
     <string name="actionSave">Save</string>
     <string name="actionStop">Stop</string>
@@ -160,7 +161,7 @@
     <string name="advice_locked_coordinates">You can lock place coordinates to prevent accidental dragging of it\'s marker. All places that come from external sources are considered precisely positioned and are locked by default while places that you create on map are treated as approximate and are initially unlocked.</string>
     <string name="advice_hide_map_objects">You can shortly clear all data from map by holding volume up button</string>
     <string name="advice_lock_map_position">You can shortly lock map position by holding volume down button to prevent undesirable map movement when depressing finger</string>
-    <string name="advice_text_search">Type amenity name in any supported or native language</string>
+    <string name="advice_text_search">Type amenity name in any supported or native language, optionally you can type raw coordinates. If search term is too broad results will be limited to 200 found objects.</string>
     <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
 
     <string name="datetime" formatted="false" translatable="false">%s %s</string>

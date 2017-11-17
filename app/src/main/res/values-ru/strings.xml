@@ -206,7 +206,7 @@
     <string name="actionContours">Изолинии</string>
     <string name="actionOtherFeatures">Детали</string>
     <string name="actionSearch">Поиск</string>
-    <string name="advice_text_search">Напишите название объекта на любом поддерживаем или местном языке</string>
+    <string name="advice_text_search">Напишите название объекта на любом поддерживаем или местном языке, так же можно написать координаты. Если поисковый запрос слишком широк, результаты будут ограничены 200 найденными объектами.</string>
     <string name="msgWaitForFtsTable">Пожалуйста, подождите, пока база карт обновляется для поддержки полнотекстового поиска. В зависимости от того, как много вы успели скачать областей карт, это может занять до нескольких минут.</string>
     <string name="any">Любой</string>
     <string name="kind_building">Здания</string>

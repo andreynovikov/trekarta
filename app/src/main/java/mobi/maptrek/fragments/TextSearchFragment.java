@@ -35,6 +35,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import at.grabner.circleprogress.CircleProgressView;
 import mobi.maptrek.Configuration;
@@ -44,10 +46,13 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.HelperUtils;
+import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
 
 public class TextSearchFragment extends ListFragment implements View.OnClickListener {
+    private static final Logger logger = LoggerFactory.getLogger(TextSearchFragment.class);
+
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
 
@@ -58,6 +63,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private Handler mBackgroundHandler;
     private MapHolder mMapHolder;
     private OnFeatureActionListener mFeatureActionListener;
+    private OnLocationListener mLocationListener;
 
     private static final String[] columns = new String[]{"_id", "name", "kind", "lat", "lon"};
 
@@ -75,6 +81,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private ImageButton mFilterButton;
     private View mSearchFooter;
     private String mText;
+    private GeoPoint mFoundPoint;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -196,6 +203,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             throw new ClassCastException(context.toString() + " must implement OnFeatureActionListener");
         }
         try {
+            mLocationListener = (OnLocationListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnLocationListener");
+        }
+        try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
@@ -206,6 +218,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     public void onDetach() {
         super.onDetach();
         mFeatureActionListener = null;
+        mLocationListener = null;
         mMapHolder = null;
     }
 
@@ -228,7 +241,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        mFeatureActionListener.onFeatureDetails(id);
+        if (id == 0) {
+            mMapHolder.setMapLocation(mFoundPoint);
+            mLocationListener.showMarkerInformation(mFoundPoint, StringFormatter.coordinates(mFoundPoint));
+        } else {
+            mFeatureActionListener.onFeatureDetails(id);
+        }
     }
 
     private void hideProgress() {
@@ -273,16 +291,19 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 words[i] = words[i] + "*";
         }
         final String match = TextUtils.join(" ", words);
+        logger.debug("search term: {}", match);
         String kindFilter = "";
         if (mSelectedKind > 0) {
             int mask = mSelectedKind == 1 ? 1 : 1 << (mSelectedKind + 1);
             kindFilter = " AND (kind & " + mask + ") == " + mask;
+            logger.debug("kind filter: {}", kindFilter);
         }
         final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
                 " INNER JOIN names ON (names_fts.docid = names.ref)" +
                 " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
                 " INNER JOIN features ON (feature_names.id = features.id)" +
-                " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter;
+                " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter +
+                " LIMIT 200";
         mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
         mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
         mFilterButton.setOnClickListener(null);
@@ -305,7 +326,18 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mAdapter.changeCursor(cursor);
+                        Cursor resultCursor = cursor;
+                        if (cursor.getCount() == 0) {
+                            try {
+                                mFoundPoint = JosmCoordinatesParser.parse(mText);
+                                String[] columns = new String[] {"_id", "kind", "lat", "lon", "name"};
+                                MatrixCursor pointCursor = new MatrixCursor(columns);
+                                pointCursor.addRow(new Object[] {0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude(), StringFormatter.coordinates(mFoundPoint)});
+                                resultCursor = pointCursor;
+                            } catch (IllegalArgumentException ignore) {
+                            }
+                        }
+                        mAdapter.changeCursor(resultCursor);
                         mFilterButton.setImageResource(R.drawable.ic_filter);
                         mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
                         mFilterButton.setOnClickListener(TextSearchFragment.this);

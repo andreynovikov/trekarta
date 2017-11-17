@@ -22,6 +22,8 @@ package mobi.maptrek.util;
 
 import android.annotation.SuppressLint;
 
+import org.oscim.core.GeoPoint;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -205,6 +207,10 @@ public class StringFormatter
 			}
 		}
 		return String.valueOf(coordinate);
+	}
+
+	public static String coordinates(GeoPoint point) {
+		return coordinates(" ", point.getLatitude(), point.getLongitude());
 	}
 
 	/**
