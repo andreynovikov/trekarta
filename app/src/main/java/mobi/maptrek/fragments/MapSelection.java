@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -35,6 +37,7 @@ import java.net.URL;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
+import mobi.maptrek.util.HelperUtils;
 
 public class MapSelection extends Fragment implements OnBackPressedListener, Index.MapStateListener {
     private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
@@ -76,7 +79,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
         mHillshadesCheckboxHolder = rootView.findViewById(R.id.hillshadesCheckboxHolder);
         mDownloadHillshades = (CheckBox) rootView.findViewById(R.id.downloadHillshades);
         mDownloadHillshades.setChecked(Configuration.getHillshadesEnabled());
@@ -99,6 +102,23 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
         mStatusView = (TextView) rootView.findViewById(R.id.status);
         mCounterView = (TextView) rootView.findViewById(R.id.count);
+
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_ACTIVE_MAPS_SIZE)) {
+            ViewTreeObserver vto = rootView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    if (mMapIndex.getMapDatabaseSize() > (1 << 21)) { // 2 GB
+                        Rect r = new Rect();
+                        mCounterView.getGlobalVisibleRect(r);
+                        r.left = r.right - r.width() / 3; // focus on size
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_ACTIVE_MAPS_SIZE, R.string.advice_active_maps_size, r);
+                    }
+                }
+            });
+        }
+
         return rootView;
     }
 

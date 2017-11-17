@@ -839,7 +839,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
-            Configuration.resetAdviceState();
+            mBackgroundHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Configuration.resetAdviceState();
+                }
+            }, 10000); // Delay reset so that advices are not shown immediately after reset
             Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
             snackbar.show();
         } else if ("geo".equals(scheme)) {

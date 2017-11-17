@@ -161,6 +161,7 @@
     <string name="advice_hide_map_objects">You can shortly clear all data from map by holding volume up button</string>
     <string name="advice_lock_map_position">You can shortly lock map position by holding volume down button to prevent undesirable map movement when depressing finger</string>
     <string name="advice_text_search">Type amenity name in any supported or native language</string>
+    <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
 
     <string name="datetime" formatted="false" translatable="false">%s %s</string>
     <string name="waypoint_name">Place #%d</string>
