@@ -337,22 +337,27 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             coordsView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
                         if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
                             // your action for drawable click event
                             mWaypoint.locked = !mWaypoint.locked;
                             mListener.onWaypointSave(mWaypoint);
                             mListener.onWaypointFocus(mWaypoint);
                             updateWaypointInformation(mLatitude, mLongitude);
-                        } else {
-                            StringFormatter.coordinateFormat++;
-                            if (StringFormatter.coordinateFormat == 5)
-                                StringFormatter.coordinateFormat = 0;
-                            coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-                            Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
+                            return true;
                         }
                     }
-                    return true;
+                    return false;
+                }
+            });
+            coordsView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    StringFormatter.coordinateFormat++;
+                    if (StringFormatter.coordinateFormat == 5)
+                        StringFormatter.coordinateFormat = 0;
+                    coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+                    Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
                 }
             });
 
