@@ -13,6 +13,9 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.annotation.Retention;
@@ -34,6 +37,8 @@ import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.ProgressListener;
 
 public class DataExport extends DialogFragment implements ProgressListener {
+    private static final Logger logger = LoggerFactory.getLogger(DataExport.class);
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FORMAT_NATIVE, FORMAT_GPX, FORMAT_KML})
     public @interface ExportFormat {
@@ -145,8 +150,11 @@ public class DataExport extends DialogFragment implements ProgressListener {
                 }
                 File cacheDir = activity.getExternalCacheDir();
                 File exportDir = new File(cacheDir, "export");
-                if (!exportDir.exists())
-                    exportDir.mkdir();
+                if (!exportDir.exists() && !exportDir.mkdir()) {
+                    logger.error("Failed to create export dir: {}", exportDir);
+                    dismiss();
+                    return;
+                }
                 String extension = null;
                 switch (mFormat) {
                     case FORMAT_NATIVE:
@@ -164,6 +172,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
                 }
                 //TODO Notify user on this and other errors
                 if (extension == null) {
+                    logger.error("Failed to determine extension for format: {}", mFormat);
                     dismiss();
                     return;
                 }
@@ -174,19 +183,20 @@ public class DataExport extends DialogFragment implements ProgressListener {
                     name = mDataSource.name;
                 }
                 exportFile = new File(exportDir, FileUtils.sanitizeFilename(name) + extension);
-                if (exportFile.exists())
-                    exportFile.delete();
+                if (exportFile.exists() && !exportFile.delete())
+                    logger.error("Failed to remove old file");
                 exportSource.name = name;
                 exportSource.path = exportFile.getAbsolutePath();
                 Manager manager = Manager.getDataManager(getContext(), exportSource.path);
                 if (manager == null) {
+                    logger.error("Failed to get data manager for path: {}", exportSource.path);
                     dismiss();
                     return;
                 }
                 try {
                     manager.saveData(new FileOutputStream(exportFile, false), exportSource, DataExport.this);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Data save error", e);
                     dismiss();
                     return;
                 }

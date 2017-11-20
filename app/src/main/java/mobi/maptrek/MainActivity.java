@@ -67,6 +67,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -141,6 +142,7 @@ import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.LocationInformation;
+import mobi.maptrek.fragments.LocationShareDialog;
 import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
@@ -1000,6 +1002,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             hideSystemUI();
 
         updateMapViewArea();
+        mMap.updateMap(true);
     }
 
     @Override
@@ -2424,14 +2427,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onWaypointShare(Waypoint waypoint) {
-        int zoom = mMap.getMapPosition().getZoomLevel();
-        String location = String.format(Locale.US, "%s @ %.6f %.6f <%s>", waypoint.name,
-                waypoint.coordinates.getLatitude(), waypoint.coordinates.getLongitude(),
-                Osm.makeShortLink(waypoint.coordinates.getLatitude(), waypoint.coordinates.getLongitude(), zoom));
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
-        startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
+        shareLocation(waypoint.coordinates, waypoint.name);
     }
 
     @Override
@@ -2901,18 +2897,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name) {
-        int zoom = mMap.getMapPosition().getZoomLevel();
-        String location;
-        if (name == null)
-            location = String.format(Locale.US, "%.6f %.6f <%s>", coordinates.getLatitude(), coordinates.getLongitude(),
-                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
-        else
-            location = String.format(Locale.US, "%s @ %.6f %.6f <%s>", name, coordinates.getLatitude(), coordinates.getLongitude(),
-                    Osm.makeShortLink(coordinates.getLatitude(), coordinates.getLongitude(), zoom));
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
-        startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
+        LocationShareDialog dialogFragment = new LocationShareDialog();
+        Bundle args = new Bundle();
+        args.putDouble(LocationShareDialog.ARG_LATITUDE, coordinates.getLatitude());
+        args.putDouble(LocationShareDialog.ARG_LONGITUDE, coordinates.getLongitude());
+        args.putInt(LocationShareDialog.ARG_ZOOM, mMap.getMapPosition().getZoomLevel());
+        if (name != null)
+            args.putString(LocationShareDialog.ARG_NAME, name);
+        dialogFragment.setArguments(args);
+        dialogFragment.show(mFragmentManager, "locationShare");
     }
 
     private void showHideMapObjects(boolean hasBitmapMap) {
@@ -3952,19 +3945,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         inputView.setText(dataSource.name);
                     int margin = getResources().getDimensionPixelOffset(R.dimen.dialogContentMargin);
                     dialog.setView(inputView, margin, margin >> 1, margin, 0);
+                    Window window = dialog.getWindow();
+                    if (window!= null)
+                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     dialog.show();
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             if (!inputView.getText().toString().trim().isEmpty()) {
                                 exportAction.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
+                                // Hide keyboard
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                if (imm != null)
+                                    imm.hideSoftInputFromWindow(inputView.getRootView().getWindowToken(), 0);
                                 dialog.dismiss();
                             }
                         }
                     });
                 }
             });
-
         } else {
             builder.setPositiveButton(R.string.actionContinue, exportAction);
         }

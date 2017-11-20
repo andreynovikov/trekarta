@@ -2,10 +2,7 @@ package mobi.maptrek.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -23,9 +20,7 @@ import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
 import org.oscim.map.Map;
-import org.oscim.utils.Osm;
 
-import java.util.List;
 import java.util.Locale;
 
 import mobi.maptrek.BuildConfig;
@@ -93,24 +88,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String location = String.format(Locale.US, "%.6f %.6f <%s>",
-                        mLatitude, mLongitude, Osm.makeShortLink(mLatitude, mLongitude, mZoom));
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                sharingIntent.putExtra(Intent.EXTRA_TEXT, location);
-                startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_location_intent_title)));
-            }
-        });
-        ImageButton launchButton = (ImageButton) mRootView.findViewById(R.id.launchButton);
-        launchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri location = Uri.parse(String.format(Locale.getDefault(), "geo:%f,%f?z=%d", mLatitude, mLongitude, mZoom));
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
-                PackageManager packageManager = getContext().getPackageManager();
-                List activities = packageManager.queryIntentActivities(mapIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                if (activities.size() > 0)
-                    startActivity(mapIntent);
+                mMapHolder.shareLocation(new GeoPoint(mLatitude, mLongitude), null);
             }
         });
         ImageButton inputButton = (ImageButton) mRootView.findViewById(R.id.inputButton);
