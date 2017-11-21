@@ -1,0 +1,3 @@
+If not directly specified icons are from OSM and VTM projects or created by Andrey Novikov.
+
+hillshades.svg - By Marco Ricci, Noun Project
