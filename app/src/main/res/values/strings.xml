@@ -146,6 +146,7 @@
     <string name="msgHillshadeDatabaseError">An error occurred while reading hillshades, database was reset</string>
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
     <string name="msgRateApplication">If you are enjoying MapTrek please rate it and leave comment on the Google Play Store to boost its spread</string>
+    <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
 
     <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
     <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>

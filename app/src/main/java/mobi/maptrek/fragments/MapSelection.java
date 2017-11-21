@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     private TextView mMessageView;
     private TextView mStatusView;
     private TextView mCounterView;
+    private ImageButton mHelpButton;
     private Resources mResources;
     private boolean mIsDownloadingIndex;
     private File mCacheFile;
@@ -102,6 +104,17 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
         mStatusView = (TextView) rootView.findViewById(R.id.status);
         mCounterView = (TextView) rootView.findViewById(R.id.count);
+        mHelpButton = (ImageButton) rootView.findViewById(R.id.helpButton);
+        mHelpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.msgMapSelectionExplanation);
+                builder.setPositiveButton(R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
 
         if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_ACTIVE_MAPS_SIZE)) {
             ViewTreeObserver vto = rootView.getViewTreeObserver();
@@ -243,13 +256,16 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             if (mDownloadBasemap.isChecked() || stats.download > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
                 mFloatingButton.setVisibility(View.VISIBLE);
+                mHelpButton.setVisibility(View.INVISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
                 mFloatingButton.setVisibility(View.VISIBLE);
+                mHelpButton.setVisibility(View.INVISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.GONE);
             } else {
                 mFloatingButton.setVisibility(View.GONE);
+                mHelpButton.setVisibility(View.VISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.GONE);
             }
         }
