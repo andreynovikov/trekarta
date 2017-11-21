@@ -120,10 +120,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
         float scale = (float) (t.position.scale * Tile.SIZE / UNSCALE_COORD);
         float pxScale = (float) (t.position.scale / UNSCALE_COORD);
 
-        int tileXMin = (int) (MercatorProjection.longitudeToX(b.xmin) / TILE_SCALE);
-        int tileXMax = (int) (MercatorProjection.longitudeToX(b.xmax) / TILE_SCALE);
-        int tileYMin = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymax) / TILE_SCALE), 0, 127);
-        int tileYMax = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymin) / TILE_SCALE), 0, 127);
+        int tileXMin = (int) (MercatorProjection.longitudeToX(b.xmin) / TILE_SCALE) - 2;
+        int tileXMax = (int) (MercatorProjection.longitudeToX(b.xmax) / TILE_SCALE) + 2;
+        int tileYMin = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymax) / TILE_SCALE) - 2, 0, 127);
+        int tileYMax = FastMath.clamp((int) (MercatorProjection.latitudeToY(b.ymin) / TILE_SCALE) + 2, 0, 127);
 
         if (b.xmin < 0)
             tileXMin--;

@@ -1,68 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   data-name="Livello 1"
-   viewBox="0 0 100 69.999999"
-   x="0px"
-   y="0px"
-   version="1.1"
-   id="svg76"
-   sodipodi:docname="hillshades.svg"
-   width="100"
-   height="70"
-   inkscape:version="0.92.1 r15371">
-  <metadata
-     id="metadata82">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>mountain3</dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs80" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1016"
-     id="namedview78"
-     showgrid="false"
-     inkscape:zoom="11.171662"
-     inkscape:cx="47.870975"
-     inkscape:cy="36.700001"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg76" />
-  <title
-     id="title66">mountain3</title>
-  <g
-     id="g86"
-     transform="matrix(0.93681171,0,0,0.93681171,4.9861973,10.68037)">
-    <path
-       inkscape:connector-curvature="0"
-       id="path68"
-       d="M 96.1,55.319998 H 71.6 l -18.14,-30.68 16.72,-15.8999995 z m -21.65,-5 H 87.6 l -18.66,-33.51 -9.16,8.71 z" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path70"
-       d="M 66.84,55.319998 H 0 L 31.53,-3.4000015 Z m -58.48,-5 H 58 L 31.77,6.7099985 Z" />
-  </g>
+<svg id="svg76" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" data-name="Livello 1" height="70" width="100" version="1.1" y="0px" x="0px" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 100 69.999999">
+ <metadata id="metadata82">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>mountain3</dc:title>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <title id="title66">mountain3</title>
+ <g id="g86" transform="matrix(.93681 0 0 .93681 4.9862 10.68)">
+  <path id="path68" d="m96.1 55.32h-24.5l-18.14-30.68 16.72-15.9zm-21.65-5h13.15l-18.66-33.51-9.16 8.71z"/>
+  <path id="path70" d="m66.84 55.32h-66.84l31.53-58.72zm-58.48-5h49.64l-26.23-43.61z"/>
+ </g>
 </svg>
