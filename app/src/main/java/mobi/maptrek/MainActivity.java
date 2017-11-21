@@ -185,6 +185,7 @@ import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapService;
+import mobi.maptrek.maps.Themes;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
@@ -3028,7 +3029,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if ("vtm".equals(mapFile.tileSource.getOption("format"))) {
             OsmTileLayer layer = new OsmTileLayer(mMap);
             layer.setTileSource(mapFile.tileSource);
-            layer.setRenderTheme(ThemeLoader.load(VtmThemes.MAPTREK));
+            layer.setRenderTheme(ThemeLoader.load(Themes.MAPTREK));
             mapFile.tileLayer = layer;
         } else {
             mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, mBitmapMapTransparency * 0.01f);
@@ -4118,14 +4119,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case 1:
                 if (Tags.kindZooms[13] == 18)
                     Tags.kindZooms[13] = 14;
-                themeFile = VtmThemes.MAPTREK;
+                themeFile = Themes.MAPTREK;
                 break;
             case 0:
             default:
-                themeFile = night ? VtmThemes.NEWTRON : VtmThemes.MAPTREK;
+                themeFile = night ? Themes.NEWTRON : Themes.MAPTREK;
         }
         IRenderTheme theme = ThemeLoader.load(themeFile);
-        float fontSize = VtmThemes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
+        float fontSize = Themes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
         theme.scaleTextSize(fontSize);
         mMap.setTheme(theme, true);
         mNightMode = night;

@@ -1,4 +1,4 @@
-package mobi.maptrek;
+package mobi.maptrek.maps;
 
 import org.oscim.backend.AssetAdapter;
 import org.oscim.theme.ThemeFile;
@@ -9,10 +9,14 @@ import org.oscim.theme.XmlRenderThemeStyleMenu;
 import java.io.InputStream;
 import java.util.Set;
 
+import mobi.maptrek.Configuration;
+import mobi.maptrek.MapTrek;
+import mobi.maptrek.R;
+
 /**
  * Enumeration of all internal rendering themes.
  */
-enum VtmThemes implements ThemeFile {
+public enum Themes implements ThemeFile {
 
     MAPTREK("styles/maptrek.xml"),
     NEWTRON("styles/newtron.xml");
@@ -21,7 +25,7 @@ enum VtmThemes implements ThemeFile {
 
     private final String mPath;
 
-    VtmThemes(String path) {
+    Themes(String path) {
         mPath = path;
     }
 
