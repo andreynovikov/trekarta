@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <m e="way" k="highway">
+        <outline-layer id="bridge" stroke="#aa202020" width="0.3" />
+        <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.1" />
+        <!-- must contain bridge -->
+        <m k="bridge">
+            <!-- except bridge=no|false -->
+            <m k="bridge" v="-|no">
+                <!-- no areas -->
+                <m k="area" v="~|no">
+                    <m zoom-min="16">
+                        <m cat="pedestrian" v="steps">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="4.5" />
+                            <line use="steps" />
+                        </m>
+                    </m>
+                    <m cat="pedestrian" v="footway">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
+                        <line use="footway" />
+                    </m>
+                    <m cat="pedestrian" v="path">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
+                        <line use="path" />
+                    </m>
+                    <m v="bridleway">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.0" />
+                        <line use="bridleway" />
+                    </m>
+                    <m cat="tracks" v="track">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.4" />
+                        <line cap="butt" use="highway:track:g1" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="service">
+                        <!-- matches every service but parking_isle -->
+                        <m k="service" v="-|parking_aisle">
+                            <line cap="butt" fade="14" outline="bridge" use="highway-service" />
+                            <m k="access" v="private">
+                                <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                                    stroke="#00ffffff" use="highway-service" />
+                            </m>
+                            <m k="access" v="no">
+                                <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                                    stroke="#00ffffff" use="highway-service" />
+                            </m>
+                        </m>
+                        <m k="service" v="parking_aisle" zoom-min="16">
+                            <line cap="butt" outline="bridge" use="highway-service" width="-0.4" />
+                            <m k="access" v="private">
+                                <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                    use="highway-service" width="-0.4" />
+                            </m>
+                            <m k="access" v="no">
+                                <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                    use="highway-service" width="-0.4" />
+                            </m>
+                        </m>
+                    </m>
+                    <m cat="roads" v="tertiary_link">
+                        <line cap="butt" outline="bridge" use="tertiary" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="secondary_link">
+                        <line cap="butt" outline="bridge" use="secondary" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="primary_link">
+                        <line cap="butt" outline="bridge" use="primary" />
+                        <text use="major-road-name" />
+                    </m>
+                    <m cat="roads" v="trunk_link|motorway_link">
+                        <line cap="butt" outline="bridge" use="trunk_link" />
+                        <text use="major-road-name" />
+                    </m>
+                    <m cat="roads" v="construction">
+                        <line cap="butt" outline="bridge" use="road-construction" />
+                        <text use="road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="pedestrian" v="pedestrian">
+                        <line cap="butt" outline="bridge" use="pedestrian" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="road">
+                        <line cap="butt" outline="bridge" use="pedestrian" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="roads" v="residential|living_street">
+                        <line cap="butt" outline="bridge" use="residential" />
+                        <m k="access" v="private">
+                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                use="residential" />
+                        </m>
+                        <m k="access" v="no">
+                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                use="residential" />
+                        </m>
+                        <text use="road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="unclassified">
+                        <line cap="butt" outline="bridge" use="unclassified" />
+                        <m k="access" v="private">
+                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                                use="unclassified" />
+                        </m>
+                        <m k="access" v="no">
+                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                                use="unclassified" />
+                        </m>
+                        <text use="road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="tertiary">
+                        <line cap="butt" outline="bridge" use="tertiary" />
+                        <text use="road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="secondary">
+                        <line cap="butt" outline="bridge" use="secondary" />
+                        <text use="major-road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="primary">
+                        <line cap="butt" outline="bridge" use="primary" />
+                        <text use="major-road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="trunk_link">
+                        <line cap="butt" outline="bridge" use="trunk_link" />
+                        <text use="major-road-name" />
+                    </m>
+                    <m cat="roads" v="trunk">
+                        <line cap="butt" outline="bridge" use="trunk" />
+                        <text use="major-road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="motorway">
+                        <line cap="butt" outline="bridge" use="highway" />
+                        <text use="major-road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge="true" repeat-gap="150"
+                                src="assets:symbols/transport/toll_road.svg" />
+                        </m>
+                    </m>
+                    <m cat="cycling" v="cycleway">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.2" />
+                        <line use="cycleway" />
+                    </m>
+                    <m cat="roads" k="oneway" v="1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                </m> <!-- end area=no -->
+            </m>
+        </m> <!-- end bridge=yes -->
+    </m>
+</rendertheme>

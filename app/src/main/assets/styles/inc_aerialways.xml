@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
+    <m cat="aerialways" k="aerialway">
+        <m e="way" k="aerialway">
+            <line cap="butt" fix="true" stroke="#202020" width="1.8" />
+            <m k="aerialway" v="cable_car|gondola">
+                <line fix="true" src="assets:symbols/dot_black.svg" stipple="50"
+                    stipple-stroke="#202020" width="12" />
+                <m zoom-min="14">
+                    <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                        stroke-width="2.0" />
+                </m>
+            </m>
+            <m k="aerialway" v="chair_lift|drag_lift">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
+                    width="12" />
+            </m>
+        </m>
+        <m e="node" k="aerialway" v="station">
+            <symbol src="assets:symbols/transport/station.svg" />
+            <caption style="bold" dy="-10" fill="#ec2d2d" k="name" size="14" stroke="#ffffff"
+                stroke-width="2.0" />
+        </m>
+    </m>
+</rendertheme>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
+    <!-- Symbols -->
+    <m e="node" select="first">
+        <m cat="roads" k="barrier">
+            <m v="border_control">
+                <symbol src="assets:symbols/barrier/border_control.svg" />
+            </m>
+            <m v="toll_booth">
+                <symbol src="assets:symbols/barrier/toll_booth.svg" />
+            </m>
+        </m>
+    </m>
+
+    <m select="first">
+        <m k="kind_vehicles">
+            <m k="highway">
+                <m v="traffic_signals">
+                    <symbol src="assets:symbols/transport/traffic_signal.svg" />
+                </m>
+            </m>
+        </m>
+        <m k="kind_transportation">
+            <m k="highway">
+                <m v="bus_stop">
+                    <symbol src="assets:symbols/transport/bus_stop.svg" />
+                </m>
+            </m>
+            <m k="railway">
+                <m v="tram_stop">
+                    <symbol src="assets:symbols/transport/tram_stop.svg" />
+                </m>
+                <m v="subway_entrance" zoom-min="17">
+                    <symbol src="assets:symbols/transport/entrance.svg" />
+                    <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="14"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+            </m>
+        </m>
+        <!-- railway -->
+        <m k="railway">
+            <m cat="urban" select="first" v="station" zoom-min="14">
+                <m k="station" v="subway" zoom-max="16" zoom-min="15">
+                    <symbol src="assets:symbols/transport/subway.svg" />
+                </m>
+                <m k="station" v="-|subway">
+                    <symbol src="assets:symbols/transport/train_station.svg" />
+                </m>
+                <m select="when-matched">
+                    <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="14"
+                        stroke="#ffffff" stroke-width="2.0" />
+                </m>
+            </m>
+            <m cat="urban" v="halt">
+                <symbol src="assets:symbols/transport/train_station2.svg" />
+                <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="13" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+            <m cat="pedestrian" v="crossing" zoom-min="16">
+                <symbol src="assets:symbols/transport/crossing.svg" />
+            </m>
+            <m cat="roads" v="level_crossing" zoom-min="16">
+                <symbol src="assets:symbols/transport/level_crossing.svg" />
+            </m>
+        </m>
+        <!-- aeroway -->
+        <m k="aeroway">
+            <m cat="urban" k="aeroway" v="helipad" zoom-min="15">
+                <symbol src="assets:symbols/transport/helicopter.svg" />
+                <text use="poi" />
+            </m>
+            <m cat="urban" k="aeroway" v="heliport">
+                <symbol src="assets:symbols/transport/helicopter.svg" />
+                <text use="poi" />
+            </m>
+            <m cat="urban" k="aeroway" v="aerodrome">
+                <m zoom-min="11">
+                    <symbol src="assets:symbols/transport/airport.svg" />
+                    <text caption="true" dy="18" priority="5" use="poi" />
+                </m>
+                <m select="first" zoom-max="11">
+                    <m k="icao" zoom-min="9">
+                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <text caption="true" dy="18" k="icao" priority="6" use="poi" />
+                    </m>
+                    <m k="ref" zoom-min="9">
+                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <text caption="true" dy="18" k="ref" priority="6" use="poi" />
+                    </m>
+                    <m k="iata">
+                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <text caption="true" dy="18" k="iata" priority="6" use="poi" />
+                    </m>
+                </m>
+            </m>
+        </m>
+    </m>
+</rendertheme>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
+    <!-- Administrative boundaries -->
+    <m cat="administrative" k="boundary" v="administrative">
+        <m k="admin_level">
+            <m k="admin_level" v="4">
+                <m zoom-min="8">
+                    <line fix="true" stipple="5" stipple-stroke="#88ac46ac" stroke="#00ffffff"
+                        width="2.5" />
+                </m>
+                <m zoom-max="7" zoom-min="7">
+                    <line fix="true" stroke="#88ac46ac" width="1.0" />
+                </m>
+                <m zoom-max="6" zoom-min="6">
+                    <line fix="true" stroke="#88ac46ac" width="0.8" />
+                </m>
+                <m zoom-max="5">
+                    <line fix="true" stroke="#88ac46ac" width="0.6" />
+                </m>
+            </m>
+            <m k="admin_level" v="3">
+                <m zoom-min="8">
+                    <line fix="true" stipple="10" stipple-stroke="#88ac46ac" stroke="#00ffffff"
+                        width="3.0" />
+                </m>
+                <m zoom-max="7" zoom-min="7">
+                    <line fix="true" stroke="#88ac46ac" width="1.2" />
+                </m>
+                <m zoom-max="6" zoom-min="6">
+                    <line fix="true" stroke="#88ac46ac" width="1.0" />
+                </m>
+                <m zoom-max="5">
+                    <line fix="true" stroke="#88ac46ac" width="0.8" />
+                </m>
+            </m>
+            <m k="admin_level" v="2">
+                <m zoom-min="8">
+                    <line fix="true" stroke="#88ac46ac" width="4.0" />
+                </m>
+                <m zoom-max="7" zoom-min="7">
+                    <line fix="true" stroke="#88ac46ac" width="2.2" />
+                </m>
+                <m zoom-max="6" zoom-min="6">
+                    <line fix="true" stroke="#88ac46ac" width="1.8" />
+                </m>
+                <m zoom-max="5" zoom-min="5">
+                    <line fix="true" stroke="#88ac46ac" width="1.4" />
+                </m>
+                <m zoom-max="4" zoom-min="4">
+                    <line fix="true" stroke="#88ac46ac" width="1.0" />
+                </m>
+                <m zoom-max="3">
+                    <line fix="true" stroke="#88ac46ac" width="0.6" />
+                </m>
+            </m>
+        </m>
+    </m>
+</rendertheme>

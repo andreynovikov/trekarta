@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
+    <!-- Topological (orientational) objects on ground -->
+    <m cat="mountains" k="natural" v="cliff">
+        <line cap="butt" fix="true" stroke="#888888" width="3" />
+        <m zoom-min="14">
+            <lineSymbol repeat-gap="1" repeat-start="1" src="assets:symbols/natural/cliff.svg" />
+        </m>
+        <m zoom-max="13" zoom-min="13">
+            <lineSymbol repeat-gap="30" repeat-start="0" src="assets:symbols/natural/cliff.svg"
+                symbol-percent="80" />
+        </m>
+    </m>
+
+    <m k="man_made">
+        <m cat="urban" v="pier" zoom-min="15">
+            <m closed="no">
+                <line cap="butt" stroke="#d0d0d0" width="0.4" />
+                <line cap="butt" stroke="#e4e4e4" width="0.3" />
+            </m>
+            <m closed="yes">
+                <area fill="#e4e4e4" stroke="#d0d0d0" stroke-width="1.05" />
+            </m>
+        </m>
+        <m cat="urban" closed="yes" v="bridge">
+            <area fill="#e4e4e4" />
+            <text use="road-name" />
+        </m>
+    </m>
+    <m cat="urban" closed="yes" k="railway" v="platform">
+        <area fill="#e4e4e4" />
+    </m>
+</rendertheme>

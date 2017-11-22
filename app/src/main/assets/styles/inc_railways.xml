@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- Railways -->
+    <m cat="railways" e="way" k="railway" zoom-min="12">
+        <!-- match tunnel-tag (to ensure tunnel key is present) -->
+        <m k="tunnel">
+            <!-- match tunnel-tag that are not 'no' -->
+            <m k="tunnel" v="-|no">
+                <m k="railway" v="tram|miniature" zoom-min="15">
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#aa9988" width="2.0" />
+                </m>
+                <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#777777" width="1.5" />
+                </m>
+                <m k="railway" v="rail" zoom-max="13">
+                    <line cap="butt" fade="12" fix="true" stipple="10" stipple-stroke="#00ffffff"
+                        stroke="#999999" width="1.0" />
+                </m>
+                <m k="railway" v="rail" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#777777" width="3.0" />
+                </m>
+                <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="#00ffffff"
+                        stroke="#cccccc" width="1.5" />
+                </m>
+            </m>
+        </m>
+        <m k="tunnel" v="~|no">
+            <m k="bridge" v="~|no">
+                <!-- railway casings and cores -->
+                <m k="railway" v="monorail|funicular" zoom-min="15">
+                    <line cap="butt" fix="true" stroke="#663322" width="2.0" />
+                </m>
+                <m k="railway" v="tram|miniature" zoom-min="15">
+                    <m zoom-min="16">
+                        <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                            stroke="#aa9988" width="4.0" />
+                    </m>
+                    <line cap="butt" fade="15" fix="true" stroke="#aa9988" width="1.5" />
+                </m>
+                <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                        stroke="#999999" width="4.0" />
+                    <line cap="butt" fix="true" stroke="#777777" width="1.5" />
+                </m>
+                <m k="railway" v="rail" zoom-max="13">
+                    <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
+                </m>
+                <m k="railway" v="rail" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="10" stipple-stroke="#ffffff"
+                        stipple-width="0.8" stroke="#777777" width="3.0" />
+                </m>
+                <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
+                    <m zoom-min="16">
+                        <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
+                            stroke="#cccccc" width="3.0" />
+                    </m>
+                    <line cap="butt" fade="15" fix="true" stroke="#cccccc" width="1.5" />
+                </m>
+            </m>
+        </m>
+    </m>
+</rendertheme>

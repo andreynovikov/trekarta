@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- Barriers -->
+    <m e="way" k="barrier">
+        <m cat="urban" v="hedge" zoom-min="15">
+            <line use="hedge" />
+        </m>
+        <m cat="urban" v="retaining_wall" zoom-min="15">
+            <line use="fence" width="-0.3" />
+        </m>
+        <m cat="urban" v="fence" zoom-min="15">
+            <line use="fence" />
+        </m>
+        <m cat="urban" v="wall" zoom-min="15">
+            <line use="fence" width="0.5" />
+        </m>
+        <m cat="buildings" v="city_wall" zoom-min="13">
+            <line use="fence" width="1.4" />
+        </m>
+    </m>
+</rendertheme>
