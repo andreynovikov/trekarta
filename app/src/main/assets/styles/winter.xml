@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns:xi="http://www.w3.org/2001/XInclude" map-background="#fffcfa" version="1"
+    xmlns="http://opensciencemap.org/rendertheme">
+
+    <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
+        <layer enabled="true" id="base">
+            <cat id="land" />
+            <cat id="water" />
+            <cat id="insignificant-water" />
+            <cat id="administrative" />
+            <cat id="places" />
+            <cat id="forest" />
+            <cat id="mountains" />
+            <cat id="urban" />
+            <cat id="roads" />
+            <cat id="tracks" />
+            <cat id="railways" />
+            <cat id="buildings" />
+            <cat id="pedestrian" />
+            <cat id="contours" />
+            <cat id="aerialways" />
+            <cat id="skiing" />
+        </layer>
+
+        <!--suppress CheckTagEmptyBody -->
+        <layer enabled="true" id="roads" parent="base"></layer>
+
+        <!--suppress CheckTagEmptyBody -->
+        <layer enabled="true" id="urban" parent="roads"></layer>
+
+        <!--suppress CheckTagEmptyBody -->
+        <layer enabled="true" id="topo" parent="urban"></layer>
+    </stylemenu>
+
+    <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-area fade="-1" fill="#fafafa" id="land" mesh="true" />
+    <!--
+    <style-area fade="-1" fill="#d0d0d0" id="water" mesh="true" />
+    <style-line id="water" stroke="#d0d0d0" use="fix" />
+    <style-line fix="false" id="river" stroke="#d0d0d0" use="water" />
+    -->
+    <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
+        stroke-width="2.0" />
+    <style-line id="water" stroke="#a4bbcc" use="fix" />
+    <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
+    <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
+
+    <style-area blend="11" blend-fill="#c6d7d7" fade="8" fill="#e4ecec" id="wood" />
+
+
+    <!-- Landuse -->
+    <style-area fade="6" fill="#efefef" id="residential" />
+
+    <!-- Roads -->
+    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
+    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
+        width="0.7" />
+
+    <style-line id="trunk" stroke="#ecda97" width="1.3" />
+    <style-line cap="butt" id="trunk_link" stroke="#ecda97" width="1.0" />
+    <style-line id="highway" stroke="#dacfa9" width="1.2" />
+    <style-line id="primary" stroke="#dacfa9" width="1.0" />
+    <style-line id="secondary" stroke="#f0f0f0" use="primary" width="-0.1" />
+    <style-line id="unclassified" stroke="#f0f0f0" width="0.8" />
+    <style-line id="tertiary" use="secondary" width="-0.1" />
+    <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
+        width="0.8" />
+    <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.1" />
+    <style-line id="highway-service" use="residential" width="-0.2" />
+    <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
+    <style-area fill="#d0d0d0" id="pedestrian" />
+    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
+    <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#8f8f8f"
+        stroke="#00ffffff" width="1.8" />
+    <style-line id="highway:track:g1" use="highway:track:g2" />
+    <style-line id="highway:track:g3" use="highway:track:g2" />
+    <style-line id="highway:track:g4" use="highway:track:g2" />
+    <style-line id="highway:track:g5" use="highway:track:g2" />
+    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
+    <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#999999"
+        stroke="#00ffffff" width="1.5" />
+    <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
+
+    <style-line id="path" stipple="4" use="footway" width="0.1" />
+    <style-line id="bridleway" use="foorway" width="0.2" />
+    <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#999999"
+        stroke="#aaffffff" width="3.5" />
+
+    <style-text style="bold" fill="#666666" id="major-road-name" k="name" priority="5" size="16"
+        stroke="#eeeeee" stroke-width="2.0" />
+    <style-text fill="#666666" id="road-name" k="name" priority="7" size="16" stroke="#eeeeee"
+        stroke-width="2.0" />
+
+    <!-- Barriers -->
+    <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="#c6d7d7" width="2.0" />
+
+    <!-- Buildings -->
+    <style-line id="building" stroke="#aaaaaa" use="fix" />
+    <style-area fill="#dddddd" id="building" stroke="#aaaaaa" stroke-width="1.0" />
+    <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="9"
+        size="12" stroke="#ffffff" stroke-width="2.0" />
+    <style-text style="bold" fill="#808080" id="house-name" k="name" size="10" use="house-number" />
+
+
+    <!-- Pistes -->
+    <style-text fill="#666666" id="piste-name" k="name" priority="2" size="14" stroke="#eeeeee"
+        stroke-width="2.0" />
+    <style-text style="bold" fill="#7f462c" id="piste-ref" k="ref" priority="5" size="12"
+        stroke="#eeeeee" stroke-width="2.0" />
+
+
+
+    <m cat="water" e="way" k="natural" v="sea">
+        <area use="water" />
+    </m>
+    <m cat="land" closed="yes" e="way" k="natural" v="land">
+        <area use="land" />
+    </m>
+
+    <!-- Land usages -->
+    <m closed="yes" e="way" k="landuse|amenity">
+        <m v="residential|commercial|retail">
+            <area use="residential" />
+        </m>
+        <m v="allotments">
+            <area use="residential" />
+        </m>
+        <m v="parking" zoom-min="16">
+            <area fill="#fefefe" />
+        </m>
+    </m>
+
+    <!-- Natural -->
+    <m closed="yes" e="way" k="natural">
+        <m v="glacier">
+            <area fill="#d9f0f0" />
+        </m>
+        <m v="bare_rock">
+            <area src="assets:patterns/rock_overlay.png" />
+        </m>
+        <m cat="forest" v="forest|wood">
+            <area use="wood" />
+        </m>
+        <m cat="nature" v="marsh">
+            <area src="assets:patterns/wetland.svg" />
+            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
+        </m>
+        <m cat="nature" v="wetland">
+            <area src="assets:patterns/wetland.svg" />
+        </m>
+    </m>
+
+    <xi:include href="inc_water.xml" />
+
+    <xi:include href="inc_ground_objects.xml" />
+
+    <xi:include href="inc_highways.xml" />
+
+    <xi:include href="inc_railways.xml" />
+
+    <xi:include href="inc_highway_bridges.xml" />
+
+    <xi:include href="inc_railway_bridges.xml" />
+
+    <m cat="skiing" k="piste:type">
+        <m k="piste:type" v="downhill" zoom-min="13">
+            <m closed="yes">
+                <m k="piste:difficulty" v="freeride">
+                    <area fill="#fffa2a" />
+                </m>
+                <m k="piste:difficulty" v="~">
+                    <area fill="#aaaaaa" />
+                </m>
+                <m k="piste:difficulty" v="novice">
+                    <area fill="#aaffaa" />
+                </m>
+                <m k="piste:difficulty" v="easy">
+                    <area fill="#aaaaff" />
+                </m>
+                <m k="piste:difficulty" v="intermediate">
+                    <area fill="#ffaaaa" />
+                </m>
+                <m k="piste:difficulty" v="advanced">
+                    <area fill="#888888" />
+                </m>
+                <m k="piste:difficulty" v="expert">
+                    <area fill="#ff9844" />
+                </m>
+            </m>
+            <m closed="no">
+                <m k="piste:difficulty" v="freeride">
+                    <line stroke="#fffa2a" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="~">
+                    <line stroke="#aaaaaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="novice">
+                    <line stroke="#aaffaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="easy">
+                    <line stroke="#aaaaff" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="intermediate">
+                    <line stroke="#ffaaaa" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="advanced">
+                    <line stroke="#888888" width="2.0" />
+                </m>
+                <m k="piste:difficulty" v="expert">
+                    <line stroke="#ff9844" width="2.0" />
+                </m>
+                <lineSymbol src="assets:symbols/oneway.svg" />
+                <text use="piste-ref" />
+            </m>
+        </m>
+        <m k="piste:type" v="sled">
+            <m zoom-max="14">
+                <line fix="true" stroke="#ffffff" width="2.8" />
+                <line fix="true" stroke="#a1e620" width="2" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#ffffff" width="4" />
+                <line fix="true" stroke="#a1e620" width="3" />
+                <text use="piste-name" fill="#639010" /> <!-- Darken 20% -->
+                <text use="piste-ref" />
+            </m>
+        </m>
+        <m k="piste:type" v="nordic">
+            <m zoom-max="14">
+                <line fix="true" stroke="#ffffff" width="2.8" />
+                <line fix="true" stroke="#44b2a3" width="2" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#ffffff" width="4" />
+                <line fix="true" stroke="#44b2a3" width="3" />
+                <text use="piste-name" fill="#28685f" /> <!-- Darken 20% -->
+                <text use="piste-ref" />
+            </m>
+        </m>
+    </m>
+
+    <xi:include href="inc_barier_lines.xml" />
+
+    <xi:include href="inc_boundaries.xml" />
+
+    <xi:include href="inc_contours.xml" />
+
+    <xi:include href="inc_buildings.xml" />
+
+    <xi:include href="inc_aerialways.xml" />
+
+    <m cat="aerialways" e="way" k="aerialway">
+        <m k="aerialway" v="cable_car">
+            <symbol src="assets:symbols/transport/cable_car.svg" />
+        </m>
+        <m k="aerialway" v="gondola">
+            <symbol src="assets:symbols/transport/gondola.svg" />
+        </m>
+        <m k="aerialway" v="chair_lift">
+            <m zoom-min="15">
+                <symbol src="assets:symbols/transport/chair_lift.svg" />
+                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+        </m>
+        <m k="aerialway" v="drag_lift">
+            <m zoom-min="15">
+                <symbol src="assets:symbols/transport/drag_lift.svg" />
+                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
+                    stroke-width="2.0" />
+            </m>
+        </m>
+    </m>
+
+    <!-- POI symbols, names and house numbers -->
+    <xi:include href="inc_places.xml" />
+
+    <xi:include href="inc_symbols.xml" />
+
+    <xi:include href="inc_poi.xml" />
+</rendertheme>

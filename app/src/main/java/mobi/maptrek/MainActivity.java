@@ -4116,6 +4116,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ThemeFile themeFile;
         switch (Configuration.getActivity()) {
             case 2:
+                themeFile = Themes.WINTER;
+                break;
             case 1:
                 if (Tags.kindZooms[13] == 18)
                     Tags.kindZooms[13] = 14;
