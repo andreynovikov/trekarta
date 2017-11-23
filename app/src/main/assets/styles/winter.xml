@@ -159,6 +159,12 @@
     <xi:include href="inc_railways.xml" />
 
     <m cat="skiing" k="piste:type">
+        <outline-layer fix="true" id="difficulty-novice" stroke="#99ff99" width="2.5" />
+        <outline-layer fix="true" id="difficulty-easy" stroke="#aaaaff" width="2.5" />
+        <outline-layer fix="true" id="difficulty-interm" stroke="#ffaaaa" width="2.5" />
+        <outline-layer fix="true" id="difficulty-advanced" stroke="#888888" width="2.5" />
+        <outline-layer fix="true" id="difficulty-expert" stroke="#f66f00" width="2.5" />
+
         <m k="piste:type" v="downhill" zoom-min="13">
             <m closed="yes">
                 <m k="piste:difficulty" v="freeride">
@@ -215,7 +221,26 @@
                 <line fix="true" stroke="#a1e620" width="2" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#ffffff" width="4" />
+                <m select="first">
+                    <m k="piste:difficulty" v="novice">
+                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="easy">
+                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="intermediate">
+                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="advanced">
+                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="expert">
+                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="~">
+                        <line fix="true" stroke="#ffffff" width="4" />
+                    </m>
+                </m>
                 <line fix="true" stroke="#a1e620" width="3" />
                 <text fill="#639010" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
@@ -233,7 +258,26 @@
                 <line fix="true" stroke="#44b2a3" width="2" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#ffffff" width="4" />
+                <m select="first">
+                    <m k="piste:difficulty" v="novice">
+                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="easy">
+                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="intermediate">
+                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="advanced">
+                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="expert">
+                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="~">
+                        <line fix="true" stroke="#ffffff" width="4" />
+                    </m>
+                </m>
                 <line fix="true" stroke="#44b2a3" width="3" />
                 <text fill="#28685f" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
@@ -244,6 +288,143 @@
                     <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                 </m>
             </m>
+        </m>
+        <m k="piste:type" v="hike">
+            <!--
+            A piste for nordic walking or hiking in winter (Winterwanderweg) that is usually
+            announced by a tourism authority. A classic groomed piste (piste:grooming=classic)
+            can be hiked with simple boots or can be used for running (default if grooming
+            is absent). A piste:grooming=backcountry groomed piste requires snow shoes.
+            -->
+            <m zoom-max="14">
+                <line fix="true" stroke="#ffffff" width="2.8" />
+                <line fix="true" stroke="#ff9faf" width="2" />
+            </m>
+            <m zoom-min="15">
+                <m select="first">
+                    <m k="piste:difficulty" v="novice">
+                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="easy">
+                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="intermediate">
+                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="advanced">
+                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="expert">
+                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                    </m>
+                    <m k="piste:difficulty" v="~">
+                        <line fix="true" stroke="#ffffff" width="4" />
+                    </m>
+                </m>
+                <line fix="true" stroke="#ff9faf" width="3" />
+                <line fix="true" src="assets:symbols/dot.svg" stipple="30" stipple-stroke="#ff9faf"
+                    width="15" />
+                <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
+                <text use="piste-ref" />
+            </m>
+        </m>
+        <m k="piste:type" v="sleigh">
+            <m zoom-max="14">
+                <line fix="true" stroke="#ffffff" width="2.8" />
+                <line fix="true" stroke="#8f54d8" width="2" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#ffffff" width="4" />
+                <line fix="true" stroke="#8f54d8" width="3" />
+                <text fill="#5c25a1" use="piste-name" /> <!-- Darken 20% -->
+                <text use="piste-ref" />
+                <m k="oneway" v="1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway.svg" />
+                </m>
+                <m k="oneway" v="-1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                </m>
+            </m>
+        </m>
+        <m k="piste:type" v="skitour">
+            <m zoom-max="14">
+                <line fix="true" src="assets:symbols/skitour.svg" stipple="30"
+                    stipple-stroke="#ff703c" width="15" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" src="assets:symbols/skitour.svg" stipple="40"
+                    stipple-stroke="#ff703c" width="20" />
+                <text fill="#d53900" use="piste-name" /> <!-- Darken 20% -->
+                <text use="piste-ref" />
+            </m>
+        </m>
+        <m k="piste:type" v="ice_skate">
+            <m closed="yes">
+                <area fill="#aae2f3f6" />
+                <m zoom-max="14">
+                    <line fix="true" stroke="#aa6fc4d0" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#aa6fc4d0" width="3" />
+                </m>
+            </m>
+            <m closed="no">
+                <m zoom-max="14">
+                    <line fix="true" stroke="#ffffff" width="2.8" />
+                    <line fix="true" stroke="#6fc4d0" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#ffffff" width="4" />
+                    <line fix="true" stroke="#6fc4d0" width="3" />
+                </m>
+            </m>
+            <text fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
+        </m>
+        <m k="piste:type" v="snow_park">
+            <m closed="yes">
+                <area fill="#aa85bbf6" />
+                <m zoom-max="14">
+                    <line fix="true" stroke="#aa0f6dd3" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#aa0f6dd3" width="3" />
+                </m>
+            </m>
+            <m closed="no">
+                <m zoom-max="14">
+                    <line fix="true" stroke="#ffffff" width="2.8" />
+                    <line fix="true" stroke="#2586f0" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#ffffff" width="4" />
+                    <line fix="true" stroke="#2586f0" width="3" />
+                    <text use="piste-ref" />
+                </m>
+            </m>
+            <text fill="#083c74" use="piste-name" /> <!-- Darken 20% -->
+        </m>
+        <m k="piste:type" v="playground">
+            <m closed="yes">
+                <area fill="#aad5f0b1" />
+                <m zoom-max="14">
+                    <line fix="true" stroke="#aaa6e05b" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#aaa6e05b" width="3" />
+                </m>
+            </m>
+            <m closed="no">
+                <m zoom-max="14">
+                    <line fix="true" stroke="#ffffff" width="2.8" />
+                    <line fix="true" stroke="#a6e05b" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#ffffff" width="4" />
+                    <line fix="true" stroke="#a6e05b" width="3" />
+                    <text use="piste-ref" />
+                </m>
+            </m>
+            <text fill="#74b322" use="piste-name" /> <!-- Darken 20% -->
         </m>
     </m>
 
@@ -290,7 +471,9 @@
 
     <xi:include href="inc_natural_points.xml" />
 
-    <xi:include href="inc_mountain_points.xml" />
+    <m zoom-min="14">
+        <xi:include href="inc_mountain_points.xml" />
+    </m>
 
     <!-- POI symbols, names and house numbers -->
 

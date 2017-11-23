@@ -831,11 +831,11 @@ public class Tags {
             "waterfall",
             "guidepost", // todo
             "map", // todo
-            "skitour", // todo
-            "hike", // todo
-            "ice_skate", // todo
-            "sleigh", // todo
-            "snow_park", // todo
+            "skitour",
+            "hike",
+            "ice_skate",
+            "sleigh",
+            "snow_park",
             "sports"
     };
     public final static int MAX_VALUE = values.length - 1;
