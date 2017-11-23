@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <m cat="nature" k="natural">
+        <m select="first" zoom-min="13">
+            <m v="cave_entrance" zoom-min="15">
+                <symbol src="assets:symbols/natural/cave.svg" />
+            </m>
+            <m v="spring">
+                <symbol src="assets:symbols/natural/spring.svg" />
+            </m>
+        </m>
+        <m select="when-matched">
+            <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+                stroke-width="2.0" />
+        </m>
+    </m>
+</rendertheme>

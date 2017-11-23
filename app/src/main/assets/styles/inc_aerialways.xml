@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <m cat="aerialways" k="aerialway">
-        <m e="way" k="aerialway">
+        <m closed="no" e="way" k="aerialway">
             <line cap="butt" fix="true" stroke="#202020" width="1.8" />
             <m k="aerialway" v="cable_car|gondola">
                 <line fix="true" src="assets:symbols/dot_black.svg" stipple="50"

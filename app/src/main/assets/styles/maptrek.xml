@@ -416,81 +416,15 @@
             </m>
         </m>
     </m>
-    <m cat="nature" k="natural">
-        <m select="first" zoom-min="13">
-            <m v="volcano">
-                <symbol src="assets:symbols/natural/volcano.svg" />
-                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
-                    stroke-width="2.0" />
-            </m>
-            <m v="peak">
-                <symbol src="assets:symbols/natural/peak.svg" />
-                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
-                    stroke-width="2.0" />
-            </m>
-            <m v="saddle">
-                <m k="mountain_pass" v="~|no">
-                    <symbol src="assets:symbols/natural/saddle.svg" />
-                    <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
-                        stroke-width="2.0" />
-                </m>
-            </m>
-            <m v="cave_entrance" zoom-min="15">
-                <symbol src="assets:symbols/natural/cave.svg" />
-            </m>
-            <m v="spring">
-                <symbol src="assets:symbols/natural/spring.svg" />
-            </m>
-        </m>
-        <m select="when-matched">
-            <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
-                stroke-width="2.0" />
-        </m>
-    </m>
-    <m cat="roads" k="mountain_pass" v="yes">
-        <symbol src="assets:symbols/natural/mountain_pass.svg" />
-        <caption style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
-            stroke-width="2.0" />
-        <caption style="bold" dy="-16" fill="#000000" k="ele" size="14" stroke="#ffffff"
-            stroke-width="2.0" />
-    </m>
 
-    <!-- Protected areas -->
-    <m cat="nature" closed="yes" k="boundary|leisure" zoom-min="6">
-        <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
-        <!-- TODO Remove protected area -->
-        <m v="national_park|nature_reserve">
-            <m zoom-max="13">
-                <area mesh="true" use="nature_reserve" />
-            </m>
-            <m zoom-max="14" zoom-min="14">
-                <area mesh="true" use="nature_reserve_light" />
-            </m>
-            <m zoom-max="7">
-                <line fade="6" use="nature_reserve" width="-1.0" />
-            </m>
-            <m zoom-min="8">
-                <line use="nature_reserve" />
-            </m>
-            <text style="bold_italic" area-size="0.1" caption="true" fill="#0a5c0a" k="name"
-                priority="3" size="18" stroke="#d1fad1" stroke-width="2.0" />
-        </m>
-    </m>
-    <m cat="urban" closed="yes" k="landuse" zoom-min="7">
-        <m v="military">
-            <area fade="7" mesh="true" use="military" />
-            <m zoom-max="7">
-                <line fade="7" use="military" width="-1.0" />
-            </m>
-            <m zoom-min="8">
-                <line use="military" />
-            </m>
-            <text style="bold_italic" area-size="0.3" caption="true" fill="#990000" k="name"
-                priority="6" size="18" stroke="#ffcccc" stroke-width="2.0" />
-        </m>
-    </m>
+    <xi:include href="inc_natural_points.xml" />
+
+    <xi:include href="inc_mountain_points.xml" />
+
+    <xi:include href="inc_protected_areas.xml" />
 
     <!-- POI symbols, names and house numbers -->
+
     <xi:include href="inc_places.xml" />
 
     <xi:include href="inc_symbols.xml" />

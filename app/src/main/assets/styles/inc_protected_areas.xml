@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- Protected areas -->
+    <m cat="nature" closed="yes" k="boundary|leisure" zoom-min="6">
+        <!-- https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dnational_park -->
+        <!-- TODO Remove protected area -->
+        <m v="national_park|nature_reserve">
+            <m zoom-max="13">
+                <area mesh="true" use="nature_reserve" />
+            </m>
+            <m zoom-max="14" zoom-min="14">
+                <area mesh="true" use="nature_reserve_light" />
+            </m>
+            <m zoom-max="7">
+                <line fade="6" use="nature_reserve" width="-1.0" />
+            </m>
+            <m zoom-min="8">
+                <line use="nature_reserve" />
+            </m>
+            <text style="bold_italic" area-size="0.1" caption="true" fill="#0a5c0a" k="name"
+                priority="3" size="18" stroke="#d1fad1" stroke-width="2.0" />
+        </m>
+    </m>
+    <m cat="urban" closed="yes" k="landuse" zoom-min="7">
+        <m v="military">
+            <area fade="7" mesh="true" use="military" />
+            <m zoom-max="7">
+                <line fade="7" use="military" width="-1.0" />
+            </m>
+            <m zoom-min="8">
+                <line use="military" />
+            </m>
+            <text style="bold_italic" area-size="0.3" caption="true" fill="#990000" k="name"
+                priority="6" size="18" stroke="#ffcccc" stroke-width="2.0" />
+        </m>
+    </m>
+</rendertheme>
