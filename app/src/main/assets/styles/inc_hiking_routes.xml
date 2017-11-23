@@ -15,6 +15,16 @@
             <m k="network" v="lwn">
                 <line stroke="#88ffff00" width="3" />
             </m>
+            <m k="osmc:symbol">
+                <m zoom-max="11">
+                    <symbol merge="true" repeat-gap="140" src="gen:/osmc-symbol"
+                        symbol-percent="50" />
+                </m>
+                <m zoom-min="12">
+                    <symbol merge="true" repeat-gap="120" src="gen:/osmc-symbol"
+                        symbol-percent="70" />
+                </m>
+            </m>
         </m>
         <m zoom-min="14">
             <m k="network" v="iwn">
@@ -28,6 +38,15 @@
             </m>
             <m k="network" v="lwn">
                 <line cap="butt" fix="true" stroke="#ffff00" width="1.5" />
+            </m>
+            <m k="osmc:symbol">
+                <m zoom-max="15">
+                    <symbol merge="true" repeat-gap="100" src="gen:/osmc-symbol" />
+                </m>
+                <m zoom-max="16" zoom-min="16">
+                    <symbol merge="true" repeat-gap="80" src="gen:/osmc-symbol"
+                        symbol-percent="130" />
+                </m>
             </m>
         </m>
     </m>

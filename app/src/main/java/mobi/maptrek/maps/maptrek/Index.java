@@ -804,7 +804,6 @@ public class Index {
                 .build();
     }
 
-
     public int getMapsCount() {
         return mLoadedMaps;
     }
