@@ -33,6 +33,9 @@
     </stylemenu>
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
+        stroke-width="2.5" />
+
     <style-area fade="-1" fill="#fafafa" id="land" mesh="true" />
     <!--
     <style-area fade="-1" fill="#d0d0d0" id="water" mesh="true" />
@@ -110,7 +113,6 @@
         stroke="#eeeeee" stroke-width="2.0" />
 
 
-
     <m cat="water" e="way" k="natural" v="sea">
         <area use="water" />
     </m>
@@ -120,10 +122,7 @@
 
     <!-- Land usages -->
     <m closed="yes" e="way" k="landuse|amenity">
-        <m v="residential|commercial|retail">
-            <area use="residential" />
-        </m>
-        <m v="allotments">
+        <m v="residential|commercial|retail|industrial|allotments">
             <area use="residential" />
         </m>
         <m v="parking" zoom-min="16">
@@ -158,10 +157,6 @@
     <xi:include href="inc_highways.xml" />
 
     <xi:include href="inc_railways.xml" />
-
-    <xi:include href="inc_highway_bridges.xml" />
-
-    <xi:include href="inc_railway_bridges.xml" />
 
     <m cat="skiing" k="piste:type">
         <m k="piste:type" v="downhill" zoom-min="13">
@@ -222,8 +217,11 @@
             <m zoom-min="15">
                 <line fix="true" stroke="#ffffff" width="4" />
                 <line fix="true" stroke="#a1e620" width="3" />
-                <text use="piste-name" fill="#639010" /> <!-- Darken 20% -->
+                <text fill="#639010" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <m k="oneway" v="1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway.svg" />
+                </m>
             </m>
         </m>
         <m k="piste:type" v="nordic">
@@ -234,13 +232,24 @@
             <m zoom-min="15">
                 <line fix="true" stroke="#ffffff" width="4" />
                 <line fix="true" stroke="#44b2a3" width="3" />
-                <text use="piste-name" fill="#28685f" /> <!-- Darken 20% -->
+                <text fill="#28685f" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <m k="oneway" v="1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway.svg" />
+                </m>
             </m>
         </m>
     </m>
 
+    <xi:include href="inc_highway_bridges.xml" />
+
+    <xi:include href="inc_railway_bridges.xml" />
+
     <xi:include href="inc_barier_lines.xml" />
+
+    <m cat="forest" k="natural" v="tree" zoom-min="16">
+        <area fade="16" fill="#c6d7d7" mesh="true" />
+    </m>
 
     <xi:include href="inc_boundaries.xml" />
 
@@ -273,7 +282,12 @@
         </m>
     </m>
 
+    <xi:include href="inc_natural_points.xml" />
+
+    <xi:include href="inc_mountain_points.xml" />
+
     <!-- POI symbols, names and house numbers -->
+
     <xi:include href="inc_places.xml" />
 
     <xi:include href="inc_symbols.xml" />
