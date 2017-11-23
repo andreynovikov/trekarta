@@ -178,6 +178,9 @@
                     <m cat="roads" k="oneway" v="1" zoom-min="16">
                         <lineSymbol src="assets:symbols/oneway.svg" />
                     </m>
+                    <m cat="roads" k="oneway" v="-1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                    </m>
                 </m> <!-- end area=no -->
             </m>
         </m> <!-- end bridge=yes -->

@@ -222,6 +222,9 @@
                 <m k="oneway" v="1" zoom-min="16">
                     <lineSymbol src="assets:symbols/oneway.svg" />
                 </m>
+                <m k="oneway" v="-1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                </m>
             </m>
         </m>
         <m k="piste:type" v="nordic">
@@ -236,6 +239,9 @@
                 <text use="piste-ref" />
                 <m k="oneway" v="1" zoom-min="16">
                     <lineSymbol src="assets:symbols/oneway.svg" />
+                </m>
+                <m k="oneway" v="-1" zoom-min="16">
+                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                 </m>
             </m>
         </m>
