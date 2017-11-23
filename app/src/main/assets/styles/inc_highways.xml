@@ -695,7 +695,7 @@
         </m>
     </m>
     <!-- ford symbol -->
-    <m cat="pedestrian" k="ford" select="first" v="yes" zoom-min="15">
+    <m cat="fords" k="ford" select="first" v="yes" zoom-min="15">
         <!-- a node -->
         <m e="node">
             <symbol src="assets:symbols/natural/ford.svg" symbol-percent="60" />

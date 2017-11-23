@@ -62,6 +62,7 @@
         <layer enabled="true" id="topo" parent="urban">
             <cat id="agriculture" />
             <cat id="tracks" />
+            <cat id="fords" />
             <cat id="topo" />
             <cat id="contours" />
             <overlay id="nature" />
