@@ -176,6 +176,9 @@
                     <m v="outdoor">
                         <symbol src="assets:symbols/shopping/outdoor.svg" />
                     </m>
+                    <m v="sports">
+                        <symbol src="assets:symbols/shopping/sports.svg" />
+                    </m>
                     <m v="gift">
                         <symbol src="assets:symbols/shopping/gift.svg" />
                     </m>

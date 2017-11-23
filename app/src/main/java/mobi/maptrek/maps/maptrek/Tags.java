@@ -246,7 +246,8 @@ public class Tags {
             "trail_visibility",
             "osmc:symbol",
             "network",
-            "route:network"
+            "route:network",
+            "information" // todo
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -827,7 +828,15 @@ public class Tags {
             "bad",
             "horrible",
             "saddle",
-            "waterfall"
+            "waterfall",
+            "guidepost", // todo
+            "map", // todo
+            "skitour", // todo
+            "hike", // todo
+            "ice_skate", // todo
+            "sleigh", // todo
+            "snow_park", // todo
+            "sports"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
