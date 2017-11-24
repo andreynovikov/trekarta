@@ -15,30 +15,31 @@
         <layer enabled="true" id="base">
             <cat id="land" />
             <cat id="water" />
-            <cat id="insignificant-water" />
             <cat id="administrative" />
             <cat id="places" />
-            <cat id="forest" />
-            <cat id="mountains" />
-            <cat id="urban" />
-            <cat id="roads" />
-            <cat id="tracks" />
-            <cat id="railways" />
-            <cat id="buildings" />
-            <cat id="pedestrian" />
-            <cat id="contours" />
             <cat id="aerialways" />
             <cat id="skiing" />
         </layer>
 
-        <!--suppress CheckTagEmptyBody -->
-        <layer enabled="true" id="roads" parent="base"></layer>
+        <layer enabled="true" id="roads" parent="base">
+            <cat id="roads" />
+            <cat id="railways" />
+            <cat id="buildings" />
+        </layer>
 
-        <!--suppress CheckTagEmptyBody -->
-        <layer enabled="true" id="urban" parent="roads"></layer>
+        <layer enabled="true" id="urban" parent="roads">
+            <cat id="forest" />
+            <cat id="urban" />
+            <cat id="pedestrian" />
+            <cat id="insignificant-water" />
+        </layer>
 
-        <!--suppress CheckTagEmptyBody -->
-        <layer enabled="true" id="topo" parent="urban"></layer>
+        <layer enabled="true" id="topo" parent="urban">
+            <cat id="mountains" />
+            <cat id="winter-topo" />
+            <cat id="tracks" />
+            <cat id="contours" />
+        </layer>
     </stylemenu>
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
@@ -141,20 +142,20 @@
 
     <!-- Natural -->
     <m closed="yes" e="way" k="natural">
-        <m v="glacier">
+        <m cat="winter-topo" v="glacier">
             <area fill="#d9f0f0" />
         </m>
-        <m v="bare_rock">
+        <m cat="winter-topo" v="bare_rock">
             <area src="assets:patterns/rock_overlay.png" />
         </m>
         <m cat="forest" v="forest|wood">
             <area use="wood" />
         </m>
-        <m v="marsh">
+        <m cat="winter-topo" v="marsh">
             <area src="assets:patterns/wetland.svg" />
             <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
         </m>
-        <m v="wetland">
+        <m cat="winter-topo" v="wetland">
             <area src="assets:patterns/wetland.svg" />
         </m>
     </m>
@@ -475,10 +476,23 @@
 
     <m cat="aerialways" e="way" k="aerialway">
         <m k="aerialway" v="cable_car">
-            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/cable_car.svg" />
+            <m zoom-max="13">
+                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/cable_car.svg"
+                    symbol-percent="70" />
+            </m>
+            <m zoom-min="14">
+                <symbol merge="true" repeat-gap="120"
+                    src="assets:symbols/transport/cable_car.svg" />
+            </m>
         </m>
         <m k="aerialway" v="gondola">
-            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg" />
+            <m zoom-max="13">
+                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg"
+                    symbol-percent="70" />
+            </m>
+            <m zoom-min="14">
+                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg" />
+            </m>
         </m>
         <m k="aerialway" v="chair_lift" zoom-min="15">
             <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/chair_lift.svg" />
@@ -491,8 +505,6 @@
                 stroke-width="2.0" />
         </m>
     </m>
-
-    <xi:include href="inc_natural_points.xml" />
 
     <m zoom-min="14">
         <xi:include href="inc_mountain_points.xml" />
