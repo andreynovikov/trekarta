@@ -2978,7 +2978,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onTransparencyChanged(int transparency) {
         mBitmapMapTransparency = transparency;
         if (mBitmapLayerMap != null && mBitmapLayerMap.tileLayer instanceof BitmapTileLayer)
-            ((BitmapTileLayer) mBitmapLayerMap.tileLayer).setTransparency(mBitmapMapTransparency * 0.01f);
+            ((BitmapTileLayer) mBitmapLayerMap.tileLayer).setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
         Configuration.setBitmapMapTransparency(transparency);
     }
 
@@ -3039,7 +3039,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             layer.setRenderTheme(ThemeLoader.load(Themes.MAPTREK));
             mapFile.tileLayer = layer;
         } else {
-            mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, mBitmapMapTransparency * 0.01f);
+            mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, 1 - mBitmapMapTransparency * 0.01f);
         }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
         mBitmapLayerMap = mapFile;
@@ -4091,7 +4091,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case Configuration.PREF_HILLSHADES_TRANSPARENCY: {
                 int transparency = Configuration.getHillshadesTransparency();
                 if (mHillshadeLayer != null)
-                    mHillshadeLayer.setTransparency(transparency * 0.01f);
+                    mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f);
                 break;
             }
         }

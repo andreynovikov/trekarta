@@ -441,7 +441,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 }
                 kind = kind >> 1;
             }
-            if (!(hasKind || place_road_building || type != TAG_TILE_POINT || mElem.tags.numTags > 1))
+            if (!(hasKind || place_road_building || type != TAG_TILE_POINT || mElem.tags.size() > 1))
                 return true;
             if (someKind)
                 mElem.tags.add(new Tag("kind", "yes"));
@@ -464,7 +464,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
         mElem.tags.clear();
 
-        int max = mTileTags.numTags - 1;
+        int max = mTileTags.size() - 1;
 
         for (int i = 0; i < numTags; i++) {
             int idx = tagIds[i];
@@ -473,7 +473,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 log.error("{} invalid tag: {}", mTile, idx, i);
                 return false;
             }
-            mElem.tags.add(mTileTags.tags[idx]);
+            mElem.tags.add(mTileTags.get(idx));
         }
 
         return true;
