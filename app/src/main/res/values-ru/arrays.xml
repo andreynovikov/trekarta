@@ -78,4 +78,9 @@
         <item>Город</item>
         <item>Топо</item>
     </string-array>
+    <string-array name="activities">
+        <item>Нет</item>
+        <item>Походы</item>
+        <item>Лыжи</item>
+    </string-array>
 </resources>
