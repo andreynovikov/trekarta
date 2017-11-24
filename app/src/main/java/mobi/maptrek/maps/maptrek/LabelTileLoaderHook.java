@@ -150,9 +150,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                     SymbolItem it = SymbolItem.pool.get();
                     if (symbol.bitmap != null)
-                        it.set(p.x, p.y, symbol.bitmap, true);
+                        it.set(p.x, p.y, symbol.bitmap, 0, 0f, true, symbol.merge);
                     else
-                        it.set(p.x, p.y, symbol.texture, true);
+                        it.set(p.x, p.y, symbol.texture, 0, 0f, true, symbol.merge);
                     ld.symbols.push(it);
                 }
             } else if (element.type == LINE) {
@@ -175,9 +175,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                 SymbolItem it = SymbolItem.pool.get();
                 if (symbol.bitmap != null)
-                    it.set(centroid.x, centroid.y, symbol.bitmap, true);
+                    it.set(centroid.x, centroid.y, symbol.bitmap, 0, 0f, true, symbol.merge);
                 else
-                    it.set(centroid.x, centroid.y, symbol.texture, true);
+                    it.set(centroid.x, centroid.y, symbol.texture, 0, 0f, true, symbol.merge);
                 ld.symbols.push(it);
             }
         }

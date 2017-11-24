@@ -2,6 +2,15 @@
 <rendertheme xmlns:xi="http://www.w3.org/2001/XInclude" map-background="#fffcfa" version="1"
     xmlns="http://opensciencemap.org/rendertheme">
 
+    <!-- TODO:
+        piste:oneway
+        piste:name
+        piste:grooming=[backcountry,mogul]
+        piste:lit=yes
+        lit=yes
+        gladed=yes (trees)
+    -->
+
     <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
         <layer enabled="true" id="base">
             <cat id="land" />
@@ -448,24 +457,20 @@
 
     <m cat="aerialways" e="way" k="aerialway">
         <m k="aerialway" v="cable_car">
-            <symbol src="assets:symbols/transport/cable_car.svg" />
+            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/cable_car.svg" />
         </m>
         <m k="aerialway" v="gondola">
-            <symbol src="assets:symbols/transport/gondola.svg" />
+            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg" />
         </m>
-        <m k="aerialway" v="chair_lift">
-            <m zoom-min="15">
-                <symbol src="assets:symbols/transport/chair_lift.svg" />
-                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
-                    stroke-width="2.0" />
-            </m>
+        <m k="aerialway" v="chair_lift" zoom-min="15">
+            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/chair_lift.svg" />
+            <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
+                stroke-width="2.0" />
         </m>
-        <m k="aerialway" v="drag_lift">
-            <m zoom-min="15">
-                <symbol src="assets:symbols/transport/drag_lift.svg" />
-                <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
-                    stroke-width="2.0" />
-            </m>
+        <m k="aerialway" v="drag_lift" zoom-min="15">
+            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/drag_lift.svg" />
+            <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
+                stroke-width="2.0" />
         </m>
     </m>
 

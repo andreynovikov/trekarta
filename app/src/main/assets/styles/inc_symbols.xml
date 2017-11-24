@@ -7,7 +7,7 @@
                 <symbol src="assets:symbols/barrier/border_control.svg" />
             </m>
             <m v="toll_booth">
-                <symbol src="assets:symbols/barrier/toll_booth.svg" />
+                <symbol src="assets:symbols/barrier/toll_booth.svg" merge="true" />
             </m>
         </m>
     </m>
@@ -66,11 +66,11 @@
         <!-- aeroway -->
         <m k="aeroway">
             <m cat="urban" k="aeroway" v="helipad" zoom-min="15">
-                <symbol src="assets:symbols/transport/helicopter.svg" />
+                <symbol src="assets:symbols/transport/helicopter.svg" merge="true" />
                 <text use="poi" />
             </m>
             <m cat="urban" k="aeroway" v="heliport">
-                <symbol src="assets:symbols/transport/helicopter.svg" />
+                <symbol src="assets:symbols/transport/helicopter.svg" merge="true" />
                 <text use="poi" />
             </m>
             <m cat="urban" k="aeroway" v="aerodrome">

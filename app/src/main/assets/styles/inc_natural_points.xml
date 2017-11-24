@@ -6,7 +6,7 @@
                 <symbol src="assets:symbols/natural/cave.svg" />
             </m>
             <m v="spring">
-                <symbol src="assets:symbols/natural/spring.svg" />
+                <symbol src="assets:symbols/natural/spring.svg" merge="true" />
             </m>
         </m>
         <m select="when-matched">
