@@ -296,6 +296,15 @@
                 <m k="oneway" v="-1" zoom-min="16">
                     <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                 </m>
+                <m k="osmc:symbol">
+                    <m zoom-max="15">
+                        <symbol merge="true" repeat-gap="100" src="gen:/osmc-symbol" />
+                    </m>
+                    <m zoom-max="16" zoom-min="16">
+                        <symbol merge="true" repeat-gap="80" src="gen:/osmc-symbol"
+                            symbol-percent="130" />
+                    </m>
+                </m>
             </m>
         </m>
         <m k="piste:type" v="hike">
@@ -335,6 +344,15 @@
                     width="15" />
                 <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <m k="osmc:symbol">
+                    <m zoom-max="15">
+                        <symbol merge="true" repeat-gap="100" src="gen:/osmc-symbol" />
+                    </m>
+                    <m zoom-max="16" zoom-min="16">
+                        <symbol merge="true" repeat-gap="80" src="gen:/osmc-symbol"
+                            symbol-percent="130" />
+                    </m>
+                </m>
             </m>
         </m>
         <m k="piste:type" v="sleigh">
