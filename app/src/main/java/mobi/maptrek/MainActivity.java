@@ -1725,11 +1725,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 item = menu.findItem(R.id.actionLanguage);
                 ((TextView) item.getActionView()).setText(Configuration.getLanguage());
                 menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-                item = menu.findItem(R.id.actionActivity);
-                String[] activities = resources.getStringArray(R.array.activities);
-                int activity = Configuration.getActivity();
-                if (activity > 0)
-                    ((TextView) item.getActionView()).setText(activities[activity]);
                 //if (!BuildConfig.FULL_VERSION) {
                 menu.removeItem(R.id.actionNightMode);
                 //}
@@ -1744,6 +1739,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
                 @Override
                 public void onPrepareMenu(PanelMenu menu) {
+                    Resources resources = getResources();
+                    MenuItem item = menu.findItem(R.id.actionActivity);
+                    String[] activities = resources.getStringArray(R.array.activities);
+                    int activity = Configuration.getActivity();
+                    if (activity > 0)
+                        ((TextView) item.getActionView()).setText(activities[activity]);
                     if (BuildConfig.FULL_VERSION) {
                         menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                     } else {
@@ -1763,7 +1764,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
                     for (String toolName : toolNames) {
                         Pair<Drawable, Intent> tool = tools.get(toolName);
-                        MenuItem item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
+                        item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
                         //item.setIcon(tool.first);
                         item.setIntent(tool.second);
                     }
