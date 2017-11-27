@@ -241,6 +241,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         destination.setTextColor(getContext().getColor(R.color.colorAccent));
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) destination.getLayoutParams();
         params.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.fragment_padding);
+        params.bottomMargin = -params.topMargin;
         destination.setLayoutParams(params);
 
         rootView.findViewById(R.id.navigateButton).setVisibility(View.GONE);
