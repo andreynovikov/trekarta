@@ -121,7 +121,7 @@ public class OsmcSymbolFactory {
     }
 
     public @Nullable
-    Bitmap getBitmap(@NonNull String osmcSymbol, int symbolPercent) {
+    synchronized Bitmap getBitmap(@NonNull String osmcSymbol, int symbolPercent) {
         String key = osmcSymbol + "%%%" + String.valueOf(symbolPercent);
         Bitmap bitmap = mBitmapCache.get(key);
         if (bitmap != null)
