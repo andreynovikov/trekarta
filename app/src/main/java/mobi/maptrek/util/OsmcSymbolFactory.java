@@ -30,6 +30,7 @@ import org.oscim.android.canvas.AndroidGraphics;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Color;
+import org.oscim.utils.ColorUtil;
 import org.oscim.utils.ColorsCSS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +171,7 @@ public class OsmcSymbolFactory {
                 paint.setStyle(Paint.Style.STROKE);
                 canvas.drawCircle(hSize, hSize, hSize - hWidth, paint);
             } else {
-                paint.setStyle(Paint.Style.STROKE);
+                //paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(fillColor);
                 //noinspection SuspiciousNameCombination
                 canvas.drawRect(hWidth, hWidth, size - hWidth, size - hWidth, paint);
@@ -192,7 +193,10 @@ public class OsmcSymbolFactory {
         // draw text
         if (parts.length > 3) {
             String text = parts[parts.length - 2];
-            Integer textColor = ColorsCSS.get(parts[parts.length - 1]);
+            String color = parts[parts.length - 1];
+            Integer textColor = ColorsCSS.get(color);
+            if ("yellow".equals(color)) // yellow text is unreadable
+                textColor = ColorUtil.modHsv(textColor, 1.0, 1.2, 0.8, false);
             if (BuildConfig.DEBUG && textColor == null)
                 logger.error("Unknown text color: {}", parts[parts.length - 1]);
             if (textColor != null && text.length() > 0) {
