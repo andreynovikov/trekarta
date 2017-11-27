@@ -9,8 +9,10 @@
     http://wiki.openstreetmap.org/wiki/Key:lock
     http://wiki.openstreetmap.org/wiki/Tag:craft=winery
     http://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
+    http://wiki.openstreetmap.org/wiki/Key:intermittent - draw with condensed stipple
+    http://wiki.openstreetmap.org/wiki/Tag:amenity=boat rental
     railway:subway
-    http://wiki.openstreetmap.org/wiki/Tag:aerialway=goods?uselang=en
+    http://wiki.openstreetmap.org/wiki/Tag:aerialway=goods
     http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
     http://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
@@ -359,6 +361,8 @@
         </m>
     </m>
 
+    <!-- THIS IS A DANGEROUS HACK as Android does not support xi:include! It assumes a lot of
+    prerequisites how includes are formatted, see Themes class for details -->
     <xi:include href="inc_water.xml" />
 
     <m e="node" k="waterway">
@@ -369,8 +373,8 @@
 
     <xi:include href="inc_ground_objects.xml" />
 
-    <!-- THIS IS A DANGEROUS HACK as Android does not support xi:include! It assumes a lot of
-    prerequisites how includes are formatted, see Themes class for details -->
+    <xi:include href="inc_buildings.xml" />
+
     <xi:include href="inc_hiking_routes.xml" />
 
     <xi:include href="inc_highways.xml" />
@@ -391,8 +395,6 @@
 
     <xi:include href="inc_contours.xml" />
 
-    <xi:include href="inc_buildings.xml" />
-
     <!-- Man made objects above ground -->
     <xi:include href="inc_aerialways.xml" />
 
@@ -407,7 +409,7 @@
         <m cat="urban" v="generator" zoom-min="14">
             <m k="generator:source" select="first">
                 <m v="wind">
-                    <symbol src="assets:symbols/power/wind.svg" />
+                    <symbol src="assets:symbols/power/wind.svg" merge="true" />
                 </m>
             </m>
         </m>

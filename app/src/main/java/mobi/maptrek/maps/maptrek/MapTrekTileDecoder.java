@@ -62,8 +62,6 @@ class MapTrekTileDecoder extends PbfDecoder {
     private static final int TAG_ELEM_ROOF_COLOR = 37;
     private static final int TAG_ELEM_HOUSE_NUMBER = 38;
 
-    private static final Tag TAG_TREE = new Tag("natural", "tree");
-
     private int[] mSArray = new int[100];
 
     private Tile mTile;
@@ -413,18 +411,6 @@ class MapTrekTileDecoder extends PbfDecoder {
                 break;
         }
 
-        if (type == TAG_TILE_POINT && mElem.tags.contains(TAG_TREE)) {
-            float x = mElem.getPointX(0);
-            float y = mElem.getPointY(0);
-            GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);
-            mElem.ensurePointSize(geom.getNumPoints(), false);
-            mElem.type = GeometryBuffer.GeometryType.POLY;
-            System.arraycopy(geom.points, 0, mElem.points, 0, geom.points.length);
-            mElem.index[0] = geom.points.length;
-            if (mElem.index.length > 1)
-                mElem.index[1] = -1;
-        }
-
         if (kind >= 0) {
             mElem.kind = kind;
             boolean place_road_building = (kind & 0x00000007) > 0;
@@ -473,7 +459,14 @@ class MapTrekTileDecoder extends PbfDecoder {
                 log.error("{} invalid tag: {}", mTile, idx, i);
                 return false;
             }
-            mElem.tags.add(mTileTags.get(idx));
+            Tag tag = mTileTags.get(idx);
+            if ("contour".equals(tag.key))
+                mElem.isContour = true;
+            if ("building".equals(tag.key))
+                mElem.isBuilding = true;
+            if ("building:part".equals(tag.key))
+                mElem.isBuildingPart = true;
+            mElem.tags.add(tag);
         }
 
         return true;

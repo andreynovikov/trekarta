@@ -4,7 +4,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.oscim.backend.canvas.Bitmap;
+import org.oscim.core.GeometryBuffer;
 import org.oscim.core.MapElement;
+import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
@@ -31,6 +33,9 @@ class MapTrekDataSource implements ITileDataSource {
 
     private static final int MAX_NATIVE_ZOOM = 14;
     private static final int CLIP_BUFFER = 32;
+    private static final int BUILDING_CLIP_BUFFER = 4;
+
+    private static final Tag TAG_TREE = new Tag("natural", "tree");
 
     private final MapTrekTileDecoder mTileDecoder;
     private final SQLiteDatabase mDatabase;
@@ -105,26 +110,49 @@ class MapTrekDataSource implements ITileDataSource {
                 dy = (tile.tileY - (y << dz)) * Tile.SIZE;
                 mTileClipper = new TileClipper((dx - CLIP_BUFFER) / scale, (dy - CLIP_BUFFER) / scale,
                         (dx + Tile.SIZE + CLIP_BUFFER) / scale, (dy + Tile.SIZE + CLIP_BUFFER) / scale);
+                mBuildingTileClipper = new TileClipper((dx - BUILDING_CLIP_BUFFER) / scale, (dy - BUILDING_CLIP_BUFFER) / scale,
+                        (dx + Tile.SIZE + BUILDING_CLIP_BUFFER) / scale, (dy + Tile.SIZE + BUILDING_CLIP_BUFFER) / scale);
+                /*
                 mBuildingTileClipper = new TileClipper(dx / scale, dy / scale,
                         (dx + Tile.SIZE) / scale, (dy + Tile.SIZE) / scale);
+                        */
             }
         }
 
         @Override
         public void process(MapElement el) {
             ExtendedMapElement element = (ExtendedMapElement) el;
-            //TODO replace with building_part flag
-            if (tile.zoomLevel < 17 && element.tags.containsKey("building:part") && !element.tags.containsKey("building"))
+
+            if (tile.zoomLevel < 16 && element.tags.contains(TAG_TREE))
                 return;
-            //TODO Process this in decoder
-            if (!mContoursEnabled && element.tags.containsKey("contour"))
+            if (tile.zoomLevel < 17 && element.isBuildingPart && !element.isBuilding)
                 return;
-            if (element.tags.containsKey("tunnel")) {
-                if (element.layer < 5)
+            if (!mContoursEnabled && element.isContour)
+                return;
+            if (element.layer < 5) {
+                //TODO Find a better solution to hide subway platforms
+                if (element.tags.containsKey("railway") && element.tags.getValue("railway").equals("platform"))
+                    return;
+                //TODO Properly process tunnels (requires changes to VTM)
+                if (element.tags.containsKey("tunnel"))
                     element.layer = 5;
             }
+
+            // Convert tree points to polygons
+            if (element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
+                float x = element.getPointX(0);
+                float y = element.getPointY(0);
+                GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);
+                element.ensurePointSize(geom.getNumPoints(), false);
+                element.type = GeometryBuffer.GeometryType.POLY;
+                System.arraycopy(geom.points, 0, element.points, 0, geom.points.length);
+                element.index[0] = geom.points.length;
+                if (element.index.length > 1)
+                    element.index[1] = -1;
+            }
+
             if (scale != 1) {
-                TileClipper clipper = element.isBuilding() ? mBuildingTileClipper : mTileClipper;
+                TileClipper clipper = element.isBuildingPart && !element.isBuilding ? mBuildingTileClipper : mTileClipper;
                 if (!clipper.clip(element))
                     return;
                 element.scale(scale, scale);
@@ -140,11 +168,6 @@ class MapTrekDataSource implements ITileDataSource {
             if (element.id != 0L) {
                 element.database = MapTrekDataSource.this;
             }
-            /*
-            if (tile.zoomLevel < 8) {
-                logger.error(element.tags.toString());
-            }
-            */
             /*
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
                 logger.error(element.id + ": " + element.tags.toString());

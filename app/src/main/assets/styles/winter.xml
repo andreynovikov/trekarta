@@ -95,7 +95,7 @@
     <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
 
     <style-line id="path" stipple="4" use="footway" width="0.1" />
-    <style-line id="bridleway" use="foorway" width="0.2" />
+    <style-line id="bridleway" use="footway" width="0.2" />
     <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#999999"
         stroke="#aaffffff" width="3.5" />
 
@@ -163,6 +163,8 @@
     <xi:include href="inc_water.xml" />
 
     <xi:include href="inc_ground_objects.xml" />
+
+    <xi:include href="inc_buildings.xml" />
 
     <xi:include href="inc_highways.xml" />
 
@@ -469,8 +471,6 @@
     <xi:include href="inc_boundaries.xml" />
 
     <xi:include href="inc_contours.xml" />
-
-    <xi:include href="inc_buildings.xml" />
 
     <xi:include href="inc_aerialways.xml" />
 

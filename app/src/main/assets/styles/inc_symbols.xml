@@ -31,7 +31,7 @@
                     <symbol src="assets:symbols/transport/tram_stop.svg" />
                 </m>
                 <m v="subway_entrance" zoom-min="17">
-                    <symbol src="assets:symbols/transport/entrance.svg" />
+                    <symbol src="assets:symbols/transport/entrance.svg" symbol-percent="70" />
                     <caption style="bold" dy="-15" fill="#ec2d2d" k="name" size="14"
                         stroke="#ffffff" stroke-width="2.0" />
                 </m>

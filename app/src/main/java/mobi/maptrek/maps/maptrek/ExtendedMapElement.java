@@ -12,6 +12,9 @@ public class ExtendedMapElement extends MapElement {
     boolean hasLabelPosition = true;
     public MapTrekDataSource database;
     public int kind = 0;
+    boolean isContour = false;
+    boolean isBuilding = false;
+    boolean isBuildingPart = false;
 
     void clearData() {
         id = 0L;
@@ -25,9 +28,8 @@ public class ExtendedMapElement extends MapElement {
         buildingMinHeight = 0;
         buildingColor = 0;
         roofColor = 0;
-    }
-
-    boolean isBuilding() {
-        return Tags.isBuilding(kind);
+        isContour = false;
+        isBuilding = false;
+        isBuildingPart = false;
     }
 }
