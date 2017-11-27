@@ -3,6 +3,7 @@ package mobi.maptrek.fragments;
 import android.app.ListFragment;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -81,7 +82,9 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                     rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     if (mAdapter.getCount() > 0) {
                         View view = getListView().getChildAt(0).findViewById(R.id.view);
-                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_VIEW_DATA_ITEM, R.string.advice_view_data_item, view, false);
+                        Rect r = new Rect();
+                        view.getGlobalVisibleRect(r);
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_VIEW_DATA_ITEM, R.string.advice_view_data_item, r);
                     }
                 }
             });
@@ -140,7 +143,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         // message being shown twice
         if (noExtraSources) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false));
+            listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false), null, false);
         }
 
         if (mDataSource instanceof WaypointDbDataSource) {
