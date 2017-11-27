@@ -140,6 +140,11 @@ public enum Themes implements ThemeFile {
     }
 
     @Override
+    public boolean isMapsforgeTheme() {
+        return false;
+    }
+
+    @Override
     public void setMenuCallback(XmlRenderThemeMenuCallback xmlRenderThemeMenuCallback) {
     }
 }
