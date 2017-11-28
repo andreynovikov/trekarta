@@ -4145,6 +4145,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         float fontSize = Themes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
         theme.scaleTextSize(fontSize);
         mMap.setTheme(theme, true);
+        mShieldFactory.dispose();
+        mOsmcSymbolFactory.dispose();
         mNightMode = night;
     }
 

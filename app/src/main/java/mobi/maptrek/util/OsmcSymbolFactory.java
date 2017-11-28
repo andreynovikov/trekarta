@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import mobi.maptrek.BuildConfig;
@@ -75,7 +74,7 @@ public class OsmcSymbolFactory {
         VALID_BACKGROUNDS.add("circle");
         VALID_BACKGROUNDS.add("frame");
 
-        VALID_FOREGROUNDS = new HashSet<>(4);
+        VALID_FOREGROUNDS = new HashSet<>(36);
         VALID_FOREGROUNDS.add("ammonit");
         VALID_FOREGROUNDS.add("arch");
         VALID_FOREGROUNDS.add("backslash");
@@ -114,10 +113,10 @@ public class OsmcSymbolFactory {
         VALID_FOREGROUNDS.add("x");
     }
 
-    private final HashMap<String, Bitmap> mBitmapCache;
+    private final BitmapCache<String, Bitmap> mBitmapCache;
 
     public OsmcSymbolFactory() {
-        mBitmapCache = new HashMap<>();
+        mBitmapCache = new BitmapCache<>(4098);
     }
 
     public @Nullable
@@ -136,7 +135,7 @@ public class OsmcSymbolFactory {
         Canvas canvas = new Canvas(bmp);
 
         // osmc:symbol=waycolor:background[:foreground][[:foreground2]:text:textcolor]
-        logger.warn("symbol: {}", osmcSymbol);
+        logger.debug("symbol: {}", osmcSymbol);
         String[] parts = osmcSymbol.trim().split("\\s*:\\s*");
 
         // draw background
@@ -144,7 +143,7 @@ public class OsmcSymbolFactory {
         String[] background = parts.length > 1 ?
                 parts[1].trim().split("\\s*_\\s*") :
                 parts[0].trim().split("\\s*_\\s*");
-        logger.warn("  background: {}", Arrays.toString(background));
+        logger.debug("  background: {}", Arrays.toString(background));
         Integer backgroundColor = ColorsCSS.get(background[0]);
         if (BuildConfig.DEBUG && backgroundColor == null)
             logger.error("Unknown background color: {}", background[0]);
@@ -231,7 +230,7 @@ public class OsmcSymbolFactory {
         String symbol = null;
         if (VALID_FOREGROUNDS.contains(foreground)) {
             // foreground is encoded as symbol without color
-            logger.warn("  foreground: black {}", foreground);
+            logger.debug("  foreground: black {}", foreground);
             if ("shell".equals(foreground) || "shell_modern".equals(foreground))
                 foregroundColor = Color.YELLOW;
             else
@@ -241,7 +240,7 @@ public class OsmcSymbolFactory {
         } else {
             // foreground should contain coloured symbol
             String[] foreground_parts = foreground.trim().split("\\s*_\\s*", 2);
-            logger.warn("  foreground: {}", Arrays.toString(foreground_parts));
+            logger.debug("  foreground: {}", Arrays.toString(foreground_parts));
             if (foreground_parts.length == 2) {
                 foregroundColor = ColorsCSS.get(foreground_parts[0]);
                 if (VALID_FOREGROUNDS.contains(foreground_parts[1]))
@@ -296,7 +295,6 @@ public class OsmcSymbolFactory {
     }
 
     public void dispose() {
-        for (Bitmap bitmap : mBitmapCache.values())
-            bitmap.recycle();
+        mBitmapCache.clear();
     }
 }

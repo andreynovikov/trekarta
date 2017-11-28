@@ -30,8 +30,6 @@ import org.oscim.core.TagSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-
 import mobi.maptrek.MapTrek;
 
 /**
@@ -41,13 +39,14 @@ public class ShieldFactory {
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(ShieldFactory.class);
 
-    private final HashMap<String, Bitmap> mBitmapCache;
+    private final BitmapCache<String, Bitmap> mBitmapCache;
 
     public ShieldFactory() {
-        mBitmapCache = new HashMap<>();
+        mBitmapCache = new BitmapCache<>(512);
     }
 
-    public @Nullable synchronized Bitmap getBitmap(@NonNull TagSet tags, String src, int percent) {
+    public @Nullable
+    synchronized Bitmap getBitmap(@NonNull TagSet tags, String src, int percent) {
         String ref = tags.getValue("ref");
         if (ref == null)
             return null;
@@ -120,7 +119,6 @@ public class ShieldFactory {
     }
 
     public void dispose() {
-        for (Bitmap bitmap : mBitmapCache.values())
-            bitmap.recycle();
+        mBitmapCache.clear();
     }
 }
