@@ -418,7 +418,7 @@
         <m cat="urban" v="generator" zoom-min="14">
             <m k="generator:source" select="first">
                 <m v="wind">
-                    <symbol merge="true" src="assets:symbols/power/wind.svg" />
+                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" />
                 </m>
             </m>
         </m>

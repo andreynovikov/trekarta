@@ -352,13 +352,13 @@
                         <symbol src="assets:symbols/transport/rental_bicycle.svg" />
                     </m>
                     <m v="drinking_water">
-                        <symbol src="assets:symbols/food/drinkingtap.svg" merge="true" />
+                        <symbol src="assets:symbols/food/drinkingtap.svg" merge-gap="0" />
                     </m>
                     <m v="shelter">
-                        <symbol src="assets:symbols/accommodation/shelter.svg" merge="true" />
+                        <symbol src="assets:symbols/accommodation/shelter.svg" merge-gap="0" />
                     </m>
                     <m v="toilets">
-                        <symbol src="assets:symbols/amenity/toilets.svg" merge="true" />
+                        <symbol src="assets:symbols/amenity/toilets.svg" merge-gap="0" />
                     </m>
                 </m>
             </m>

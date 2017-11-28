@@ -44,6 +44,7 @@ import static org.oscim.core.GeometryBuffer.GeometryType.POINT;
 import static org.oscim.core.GeometryBuffer.GeometryType.POLY;
 
 public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook {
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(LabelTileLoaderHook.class);
 
     private static final String LABEL_DATA = LabelLayer.class.getName();
@@ -157,9 +158,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                     SymbolItem it = SymbolItem.pool.get();
                     if (symbol.bitmap != null)
-                        it.set(p.x, p.y, symbol.bitmap, 0, 0f, true, symbol.merge);
+                        it.set(p.x, p.y, symbol.bitmap, 0, 0f, true, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
                     else
-                        it.set(p.x, p.y, symbol.texture, 0, 0f, true, symbol.merge);
+                        it.set(p.x, p.y, symbol.texture, 0, 0f, true,  symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
                     ld.symbols.push(it);
                 }
             } else if (element.type == LINE) {
@@ -182,9 +183,9 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                 SymbolItem it = SymbolItem.pool.get();
                 if (symbol.bitmap != null)
-                    it.set(centroid.x, centroid.y, symbol.bitmap, 0, 0f, true, symbol.merge);
+                    it.set(centroid.x, centroid.y, symbol.bitmap, 0, 0f, true,  symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
                 else
-                    it.set(centroid.x, centroid.y, symbol.texture, 0, 0f, true, symbol.merge);
+                    it.set(centroid.x, centroid.y, symbol.texture, 0, 0f, true,  symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
                 ld.symbols.push(it);
             }
         }

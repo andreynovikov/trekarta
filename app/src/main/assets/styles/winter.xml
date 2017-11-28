@@ -312,11 +312,12 @@
                 </m>
                 <m k="osmc:symbol">
                     <m zoom-max="15">
-                        <symbol merge="true" repeat-gap="100" src="gen:/osmc-symbol" />
+                        <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
+                            src="gen:/osmc-symbol" text-overlap="false" />
                     </m>
                     <m zoom-max="16" zoom-min="16">
-                        <symbol merge="true" repeat-gap="80" src="gen:/osmc-symbol"
-                            symbol-percent="130" />
+                        <symbol merge-gap="80" merge-group="osmc-symbols" repeat-gap="80"
+                            src="gen:/osmc-symbol" symbol-percent="130" text-overlap="false" />
                     </m>
                 </m>
             </m>
@@ -360,11 +361,12 @@
                 <text use="piste-ref" />
                 <m k="osmc:symbol">
                     <m zoom-max="15">
-                        <symbol merge="true" repeat-gap="100" src="gen:/osmc-symbol" />
+                        <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
+                            src="gen:/osmc-symbol" text-overlap="false" />
                     </m>
                     <m zoom-max="16" zoom-min="16">
-                        <symbol merge="true" repeat-gap="80" src="gen:/osmc-symbol"
-                            symbol-percent="130" />
+                        <symbol merge-gap="80" merge-group="osmc-symbols" repeat-gap="80"
+                            src="gen:/osmc-symbol" symbol-percent="130" text-overlap="false" />
                     </m>
                 </m>
             </m>
@@ -488,30 +490,33 @@
     <m cat="aerialways" e="way" k="aerialway">
         <m k="aerialway" v="cable_car">
             <m zoom-max="13">
-                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/cable_car.svg"
-                    symbol-percent="70" />
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                    src="assets:symbols/transport/cable_car.svg" symbol-percent="70" text-overlap="false" />
             </m>
             <m zoom-min="14">
-                <symbol merge="true" repeat-gap="120"
-                    src="assets:symbols/transport/cable_car.svg" />
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                    src="assets:symbols/transport/cable_car.svg" text-overlap="false" />
             </m>
         </m>
         <m k="aerialway" v="gondola">
             <m zoom-max="13">
-                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg"
-                    symbol-percent="70" />
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                    src="assets:symbols/transport/gondola.svg" symbol-percent="70" text-overlap="false" />
             </m>
             <m zoom-min="14">
-                <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/gondola.svg" />
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                    src="assets:symbols/transport/gondola.svg" text-overlap="false" />
             </m>
         </m>
         <m k="aerialway" v="chair_lift" zoom-min="15">
-            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/chair_lift.svg" />
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                src="assets:symbols/transport/chair_lift.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m k="aerialway" v="drag_lift" zoom-min="15">
-            <symbol merge="true" repeat-gap="120" src="assets:symbols/transport/drag_lift.svg" />
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                src="assets:symbols/transport/drag_lift.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>

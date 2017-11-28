@@ -230,7 +230,11 @@
         <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
         <xs:attribute name="repeat-gap" type="xs:positiveInteger" use="optional" />
-        <xs:attribute name="merge" default="false" type="xs:boolean" use="optional" />
+        <xs:attribute name="merge-gap" type="xs:nonNegativeInteger" use="optional" />
+        <xs:attribute name="merge-group" type="xs:string" use="optional" />
+        <xs:attribute name="merge-group-gap" type="xs:nonNegativeInteger" use="optional" />
+        <!-- if set to false do not draw symbol underneath text labels -->
+        <xs:attribute name="text-overlap" default="true" type="xs:boolean" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="extrusion">

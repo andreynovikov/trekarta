@@ -82,8 +82,9 @@
                         <line cap="butt" outline="bridge" use="road-construction" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="pedestrian" v="pedestrian">
@@ -106,8 +107,9 @@
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="unclassified">
@@ -122,44 +124,48 @@
                         </m>
                         <text use="road-name" />
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="tertiary">
                         <line cap="butt" outline="bridge" use="tertiary" />
                         <text use="road-name" />
                         <m cat="roads-shield" zoom-max="16" zoom-min="14">
-                            <symbol merge="true" repeat-gap="150"
-                                src="gen:/shield/9/#f0f0f0/#7f462c" />
+                            <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
+                                src="gen:/shield/9/#f0f0f0/#7f462c" text-overlap="false" />
                         </m>
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="secondary">
                         <line cap="butt" outline="bridge" use="secondary" />
                         <text use="major-road-name" />
                         <m cat="roads-shield" zoom-max="16" zoom-min="13">
-                            <symbol merge="true" repeat-gap="150"
-                                src="gen:/shield/9/#fdfdf1/#7f462c" />
+                            <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
+                                src="gen:/shield/9/#fdfdf1/#7f462c" text-overlap="false" />
                         </m>
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="primary">
                         <line cap="butt" outline="bridge" use="primary" />
                         <text use="major-road-name" />
                         <m cat="roads-shield" zoom-max="16" zoom-min="12">
-                            <symbol merge="true" repeat-gap="150"
-                                src="gen:/shield/9/#fdf7e5/#7f462c" />
+                            <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
+                                src="gen:/shield/9/#fdf7e5/#7f462c" text-overlap="false" />
                         </m>
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="trunk_link">
@@ -170,24 +176,26 @@
                         <line cap="butt" outline="bridge" use="trunk" />
                         <text use="major-road-name" />
                         <m cat="roads-shield" zoom-max="16" zoom-min="11">
-                            <symbol merge="true" repeat-gap="150"
-                                src="gen:/shield/9/#fff0b7/#c35817" />
+                            <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
+                                src="gen:/shield/9/#fff0b7/#c35817" text-overlap="false" />
                         </m>
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="motorway">
                         <line cap="butt" outline="bridge" use="highway" />
                         <text use="major-road-name" />
                         <m cat="roads-shield" zoom-max="16" zoom-min="10">
-                            <symbol merge="true" repeat-gap="150"
-                                src="gen:/shield/9/#fee4be/#c35817" />
+                            <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
+                                src="gen:/shield/9/#fee4be/#c35817" text-overlap="false" />
                         </m>
                         <m k="toll" v="yes">
-                            <symbol merge="true" repeat-gap="150"
-                                src="assets:symbols/transport/toll_road.svg" />
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg"
+                                text-overlap="false" />
                         </m>
                     </m>
                     <m cat="cycling" v="cycleway">
