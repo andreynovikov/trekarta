@@ -123,15 +123,13 @@ class MapTrekDataSource implements ITileDataSource {
         public void process(MapElement el) {
             ExtendedMapElement element = (ExtendedMapElement) el;
 
-            if (tile.zoomLevel < 16 && element.tags.contains(TAG_TREE))
-                return;
             if (tile.zoomLevel < 17 && element.isBuildingPart && !element.isBuilding)
                 return;
             if (!mContoursEnabled && element.isContour)
                 return;
             if (element.layer < 5) {
                 //TODO Find a better solution to hide subway platforms
-                if (element.tags.containsKey("railway") && element.tags.getValue("railway").equals("platform"))
+                if ("platform".equals(element.tags.getValue("railway")))
                     return;
                 //TODO Properly process tunnels (requires changes to VTM)
                 if (element.tags.containsKey("tunnel"))
@@ -139,7 +137,7 @@ class MapTrekDataSource implements ITileDataSource {
             }
 
             // Convert tree points to polygons
-            if (element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
+            if (tile.zoomLevel < 16 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
                 float x = element.getPointX(0);
                 float y = element.getPointY(0);
                 GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);
