@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 
 import static org.oscim.core.GeometryBuffer.GeometryType.LINE;
@@ -47,12 +48,14 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
     private static final String LABEL_DATA = LabelLayer.class.getName();
 
+    private final ShieldFactory mShieldFactory;
     private final OsmcSymbolFactory mOsmcSymbolFactory;
     private final SymbolStyle.SymbolBuilder<?> mSymbolBuilder = SymbolStyle.builder();
 
     private int mLang = 0;
 
-    public LabelTileLoaderHook(OsmcSymbolFactory osmcSymbolFactory) {
+    public LabelTileLoaderHook(ShieldFactory shieldFactory, OsmcSymbolFactory osmcSymbolFactory) {
+        mShieldFactory = shieldFactory;
         mOsmcSymbolFactory = osmcSymbolFactory;
     }
 
@@ -134,6 +137,10 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                 if (symbol.src.equals("/osmc-symbol")) {
                     String osmcSymbol = element.tags.getValue("osmc:symbol");
                     Bitmap bitmap = mOsmcSymbolFactory.getBitmap(osmcSymbol, symbol.symbolPercent);
+                    if (bitmap != null)
+                        symbol = mSymbolBuilder.set(symbol).bitmap(bitmap).build();
+                } else if (symbol.src.startsWith("/shield/")) {
+                    Bitmap bitmap = mShieldFactory.getBitmap(element.tags, symbol.src, symbol.symbolPercent);
                     if (bitmap != null)
                         symbol = mSymbolBuilder.set(symbol).bitmap(bitmap).build();
                 }
