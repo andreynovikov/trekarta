@@ -13,7 +13,7 @@
         <m cat="water" v="riverbank|dock">
             <area use="water" />
         </m>
-        <m cat="water" v="dam">
+        <m cat="topo" v="dam">
             <area fade="12" fill="#999999" />
             <line fade="12" stroke="#333333" use="fix" width="0.5" />
         </m>
@@ -60,10 +60,10 @@
                 <m cat="insignificant-water" v="ditch|drain">
                     <line fade="14" use="water" width="0.2" />
                 </m>
-                <m cat="urban" v="dam">
+                <m cat="topo" v="dam">
                     <line fade="12" stroke="#333333" use="fix" width="0.5" />
                 </m>
-                <m cat="urban" v="lock_gate">
+                <m cat="topo" v="lock_gate">
                     <line fade="12" stroke="#aaaaaa" use="fix" width="0.7" />
                 </m>
             </m>
