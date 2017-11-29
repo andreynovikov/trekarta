@@ -13,12 +13,7 @@ public class BitmapCache<K, V extends Bitmap> {
         this.cache = new LinkedHashMap<K,V>(maxEntries, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<K,V> eldest){
-                if (size() > maxEntries) {
-                    // TODO Implement bitmap locking
-                    eldest.getValue().recycle();
-                    return true;
-                }
-                return false;
+                return size() > maxEntries;
             }
         };
     }
