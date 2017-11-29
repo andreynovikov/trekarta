@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Railway bridges -->
-    <m cat="railways" e="way" k="railway" zoom-min="14">
+    <m cat="railways" e="way" k="railway" zoom-min="12">
         <m k="tunnel" v="~|no">
             <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
             <m k="bridge">
@@ -14,11 +14,11 @@
                         <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="2.0" />
                     </m>
-                    <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved">
+                    <m k="railway" v="light_rail|narrow_gauge|disused|abandoned|preserved" zoom-min="14">
                         <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="1.5" />
                     </m>
-                    <m k="railway" v="rail">
+                    <m k="railway" v="rail" zoom-min="14">
                         <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="5.0" />
                     </m>
