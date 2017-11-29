@@ -40,9 +40,11 @@ public class ShieldFactory {
     private static final Logger logger = LoggerFactory.getLogger(ShieldFactory.class);
 
     private final BitmapCache<String, Bitmap> mBitmapCache;
+    private float mFontSize;
 
     public ShieldFactory() {
         mBitmapCache = new BitmapCache<>(512);
+        mFontSize = 1f;
     }
 
     public @Nullable
@@ -61,7 +63,7 @@ public class ShieldFactory {
 
         String[] lines = ref.split(";");
 
-        float textSize = Float.parseFloat(parts[0]);
+        float textSize = Float.parseFloat(parts[0]) * mFontSize;
         int backColor = Color.parseColor(parts[1], Color.WHITE);
         int textColor = Color.parseColor(parts[2], Color.BLACK);
 
@@ -85,9 +87,9 @@ public class ShieldFactory {
                 textHeight = textPaint.descent() - textPaint.ascent();
         }
 
-        float gap = 3 * MapTrek.density;
-        float border = 1.1f * MapTrek.density;
-        float r = 2 * border;
+        float gap = 4f * MapTrek.density * mFontSize;
+        float border = 1.6f * MapTrek.density * mFontSize;
+        float r = 2f * border;
         float hb = border / 2f;
         int width = (int) (bounds.width() + 2 * (gap + border));
         int height = (int) (bounds.height() + 2 * (gap + border));
@@ -116,6 +118,10 @@ public class ShieldFactory {
         bitmap = new AndroidBitmap(bmp);
         mBitmapCache.put(ref, bitmap);
         return bitmap;
+    }
+
+    public void setFontSize(float fontSize) {
+        mFontSize = fontSize;
     }
 
     public void dispose() {

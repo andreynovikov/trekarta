@@ -4125,6 +4125,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mNextNightCheck = mLastLocationMilliseconds + NIGHT_CHECK_PERIOD;
     }
 
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level > TRIM_MEMORY_MODERATE) {
+            mShieldFactory.dispose();
+            mOsmcSymbolFactory.dispose();
+            mMap.clearMap();
+        }
+    }
+
     private void setNightMode(final boolean night) {
         Configuration.loadKindZoomState();
         ThemeFile themeFile;
@@ -4145,6 +4155,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         float fontSize = Themes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
         theme.scaleTextSize(fontSize);
         mMap.setTheme(theme, true);
+        mShieldFactory.setFontSize(fontSize);
         mShieldFactory.dispose();
         mOsmcSymbolFactory.dispose();
         mNightMode = night;
