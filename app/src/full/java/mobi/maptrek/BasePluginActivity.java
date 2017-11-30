@@ -16,7 +16,7 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 
-public class BasePluginActivity extends Activity {
+public abstract class BasePluginActivity extends Activity {
     // Plugins
     private AbstractMap<String, Intent> mPluginPreferences = new HashMap<>();
     private AbstractMap<String, Pair<Drawable, Intent>> mPluginTools = new HashMap<>();
