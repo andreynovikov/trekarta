@@ -462,7 +462,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             mIsDownloadingIndex = false;
             if (result) {
                 boolean expired = mCacheFile.lastModified() + INDEX_CACHE_EXPIRATION < System.currentTimeMillis();
-                mMapIndex.setHasDownloadSizes(true, expired);
+                mMapIndex.setHasDownloadSizes(expired);
                 updateUI(mMapIndex.getMapStats());
             } else {
                 mStatusView.setText(R.string.msgIndexDownloadFailed);

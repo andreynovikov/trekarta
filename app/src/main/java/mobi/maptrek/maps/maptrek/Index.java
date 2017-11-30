@@ -543,11 +543,9 @@ public class Index {
             logger.error("  imported tiles");
 
             byte version = 0;
-            cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"timestamp"}, null, null, null);
-            if (cursor.moveToFirst()) {
-                //TODO Change timestamp to version
+            cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"version"}, null, null, null);
+            if (cursor.moveToFirst())
                 version = (byte) Integer.valueOf(cursor.getString(0)).intValue();
-            }
             cursor.close();
             database.close();
             if (!mHasHillshades) {
@@ -755,23 +753,21 @@ public class Index {
         return mExpiredDownloadSizes;
     }
 
-    public void setHasDownloadSizes(boolean hasSizes, boolean expired) {
-        mHasDownloadSizes = hasSizes;
+    public void setHasDownloadSizes(boolean expired) {
+        mHasDownloadSizes = true;
         mExpiredDownloadSizes = expired;
-        if (hasSizes) {
-            for (int x = 0; x < 128; x++)
-                for (int y = 0; y < 128; y++) {
-                    MapStatus mapStatus = getNativeMap(x, y);
-                    if (mapStatus.action == ACTION.DOWNLOAD) {
-                        if (mapStatus.downloadSize == 0L)
-                            selectNativeMap(x, y, ACTION.NONE);
-                    }
+        for (int x = 0; x < 128; x++)
+            for (int y = 0; y < 128; y++) {
+                MapStatus mapStatus = getNativeMap(x, y);
+                if (mapStatus.action == ACTION.DOWNLOAD) {
+                    if (mapStatus.downloadSize == 0L)
+                        selectNativeMap(x, y, ACTION.NONE);
                 }
-            for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
-                MapStateListener mapStateListener = weakRef.get();
-                if (mapStateListener != null) {
-                    mapStateListener.onHasDownloadSizes();
-                }
+            }
+        for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+            MapStateListener mapStateListener = weakRef.get();
+            if (mapStateListener != null) {
+                mapStateListener.onHasDownloadSizes();
             }
         }
     }
@@ -812,6 +808,7 @@ public class Index {
         return mLoadedMaps;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class MapStatus {
         public short created = 0;
         public short downloadCreated;
