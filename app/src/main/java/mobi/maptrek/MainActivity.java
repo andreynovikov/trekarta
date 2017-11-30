@@ -863,7 +863,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             snackbar.show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
-            logger.debug("   {}", uri.toString());
+            if (uri == null)
+                return;
+            logger.debug("   {}", uri);
             String data = uri.getSchemeSpecificPart();
             String query = uri.getQuery();
             // geo:latitude,longitude
@@ -911,7 +913,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
             // http://wiki.openstreetmap.org/wiki/Shortlink
             Uri uri = intent.getData();
-            logger.debug("   {}", uri.toString());
+            if (uri == null)
+                return;
+            logger.debug("   {}", uri);
             List<String> path = uri.getPathSegments();
             if ("go".equals(path.get(0))) {
                 MapPosition position = Osm.decodeShortLink(path.get(1));
@@ -2480,6 +2484,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.updateMap(true);
 
         // Show undo snackbar
+        //noinspection deprecation
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, R.string.msgWaypointDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
@@ -2535,6 +2540,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         // Show undo snackbar
         int count = waypoints.size();
         String msg = getResources().getQuantityString(R.plurals.waypointsDeleted, count, count);
+        //noinspection deprecation
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
@@ -2779,6 +2785,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.updateMap(true);
 
         // Show undo snackbar
+        //noinspection deprecation
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
@@ -3023,7 +3030,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         SQLiteTileSource hillShadeTileSource = MapTrek.getApplication().getHillShadeTileSource();
         if (hillShadeTileSource != null) {
             int transparency = Configuration.getHillshadesTransparency();
-            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource, transparency * 0.01f);
+            mHillshadeLayer = new BitmapTileLayer(mMap, hillShadeTileSource, 1 - transparency * 0.01f);
             mMap.layers().add(mHillshadeLayer, MAP_MAP_OVERLAYS);
             mMap.updateMap(true);
         }
@@ -3693,14 +3700,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (action.equals(MapService.BROADCAST_MAP_ADDED) || action.equals(MapService.BROADCAST_MAP_REMOVED)) {
+            if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
-            if (action.equals(BaseLocationService.BROADCAST_TRACK_SAVE)) {
+            if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {
                 final Bundle extras = intent.getExtras();
-                boolean saved = extras.getBoolean("saved");
+                boolean saved = extras != null && extras.getBoolean("saved");
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
+                    //noinspection deprecation
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionCustomize, new View.OnClickListener() {
@@ -3719,7 +3727,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     snackbar.show();
                     return;
                 }
-                String reason = extras.getString("reason");
+                String reason = extras != null ? extras.getString("reason") : null;
                 logger.warn("Track not saved: {}", reason);
                 if ("period".equals(reason) || "distance".equals(reason)) {
                     int msg = "period".equals(reason) ? R.string.msgTrackNotSavedPeriod : R.string.msgTrackNotSavedDistance;
@@ -3733,17 +3741,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             });
                     snackbar.show();
                 } else {
-                    Exception e = (Exception) extras.getSerializable("exception");
+                    Exception e = extras != null ? (Exception) extras.getSerializable("exception") : null;
                     if (e == null)
                         e = new RuntimeException("Unknown error");
                     HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
                 }
             }
-            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATE)) {
+            if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
                 enableNavigation();
                 updateNavigationUI();
             }
-            if (action.equals(BaseNavigationService.BROADCAST_NAVIGATION_STATUS) && mNavigationService != null) {
+            if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action) && mNavigationService != null) {
                 mGaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
                 mGaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
                 mGaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
@@ -3761,12 +3769,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (action.equals(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED)) {
+            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED.equals(action)) {
                 for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints())
                     removeWaypointMarker(waypoint);
                 mWaypointDbDataSource.close();
             }
-            if (action.equals(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN)) {
+            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN.equals(action)) {
                 mWaypointDbDataSource.open();
                 mWaypointDbDataSource.notifyListeners();
                 for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
@@ -4104,6 +4112,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
+    @SuppressWarnings("unused")
     private void checkNightMode(Location location) {
         if (mNextNightCheck > mLastLocationMilliseconds)
             return;
