@@ -124,7 +124,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 @Override
                 public void onGlobalLayout() {
                     rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    if (mMapIndex.getMapDatabaseSize() > (1 << 22)) { // 4 GB
+                    if (mMapIndex.getMapDatabaseSize() > (1L << 32)) { // 4 GB
                         Rect r = new Rect();
                         mCounterView.getGlobalVisibleRect(r);
                         r.left = r.right - r.width() / 3; // focus on size
