@@ -225,7 +225,17 @@
             <area fill="#c0d69a" />
         </m>
         <m v="parking" zoom-min="16">
-            <area fill="#fefefe" />
+            <m select="first">
+                <m cat="roads-surface" k="surface" v="dirt">
+                    <area fill="#b28f67" />
+                </m>
+                <m cat="roads-surface" k="surface" v="unpaved">
+                    <area fill="#d4c1aa" />
+                </m>
+                <m>
+                    <area fill="#fefefe" />
+                </m>
+            </m>
         </m>
         <m cat="urban" k="amenity" v="kindergarten|school|college|university">
             <area fill="#e6e4c5" />

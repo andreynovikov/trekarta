@@ -13,15 +13,13 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.view.DiscreteSlider;
 
 public class AmenitySetupDialog extends DialogFragment {
     private AmenitySetupDialogCallback mCallback;
@@ -99,7 +97,7 @@ public class AmenitySetupDialog extends DialogFragment {
             Resources resources = mContext.getResources();
             int id = resources.getIdentifier(Tags.kinds[position], "string", getActivity().getPackageName());
             String name = id != 0 ? resources.getString(id) : Tags.kinds[position];
-            return new Pair<>(name, Tags.kindZooms[position] - 14);
+            return new Pair<>(name, Tags.kindZooms[position]);
         }
 
         @Override
@@ -121,7 +119,7 @@ public class AmenitySetupDialog extends DialogFragment {
                 itemHolder = new AmenitySetupListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_amenity_setup, parent, false);
                 itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.zoom = (Spinner) convertView.findViewById(R.id.zoom);
+                itemHolder.zoom = (DiscreteSlider) convertView.findViewById(R.id.zoom);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (AmenitySetupListItemHolder) convertView.getTag();
@@ -129,23 +127,15 @@ public class AmenitySetupDialog extends DialogFragment {
 
             itemHolder.name.setText(group.first);
 
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext,
-                    R.array.zooms_array, android.R.layout.simple_spinner_item);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            itemHolder.zoom.setAdapter(adapter);
-            itemHolder.zoom.setSelection(group.second);
-            itemHolder.zoom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            itemHolder.zoom.setPosition(18 - group.second);
+            itemHolder.zoom.setOnDiscreteSliderChangeListener(new DiscreteSlider.OnDiscreteSliderChangeListener() {
                 @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                    boolean changed = Tags.kindZooms[position] != pos + 14;
-                    Tags.kindZooms[position] = pos + 14;
+                public void onPositionChanged(int pos) {
+                    boolean changed = Tags.kindZooms[position] != 18 - pos;
+                    Tags.kindZooms[position] = 18 - pos;
                     if (changed && mCallback != null) {
                         mCallback.onAmenityKindVisibilityChanged();
                     }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
                 }
             });
 
@@ -160,6 +150,6 @@ public class AmenitySetupDialog extends DialogFragment {
 
     private static class AmenitySetupListItemHolder {
         TextView name;
-        Spinner zoom;
+        DiscreteSlider zoom;
     }
 }
