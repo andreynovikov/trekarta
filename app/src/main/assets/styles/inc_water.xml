@@ -77,4 +77,7 @@
             </m>
         </m>
     </m>
+    <m cat="water" closed="yes" k="leisure" v="swimming_pool">
+        <area use="water" />
+    </m>
 </rendertheme>

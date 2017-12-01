@@ -836,7 +836,8 @@ public class Tags {
             "ice_skate",
             "sleigh",
             "snow_park",
-            "sports"
+            "sports",
+            "swimming_pool"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
