@@ -443,9 +443,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
             String language = Configuration.getLanguage();
             if (language == null) {
-                language = resources.getConfiguration().locale.getLanguage();
-                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
-                    language = "none";
+                if (BuildConfig.RUSSIAN_EDITION) {
+                    language = "ru";
+                } else {
+                    language = resources.getConfiguration().locale.getLanguage();
+                    if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
+                        language = "none";
+                }
                 Configuration.setLanguage(language);
             }
 
@@ -582,16 +586,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         MapPosition mapPosition = Configuration.getPosition();
         mMap.setMapPosition(mapPosition);
         if (mapPosition.x == 0.5 && mapPosition.y == 0.5) {
-            // Set initial location based on device language
-            switch (resources.getConfiguration().locale.getLanguage()) {
-                case "de":
-                    mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
-                    break;
-                case "ru":
-                    mMap.setMapPosition(56.4, 39, 1 << 5);
-                    break;
-                default:
-                    mMap.setMapPosition(-19, -12, 1 << 2);
+            if (BuildConfig.RUSSIAN_EDITION) {
+                mMap.setMapPosition(56.4, 39, 1 << 5);
+            } else {
+                // Set initial location based on device language
+                switch (resources.getConfiguration().locale.getLanguage()) {
+                    case "de":
+                        mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
+                        break;
+                    case "ru":
+                        mMap.setMapPosition(56.4, 39, 1 << 5);
+                        break;
+                    default:
+                        mMap.setMapPosition(-19, -12, 1 << 2);
+                }
             }
         }
         mAutoTilt = Configuration.getAutoTilt();
