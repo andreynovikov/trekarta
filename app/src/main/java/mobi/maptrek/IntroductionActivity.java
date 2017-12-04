@@ -26,32 +26,51 @@ public class IntroductionActivity extends AppIntro {
         sliderPage.setBgColor(Color.parseColor("#2196F3")); // Blue 500
 
         if (mLastSeenIntroduction < 1) {
-            sliderPage.setTitle("Hillshades");
-            sliderPage.setDescription("Now you can download and view hillshades atop maps. Your custom maps will be shaded as well.");
-            sliderPage.setImageDrawable(R.mipmap.hillshades);
+            sliderPage.setTitle(getString(R.string.introOfflineMapsTitle));
+            String description = getString(R.string.introOfflineMaps);
+            if (BuildConfig.FULL_VERSION) {
+                description += " ";
+                description += getString(R.string.introOfflineMapsFull);
+            }
+            sliderPage.setDescription(description);
+            sliderPage.setImageDrawable(R.mipmap.maps);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-            mLastSeenIntroduction = 1;
-        }
 
-        if (mLastSeenIntroduction < 2) {
-            sliderPage.setTitle("Location sharing");
-            sliderPage.setDescription("Now you have more options on how to share your place or location on map. Not only you can send its coordinates as text, but you can open it in some other map application or share it as GPX or KML file.");
-            sliderPage.setImageDrawable(R.mipmap.sharepoint);
+            sliderPage.setTitle(getString(R.string.introPlacesTitle));
+            if (BuildConfig.FULL_VERSION)
+                description = getString(R.string.introPlacesPrefixFull);
+            else
+                description = getString(R.string.introPlacesPrefix);
+            description += " ";
+            description += getString(R.string.introPlaces);
+            sliderPage.setDescription(description);
+            sliderPage.setImageDrawable(R.mipmap.places);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-            mLastSeenIntroduction = 2;
+
+            sliderPage.setTitle(getString(R.string.introTracksTitle));
+            sliderPage.setDescription(getString(R.string.introTracks));
+            sliderPage.setImageDrawable(R.mipmap.tracking);
+            addSlide(IntroductionFragment.newInstance(sliderPage));
+
+            sliderPage.setTitle(getString(R.string.introOffroadTitle));
+            sliderPage.setDescription(getString(R.string.introOffroad));
+            sliderPage.setImageDrawable(R.mipmap.offroad);
+            addSlide(IntroductionFragment.newInstance(sliderPage));
+
+            mLastSeenIntroduction = 1; // fresh installation
         }
 
         if (mLastSeenIntroduction < 3) {
-            sliderPage.setTitle("Hiking");
-            sliderPage.setDescription("Hiking activity mode emphasises paths and tracks. It visualizes path difficulty and visibility and shows hiking routes.");
+            sliderPage.setTitle(getString(R.string.introHikingTitle));
+            sliderPage.setDescription(getString(R.string.introHiking));
             sliderPage.setImageDrawable(R.mipmap.hiking);
             addSlide(IntroductionFragment.newInstance(sliderPage));
 
-            sliderPage.setTitle("Skiing and skating");
-            sliderPage.setDescription("Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.");
+            sliderPage.setTitle(getString(R.string.introSkiingTitle));
+            sliderPage.setDescription(getString(R.string.introSkiing));
             sliderPage.setImageDrawable(R.mipmap.skiing);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-            mLastSeenIntroduction = 3;
+            mLastSeenIntroduction = 3; // 2017.11
         }
 
         // TODO Do not show more then N slides at once

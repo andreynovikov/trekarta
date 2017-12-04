@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">MapTrek</string>
+<string name="app_name">MapTrek</string>
     <string name="title_select_format">Выбор формата</string>
     <string name="title_export_track">Экспорт трека</string>
 
@@ -85,9 +85,26 @@
     <string name="msgNativeFormatExplanation">Данные во внутреннем формате хранятся в очень компактном виде и быстро обрабатываются, но распознаются только приложением MapTrek.</string>
     <string name="msgOtherFormatsExplanation">Формат GPX сохраняет всю важную информацию и широко используется, но итоговые файлы занимают очень много места. Формат KML не хранит информацию о времени, но итоговые файлы на 30%  компактнее, чем в формате GPX.</string>
     <string name="msgFailedToGetFile">Не удалось получить файл</string>
+    <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
+
+    <string name="introOfflineMapsTitle">Оффлайн карты</string>
+    <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к Интернету.</string>
+    <string name="introOfflineMapsFull">Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
+    <string name="introPlacesTitle">Точки</string>
+    <string name="introPlacesPrefixFull">Точки могут быть легко импортированы из GPX и KML файлов, или</string>
+    <string name="introPlacesPrefix">Точки</string>
+    <string name="introPlaces">могут быть созданы в приложении. Вы можете задавать движение на точку, а также делиться ими с другими.</string>
+    <string name="introTracksTitle">Треки</string>
+    <string name="introTracks">Вы можете записывать треки ваших путешествий. Просто нажмите кнопку для начала записи, а потом нажмите её ещё раз для окончания. Вы можете выйти из приложения, если вам не надо смотреть на карту, трек будет записываться в фоновом режиме.</string>
+    <string name="introOffroadTitle">Бездорожье</string>
+    <string name="introOffroad">Дороги без покрытия, зимники и ледовые переправы отображаются определённым образом. Дороги только для полноприводных машин имеют специальную маркировку. Броды отображаются на всех видах дорог, даже основных.</string>
+    <string name="introHikingTitle">Пешие походы</string>
+    <string name="introHiking">Режим похода акцентирует внимание на тропах и дорожках. Он визуализирует сложность и видимость тропы и отображает пешие маршруты.</string>
+    <string name="introSkiingTitle">Лыжи и коньки</string>
+    <string name="introSkiing">Лыжный режим на лёгкой зимней карте отображает практически все виды лыжных активностей: горные лыжи, беговые лыжи, прогулки и горные походы. Так же отображаются области для фристайла, катания на коньках и санках.</string>
+
     <string name="add_gauge">Добавить прибор «%s»</string>
     <string name="advice_more_gauges">Вы можете добавить другие приборы долгим нажатием на панель приборов</string>
-    <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
     <string name="never_rises">Солнце никогда не встаёт</string>
     <string name="never_sets">Солнце никогда не садится</string>
     <string name="currentTrack">Текущий трек</string>
@@ -183,7 +200,7 @@
     <string name="complete">готово</string>
     <string name="downloadBasemap">Загрузить обновлённую карту мира (%s)</string>
     <string name="failed">не удалось</string>
-    <string name="msgBaseMapDownload">Для лучшего опыта загрузите детальную карту мира (%s). Вы можете сделать это сейчас или позже в любое время.</string>
+    <string name="msgBaseMapDownload">Для большего удобства загрузите детальную карту мира (%s). Вы можете сделать это сейчас или позже в любое время.</string>
     <string name="processed">%d%% обработано</string>
     <string name="title_map_import">Импорт карты</string>
     <string name="title_map_removal">Удаление карты</string>

@@ -148,6 +148,22 @@
     <string name="msgRateApplication">If you are enjoying MapTrek please rate it and leave comment on the Google Play Store to boost its spread</string>
     <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
 
+    <string name="introOfflineMapsTitle">Offline maps</string>
+    <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
+    <string name="introOfflineMapsFull">You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
+    <string name="introPlacesTitle">Places</string>
+    <string name="introPlacesPrefixFull">Places can be easily imported from GPX and KML files or</string>
+    <string name="introPlacesPrefix">Places</string>
+    <string name="introPlaces">can be created within application. You can navigate to points and share them with others.</string>
+    <string name="introTracksTitle">Tracks</string>
+    <string name="introTracks">You can record tracks of your journey. Just press a button when you start and press it once more when you finish. You can quit the application if you do not need to look at the map, the track will be recorded in the background.</string>
+    <string name="introOffroadTitle">Off-road</string>
+    <string name="introOffroad">Unpaved, dirt, winter and ice roads are specially visualized. 4wd only roads have specific marking. Fords are displayed on all roads, even primary.</string>
+    <string name="introHikingTitle">Hiking</string>
+    <string name="introHiking">Hiking activity mode emphasises paths and tracks. It visualizes path difficulty and visibility and shows hiking routes.</string>
+    <string name="introSkiingTitle">Skiing and skating</string>
+    <string name="introSkiing">Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.</string>
+
     <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
     <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>
     <string name="advice_more_gauges">You can add more gauges by long pressing gauge panel</string>

@@ -581,11 +581,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         });
 
+        boolean freshInstall = false;
+        try {
+            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
+            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+            freshInstall = firstInstallTime == lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            logger.error("Can not find myself");
+        }
+
         mMapView = (MapView) findViewById(R.id.mapView);
         mMap = mMapView.map();
-        MapPosition mapPosition = Configuration.getPosition();
-        mMap.setMapPosition(mapPosition);
-        if (mapPosition.x == 0.5 && mapPosition.y == 0.5) {
+        if (freshInstall) {
             if (BuildConfig.RUSSIAN_EDITION) {
                 mMap.setMapPosition(56.4, 39, 1 << 5);
             } else {
@@ -601,6 +608,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         mMap.setMapPosition(-19, -12, 1 << 2);
                 }
             }
+        } else {
+            mMap.setMapPosition(Configuration.getPosition());
         }
         mAutoTilt = Configuration.getAutoTilt();
 
@@ -830,22 +839,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         onNewIntent(getIntent());
 
-        // TODO: 14/11/17 This is temporary solution to properly mark updated installs
-        boolean freshInstall = true;
-        try {
-            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
-            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
-            freshInstall = firstInstallTime == lastUpdateTime;
-        } catch (PackageManager.NameNotFoundException e) {
-            logger.error("Can not find myself");
-        }
         int last = Configuration.getLastSeenIntroduction();
-        if (last < IntroductionActivity.CURRENT_INTRODUCTION) {
-            if (!freshInstall)
-                startActivity(new Intent(this, IntroductionActivity.class));
-            else
-                Configuration.setLastSeenIntroduction(IntroductionActivity.CURRENT_INTRODUCTION);
-        }
+        if (last < IntroductionActivity.CURRENT_INTRODUCTION)
+            startActivity(new Intent(this, IntroductionActivity.class));
     }
 
     protected void onNewIntent(Intent intent) {
@@ -3977,7 +3973,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     int margin = getResources().getDimensionPixelOffset(R.dimen.dialogContentMargin);
                     dialog.setView(inputView, margin, margin >> 1, margin, 0);
                     Window window = dialog.getWindow();
-                    if (window!= null)
+                    if (window != null)
                         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     dialog.show();
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
