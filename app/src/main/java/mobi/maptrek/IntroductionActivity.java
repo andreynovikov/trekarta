@@ -23,7 +23,7 @@ public class IntroductionActivity extends AppIntro {
         mLastSeenIntroduction = Configuration.getLastSeenIntroduction();
 
         SliderPage sliderPage = new SliderPage();
-        sliderPage.setBgColor(Color.parseColor("#2196F3")); // Blue 500
+        sliderPage.setBgColor(getColor(R.color.explanationBackground));
 
         if (mLastSeenIntroduction < 1) {
             sliderPage.setTitle(getString(R.string.introOfflineMapsTitle));

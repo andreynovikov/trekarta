@@ -77,6 +77,7 @@ public class Configuration {
     public static final long ADVICE_LOCK_MAP_POSITION = 0x0000000000002000;
     public static final long ADVICE_TEXT_SEARCH = 0x0000000000004000;
     public static final long ADVICE_ACTIVE_MAPS_SIZE = 0x0000000000008000;
+    public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000;
 
     private static SharedPreferences mSharedPreferences;
 

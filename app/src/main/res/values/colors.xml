@@ -20,4 +20,5 @@
     <color name="dim">#33000000</color>
     <color name="red">#cc0000</color>
     <color name="darkBlue">#000090</color>
+    <color name="explanationBackground">#2196F3</color> <!-- Blue 500 -->
 </resources>

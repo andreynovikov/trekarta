@@ -1,6 +1,7 @@
 package mobi.maptrek.util;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.DrawableRes;
@@ -55,8 +56,11 @@ public class HelperUtils {
         if (!Configuration.getAdviceState(advice))
             return false;
 
-        TapTarget target = TapTarget.forView(focusOn, activity.getString(messageResId));
-        target.icon(activity.getDrawable(icon));
+        TapTarget target = TapTarget.forView(focusOn, activity.getString(messageResId))
+                .outerCircleColor(R.color.explanationBackground)
+                .targetCircleColor(android.R.color.white)
+                .textColor(android.R.color.white)
+                .icon(activity.getDrawable(icon));
         showTargetedAdvice(activity, advice, target);
         return true;
     }
@@ -73,6 +77,10 @@ public class HelperUtils {
         } else {
             target = TapTarget.forView(focusOn, activity.getString(messageResId));
         }
+        target.outerCircleColor(R.color.explanationBackground)
+                .targetCircleColor(android.R.color.white)
+                .textColor(android.R.color.white);
+
         showTargetedAdvice(activity, advice, target);
         return true;
     }
@@ -81,14 +89,48 @@ public class HelperUtils {
         if (!Configuration.getAdviceState(advice))
             return false;
 
-        TapTarget target = TapTarget.forBounds(rect, activity.getString(messageResId)).transparentTarget(true);
+        TapTarget target = TapTarget.forBounds(rect, activity.getString(messageResId))
+                .outerCircleColor(R.color.explanationBackground)
+                .targetCircleColor(android.R.color.white)
+                .textColor(android.R.color.white)
+                .transparentTarget(true);
         showTargetedAdvice(activity, advice, target);
+        return true;
+    }
+
+    public static boolean showTargetedAdvice(Dialog dialog, long advice, @StringRes int messageResId, Rect rect) {
+        if (!Configuration.getAdviceState(advice))
+            return false;
+
+        TapTarget target = TapTarget.forBounds(rect, dialog.getContext()
+                .getString(messageResId))
+                .outerCircleColor(R.color.explanationBackground)
+                .targetCircleColor(android.R.color.white)
+                .textColor(android.R.color.white)
+                .transparentTarget(true);
+        showTargetedAdvice(dialog, advice, target);
         return true;
     }
 
     private static void showTargetedAdvice(Activity activity, final long advice, TapTarget target) {
         target.tintTarget(false);
         TapTargetView.showFor(activity, target,
+                new TapTargetView.Listener() {
+                    @Override
+                    public void onOuterCircleClick(TapTargetView view) {
+                        view.dismiss(false);
+                    }
+
+                    @Override
+                    public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+                        Configuration.setAdviceState(advice);
+                    }
+                });
+    }
+
+    private static void showTargetedAdvice(Dialog dialog, final long advice, TapTarget target) {
+        target.tintTarget(false);
+        TapTargetView.showFor(dialog, target,
                 new TapTargetView.Listener() {
                     @Override
                     public void onOuterCircleClick(TapTargetView view) {

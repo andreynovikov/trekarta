@@ -8,17 +8,21 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.view.DiscreteSlider;
 
 public class AmenitySetupDialog extends DialogFragment {
@@ -35,8 +39,7 @@ public class AmenitySetupDialog extends DialogFragment {
 
         final Activity activity = getActivity();
 
-        @SuppressLint("InflateParams")
-        View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
+        @SuppressLint("InflateParams") final View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
         final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
         AmenitySetupListAdapter listAdapter = new AmenitySetupListAdapter(getActivity());
         listView.setAdapter(listAdapter);
@@ -50,7 +53,24 @@ public class AmenitySetupDialog extends DialogFragment {
             }
         });
         dialogBuilder.setView(dialogView);
-        return dialogBuilder.create();
+
+        final Dialog dialog = dialogBuilder.create();
+
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_AMENITY_SETUP)) {
+            ViewTreeObserver vto = dialogView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    dialogView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    View view = listView.getChildAt(3).findViewById(R.id.zoom);
+                    Rect r = new Rect();
+                    view.getGlobalVisibleRect(r);
+                    HelperUtils.showTargetedAdvice(dialog, Configuration.ADVICE_AMENITY_SETUP, R.string.advice_amenity_setup, r);
+                }
+            });
+        }
+
+        return dialog;
     }
 
     public void setCallback(AmenitySetupDialogCallback callback) {
