@@ -2,9 +2,13 @@ package mobi.maptrek.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.transition.Fade;
@@ -20,8 +24,6 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
-import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -34,12 +36,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
+import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.location.ILocationService;
+import mobi.maptrek.location.ITrackingListener;
+import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
@@ -48,22 +56,65 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private Track mTrack;
     private boolean mIsCurrent;
 
+    int mSegmentCount = 0;
+    float mMinElevation = Float.MAX_VALUE;
+    float mMaxElevation = Float.MIN_VALUE;
+    float mMaxSpeed = 0;
+    private MeanValue mSpeedMeanValue;
+
+    private LineData mElevationData;
+    private LineData mSpeedData;
+
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnTrackActionListener mListener;
+    private TextView mPointCountView;
+    private TextView mSegmentCountView;
+    private TextView mDistanceView;
+    private TextView mStartCoordinatesView;
+    private TextView mFinishCoordinatesView;
+    private TextView mTimeSpanView;
+    private TextView mStartDateView;
+    private TextView mFinishDateView;
+    private TextView mMaxElevationView;
+    private TextView mMinElevationView;
+    private TextView mMaxSpeedView;
+    private TextView mAverageSpeedView;
+    private LineChart mElevationChart;
+    private LineChart mSpeedChart;
     private ImageButton mMoreButton;
     private boolean mEditorMode;
+    private boolean mBound;
+    private ILocationService mTrackingService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
+        if (mIsCurrent) {
+            Context context = MapTrek.getApplication();
+            mBound = context.bindService(new Intent(context, LocationService.class), mTrackingConnection, 0);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
+        mPointCountView = (TextView) rootView.findViewById(R.id.pointCount);
+        mSegmentCountView = (TextView) rootView.findViewById(R.id.segmentCount);
+        mDistanceView = (TextView) rootView.findViewById(R.id.distance);
+        mStartCoordinatesView = (TextView) rootView.findViewById(R.id.startCoordinates);
+        mFinishCoordinatesView = (TextView) rootView.findViewById(R.id.finishCoordinates);
+        mTimeSpanView = (TextView) rootView.findViewById(R.id.timeSpan);
+        mStartDateView = (TextView) rootView.findViewById(R.id.startDate);
+        mFinishDateView = (TextView) rootView.findViewById(R.id.finishDate);
+        mMaxElevationView = (TextView) rootView.findViewById(R.id.maxElevation);
+        mMinElevationView = (TextView) rootView.findViewById(R.id.minElevation);
+        mMaxSpeedView = (TextView) rootView.findViewById(R.id.maxSpeed);
+        mAverageSpeedView = (TextView) rootView.findViewById(R.id.averageSpeed);
+        mElevationChart = (LineChart) rootView.findViewById(R.id.elevationChart);
+        mSpeedChart = (LineChart) rootView.findViewById(R.id.speedChart);
         mMoreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
         mMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +154,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        updateTrackInformation();
+        initializeTrackInformation();
     }
 
     @Override
@@ -124,6 +175,19 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mBound) {
+            if (mTrackingService != null) {
+                mTrackingService.unregisterTrackingCallback(mTrackingListener);
+            }
+            Context context = MapTrek.getApplication();
+            context.unbindService(mTrackingConnection);
+            mBound = false;
         }
     }
 
@@ -161,11 +225,15 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         mTrack = track;
         mIsCurrent = current;
         if (isVisible()) {
-            updateTrackInformation();
+            initializeTrackInformation();
         }
     }
 
-    private void updateTrackInformation() {
+    public boolean hasCurrentTrack() {
+        return mIsCurrent;
+    }
+
+    private void initializeTrackInformation() {
         Activity activity = getActivity();
         Resources resources = getResources();
 
@@ -181,40 +249,23 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             sourceRow.setVisibility(View.VISIBLE);
         }
 
-        int pointCount = mTrack.points.size();
-        ((TextView) rootView.findViewById(R.id.pointCount)).setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
-
-        String distance = StringFormatter.distanceHP(mTrack.getDistance());
-        ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
-
         Track.TrackPoint ftp = mTrack.points.get(0);
         Track.TrackPoint ltp = mTrack.getLastPoint();
         boolean hasTime = ftp.time > 0 && ltp.time > 0;
 
-        String start_coords = StringFormatter.coordinates(" ", ftp.latitudeE6 / 1E6, ftp.longitudeE6 / 1E6);
-        ((TextView) rootView.findViewById(R.id.startCoordinates)).setText(start_coords);
-        String finish_coords = StringFormatter.coordinates(" ", ltp.latitudeE6 / 1E6, ltp.longitudeE6 / 1E6);
-        ((TextView) rootView.findViewById(R.id.finishCoordinates)).setText(finish_coords);
+        String start_coords = StringFormatter.coordinates(ftp);
+        mStartCoordinatesView.setText(start_coords);
+
+        updateTrackInformation(activity, resources);
 
         View startDateRow = rootView.findViewById(R.id.startDateRow);
         View finishDateRow = rootView.findViewById(R.id.finishDateRow);
         View timeRow = rootView.findViewById(R.id.timeRow);
         if (hasTime) {
             Date startDate = new Date(ftp.time);
-            Date finishDate = new Date(ltp.time);
-            ((TextView) rootView.findViewById(R.id.startDate)).setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
-            ((TextView) rootView.findViewById(R.id.finishDate)).setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
+            mStartDateView.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
             startDateRow.setVisibility(View.VISIBLE);
             finishDateRow.setVisibility(View.VISIBLE);
-
-            long elapsed = (ltp.time - ftp.time) / 1000;
-            String timeSpan;
-            if (elapsed < 24 * 3600 * 3) { // 3 days
-                timeSpan = DateUtils.formatElapsedTime(elapsed);
-            } else {
-                timeSpan = DateUtils.formatDateRange(activity, ftp.time, ltp.time, DateUtils.FORMAT_ABBREV_MONTH);
-            }
-            ((TextView) rootView.findViewById(R.id.timeSpan)).setText(timeSpan);
             timeRow.setVisibility(View.VISIBLE);
         } else {
             startDateRow.setVisibility(View.GONE);
@@ -223,12 +274,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
 
         // Gather statistics
-        int segmentCount = 0;
-        float minElevation = Float.MAX_VALUE;
-        float maxElevation = Float.MIN_VALUE;
-        float maxSpeed = 0;
-
-        MeanValue mv = new MeanValue();
+        mSpeedMeanValue = new MeanValue();
         boolean hasElevation = false;
         boolean hasSpeed = false;
         ArrayList<Entry> elevationValues = new ArrayList<>();
@@ -238,9 +284,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         Track.TrackPoint ptp = null;
         long startTime = ftp.time;
         int i = 0;
+        mSegmentCount = 1;
         for (Track.TrackPoint point : mTrack.points) {
             if (!point.continuous)
-                segmentCount++;
+                mSegmentCount++;
 
             int offset = (int) (point.time - startTime) / 1000;
             xValues.add("+" + DateUtils.formatElapsedTime(offset));
@@ -248,10 +295,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (!Float.isNaN(point.elevation)) {
                 elevationValues.add(new Entry(point.elevation, i));
 
-                if (point.elevation < minElevation && point.elevation != 0)
-                    minElevation = point.elevation;
-                if (point.elevation > maxElevation)
-                    maxElevation = point.elevation;
+                if (point.elevation < mMinElevation && point.elevation != 0)
+                    mMinElevation = point.elevation;
+                if (point.elevation > mMaxElevation)
+                    mMaxElevation = point.elevation;
 
                 if (point.elevation != 0)
                     hasElevation = true;
@@ -269,11 +316,11 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             } else {
                 speed = point.speed;
             }
-            if (!Float.isNaN(speed)) {
+            if (!Float.isNaN(speed) && !Float.isInfinite(speed)) {
                 speedValues.add(new Entry(speed * StringFormatter.speedFactor, i));
-                mv.addValue(speed);
-                if (speed > maxSpeed)
-                    maxSpeed = speed;
+                mSpeedMeanValue.addValue(speed);
+                if (speed > mMaxSpeed)
+                    mMaxSpeed = speed;
                 hasSpeed = true;
             }
 
@@ -281,10 +328,9 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             i++;
         }
 
-        ((TextView) rootView.findViewById(R.id.segmentCount)).setText(resources.getQuantityString(R.plurals.numberOfSegments, segmentCount, segmentCount));
-
         View statisticsHeader = rootView.findViewById(R.id.statisticsHeader);
         if (hasElevation || hasSpeed) {
+            updateTrackStatistics(resources);
             statisticsHeader.setVisibility(View.VISIBLE);
         } else {
             statisticsHeader.setVisibility(View.GONE);
@@ -292,34 +338,18 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         View elevationUpRow = rootView.findViewById(R.id.elevationUpRow);
         View elevationDownRow = rootView.findViewById(R.id.elevationDownRow);
-        if (hasElevation) {
-            ((TextView) rootView.findViewById(R.id.maxElevation)).setText(StringFormatter.elevationH(maxElevation));
-            ((TextView) rootView.findViewById(R.id.minElevation)).setText(StringFormatter.elevationH(minElevation));
-            elevationUpRow.setVisibility(View.VISIBLE);
-            elevationDownRow.setVisibility(View.VISIBLE);
-        } else {
-            elevationUpRow.setVisibility(View.GONE);
-            elevationDownRow.setVisibility(View.GONE);
-        }
+        elevationUpRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
+        elevationDownRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
 
         View speedRow = rootView.findViewById(R.id.speedRow);
-        if (hasSpeed) {
-            float averageSpeed = mv.getMeanValue();
-            ((TextView) rootView.findViewById(R.id.maxSpeed)).setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_speed), StringFormatter.speedH(maxSpeed)));
-            ((TextView) rootView.findViewById(R.id.averageSpeed)).setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.average_speed), StringFormatter.speedH(averageSpeed)));
-            speedRow.setVisibility(View.VISIBLE);
-        } else {
-            speedRow.setVisibility(View.GONE);
-        }
+        speedRow.setVisibility(hasSpeed ? View.VISIBLE : View.GONE);
 
-        //noinspection PointlessBooleanExpression
         if (!BuildConfig.FULL_VERSION) {
             rootView.findViewById(R.id.charts).setVisibility(View.GONE);
             return;
         }
 
         View elevationHeader = rootView.findViewById(R.id.elevationHeader);
-        LineChart elevationChart = (LineChart) rootView.findViewById(R.id.elevationChart);
         if (hasElevation) {
             LineDataSet elevationLine = new LineDataSet(elevationValues, "Elevation");
             elevationLine.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -331,28 +361,27 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             ArrayList<ILineDataSet> elevationDataSets = new ArrayList<>();
             elevationDataSets.add(elevationLine);
 
-            LineData elevationData = new LineData(xValues, elevationDataSets);
+            mElevationData = new LineData(xValues, elevationDataSets);
 
-            elevationChart.setData(elevationData);
+            mElevationChart.setData(mElevationData);
 
-            elevationChart.getLegend().setEnabled(false);
-            elevationChart.setDescription("");
+            mElevationChart.getLegend().setEnabled(false);
+            mElevationChart.setDescription("");
 
-            XAxis xAxis = elevationChart.getXAxis();
+            XAxis xAxis = mElevationChart.getXAxis();
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(true);
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
             elevationHeader.setVisibility(View.VISIBLE);
-            elevationChart.setVisibility(View.VISIBLE);
-            elevationChart.invalidate();
+            mElevationChart.setVisibility(View.VISIBLE);
+            mElevationChart.invalidate();
         } else {
             elevationHeader.setVisibility(View.GONE);
-            elevationChart.setVisibility(View.GONE);
+            mElevationChart.setVisibility(View.GONE);
         }
 
         View speedHeader = rootView.findViewById(R.id.speedHeader);
-        LineChart speedChart = (LineChart) rootView.findViewById(R.id.speedChart);
         if (hasSpeed) {
             LineDataSet speedLine = new LineDataSet(speedValues, "Speed");
             speedLine.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -362,25 +391,60 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             ArrayList<ILineDataSet> speedDataSets = new ArrayList<>();
             speedDataSets.add(speedLine);
 
-            LineData speedData = new LineData(xValues, speedDataSets);
+            mSpeedData = new LineData(xValues, speedDataSets);
 
-            speedChart.setData(speedData);
+            mSpeedChart.setData(mSpeedData);
 
-            speedChart.getLegend().setEnabled(false);
-            speedChart.setDescription("");
+            mSpeedChart.getLegend().setEnabled(false);
+            mSpeedChart.setDescription("");
 
-            XAxis xAxis = speedChart.getXAxis();
+            XAxis xAxis = mSpeedChart.getXAxis();
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(true);
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
             speedHeader.setVisibility(View.VISIBLE);
-            speedChart.setVisibility(View.VISIBLE);
-            speedChart.invalidate();
+            mSpeedChart.setVisibility(View.VISIBLE);
+            mSpeedChart.invalidate();
         } else {
             speedHeader.setVisibility(View.GONE);
-            speedChart.setVisibility(View.GONE);
+            mSpeedChart.setVisibility(View.GONE);
         }
+    }
+
+    private void updateTrackInformation(Activity activity, Resources resources) {
+        Track.TrackPoint ftp = mTrack.points.get(0);
+        Track.TrackPoint ltp = mTrack.getLastPoint();
+
+        int pointCount = mTrack.points.size();
+        mPointCountView.setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
+
+        String distance = StringFormatter.distanceHP(mTrack.getDistance());
+        mDistanceView.setText(distance);
+
+        String finish_coords = StringFormatter.coordinates(ltp);
+        mFinishCoordinatesView.setText(finish_coords);
+
+        Date finishDate = new Date(ltp.time);
+        mFinishDateView.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
+
+        long elapsed = (ltp.time - ftp.time) / 1000;
+        String timeSpan;
+        if (elapsed < 24 * 3600 * 3) { // 3 days
+            timeSpan = DateUtils.formatElapsedTime(elapsed);
+        } else {
+            timeSpan = DateUtils.formatDateRange(activity, ftp.time, ltp.time, DateUtils.FORMAT_ABBREV_MONTH);
+        }
+        mTimeSpanView.setText(timeSpan);
+    }
+
+    private void updateTrackStatistics(Resources resources) {
+        mSegmentCountView.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
+        mMaxElevationView.setText(StringFormatter.elevationH(mMaxElevation));
+        mMinElevationView.setText(StringFormatter.elevationH(mMinElevation));
+        float averageSpeed = mSpeedMeanValue.getMeanValue();
+        mMaxSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_speed), StringFormatter.speedH(mMaxSpeed)));
+        mAverageSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.average_speed), StringFormatter.speedH(averageSpeed)));
     }
 
     private void setEditorMode(boolean enabled) {
@@ -441,4 +505,57 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             return false;
         }
     }
+
+    private ServiceConnection mTrackingConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mTrackingService = (ILocationService) service;
+            mTrackingService.registerTrackingCallback(mTrackingListener);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            mTrackingService = null;
+        }
+    };
+
+    private ITrackingListener mTrackingListener = new ITrackingListener() {
+        public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
+            if (!continuous)
+                mSegmentCount++;
+            if (elev < mMinElevation && elev != 0)
+                mMinElevation = elev;
+            if (elev > mMaxElevation)
+                mMaxElevation = elev;
+            mSpeedMeanValue.addValue(speed);
+            if (speed > mMaxSpeed)
+                mMaxSpeed = speed;
+
+            if (BuildConfig.FULL_VERSION) {
+                int offset = (int) (time - mTrack.points.get(0).time) / 1000;
+                String xValue = "+" + DateUtils.formatElapsedTime(offset);
+                if (mElevationData != null) {
+                    int count = mElevationData.getDataSets().get(0).getEntryCount();
+                    mElevationData.addEntry(new Entry(elev, count), 0);
+                    mElevationData.addXValue(xValue);
+                }
+                if (mSpeedData != null) {
+                    int count = mSpeedData.getDataSets().get(0).getEntryCount();
+                    mSpeedData.addEntry(new Entry(speed * StringFormatter.speedFactor, count), 0);
+                    //mSpeedData.addXValue(xValue); they appear to share the same array
+                }
+            }
+
+            if (isVisible()) {
+                Activity activity = getActivity();
+                Resources resources = getResources();
+                updateTrackInformation(activity, resources);
+                updateTrackStatistics(resources);
+                if (BuildConfig.FULL_VERSION) {
+                    mElevationChart.notifyDataSetChanged();
+                    mElevationChart.invalidate();
+                    mSpeedChart.notifyDataSetChanged();
+                    mSpeedChart.invalidate();
+                }
+            }
+        }
+    };
 }
