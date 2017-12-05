@@ -1992,6 +1992,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
             mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
             mMap.updateMap(true);
+            Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
+            if (fragment != null && ((TrackInformation)fragment).hasCurrentTrack()) {
+                ((TrackInformation)fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
+            }
         }
         mTrackingState = TRACKING_STATE.TRACKING;
         updateLocationDrawable();
