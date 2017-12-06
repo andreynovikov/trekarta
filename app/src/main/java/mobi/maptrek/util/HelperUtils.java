@@ -39,8 +39,9 @@ public class HelperUtils {
     public static void showAdvice(final long advice, int messageResId, CoordinatorLayout coordinatorLayout) {
         if (Configuration.getAdviceState(advice)) {
             Snackbar snackbar = Snackbar
+                    //TODO Return back actionGotIt sometime
                     .make(coordinatorLayout, messageResId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.actionGotIt, new View.OnClickListener() {
+                    .setAction(R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             Configuration.setAdviceState(advice);

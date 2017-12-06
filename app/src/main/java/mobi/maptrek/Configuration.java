@@ -61,23 +61,24 @@ public class Configuration {
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
 
-    public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001;
-    public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002;
-    public static final long ADVICE_MORE_GAUGES = 0x0000000000000004;
-    public static final long ADVICE_REMEMBER_SCALE = 0x0000000000000008;
-    public static final long ADVICE_ENABLE_LOCATIONS = 0x0000000000000010;
-    public static final long ADVICE_MAP_SETTINGS = 0x0000000000000020;
-    public static final long ADVICE_ADDING_PLACE = 0x0000000000000040;
-    public static final long ADVICE_RECORD_TRACK = 0x0000000000000080;
-    public static final long ADVICE_RECORDED_TRACKS = 0x0000000000000100;
-    public static final long ADVICE_VIEW_DATA_ITEM = 0x0000000000000200;
-    public static final long ADVICE_SWITCH_COORDINATES_FORMAT = 0x0000000000000400;
-    public static final long ADVICE_LOCKED_COORDINATES = 0x0000000000000800;
-    public static final long ADVICE_HIDE_MAP_OBJECTS = 0x0000000000001000;
-    public static final long ADVICE_LOCK_MAP_POSITION = 0x0000000000002000;
-    public static final long ADVICE_TEXT_SEARCH = 0x0000000000004000;
-    public static final long ADVICE_ACTIVE_MAPS_SIZE = 0x0000000000008000;
-    public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000;
+    public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
+    public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
+    public static final long ADVICE_MORE_GAUGES = 0x0000000000000004L;
+    public static final long ADVICE_REMEMBER_SCALE = 0x0000000000000008L;
+    public static final long ADVICE_ENABLE_LOCATIONS = 0x0000000000000010L;
+    public static final long ADVICE_MAP_SETTINGS = 0x0000000000000020L;
+    public static final long ADVICE_ADDING_PLACE = 0x0000000000000040L;
+    public static final long ADVICE_RECORD_TRACK = 0x0000000000000080L;
+    public static final long ADVICE_RECORDED_TRACKS = 0x0000000000000100L;
+    public static final long ADVICE_VIEW_DATA_ITEM = 0x0000000000000200L;
+    public static final long ADVICE_SWITCH_COORDINATES_FORMAT = 0x0000000000000400L;
+    public static final long ADVICE_LOCKED_COORDINATES = 0x0000000000000800L;
+    public static final long ADVICE_HIDE_MAP_OBJECTS = 0x0000000000001000L;
+    public static final long ADVICE_LOCK_MAP_POSITION = 0x0000000000002000L;
+    public static final long ADVICE_TEXT_SEARCH = 0x0000000000004000L;
+    public static final long ADVICE_ACTIVE_MAPS_SIZE = 0x0000000000008000L;
+    public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000L;
+    public static final long ADVICE_RUSSIAN_FLAVOR = 0x8000000000000000L;
 
     private static SharedPreferences mSharedPreferences;
 

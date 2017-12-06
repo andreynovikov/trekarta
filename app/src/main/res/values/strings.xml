@@ -182,6 +182,9 @@
     <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
 
+    <string name="advice_russian_flavor">Для российского рынка вышла специальная версия MapTrek. Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Чтобы вернуть деньги за текущую версию, пришлите по почте письмо с номером заказа, которое вы получили от Google. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
+    <string name="advice_russian_flavor_lite">Для российского рынка вышла специальная версия MapTrek Lite. Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
+
     <string name="datetime" formatted="false" translatable="false">%s %s</string>
     <string name="waypoint_name">Place #%d</string>
     <string name="remove_gauge">Remove %s</string>

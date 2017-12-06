@@ -1010,6 +1010,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
+        } else if (BuildConfig.FULL_VERSION && "world".equals(BuildConfig.FLAVOR_region)
+                && "ru".equals(getResources().getConfiguration().locale.getLanguage())) {
+            HelperUtils.showAdvice(Configuration.ADVICE_RUSSIAN_FLAVOR, R.string.advice_russian_flavor, mCoordinatorLayout);
+        } else if ("world".equals(BuildConfig.FLAVOR_region)
+                && "ru".equals(getResources().getConfiguration().locale.getLanguage())) {
+            HelperUtils.showAdvice(Configuration.ADVICE_RUSSIAN_FLAVOR, R.string.advice_russian_flavor_lite, mCoordinatorLayout);
         }
 
         if (Configuration.getHideSystemUI())
@@ -3191,7 +3197,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void showExtendPanel(PANEL_STATE panel, String name, Fragment fragment) {
-        if (mPanelState != PANEL_STATE.NONE) {
+        if (mPanelState != PANEL_STATE.NONE && mFragmentManager.getBackStackEntryCount() > 0) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
             //TODO Make it properly work without "immediate" - that is why exit transitions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
