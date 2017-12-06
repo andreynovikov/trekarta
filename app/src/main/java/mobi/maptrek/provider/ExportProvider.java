@@ -344,6 +344,7 @@ public class ExportProvider extends ContentProvider {
 
         @Override
         public Uri getUriForFile(File file) {
+            logger.info("getUriForFile({})", file.getAbsolutePath());
             String path;
             try {
                 path = file.getCanonicalPath();
@@ -381,6 +382,7 @@ public class ExportProvider extends ContentProvider {
         @Override
         public File getFileForUri(Uri uri) {
             String path = uri.getEncodedPath();
+            logger.info("getFileForUri({})", path);
 
             final int splitIndex = path.indexOf('/', 1);
             final String tag = Uri.decode(path.substring(1, splitIndex));

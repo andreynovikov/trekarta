@@ -34,16 +34,12 @@ android {
         full {
             dimension "tier"
             buildConfigField "boolean", "FULL_VERSION", "true"
-            buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
-            return void
         }
         lite {
             dimension "tier"
             applicationIdSuffix ".lite"
             versionNameSuffix "-lite"
             buildConfigField "boolean", "FULL_VERSION", "false"
-            buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
-            return void
         }
         world {
             dimension "region"
@@ -56,7 +52,10 @@ android {
         }
     }
 
-    return void
+    // we need applicationId to be resolved first
+    applicationVariants.all { variant ->
+        variant.buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
+    }
 }
 
 repositories {
