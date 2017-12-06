@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 
 import mobi.maptrek.data.MapObject;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
@@ -54,6 +55,7 @@ public class MapTrek extends Application {
     private SQLiteDatabase mDetailedMapDatabase;
     private HillshadeDatabaseHelper mHillshadeHelper;
     private SQLiteDatabase mHillshadeDatabase;
+    private WaypointDbDataSource mWaypointDbDataSource;
     private String mUserNotification;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
@@ -180,6 +182,14 @@ public class MapTrek extends Application {
         if (mIndex == null)
             mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
         return mIndex;
+    }
+
+    public synchronized WaypointDbDataSource getWaypointDbDataSource() {
+        if (mWaypointDbDataSource == null) {
+            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
+            mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
+        }
+        return mWaypointDbDataSource;
     }
 
     private void copyAsset(String asset, File outFile) {

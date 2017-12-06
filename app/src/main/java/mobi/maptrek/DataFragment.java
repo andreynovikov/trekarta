@@ -14,7 +14,6 @@ public class DataFragment extends Fragment {
 
     private MapIndex mMapIndex;
     private Waypoint mEditedWaypoint;
-    private WaypointDbDataSource mWaypointDbDataSource;
     private MapFile mBitmapLayerMap;
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
@@ -40,14 +39,6 @@ public class DataFragment extends Fragment {
 
     public void setEditedWaypoint(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
-    }
-
-    public WaypointDbDataSource getWaypointDbDataSource() {
-        return mWaypointDbDataSource;
-    }
-
-    public void setWaypointDbDataSource(WaypointDbDataSource waypointDbDataSource) {
-        mWaypointDbDataSource = waypointDbDataSource;
     }
 
     public MapFile getBitmapLayerMap() {

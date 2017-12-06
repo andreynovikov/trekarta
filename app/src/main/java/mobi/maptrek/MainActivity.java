@@ -435,10 +435,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mMapIndex.initializeOnlineMapProviders();
             }
 
-            //noinspection SpellCheckingInspection
-            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
-            mWaypointDbDataSource = new WaypointDbDataSource(getApplicationContext(), waypointsFile);
-
             mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
             String language = Configuration.getLanguage();
@@ -458,7 +454,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else {
             mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
-            mWaypointDbDataSource = mDataFragment.getWaypointDbDataSource();
             mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
             mShieldFactory = mDataFragment.getShieldFactory();
             mOsmcSymbolFactory = mDataFragment.getOsmcSymbolFactory();
@@ -677,6 +672,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
+        mWaypointDbDataSource = application.getWaypointDbDataSource();
         mWaypointDbDataSource.open();
         for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
             if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
@@ -1128,7 +1124,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
-        mDataFragment.setWaypointDbDataSource(mWaypointDbDataSource);
         mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
         mDataFragment.setShieldFactory(mShieldFactory);
         mDataFragment.setOsmcSymbolFactory(mOsmcSymbolFactory);
