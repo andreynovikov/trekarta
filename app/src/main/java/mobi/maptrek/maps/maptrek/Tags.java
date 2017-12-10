@@ -247,7 +247,10 @@ public class Tags {
             "osmc:symbol",
             "network",
             "route:network",
-            "information" // todo
+            "information", // todo
+            "piste:border",
+            "piste:grooming",
+            "piste:lit"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -837,7 +840,10 @@ public class Tags {
             "sleigh",
             "snow_park",
             "sports",
-            "swimming_pool"
+            "swimming_pool",
+            "scooter",
+            "mogul",
+            "backcountry"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
