@@ -6,9 +6,8 @@
         piste:oneway
         piste:name
         piste:grooming=[backcountry,mogul]
-        piste:lit=yes
-        lit=yes
         gladed=yes (trees)
+        piste:grooming=scooter (for lines - stippled)
     -->
 
     <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
@@ -188,54 +187,142 @@
         <outline-layer fix="true" id="difficulty-advanced" stroke="#888888" width="2.5" />
         <outline-layer fix="true" id="difficulty-expert" stroke="#f66f00" width="2.5" />
 
-        <m k="piste:type" v="downhill" zoom-min="13">
+        <m k="piste:type" v="downhill">
             <m closed="yes">
-                <m k="piste:difficulty" v="freeride">
-                    <area fill="#fffa2a" />
+                <m zoom-min="13">
+                    <area use="land" />
                 </m>
-                <m k="piste:difficulty" v="~">
-                    <area fill="#aaaaaa" />
+                <m k="piste:difficulty" select="first" v="novice">
+                    <m zoom-max="12">
+                        <area fill="#98fbac" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#6698fbac" />
+                    </m>
+                    <m>
+                        <area fill="#4498fbac" />
+                    </m>
                 </m>
-                <m k="piste:difficulty" v="novice">
-                    <area fill="#aaffaa" />
+                <m k="piste:difficulty" select="first" v="easy">
+                    <m zoom-max="12">
+                        <area fill="#999afb" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66999afb" />
+                    </m>
+                    <m>
+                        <area fill="#44999afb" />
+                    </m>
                 </m>
-                <m k="piste:difficulty" v="easy">
-                    <area fill="#aaaaff" />
+                <m k="piste:difficulty" select="first" v="intermediate">
+                    <m zoom-max="12">
+                        <area fill="#fb9a99" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66fb9a99" />
+                    </m>
+                    <m>
+                        <area fill="#44fb9a99" />
+                    </m>
                 </m>
-                <m k="piste:difficulty" v="intermediate">
-                    <area fill="#ffaaaa" />
+                <m k="piste:difficulty" select="first" v="advanced">
+                    <m zoom-max="12">
+                        <area fill="#888888" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66888888" />
+                    </m>
+                    <m>
+                        <area fill="#44888888" />
+                    </m>
                 </m>
-                <m k="piste:difficulty" v="advanced">
-                    <area fill="#888888" />
+                <m k="piste:difficulty" select="first" v="expert">
+                    <m zoom-max="12">
+                        <area fill="#fdbf6f" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66fdbf6f" />
+                    </m>
+                    <m>
+                        <area fill="#44fdbf6f" />
+                    </m>
                 </m>
-                <m k="piste:difficulty" v="expert">
-                    <area fill="#ff9844" />
+                <m k="piste:difficulty" select="first" v="freeride">
+                    <m zoom-max="12">
+                        <area fill="#fdf381" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66fdf381" />
+                    </m>
+                    <m>
+                        <area fill="#44fdf381" />
+                    </m>
+                </m>
+                <m k="piste:difficulty" select="first" v="~|unknown">
+                    <m zoom-max="12">
+                        <area fill="#aaaaaa" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66aaaaaa" />
+                    </m>
+                    <m>
+                        <area fill="#44aaaaaa" />
+                    </m>
+                </m>
+            </m>
+            <m closed="no" zoom-min="14">
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
+                </m>
+                <lineSymbol src="assets:symbols/oneway.svg" />
+                <m select="first">
+                    <m k="ref">
+                        <text use="piste-ref" />
+                    </m>
+                    <m>
+                        <text use="piste-name" />
+                    </m>
+                </m>
+            </m>
+        </m>
+        <m k="piste:type" v="playground">
+            <m closed="yes" zoom-min="13">
+                <area use="land" />
+            </m>
+            <m closed="yes" select="first">
+                <m zoom-max="12">
+                    <area fill="#d5f0b1" />
+                </m>
+                <m zoom-max="16">
+                    <area fill="#66d5f0b1" />
+                </m>
+                <m>
+                    <area fill="#44d5f0b1" />
                 </m>
             </m>
             <m closed="no">
-                <m k="piste:difficulty" v="freeride">
-                    <line stroke="#fffa2a" width="2.0" />
+                <text fill="#74b322" use="piste-name" /> <!-- Darken 20% -->
+            </m>
+        </m>
+        <m k="piste:type" v="snow_park">
+            <m closed="yes" zoom-min="13">
+                <area use="land" />
+            </m>
+            <m closed="yes" select="first">
+                <m zoom-max="12">
+                    <area fill="#85bbf6" />
                 </m>
-                <m k="piste:difficulty" v="~">
-                    <line stroke="#aaaaaa" width="2.0" />
+                <m zoom-max="16">
+                    <area fill="#6685bbf6" />
                 </m>
-                <m k="piste:difficulty" v="novice">
-                    <line stroke="#aaffaa" width="2.0" />
+                <m>
+                    <area fill="#4485bbf6" />
                 </m>
-                <m k="piste:difficulty" v="easy">
-                    <line stroke="#aaaaff" width="2.0" />
-                </m>
-                <m k="piste:difficulty" v="intermediate">
-                    <line stroke="#ffaaaa" width="2.0" />
-                </m>
-                <m k="piste:difficulty" v="advanced">
-                    <line stroke="#888888" width="2.0" />
-                </m>
-                <m k="piste:difficulty" v="expert">
-                    <line stroke="#ff9844" width="2.0" />
-                </m>
-                <lineSymbol src="assets:symbols/oneway.svg" />
-                <text use="piste-ref" />
+            </m>
+            <m closed="no">
+                <text fill="#083c74" use="piste-name" /> <!-- Darken 20% -->
             </m>
         </m>
         <m k="piste:type" v="sled">
@@ -423,51 +510,78 @@
             </m>
             <text fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
         </m>
-        <m k="piste:type" v="snow_park">
-            <m closed="yes">
-                <area fill="#aa85bbf6" />
-                <m zoom-max="14">
-                    <line fix="true" stroke="#aa0f6dd3" width="2" />
-                </m>
-                <m zoom-min="15">
-                    <line fix="true" stroke="#aa0f6dd3" width="3" />
-                </m>
-            </m>
-            <m closed="no">
-                <m zoom-max="14">
-                    <line fix="true" stroke="#ffffff" width="2.8" />
-                    <line fix="true" stroke="#2586f0" width="2" />
-                </m>
-                <m zoom-min="15">
-                    <line fix="true" stroke="#ffffff" width="4" />
-                    <line fix="true" stroke="#2586f0" width="3" />
-                    <text use="piste-ref" />
-                </m>
-            </m>
-            <text fill="#083c74" use="piste-name" /> <!-- Darken 20% -->
+    </m>
+    <m cat="skiing" k="piste:border">
+        <m v="snow_park">
+            <line fix="true" stroke="#2586f0" width="2.5" />
         </m>
-        <m k="piste:type" v="playground">
-            <m closed="yes">
-                <area fill="#aad5f0b1" />
-                <m zoom-max="14">
-                    <line fix="true" stroke="#aaa6e05b" width="2" />
+        <m v="playground">
+            <line fix="true" stroke="#a6e05b" width="2.5" />
+        </m>
+        <m v="downhill">
+            <m k="piste:difficulty" select="first" v="novice">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#77e98d"
+                        width="2.5" />
                 </m>
-                <m zoom-min="15">
-                    <line fix="true" stroke="#aaa6e05b" width="3" />
-                </m>
-            </m>
-            <m closed="no">
-                <m zoom-max="14">
-                    <line fix="true" stroke="#ffffff" width="2.8" />
-                    <line fix="true" stroke="#a6e05b" width="2" />
-                </m>
-                <m zoom-min="15">
-                    <line fix="true" stroke="#ffffff" width="4" />
-                    <line fix="true" stroke="#a6e05b" width="3" />
-                    <text use="piste-ref" />
+                <m>
+                    <line fix="true" stroke="#77e98d" width="2.5" />
                 </m>
             </m>
-            <text fill="#74b322" use="piste-name" /> <!-- Darken 20% -->
+            <m k="piste:difficulty" select="first" v="easy">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#999afb"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#999afb" width="2.5" />
+                </m>
+            </m>
+            <m k="piste:difficulty" select="first" v="intermediate">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fb9a99"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#fb9a99" width="2.5" />
+                </m>
+            </m>
+            <m k="piste:difficulty" select="first" v="advanced">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#888888"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#888888" width="2.5" />
+                </m>
+            </m>
+            <m k="piste:difficulty" select="first" v="expert">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fdbf6f"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#fdbf6f" width="2.5" />
+                </m>
+            </m>
+            <m k="piste:difficulty" select="first" v="freeride">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fbe704"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#fbe704" width="2.5" />
+                </m>
+            </m>
+            <m k="piste:difficulty" select="first" v="~|unknown">
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#aaaaaa"
+                        width="2.5" />
+                </m>
+                <m>
+                    <line fix="true" stroke="#aaaaaa" width="2.5" />
+                </m>
+            </m>
         </m>
     </m>
 
@@ -491,7 +605,8 @@
         <m k="aerialway" v="cable_car">
             <m zoom-max="13">
                 <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
-                    src="assets:symbols/transport/cable_car.svg" symbol-percent="70" text-overlap="false" />
+                    src="assets:symbols/transport/cable_car.svg" symbol-percent="70"
+                    text-overlap="false" />
             </m>
             <m zoom-min="14">
                 <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
@@ -501,7 +616,8 @@
         <m k="aerialway" v="gondola">
             <m zoom-max="13">
                 <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
-                    src="assets:symbols/transport/gondola.svg" symbol-percent="70" text-overlap="false" />
+                    src="assets:symbols/transport/gondola.svg" symbol-percent="70"
+                    text-overlap="false" />
             </m>
             <m zoom-min="14">
                 <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
