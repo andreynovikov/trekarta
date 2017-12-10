@@ -370,25 +370,43 @@
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:difficulty" v="novice">
-                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="easy">
-                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="intermediate">
-                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
-                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-advanced" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="expert">
-                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="6" />
                     </m>
-                    <m k="piste:difficulty" v="~">
+                </m>
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff" width="4" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff" width="4" />
+                    </m>
+                    <m>
                         <line fix="true" stroke="#ffffff" width="4" />
                     </m>
                 </m>
-                <line fix="true" stroke="#44b2a3" width="3" />
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#44b2a3" width="3" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#44b2a3" width="3" />
+                    </m>
+                    <m>
+                        <line fix="true" stroke="#44b2a3" width="3" />
+                    </m>
+                </m>
                 <text fill="#28685f" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
                 <m k="oneway" v="1" zoom-min="16">
