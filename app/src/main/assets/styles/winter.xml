@@ -3,11 +3,8 @@
     xmlns="http://opensciencemap.org/rendertheme">
 
     <!-- TODO:
-        piste:oneway
         piste:name
-        piste:grooming=[backcountry,mogul]
         gladed=yes (trees)
-        piste:grooming=scooter (for lines - stippled)
     -->
 
     <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
@@ -269,6 +266,9 @@
                         <area fill="#44aaaaaa" />
                     </m>
                 </m>
+                <m k="piste:grooming" v="mogul" zoom-min="15">
+                    <area src="assets:symbols/winter/mogul.svg" />
+                </m>
             </m>
             <m closed="no" zoom-min="14">
                 <m k="piste:lit" v="yes">
@@ -333,32 +333,60 @@
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:difficulty" v="novice">
-                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="easy">
-                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="intermediate">
-                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
-                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-advanced" stroke="#00ffffff"
+                            width="6" />
                     </m>
                     <m k="piste:difficulty" v="expert">
-                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="6" />
                     </m>
-                    <m k="piste:difficulty" v="~">
+                </m>
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
+                    </m>
+                    <m>
                         <line fix="true" stroke="#ffffff" width="4" />
                     </m>
                 </m>
-                <line fix="true" stroke="#a1e620" width="3" />
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#a1e620"
+                            width="3" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#a1e620"
+                            width="3" />
+                    </m>
+                    <m>
+                        <line fix="true" stroke="#a1e620" width="3" />
+                    </m>
+                </m>
                 <text fill="#639010" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
-                <m k="oneway" v="1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway.svg" />
-                </m>
-                <m k="oneway" v="-1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                <m select="first">
+                    <m k="piste:oneway" v="yes">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="-1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                    </m>
                 </m>
             </m>
         </m>
@@ -379,7 +407,8 @@
                         <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="6" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
-                        <line fix="true" outline="difficulty-advanced" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-advanced" stroke="#00ffffff"
+                            width="6" />
                     </m>
                     <m k="piste:difficulty" v="expert">
                         <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="6" />
@@ -387,10 +416,12 @@
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff" width="4" />
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff" width="4" />
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
                     </m>
                     <m>
                         <line fix="true" stroke="#ffffff" width="4" />
@@ -398,10 +429,12 @@
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#44b2a3" width="3" />
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#44b2a3"
+                            width="3" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#44b2a3" width="3" />
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#44b2a3"
+                            width="3" />
                     </m>
                     <m>
                         <line fix="true" stroke="#44b2a3" width="3" />
@@ -409,11 +442,16 @@
                 </m>
                 <text fill="#28685f" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
-                <m k="oneway" v="1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway.svg" />
-                </m>
-                <m k="oneway" v="-1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                <m select="first">
+                    <m k="piste:oneway" v="yes">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="-1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                    </m>
                 </m>
                 <m k="osmc:symbol">
                     <m zoom-max="15">
@@ -462,6 +500,10 @@
                 <line fix="true" stroke="#ff9faf" width="3" />
                 <line fix="true" src="assets:symbols/dot.svg" stipple="30" stipple-stroke="#ff9faf"
                     width="15" />
+                <m k="piste:grooming" v="backcountry">
+                    <line fix="true" src="assets:symbols/dot_small.svg" stipple="30"
+                        stipple-stroke="#ffffff" width="15" />
+                </m>
                 <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
                 <m k="osmc:symbol">
@@ -482,15 +524,44 @@
                 <line fix="true" stroke="#8f54d8" width="2" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#ffffff" width="4" />
-                <line fix="true" stroke="#8f54d8" width="3" />
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="4" />
+                    </m>
+                    <m>
+                        <line fix="true" stroke="#ffffff" width="4" />
+                    </m>
+                </m>
+                <m select="first">
+                    <m k="piste:grooming" v="backcountry">
+                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#8f54d8"
+                            width="3" />
+                    </m>
+                    <m k="piste:grooming" v="scooter">
+                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#8f54d8"
+                            width="3" />
+                    </m>
+                    <m>
+                        <line fix="true" stroke="#8f54d8" width="3" />
+                    </m>
+                </m>
                 <text fill="#5c25a1" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
-                <m k="oneway" v="1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway.svg" />
-                </m>
-                <m k="oneway" v="-1" zoom-min="16">
-                    <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                <m select="first">
+                    <m k="piste:oneway" v="yes">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway.svg" />
+                    </m>
+                    <m k="oneway" v="-1" zoom-min="16">
+                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                    </m>
                 </m>
             </m>
         </m>

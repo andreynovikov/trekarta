@@ -250,7 +250,8 @@ public class Tags {
             "information", // todo
             "piste:border",
             "piste:grooming",
-            "piste:lit"
+            "piste:lit",
+            "piste:oneway"
     };
     final static int MAX_KEY = keys.length - 1;
 
