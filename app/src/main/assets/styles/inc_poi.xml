@@ -71,6 +71,9 @@
                     <m v="restaurant">
                         <symbol src="assets:symbols/food/restaurant.svg" />
                     </m>
+                    <m v="marketplace">
+                        <symbol src="assets:symbols/shopping/marketplace.svg" />
+                    </m>
                 </m>
             </m>
             <m k="kind_barrier">
@@ -160,7 +163,7 @@
                     </m>
                 </m>
                 <m k="leisure" v="playground">
-                    <symbol src="assets:symbols/amenity/playground.svg" />
+                    <symbol src="assets:symbols/amenity/playground.svg" symbol-percent="70" />
                 </m>
                 <m k="amenity">
                     <m v="kindergarten">
@@ -202,6 +205,9 @@
                     </m>
                     <m v="mall|department_store">
                         <symbol src="assets:symbols/shopping/department_store.svg" />
+                    </m>
+                    <m v="marketplace">
+                        <symbol src="assets:symbols/shopping/marketplace.svg" />
                     </m>
                 </m>
             </m>
@@ -287,14 +293,17 @@
                         <m select="first">
                             <m k="fee">
                                 <m k="fee" v="-|no">
-                                    <symbol src="assets:symbols/transport/parking_car_paid.svg" />
+                                    <symbol src="assets:symbols/transport/parking_car_paid.svg"
+                                        symbol-percent="70" />
                                 </m>
                             </m>
                             <m k="access" v="private">
-                                <symbol src="assets:symbols/transport/parking_private.svg" />
+                                <symbol src="assets:symbols/transport/parking_private.svg"
+                                    symbol-percent="50" />
                             </m>
                             <m>
-                                <symbol src="assets:symbols/transport/parking.svg" />
+                                <symbol src="assets:symbols/transport/parking.svg"
+                                    symbol-percent="50" />
                             </m>
                         </m>
                     </m>
@@ -303,7 +312,7 @@
             <m k="kind_transportation">
                 <m k="amenity">
                     <m v="bus_station">
-                        <symbol src="assets:symbols/transport/bus_station.svg" />
+                        <symbol src="assets:symbols/transport/bus_station.svg" symbol-percent="70" />
                     </m>
                 </m>
             </m>
@@ -352,13 +361,13 @@
                         <symbol src="assets:symbols/transport/rental_bicycle.svg" />
                     </m>
                     <m v="drinking_water">
-                        <symbol src="assets:symbols/food/drinkingtap.svg" merge-gap="0" />
+                        <symbol merge-gap="0" src="assets:symbols/food/drinkingtap.svg" />
                     </m>
                     <m v="shelter">
-                        <symbol src="assets:symbols/accommodation/shelter.svg" merge-gap="0" />
+                        <symbol merge-gap="0" src="assets:symbols/accommodation/shelter.svg" />
                     </m>
                     <m v="toilets">
-                        <symbol src="assets:symbols/amenity/toilets.svg" merge-gap="0" />
+                        <symbol merge-gap="0" src="assets:symbols/amenity/toilets.svg" />
                     </m>
                 </m>
             </m>

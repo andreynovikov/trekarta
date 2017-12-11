@@ -3,7 +3,7 @@
     <m cat="nature" k="natural">
         <m select="first" zoom-min="13">
             <m v="cave_entrance" zoom-min="15">
-                <symbol src="assets:symbols/natural/cave.svg" />
+                <symbol src="assets:symbols/natural/cave.svg" symbol-percent="70" />
             </m>
             <m v="spring">
                 <symbol src="assets:symbols/natural/spring.svg" merge-gap="0" />
