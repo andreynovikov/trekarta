@@ -24,7 +24,7 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <!-- match area-tag that are 'no' or not present -->
-                    <m k="area" v="~|no|false">
+                    <m closed="no">
                         <!-- highway tunnels -->
                         <m k="highway">
                             <m cat="pedestrian" v="footway">
@@ -206,25 +206,23 @@
 
             <!-- when tunnel is present it must be 'no' -->
             <m k="tunnel" v="~|no">
-                <m k="area" v="yes" zoom-min="16">
-                    <m cat="pedestrian" v="footway">
-                        <area fill="#fefefe" mesh="true" />
-                        <line cap="butt" fix="true" stroke="#c0c0c0" width="1.0" />
+                <m closed="yes" zoom-min="16">
+                    <m cat="pedestrian" v="footway|pedestrian">
+                        <area mesh="true" use="pedestrian" />
                     </m>
+                    <!--
                     <m cat="roads" v="service|unclassified|residential|road|living_street">
                         <area fill="#ffffff" mesh="true" />
                         <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
                     </m>
-                    <m cat="pedestrian" v="pedestrian">
-                        <area mesh="true" use="pedestrian" />
+                    <m v="path" zoom-min="14">
+                        <area fill="#d0d0d0" />
                     </m>
-                    <!-- <m v="path" zoom-min="14">
-                      <area fill="#d0d0d0" />
-                      </m> -->
+                    -->
                 </m>
                 <!-- when bridge is present it must be 'no' -->
                 <m k="bridge" v="~|no">
-                    <m k="area" v="~|no">
+                    <m closed="no">
                         <m cat="pedestrian" v="steps">
                             <m zoom-min="16">
                                 <line use="steps" />
