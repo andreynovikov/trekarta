@@ -628,11 +628,11 @@
         </m>
         <m k="piste:type" v="skitour">
             <m zoom-max="14">
-                <line fix="true" src="assets:symbols/skitour.svg" stipple="30"
+                <line fix="true" src="assets:symbols/winter/skitour_path.svg" stipple="30"
                     stipple-stroke="#ff703c" width="15" />
             </m>
             <m zoom-min="15">
-                <line fix="true" src="assets:symbols/skitour.svg" stipple="40"
+                <line fix="true" src="assets:symbols/winter/skitour_path.svg" stipple="40"
                     stipple-stroke="#ff703c" width="20" />
                 <text fill="#d53900" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
