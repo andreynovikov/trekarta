@@ -288,41 +288,91 @@
             </m>
         </m>
         <m k="piste:type" v="playground">
-            <m closed="yes" zoom-min="13">
-                <area use="land" />
+            <m closed="yes">
+                <m zoom-min="13">
+                    <area use="land" />
+                </m>
+                <m select="first">
+                    <m zoom-max="12">
+                        <area fill="#d5f0b1" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66d5f0b1" />
+                    </m>
+                    <m>
+                        <area fill="#44d5f0b1" />
+                    </m>
+                </m>
+                <m zoom-min="15">
+                    <symbol merge-group="piste-symbols" merge-group-gap="50"
+                        src="assets:symbols/winter/playground.svg" symbol-percent="80"
+                        text-overlap="false" />
+                </m>
             </m>
-            <m closed="yes" select="first">
-                <m zoom-max="12">
-                    <area fill="#d5f0b1" />
+            <m closed="no" zoom-min="14">
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
                 </m>
-                <m zoom-max="16">
-                    <area fill="#66d5f0b1" />
+                <lineSymbol src="assets:symbols/oneway.svg" />
+                <m select="first">
+                    <m k="ref">
+                        <text use="piste-ref" />
+                    </m>
+                    <m>
+                        <text fill="#74b322" use="piste-name" /> <!-- Darken 20% -->
+                    </m>
                 </m>
-                <m>
-                    <area fill="#44d5f0b1" />
+                <m zoom-min="15">
+                    <symbol merge-gap="40" merge-group="piste-symbols" repeat-gap="40"
+                        src="assets:symbols/winter/playground.svg" symbol-percent="80"
+                        text-overlap="false" />
                 </m>
-            </m>
-            <m closed="no">
-                <text fill="#74b322" use="piste-name" /> <!-- Darken 20% -->
             </m>
         </m>
         <m k="piste:type" v="snow_park">
-            <m closed="yes" zoom-min="13">
-                <area use="land" />
+            <m closed="yes">
+                <m zoom-min="13">
+                    <area use="land" />
+                </m>
+                <m select="first">
+                    <m zoom-max="12">
+                        <area fill="#85bbf6" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#6685bbf6" />
+                    </m>
+                    <m>
+                        <area fill="#4485bbf6" />
+                    </m>
+                </m>
+                <m zoom-min="15">
+                    <symbol merge-group="piste-symbols" merge-group-gap="50"
+                        src="assets:symbols/winter/snow_park.svg" symbol-percent="80"
+                        text-overlap="false" />
+                </m>
             </m>
-            <m closed="yes" select="first">
-                <m zoom-max="12">
-                    <area fill="#85bbf6" />
+            <m closed="no" zoom-min="14">
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
                 </m>
-                <m zoom-max="16">
-                    <area fill="#6685bbf6" />
+                <lineSymbol src="assets:symbols/oneway.svg" />
+                <m select="first">
+                    <m k="ref">
+                        <text use="piste-ref" />
+                    </m>
+                    <m>
+                        <text fill="#083c74" use="piste-name" /> <!-- Darken 20% -->
+                    </m>
                 </m>
-                <m>
-                    <area fill="#4485bbf6" />
+                <m zoom-min="15">
+                    <symbol merge-gap="40" merge-group="piste-symbols" repeat-gap="40"
+                        src="assets:symbols/winter/snow_park.svg" symbol-percent="80"
+                        text-overlap="false" />
                 </m>
-            </m>
-            <m closed="no">
-                <text fill="#083c74" use="piste-name" /> <!-- Darken 20% -->
             </m>
         </m>
         <m k="piste:type" v="sled">
@@ -388,6 +438,9 @@
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
                 </m>
+                <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
+                    repeat-gap="120" src="assets:symbols/winter/sled.svg" symbol-percent="80"
+                    text-overlap="false" />
             </m>
         </m>
         <m k="piste:type" v="nordic">
@@ -453,6 +506,9 @@
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
                 </m>
+                <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
+                    repeat-gap="120" src="assets:symbols/winter/nordic.svg" symbol-percent="80"
+                    text-overlap="false" />
                 <m k="osmc:symbol">
                     <m zoom-max="15">
                         <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
@@ -506,6 +562,9 @@
                 </m>
                 <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
+                    repeat-gap="120" src="assets:symbols/winter/hike.svg" symbol-percent="80"
+                    text-overlap="false" />
                 <m k="osmc:symbol">
                     <m zoom-max="15">
                         <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
@@ -563,6 +622,8 @@
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
                 </m>
+                <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
+                    repeat-gap="120" src="assets:symbols/winter/sleigh.svg" text-overlap="false" />
             </m>
         </m>
         <m k="piste:type" v="skitour">
@@ -575,6 +636,9 @@
                     stipple-stroke="#ff703c" width="20" />
                 <text fill="#d53900" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
+                    repeat-gap="120" src="assets:symbols/winter/skitour.svg" symbol-percent="80"
+                    text-overlap="false" />
             </m>
         </m>
         <m k="piste:type" v="ice_skate">
@@ -597,7 +661,12 @@
                     <line fix="true" stroke="#6fc4d0" width="3" />
                 </m>
             </m>
-            <text fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
+            <m zoom-min="15">
+                <text dy="18" fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
+                <symbol merge-group="piste-symbols" merge-group-gap="50"
+                    src="assets:symbols/winter/ice_skate.svg" symbol-percent="80"
+                    text-overlap="false" />
+            </m>
         </m>
     </m>
     <m cat="skiing" k="piste:border">
