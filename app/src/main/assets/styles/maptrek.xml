@@ -123,7 +123,7 @@
     <style-line id="primary" stroke="#f4d26e" width="1.0" />
     <style-line id="secondary" stroke="#f4f3ae" use="primary" width="-0.1" />
     <style-line id="unclassified" stroke="#ffffff" width="0.8" />
-    <style-line id="tertiary" use="secondary" width="-0.1" />
+    <style-line id="tertiary" use="unclassified" width="0.1" />
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="0.8" />
     <style-line id="residential" stroke="#ffffff" use="unclassified" width="-0.1" />
@@ -155,8 +155,8 @@
     <style-line id="trunk-tunnel" stipple-stroke="#fee685" use="tunnel" width="0.4" />
     <style-line id="primary-tunnel" stipple-stroke="#f8e19d" use="tunnel" width="0.2" />
     <style-line id="secondary-tunnel" use="primary-tunnel" width="-0.1" />
-    <style-line id="tertiary-tunnel" use="secondary-tunnel" width="-0.1" />
     <style-line id="unclassified-tunnel" use="tunnel" />
+    <style-line id="tertiary-tunnel" use="unclassified-tunnel" width="0.1" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
     <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel" width="-0.9" />
     <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />

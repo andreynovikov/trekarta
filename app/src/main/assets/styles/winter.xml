@@ -75,7 +75,7 @@
     <style-line id="primary" stroke="#dacfa9" width="1.0" />
     <style-line id="secondary" use="primary" width="-0.1" />
     <style-line id="unclassified" stroke="#f0f0f0" width="0.8" />
-    <style-line id="tertiary" stroke="#f0f0f0" use="secondary" width="-0.1" />
+    <style-line id="tertiary" use="unclassified" width="0.1" />
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="0.8" />
     <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.1" />
