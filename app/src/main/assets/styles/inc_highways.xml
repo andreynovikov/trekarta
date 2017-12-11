@@ -47,7 +47,9 @@
                                     <!--TODO Add stipple outline -->
                                     <line use="highway:track:g2" />
                                 </m>
-                                <text use="road-name" />
+                                <m cat="track-names">
+                                    <text use="road-name" />
+                                </m>
                             </m>
                             <m cat="roads" v="service">
                                 <line use="service-tunnel" width="-0.4" />
@@ -72,7 +74,8 @@
                                 <line stroke="#00ffffff" use="road-construction" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -89,7 +92,8 @@
                                 <line use="residential-tunnel" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -108,7 +112,8 @@
                                 </m>
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -117,12 +122,13 @@
                                 <line use="tertiary-tunnel" />
                                 <text use="road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="14">
-                                    <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                        src="gen:/shield/13/#f0f0f0/#7f462c"
+                                    <symbol merge-gap="150" merge-group="road-symbols"
+                                        repeat-gap="150" src="gen:/shield/13/#f0f0f0/#7f462c"
                                         text-overlap="false" />
                                 </m>
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -131,12 +137,13 @@
                                 <line use="secondary-tunnel" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="13">
-                                    <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                        src="gen:/shield/13/#fdfdf1/#7f462c"
+                                    <symbol merge-gap="150" merge-group="road-symbols"
+                                        repeat-gap="150" src="gen:/shield/13/#fdfdf1/#7f462c"
                                         text-overlap="false" />
                                 </m>
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -145,12 +152,13 @@
                                 <line use="primary-tunnel" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="12">
-                                    <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                        src="gen:/shield/13/#fdf7e5/#7f462c"
+                                    <symbol merge-gap="150" merge-group="road-symbols"
+                                        repeat-gap="150" src="gen:/shield/13/#fdf7e5/#7f462c"
                                         text-overlap="false" />
                                 </m>
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -159,12 +167,13 @@
                                 <line use="trunk-tunnel" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="11">
-                                    <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                        src="gen:/shield/13/#fff0b7/#c35817"
+                                    <symbol merge-gap="150" merge-group="road-symbols"
+                                        repeat-gap="150" src="gen:/shield/13/#fff0b7/#c35817"
                                         text-overlap="false" />
                                 </m>
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -173,12 +182,13 @@
                                 <line use="highway-tunnel" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="10">
-                                    <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                        src="gen:/shield/13/#fee4be/#c35817"
+                                    <symbol merge-gap="150" merge-group="road-symbols"
+                                        repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
                                         text-overlap="false" />
                                 </m>
                                 <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
                                         src="assets:symbols/transport/toll_road.svg"
                                         text-overlap="false" />
                                 </m>
@@ -317,7 +327,9 @@
                                     <line cat="hiking" use="highway:track:g5" width="2.2" />
                                 </m>
                             </m>
-                            <text use="road-name" />
+                            <m cat="track-names">
+                                <text use="road-name" />
+                            </m>
                         </m>
                         <m cat="roads" v="service">
                             <!-- matches every service but parking_isle -->
@@ -572,8 +584,7 @@
                             <text use="road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="14">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#f0f0f0/#7f462c"
-                                    text-overlap="false" />
+                                    src="gen:/shield/13/#f0f0f0/#7f462c" text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
@@ -608,8 +619,7 @@
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="13">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#fdfdf1/#7f462c"
-                                    text-overlap="false" />
+                                    src="gen:/shield/13/#fdfdf1/#7f462c" text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
@@ -644,8 +654,7 @@
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="12">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#fdf7e5/#7f462c"
-                                    text-overlap="false" />
+                                    src="gen:/shield/13/#fdf7e5/#7f462c" text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
@@ -674,8 +683,7 @@
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="11">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#fff0b7/#c35817"
-                                    text-overlap="false" />
+                                    src="gen:/shield/13/#fff0b7/#c35817" text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
@@ -698,8 +706,7 @@
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="10">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#fee4be/#c35817"
-                                    text-overlap="false" />
+                                    src="gen:/shield/13/#fee4be/#c35817" text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
