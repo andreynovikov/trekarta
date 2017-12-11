@@ -137,7 +137,7 @@ class MapTrekDataSource implements ITileDataSource {
             }
 
             // Convert tree points to polygons
-            if (tile.zoomLevel < 16 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
+            if (tile.zoomLevel > 16 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
                 float x = element.getPointX(0);
                 float y = element.getPointY(0);
                 GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);
@@ -170,8 +170,6 @@ class MapTrekDataSource implements ITileDataSource {
             if (tile.zoomLevel == 17 && tile.tileX == 79237 && tile.tileY == 40978 && element.isLine() && element.tags.containsKey("highway")) {
                 logger.error(element.id + ": " + element.tags.toString());
             }
-            */
-            /*
             if (element.id == ((84126396L << 2) + 2) || element.id == ((84126388L << 2) + 2)) {
                 logger.error(tile.toString() + ": " + element.id + ": " + element.layer + " "
                         + element.kind + " " + element.tags.toString());
