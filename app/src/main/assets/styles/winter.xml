@@ -79,8 +79,8 @@
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="0.8" />
     <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.1" />
-    <style-line id="highway-service" use="residential" width="-0.2" />
-    <style-line id="pedestrian" stroke="#e0e0e0" use="highway-service" />
+    <style-line id="highway-service" stroke="#eeeeee" width="0.4" />
+    <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.2" />
     <style-area fill="#d0d0d0" id="pedestrian" />
     <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
     <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#8f8f8f"
@@ -108,7 +108,8 @@
     <style-line id="tertiary-tunnel" use="tunnel" />
     <style-line id="unclassified-tunnel" use="tunnel" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
-    <style-line id="pedestrian-tunnel" stipple-stroke="#ededed" use="tunnel" width="-0.3" />
+    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel" width="-0.9" />
+    <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
 
     <style-text style="bold" fill="#666666" id="major-road-name" k="name" priority="5" size="16"
         stroke="#eeeeee" stroke-width="2.0" />

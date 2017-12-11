@@ -2,7 +2,7 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Roads -->
     <m e="way" k="highway">
-        <outline-layer fade="14" id="service-road" stroke="#aa807040" width="0.1" />
+        <outline-layer fade="14" id="service-road" stroke="#aa807040" width="0.05" />
         <outline-layer id="road" stroke="#807040" width="0.15" />
         <outline-layer id="primary" stroke="#7f7700" width="0.15" />
         <outline-layer id="motorway" stroke="#805f2e" width="0.15" />
@@ -50,7 +50,7 @@
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="service">
-                                <line use="residential-tunnel" width="-0.4" />
+                                <line use="service-tunnel" width="-0.4" />
                             </m>
                             <m cat="roads" v="tertiary_link">
                                 <line use="tertiary-tunnel" width="-0.1" />
@@ -347,13 +347,13 @@
                                     </m>
                                     <m select="when-matched">
                                         <m k="ford" v="yes">
-                                            <line use="ford" width="-0.3" />
+                                            <line use="ford" width="-0.2" />
                                         </m>
                                         <m k="4wd_only" v="yes">
-                                            <line use="4wd_only" width="-0.3" />
+                                            <line use="4wd_only" width="-0.2" />
                                         </m>
                                         <m k="access" v="private">
-                                            <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                                            <line fade="14" stipple="15" stipple-stroke="#e0e0e0"
                                                 stroke="#00ffffff" use="highway-service" />
                                         </m>
                                         <m k="access" v="no">
@@ -364,14 +364,14 @@
                                 </m>
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
-                                <line outline="service-road" use="highway-service" width="-0.3" />
+                                <line outline="service-road" use="highway-service" width="-0.2" />
                                 <m k="access" v="private">
-                                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
-                                        use="highway-service" width="-0.3" />
+                                    <line stipple="15" stipple-stroke="#e0e0e0" stroke="#00ffffff"
+                                        use="highway-service" width="-0.2" />
                                 </m>
                                 <m k="access" v="no">
                                     <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
-                                        use="highway-service" width="-0.3" />
+                                        use="highway-service" width="-0.2" />
                                 </m>
                             </m>
                         </m>
@@ -462,7 +462,7 @@
                             </m>
                         </m>
                         <m cat="pedestrian" v="pedestrian">
-                            <line outline="road" use="pedestrian" />
+                            <line outline="service-road" use="pedestrian" />
                             <text use="road-name" />
                         </m>
                         <m cat="roads" v="road">
