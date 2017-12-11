@@ -78,7 +78,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
     MapTrekTileDecoder() {
         mElem = new ExtendedMapElement();
-        mLabel = new GeometryBuffer(2, 1);
+        mLabel = new GeometryBuffer(100, 1);
         mTileTags = new TagSet(100);
     }
 
@@ -334,7 +334,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                         int cnt = decodeInterleavedPoints(mElem, mScaleFactor);
 
                         if (cnt != coordCnt) {
-                            log.error("{} wrong number of coordintes {}/{}", mTile, coordCnt, cnt);
+                            log.error("{} wrong number of coordinates {}/{}", mTile, coordCnt, cnt);
                             fail = true;
                         }
                     }
