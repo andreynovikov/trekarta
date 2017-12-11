@@ -349,8 +349,7 @@
                 </m>
                 <m zoom-min="15">
                     <symbol merge-group="piste-symbols" merge-group-gap="50"
-                        src="assets:symbols/winter/snow_park.svg" symbol-percent="80"
-                        text-overlap="false" />
+                        src="assets:symbols/winter/snow_park.svg" text-overlap="false" />
                 </m>
             </m>
             <m closed="no" zoom-min="14">
