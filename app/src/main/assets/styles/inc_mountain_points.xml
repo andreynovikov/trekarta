@@ -3,12 +3,12 @@
     <m cat="mountains" k="natural">
         <m select="first" zoom-min="13">
             <m v="volcano">
-                <symbol src="assets:symbols/natural/volcano.svg" symbol-percent="50" />
+                <symbol src="assets:symbols/natural/volcano.svg" />
                 <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="peak">
-                <symbol src="assets:symbols/natural/peak.svg" symbol-percent="50" />
+                <symbol src="assets:symbols/natural/peak.svg" />
                 <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
