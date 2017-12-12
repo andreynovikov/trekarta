@@ -195,7 +195,7 @@
                             </m>
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
                                 <lineSymbol src="assets:symbols/oneway.svg" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
@@ -203,7 +203,7 @@
                             </m>
                         </m>
                         <m k="oneway" v="-1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
                                 <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
@@ -719,7 +719,7 @@
                             <line use="cycleway" />
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
                                 <lineSymbol src="assets:symbols/oneway.svg" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
@@ -727,7 +727,7 @@
                             </m>
                         </m>
                         <m k="oneway" v="-1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway">
+                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
                                 <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
