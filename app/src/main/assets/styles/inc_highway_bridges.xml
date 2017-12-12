@@ -81,7 +81,8 @@
                         <text use="major-road-name" />
                     </m>
                     <m cat="roads" v="construction">
-                        <line cap="butt" outline="bridge" use="road-construction" />
+                        <line cap="butt" outline="bridge" use="highway-service" />
+                        <line use="road-construction" />
                         <text use="road-name" />
                         <m k="toll" v="yes">
                             <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
