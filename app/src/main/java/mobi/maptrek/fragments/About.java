@@ -47,9 +47,9 @@ public class About extends Fragment {
         // Links
         StringBuilder links = new StringBuilder();
         links.append("<a href=\"");
-        links.append("http://maptrek.mobi/");
+        links.append("https://trekarta.info/");
         links.append("\">");
-        links.append("http://maptrek.mobi/");
+        links.append("https://trekarta.info/");
         links.append("</a>");
         final TextView homeLinks = (TextView) view.findViewById(R.id.links);
         homeLinks.setText(Html.fromHtml(links.toString()));

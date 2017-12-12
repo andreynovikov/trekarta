@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-<string name="app_name">MapTrek</string>
+<string name="app_name">Трекарта</string>
     <string name="title_select_format">Выбор формата</string>
     <string name="title_export_track">Экспорт трека</string>
 
@@ -63,7 +63,7 @@
     <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку, введя её координаты или с помощью долгого нажатия на кнопку Точки.</string>
     <string name="msgTrackDeleted">Трек удалён</string>
     <string name="msgTracked" formatted="false">%s пройдено с %s</string>
-    <string name="msgTracking">MapTrek записывает ваше перемещение</string>
+    <string name="msgTracking">Трекарта записывает ваше перемещение</string>
     <string name="msgTrackingActions">Вы можете прекратить запись, чтобы сохранить трек, или остановить запись, чтобы продолжить её при следующем старте приложения</string>
     <string name="msgTrackSaved">Трек сохранён</string>
     <string name="msgTrackNotSavedPeriod">Трек не был сохранён: слишком короткий период времени</string>
@@ -72,7 +72,7 @@
     <string name="msgNoFileDataSources">Вы так же можете импортировать GPX и KML файлы.</string>
     <string name="msgDataImported">Файл сохранён в папку приложения.</string>
     <string name="msgSaveFailed">Ошибка сохранения: %s</string>
-    <string name="msgReadExternalStorageRationale">MapTrek требуется %s, чтобы иметь доступ к файлу, который вы хотите открыть</string>
+    <string name="msgReadExternalStorageRationale">Трекарте требуется %s, чтобы иметь доступ к файлу, который вы хотите открыть</string>
     <string name="msgFailedToGetFileName">Не удалось получить имя файла</string>
     <string name="msgCancelDownload">Отменить загрузку карты?</string>
     <string name="msgCrashOccurred">Похоже, в прошлый раз приложение закрылось из-за ошибки. Вы окажете помощь разработчику, отправив отчёт об ошибке.</string>
@@ -82,7 +82,7 @@
     <string name="msgEmptyMapList">Здесь будут отображаться ваши специально установленные карты.</string>
     <string name="msgDeleteSourcePermanently">Источник данных будет перманентно удалён из хранилища. Отмена этого действия не возможна.</string>
     <string name="msgCannotDeleteNativeSource">Внутренние источники данных не могут быть удалены</string>
-    <string name="msgNativeFormatExplanation">Данные во внутреннем формате хранятся в очень компактном виде и быстро обрабатываются, но распознаются только приложением MapTrek.</string>
+    <string name="msgNativeFormatExplanation">Данные во внутреннем формате хранятся в очень компактном виде и быстро обрабатываются, но распознаются только Трекартой.</string>
     <string name="msgOtherFormatsExplanation">Формат GPX сохраняет всю важную информацию и широко используется, но итоговые файлы занимают очень много места. Формат KML не хранит информацию о времени, но итоговые файлы на 30%  компактнее, чем в формате GPX.</string>
     <string name="msgFailedToGetFile">Не удалось получить файл</string>
     <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
@@ -128,7 +128,7 @@
     <string name="share_location_intent_title">Поделиться местоположением через:</string>
     <string name="waypointStoreName">Мои точки</string>
     <string name="waypoint_name">Точка &#8470;%d</string>
-    <string name="startApplication">Открыть MapTrek</string>
+    <string name="startApplication">Открыть Трекарту</string>
     <string name="actionAutoTilt">Наклонять при вращении по курсу</string>
     <string name="actionDismiss">Убрать</string>
     <string name="coordinates">Координаты</string>
@@ -141,7 +141,7 @@
     <string name="gauge_xtk">XTK</string>
     <string name="hide_map_objects">Прятать объекты карты</string>
     <string name="intentCopyMap">Установить карту</string>
-    <string name="intentImportData">Импорт данных MapTrek</string>
+    <string name="intentImportData">Импорт в Трекарту</string>
     <string name="msgDeleteFailed">Ошибка удаления источника данных</string>
     <string name="utc_offset">Часовой пояс</string>
     <string name="speed_profile">Профиль скорости</string>
@@ -152,25 +152,25 @@
     <string name="msgParseCoordinatesFailed">Не удалось обнаружить координаты в строке</string>
     <string name="permReadMapDataLabel">Получение данных</string>
     <string name="permReceiveLocationLabel">Местоположение</string>
-    <string name="permReadMapDataDescription">получать данные от MapTrek</string>
+    <string name="permReadMapDataDescription">получать данные от Трекарты</string>
     <string name="msgAdvicesReset">Советы будут показываться с самого начала</string>
     <string name="msgBackQuit">Нажмите «Назад» ещё раз для выхода</string>
     <string name="advice_sunrise_sunset">Время восхода и заката указаны по местному для местоположения времени</string>
     <string name="advice_update_external_source">Когда вы изменяете импортированный источник данных, сохраняются только уместные данные, неподдерживаемые свойства будут потеряны</string>
     <string name="advice_remember_scale">Мы можете быстро вернуться к запомненному масштабу с помощью тройного нажатия на карту</string>
-    <string name="permReadPreferencesLabel">читать настройки пользователя MapTrek</string>
-    <string name="permReceiveLocationDescription">получать местоположение из MapTrek</string>
-    <string name="permWriteMapDataDescription">помещать объекты на карту MapTrek</string>
+    <string name="permReadPreferencesLabel">читать настройки пользователя Трекарты</string>
+    <string name="permReceiveLocationDescription">получать местоположение из Трекарты</string>
+    <string name="permWriteMapDataDescription">помещать объекты на карту Трекарты</string>
     <string name="permWriteMapDataLabel">Помещение объектов</string>
     <string name="actionAddGauge">Добавить прибор</string>
-    <string name="about">Приложение MapTrek предназначено для походов, геокешинга, бездорожья, велопрогулок и другой активности на свежем воздухе. Приложение использует офлайн карты, поэтому вам не потребуется интернет-подключение. Вы можете легко импортировать точки и треки из файлов в формате GPX и KML или создавать свои собственные точки и делиться ими с другими. Приложение позволяет вам записывать трек вашего путешествия, в том числе в фоновом режиме. Таким образом вы никогда не потеряетесь и сможете позже посмотреть, где вы были.</string>
+    <string name="about">Приложение Трекарта предназначено для походов, геокешинга, бездорожья, велопрогулок и другой активности на свежем воздухе. Приложение использует офлайн карты, поэтому вам не потребуется интернет-подключение. Вы можете легко импортировать точки и треки из файлов в формате GPX и KML или создавать свои собственные точки и делиться ими с другими. Приложение позволяет вам записывать трек вашего путешествия, в том числе в фоновом режиме. Таким образом вы никогда не потеряетесь и сможете позже посмотреть, где вы были.</string>
     <string name="gauge_elevation">Превышение</string>
-    <string name="permAddPluginEntriesDescription">Позволяет приложению добавлять пункты в меню MapTrek.</string>
+    <string name="permAddPluginEntriesDescription">Позволяет приложению добавлять пункты в меню Трекарты.</string>
     <string name="permAddPluginEntriesLabel">добавлять пункты меню</string>
-    <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы MapTrek, такие как точки и треки.</string>
+    <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы Трекарты, такие как точки и треки.</string>
     <string name="permReadFilesLabel">читать пользовательские файлы</string>
-    <string name="permReadPreferencesDescription">Позволяет приложению получать пользовательские настройки MapTrek.</string>
-    <string name="permWriteFilesDescription">Позволяет приложению добавлять или замещать пользовательские файлы MapTrek, такие как точки и треки.</string>
+    <string name="permReadPreferencesDescription">Позволяет приложению получать пользовательские настройки Трекарты.</string>
+    <string name="permWriteFilesDescription">Позволяет приложению добавлять или замещать пользовательские файлы Трекарты, такие как точки и треки.</string>
     <string name="permWriteFilesLabel">писать пользовательские файлы</string>
     <string name="actionSettings">Настройки</string>
     <string name="pref_advanced">Дополнительно</string>
@@ -252,7 +252,7 @@
     <string name="msgMapDatabaseError">При попытке чтения подробных карт произошла ошибка, база данных была обнулена</string>
     <string name="iamin">Согласен</string>
     <string name="actionRate">Сказать спасибо</string>
-    <string name="msgRateApplication">Если вам нравится MapTrek, пожалуйста, поставьте рейтинг и напишите комментарий в Google Play Store для ускорения его распространение</string>
+    <string name="msgRateApplication">Если вам нравится Трекарта, пожалуйста, поставьте рейтинг и напишите комментарий в Google Play Store для ускорения его распространение</string>
     <string name="actionActivity">Активность</string>
     <string name="actionHillshades">Затенение рельефа</string>
     <string name="nameOrCoordinates">Название или координаты</string>

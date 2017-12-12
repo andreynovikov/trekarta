@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">MapTrek</string>
+    <string name="app_name">Trekarta</string>
     <string name="title_select_format">Select format</string>
     <string name="title_export_track">Track export</string>
     <string name="title_map_import">Map import</string>
@@ -94,7 +94,7 @@
     <string name="msgEmptyWaypointList">Your waypoints will appear here. You can create waypoint by entering its coordinates or by long pressing Places button.</string>
     <string name="msgTrackDeleted">Track deleted</string>
     <string name="msgTracked" formatted="false">%s tracked since %s</string>
-    <string name="msgTracking">MapTrek is recording your movement</string>
+    <string name="msgTracking">Trekarta is recording your movement</string>
     <string name="msgTrackingActions">You can stop recording to save the track or pause it to resume on next application start</string>
     <string name="msgTrackSaved">Track saved</string>
     <string name="msgTrackNotSavedPeriod">Track was not saved: too short period of time</string>
@@ -103,7 +103,7 @@
     <string name="msgNoFileDataSources">You can also import GPX and KML files.</string>
     <string name="msgDataImported">File is saved in application folder.</string>
     <string name="msgSaveFailed">Failed to save: %s</string>
-    <string name="msgReadExternalStorageRationale">MapTrek requests to %s to be able to access the file you want to open</string>
+    <string name="msgReadExternalStorageRationale">Trekarta requests to %s to be able to access the file you want to open</string>
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
@@ -118,7 +118,7 @@
     <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
     <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
     <string name="msgDeleteFailed">Failed to delete data source</string>
-    <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by MapTrek.</string>
+    <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by Trekarta.</string>
     <string name="msgOtherFormatsExplanation">GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
     <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats including UTM and MGRS. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line after coordinates it will be used as a point name. Some examples:\n\n
         &#183; 49.29918 -19.24788\n
@@ -145,7 +145,7 @@
     <string name="msgMapDatabaseError">An error occurred while reading detailed maps, database was reset</string>
     <string name="msgHillshadeDatabaseError">An error occurred while reading hillshades, database was reset</string>
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
-    <string name="msgRateApplication">If you are enjoying MapTrek please rate it and leave comment on the Google Play Store to boost its spread</string>
+    <string name="msgRateApplication">If you are enjoying Trekarta please rate it and leave comment on the Google Play Store to boost its spread</string>
     <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
@@ -182,8 +182,8 @@
     <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
 
-    <string name="advice_russian_flavor">Для российского рынка вышла специальная версия MapTrek. Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Чтобы вернуть деньги за текущую версию, пришлите по почте письмо с номером заказа, которое вы получили от Google. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
-    <string name="advice_russian_flavor_lite">Для российского рынка вышла специальная версия MapTrek Lite. Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
+    <string name="advice_russian_flavor">Для российского рынка вышла специальная версия Трекарта (MapTrek). Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Чтобы вернуть деньги за текущую версию, пришлите по почте письмо с номером заказа, которое вы получили от Google. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
+    <string name="advice_russian_flavor_lite">Для российского рынка вышла специальная версия Трекарта (MapTrek Lite). Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
 
     <string name="datetime" formatted="false" translatable="false">%s %s</string>
     <string name="waypoint_name">Place #%d</string>
@@ -203,13 +203,13 @@
     <string name="waypoint_proximity" formatted="false" translatable="false">~ %s</string>
     <string name="waypointStoreName">My places</string>
     <string name="version" formatted="false">Version: %s</string>
-    <string name="about">MapTrek is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import waypoints and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
+    <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import waypoints and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
     <string name="intentCopyMap">Install map</string>
-    <string name="intentImportData">MapTrek data import</string>
+    <string name="intentImportData">Trekarta import</string>
     <string name="mapDownloadText">Download missing map</string>
     <string name="mapTitle" formatted="false">Area %d-%d map</string>
     <string name="hillshadeTitle" formatted="false">Area %d-%d hillshade</string>
-    <string name="startApplication">Open MapTrek</string>
+    <string name="startApplication">Open Trekarta</string>
     <string name="utc_offset">UTC Offset</string>
     <string name="coordinates">Coordinates</string>
     <string name="statistics">Statistics</string>
@@ -231,19 +231,19 @@
     <string name="osmLicense"><![CDATA[&#169; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors]]></string>
 
     <string name="permReadFilesLabel">read user files</string>
-    <string name="permReadFilesDescription">Allows the app to read MapTrek user data files such as places and tracks.</string>
+    <string name="permReadFilesDescription">Allows the app to read Trekarta user data files such as places and tracks.</string>
     <string name="permWriteFilesLabel">write user files</string>
-    <string name="permWriteFilesDescription">Allows the app to add or replace MapTrek user data files such as places and tracks.</string>
+    <string name="permWriteFilesDescription">Allows the app to add or replace Trekarta user data files such as places and tracks.</string>
     <string name="permReceiveLocationLabel">get location</string>
-    <string name="permReceiveLocationDescription">Allows the app to get current location from MapTrek.</string>
+    <string name="permReceiveLocationDescription">Allows the app to get current location from Trekarta.</string>
     <string name="permReadPreferencesLabel">read user preferences</string>
-    <string name="permReadPreferencesDescription">Allows the app to read MapTrek user preferences.</string>
+    <string name="permReadPreferencesDescription">Allows the app to read Trekarta user preferences.</string>
     <string name="permReadMapDataLabel">get map data</string>
-    <string name="permReadMapDataDescription">Allows app to get map data from MapTrek.</string>
+    <string name="permReadMapDataDescription">Allows app to get map data from Trekarta.</string>
     <string name="permWriteMapDataLabel">put data on map</string>
-    <string name="permWriteMapDataDescription">Allows app to put data on MapTrek map.</string>
+    <string name="permWriteMapDataDescription">Allows app to put data on Trekarta map.</string>
     <string name="permAddPluginEntriesLabel">add menu entries</string>
-    <string name="permAddPluginEntriesDescription">Allows the app to add entries to MapTrek menu.</string>
+    <string name="permAddPluginEntriesDescription">Allows the app to add entries to Trekarta menu.</string>
 
     <string name="pref_units">Units</string>
     <string name="pref_unit_speed_title">Speed</string>

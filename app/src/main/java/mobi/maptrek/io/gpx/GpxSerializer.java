@@ -34,7 +34,7 @@ public class GpxSerializer {
         serializer.startDocument("UTF-8", null);
         serializer.setPrefix("", GpxFile.NS);
         serializer.startTag(GpxFile.NS, GpxFile.TAG_GPX);
-        serializer.attribute("", GpxFile.ATTRIBUTE_CREATOR, "MapTrek http://maptrek.mobi");
+        serializer.attribute("", GpxFile.ATTRIBUTE_CREATOR, "Trekarta https://trekarta.info");
         serializer.startTag(GpxFile.NS, GpxFile.TAG_METADATA);
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(source.name);

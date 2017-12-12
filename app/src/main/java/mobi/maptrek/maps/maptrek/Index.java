@@ -594,7 +594,7 @@ public class Index {
     public void downloadBaseMap() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
-                .authority("maptrek.mobi")
+                .authority("trekarta.info")
                 .appendPath("maps")
                 .appendPath(BASEMAP_FILENAME)
                 .build();
@@ -640,7 +640,7 @@ public class Index {
         String fileName = String.format(Locale.ENGLISH, "%d-%d.%s", x, y, ext);
         Uri uri = new Uri.Builder()
                 .scheme("https")
-                .authority("maptrek.mobi")
+                .authority("trekarta.info")
                 .appendPath(hillshade ? "hillshades" : "maps")
                 .appendPath(String.valueOf(x))
                 .appendPath(fileName)
@@ -789,7 +789,7 @@ public class Index {
     public static Uri getIndexUri() {
         return new Uri.Builder()
                 .scheme("https")
-                .authority("maptrek.mobi")
+                .authority("trekarta.info")
                 .appendPath("maps")
                 .appendPath("index")
                 .build();
@@ -798,7 +798,7 @@ public class Index {
     public static Uri getHillshadeIndexUri() {
         return new Uri.Builder()
                 .scheme("https")
-                .authority("maptrek.mobi")
+                .authority("trekarta.info")
                 .appendPath("hillshades")
                 .appendPath("index")
                 .build();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MapTrek Lite</string>
-    <string name="about">MapTrek is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
+    <string name="app_name">Trekarta Lite</string>
+    <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
 </resources>
