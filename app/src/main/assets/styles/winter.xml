@@ -828,6 +828,46 @@
 
     <xi:include href="inc_highway_bridges.xml" />
 
+    <m cat="skiing" k="bridge">
+        <!-- except bridge=no|false -->
+        <m k="bridge" v="-|no">
+            <m k="piste:type">
+                <m v="sled">
+                    <m zoom-max="14">
+                        <line fix="true" stroke="#a1e620" width="2" />
+                    </m>
+                    <m zoom-min="15">
+                        <line fix="true" stroke="#a1e620" width="3" />
+                    </m>
+                </m>
+                <m v="nordic">
+                    <m zoom-max="14">
+                        <line fix="true" stroke="#44b2a3" width="2" />
+                    </m>
+                    <m zoom-min="15">
+                        <line fix="true" stroke="#44b2a3" width="3" />
+                    </m>
+                </m>
+                <m v="hike">
+                    <m zoom-max="14">
+                        <line fix="true" stroke="#ff9faf" width="2" />
+                    </m>
+                    <m zoom-min="15">
+                        <line fix="true" stroke="#ff9faf" width="3" />
+                    </m>
+                </m>
+                <m v="sleigh">
+                    <m zoom-max="14">
+                        <line fix="true" stroke="#8f54d8" width="2" />
+                    </m>
+                    <m zoom-min="15">
+                        <line fix="true" stroke="#8f54d8" width="3" />
+                    </m>
+                </m>
+            </m>
+        </m>
+    </m>
+
     <xi:include href="inc_railway_bridges.xml" />
 
     <xi:include href="inc_barier_lines.xml" />
