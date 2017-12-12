@@ -247,7 +247,7 @@ public class Tags {
             "osmc:symbol",
             "network",
             "route:network",
-            "information", // todo
+            "information",
             "piste:border",
             "piste:grooming",
             "piste:lit",
@@ -833,8 +833,8 @@ public class Tags {
             "horrible",
             "saddle",
             "waterfall",
-            "guidepost", // todo
-            "map", // todo
+            "guidepost",
+            "map",
             "skitour",
             "hike",
             "ice_skate",
