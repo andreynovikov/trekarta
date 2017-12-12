@@ -104,7 +104,8 @@
     <style-line id="tertiary-tunnel" use="tunnel" />
     <style-line id="unclassified-tunnel" use="tunnel" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
-    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel" width="-0.9" />
+    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel"
+        width="-0.9" />
     <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
 
     <style-text style="bold" fill="#666666" id="major-road-name" k="name" priority="5" size="16"
@@ -375,6 +376,68 @@
                 </m>
             </m>
         </m>
+
+        <m k="piste:type" v="ski_jump">
+            <m zoom-max="14">
+                <line fix="true" stroke="#ffffff" width="2.8" />
+                <line fix="true" stroke="#655abe" width="2" />
+            </m>
+            <m zoom-min="15">
+                <line fix="true" stroke="#ffffff" width="4" />
+                <line fix="true" stroke="#655abe" width="3" />
+            </m>
+
+            <m select="first" zoom-min="14">
+                <m k="ref">
+                    <text use="piste-ref" />
+                </m>
+                <m>
+                    <text fill="#3b3280" use="piste-name" /> <!-- Darken 20% -->
+                </m>
+            </m>
+            <m zoom-min="15">
+                <symbol merge-gap="40" merge-group="piste-symbols" repeat-gap="40"
+                    src="assets:symbols/winter/jump.svg" symbol-percent="70" text-overlap="false" />
+            </m>
+        </m>
+        <m k="piste:type" v="ski_jump_landing">
+            <m closed="yes">
+                <m select="first">
+                    <m zoom-max="12">
+                        <area fill="#bcb7e1" />
+                    </m>
+                    <m zoom-max="16">
+                        <area fill="#66bcb7e1" />
+                    </m>
+                    <m>
+                        <area fill="#44bcb7e1" />
+                    </m>
+                </m>
+                <m zoom-min="14">
+                    <symbol merge-group="piste-symbols" merge-group-gap="20"
+                        src="assets:symbols/winter/jump.svg" text-overlap="false" />
+                </m>
+            </m>
+            <m closed="no">
+                <m zoom-max="14">
+                    <line fix="true" stroke="#ffffff" width="2.8" />
+                    <line fix="true" stroke="#655abe" width="2" />
+                </m>
+                <m zoom-min="15">
+                    <line fix="true" stroke="#ffffff" width="4" />
+                    <line fix="true" stroke="#66655abe" width="3" />
+                </m>
+                <m select="first" zoom-min="14">
+                    <m k="ref">
+                        <text use="piste-ref" />
+                    </m>
+                    <m>
+                        <text fill="#3b3280" use="piste-name" /> <!-- Darken 20% -->
+                    </m>
+                </m>
+            </m>
+        </m>
+
         <m k="piste:type" v="sled">
             <m zoom-max="14">
                 <line fix="true" stroke="#ffffff" width="2.8" />
@@ -437,6 +500,11 @@
                     <m k="oneway" v="-1" zoom-min="16">
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
+                </m>
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
                 </m>
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
                     repeat-gap="120" src="assets:symbols/winter/sled.svg" symbol-percent="80"
@@ -506,6 +574,11 @@
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
                 </m>
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
+                </m>
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
                     repeat-gap="120" src="assets:symbols/winter/nordic.svg" symbol-percent="80"
                     text-overlap="false" />
@@ -562,6 +635,11 @@
                 </m>
                 <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
+                </m>
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
                     repeat-gap="120" src="assets:symbols/winter/hike.svg" symbol-percent="80"
                     text-overlap="false" />
@@ -621,6 +699,11 @@
                     <m k="oneway" v="-1" zoom-min="16">
                         <lineSymbol src="assets:symbols/oneway_reverse.svg" />
                     </m>
+                </m>
+                <m k="piste:lit" v="yes">
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                        src="assets:symbols/winter/lit.svg" symbol-percent="70"
+                        text-overlap="false" />
                 </m>
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
                     repeat-gap="120" src="assets:symbols/winter/sleigh.svg" text-overlap="false" />
@@ -793,6 +876,16 @@
                 src="assets:symbols/transport/drag_lift.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
+        </m>
+        <m k="aerialway" v="zip_line" zoom-min="15">
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                src="assets:symbols/transport/zipline.svg" text-overlap="false" />
+            <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
+                stroke-width="2.0" />
+        </m>
+        <m k="aerialway" v="magic_carpet" zoom-min="15">
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                src="assets:symbols/transport/magic_carpet.svg" text-overlap="false" />
         </m>
     </m>
 

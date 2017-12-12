@@ -9,4 +9,6 @@ sled.svg - by Marc Serre from the Noun Project
 sleigh.svg - by Tamiko Young from the Noun Project
 ice_skate.svg - by Atif Arshad from the Noun Project
 snow_park.svg - by Lucia Rampanti from the Noun Project
+jump.svg - by Vladimir Belochkin from the Noun Project
 playground.svg - skis by Bakunetsu Kaito from the Noun Project, newborn by H Alberto Gongora from the Noun Project
+zipline.svg - by Luis Prado from the Noun Project

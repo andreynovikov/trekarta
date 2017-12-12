@@ -844,7 +844,9 @@ public class Tags {
             "swimming_pool",
             "scooter",
             "mogul",
-            "backcountry"
+            "backcountry",
+            "ski_jump",
+            "ski_jump_landing"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
