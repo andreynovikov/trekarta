@@ -4,7 +4,7 @@
     <m e="node" select="first">
         <m cat="roads" k="barrier">
             <m v="border_control">
-                <symbol src="assets:symbols/barrier/border_control.svg" />
+                <symbol src="assets:symbols/barrier/border_control.svg" merge-gap="0" />
             </m>
             <m v="toll_booth">
                 <symbol src="assets:symbols/barrier/toll_booth.svg" merge-gap="0" />

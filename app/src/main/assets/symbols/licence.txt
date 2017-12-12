@@ -1,5 +1,6 @@
 If not directly specified icons are from OSM and VTM projects or created by Andrey Novikov.
 
+ranger_station.svg - Noun Project
 hillshades.svg - by Marco Ricci from Noun Project
 nordic.svg - Noun Project
 lit.svg - by Arthur Shlain from the Noun Project

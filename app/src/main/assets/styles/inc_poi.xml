@@ -130,6 +130,9 @@
                     <m v="hospital">
                         <symbol src="assets:symbols/health/hospital.svg" />
                     </m>
+                    <m v="ranger_station">
+                        <symbol src="assets:symbols/tourist/ranger_station.svg" />
+                    </m>
                     <m v="doctors">
                         <symbol src="assets:symbols/health/doctor.svg" />
                     </m>
@@ -283,6 +286,9 @@
                     <m v="car_repair">
                         <symbol src="assets:symbols/shopping/car_repair.svg" />
                     </m>
+                    <m v="car_rental">
+                        <symbol src="assets:symbols/transport/rental_car.svg" />
+                    </m>
                     <m v="fuel">
                         <symbol src="assets:symbols/transport/fuel.svg" />
                     </m>
@@ -357,6 +363,9 @@
                     </m>
                 </m>
                 <m k="amenity">
+                    <m v="ranger_station">
+                        <symbol src="assets:symbols/tourist/ranger_station.svg" />
+                    </m>
                     <m v="bicycle_rental">
                         <symbol src="assets:symbols/transport/rental_bicycle.svg" />
                     </m>
