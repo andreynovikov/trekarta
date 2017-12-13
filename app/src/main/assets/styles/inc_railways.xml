@@ -14,6 +14,10 @@
                     <line cap="butt" fix="true" stipple="20" stipple-stroke="#00ffffff"
                         stroke="#777777" width="1.5" />
                 </m>
+                <m k="railway" v="subway" zoom-min="14">
+                    <line cap="butt" fix="true" stipple="10" stipple-stroke="#00ffffff"
+                        stroke="#888888" width="2.5" />
+                </m>
                 <m k="railway" v="rail" zoom-max="13">
                     <line cap="butt" fade="12" fix="true" stipple="10" stipple-stroke="#00ffffff"
                         stroke="#999999" width="1.0" />
@@ -45,6 +49,9 @@
                     <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
                         stroke="#999999" width="4.0" />
                     <line cap="butt" fix="true" stroke="#777777" width="1.5" />
+                </m>
+                <m k="railway" v="subway" zoom-min="14">
+                    <line cap="butt" fix="true" stroke="#888888" width="2.5" />
                 </m>
                 <m k="railway" v="rail" zoom-max="13">
                     <line cap="butt" fade="12" fix="true" stroke="#999999" width="1.0" />
