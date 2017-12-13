@@ -60,6 +60,10 @@
     <!-- Landuse -->
     <style-area fade="6" fill="#efefef" id="residential" />
 
+    <style-text caption="true" fill="#415d5d" id="sports_centre" k="name" priority="8" size="18"
+        stroke="#e4ecec" stroke-width="2.0" />
+
+
     <!-- Roads -->
     <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
     <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
@@ -140,12 +144,18 @@
     </m>
 
     <!-- Land usages -->
-    <m closed="yes" e="way" k="landuse|amenity">
+    <m closed="yes" e="way" k="landuse|amenity|leisure">
         <m v="residential|commercial|retail|industrial|allotments">
             <area use="residential" />
         </m>
         <m v="parking" zoom-min="16">
             <area fill="#fefefe" />
+        </m>
+        <m v="sports_centre">
+            <m k="building" v="~">
+                <area use="residential" />
+                <text use="sports_centre" />
+            </m>
         </m>
     </m>
 

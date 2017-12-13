@@ -114,6 +114,9 @@
     <style-area fade="12" fill="#ddddcc" id="quarry" />
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
+    <style-text caption="true" fill="#368167" id="sports_centre" k="name" priority="8" size="16"
+        stroke="#cdeae0" stroke-width="2.0" />
+
     <!-- Roads -->
     <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
     <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
@@ -159,7 +162,8 @@
     <style-line id="unclassified-tunnel" use="tunnel" />
     <style-line id="tertiary-tunnel" use="unclassified-tunnel" width="0.1" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
-    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel" width="-0.9" />
+    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel"
+        width="-0.9" />
     <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
 
     <style-text style="bold" fill="#101010" id="major-road-name" k="name" priority="5" size="16"
@@ -258,8 +262,12 @@
             <area use="garden" />
         </m>
         <m cat="urban" v="sports_centre|water_park">
-            <area fill="#daefdb" />
-            <text use="poi" />
+            <m k="building" v="~">
+                <area fill="#daefdb" />
+                <m zoom-min="14">
+                    <text use="sports_centre" />
+                </m>
+            </m>
         </m>
         <m cat="urban" v="stadium">
             <line cap="butt" fix="true" stroke="#c9c3c1" width="1.0" />
