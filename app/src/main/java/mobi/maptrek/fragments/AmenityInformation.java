@@ -233,7 +233,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         TextView elevationView = (TextView) rootView.findViewById(R.id.elevation);
         if (elevationView != null) {
             if (mWaypoint.altitude != Integer.MIN_VALUE) {
-                elevationView.setText(getString(R.string.waypoint_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
+                elevationView.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
                 elevationView.setVisibility(View.VISIBLE);
             } else {
                 elevationView.setVisibility(View.GONE);

@@ -21,7 +21,7 @@
     <string name="sunset">Sunset</string>
     <string name="unknown">Unknown</string>
     <string name="description">Description</string>
-    <string name="waypoints">Waypoints</string>
+    <string name="places">Places</string>
     <string name="tracks">Tracks</string>
     <string name="explain">Explain</string>
     <string name="copyright">Copyright</string>
@@ -57,7 +57,7 @@
     <string name="actionNightMode">Night mode</string>
     <string name="actionLanguage">Language</string>
     <string name="actionManageMaps">Manage maps</string>
-    <string name="actionAddWaypointHere">Add waypoint</string>
+    <string name="actionAddPlaceHere">Add place</string>
     <string name="actionNavigateHere">Navigate here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
@@ -89,9 +89,9 @@
     <string name="msgNavigating" formatted="false">Navigating to %s</string>
     <string name="msgNavigationActions">You can stop navigation completely or pause it until next application start</string>
     <string name="msgBackQuit">Press Back once more to quit</string>
-    <string name="msgWaypointDeleted">Waypoint deleted</string>
-    <string name="msgWaypointSaved">Waypoint saved</string>
-    <string name="msgEmptyWaypointList">Your waypoints will appear here. You can create waypoint by entering its coordinates or by long pressing Places button.</string>
+    <string name="msgPlaceDeleted">Place deleted</string>
+    <string name="msgPlaceSaved">Place saved</string>
+    <string name="msgEmptyPlaceList">Your places will appear here. You can create place by entering its coordinates or by long pressing Places button.</string>
     <string name="msgTrackDeleted">Track deleted</string>
     <string name="msgTracked" formatted="false">%s tracked since %s</string>
     <string name="msgTracking">Trekarta is recording your movement</string>
@@ -139,8 +139,8 @@
         </string>
     <string name="msgFailedToGetFile">Failed to get file</string>
     <string name="msgUnsupportedFileFormat">Unsupported file format</string>
-    <string name="msgWaypointLocked">Waypoint is locked</string>
-    <string name="msgRestoreWaypointsFailed">Failed to restore Places</string>
+    <string name="msgPlaceLocked">Place is locked</string>
+    <string name="msgRestorePlacesFailed">Failed to restore places</string>
     <string name="msgBaseMapDownload">For better experience, download detailed world map (%s). You can do it now or later at any time.</string>
     <string name="msgMapDatabaseError">An error occurred while reading detailed maps, database was reset</string>
     <string name="msgHillshadeDatabaseError">An error occurred while reading hillshades, database was reset</string>
@@ -170,7 +170,7 @@
     <string name="advice_remember_scale">You can quickly return to remembered zoom by triple tapping the map</string>
     <string name="advice_enable_locations">Press location button to enable real time positioning</string>
     <string name="advice_map_settings">You can long press maps button to access extra map settings</string>
-    <string name="advice_adding_place">You can quickly create waypoint in current map position by long pressing Places button</string>
+    <string name="advice_adding_place">You can quickly create place in current map position by long pressing Places button</string>
     <string name="advice_record_track">Press Record button to start track recording, during recording press it to see current track statistics or to stop recording. You can close application during recording, the track will be recorded in background.</string>
     <string name="advice_recorded_tracks">Long press Record button to access your recorded tracks</string>
     <string name="advice_view_data_item">Press right arrow button to position map on corresponding item</string>
@@ -186,7 +186,7 @@
     <string name="advice_russian_flavor_lite">Для российского рынка вышла специальная версия Трекарта (MapTrek Lite). Вы можете и дальше пользоваться текущей версией, но в ней больше нет поддержки русского языка. Не удаляйте приложение, пока не перенесёте все ваши данные, иначе они пропадут! Извините за доставленное неудобство.</string>
 
     <string name="datetime" formatted="false" translatable="false">%s %s</string>
-    <string name="waypoint_name">Place #%d</string>
+    <string name="place_name">Place #%d</string>
     <string name="remove_gauge">Remove %s</string>
     <string name="add_gauge">Add %s</string>
     <string name="gauge_speed">Speed</string>
@@ -199,11 +199,11 @@
     <string name="gauge_xtk">XTK</string>
     <string name="gauge_ete">ETE</string>
     <string name="gauge_elevation">Elevation</string>
-    <string name="waypoint_altitude" formatted="false" translatable="false">&#2336; %s</string>
-    <string name="waypoint_proximity" formatted="false" translatable="false">~ %s</string>
-    <string name="waypointStoreName">My places</string>
+    <string name="place_altitude" formatted="false" translatable="false">&#2336; %s</string>
+    <string name="place_proximity" formatted="false" translatable="false">~ %s</string>
+    <string name="placeStoreName">My places</string>
     <string name="version" formatted="false">Version: %s</string>
-    <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import waypoints and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
+    <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
     <string name="intentCopyMap">Install map</string>
     <string name="intentImportData">Trekarta import</string>
     <string name="mapDownloadText">Download missing map</string>

@@ -23,7 +23,7 @@ public class WaypointsRestoreReceiver extends BroadcastReceiver {
         if (fromFile.exists() && toFile.delete() && fromFile.renameTo(toFile)) {
             logger.info("Waypoints restored");
         } else {
-            Toast.makeText(context, R.string.msgRestoreWaypointsFailed, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.msgRestorePlacesFailed, Toast.LENGTH_LONG).show();
         }
         context.sendBroadcast(new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
     }

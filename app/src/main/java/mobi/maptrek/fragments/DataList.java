@@ -119,7 +119,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         TextView emptyView = (TextView) getListView().getEmptyView();
         if (emptyView != null) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(getString(R.string.msgEmptyWaypointList));
+            stringBuilder.append(getString(R.string.msgEmptyPlaceList));
             if (noExtraSources) {
                 stringBuilder.append(mLineSeparator);
                 stringBuilder.append(mLineSeparator);
@@ -286,7 +286,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 if (result.offset < line.length())
                     name = line.substring(result.offset, line.length()).trim();
                 if (name == null || "".equals(name))
-                    name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+                    name = getString(R.string.place_name, Configuration.getPointsCounter());
                 mWaypointActionListener.onWaypointCreate(result.coordinates, name, true, false);
             } catch (IllegalArgumentException e) {
                 errors = true;
@@ -375,7 +375,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             }
 
             if (needSeparator) {
-                holder.separator.setText(getText(viewType == DataSource.TYPE_WAYPOINT ? R.string.waypoints : R.string.tracks));
+                holder.separator.setText(getText(viewType == DataSource.TYPE_WAYPOINT ? R.string.places : R.string.tracks));
                 holder.separator.setVisibility(View.VISIBLE);
             } else {
                 holder.separator.setVisibility(View.GONE);

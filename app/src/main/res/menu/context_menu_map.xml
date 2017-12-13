@@ -7,7 +7,7 @@
     <item
         android:id="@+id/actionAddWaypointHere"
         android:icon="@drawable/ic_place"
-        android:title="@string/actionAddWaypointHere" />
+        android:title="@string/actionAddPlaceHere" />
     <item
         android:id="@+id/actionNavigateHere"
         android:icon="@drawable/ic_navigate"

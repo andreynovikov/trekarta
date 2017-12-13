@@ -17,7 +17,7 @@
     <string name="sunset">Закат</string>
     <string name="unknown">Неизвестно</string>
     <string name="description">Описание</string>
-    <string name="waypoints">Точки</string>
+    <string name="places">Точки</string>
     <string name="tracks">Треки</string>
     <string name="explain">Объяснить</string>
     <string name="copyright">Авторское право</string>
@@ -43,7 +43,7 @@
     <string name="actionNightMode">Ночной режим</string>
     <string name="actionLanguage">Язык</string>
     <string name="actionManageMaps">Управление картами</string>
-    <string name="actionAddWaypointHere">Добавить точку</string>
+    <string name="actionAddPlaceHere">Добавить точку</string>
     <string name="actionNavigateHere">Задать направление сюда</string>
     <string name="actionRememberScale">Запомнить масштаб</string>
     <string name="actionOverviewRoute">Просмотреть маршрут</string>
@@ -58,9 +58,9 @@
     <string name="msgNavigationProgress" formatted="false">Осталось %s, продолжайте двигаться курсом %s</string>
     <string name="msgNavigating" formatted="false">Движение на точку %s</string>
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
-    <string name="msgWaypointDeleted">Точка удалена</string>
-    <string name="msgWaypointSaved">Точка сохранена</string>
-    <string name="msgEmptyWaypointList">Здесь будут отображаться ваши точки. Вы можете создать точку, введя её координаты или с помощью долгого нажатия на кнопку Точки.</string>
+    <string name="msgPlaceDeleted">Точка удалена</string>
+    <string name="msgPlaceSaved">Точка сохранена</string>
+    <string name="msgEmptyPlaceList">Здесь будут отображаться ваши точки. Вы можете создать точку, введя её координаты или с помощью долгого нажатия на кнопку Точки.</string>
     <string name="msgTrackDeleted">Трек удалён</string>
     <string name="msgTracked" formatted="false">%s пройдено с %s</string>
     <string name="msgTracking">Трекарта записывает ваше перемещение</string>
@@ -85,7 +85,7 @@
     <string name="msgNativeFormatExplanation">Данные во внутреннем формате хранятся в очень компактном виде и быстро обрабатываются, но распознаются только Трекартой.</string>
     <string name="msgOtherFormatsExplanation">Формат GPX сохраняет всю важную информацию и широко используется, но итоговые файлы занимают очень много места. Формат KML не хранит информацию о времени, но итоговые файлы на 30%  компактнее, чем в формате GPX.</string>
     <string name="msgFailedToGetFile">Не удалось получить файл</string>
-    <string name="msgRestoreWaypointsFailed">Ошибка восстановления точек</string>
+    <string name="msgRestorePlacesFailed">Ошибка восстановления точек</string>
 
     <string name="introOfflineMapsTitle">Оффлайн карты</string>
     <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к Интернету.</string>
@@ -126,8 +126,8 @@
     <string name="send_crash_report">Отправить отчёт о сбое</string>
     <string name="share_track_intent_title">Поделиться треком через:</string>
     <string name="share_location_intent_title">Поделиться местоположением через:</string>
-    <string name="waypointStoreName">Мои точки</string>
-    <string name="waypoint_name">Точка &#8470;%d</string>
+    <string name="placeStoreName">Мои точки</string>
+    <string name="place_name">Точка &#8470;%d</string>
     <string name="startApplication">Открыть Трекарту</string>
     <string name="actionAutoTilt">Наклонять при вращении по курсу</string>
     <string name="actionDismiss">Убрать</string>
@@ -199,7 +199,7 @@
         &#183; 15SUD6393628605
         </string>
     <string name="msgParseMultipleCoordinatesFailed">Не удалось обнаружить координаты в некоторых строках</string>
-    <string name="msgWaypointLocked">Точка заблокирована</string>
+    <string name="msgPlaceLocked">Точка заблокирована</string>
     <string name="titleCoordinatesInput">Введите координаты</string>
     <string name="advice_adding_place">Вы можете быстро создать точку в текущей позиции карты с помощью долгого нажатия на кнопку Точки</string>
     <string name="advice_enable_locations">Нажмите на кнопку позиционирования, чтобы включить определение местоположения в реальном времени</string>

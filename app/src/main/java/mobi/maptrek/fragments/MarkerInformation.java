@@ -73,7 +73,7 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
                 if (mName != null && !"".equals(mName))
                     name = mName;
                 else
-                    name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+                    name = getString(R.string.place_name, Configuration.getPointsCounter());
                 mListener.onWaypointCreate(point, name, true, true);
                 mFragmentHolder.disableActionButton();
                 mFragmentHolder.popCurrent();

@@ -387,7 +387,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         TextView altitudeView = (TextView) rootView.findViewById(R.id.altitude);
         if (altitudeView != null) {
             if (mWaypoint.altitude != Integer.MIN_VALUE) {
-                altitudeView.setText(getString(R.string.waypoint_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
+                altitudeView.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
                 altitudeView.setVisibility(View.VISIBLE);
             } else {
                 altitudeView.setVisibility(View.GONE);
@@ -397,7 +397,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         TextView proximityView = (TextView) rootView.findViewById(R.id.proximity);
         if (proximityView != null) {
             if (mWaypoint.proximity > 0) {
-                proximityView.setText(getString(R.string.waypoint_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
+                proximityView.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
                 proximityView.setVisibility(View.VISIBLE);
             } else {
                 proximityView.setVisibility(View.GONE);

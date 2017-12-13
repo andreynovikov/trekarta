@@ -45,7 +45,7 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     public WaypointDbDataSource(Context context, File file) {
         mContext = context;
         mDbHelper = new WaypointDbHelper(context, file);
-        name = context.getString(R.string.waypointStoreName);
+        name = context.getString(R.string.placeStoreName);
     }
 
     public void open() throws SQLException {

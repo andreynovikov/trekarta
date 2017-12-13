@@ -1454,7 +1454,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
             case R.id.actionAddWaypointHere: {
                 removeMarker();
-                String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+                String name = getString(R.string.place_name, Configuration.getPointsCounter());
                 onWaypointCreate(mSelectedPoint, name, false, true);
                 return true;
             }
@@ -1705,7 +1705,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else {
             geoPoint = mMap.getMapPosition().getGeoPoint();
         }
-        String name = getString(R.string.waypoint_name, Configuration.getPointsCounter());
+        String name = getString(R.string.place_name, Configuration.getPointsCounter());
         onWaypointCreate(geoPoint, name, false, true);
     }
 
@@ -1830,7 +1830,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (uid != null) {
             Waypoint waypoint = (Waypoint) uid;
             if (waypoint.locked) {
-                Toast.makeText(this, R.string.msgWaypointLocked, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.msgPlaceLocked, Toast.LENGTH_SHORT).show();
                 return true;
             }
         }
@@ -2388,7 +2388,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (!customize)
             return;
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msgWaypointSaved, Snackbar.LENGTH_LONG)
+                .make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
                 .setAction(R.string.actionCustomize, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -2495,7 +2495,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         // Show undo snackbar
         //noinspection deprecation
         Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msgWaypointDeleted, Snackbar.LENGTH_LONG)
+                .make(mCoordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
