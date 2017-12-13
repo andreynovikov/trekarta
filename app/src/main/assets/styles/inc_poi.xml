@@ -175,7 +175,7 @@
                 </m>
             </m>
             <m k="kind_shopping" select="first">
-                <m k="shop">
+                <m k="shop|amenity">
                     <m v="bicycle">
                         <symbol src="assets:symbols/shopping/bicycle.svg" />
                     </m>

@@ -846,7 +846,9 @@ public class Tags {
             "mogul",
             "backcountry",
             "ski_jump",
-            "ski_jump_landing"
+            "ski_jump_landing",
+            "ranger_station",
+            "car_rental"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
