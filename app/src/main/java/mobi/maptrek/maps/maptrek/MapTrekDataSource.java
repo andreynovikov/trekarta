@@ -137,7 +137,7 @@ class MapTrekDataSource implements ITileDataSource {
             }
 
             // Convert tree points to polygons
-            if (tile.zoomLevel > 16 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
+            if (tile.zoomLevel > 15 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
                 float x = element.getPointX(0);
                 float y = element.getPointY(0);
                 GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);

@@ -872,8 +872,8 @@
 
     <xi:include href="inc_barier_lines.xml" />
 
-    <m cat="forest" k="natural" v="tree" zoom-min="16">
-        <area fade="16" fill="#c6d7d7" mesh="true" />
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="#c6d7d7" mesh="true" />
     </m>
 
     <xi:include href="inc_boundaries.xml" />
