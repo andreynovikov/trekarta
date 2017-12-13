@@ -218,7 +218,7 @@ public class DataSourceList extends ListFragment {
             int color = mAccentColor;
             if (dataSource instanceof WaypointDbDataSource) {
                 int count = ((WaypointDataSource) dataSource).getWaypointsCount();
-                itemHolder.description.setText(resources.getQuantityString(R.plurals.waypointsCount, count, count));
+                itemHolder.description.setText(resources.getQuantityString(R.plurals.placesCount, count, count));
                 itemHolder.filename.setText("");
                 itemHolder.icon.setImageResource(R.drawable.ic_points);
                 itemHolder.action.setVisibility(View.GONE);
@@ -238,7 +238,7 @@ public class DataSourceList extends ListFragment {
                         int tracksCount = ((FileDataSource) dataSource).tracks.size();
                         StringBuilder sb = new StringBuilder();
                         if (waypointsCount > 0) {
-                            sb.append(resources.getQuantityString(R.plurals.waypointsCount, waypointsCount, waypointsCount));
+                            sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
                             if (tracksCount > 0)
                                 sb.append(", ");
                         }

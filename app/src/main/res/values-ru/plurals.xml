@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="one">%d элемент выбран</item>
+        <item quantity="few">%d элемента выбрано</item>
+        <item quantity="many">%d элементов выбрано</item>
+        <item quantity="other">%d элементов выбрано</item>
+    </plurals>
+    <plurals name="placesCount">
+        <item quantity="one">%d точка</item>
+        <item quantity="few">%d точки</item>
+        <item quantity="many">%d точек</item>
+        <item quantity="other">%d точек</item>
+    </plurals>
+    <plurals name="placesDeleted">
+        <item quantity="one">%d точка удалена</item>
+        <item quantity="few">%d точки удалены</item>
+        <item quantity="many">%d точек удалено</item>
+        <item quantity="other">%d точек удалено</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
+        <item quantity="other">%d треков</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="one">%d точка</item>
+        <item quantity="few">%d точки</item>
+        <item quantity="many">%d точек</item>
+        <item quantity="other">%d точек</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="one">%d сегмент</item>
+        <item quantity="few">%d сегмента</item>
+        <item quantity="many">%d сегментов</item>
+        <item quantity="other">%d сегментов</item>
+    </plurals>
+    <plurals name="loadedAreas">
+        <item quantity="one">%d область активна</item>
+        <item quantity="few">%d области активны</item>
+        <item quantity="many">%d областей активно</item>
+        <item quantity="other">%d областей активно</item>
+    </plurals>
+    <plurals name="downloading">
+        <item quantity="one">%d загружается</item>
+        <item quantity="few">%d загружаются</item>
+        <item quantity="many">%d загружаются</item>
+        <item quantity="other">%d загружаются</item>
+    </plurals>
+    <plurals name="remaining">
+        <item quantity="one">%d осталась</item>
+        <item quantity="few">%d остались</item>
+        <item quantity="many">%d осталось</item>
+        <item quantity="other">%d осталось</item>
+    </plurals>
+</resources>

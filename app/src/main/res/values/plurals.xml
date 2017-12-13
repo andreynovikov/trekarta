@@ -4,13 +4,13 @@
         <item quantity="one">%d item selected</item>
         <item quantity="other">%d items selected</item>
     </plurals>
-    <plurals name="waypointsCount">
-        <item quantity="one">%d waypoint</item>
-        <item quantity="other">%d waypoints</item>
+    <plurals name="placesCount">
+        <item quantity="one">%d place</item>
+        <item quantity="other">%d places</item>
     </plurals>
-    <plurals name="waypointsDeleted">
-        <item quantity="one">%d waypoint deleted</item>
-        <item quantity="other">%d waypoints deleted</item>
+    <plurals name="placesDeleted">
+        <item quantity="one">%d place deleted</item>
+        <item quantity="other">%d places deleted</item>
     </plurals>
     <plurals name="tracksCount">
         <item quantity="one">%d track</item>
