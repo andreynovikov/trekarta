@@ -1010,12 +1010,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
-        } else if (BuildConfig.FULL_VERSION && "world".equals(BuildConfig.FLAVOR_region)
-                && "ru".equals(getResources().getConfiguration().locale.getLanguage())) {
-            HelperUtils.showAdvice(Configuration.ADVICE_RUSSIAN_FLAVOR, R.string.advice_russian_flavor, mCoordinatorLayout);
-        } else if ("world".equals(BuildConfig.FLAVOR_region)
-                && "ru".equals(getResources().getConfiguration().locale.getLanguage())) {
-            HelperUtils.showAdvice(Configuration.ADVICE_RUSSIAN_FLAVOR, R.string.advice_russian_flavor_lite, mCoordinatorLayout);
         }
 
         if (Configuration.getHideSystemUI())
@@ -2548,7 +2542,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Show undo snackbar
         int count = waypoints.size();
-        String msg = getResources().getQuantityString(R.plurals.waypointsDeleted, count, count);
+        String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
         //noinspection deprecation
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)

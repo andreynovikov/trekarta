@@ -78,7 +78,6 @@ public class Configuration {
     public static final long ADVICE_TEXT_SEARCH = 0x0000000000004000L;
     public static final long ADVICE_ACTIVE_MAPS_SIZE = 0x0000000000008000L;
     public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000L;
-    public static final long ADVICE_RUSSIAN_FLAVOR = 0x8000000000000000L;
 
     private static SharedPreferences mSharedPreferences;
 
