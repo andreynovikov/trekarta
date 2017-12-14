@@ -163,6 +163,8 @@
     <string name="introHiking">Hiking activity mode emphasises paths and tracks. It visualizes path difficulty and visibility and shows hiking routes.</string>
     <string name="introSkiingTitle">Skiing and skating</string>
     <string name="introSkiing">Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.</string>
+    <string name="introPistesTitle">Pistes</string>
+    <string name="introPistes">Now piste grooming, illumination and purpose are depicted on winter map.</string>
 
     <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
     <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>

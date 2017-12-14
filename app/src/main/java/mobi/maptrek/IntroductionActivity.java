@@ -1,6 +1,5 @@
 package mobi.maptrek;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.WindowManager;
@@ -11,8 +10,7 @@ import com.github.paolorotolo.appintro.model.SliderPage;
 import mobi.maptrek.fragments.IntroductionFragment;
 
 public class IntroductionActivity extends AppIntro {
-    public static final int CURRENT_INTRODUCTION = 3;
-    int mLastSeenIntroduction;
+    public static final int CURRENT_INTRODUCTION = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,12 +18,14 @@ public class IntroductionActivity extends AppIntro {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        mLastSeenIntroduction = Configuration.getLastSeenIntroduction();
+        int lastSeenIntroduction = Configuration.getLastSeenIntroduction();
 
         SliderPage sliderPage = new SliderPage();
         sliderPage.setBgColor(getColor(R.color.explanationBackground));
 
-        if (mLastSeenIntroduction < 1) {
+        if (lastSeenIntroduction < 1) {
+            // fresh installation
+
             sliderPage.setTitle(getString(R.string.introOfflineMapsTitle));
             String description = getString(R.string.introOfflineMaps);
             if (BuildConfig.FULL_VERSION) {
@@ -56,11 +56,10 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setDescription(getString(R.string.introOffroad));
             sliderPage.setImageDrawable(R.mipmap.offroad);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-
-            mLastSeenIntroduction = 1; // fresh installation
         }
 
-        if (mLastSeenIntroduction < 3) {
+        if (lastSeenIntroduction < 3) {
+            // 2017.11
             sliderPage.setTitle(getString(R.string.introHikingTitle));
             sliderPage.setDescription(getString(R.string.introHiking));
             sliderPage.setImageDrawable(R.mipmap.hiking);
@@ -70,7 +69,12 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setDescription(getString(R.string.introSkiing));
             sliderPage.setImageDrawable(R.mipmap.skiing);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-            mLastSeenIntroduction = 3; // 2017.11
+        } else if (lastSeenIntroduction == 3) {
+            // 2017.12
+            sliderPage.setTitle(getString(R.string.introPistesTitle));
+            sliderPage.setDescription(getString(R.string.introPistes));
+            sliderPage.setImageDrawable(R.mipmap.pistes);
+            addSlide(IntroductionFragment.newInstance(sliderPage));
         }
 
         // TODO Do not show more then N slides at once
@@ -79,13 +83,13 @@ public class IntroductionActivity extends AppIntro {
     @Override
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
-        Configuration.setLastSeenIntroduction(mLastSeenIntroduction);
+        Configuration.setLastSeenIntroduction(CURRENT_INTRODUCTION);
         finish();
     }
 
     @Override
     public void onDonePressed(Fragment currentFragment) {
-        Configuration.setLastSeenIntroduction(mLastSeenIntroduction);
+        Configuration.setLastSeenIntroduction(CURRENT_INTRODUCTION);
         finish();
     }
 }
