@@ -8,7 +8,7 @@ __Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, c
 
 Trekarta is developed as a hobby for personal use but is generously shared to public on as-is basis. Developers are welcome to contribute to the project. Specifically experts in OpenGL and PostGIS are much needed.
 
-The development is in beta stage now. Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/trekarta/issues), for questions and general discussions [Google Groups Q&A Forum](https://groups.google.com/forum/#!forum/maptrek) should be preferred.
+The development is in beta stage now. Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/trekarta/issues), for questions and general discussions [Google Groups Q&A Forum](https://groups.google.com/d/forum/trekarta) should be preferred.
 
 ## How to build
 
