@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Andrey Novikov
+ * Copyright 2018 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
