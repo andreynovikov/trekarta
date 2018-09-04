@@ -592,18 +592,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         });
 
-        boolean freshInstall = false;
-        try {
-            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
-            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
-            freshInstall = firstInstallTime == lastUpdateTime;
-        } catch (PackageManager.NameNotFoundException e) {
-            logger.error("Can not find myself");
-        }
+        int lastIntroduction = Configuration.getLastSeenIntroduction();
 
         mMapView = (MapView) findViewById(R.id.mapView);
         mMap = mMapView.map();
-        if (freshInstall) {
+        if (lastIntroduction == 0) {
             if (BuildConfig.RUSSIAN_EDITION) {
                 mMap.setMapPosition(56.4, 39, 1 << 5);
             } else {
@@ -851,8 +844,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         onNewIntent(getIntent());
 
-        int last = Configuration.getLastSeenIntroduction();
-        if (last < IntroductionActivity.CURRENT_INTRODUCTION)
+        if (lastIntroduction < IntroductionActivity.CURRENT_INTRODUCTION)
             startActivity(new Intent(this, IntroductionActivity.class));
     }
 
