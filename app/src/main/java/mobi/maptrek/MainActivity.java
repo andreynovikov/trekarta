@@ -255,6 +255,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
+    public static final int MAP_ZOOM_ANIMATION_DURATION = 100;
 
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
@@ -477,7 +478,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mLocationState = LocationState.DISABLED;
         mSavedLocationState = LocationState.DISABLED;
-        mPreviousLocationState = LocationState.NORTH;
 
         mPanelState = PANEL_STATE.NONE;
 
@@ -789,6 +789,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mGaugePanel.initializeGauges(Configuration.getGauges());
         showActionPanel(Configuration.getActionPanelState(), false);
+
+        boolean visible = Configuration.getZoomButtonsVisible();
+        mCoordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
 
         // Resume navigation
         MapObject mapObject = Configuration.getNavigationPoint();
@@ -1498,6 +1501,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onLocationChanged() {
         if (mLocationState == LocationState.SEARCHING) {
             mLocationState = mSavedLocationState;
+            //TODO Change from center to location pivot (see zooming)
             mMap.getEventLayer().setFixOnCenter(true);
             updateLocationDrawable();
             mLocationOverlay.setEnabled(true);
@@ -1803,6 +1807,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onMapDownloadClicked() {
         mMapDownloadButton.setVisibility(View.GONE);
         startMapSelection(false);
+    }
+
+    public void onZoomInClicked(View view) {
+        zoomMap(2.0);
+    }
+
+    public void onZoomOutClicked(View view) {
+        if (mLocationOverlay.isEnabled()) {
+            Point out = new Point();
+            mMap.viewport().toScreenPoint(mLocationOverlay.getX(), mLocationOverlay.getY(), true, out);
+            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION >> 2, 0.5, (float) out.x, (float) out.y);
+        } else {
+            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION, 0.5, 0.0f, 0.0f);
+        }
     }
 
     public void onCompassClicked(View view) {
@@ -2152,7 +2170,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public boolean onGesture(Gesture gesture, MotionEvent event) {
         mMap.getMapPosition(mMapPosition);
-        if (gesture == Gesture.LONG_PRESS) {
+        // override default behavior to adjust pivot point
+        if (gesture == Gesture.DOUBLE_TAP) {
+            zoomMap(2.0);
+            return true;
+        } else if (gesture == Gesture.TWO_FINGER_TAP) {
+            zoomMap(0.5);
+            return true;
+        } else if (gesture == Gesture.TRIPLE_TAP) {
+            float scale = Configuration.getRememberedScale();
+            double scaleBy = scale / mMapPosition.getScale();
+            zoomMap(scaleBy);
+            return true;
+        } else if (gesture == Gesture.LONG_PRESS) {
             if (!mMap.getEventLayer().moveEnabled())
                 return true;
             mPopupAnchor.setX(event.getX() + mFingerTipSize);
@@ -2174,11 +2204,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             });
             popup.show();
-            return true;
-        } else if (gesture == Gesture.TRIPLE_TAP) {
-            float scale = Configuration.getRememberedScale();
-            double scaleBy = scale / mMapPosition.getScale();
-            mMap.animator().animateZoom(MAP_BEARING_ANIMATION_DURATION, scaleBy, 0f, 0f);
             return true;
         }
         return false;
@@ -3579,9 +3604,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mMapView.getLocalVisibleRect(area);
                 int mapWidth = area.width();
                 int mapHeight = area.height();
+                int pointerOffset = (int) (50 * MapTrek.density);
 
                 area.top = mStatusBarHeight;
-                area.left = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
+                if (mGaugePanel.getTranslationX() >= 0f) {
+                    int h = mGaugePanel.getHeight();
+                    if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
+                        area.left = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
+                }
 
                 View v = findViewById(R.id.actionPanel);
                 if (v != null) {
@@ -3610,7 +3640,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
 
                 if (!area.isEmpty()) {
-                    int pointerOffset = (int) (50 * MapTrek.density);
                     int centerX = mapWidth / 2;
                     int centerY = mapHeight / 2;
                     mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
@@ -4105,6 +4134,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mGaugePanel.refreshGauges();
                 break;
             }
+            case Configuration.PREF_ZOOM_BUTTONS_VISIBLE: {
+                boolean visible = Configuration.getZoomButtonsVisible();
+                mCoordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
             case Configuration.PREF_MAP_HILLSHADES: {
                 boolean enabled = Configuration.getHillshadesEnabled();
                 if (enabled)
@@ -4152,6 +4185,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mShieldFactory.dispose();
             mOsmcSymbolFactory.dispose();
             mMap.clearMap();
+        }
+    }
+
+    private void zoomMap(double scaleBy) {
+        if (mLocationOverlay.isEnabled()) {
+            Point out = new Point();
+            mMap.viewport().toScreenPoint(mLocationOverlay.getX(), mLocationOverlay.getY(), true, out);
+            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION >> 2, scaleBy, (float) out.x, (float) out.y);
+        } else {
+            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION, scaleBy, 0.0f, 0.0f);
         }
     }
 

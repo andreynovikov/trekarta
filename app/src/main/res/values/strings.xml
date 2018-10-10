@@ -244,6 +244,8 @@
     <string name="permAddPluginEntriesLabel">add menu entries</string>
     <string name="permAddPluginEntriesDescription">Allows the app to add entries to Trekarta menu.</string>
 
+    <string name="pref_general">General</string>
+    <string name="pref_zoom_buttons_visible_title">Visible zoom buttons</string>
     <string name="pref_units">Units</string>
     <string name="pref_unit_speed_title">Speed</string>
     <string name="pref_unit_distance_title">Distance</string>

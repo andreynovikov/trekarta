@@ -62,6 +62,7 @@ public class Configuration {
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
+    public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
     public static final String PREF_SPEED_UNIT = "speed_unit";
     public static final String PREF_DISTANCE_UNIT = "distance_unit";
     public static final String PREF_ELEVATION_UNIT = "elevation_unit";
@@ -114,7 +115,7 @@ public class Configuration {
     }
 
     public static int getLocationState() {
-        return loadInt(PREF_LOCATION_STATE, 0);
+        return loadInt(PREF_LOCATION_STATE, LocationState.DISABLED.ordinal());
     }
 
     public static void setLocationState(int locationState) {
@@ -122,7 +123,7 @@ public class Configuration {
     }
 
     public static int getPreviousLocationState() {
-        return loadInt(PREF_PREVIOUS_LOCATION_STATE, 0);
+        return loadInt(PREF_PREVIOUS_LOCATION_STATE, LocationState.NORTH.ordinal());
     }
 
     public static void setPreviousLocationState(int locationState) {
@@ -347,6 +348,10 @@ public class Configuration {
 
     public static boolean getUnitPrecision() {
         return loadBoolean(PREF_UNIT_PRECISION, false);
+    }
+
+    public static boolean getZoomButtonsVisible() {
+        return loadBoolean(PREF_ZOOM_BUTTONS_VISIBLE, false);
     }
 
     public static int getCoordinatesFormat() {
