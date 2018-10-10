@@ -17,6 +17,7 @@ gen/
 .gradle
 build/
 /*/build/
+.externalNativeBuild
 
 # Idea files
 .idea
