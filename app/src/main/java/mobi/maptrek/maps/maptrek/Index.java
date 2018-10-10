@@ -82,7 +82,7 @@ public class Index {
 
     public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
-    public static final int BASEMAP_SIZE_STUB = 41;
+    public static final int BASEMAP_SIZE_STUB = 44;
     public static final String HILLSHADE_FILENAME = "hillshade.mbtiles";
 
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
