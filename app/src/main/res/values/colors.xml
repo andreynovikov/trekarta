@@ -11,7 +11,9 @@
     <color name="colorAccentLightest">#ffccbc</color> <!-- 100 -->
     <color name="colorBackground">#f5f5f5</color>
     <color name="textColorPrimary">#212121</color>
+    <color name="textColorPrimaryDisabled">#80212121</color>
     <color name="textColorSecondary">#727272</color>
+    <color name="textColorSecondaryDisabled">#80727272</color>
     <color name="panelBackground">#99ffffff</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
     <color name="panelExtendedBackground">#cc999999</color>
