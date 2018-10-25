@@ -44,20 +44,9 @@ public abstract class BasePluginActivity extends Activity {
     public void initializePlugins() {
         PackageManager packageManager = getPackageManager();
         List<ResolveInfo> plugins;
-        Intent initializationIntent = new Intent("mobi.maptrek.plugins.action.INITIALIZE");
 
         // enumerate initializable plugins
-        plugins = packageManager.queryBroadcastReceivers(initializationIntent, 0);
-        for (ResolveInfo plugin : plugins) {
-            // send initialization broadcast, we send it directly instead of sending
-            // one broadcast for all plugins to wake up stopped plugins:
-            // http://developer.android.com/about/versions/android-3.1.html#launchcontrols
-            Intent intent = new Intent();
-            intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
-            intent.setAction(initializationIntent.getAction());
-            intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            sendBroadcast(intent);
-        }
+        sendExplicitBroadcast("mobi.maptrek.plugins.action.INITIALIZE");
 
         // enumerate plugins with preferences
         plugins = packageManager.queryIntentActivities(new Intent("mobi.maptrek.plugins.preferences"), 0);
@@ -85,6 +74,18 @@ public abstract class BasePluginActivity extends Activity {
             intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
             Pair<Drawable, Intent> pair = new Pair<>(icon, intent);
             mPluginTools.put(plugin.activityInfo.loadLabel(packageManager).toString(), pair);
+        }
+    }
+
+    protected void sendExplicitBroadcast(String action) {
+        PackageManager packageManager = getPackageManager();
+        Intent intent = new Intent(action);
+        List<ResolveInfo> plugins = packageManager.queryBroadcastReceivers(intent, 0);
+        for (ResolveInfo plugin : plugins) {
+            intent = new Intent(action);
+            intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
+            intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            sendBroadcast(intent);
         }
     }
 
