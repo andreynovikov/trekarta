@@ -116,18 +116,18 @@ public class Index {
                 int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
                 int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
                 short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
+                byte version = (byte) cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_VERSION));
+                logger.debug("index({}, {}, {}, {})", x, y, date, version);
                 if (x == -1 && y == -1) {
                     mBaseMapVersion = date;
                     cursor.moveToNext();
                     continue;
                 }
-                byte version = (byte) cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_VERSION));
                 long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
                 long hillshadeDownloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_HILLSHADE_DOWNLOADING));
                 MapStatus mapStatus = getNativeMap(x, y);
                 mapStatus.created = date;
                 mapStatus.hillshadeVersion = version;
-                logger.debug("index({}, {}, {}, {})", x, y, date, version);
                 int status = checkDownloadStatus(downloading);
                 if (status == DownloadManager.STATUS_PAUSED
                         || status == DownloadManager.STATUS_PENDING

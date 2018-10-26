@@ -77,6 +77,8 @@ public class Configuration {
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
+    private static final String PREF_EXTERNAL_STORAGE = "external_storage";
+    private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
@@ -100,6 +102,10 @@ public class Configuration {
 
     public static void initialize(SharedPreferences sharedPreferences) {
         mSharedPreferences = sharedPreferences;
+    }
+
+    public static boolean isInitialized() {
+        return mSharedPreferences != null;
     }
 
     public static int getPointsCounter() {
@@ -402,6 +408,22 @@ public class Configuration {
         saveInt(LAST_SEEN_INTRODUCTION, last);
     }
 
+    public static String getExternalStorage() {
+        return loadString(PREF_EXTERNAL_STORAGE, null);
+    }
+
+    public static void setExternalStorage(String storage) {
+        saveString(PREF_EXTERNAL_STORAGE, storage);
+    }
+
+    public static String getNewExternalStorage() {
+        return loadString(PREF_NEW_EXTERNAL_STORAGE, null);
+    }
+
+    public static void setNewExternalStorage(String storage) {
+        saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
+    }
+
     public static long getRunningTime() {
         return loadLong(PREF_RUNNING_TIME, 0L);
     }
@@ -489,6 +511,12 @@ public class Configuration {
         editor.putString(key, value);
         editor.apply();
         EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    public static boolean commit() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        return editor.commit();
     }
 
     public static void loadKindZoomState() {

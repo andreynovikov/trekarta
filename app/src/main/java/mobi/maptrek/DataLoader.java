@@ -99,7 +99,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         // This method is called on a background thread and should generate a
         // new set of data to be delivered back to the client.
         logger.debug("loadInBackground()");
-        File dataDir = getContext().getExternalFilesDir("data");
+        File dataDir = MapTrek.getApplication().getExternalDir("data");
         if (dataDir == null)
             return null;
         File[] files = dataDir.listFiles(new DataFilenameFilter());
@@ -155,7 +155,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                             }
                         }
                     });
-                    Manager manager = Manager.getDataManager(getContext(), file.getName());
+                    Manager manager = Manager.getDataManager(file.getName());
                     if (manager != null) {
                         FileDataSource source = manager.loadData(inputStream, file.getAbsolutePath());
                         source.path = file.getAbsolutePath();
@@ -224,7 +224,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
 
         // Begin monitoring the underlying data source.
         if (mObserver == null) {
-            final File dir = getContext().getExternalFilesDir("data");
+            final File dir = MapTrek.getApplication().getExternalDir("data");
             if (dir == null)
                 return;
 

@@ -24,6 +24,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import org.slf4j.Logger;
@@ -65,6 +67,8 @@ public class MapService extends IntentService {
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification.Builder builder = new Notification.Builder(this);
+        if (Build.VERSION.SDK_INT > 25)
+            builder.setChannelId("ongoing");
         int titleRes = actionImport ? R.string.title_map_import : R.string.title_map_removal;
         builder.setContentTitle(getString(titleRes))
                 .setSmallIcon(R.drawable.ic_import_export)
@@ -73,14 +77,19 @@ public class MapService extends IntentService {
                 .setPriority(Notification.PRIORITY_LOW)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setColor(getResources().getColor(R.color.colorAccent, getTheme()));
-        notificationManager.notify(0, builder.build());
+        if (notificationManager != null)
+            notificationManager.notify(0, builder.build());
 
         MapTrek application = MapTrek.getApplication();
         Index mapIndex = application.getMapIndex();
 
         if (actionImport) {
             Uri uri = intent.getData();
+            if (uri == null)
+                return;
             String filename = uri.getLastPathSegment();
+            if (filename == null)
+                return;
             boolean hillshade = false;
             final int x, y;
             if (Index.BASEMAP_FILENAME.equals(filename)) {
@@ -88,7 +97,7 @@ public class MapService extends IntentService {
                 y = -1;
                 builder.setContentTitle(getString(R.string.baseMapTitle));
             } else {
-                String[] parts = filename.split("[\\-\\.]");
+                String[] parts = filename.split("[\\-.]");
                 try {
                     if (parts.length != 3)
                         throw new NumberFormatException("unexpected name");
@@ -101,23 +110,28 @@ public class MapService extends IntentService {
                     logger.error(e.getMessage());
                     builder.setContentIntent(pendingIntent);
                     builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                    notificationManager.notify(0, builder.build());
+                    if (notificationManager != null)
+                        notificationManager.notify(0, builder.build());
                     return;
                 }
                 builder.setContentTitle(getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y));
             }
-            notificationManager.notify(0, builder.build());
+            if (notificationManager != null)
+                notificationManager.notify(0, builder.build());
 
             if (processDownload(mapIndex, x, y, hillshade, uri.getPath(),
                     new OperationProgressListener(notificationManager, builder))) {
                 application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
-                notificationManager.notify(0, builder.build());
-                notificationManager.cancel(0);
+                if (notificationManager != null) {
+                    notificationManager.notify(0, builder.build());
+                    notificationManager.cancel(0);
+                }
             } else {
                 builder.setContentIntent(pendingIntent);
                 builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                notificationManager.notify(0, builder.build());
+                if (notificationManager != null)
+                    notificationManager.notify(0, builder.build());
             }
         }
 
@@ -126,7 +140,8 @@ public class MapService extends IntentService {
             int y = intent.getIntExtra(EXTRA_Y, -1);
             mapIndex.removeNativeMap(x, y, new OperationProgressListener(notificationManager, builder));
             application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
-            notificationManager.cancel(0);
+            if (notificationManager != null)
+                notificationManager.cancel(0);
         }
     }
 
@@ -176,6 +191,11 @@ public class MapService extends IntentService {
                 return;
             builder.setProgress(0, 0, false);
             notificationManager.notify(0, builder.build());
+        }
+
+        @Override
+        public void onProgressFinished(Bundle data) {
+            onProgressFinished();
         }
 
         @Override

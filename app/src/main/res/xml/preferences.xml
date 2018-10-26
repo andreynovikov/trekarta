@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="@string/pref_general">
+    <PreferenceCategory
+        android:key="category_general"
+        android:title="@string/pref_general">
+        <org.anasthase.androidseekbarpreference.SeekBarPreference
+            android:defaultValue="50"
+            android:key="hillshades_transparency"
+            android:title="@string/pref_hillshades_transparency"
+            app:format="%d%%"
+            app:maxValue="70"
+            app:minValue="30"
+            app:stepValue="10" />
         <CheckBoxPreference
             android:defaultValue="@bool/def_zoom_buttons_visible"
             android:key="zoom_buttons_visible"
@@ -44,14 +54,11 @@
     <PreferenceCategory
         android:key="category_advanced"
         android:title="@string/pref_advanced">
-        <org.anasthase.androidseekbarpreference.SeekBarPreference
-            android:defaultValue="50"
-            android:key="hillshades_transparency"
-            android:title="@string/pref_hillshades_transparency"
-            app:format="%d%%"
-            app:maxValue="70"
-            app:minValue="30"
-            app:stepValue="10" />
+        <Preference
+            android:key="move_data"
+            android:title="@string/actionMoveData">
+            <intent android:action="mobi.maptrek.action.MOVE_DATA" />
+        </Preference>
         <Preference
             android:key="reset_advices"
             android:title="@string/actionResetAdvices">

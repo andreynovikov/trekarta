@@ -560,7 +560,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         WebSettings settings = webView.getSettings();
         settings.setDefaultTextEncodingName("utf-8");
         settings.setAllowFileAccess(true);
-        Uri baseUrl = Uri.fromFile(getContext().getExternalFilesDir("data"));
+        Uri baseUrl = Uri.fromFile(MapTrek.getApplication().getExternalDir("data"));
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 

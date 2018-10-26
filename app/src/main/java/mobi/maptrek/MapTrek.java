@@ -16,11 +16,21 @@
 
 package mobi.maptrek;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -73,6 +83,7 @@ public class MapTrek extends Application {
     private SQLiteDatabase mHillshadeDatabase;
     private WaypointDbDataSource mWaypointDbDataSource;
     private String mUserNotification;
+    private File mSDCardDirectory;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -102,6 +113,21 @@ public class MapTrek extends Application {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         density = metrics.density;
         ydpi = metrics.ydpi;
+
+        if (Build.VERSION.SDK_INT > 25)
+            createNotificationChannel();
+
+        File[] dirs = getExternalFilesDirs(null);
+        for (File dir : dirs) {
+            if (mSDCardDirectory == null && Environment.isExternalStorageRemovable(dir) &&
+                    Environment.getExternalStorageState(dir).equals(Environment.MEDIA_MOUNTED)) {
+                mSDCardDirectory = dir;
+                break;
+            }
+        }
+        // find removable external storage
+        logger.error("Has SD card: {}", mSDCardDirectory);
+
         mapObjects.clear();
     }
 
@@ -131,9 +157,70 @@ public class MapTrek extends Application {
         return mSelf;
     }
 
+    public void restart(@NonNull Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (mgr != null)
+            mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 100, pendingIntent);
+        if (context instanceof Activity)
+            ((Activity) context).finish();
+        Configuration.commit();
+        Runtime.getRuntime().exit(0);
+    }
+
+    @TargetApi(26)
+    private void createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel("ongoing",
+                getString(R.string.notificationChannelName), NotificationManager.IMPORTANCE_LOW);
+        channel.setShowBadge(false);
+        channel.setSound(null, null);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager != null)
+            notificationManager.createNotificationChannel(channel);
+    }
+
+    public boolean hasSDCard() {
+        return mSDCardDirectory != null;
+    }
+
+    public File getExternalDirectory() {
+        return new File(Environment.getExternalStorageDirectory(), "Trekarta");
+    }
+
+    public File getSDCardDirectory() {
+        return mSDCardDirectory;
+    }
+
+    public File getExternalDir(String type) {
+        String externalDir = Configuration.getExternalStorage();
+        if (externalDir == null) {
+            return getExternalFilesDir(type);
+        } else {
+            File dir = new File(externalDir, type);
+            if (!dir.exists())
+                //noinspection ResultOfMethodCallIgnored
+                dir.mkdirs();
+            return dir;
+        }
+    }
+
+    public static File getExternalDirForContext(Context context, String type) {
+        if (!Configuration.isInitialized()) {
+            PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
+            Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(context));
+        }
+        String externalDir = Configuration.getExternalStorage();
+        if (externalDir == null)
+            return context.getExternalFilesDir(type);
+        else
+            return new File(externalDir, type);
+    }
+
     public synchronized SQLiteDatabase getDetailedMapDatabase() {
         if (mDetailedMapHelper == null) {
-            File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
+            File dbFile = new File(getExternalDir("native"), Index.WORLDMAP_FILENAME);
             boolean fresh = !dbFile.exists();
             if (fresh)
                 copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
@@ -160,7 +247,7 @@ public class MapTrek extends Application {
 
     private synchronized HillshadeDatabaseHelper getHillshadeDatabaseHelper(boolean reset) {
         if (mHillshadeHelper == null) {
-            File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
+            File file = new File(getExternalDir("native"), Index.HILLSHADE_FILENAME);
             if (reset)
                 //noinspection ResultOfMethodCallIgnored
                 file.delete();
@@ -202,7 +289,7 @@ public class MapTrek extends Application {
 
     public synchronized WaypointDbDataSource getWaypointDbDataSource() {
         if (mWaypointDbDataSource == null) {
-            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
+            File waypointsFile = new File(getExternalDir("databases"), "waypoints.sqlitedb");
             mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
         }
         return mWaypointDbDataSource;

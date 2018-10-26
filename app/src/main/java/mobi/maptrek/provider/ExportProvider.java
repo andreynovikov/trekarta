@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 
 public class ExportProvider extends ContentProvider {
@@ -289,8 +290,8 @@ public class ExportProvider extends ContentProvider {
         synchronized (ExportProvider.class) {
             if (mCachedStrategy == null) {
                 SimplePathStrategy simplePathStrategy = new SimplePathStrategy();
-                simplePathStrategy.addRoot("data", buildPath(context.getExternalFilesDir("data")));
-                simplePathStrategy.addRoot("databases", buildPath(context.getExternalFilesDir("databases")));
+                simplePathStrategy.addRoot("data", buildPath(MapTrek.getExternalDirForContext(context, "data")));
+                simplePathStrategy.addRoot("databases", buildPath(MapTrek.getExternalDirForContext(context,"databases")));
                 simplePathStrategy.addRoot("export", buildPath(context.getExternalCacheDir(), "export"));
                 mCachedStrategy = simplePathStrategy;
             }

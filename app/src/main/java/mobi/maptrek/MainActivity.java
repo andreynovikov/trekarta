@@ -260,6 +260,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
 
+    public static final String NEW_APPLICATION_STORAGE = "-=MOVE_TO_APP=-";
+    public static final String NEW_EXTERNAL_STORAGE = "-=MOVE_TO_ROOT=-";
+    public static final String NEW_SD_STORAGE = "-=MOVE_TO_SD=-";
+
     public enum TRACKING_STATE {
         DISABLED,
         PENDING,
@@ -391,12 +395,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private Handler mBackgroundHandler;
     private Handler mMainHandler;
 
+    private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
+
     @SuppressLint("ShowToast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         logger.debug("onCreate()");
+
+        logger.error("ES: {}", Configuration.getExternalStorage());
+        logger.error("New ES: {}", Configuration.getNewExternalStorage());
+        if (Configuration.getNewExternalStorage() != null) {
+            startActivity(new Intent(this, DataMoveActivity.class));
+            finish();
+            return;
+        }
+
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_main);
@@ -435,7 +450,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mFragmentManager.addOnBackStackChangedListener(this);
         mDataFragment = (DataFragment) mFragmentManager.findFragmentByTag("data");
 
-        File mapsDir = getExternalFilesDir("maps");
+        File mapsDir = application.getExternalDir("maps");
 
         // Provide application context so that maps can be cached on rotation
         mNativeMapIndex = application.getMapIndex();
@@ -689,6 +704,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             addWaypointMarker(waypoint);
             mTotalDataItems++;
         }
+        mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
+        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED));
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
 
@@ -863,6 +880,65 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             setMapLocation(position.getGeoPoint());
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
+        } else if ("mobi.maptrek.action.MOVE_DATA".equals(action)) {
+            final AtomicInteger selected = new AtomicInteger(0);
+            boolean hasSDCard = MapTrek.getApplication().hasSDCard();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.titleMoveData);
+            CharSequence[] items = new CharSequence[hasSDCard ? 2 : 1];
+            final String[] storageVariants = new String[hasSDCard ? 2 : 1];
+            String externalStorage = Configuration.getExternalStorage();
+            if (externalStorage != null) {
+                items[0] = getString(R.string.msgMoveDataToApplicationStorage);
+                storageVariants[0] = NEW_APPLICATION_STORAGE;
+            } else {
+                items[0] = getString(R.string.msgMoveDataToExternalStorage);
+                storageVariants[0] = NEW_EXTERNAL_STORAGE;
+            }
+            if (hasSDCard) {
+                if (MapTrek.getApplication().getSDCardDirectory().getAbsolutePath().equals(externalStorage)) {
+                    items[1] = getString(R.string.msgMoveDataToExternalStorage);
+                    storageVariants[1] = NEW_EXTERNAL_STORAGE;
+                } else {
+                    items[1] = getString(R.string.msgMoveDataToSDCard);
+                    storageVariants[1] = NEW_SD_STORAGE;
+                }
+            }
+            builder.setSingleChoiceItems(items, selected.get(), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selected.set(which);
+                }
+            });
+            builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final int item = selected.get();
+                    if (!NEW_APPLICATION_STORAGE.equals(storageVariants[item])) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(R.string.actionMoveData);
+                        if (NEW_EXTERNAL_STORAGE.equals(storageVariants[item]))
+                            builder.setMessage(R.string.msgMoveDataToExternalStorageExplanation);
+                        else
+                            builder.setMessage(R.string.msgMoveDataToSDCardExplanation);
+                        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Configuration.setNewExternalStorage(storageVariants[item]);
+                                MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
+                            }
+                        });
+                        builder.setNegativeButton(R.string.cancel, null);
+                        AlertDialog nextDialog = builder.create();
+                        nextDialog.show();
+                    } else {
+                        Configuration.setNewExternalStorage(storageVariants[item]);
+                        MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
+                    }
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(new Runnable() {
                 @Override
@@ -1094,33 +1170,45 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
 
-        mMap.destroy();
+        if (mMap != null)
+            mMap.destroy();
         //mMapScaleBar.destroy();
 
         for (FileDataSource source : mData)
             source.setVisible(false);
 
-        unregisterReceiver(mWaypointBroadcastReceiver);
-        mWaypointDbDataSource.close();
+        if (mWaypointBroadcastReceiver != null) {
+            unregisterReceiver(mWaypointBroadcastReceiver);
+            mWaypointBroadcastReceiver = null;
+        }
+        if (mWaypointDbDataSource != null)
+            mWaypointDbDataSource.close();
 
         mProgressHandler = null;
 
-        logger.debug("  stopping threads...");
-        mBackgroundThread.interrupt();
-        mBackgroundHandler.removeCallbacksAndMessages(null);
-        mBackgroundThread.quit();
-        mBackgroundThread = null;
+        if (mBackgroundThread != null) {
+            logger.debug("  stopping threads...");
+            mBackgroundThread.interrupt();
+            mBackgroundHandler.removeCallbacksAndMessages(null);
+            mBackgroundThread.quit();
+            mBackgroundThread = null;
+        }
 
         mMainHandler = null;
 
         if (isFinishing()) {
-            mMapIndex.clear();
+            if (mMapIndex != null)
+                mMapIndex.clear();
             sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
-            mShieldFactory.dispose();
-            mOsmcSymbolFactory.dispose();
+            if (mShieldFactory != null)
+                mShieldFactory.dispose();
+            if (mOsmcSymbolFactory != null)
+                mOsmcSymbolFactory.dispose();
         }
 
         mFragmentManager = null;
+
+        Configuration.commit();
         logger.debug("  done!");
     }
 
@@ -2014,8 +2102,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
             mMap.updateMap(true);
             Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
-            if (fragment != null && ((TrackInformation)fragment).hasCurrentTrack()) {
-                ((TrackInformation)fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
+            if (fragment != null && ((TrackInformation) fragment).hasCurrentTrack()) {
+                ((TrackInformation) fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
             }
         }
         mTrackingState = TRACKING_STATE.TRACKING;
@@ -2490,7 +2578,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (waypoint.source instanceof WaypointDbDataSource) {
             mWaypointDbDataSource.saveWaypoint(waypoint);
         } else {
-            Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
+            Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
                     mMainHandler.post(new Runnable() {
@@ -2534,7 +2622,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             mWaypointDbDataSource.deleteWaypoint(waypoint);
                         } else {
                             ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
-                            Manager.save(getApplicationContext(), (FileDataSource) waypoint.source, new Manager.OnSaveListener() {
+                            Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                                 @Override
                                 public void onSaved(FileDataSource source) {
                                     mMainHandler.post(new Runnable() {
@@ -2597,7 +2685,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             mTotalDataItems--;
                         }
                         for (FileDataSource source : sources) {
-                            Manager.save(getApplicationContext(), source, new Manager.OnSaveListener() {
+                            Manager.save(source, new Manager.OnSaveListener() {
                                 @Override
                                 public void onSaved(final FileDataSource source) {
                                     mMainHandler.post(new Runnable() {
@@ -2757,7 +2845,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onTrackSave(final Track track) {
         FileDataSource fileSource = (FileDataSource) track.source;
-        Manager manager = Manager.getDataManager(getApplicationContext(), fileSource.path);
+        Manager manager = Manager.getDataManager(fileSource.path);
         if (manager instanceof TrackManager) {
             // Use optimized save for native track
             try {
@@ -2781,7 +2869,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         } else {
             // Save hole data source
-            Manager.save(getApplicationContext(), (FileDataSource) track.source, new Manager.OnSaveListener() {
+            Manager.save((FileDataSource) track.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
                     mMainHandler.post(new Runnable() {
@@ -2833,7 +2921,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         // If dismissed, actually remove track
                         // Native tracks can not be deleted through this procedure
                         ((FileDataSource) track.source).tracks.remove(track);
-                        Manager.save(getApplicationContext(), (FileDataSource) track.source, new Manager.OnSaveListener() {
+                        Manager.save((FileDataSource) track.source, new Manager.OnSaveListener() {
                             @Override
                             public void onSaved(FileDataSource source) {
                                 mMainHandler.post(new Runnable() {
@@ -3695,11 +3783,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
-                //return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -3804,11 +3888,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     };
 
-    private BroadcastReceiver mWaypointBroadcastReceiver = new BroadcastReceiver() {
+    class WaypointBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
+            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED.equals(action)) {
+                sendExplicitBroadcast(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
+            }
             if (WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED.equals(action)) {
                 for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints())
                     removeWaypointMarker(waypoint);
@@ -3824,7 +3911,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             }
         }
-    };
+    }
 
     private void addSourceToMap(FileDataSource source) {
         for (Waypoint waypoint : source.waypoints) {

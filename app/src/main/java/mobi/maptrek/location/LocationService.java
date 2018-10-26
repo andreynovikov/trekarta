@@ -40,6 +40,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -65,6 +66,7 @@ import java.util.Set;
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.FileDataSource;
@@ -78,7 +80,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private static final int SKIP_INITIAL_LOCATIONS = 2;
     private static final long TOO_SMALL_PERIOD = DateUtils.MINUTE_IN_MILLIS; // 1 minute
     private static final float TOO_SMALL_DISTANCE = 100f; // 100 meters
-    private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+    private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
 
     private static final int NOTIFICATION_ID = 25501;
     private static final boolean DEBUG_ERRORS = false;
@@ -279,7 +281,6 @@ public class LocationService extends BaseLocationService implements LocationList
             ntfId = R.mipmap.ic_stat_waiting;
         }
         if (mGpsStatus == LocationService.GPS_OFF) {
-            titleId = R.string.notifLocationWaiting;
             ntfId = R.mipmap.ic_stat_off;
         }
         if (mErrorTime > 0) {
@@ -319,6 +320,8 @@ public class LocationService extends BaseLocationService implements LocationList
         Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.actionPause), piPause).build();
 
         Notification.Builder builder = new Notification.Builder(this);
+        if (Build.VERSION.SDK_INT > 25)
+            builder.setChannelId("ongoing");
         builder.setWhen(mErrorTime);
         builder.setSmallIcon(ntfId);
         builder.setContentIntent(piResult);
@@ -337,7 +340,6 @@ public class LocationService extends BaseLocationService implements LocationList
         else
             builder.setContentText(message);
         builder.setOngoing(true);
-
         return builder.build();
     }
 
@@ -345,13 +347,14 @@ public class LocationService extends BaseLocationService implements LocationList
         if (mForeground) {
             logger.debug("updateNotification()");
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, getNotification());
+            if (notificationManager != null)
+                notificationManager.notify(NOTIFICATION_ID, getNotification());
         }
     }
 
     private void openDatabase() {
         //noinspection SpellCheckingInspection
-        File path = new File(getExternalFilesDir("databases"), "track.sqlitedb");
+        File path = new File(MapTrek.getApplication().getExternalDir("databases"), "track.sqlitedb");
         try {
             mTrackDB = SQLiteDatabase.openDatabase(path.getAbsolutePath(), null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
             //noinspection SpellCheckingInspection
@@ -522,7 +525,7 @@ public class LocationService extends BaseLocationService implements LocationList
                     .putExtra("reason", "missing"));
             return;
         }
-        File dataDir = getExternalFilesDir("data");
+        File dataDir = MapTrek.getApplication().getExternalDir("data");
         if (dataDir == null) {
             logger.error("Can not save track: application data folder missing");
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
@@ -534,7 +537,7 @@ public class LocationService extends BaseLocationService implements LocationList
         //FIXME Not UTC time!
         source.name = TIME_FORMAT.format(new Date(mLastTrack.points.get(0).time));
         source.tracks.add(mLastTrack);
-        Manager.save(this, source, new Manager.OnSaveListener() {
+        Manager.save(source, new Manager.OnSaveListener() {
             @Override
             public void onSaved(FileDataSource source) {
                 sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true)
@@ -632,20 +635,10 @@ public class LocationService extends BaseLocationService implements LocationList
         final Handler handler = new Handler();
 
         if (mTrackingEnabled) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    writeTrack(location, continuous);
-                }
-            });
+            handler.post(() -> writeTrack(location, continuous));
         }
         for (final ILocationListener callback : mLocationCallbacks) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                        callback.onLocationChanged();
-                }
-            });
+            handler.post(callback::onLocationChanged);
         }
         final int n = mLocationRemoteCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {
@@ -665,12 +658,7 @@ public class LocationService extends BaseLocationService implements LocationList
         updateNotification();
         final Handler handler = new Handler();
         for (final ILocationListener callback : mLocationCallbacks) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onGpsStatusChanged();
-                }
-            });
+            handler.post(callback::onGpsStatusChanged);
         }
         final int n = mLocationRemoteCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {
@@ -858,8 +846,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private final ILocationRemoteService.Stub mLocationRemoteBinder = new ILocationRemoteService.Stub() {
-        public void registerCallback(ILocationCallback callback)
-        {
+        public void registerCallback(ILocationCallback callback) {
             logger.debug("Register callback");
             if (callback == null)
                 return;
@@ -874,24 +861,22 @@ public class LocationService extends BaseLocationService implements LocationList
             mLocationRemoteCallbacks.register(callback);
         }
 
-        public void unregisterCallback(ILocationCallback callback)
-        {
+        public void unregisterCallback(ILocationCallback callback) {
             if (callback != null)
                 mLocationRemoteCallbacks.unregister(callback);
         }
 
-        public boolean isLocating()
-        {
+        public boolean isLocating() {
             return mLocationsEnabled;
         }
 
         @Override
-        public Location getLocation() throws RemoteException {
+        public Location getLocation() {
             return mLastKnownLocation;
         }
 
         @Override
-        public int getStatus() throws RemoteException {
+        public int getStatus() {
             return mGpsStatus;
         }
     };
@@ -902,8 +887,8 @@ public class LocationService extends BaseLocationService implements LocationList
             if (!mLocationsEnabled)
                 connect();
             if (!"unknown".equals(mLastKnownLocation.getProvider())) {
-                    callback.onLocationChanged();
-                    callback.onGpsStatusChanged();
+                callback.onLocationChanged();
+                callback.onGpsStatusChanged();
             }
             mLocationCallbacks.add(callback);
         }
@@ -1053,7 +1038,8 @@ public class LocationService extends BaseLocationService implements LocationList
             double lon = 30.3;
             if (ddd < 10) {
                 mLastKnownLocation.setBearing(ddd);
-            } if (ddd < 90) {
+            }
+            if (ddd < 90) {
                 mLastKnownLocation.setBearing(10);
             } else if (ddd < 110) {
                 mLastKnownLocation.setBearing(100 - ddd);

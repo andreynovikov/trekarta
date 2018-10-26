@@ -125,6 +125,11 @@ public class DataExport extends DialogFragment implements ProgressListener {
     }
 
     @Override
+    public void onProgressFinished(Bundle data) {
+
+    }
+
+    @Override
     public void onProgressAnnotated(String annotation) {
 
     }
@@ -203,7 +208,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
                     logger.error("Failed to remove old file");
                 exportSource.name = name;
                 exportSource.path = exportFile.getAbsolutePath();
-                Manager manager = Manager.getDataManager(getContext(), exportSource.path);
+                Manager manager = Manager.getDataManager(exportSource.path);
                 if (manager == null) {
                     logger.error("Failed to get data manager for path: {}", exportSource.path);
                     dismiss();

@@ -16,6 +16,8 @@
 
 package mobi.maptrek.util;
 
+import android.os.Bundle;
+
 /**
  * Callback interface for progress monitoring.
  */
@@ -38,6 +40,13 @@ public interface ProgressListener {
      * Called when operation has ended, is not called if error (exception) has occurred.
      */
     void onProgressFinished();
+
+    /**
+     * Called when operation has ended, is not called if error (exception) has occurred.
+     *
+     * @param data data bundle that needs to be passed to handler
+     */
+    void onProgressFinished(Bundle data);
 
     /**
      * Called when progress step is annotated.

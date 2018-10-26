@@ -266,4 +266,21 @@
     <string name="introPistes">Теперь на зимней карте отображаются обработка склонов, наличие освещения и назначение склона и лыжни.</string>
     <string name="pref_general">Основное</string>
     <string name="pref_zoom_buttons_visible_title">Видимые кнопки масштаба</string>
+    <string name="titleMoveData">Перемещение данных приложения</string>
+    <string name="actionMoveData">Переместить данные</string>
+    <string name="msgWriteExternalStorageRationale">Трекарте требуется %s, чтобы иметь возможность переместить файлы данных и карт на внешний носитель</string>
+    <string name="msgMoveDataToApplicationStorage">Переместить обратно в область памяти приложения</string>
+    <string name="msgMoveDataToExternalStorage">Переместить в пользовательскую область памяти, чтобы исключить потерю данных при удалении приложения</string>
+    <string name="msgMoveDataToSDCard">Переместить на SD-карту, чтобы освободить память устройства</string>
+    <string name="finishing">Завершение…</string>
+    <string name="intentMoveData">Перемещение данных Трекарты</string>
+    <string name="msgFileMoveError">ошибка перемещения файла</string>
+    <string name="msgNotEnoughSpaceOnDestinationStorage">недостаточно места в выбранном хранилище</string>
+    <string name="msgCannotAccessSourceFolder">нет доступа к исходной папке</string>
+    <string name="msgDestinationFolderIsNotEmpty">папка назначения не является пустой</string>
+    <string name="msgCannotCreateDestinationFolder">невозможно создать папку назначения</string>
+    <string name="msgFailedToMoveData">Ошибка перемещения данных: %s</string>
+    <string name="msgMovingFiles">Перемещение файлов…</string>
+    <string name="msgMoveDataToExternalStorageExplanation">Все данные приложения - места, треки и карты будут перемещены в корень пользовательской области памяти. Это исключит безусловное удаление данных при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
+    <string name="msgMoveDataToSDCardExplanation">Все данные приложения - места, треки и карты будут перемещены на SD-карту. В зависимости от типа SD-карты это может привести к значительному снижению производительности. Пожалуйста, учтите, что данные по-прежнему будут автоматически удалены при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
 </resources>
