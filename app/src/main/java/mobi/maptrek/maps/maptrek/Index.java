@@ -724,17 +724,16 @@ public class Index {
     }
 
     private void setDownloading(final int x, final int y, final long enqueue, long hillshadeEnquire) {
-        new Thread(new Runnable() { // do not block if another map is being imported
-            public void run() {
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_MAPS_DOWNLOADING, enqueue);
-                int updated = mMapsDatabase.update(TABLE_MAPS, values, WHERE_MAPS_XY,
-                        new String[]{String.valueOf(x), String.valueOf(y)});
-                if (updated == 0) {
-                    values.put(COLUMN_MAPS_X, x);
-                    values.put(COLUMN_MAPS_Y, y);
-                    mMapsDatabase.insert(TABLE_MAPS, null, values);
-                }
+        // do not block if another map is being imported
+        new Thread(() -> {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_MAPS_DOWNLOADING, enqueue);
+            int updated = mMapsDatabase.update(TABLE_MAPS, values, WHERE_MAPS_XY,
+                    new String[]{String.valueOf(x), String.valueOf(y)});
+            if (updated == 0) {
+                values.put(COLUMN_MAPS_X, x);
+                values.put(COLUMN_MAPS_Y, y);
+                mMapsDatabase.insert(TABLE_MAPS, null, values);
             }
         }).start();
         if (x < 0 || y < 0)

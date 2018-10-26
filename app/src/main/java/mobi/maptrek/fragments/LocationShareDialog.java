@@ -36,8 +36,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import org.oscim.utils.Osm;
-
 import java.util.List;
 import java.util.Locale;
 
@@ -45,6 +43,7 @@ import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.MemoryDataSource;
+import mobi.maptrek.util.Osm;
 import mobi.maptrek.util.StringFormatter;
 
 public class LocationShareDialog extends DialogFragment implements DialogInterface.OnClickListener {

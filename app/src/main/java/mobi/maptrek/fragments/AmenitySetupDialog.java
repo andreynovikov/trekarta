@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -63,11 +62,7 @@ public class AmenitySetupDialog extends DialogFragment {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         if (title != null)
             dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> {});
         dialogBuilder.setView(dialogView);
 
         final Dialog dialog = dialogBuilder.create();
@@ -164,14 +159,11 @@ public class AmenitySetupDialog extends DialogFragment {
             itemHolder.name.setText(group.first);
 
             itemHolder.zoom.setPosition(18 - group.second);
-            itemHolder.zoom.setOnDiscreteSliderChangeListener(new DiscreteSlider.OnDiscreteSliderChangeListener() {
-                @Override
-                public void onPositionChanged(int pos) {
-                    boolean changed = Tags.kindZooms[position] != 18 - pos;
-                    Tags.kindZooms[position] = 18 - pos;
-                    if (changed && mCallback != null) {
-                        mCallback.onAmenityKindVisibilityChanged();
-                    }
+            itemHolder.zoom.setOnDiscreteSliderChangeListener(pos -> {
+                boolean changed = Tags.kindZooms[position] != 18 - pos;
+                Tags.kindZooms[position] = 18 - pos;
+                if (changed && mCallback != null) {
+                    mCallback.onAmenityKindVisibilityChanged();
                 }
             });
 

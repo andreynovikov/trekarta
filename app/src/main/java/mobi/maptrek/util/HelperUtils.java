@@ -37,12 +37,7 @@ public class HelperUtils {
     public static void showError(String message, CoordinatorLayout coordinatorLayout) {
         final Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.actionDismiss, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snackbar.dismiss();
-            }
-        });
+        snackbar.setAction(R.string.actionDismiss, view -> snackbar.dismiss());
         TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
         snackbarTextView.setMaxLines(99);
         snackbar.show();
@@ -57,12 +52,7 @@ public class HelperUtils {
             Snackbar snackbar = Snackbar
                     //TODO Return back actionGotIt sometime
                     .make(coordinatorLayout, messageResId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Configuration.setAdviceState(advice);
-                        }
-                    });
+                    .setAction(R.string.ok, view -> Configuration.setAdviceState(advice));
             TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
             snackbarTextView.setMaxLines(99);
             snackbar.show();

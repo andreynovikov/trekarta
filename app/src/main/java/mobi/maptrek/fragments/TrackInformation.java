@@ -132,35 +132,29 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         mElevationChart = (LineChart) rootView.findViewById(R.id.elevationChart);
         mSpeedChart = (LineChart) rootView.findViewById(R.id.speedChart);
         mMoreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
-        mMoreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditorMode) {
-                    mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                    mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
-                    mListener.onTrackSave(mTrack);
-                    setEditorMode(false);
-                } else {
-                    PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
-                    mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
-                    popup.inflate(R.menu.context_menu_track);
-                    Menu menu = popup.getMenu();
-                    menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
-                    menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
-                    popup.setOnMenuItemClickListener(TrackInformation.this);
-                    popup.show();
-                }
+        mMoreButton.setOnClickListener(v -> {
+            if (mEditorMode) {
+                mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+                mListener.onTrackSave(mTrack);
+                setEditorMode(false);
+            } else {
+                PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
+                mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
+                popup.inflate(R.menu.context_menu_track);
+                Menu menu = popup.getMenu();
+                menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
+                menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
+                popup.setOnMenuItemClickListener(TrackInformation.this);
+                popup.show();
             }
         });
         if (mIsCurrent) {
             ImageButton stopButton = (ImageButton) rootView.findViewById(R.id.stopButton);
             stopButton.setVisibility(View.VISIBLE);
-            stopButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mMapHolder.disableTracking();
-                    mFragmentHolder.popCurrent();
-                }
+            stopButton.setOnClickListener(v -> {
+                mMapHolder.disableTracking();
+                mFragmentHolder.popCurrent();
             });
         }
         mEditorMode = false;
@@ -474,20 +468,12 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mTrack.name);
             colorSwatch.setColor(mTrack.style.color);
-            colorSwatch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ColorPickerDialog dialog = new ColorPickerDialog();
-                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
-                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                    dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
-                        @Override
-                        public void onColorSelected(int color) {
-                            colorSwatch.setColor(color);
-                        }
-                    });
-                    dialog.show(getFragmentManager(), "ColorPickerDialog");
-                }
+            colorSwatch.setOnClickListener(v -> {
+                ColorPickerDialog dialog = new ColorPickerDialog();
+                dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
+                dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                dialog.setOnColorSelectedListener(colorSwatch::setColor);
+                dialog.show(getFragmentManager(), "ColorPickerDialog");
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;

@@ -34,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -157,10 +156,8 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
      */
     @SuppressWarnings("ResourceType")
     private void loadHeadersFromResource(@MenuRes int resId, List<PanelMenuItem> target) {
-        XmlResourceParser parser = null;
-        try {
-            Resources resources = getResources();
-            parser = resources.getXml(resId);
+        Resources resources = getResources();
+        try (XmlResourceParser parser = resources.getXml(resId)) {
             AttributeSet attrs = Xml.asAttributeSet(parser);
 
             int type;
@@ -217,14 +214,9 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
                     XmlUtils.skipCurrentTag(parser);
                 }
             }
-
         } catch (XmlPullParserException | IOException e) {
             throw new RuntimeException("Error parsing headers", e);
-        } finally {
-            if (parser != null)
-                parser.close();
         }
-
     }
 
     public class MenuListAdapter extends BaseAdapter {
@@ -294,12 +286,9 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
                 itemHolder.check.setChecked(item.isChecked());
                 itemHolder.check.setVisibility(View.VISIBLE);
                 // Make switch emulate item selection
-                itemHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        item.setChecked(itemHolder.check.isChecked());
-                        onListItemClick(listView, view, position, getItemId(position));
-                    }
+                itemHolder.check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    item.setChecked(itemHolder.check.isChecked());
+                    onListItemClick(listView, view, position, getItemId(position));
                 });
             } else {
                 itemHolder.check.setVisibility(View.GONE);
@@ -309,12 +298,9 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
                 itemHolder.action.setVisibility(View.GONE);
             }
             // Make whole item clickable in any case
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    item.setChecked(!itemHolder.check.isChecked());
-                    onListItemClick(listView, view, position, getItemId(position));
-                }
+            convertView.setOnClickListener(v -> {
+                item.setChecked(!itemHolder.check.isChecked());
+                onListItemClick(listView, view, position, getItemId(position));
             });
             return convertView;
         }

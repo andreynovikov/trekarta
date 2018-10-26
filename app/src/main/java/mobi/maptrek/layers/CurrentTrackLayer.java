@@ -63,12 +63,9 @@ public class CurrentTrackLayer extends TrackLayer {
     private ServiceConnection mTrackingConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mTrackingService = (ILocationService) service;
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mTrack.copyFrom(mTrackingService.getTrack());
-                    mTrackingService.registerTrackingCallback(mTrackingListener);
-                }
+            AsyncTask.execute(() -> {
+                mTrack.copyFrom(mTrackingService.getTrack());
+                mTrackingService.registerTrackingCallback(mTrackingListener);
             });
         }
 
@@ -80,13 +77,11 @@ public class CurrentTrackLayer extends TrackLayer {
     //FIXME Ugly hack
     private Track.TrackPoint point = null;
 
-    private ITrackingListener mTrackingListener = new ITrackingListener() {
-        public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
-            if (point != null) {
-                mTrack.addPoint(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
-                updatePoints();
-            }
-            point = mTrack.new TrackPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
+    private ITrackingListener mTrackingListener = (continuous, lat, lon, elev, speed, trk, accuracy, time) -> {
+        if (point != null) {
+            mTrack.addPoint(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
+            updatePoints();
         }
+        point = mTrack.new TrackPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
     };
 }

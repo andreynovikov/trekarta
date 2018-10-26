@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -79,12 +78,7 @@ public class MapList extends Fragment {
         mTransparencySeekBar = (SeekBar) rootView.findViewById(R.id.transparencySeekBar);
         mMapList = (LinearLayout) rootView.findViewById(R.id.mapList);
 
-        mHideSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mListener.onHideMapObjects(isChecked);
-            }
-        });
+        mHideSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mListener.onHideMapObjects(isChecked));
         mTransparencySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -197,13 +191,10 @@ public class MapList extends Fragment {
         } else {
             indicator.setBackgroundColor(Color.TRANSPARENT);
         }
-        mapView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                map.setShouldNotCloseDataSource();
-                mListener.onMapSelected(mapFile);
-                mFragmentHolder.popCurrent();
-            }
+        mapView.setOnClickListener(v -> {
+            map.setShouldNotCloseDataSource();
+            mListener.onMapSelected(mapFile);
+            mFragmentHolder.popCurrent();
         });
         mMapList.addView(mapView);
     }

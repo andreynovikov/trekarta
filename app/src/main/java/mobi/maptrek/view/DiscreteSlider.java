@@ -99,13 +99,10 @@ public class DiscreteSlider extends FrameLayout {
         setThumb(thumb, backdropStrokeWidth);
         setProgressDrawable(progressDrawable);
 
-        discreteSeekBar.setOnDiscreteSeekBarChangeListener(new DiscreteSeekBar.OnDiscreteSeekBarChangeListener() {
-            @Override
-            public void onPositionChanged(int position) {
-                if (onDiscreteSliderChangeListener != null) {
-                    onDiscreteSliderChangeListener.onPositionChanged(position);
-                    setPosition(position);
-                }
+        discreteSeekBar.setOnDiscreteSeekBarChangeListener(position -> {
+            if (onDiscreteSliderChangeListener != null) {
+                onDiscreteSliderChangeListener.onPositionChanged(position);
+                setPosition(position);
             }
         });
     }

@@ -52,18 +52,14 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         }
 
         Preference sdcardPref = findPreference("move_data");
-        sdcardPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                mFragmentHolder.popCurrent();
-                return false;
-            }
+        sdcardPref.setOnPreferenceClickListener(preference -> {
+            mFragmentHolder.popCurrent();
+            return false;
         });
         Preference resetPref = findPreference("reset_advices");
-        resetPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                mFragmentHolder.popCurrent();
-                return false;
-            }
+        resetPref.setOnPreferenceClickListener(preference -> {
+            mFragmentHolder.popCurrent();
+            return false;
         });
 
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);

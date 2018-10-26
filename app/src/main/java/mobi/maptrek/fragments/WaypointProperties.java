@@ -19,13 +19,11 @@ package mobi.maptrek.fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
@@ -70,32 +68,21 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
         }
 
         mNameEdit.setText(name);
-        mNameEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    returnResult();
-                    mFragmentHolder.popCurrent();
-                }
-                return false;
+        mNameEdit.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                returnResult();
+                mFragmentHolder.popCurrent();
             }
+            return false;
         });
 
         mColorSwatch.setColor(color);
-        mColorSwatch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ColorPickerDialog dialog = new ColorPickerDialog();
-                dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
-                dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
-                    @Override
-                    public void onColorSelected(int color) {
-                        mColorSwatch.setColor(color);
-                    }
-                });
-                dialog.show(getFragmentManager(), "ColorPickerDialog");
-            }
+        mColorSwatch.setOnClickListener(v -> {
+            ColorPickerDialog dialog = new ColorPickerDialog();
+            dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
+            dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+            dialog.setOnColorSelectedListener(color1 -> mColorSwatch.setColor(color1));
+            dialog.show(getFragmentManager(), "ColorPickerDialog");
         });
     }
 

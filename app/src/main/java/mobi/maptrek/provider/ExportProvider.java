@@ -258,21 +258,18 @@ public class ExportProvider extends ContentProvider {
             file = new File(file.getAbsolutePath() + ".restore");
         logger.error("openFile: {} {} {}", uri, file, mode);
         try {
-            return ParcelFileDescriptor.open(file, fileMode, mHandler, new ParcelFileDescriptor.OnCloseListener() {
-                @Override
-                public void onClose(IOException e) {
-                    if (e == null || !(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
-                        if ("rwt".equals(mode)) {
-                            logger.error("saved");
-                            Intent intent = new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED);
-                            //noinspection ConstantConditions
-                            getContext().sendOrderedBroadcast(intent, null);
-                        }
-                        if ("export".equals(uri.getPathSegments().get(0))) {
-                            File file = mStrategy.getFileForUri(uri);
-                            //noinspection ResultOfMethodCallIgnored
-                            file.delete();
-                        }
+            return ParcelFileDescriptor.open(file, fileMode, mHandler, e -> {
+                if (e == null || !(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
+                    if ("rwt".equals(mode)) {
+                        logger.error("saved");
+                        Intent intent = new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED);
+                        //noinspection ConstantConditions
+                        getContext().sendOrderedBroadcast(intent, null);
+                    }
+                    if ("export".equals(uri.getPathSegments().get(0))) {
+                        File file1 = mStrategy.getFileForUri(uri);
+                        //noinspection ResultOfMethodCallIgnored
+                        file1.delete();
                     }
                 }
             });

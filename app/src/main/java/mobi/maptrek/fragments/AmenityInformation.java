@@ -88,13 +88,10 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageResource(R.drawable.ic_navigate);
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFragmentHolder.disableActionButton();
-                mMapHolder.navigateTo(mWaypoint.coordinates, mWaypoint.name);
-                mFragmentHolder.popAll();
-            }
+        floatingButton.setOnClickListener(v -> {
+            mFragmentHolder.disableActionButton();
+            mMapHolder.navigateTo(mWaypoint.coordinates, mWaypoint.name);
+            mFragmentHolder.popAll();
         });
 
         mMapHolder.showMarker(mWaypoint.coordinates, mWaypoint.name);
@@ -213,36 +210,30 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
                     @Override
                     public void onGlobalLayout() {
                         rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        rootView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isVisible()) {
-                                    Rect r = new Rect();
-                                    coordsView.getGlobalVisibleRect(r);
-                                    HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
-                                }
+                        rootView.postDelayed(() -> {
+                            if (isVisible()) {
+                                Rect r = new Rect();
+                                coordsView.getGlobalVisibleRect(r);
+                                HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
                             }
                         }, 1000);
                     }
                 });
             }
 
-            coordsView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
-                            mMapHolder.shareLocation(mWaypoint.coordinates, mWaypoint.name);
-                        } else {
-                            StringFormatter.coordinateFormat++;
-                            if (StringFormatter.coordinateFormat == 5)
-                                StringFormatter.coordinateFormat = 0;
-                            coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-                            Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
-                        }
+            coordsView.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
+                        mMapHolder.shareLocation(mWaypoint.coordinates, mWaypoint.name);
+                    } else {
+                        StringFormatter.coordinateFormat++;
+                        if (StringFormatter.coordinateFormat == 5)
+                            StringFormatter.coordinateFormat = 0;
+                        coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+                        Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
                     }
-                    return true;
                 }
+                return true;
             });
         }
 

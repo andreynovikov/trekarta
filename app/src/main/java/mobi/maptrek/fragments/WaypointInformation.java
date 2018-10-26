@@ -99,41 +99,22 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         final ImageButton shareButton = (ImageButton) rootView.findViewById(R.id.shareButton);
         final ImageButton deleteButton = (ImageButton) rootView.findViewById(R.id.deleteButton);
 
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setEditorMode(true);
-            }
+        editButton.setOnClickListener(v -> setEditorMode(true));
+        navigateButton.setOnClickListener(v -> onNavigate());
+        shareButton.setOnClickListener(v -> {
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
+            mListener.onWaypointShare(mWaypoint);
         });
-        navigateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onNavigate();
-            }
+        deleteButton.setOnClickListener(v -> {
+            Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+            v.startAnimation(shake);
         });
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
-                mListener.onWaypointShare(mWaypoint);
-            }
-        });
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
-                v.startAnimation(shake);
-            }
-        });
-        deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
-                mListener.onWaypointDelete(mWaypoint);
-                return true;
-            }
+        deleteButton.setOnLongClickListener(v -> {
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
+            mListener.onWaypointDelete(mWaypoint);
+            return true;
         });
 
         mExpanded = false;
@@ -161,12 +142,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                     }
                 });
 
-        rootView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gesture.onTouchEvent(event);
-            }
-        });
+        rootView.setOnTouchListener((v, event) -> gesture.onTouchEvent(event));
 
         mEditorMode = false;
 
@@ -265,23 +241,20 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
         mFloatingButton = mFragmentHolder.enableActionButton();
         setFloatingPointDrawable();
-        mFloatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isVisible())
-                    return;
-                if (mEditorMode) {
-                    mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                    mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
-                    mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+        mFloatingButton.setOnClickListener(v -> {
+            if (!isVisible())
+                return;
+            if (mEditorMode) {
+                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
+                mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
 
-                    mListener.onWaypointSave(mWaypoint);
-                    mListener.onWaypointFocus(mWaypoint);
-                    setEditorMode(false);
-                } else {
-                    mFragmentHolder.disableActionButton();
-                    onNavigate();
-                }
+                mListener.onWaypointSave(mWaypoint);
+                mListener.onWaypointFocus(mWaypoint);
+                setEditorMode(false);
+            } else {
+                mFragmentHolder.disableActionButton();
+                onNavigate();
             }
         });
 
@@ -351,31 +324,25 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 coordsView.setCompoundDrawables(null, null, drawable, null);
             }
 
-            coordsView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                        if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
-                            // your action for drawable click event
-                            mWaypoint.locked = !mWaypoint.locked;
-                            mListener.onWaypointSave(mWaypoint);
-                            mListener.onWaypointFocus(mWaypoint);
-                            updateWaypointInformation(mLatitude, mLongitude);
-                            return true;
-                        }
+            coordsView.setOnTouchListener((v, event) -> {
+                if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+                    if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
+                        // your action for drawable click event
+                        mWaypoint.locked = !mWaypoint.locked;
+                        mListener.onWaypointSave(mWaypoint);
+                        mListener.onWaypointFocus(mWaypoint);
+                        updateWaypointInformation(mLatitude, mLongitude);
+                        return true;
                     }
-                    return false;
                 }
+                return false;
             });
-            coordsView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    StringFormatter.coordinateFormat++;
-                    if (StringFormatter.coordinateFormat == 5)
-                        StringFormatter.coordinateFormat = 0;
-                    coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-                    Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
-                }
+            coordsView.setOnClickListener(v -> {
+                StringFormatter.coordinateFormat++;
+                if (StringFormatter.coordinateFormat == 5)
+                    StringFormatter.coordinateFormat = 0;
+                coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+                Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
             });
 
             if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)
@@ -463,22 +430,14 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
             ((EditText) rootView.findViewById(R.id.descriptionEdit)).setText(mWaypoint.description);
             colorSwatch.setColor(mWaypoint.style.color);
-            colorSwatch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // TODO Implement class that hides this behaviour
-                    ArrayList<Integer> colorList = new ArrayList<>(7);
-                    ColorPickerDialog dialog = new ColorPickerDialog();
-                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, colorSwatch.getColor());
-                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                    dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
-                        @Override
-                        public void onColorSelected(int color) {
-                            colorSwatch.setColor(color);
-                        }
-                    });
-                    dialog.show(getFragmentManager(), "ColorPickerDialog");
-                }
+            colorSwatch.setOnClickListener(v -> {
+                // TODO Implement class that hides this behaviour
+                ArrayList<Integer> colorList = new ArrayList<>(7);
+                ColorPickerDialog dialog = new ColorPickerDialog();
+                dialog.setColors(MarkerStyle.DEFAULT_COLORS, colorSwatch.getColor());
+                dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                dialog.setOnColorSelectedListener(color -> colorSwatch.setColor(color));
+                dialog.show(getFragmentManager(), "ColorPickerDialog");
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;

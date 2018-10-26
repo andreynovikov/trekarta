@@ -25,7 +25,6 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -134,16 +133,13 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
 
         if (mShowPasteButton) {
             mPasteButton = (ImageButton) dialogView.findViewById(R.id.pasteButton);
-            mPasteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mClipboard == null)
-                        return;
-                    ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
-                    CharSequence pasteData = item.getText();
-                    if (pasteData != null)
-                        textEdit.setText(pasteData);
-                }
+            mPasteButton.setOnClickListener(v -> {
+                if (mClipboard == null)
+                    return;
+                ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
+                CharSequence pasteData = item.getText();
+                if (pasteData != null)
+                    textEdit.setText(pasteData);
             });
             onPrimaryClipChanged();
         }
@@ -152,18 +148,8 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputPositiveClick(id, textEdit.getText().toString());
-            }
-        });
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputNegativeClick(id);
-            }
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> mCallback.onTextInputPositiveClick(id, textEdit.getText().toString()));
+        dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> mCallback.onTextInputNegativeClick(id));
         dialogBuilder.setView(dialogView);
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);

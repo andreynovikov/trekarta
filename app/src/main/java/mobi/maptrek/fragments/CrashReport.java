@@ -48,36 +48,33 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_send));
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
-                File file = MapTrek.getApplication().getExceptionLog();
-                intent.putExtra(Intent.EXTRA_STREAM, ExportProvider.getUriForFile(getContext(), file));
-                intent.setType("vnd.android.cursor.dir/email");
-                intent.putExtra(Intent.EXTRA_SUBJECT, "MapTrek crash report");
-                StringBuilder text = new StringBuilder();
-                text.append("Device : ").append(Build.DEVICE);
-                text.append("\nBrand : ").append(Build.BRAND);
-                text.append("\nModel : ").append(Build.MODEL);
-                text.append("\nProduct : ").append(Build.PRODUCT);
-                text.append("\nLocale : ").append(Locale.getDefault().toString());
-                text.append("\nBuild : ").append(Build.DISPLAY);
-                text.append("\nVersion : ").append(Build.VERSION.RELEASE);
-                try {
-                    PackageInfo info = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
-                    if (info != null) {
-                        text.append("\nApk Version : ").append(info.versionCode).append(" ").append(info.versionName);
-                    }
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+        floatingButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
+            File file = MapTrek.getApplication().getExceptionLog();
+            intent.putExtra(Intent.EXTRA_STREAM, ExportProvider.getUriForFile(getContext(), file));
+            intent.setType("vnd.android.cursor.dir/email");
+            intent.putExtra(Intent.EXTRA_SUBJECT, "MapTrek crash report");
+            StringBuilder text = new StringBuilder();
+            text.append("Device : ").append(Build.DEVICE);
+            text.append("\nBrand : ").append(Build.BRAND);
+            text.append("\nModel : ").append(Build.MODEL);
+            text.append("\nProduct : ").append(Build.PRODUCT);
+            text.append("\nLocale : ").append(Locale.getDefault().toString());
+            text.append("\nBuild : ").append(Build.DISPLAY);
+            text.append("\nVersion : ").append(Build.VERSION.RELEASE);
+            try {
+                PackageInfo info = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+                if (info != null) {
+                    text.append("\nApk Version : ").append(info.versionCode).append(" ").append(info.versionName);
                 }
-                intent.putExtra(Intent.EXTRA_TEXT, text.toString());
-                startActivity(Intent.createChooser(intent, getString(R.string.send_crash_report)));
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
             }
+            intent.putExtra(Intent.EXTRA_TEXT, text.toString());
+            startActivity(Intent.createChooser(intent, getString(R.string.send_crash_report)));
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
         });
     }
 

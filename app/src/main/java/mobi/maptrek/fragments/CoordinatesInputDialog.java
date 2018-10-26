@@ -22,20 +22,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Scroller;
-import android.widget.TextView;
 
 import mobi.maptrek.R;
 import mobi.maptrek.util.JosmCoordinatesParser;
@@ -126,40 +122,24 @@ public class CoordinatesInputDialog extends DialogFragment {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputPositiveClick(id, textEdit.getText().toString());
-            }
-        });
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputNegativeClick(id);
-            }
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> mCallback.onTextInputPositiveClick(id, textEdit.getText().toString()));
+        dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> mCallback.onTextInputNegativeClick(id));
         dialogBuilder.setNeutralButton(R.string.explain, null);
         dialogBuilder.setView(dialogView);
         mDialog = dialogBuilder.create();
         mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         // Workaround to prevent dialog dismissing
-        mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                // Hide keyboard
-                mDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(mDialog.getWindow().getDecorView().getWindowToken(), 0);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setMessage(R.string.msgCoordinatesInputExplanation);
-                        builder.setPositiveButton(R.string.ok, null);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                    }
-                });
-            }
+        mDialog.setOnShowListener(dialogInterface -> {
+            // Hide keyboard
+            mDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mDialog.getWindow().getDecorView().getWindowToken(), 0);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.msgCoordinatesInputExplanation);
+                builder.setPositiveButton(R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            });
         });
         return mDialog;
     }

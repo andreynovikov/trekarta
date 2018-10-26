@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -98,11 +97,8 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(R.string.title_export_track);
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //mCallback.onTextInputNegativeClick(id);
-            }
+        dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            //mCallback.onTextInputNegativeClick(id);
         });
         dialogBuilder.setView(dialogView);
         return dialogBuilder.create();

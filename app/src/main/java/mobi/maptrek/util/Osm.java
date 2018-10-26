@@ -14,7 +14,7 @@
  *
  */
 
-package org.oscim.utils;
+package mobi.maptrek.util;
 
 import org.oscim.core.MapPosition;
 
@@ -28,22 +28,22 @@ public class Osm {
      * @return OSM short link url string
      */
     public static String makeShortLink(double lat, double lon, int z) {
-        String str = "https://osm.org/go/";
+        StringBuilder str = new StringBuilder("https://osm.org/go/");
         long x = (long) ((lon + 180d) * (1L << 32) / 360d);
         long y = (long) ((lat +  90d) * (1L << 32) / 180d);
         long c = interlace(x, y);
         // add eight to the zoom level, which approximates an accuracy of one pixel in a tile
         for (int i = 0; i < Math.ceil((z + 8) / 3d); i++) {
             int digit = (int) ((c >> (58 - 6 * i)) & 0x3f);
-            str += intToBase64[digit];
+            str.append(intToBase64[digit]);
         }
         // append characters onto the end of the string to represent
         // partial zoom levels (characters themselves have a granularity of 3 zoom levels)
         for (int i = 0; i < (z + 8) % 3; i++) {
-            str += '-';
+            str.append('-');
         }
-        str += "?m";
-        return str;
+        str.append("?m");
+        return str.toString();
     }
 
     /**

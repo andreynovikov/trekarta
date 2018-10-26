@@ -55,20 +55,19 @@ public class About extends Fragment {
         }
         final TextView version = (TextView) view.findViewById(R.id.version);
         if (BuildConfig.DEBUG) {
-            version.setText(getString(R.string.version, versionBuild));
+            version.setText(getString(R.string.version, Integer.toString(versionBuild)));
         } else {
             version.setText(getString(R.string.version, versionName));
         }
 
         // Links
-        StringBuilder links = new StringBuilder();
-        links.append("<a href=\"");
-        links.append("https://trekarta.info/");
-        links.append("\">");
-        links.append("https://trekarta.info/");
-        links.append("</a>");
         final TextView homeLinks = (TextView) view.findViewById(R.id.links);
-        homeLinks.setText(Html.fromHtml(links.toString()));
+        String links = "<a href=\"" +
+                "https://trekarta.info/" +
+                "\">" +
+                "https://trekarta.info/" +
+                "</a>";
+        homeLinks.setText(Html.fromHtml(links));
         homeLinks.setMovementMethod(LinkMovementMethod.getInstance());
 
         /*

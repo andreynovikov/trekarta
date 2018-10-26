@@ -14,11 +14,6 @@
  *
  */
 
-/**
- * Recursive file listing under a specified directory.
- *
- * @author Andrey Novikov
- */
 package mobi.maptrek.util;
 
 import java.io.File;

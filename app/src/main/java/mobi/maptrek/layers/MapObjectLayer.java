@@ -233,24 +233,21 @@ public class MapObjectLayer extends Layer {
             mOldBitmaps.clear();
         }
 
-        final Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
-            @Override
-            public int compare(InternalItem a, InternalItem b) {
-                if (a.visible && b.visible) {
-                    if (a.dy > b.dy) {
-                        return -1;
-                    }
-                    if (a.dy < b.dy) {
-                        return 1;
-                    }
-                } else if (a.visible) {
+        final Comparator<InternalItem> zComparator = (a, b) -> {
+            if (a.visible && b.visible) {
+                if (a.dy > b.dy) {
                     return -1;
-                } else if (b.visible) {
+                }
+                if (a.dy < b.dy) {
                     return 1;
                 }
-
-                return 0;
+            } else if (a.visible) {
+                return -1;
+            } else if (b.visible) {
+                return 1;
             }
+
+            return 0;
         };
 
         @Subscribe

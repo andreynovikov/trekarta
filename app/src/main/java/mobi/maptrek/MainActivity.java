@@ -123,7 +123,6 @@ import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
-import org.oscim.utils.Osm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +209,7 @@ import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.MathUtils;
+import mobi.maptrek.util.Osm;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.ShieldFactory;
@@ -217,7 +217,6 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.view.GaugePanel;
-import mobi.maptrek.view.PanelMenu;
 
 public class MainActivity extends BasePluginActivity implements ILocationListener,
         DataHolder,
@@ -518,69 +517,60 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMapButtonHolder = findViewById(R.id.mapButtonHolder);
         mCompassView = findViewById(R.id.compass);
         mNavigationArrowView = findViewById(R.id.navigationArrow);
-        mNavigationArrowView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MapObject mapObject = mNavigationService.getWaypoint();
-                setMapLocation(mapObject.coordinates);
-            }
+        mNavigationArrowView.setOnClickListener(v -> {
+            MapObject mapObject = mNavigationService.getWaypoint();
+            setMapLocation(mapObject.coordinates);
         });
-        mNavigationArrowView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showNavigationMenu();
-                return true;
-            }
+        mNavigationArrowView.setOnLongClickListener(v -> {
+            showNavigationMenu();
+            return true;
         });
         mExtendPanel = (ViewGroup) findViewById(R.id.extendPanel);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        mExtendPanel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                int width = v.getWidth();
-                int height = v.getHeight();
-                logger.debug("onLayoutChange({}, {})", width, height);
-                if (width == 0 || height == 0) {
-                    v.setTranslationX(0f);
-                    v.setTranslationY(0f);
-                    return;
-                }
-                int rootWidth = mCoordinatorLayout.getWidth();
-                int rootHeight = mCoordinatorLayout.getHeight();
-                switch (mPanelState) {
-                    case RECORD:
-                        if (mVerticalOrientation) {
-                            int cWidth = (int) (mRecordButton.getWidth() + mRecordButton.getX());
-                            if (width < cWidth)
-                                v.setTranslationX(cWidth - width);
-                        }
-                        break;
-                    case PLACES:
-                        if (mVerticalOrientation) {
-                            int cWidth = (int) (mPlacesButton.getWidth() + mPlacesButton.getX());
-                            if (width < cWidth)
-                                v.setTranslationX(cWidth - width);
-                        }
-                        break;
-                    case MAPS:
-                        if (mVerticalOrientation) {
-                            int cWidth = (int) (rootWidth - mMapsButton.getX());
-                            if (width < cWidth)
-                                v.setTranslationX(mMapsButton.getX());
-                            else
-                                v.setTranslationX(rootWidth - width);
-                        } else {
-                            v.setTranslationY(rootHeight - height);
-                        }
-                        break;
-                    case MORE:
-                        if (mVerticalOrientation) {
+        mExtendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            int width = v.getWidth();
+            int height = v.getHeight();
+            logger.debug("onLayoutChange({}, {})", width, height);
+            if (width == 0 || height == 0) {
+                v.setTranslationX(0f);
+                v.setTranslationY(0f);
+                return;
+            }
+            int rootWidth = mCoordinatorLayout.getWidth();
+            int rootHeight = mCoordinatorLayout.getHeight();
+            switch (mPanelState) {
+                case RECORD:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (mRecordButton.getWidth() + mRecordButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(cWidth - width);
+                    }
+                    break;
+                case PLACES:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (mPlacesButton.getWidth() + mPlacesButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(cWidth - width);
+                    }
+                    break;
+                case MAPS:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (rootWidth - mMapsButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(mMapsButton.getX());
+                        else
                             v.setTranslationX(rootWidth - width);
-                        } else {
-                            v.setTranslationY(rootHeight - height);
-                        }
-                }
+                    } else {
+                        v.setTranslationY(rootHeight - height);
+                    }
+                    break;
+                case MORE:
+                    if (mVerticalOrientation) {
+                        v.setTranslationX(rootWidth - width);
+                    } else {
+                        v.setTranslationY(rootHeight - height);
+                    }
             }
         });
 
@@ -692,7 +682,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<MarkerItem>(), symbol, MapTrek.density, this);
+        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
@@ -725,75 +715,38 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mProgressHandler = new ProgressHandler(mProgressBar);
 
         // Initialize UI event handlers
-        mLocationButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                onLocationClicked();
-            }
+        mLocationButton.setOnClickListener(v -> onLocationClicked());
+        mLocationButton.setOnLongClickListener(v -> {
+            onLocationLongClicked();
+            return true;
         });
-        mLocationButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
-                onLocationLongClicked();
-                return true;
-            }
+        mRecordButton.setOnClickListener(v -> onRecordClicked());
+        mRecordButton.setOnLongClickListener(v -> {
+            onRecordLongClicked();
+            return true;
         });
-        mRecordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onRecordClicked();
-            }
+        mPlacesButton.setOnClickListener(v -> onPlacesClicked());
+        mPlacesButton.setOnLongClickListener(v -> {
+            onPlacesLongClicked();
+            return true;
         });
-        mRecordButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
-                onRecordLongClicked();
-                return true;
-            }
-        });
-        mPlacesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onPlacesClicked();
-            }
-        });
-        mPlacesButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
-                onPlacesLongClicked();
-                return true;
-            }
-        });
-        mMapsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (BuildConfig.FULL_VERSION) {
-                    onMapsClicked();
-                } else {
-                    onMapsLongClicked();
-                }
-            }
-        });
-        mMapsButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
+        mMapsButton.setOnClickListener(v -> {
+            if (BuildConfig.FULL_VERSION) {
+                onMapsClicked();
+            } else {
                 onMapsLongClicked();
-                return true;
             }
         });
-        mMoreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onMoreClicked();
-            }
+        mMapsButton.setOnLongClickListener(v -> {
+            onMapsLongClicked();
+            return true;
         });
-        mMoreButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
-                onMoreLongClicked();
-                return true;
-            }
+        mMoreButton.setOnClickListener(v -> onMoreClicked());
+        mMoreButton.setOnLongClickListener(v -> {
+            onMoreLongClicked();
+            return true;
         });
-        mMapDownloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onMapDownloadClicked();
-            }
-        });
+        mMapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
 
         // Resume state
         int state = Configuration.getLocationState();
@@ -904,48 +857,32 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     storageVariants[1] = NEW_SD_STORAGE;
                 }
             }
-            builder.setSingleChoiceItems(items, selected.get(), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    selected.set(which);
-                }
-            });
-            builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    final int item = selected.get();
-                    if (!NEW_APPLICATION_STORAGE.equals(storageVariants[item])) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(R.string.actionMoveData);
-                        if (NEW_EXTERNAL_STORAGE.equals(storageVariants[item]))
-                            builder.setMessage(R.string.msgMoveDataToExternalStorageExplanation);
-                        else
-                            builder.setMessage(R.string.msgMoveDataToSDCardExplanation);
-                        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Configuration.setNewExternalStorage(storageVariants[item]);
-                                MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                            }
-                        });
-                        builder.setNegativeButton(R.string.cancel, null);
-                        AlertDialog nextDialog = builder.create();
-                        nextDialog.show();
-                    } else {
+            builder.setSingleChoiceItems(items, selected.get(), (dialog, which) -> selected.set(which));
+            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
+                final int item = selected.get();
+                if (!NEW_APPLICATION_STORAGE.equals(storageVariants[item])) {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                    builder1.setTitle(R.string.actionMoveData);
+                    if (NEW_EXTERNAL_STORAGE.equals(storageVariants[item]))
+                        builder1.setMessage(R.string.msgMoveDataToExternalStorageExplanation);
+                    else
+                        builder1.setMessage(R.string.msgMoveDataToSDCardExplanation);
+                    builder1.setPositiveButton(R.string.actionContinue, (dialog1, which1) -> {
                         Configuration.setNewExternalStorage(storageVariants[item]);
                         MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                    }
+                    });
+                    builder1.setNegativeButton(R.string.cancel, null);
+                    AlertDialog nextDialog = builder1.create();
+                    nextDialog.show();
+                } else {
+                    Configuration.setNewExternalStorage(storageVariants[item]);
+                    MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
                 }
             });
             AlertDialog dialog = builder.create();
             dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
-            mBackgroundHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Configuration.resetAdviceState();
-                }
-            }, 10000); // Delay reset so that advices are not shown immediately after reset
+            mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
             Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
             snackbar.show();
         } else if ("geo".equals(scheme)) {
@@ -1062,18 +999,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mLicense.setText(Html.fromHtml(getString(R.string.osmLicense)));
         mLicense.setVisibility(View.VISIBLE);
-        final Message m = Message.obtain(mMainHandler, new Runnable() {
-            @Override
-            public void run() {
-                mLicense.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+        final Message m = Message.obtain(mMainHandler,
+                () -> mLicense.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mLicense.setVisibility(View.GONE);
                         mLicense.animate().setListener(null);
                     }
-                });
-            }
-        });
+                }));
         m.what = R.id.msgRemoveLicense;
         mMainHandler.sendMessageDelayed(m, 10000);
 
@@ -1266,20 +1199,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionNightMode: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionNightMode);
-                builder.setItems(R.array.night_mode_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        mNightModeState = NIGHT_MODE_STATE.values()[which];
-                        if ((mNightModeState == NIGHT_MODE_STATE.NIGHT) != mNightMode) {
-                            // With rule categories it became a long lasting operation
-                            // so it has to be run in background
-                            mBackgroundHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
-                                }
-                            });
-                            Configuration.setNightModeState(mNightModeState.ordinal());
-                        }
+                builder.setItems(R.array.night_mode_array, (dialog, which) -> {
+                    mNightModeState = NIGHT_MODE_STATE.values()[which];
+                    if ((mNightModeState == NIGHT_MODE_STATE.NIGHT) != mNightMode) {
+                        // With rule categories it became a long lasting operation
+                        // so it has to be run in background
+                        mBackgroundHandler.post(() -> setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT));
+                        Configuration.setNightModeState(mNightModeState.ordinal());
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -1289,19 +1215,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionStyle: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionStyle);
-                builder.setItems(R.array.mapStyles, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Configuration.setMapStyle(which);
-                        // With rule categories it became a long lasting operation
-                        // so it has to be run in background
-                        mBackgroundHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //TODO Refactor
-                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
-                            }
-                        });
-                    }
+                builder.setItems(R.array.mapStyles, (dialog, which) -> {
+                    Configuration.setMapStyle(which);
+                    // With rule categories it became a long lasting operation
+                    // so it has to be run in background
+                    mBackgroundHandler.post(() -> {
+                        //TODO Refactor
+                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                    });
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1310,19 +1231,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionFontSize: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionFontSize);
-                builder.setItems(R.array.font_size_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Configuration.setMapFontSize(which);
-                        // With rule categories it became a long lasting operation
-                        // so it has to be run in background
-                        mBackgroundHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //TODO Refactor
-                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
-                            }
-                        });
-                    }
+                builder.setItems(R.array.font_size_array, (dialog, which) -> {
+                    Configuration.setMapFontSize(which);
+                    // With rule categories it became a long lasting operation
+                    // so it has to be run in background
+                    mBackgroundHandler.post(() -> {
+                        //TODO Refactor
+                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                    });
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1331,18 +1247,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionLanguage: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionLanguage);
-                builder.setItems(R.array.language_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
-                        String language = languageCodes[which];
-                        if ("none".equals(language)) {
-                            mLabelTileLoaderHook.setPreferredLanguage(null);
-                        } else {
-                            mLabelTileLoaderHook.setPreferredLanguage(language);
-                        }
-                        mMap.clearMap();
-                        Configuration.setLanguage(language);
+                builder.setItems(R.array.language_array, (dialog, which) -> {
+                    String[] languageCodes = getResources().getStringArray(R.array.language_code_array);
+                    String language = languageCodes[which];
+                    if ("none".equals(language)) {
+                        mLabelTileLoaderHook.setPreferredLanguage(null);
+                    } else {
+                        mLabelTileLoaderHook.setPreferredLanguage(language);
                     }
+                    mMap.clearMap();
+                    Configuration.setLanguage(language);
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1356,14 +1270,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
             case R.id.actionOtherFeatures: {
                 PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
-                fragment.setMenu(R.menu.menu_map_features, new PanelMenu.OnPrepareMenuListener() {
-                    @Override
-                    public void onPrepareMenu(PanelMenu menu) {
-                        menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
-                        menu.findItem(R.id.actionHillshades).setChecked(Configuration.getHillshadesEnabled());
-                        menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
-                        menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
-                    }
+                fragment.setMenu(R.menu.menu_map_features, menu -> {
+                    menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
+                    menu.findItem(R.id.actionHillshades).setChecked(Configuration.getHillshadesEnabled());
+                    menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
+                    menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
                 });
                 showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
                 return true;
@@ -1372,20 +1283,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 int activity = Configuration.getActivity();
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionActivity);
-                builder.setSingleChoiceItems(R.array.activities, activity, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        Configuration.setActivity(which);
-                        // With rule categories it became a long lasting operation
-                        // so it has to be run in background
-                        mBackgroundHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //TODO Refactor
-                                setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
-                            }
-                        });
-                    }
+                builder.setSingleChoiceItems(R.array.activities, activity, (dialog, which) -> {
+                    dialog.dismiss();
+                    Configuration.setActivity(which);
+                    // With rule categories it became a long lasting operation
+                    // so it has to be run in background
+                    mBackgroundHandler.post(() -> {
+                        //TODO Refactor
+                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                    });
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1479,15 +1385,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionRate: {
                 Snackbar snackbar = Snackbar
                         .make(mCoordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.iamin, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                String packageName = getPackageName();
-                                try {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
-                                } catch (ActivityNotFoundException ignore) {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
-                                }
+                        .setAction(R.string.iamin, view -> {
+                            String packageName = getPackageName();
+                            try {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
+                            } catch (ActivityNotFoundException ignore) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
                             }
                         }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
                             @Override
@@ -1818,26 +1721,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void onMapsLongClicked() {
         PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
-        fragment.setMenu(R.menu.menu_map, new PanelMenu.OnPrepareMenuListener() {
-            @Override
-            public void onPrepareMenu(PanelMenu menu) {
-                Resources resources = getResources();
-                MenuItem item = menu.findItem(R.id.actionNightMode);
-                String[] nightModes = resources.getStringArray(R.array.night_mode_array);
-                ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
-                item = menu.findItem(R.id.actionStyle);
-                String[] mapStyles = resources.getStringArray(R.array.mapStyles);
-                ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
-                item = menu.findItem(R.id.actionFontSize);
-                String[] fontSizes = resources.getStringArray(R.array.font_size_array);
-                ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
-                item = menu.findItem(R.id.actionLanguage);
-                ((TextView) item.getActionView()).setText(Configuration.getLanguage());
-                menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-                //if (!BuildConfig.FULL_VERSION) {
-                menu.removeItem(R.id.actionNightMode);
-                //}
-            }
+        fragment.setMenu(R.menu.menu_map, menu -> {
+            Resources resources = getResources();
+            MenuItem item = menu.findItem(R.id.actionNightMode);
+            String[] nightModes = resources.getStringArray(R.array.night_mode_array);
+            ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+            item = menu.findItem(R.id.actionStyle);
+            String[] mapStyles = resources.getStringArray(R.array.mapStyles);
+            ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
+            item = menu.findItem(R.id.actionFontSize);
+            String[] fontSizes = resources.getStringArray(R.array.font_size_array);
+            ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
+            item = menu.findItem(R.id.actionLanguage);
+            ((TextView) item.getActionView()).setText(Configuration.getLanguage());
+            menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
+            //if (!BuildConfig.FULL_VERSION) {
+            menu.removeItem(R.id.actionNightMode);
+            //}
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
     }
@@ -1845,38 +1745,35 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onMoreClicked() {
         if (mLocationButton.getVisibility() == View.VISIBLE) {
             PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
-            fragment.setMenu(R.menu.menu_main, new PanelMenu.OnPrepareMenuListener() {
-                @Override
-                public void onPrepareMenu(PanelMenu menu) {
-                    Resources resources = getResources();
-                    MenuItem item = menu.findItem(R.id.actionActivity);
-                    String[] activities = resources.getStringArray(R.array.activities);
-                    int activity = Configuration.getActivity();
-                    if (activity > 0)
-                        ((TextView) item.getActionView()).setText(activities[activity]);
-                    if (BuildConfig.FULL_VERSION) {
-                        menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
-                    } else {
-                        menu.removeItem(R.id.actionHideSystemUI);
-                    }
-                    if (Configuration.ratingActionPerformed() ||
-                            (Configuration.getRunningTime() < 120 &&
-                                    mWaypointDbDataSource.getWaypointsCount() < 3 &&
-                                    mData.size() == 0 &&
-                                    mMapIndex.getMaps().size() == 0)) {
-                        menu.removeItem(R.id.actionRate);
-                    }
-                    if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
-                        menu.removeItem(R.id.actionAddGauge);
-                    java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
-                    String[] toolNames = tools.keySet().toArray(new String[0]);
-                    Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
-                    for (String toolName : toolNames) {
-                        Pair<Drawable, Intent> tool = tools.get(toolName);
-                        item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
-                        //item.setIcon(tool.first);
-                        item.setIntent(tool.second);
-                    }
+            fragment.setMenu(R.menu.menu_main, menu -> {
+                Resources resources = getResources();
+                MenuItem item = menu.findItem(R.id.actionActivity);
+                String[] activities = resources.getStringArray(R.array.activities);
+                int activity = Configuration.getActivity();
+                if (activity > 0)
+                    ((TextView) item.getActionView()).setText(activities[activity]);
+                if (BuildConfig.FULL_VERSION) {
+                    menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
+                } else {
+                    menu.removeItem(R.id.actionHideSystemUI);
+                }
+                if (Configuration.ratingActionPerformed() ||
+                        (Configuration.getRunningTime() < 120 &&
+                                mWaypointDbDataSource.getWaypointsCount() < 3 &&
+                                mData.size() == 0 &&
+                                mMapIndex.getMaps().size() == 0)) {
+                    menu.removeItem(R.id.actionRate);
+                }
+                if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
+                    menu.removeItem(R.id.actionAddGauge);
+                java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
+                String[] toolNames = tools.keySet().toArray(new String[0]);
+                Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
+                for (String toolName : toolNames) {
+                    Pair<Drawable, Intent> tool = tools.get(toolName);
+                    item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
+                    //item.setIcon(tool.first);
+                    item.setIntent(tool.second);
                 }
             });
             showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
@@ -2242,12 +2139,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mMapDownloadButton.setVisibility(View.GONE);
                 mMapDownloadButton.setTag(null);
             } else if (e == Map.MOVE_EVENT) {
-                final Message m = Message.obtain(mMainHandler, new Runnable() {
-                    @Override
-                    public void run() {
-                        mMapDownloadButton.setVisibility(View.GONE);
-                        mMapDownloadButton.setTag(null);
-                    }
+                final Message m = Message.obtain(mMainHandler, () -> {
+                    mMapDownloadButton.setVisibility(View.GONE);
+                    mMapDownloadButton.setTag(null);
                 });
                 m.what = R.id.msgRemoveMapDownloadButton;
                 mMainHandler.sendMessageDelayed(m, 1000);
@@ -2279,18 +2173,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             showMarker(mSelectedPoint, null);
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
-            Menu menu = popup.getMenu();
+            Menu popupMenu = popup.getMenu();
             if ((int) Configuration.getRememberedScale() == (int) mMapPosition.getScale())
-                menu.removeItem(R.id.actionRememberScale);
+                popupMenu.removeItem(R.id.actionRememberScale);
             if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
-                menu.removeItem(R.id.actionRememberTilt);
+                popupMenu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
-            popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
-                @Override
-                public void onDismiss(PopupMenu menu) {
-                    removeMarker();
-                }
-            });
+            popup.setOnDismissListener(menu -> removeMarker());
             popup.show();
             return true;
         }
@@ -2504,12 +2393,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return;
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
-                .setAction(R.string.actionCustomize, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onWaypointProperties(waypoint);
-                    }
-                });
+                .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint));
         snackbar.show();
     }
 
@@ -2581,12 +2465,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            waypoint.source.notifyListeners();
-                        }
-                    });
+                    mMainHandler.post(() -> waypoint.source.notifyListeners());
                 }
 
                 @Override
@@ -2625,12 +2504,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
                                 @Override
                                 public void onSaved(FileDataSource source) {
-                                    mMainHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            waypoint.source.notifyListeners();
-                                        }
-                                    });
+                                    mMainHandler.post(() -> waypoint.source.notifyListeners());
                                 }
 
                                 @Override
@@ -2642,13 +2516,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         mTotalDataItems--;
                     }
                 })
-                .setAction(R.string.actionUndo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // If undo pressed, restore the marker
-                        addWaypointMarker(waypoint);
-                        mMap.updateMap(true);
-                    }
+                .setAction(R.string.actionUndo, view -> {
+                    // If undo pressed, restore the marker
+                    addWaypointMarker(waypoint);
+                    mMap.updateMap(true);
                 });
         snackbar.show();
     }
@@ -2688,12 +2559,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             Manager.save(source, new Manager.OnSaveListener() {
                                 @Override
                                 public void onSaved(final FileDataSource source) {
-                                    mMainHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            source.notifyListeners();
-                                        }
-                                    });
+                                    mMainHandler.post(source::notifyListeners);
                                 }
 
                                 @Override
@@ -2704,15 +2570,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         }
                     }
                 })
-                .setAction(R.string.actionUndo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // If undo pressed, restore the marker
-                        for (Waypoint waypoint : waypoints) {
-                            addWaypointMarker(waypoint);
-                        }
-                        mMap.updateMap(true);
+                .setAction(R.string.actionUndo, view -> {
+                    // If undo pressed, restore the marker
+                    for (Waypoint waypoint : waypoints) {
+                        addWaypointMarker(waypoint);
                     }
+                    mMap.updateMap(true);
                 });
         snackbar.show();
     }
@@ -2810,35 +2673,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         final AtomicInteger selected = new AtomicInteger(0);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.title_select_format);
-        builder.setSingleChoiceItems(R.array.track_format_array, selected.get(), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                selected.set(which);
-            }
-        });
-        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                DataExport.Builder builder = new DataExport.Builder();
-                @DataExport.ExportFormat int format = selected.get();
-                DataExport dataExport = builder.setTrack(track).setFormat(format).create();
-                dataExport.show(mFragmentManager, "trackExport");
-            }
+        builder.setSingleChoiceItems(R.array.track_format_array, selected.get(), (dialog, which) -> selected.set(which));
+        builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
+            DataExport.Builder builder12 = new DataExport.Builder();
+            @DataExport.ExportFormat int format = selected.get();
+            DataExport dataExport = builder12.setTrack(track).setFormat(format).create();
+            dataExport.show(mFragmentManager, "trackExport");
         });
         builder.setNeutralButton(R.string.explain, null);
         AlertDialog dialog = builder.create();
         dialog.show();
         // Workaround to prevent dialog dismissing
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                String msgNative = getString(R.string.msgNativeFormatExplanation);
-                String msgOther = getString(R.string.msgOtherFormatsExplanation);
-                builder.setMessage(msgNative + " " + msgOther);
-                builder.setPositiveButton(R.string.ok, null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            String msgNative = getString(R.string.msgNativeFormatExplanation);
+            String msgOther = getString(R.string.msgOtherFormatsExplanation);
+            builder1.setMessage(msgNative + " " + msgOther);
+            builder1.setPositiveButton(R.string.ok, null);
+            AlertDialog dialog1 = builder1.create();
+            dialog1.show();
         });
     }
 
@@ -2872,12 +2725,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             Manager.save((FileDataSource) track.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            track.source.notifyListeners();
-                        }
-                    });
+                    mMainHandler.post(() -> track.source.notifyListeners());
                 }
 
                 @Override
@@ -2924,12 +2772,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         Manager.save((FileDataSource) track.source, new Manager.OnSaveListener() {
                             @Override
                             public void onSaved(FileDataSource source) {
-                                mMainHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        track.source.notifyListeners();
-                                    }
-                                });
+                                mMainHandler.post(() -> track.source.notifyListeners());
                             }
 
                             @Override
@@ -2940,14 +2783,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         mTotalDataItems--;
                     }
                 })
-                .setAction(R.string.actionUndo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // If undo pressed, restore the track on map
-                        TrackLayer trackLayer = new TrackLayer(mMap, track);
-                        mMap.layers().add(trackLayer, MAP_DATA);
-                        mMap.updateMap(true);
-                    }
+                .setAction(R.string.actionUndo, view -> {
+                    // If undo pressed, restore the track on map
+                    TrackLayer trackLayer = new TrackLayer(mMap, track);
+                    mMap.layers().add(trackLayer, MAP_DATA);
+                    mMap.updateMap(true);
                 });
         snackbar.show();
     }
@@ -3429,22 +3269,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         ValueAnimator otherColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), otherFrom, otherTo);
         ValueAnimator thisColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), thisFrom, thisTo);
-        thisColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                int color = (Integer) animator.getAnimatedValue();
-                thisView.setBackgroundColor(color);
-            }
-
+        thisColorAnimation.addUpdateListener(animator -> {
+            int color = (Integer) animator.getAnimatedValue();
+            thisView.setBackgroundColor(color);
         });
-        otherColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                int color = (Integer) animator.getAnimatedValue();
-                for (View otherView : otherViews)
-                    otherView.setBackgroundColor(color);
-            }
+        otherColorAnimation.addUpdateListener(animator -> {
+            int color = (Integer) animator.getAnimatedValue();
+            for (View otherView : otherViews)
+                otherView.setBackgroundColor(color);
         });
         AnimatorSet s = new AnimatorSet();
         s.play(thisColorAnimation).with(otherColorAnimation);
@@ -3570,12 +3402,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else {
             secondBack = true;
             mBackToast.show();
-            mBackHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    secondBack = false;
-                }
-            }, 2000);
+            mBackHandler.postDelayed(() -> secondBack = false, 2000);
         }
     }
 
@@ -3648,16 +3475,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
             return;
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mMapDownloadButton.getVisibility() == View.GONE) {
-                    mMapDownloadButton.setText(R.string.mapDownloadText);
-                    mMapDownloadButton.setVisibility(View.VISIBLE);
-                }
-                mMapDownloadButton.setTag(new int[]{x, y});
-                mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
+        runOnUiThread(() -> {
+            if (mMapDownloadButton.getVisibility() == View.GONE) {
+                mMapDownloadButton.setText(R.string.mapDownloadText);
+                mMapDownloadButton.setVisibility(View.VISIBLE);
             }
+            mMapDownloadButton.setTag(new int[]{x, y});
+            mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
         });
     }
 
@@ -3835,12 +3659,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     //noinspection deprecation
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.actionCustomize, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    onTrackProperties(extras.getString("path"));
-                                }
-                            })
+                            .setAction(R.string.actionCustomize, view -> onTrackProperties(extras.getString("path")))
                             .setCallback(new Snackbar.Callback() {
                                 @Override
                                 public void onDismissed(Snackbar transientBottomBar, int event) {
@@ -3857,12 +3676,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     int msg = "period".equals(reason) ? R.string.msgTrackNotSavedPeriod : R.string.msgTrackNotSavedDistance;
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.actionSave, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    mLocationService.saveTrack();
-                                }
-                            });
+                            .setAction(R.string.actionSave, view -> mLocationService.saveTrack());
                     snackbar.show();
                 } else {
                     Exception e = extras != null ? (Exception) extras.getSerializable("exception") : null;
@@ -4064,55 +3878,42 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         final boolean askName = dataSource.name == null || dataSource instanceof WaypointDbDataSource;
         final AtomicInteger selected = new AtomicInteger(0);
         final EditText inputView = new EditText(this);
-        final DialogInterface.OnClickListener exportAction = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (askName)
-                    dataSource.name = inputView.getText().toString();
-                DataExport.Builder builder = new DataExport.Builder();
-                @DataExport.ExportFormat int format = dataSource.isNativeTrack() ? selected.get() : selected.get() + 1;
-                DataExport dataExport = builder.setDataSource(dataSource).setFormat(format).create();
-                dataExport.show(mFragmentManager, "dataExport");
-            }
+        final DialogInterface.OnClickListener exportAction = (dialog, which) -> {
+            if (askName)
+                dataSource.name = inputView.getText().toString();
+            DataExport.Builder builder = new DataExport.Builder();
+            @DataExport.ExportFormat int format = dataSource.isNativeTrack() ? selected.get() : selected.get() + 1;
+            DataExport dataExport = builder.setDataSource(dataSource).setFormat(format).create();
+            dataExport.show(mFragmentManager, "dataExport");
         };
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.title_select_format);
         builder.setSingleChoiceItems(dataSource.isNativeTrack() ? R.array.track_format_array : R.array.data_format_array,
-                selected.get(), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        selected.set(which);
+                selected.get(), (dialog, which) -> selected.set(which));
+        if (askName) {
+            builder.setPositiveButton(R.string.actionContinue, (dialogInterface, i) -> {
+                AlertDialog.Builder nameBuilder = new AlertDialog.Builder(MainActivity.this);
+                nameBuilder.setTitle(R.string.title_input_name);
+                nameBuilder.setPositiveButton(R.string.actionContinue, null);
+                final AlertDialog dialog = nameBuilder.create();
+                if (dataSource.name != null)
+                    inputView.setText(dataSource.name);
+                int margin = getResources().getDimensionPixelOffset(R.dimen.dialogContentMargin);
+                dialog.setView(inputView, margin, margin >> 1, margin, 0);
+                Window window = dialog.getWindow();
+                if (window != null)
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                dialog.show();
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    if (!inputView.getText().toString().trim().isEmpty()) {
+                        exportAction.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
+                        // Hide keyboard
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null)
+                            imm.hideSoftInputFromWindow(inputView.getRootView().getWindowToken(), 0);
+                        dialog.dismiss();
                     }
                 });
-        if (askName) {
-            builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    AlertDialog.Builder nameBuilder = new AlertDialog.Builder(MainActivity.this);
-                    nameBuilder.setTitle(R.string.title_input_name);
-                    nameBuilder.setPositiveButton(R.string.actionContinue, null);
-                    final AlertDialog dialog = nameBuilder.create();
-                    if (dataSource.name != null)
-                        inputView.setText(dataSource.name);
-                    int margin = getResources().getDimensionPixelOffset(R.dimen.dialogContentMargin);
-                    dialog.setView(inputView, margin, margin >> 1, margin, 0);
-                    Window window = dialog.getWindow();
-                    if (window != null)
-                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                    dialog.show();
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!inputView.getText().toString().trim().isEmpty()) {
-                                exportAction.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
-                                // Hide keyboard
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                if (imm != null)
-                                    imm.hideSoftInputFromWindow(inputView.getRootView().getWindowToken(), 0);
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-                }
             });
         } else {
             builder.setPositiveButton(R.string.actionContinue, exportAction);
@@ -4121,21 +3922,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         AlertDialog dialog = builder.create();
         dialog.show();
         // Workaround to prevent dialog dismissing
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                StringBuilder stringBuilder = new StringBuilder();
-                if (dataSource.isNativeTrack()) {
-                    stringBuilder.append(getString(R.string.msgNativeFormatExplanation));
-                    stringBuilder.append(" ");
-                }
-                stringBuilder.append(getString(R.string.msgOtherFormatsExplanation));
-                builder.setMessage(stringBuilder.toString());
-                builder.setPositiveButton(R.string.ok, null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (dataSource.isNativeTrack()) {
+                stringBuilder.append(getString(R.string.msgNativeFormatExplanation));
+                stringBuilder.append(" ");
             }
+            stringBuilder.append(getString(R.string.msgOtherFormatsExplanation));
+            builder1.setMessage(stringBuilder.toString());
+            builder1.setPositiveButton(R.string.ok, null);
+            AlertDialog dialog1 = builder1.create();
+            dialog1.show();
         });
     }
 
@@ -4148,25 +3946,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(R.string.title_delete_permanently);
         builder.setMessage(R.string.msgDeleteSourcePermanently);
-        builder.setPositiveButton(R.string.actionContinue, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                File sourceFile = new File(((FileDataSource) source).path);
-                if (sourceFile.exists()) {
-                    if (sourceFile.delete()) {
-                        removeSourceFromMap((FileDataSource) source);
-                    } else {
-                        HelperUtils.showError(getString(R.string.msgDeleteFailed), mCoordinatorLayout);
-                    }
+        builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
+            File sourceFile = new File(((FileDataSource) source).path);
+            if (sourceFile.exists()) {
+                if (sourceFile.delete()) {
+                    removeSourceFromMap((FileDataSource) source);
+                } else {
+                    HelperUtils.showError(getString(R.string.msgDeleteFailed), mCoordinatorLayout);
                 }
             }
         });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -4254,12 +4044,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (isNightTime ^ mNightMode) {
             // With rule categories it became a long lasting operation
             // so it has to be run in background
-            mBackgroundHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    setNightMode(isNightTime);
-                }
-            });
+            mBackgroundHandler.post(() -> setNightMode(isNightTime));
         }
 
         mNextNightCheck = mLastLocationMilliseconds + NIGHT_CHECK_PERIOD;

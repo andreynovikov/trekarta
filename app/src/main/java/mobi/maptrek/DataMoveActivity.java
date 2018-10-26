@@ -23,7 +23,6 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
@@ -83,14 +82,11 @@ public class DataMoveActivity extends Activity {
 
         mActionButton.setText(R.string.cancel);
         mActionButton.setTag(false);
-        mActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean finished = (boolean) mActionButton.getTag();
-                if (!finished)
-                    mDataMoveFragment.stopDataMove();
-                finish();
-            }
+        mActionButton.setOnClickListener(v -> {
+            boolean finished = (boolean) mActionButton.getTag();
+            if (!finished)
+                mDataMoveFragment.stopDataMove();
+            finish();
         });
     }
 
@@ -135,18 +131,8 @@ public class DataMoveActivity extends Activity {
                 }
                 new AlertDialog.Builder(this)
                         .setMessage(getString(R.string.msgWriteExternalStorageRationale, name))
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
+                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE))
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> finish())
                         .create()
                         .show();
             } else {
@@ -212,12 +198,7 @@ public class DataMoveActivity extends Activity {
 
         @Override
         public void onProgressAnnotated(final String annotation) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mFileNameView.setText(annotation);
-                }
-            });
+            runOnUiThread(() -> mFileNameView.setText(annotation));
         }
     }
 
@@ -226,14 +207,11 @@ public class DataMoveActivity extends Activity {
     }
 
     private void showError(final String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mFileNameView.setText(message);
-                mProgressBar.setVisibility(View.GONE);
-                mActionButton.setText(R.string.close);
-                mActionButton.setTag(false);
-            }
+        runOnUiThread(() -> {
+            mFileNameView.setText(message);
+            mProgressBar.setVisibility(View.GONE);
+            mActionButton.setText(R.string.close);
+            mActionButton.setTag(false);
         });
     }
 
@@ -385,12 +363,7 @@ public class DataMoveActivity extends Activity {
         }
 
         public void startDataMove() {
-            final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
-                @Override
-                public void run() {
-                    moveData();
-                }
-            });
+            final Message m = Message.obtain(mBackgroundHandler, this::moveData);
             mBackgroundHandler.sendMessage(m);
         }
 
@@ -435,13 +408,10 @@ public class DataMoveActivity extends Activity {
 
                 mInputStream = new MonitoredInputStream(new FileInputStream(source));
 
-                mInputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
-                    @Override
-                    public void stateChanged(long location) {
-                        if (mProgressListener != null) {
-                            int progress = mDivider > 1 ? (int) location >> mDivider : (int) location;
-                            mProgressListener.onProgressChanged(mProgress + progress);
-                        }
+                mInputStream.addChangeListener(location -> {
+                    if (mProgressListener != null) {
+                        int progress = mDivider > 1 ? (int) location >> mDivider : (int) location;
+                        mProgressListener.onProgressChanged(mProgress + progress);
                     }
                 });
 

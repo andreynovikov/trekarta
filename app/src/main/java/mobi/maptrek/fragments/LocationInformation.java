@@ -94,30 +94,17 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_location_information, container, false);
 
         mSwitchOffButton = (ImageButton) mRootView.findViewById(R.id.switchOffButton);
-        mSwitchOffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMapHolder.disableLocations();
-            }
-        });
+        mSwitchOffButton.setOnClickListener(v -> mMapHolder.disableLocations());
         ImageButton shareButton = (ImageButton) mRootView.findViewById(R.id.shareButton);
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMapHolder.shareLocation(new GeoPoint(mLatitude, mLongitude), null);
-            }
-        });
+        shareButton.setOnClickListener(v -> mMapHolder.shareLocation(new GeoPoint(mLatitude, mLongitude), null));
         ImageButton inputButton = (ImageButton) mRootView.findViewById(R.id.inputButton);
-        inputButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
-                mTextInputDialog = builder.setCallbacks(LocationInformation.this)
-                        .setHint(getContext().getString(R.string.coordinates))
-                        .setShowPasteButton(true)
-                        .create();
-                mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
-            }
+        inputButton.setOnClickListener(v -> {
+            TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
+            mTextInputDialog = builder.setCallbacks(LocationInformation.this)
+                    .setHint(getContext().getString(R.string.coordinates))
+                    .setShowPasteButton(true)
+                    .create();
+            mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
         });
 
         mCoordinateDegree = (TextView) mRootView.findViewById(R.id.coordinate_degree);

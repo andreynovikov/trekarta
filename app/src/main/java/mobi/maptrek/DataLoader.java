@@ -146,13 +146,10 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                 try {
                     MonitoredInputStream inputStream = new MonitoredInputStream(new FileInputStream(file));
                     final int finalProgress = progress;
-                    inputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
-                        @Override
-                        public void stateChanged(long location) {
-                            if (mProgressListener != null) {
-                                //TODO Divide progress by 1024
-                                mProgressListener.onProgressChanged(finalProgress + (int) location);
-                            }
+                    inputStream.addChangeListener(location -> {
+                        if (mProgressListener != null) {
+                            //TODO Divide progress by 1024
+                            mProgressListener.onProgressChanged(finalProgress + (int) location);
                         }
                     });
                     Manager manager = Manager.getDataManager(file.getName());
