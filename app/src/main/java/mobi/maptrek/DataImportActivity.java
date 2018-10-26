@@ -83,9 +83,9 @@ public class DataImportActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_data_import);
 
-        mFileNameView = (TextView) findViewById(R.id.filename);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mActionButton = (Button) findViewById(R.id.action);
+        mFileNameView = findViewById(R.id.filename);
+        mProgressBar = findViewById(R.id.progressBar);
+        mActionButton = findViewById(R.id.action);
 
         FragmentManager fm = getFragmentManager();
         mDataImportFragment = (DataImportFragment) fm.findFragmentByTag(DATA_IMPORT_FRAGMENT);

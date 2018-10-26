@@ -93,11 +93,11 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_location_information, container, false);
 
-        mSwitchOffButton = (ImageButton) mRootView.findViewById(R.id.switchOffButton);
+        mSwitchOffButton = mRootView.findViewById(R.id.switchOffButton);
         mSwitchOffButton.setOnClickListener(v -> mMapHolder.disableLocations());
-        ImageButton shareButton = (ImageButton) mRootView.findViewById(R.id.shareButton);
+        ImageButton shareButton = mRootView.findViewById(R.id.shareButton);
         shareButton.setOnClickListener(v -> mMapHolder.shareLocation(new GeoPoint(mLatitude, mLongitude), null));
-        ImageButton inputButton = (ImageButton) mRootView.findViewById(R.id.inputButton);
+        ImageButton inputButton = mRootView.findViewById(R.id.inputButton);
         inputButton.setOnClickListener(v -> {
             TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
             mTextInputDialog = builder.setCallbacks(LocationInformation.this)
@@ -107,17 +107,17 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
             mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
         });
 
-        mCoordinateDegree = (TextView) mRootView.findViewById(R.id.coordinate_degree);
-        mCoordinateDegMin = (TextView) mRootView.findViewById(R.id.coordinate_degmin);
-        mCoordinateDegMinSec = (TextView) mRootView.findViewById(R.id.coordinate_degminsec);
-        mCoordinateUtmUps = (TextView) mRootView.findViewById(R.id.coordinate_utmups);
-        mCoordinateMgrs = (TextView) mRootView.findViewById(R.id.coordinate_mgrs);
-        mSunriseTitle = (TextView) mRootView.findViewById(R.id.sunriseTitle);
-        mSunsetTitle = (TextView) mRootView.findViewById(R.id.sunsetTitle);
-        mSunrise = (TextView) mRootView.findViewById(R.id.sunrise);
-        mSunset = (TextView) mRootView.findViewById(R.id.sunset);
-        mOffset = (TextView) mRootView.findViewById(R.id.offset);
-        mDeclination = (TextView) mRootView.findViewById(R.id.declination);
+        mCoordinateDegree = mRootView.findViewById(R.id.coordinate_degree);
+        mCoordinateDegMin = mRootView.findViewById(R.id.coordinate_degmin);
+        mCoordinateDegMinSec = mRootView.findViewById(R.id.coordinate_degminsec);
+        mCoordinateUtmUps = mRootView.findViewById(R.id.coordinate_utmups);
+        mCoordinateMgrs = mRootView.findViewById(R.id.coordinate_mgrs);
+        mSunriseTitle = mRootView.findViewById(R.id.sunriseTitle);
+        mSunsetTitle = mRootView.findViewById(R.id.sunsetTitle);
+        mSunrise = mRootView.findViewById(R.id.sunrise);
+        mSunset = mRootView.findViewById(R.id.sunset);
+        mOffset = mRootView.findViewById(R.id.offset);
+        mDeclination = mRootView.findViewById(R.id.declination);
 
         if (BuildConfig.FULL_VERSION) {
             mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);

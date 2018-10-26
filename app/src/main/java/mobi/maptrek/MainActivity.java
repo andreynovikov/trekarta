@@ -495,25 +495,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mPanelState = PANEL_STATE.NONE;
 
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
-        mActionButton = (FloatingActionButton) findViewById(R.id.actionButton);
-        mListActionButton = (FloatingActionButton) findViewById(R.id.listActionButton);
-        mLocationButton = (ImageButton) findViewById(R.id.locationButton);
-        mRecordButton = (ImageButton) findViewById(R.id.recordButton);
-        mPlacesButton = (ImageButton) findViewById(R.id.placesButton);
-        mMapsButton = (ImageButton) findViewById(R.id.mapsButton);
-        mMoreButton = (ImageButton) findViewById(R.id.moreButton);
-        mMapDownloadButton = (Button) findViewById(R.id.mapDownloadButton);
-        mLicense = (TextView) findViewById(R.id.license);
+        mCoordinatorLayout = findViewById(R.id.coordinatorLayout);
+        mActionButton = findViewById(R.id.actionButton);
+        mListActionButton = findViewById(R.id.listActionButton);
+        mLocationButton = findViewById(R.id.locationButton);
+        mRecordButton = findViewById(R.id.recordButton);
+        mPlacesButton = findViewById(R.id.placesButton);
+        mMapsButton = findViewById(R.id.mapsButton);
+        mMoreButton = findViewById(R.id.moreButton);
+        mMapDownloadButton = findViewById(R.id.mapDownloadButton);
+        mLicense = findViewById(R.id.license);
         mLicense.setClickable(true);
         mLicense.setMovementMethod(LinkMovementMethod.getInstance());
         mPopupAnchor = findViewById(R.id.popupAnchor);
 
-        mGaugePanel = (GaugePanel) findViewById(R.id.gaugePanel);
+        mGaugePanel = findViewById(R.id.gaugePanel);
         mGaugePanel.setTag(Boolean.TRUE);
         mGaugePanel.setMapHolder(this);
 
-        mSatellitesText = (TextView) findViewById(R.id.satellites);
+        mSatellitesText = findViewById(R.id.satellites);
         mMapButtonHolder = findViewById(R.id.mapButtonHolder);
         mCompassView = findViewById(R.id.compass);
         mNavigationArrowView = findViewById(R.id.navigationArrow);
@@ -525,8 +525,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             showNavigationMenu();
             return true;
         });
-        mExtendPanel = (ViewGroup) findViewById(R.id.extendPanel);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mExtendPanel = findViewById(R.id.extendPanel);
+        mProgressBar = findViewById(R.id.progressBar);
 
         mExtendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             int width = v.getWidth();
@@ -599,7 +599,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         int lastIntroduction = Configuration.getLastSeenIntroduction();
 
-        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView = findViewById(R.id.mapView);
         mMap = mMapView.map();
         if (lastIntroduction == 0) {
             if (BuildConfig.RUSSIAN_EDITION) {
@@ -1398,7 +1398,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                 Configuration.setRatingActionPerformed();
                             }
                         });
-                TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+                TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
                 snackbarTextView.setMaxLines(99);
                 snackbar.show();
                 return true;

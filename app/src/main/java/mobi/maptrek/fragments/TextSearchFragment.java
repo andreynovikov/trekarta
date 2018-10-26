@@ -112,12 +112,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_search_list, container, false);
 
-        mFtsWait = (CircleProgressView) rootView.findViewById(R.id.ftsWait);
-        mMessage = (TextView) rootView.findViewById(R.id.message);
-        mFilterButton = (ImageButton) rootView.findViewById(R.id.filterButton);
+        mFtsWait = rootView.findViewById(R.id.ftsWait);
+        mMessage = rootView.findViewById(R.id.message);
+        mFilterButton = rootView.findViewById(R.id.filterButton);
         mFilterButton.setOnClickListener(this);
         mSearchFooter = rootView.findViewById(R.id.searchFooter);
-        final EditText textEdit = (EditText) rootView.findViewById(R.id.textEdit);
+        final EditText textEdit = rootView.findViewById(R.id.textEdit);
         textEdit.requestFocus();
 
         textEdit.addTextChangedListener(new TextWatcher() {
@@ -194,7 +194,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 m.what = MSG_CREATE_FTS;
                 mBackgroundHandler.sendMessage(m);
             } else {
-                mBackgroundHandler.post(() -> hideProgress());
+                mBackgroundHandler.post(this::hideProgress);
             }
         } else {
             HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
@@ -378,10 +378,10 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             View view = mInflater.inflate(R.layout.list_item_amenity, parent, false);
             if (view != null) {
                 ItemHolder holder = new ItemHolder();
-                holder.name = (TextView) view.findViewById(R.id.name);
-                holder.distance = (TextView) view.findViewById(R.id.distance);
-                holder.icon = (ImageView) view.findViewById(R.id.icon);
-                holder.viewButton = (ImageView) view.findViewById(R.id.view);
+                holder.name = view.findViewById(R.id.name);
+                holder.distance = view.findViewById(R.id.distance);
+                holder.icon = view.findViewById(R.id.icon);
+                holder.viewButton = view.findViewById(R.id.view);
                 view.setTag(holder);
             }
             return view;

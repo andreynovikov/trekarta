@@ -156,7 +156,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         assert rootView != null;
         final Activity activity = getActivity();
 
-        TextView nameView = (TextView) rootView.findViewById(R.id.name);
+        TextView nameView = rootView.findViewById(R.id.name);
         if (nameView != null)
             nameView.setText(mWaypoint.name);
 
@@ -167,14 +167,14 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         } else {
             if (kindRow != null)
                 kindRow.setVisibility(View.VISIBLE);
-            TextView kindView = (TextView) rootView.findViewById(R.id.kind);
+            TextView kindView = rootView.findViewById(R.id.kind);
             if (kindView != null) {
                 Resources resources = activity.getResources();
                 int id = resources.getIdentifier(mWaypoint.description, "string", activity.getPackageName());
                 kindView.setText(resources.getString(id));
             }
         }
-        ImageView iconView = (ImageView) rootView.findViewById(R.id.icon);
+        ImageView iconView = rootView.findViewById(R.id.icon);
         if (iconView != null) {
             @DrawableRes int icon = ResUtils.getKindIcon(mWaypoint.proximity);
             if (icon == 0)
@@ -182,7 +182,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             iconView.setImageResource(icon);
         }
 
-        TextView destinationView = (TextView) rootView.findViewById(R.id.destination);
+        TextView destinationView = rootView.findViewById(R.id.destination);
         if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
             if (destinationView != null)
                 destinationView.setVisibility(View.GONE);
@@ -198,7 +198,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             }
         }
 
-        final TextView coordsView = (TextView) rootView.findViewById(R.id.coordinates);
+        final TextView coordsView = rootView.findViewById(R.id.coordinates);
         if (coordsView != null) {
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
 
@@ -237,7 +237,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             });
         }
 
-        TextView elevationView = (TextView) rootView.findViewById(R.id.elevation);
+        TextView elevationView = rootView.findViewById(R.id.elevation);
         if (elevationView != null) {
             if (mWaypoint.altitude != Integer.MIN_VALUE) {
                 elevationView.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));

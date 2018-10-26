@@ -148,7 +148,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
         @NonNull
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View v = super.getView(position, convertView, parent);
-            TextView tv = (TextView) v.findViewById(android.R.id.text1);
+            TextView tv = v.findViewById(android.R.id.text1);
             Item item = getItem(position);
             if (item != null) {
                 Drawable icon = getContext().getDrawable(item.icon);

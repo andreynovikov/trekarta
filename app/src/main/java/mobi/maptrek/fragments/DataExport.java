@@ -93,7 +93,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_progress, null);
-        mProgressView = (CircleProgressView) dialogView.findViewById(R.id.progress);
+        mProgressView = dialogView.findViewById(R.id.progress);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(R.string.title_export_track);

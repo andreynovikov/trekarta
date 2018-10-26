@@ -99,20 +99,20 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
         mHillshadesCheckboxHolder = rootView.findViewById(R.id.hillshadesCheckboxHolder);
-        mDownloadHillshades = (CheckBox) rootView.findViewById(R.id.downloadHillshades);
+        mDownloadHillshades = rootView.findViewById(R.id.downloadHillshades);
         mDownloadHillshades.setChecked(Configuration.getHillshadesEnabled());
         mDownloadHillshades.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mMapIndex.accountHillshades(isChecked);
             updateUI(mMapIndex.getMapStats());
         });
         mDownloadCheckboxHolder = rootView.findViewById(R.id.downloadCheckboxHolder);
-        mDownloadBasemap = (CheckBox) rootView.findViewById(R.id.downloadBasemap);
+        mDownloadBasemap = rootView.findViewById(R.id.downloadBasemap);
         mDownloadBasemap.setOnCheckedChangeListener((buttonView, isChecked) -> updateUI(mMapIndex.getMapStats()));
-        mMessageView = (TextView) rootView.findViewById(R.id.message);
+        mMessageView = rootView.findViewById(R.id.message);
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
-        mStatusView = (TextView) rootView.findViewById(R.id.status);
-        mCounterView = (TextView) rootView.findViewById(R.id.count);
-        mHelpButton = (ImageButton) rootView.findViewById(R.id.helpButton);
+        mStatusView = rootView.findViewById(R.id.status);
+        mCounterView = rootView.findViewById(R.id.count);
+        mHelpButton = rootView.findViewById(R.id.helpButton);
         mHelpButton.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage(R.string.msgMapSelectionExplanation);

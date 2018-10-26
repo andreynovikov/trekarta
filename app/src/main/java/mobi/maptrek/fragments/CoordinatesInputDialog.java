@@ -70,7 +70,7 @@ public class CoordinatesInputDialog extends DialogFragment {
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_coordinates_input, null);
-        final EditText textEdit = (EditText) dialogView.findViewById(R.id.coordinatesEdit);
+        final EditText textEdit = dialogView.findViewById(R.id.coordinatesEdit);
 
         textEdit.requestFocus();
 

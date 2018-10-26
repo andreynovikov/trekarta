@@ -55,7 +55,7 @@ public class AmenitySetupDialog extends DialogFragment {
         final Activity activity = getActivity();
 
         @SuppressLint("InflateParams") final View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
-        final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
+        final ListView listView = dialogView.findViewById(android.R.id.list);
         AmenitySetupListAdapter listAdapter = new AmenitySetupListAdapter(getActivity());
         listView.setAdapter(listAdapter);
 
@@ -149,8 +149,8 @@ public class AmenitySetupDialog extends DialogFragment {
             if (convertView == null) {
                 itemHolder = new AmenitySetupListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_amenity_setup, parent, false);
-                itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.zoom = (DiscreteSlider) convertView.findViewById(R.id.zoom);
+                itemHolder.name = convertView.findViewById(R.id.name);
+                itemHolder.zoom = convertView.findViewById(R.id.zoom);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (AmenitySetupListItemHolder) convertView.getTag();

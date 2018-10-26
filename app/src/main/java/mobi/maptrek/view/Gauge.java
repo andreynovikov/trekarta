@@ -51,8 +51,8 @@ public class Gauge extends RelativeLayout {
         super(context);
         mType = type;
         inflate(getContext(), R.layout.gauge, this);
-        mValueView = (TextView) findViewById(R.id.gaugeValue);
-        mUnitView = (TextView) findViewById(R.id.gaugeUnit);
+        mValueView = findViewById(R.id.gaugeValue);
+        mUnitView = findViewById(R.id.gaugeUnit);
         mUnitView.setText(getDefaultGaugeUnit(type));
     }
 

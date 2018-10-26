@@ -251,10 +251,10 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
                 if (actionView.getTag() == null) {
                     itemHolder = new MenuItemHolder();
                     convertView = mInflater.inflate(R.layout.menu_item, parent, false);
-                    itemHolder.title = (TextView) convertView.findViewById(R.id.title);
-                    itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-                    itemHolder.check = (Switch) convertView.findViewById(R.id.check);
-                    itemHolder.action = (ViewGroup) convertView.findViewById(R.id.actionViewContainer);
+                    itemHolder.title = convertView.findViewById(R.id.title);
+                    itemHolder.icon = convertView.findViewById(R.id.icon);
+                    itemHolder.check = convertView.findViewById(R.id.check);
+                    itemHolder.action = convertView.findViewById(R.id.actionViewContainer);
                     itemHolder.action.addView(actionView, itemHolder.action.getLayoutParams());
                     itemHolder.action.setVisibility(View.VISIBLE);
                     actionView.setTag(convertView);
@@ -266,10 +266,10 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
             } else if (convertView == null || convertView.getTag() == null) {
                 itemHolder = new MenuItemHolder();
                 convertView = mInflater.inflate(R.layout.menu_item, parent, false);
-                itemHolder.title = (TextView) convertView.findViewById(R.id.title);
-                itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-                itemHolder.check = (Switch) convertView.findViewById(R.id.check);
-                itemHolder.action = (ViewGroup) convertView.findViewById(R.id.actionViewContainer);
+                itemHolder.title = convertView.findViewById(R.id.title);
+                itemHolder.icon = convertView.findViewById(R.id.icon);
+                itemHolder.check = convertView.findViewById(R.id.check);
+                itemHolder.action = convertView.findViewById(R.id.actionViewContainer);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (MenuItemHolder) convertView.getTag();

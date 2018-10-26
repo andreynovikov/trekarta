@@ -36,7 +36,7 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_basemap_download, container, false);
-        mMessageView = (TextView) rootView.findViewById(R.id.message);
+        mMessageView = rootView.findViewById(R.id.message);
         return rootView;
     }
 

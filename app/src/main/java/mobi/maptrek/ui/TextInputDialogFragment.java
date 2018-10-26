@@ -98,7 +98,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_text_input, null);
-        final EditText textEdit = (EditText) dialogView.findViewById(R.id.textEdit);
+        final EditText textEdit = dialogView.findViewById(R.id.textEdit);
 
         textEdit.setInputType(inputType);
         if (!"".equals(oldValue))
@@ -127,12 +127,12 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         });
 
         if (hint != null) {
-            TextInputLayout textInputLayout = (TextInputLayout) dialogView.findViewById(R.id.textWrapper);
+            TextInputLayout textInputLayout = dialogView.findViewById(R.id.textWrapper);
             textInputLayout.setHint(hint);
         }
 
         if (mShowPasteButton) {
-            mPasteButton = (ImageButton) dialogView.findViewById(R.id.pasteButton);
+            mPasteButton = dialogView.findViewById(R.id.pasteButton);
             mPasteButton.setOnClickListener(v -> {
                 if (mClipboard == null)
                     return;
@@ -144,7 +144,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
             onPrimaryClipChanged();
         }
 
-        mDescription = (TextView) dialogView.findViewById(R.id.description);
+        mDescription = dialogView.findViewById(R.id.description);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);

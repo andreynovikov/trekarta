@@ -47,8 +47,8 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_track_properties, container, false);
-        mNameEdit = (EditText) rootView.findViewById(R.id.nameEdit);
-        mColorSwatch = (ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch);
+        mNameEdit = rootView.findViewById(R.id.nameEdit);
+        mColorSwatch = rootView.findViewById(R.id.colorSwatch);
         return rootView;
     }
 

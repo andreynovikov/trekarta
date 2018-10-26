@@ -206,11 +206,11 @@ public class DataSourceList extends ListFragment {
             if (convertView == null) {
                 itemHolder = new DataSourceListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_data_source, parent, false);
-                itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.description = (TextView) convertView.findViewById(R.id.description);
-                itemHolder.filename = (TextView) convertView.findViewById(R.id.filename);
-                itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-                itemHolder.action = (ImageView) convertView.findViewById(R.id.action);
+                itemHolder.name = convertView.findViewById(R.id.name);
+                itemHolder.description = convertView.findViewById(R.id.description);
+                itemHolder.filename = convertView.findViewById(R.id.filename);
+                itemHolder.icon = convertView.findViewById(R.id.icon);
+                itemHolder.action = convertView.findViewById(R.id.action);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (DataSourceListItemHolder) convertView.getTag();

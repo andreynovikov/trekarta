@@ -72,11 +72,11 @@ public class MapList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_map_list, container, false);
 
-        mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
+        mEmptyView = rootView.findViewById(android.R.id.empty);
         mMapListHeader = rootView.findViewById(R.id.mapListHeader);
-        mHideSwitch = (Switch) rootView.findViewById(R.id.hideSwitch);
-        mTransparencySeekBar = (SeekBar) rootView.findViewById(R.id.transparencySeekBar);
-        mMapList = (LinearLayout) rootView.findViewById(R.id.mapList);
+        mHideSwitch = rootView.findViewById(R.id.hideSwitch);
+        mTransparencySeekBar = rootView.findViewById(R.id.transparencySeekBar);
+        mMapList = rootView.findViewById(R.id.mapList);
 
         mHideSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mListener.onHideMapObjects(isChecked));
         mTransparencySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -160,16 +160,15 @@ public class MapList extends Fragment {
 
     public void setMaps(Collection<MapFile> maps, MapFile active) {
         mMaps.clear();
-        for (MapFile map : maps)
-            mMaps.add(map);
+        mMaps.addAll(maps);
         mActiveMap = active;
         Collections.sort(mMaps, new MapComparator());
     }
 
     private void addMap(final MapFile mapFile) {
         final View mapView = mInflater.inflate(R.layout.list_item_map, mMapList, false);
-        TextView name = (TextView) mapView.findViewById(R.id.name);
-        final BitmapTileMapPreviewView map = (BitmapTileMapPreviewView) mapView.findViewById(R.id.map);
+        TextView name = mapView.findViewById(R.id.name);
+        final BitmapTileMapPreviewView map = mapView.findViewById(R.id.map);
         View indicator = mapView.findViewById(R.id.indicator);
         name.setText(mapFile.name);
         map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
