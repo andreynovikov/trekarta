@@ -84,6 +84,7 @@ public class Index {
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
     public static final int BASEMAP_SIZE_STUB = 44;
     public static final String HILLSHADE_FILENAME = "hillshade.mbtiles";
+    private static final long HUGE_MAP_THRESHOLD = 400 * 1024 * 1024; // 400MB
 
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
@@ -382,14 +383,16 @@ public class Index {
         File mapFile = new File(filePath);
         try {
             logger.error("Importing from {}", mapFile.getName());
+            boolean huge = mapFile.length() > HUGE_MAP_THRESHOLD;
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
 
-            int total = 0, progress = 0;
+            int total = 0, progress = 0, step = 0;
             if (progressListener != null) {
                 total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                step = total / 100;
                 progressListener.onProgressStarted(total);
             }
             boolean hasFts = MapTrekDatabaseHelper.hasFullTextIndex(mMapsDatabase);
@@ -418,6 +421,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -446,6 +454,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -468,6 +481,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -491,6 +509,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
