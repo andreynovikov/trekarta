@@ -38,7 +38,7 @@ public class HelperUtils {
         final Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.actionDismiss, view -> snackbar.dismiss());
-        TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
         snackbarTextView.setMaxLines(99);
         snackbar.show();
     }
@@ -53,7 +53,7 @@ public class HelperUtils {
                     //TODO Return back actionGotIt sometime
                     .make(coordinatorLayout, messageResId, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.ok, view -> Configuration.setAdviceState(advice));
-            TextView snackbarTextView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+            TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
             snackbarTextView.setMaxLines(99);
             snackbar.show();
         }

@@ -205,6 +205,7 @@ import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.provider.ExportProvider;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -2942,6 +2943,34 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         }
         showBitmapMap(mapFile, true);
+    }
+
+    @Override
+    public void onMapShare(MapFile mapFile) {
+        String filename = mapFile.tileSource.getOption("path");
+        File exportFile = new File(filename);
+        Uri contentUri = ExportProvider.getUriForFile(this, exportFile);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+        shareIntent.setType("application/octet-stream");
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_map_intent_title)));
+    }
+
+    @Override
+    public void onMapDelete(MapFile mapFile) {
+        if (mBitmapLayerMap != null && mapFile == mBitmapLayerMap) {
+            mMap.layers().remove(mBitmapLayerMap.tileLayer);
+            mBitmapLayerMap.tileSource.close();
+            showHideMapObjects(false);
+            mMap.updateMap(true);
+            mBitmapLayerMap = null;
+        }
+        mMapIndex.removeMap(mapFile);
+        String filename = mapFile.tileSource.getOption("path");
+        File file = new File(filename);
+        if (!file.delete())
+            HelperUtils.showError(getString(R.string.msgMapDeleteFailed), mCoordinatorLayout);
     }
 
     @Override

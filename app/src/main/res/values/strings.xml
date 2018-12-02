@@ -82,6 +82,7 @@
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
+    <string name="share_map_intent_title">Share map file to:</string>
 
     <string name="notifTracking">Recording track</string>
     <string name="notifTrackingFailure">Track writing error</string>
@@ -121,6 +122,7 @@
     <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
     <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
     <string name="msgDeleteFailed">Failed to delete data source</string>
+    <string name="msgMapDeleteFailed">Failed to delete map file</string>
     <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by Trekarta.</string>
     <string name="msgOtherFormatsExplanation">GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
     <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats including UTM and MGRS. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line after coordinates it will be used as a point name. Some examples:\n\n

@@ -24,9 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import mobi.maptrek.R;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.view.BitmapTileMapPreviewView;
 
@@ -172,14 +175,14 @@ public class MapList extends Fragment {
         View indicator = mapView.findViewById(R.id.indicator);
         name.setText(mapFile.name);
         map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
+        boolean isFileBasedMap = mapFile.tileSource.getOption("path") != null;
         if (mapFile.boundingBox.contains(mLocation)) {
             int zoomLevel = mapFile.tileSource.getZoomLevelMax();
             int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
             if (mapFile.tileSource instanceof SQLiteTileSource) {
                 minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
             }
-            if (mapFile.tileSource.getOption("path") == null ||
-                    (mZoomLevel < zoomLevel && mZoomLevel > minZoomLevel))
+            if (!isFileBasedMap || (mZoomLevel < zoomLevel && mZoomLevel > minZoomLevel))
                 zoomLevel = mZoomLevel;
             map.setLocation(mLocation, zoomLevel);
         } else {
@@ -194,6 +197,31 @@ public class MapList extends Fragment {
             map.setShouldNotCloseDataSource();
             mListener.onMapSelected(mapFile);
             mFragmentHolder.popCurrent();
+        });
+        mapView.setOnLongClickListener(view -> {
+            if (isFileBasedMap) {
+                PopupMenu popup = new PopupMenu(getContext(), view);
+                popup.inflate(R.menu.context_menu_data_list);
+                popup.setOnMenuItemClickListener(item -> {
+                    switch (item.getItemId()) {
+                        case R.id.action_share:
+                            mListener.onMapShare(mapFile);
+                            return true;
+                        case R.id.action_delete:
+                            mListener.onMapDelete(mapFile);
+                            mMapList.removeView(view);
+                            mMaps.remove(mapFile);
+                            if (mMaps.size() == 0) {
+                                mEmptyView.setVisibility(View.VISIBLE);
+                                mMapListHeader.setVisibility(View.GONE);
+                            }
+                            return true;
+                    }
+                    return false;
+                });
+                popup.show();
+            }
+            return true;
         });
         mMapList.addView(mapView);
     }

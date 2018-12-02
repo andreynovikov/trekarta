@@ -259,7 +259,7 @@ public class ExportProvider extends ContentProvider {
         logger.error("openFile: {} {} {}", uri, file, mode);
         try {
             return ParcelFileDescriptor.open(file, fileMode, mHandler, e -> {
-                if (e == null || !(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
+                if (!(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
                     if ("rwt".equals(mode)) {
                         logger.error("saved");
                         Intent intent = new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED);
@@ -289,6 +289,7 @@ public class ExportProvider extends ContentProvider {
                 SimplePathStrategy simplePathStrategy = new SimplePathStrategy();
                 simplePathStrategy.addRoot("data", buildPath(MapTrek.getExternalDirForContext(context, "data")));
                 simplePathStrategy.addRoot("databases", buildPath(MapTrek.getExternalDirForContext(context,"databases")));
+                simplePathStrategy.addRoot("maps", buildPath(MapTrek.getExternalDirForContext(context,"maps")));
                 simplePathStrategy.addRoot("export", buildPath(context.getExternalCacheDir(), "export"));
                 mCachedStrategy = simplePathStrategy;
             }

@@ -156,10 +156,16 @@ public class MapIndex implements Serializable {
         return mMaps;
     }
 
+
+    public void removeMap(MapFile mapFile) {
+        logger.debug("  removed {}", mapFile.boundingBox);
+        mMaps.remove(mapFile);
+    }
+
     public void clear() {
         for (MapFile map : mMaps) {
             map.tileSource.close();
-            if (map.tileSource.tileCache != null && map.tileSource.tileCache instanceof TileCache)
+            if (map.tileSource.tileCache instanceof TileCache)
                 ((TileCache) map.tileSource.tileCache).dispose();
         }
         mMaps.clear();
