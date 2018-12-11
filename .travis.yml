@@ -3,7 +3,6 @@ sudo: false
 language: android
 jdk:
   - openjdk7
-  - oraclejdk7
 android:
   components:
     - platform-tools
@@ -11,7 +10,11 @@ android:
     - build-tools-28.0.3
     - android-27
     - extra-android-m2repository
+os:
+  - linux
 env:
   global:
     - GRADLE_OPTS="-Xmx2048m -XX:MaxPermSize=512m -Dorg.gradle.parallel=true"
+before_script:
+ - chmod +x gradlew
 script: ./gradlew clean build
