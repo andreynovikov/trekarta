@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,13 @@ public class DownloadReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String action = intent.getAction();
-		if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+		if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
 			long ref = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
 			DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 			DownloadManager.Query query = new DownloadManager.Query();
 			query.setFilterById(ref);
-			Cursor cursor = downloadManager.query(query);
+            assert downloadManager != null;
+            Cursor cursor = downloadManager.query(query);
 			if (cursor.moveToFirst()) {
 				int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
 				if (status == DownloadManager.STATUS_SUCCESSFUL) {
@@ -49,7 +51,11 @@ public class DownloadReceiver extends BroadcastReceiver
                     Uri uri = Uri.parse(fileName);
                     logger.debug("Downloaded: {}", fileName);
 					Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, context, MapService.class);
-					context.startService(importIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(importIntent);
+                    } else {
+                        context.startService(importIntent);
+                    }
 				}
 			}
 		}

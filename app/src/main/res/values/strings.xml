@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Trekarta</string>
     <string name="title_select_format">Select format</string>
     <string name="title_export_track">Track export</string>
     <string name="title_map_import">Map import</string>
     <string name="title_map_removal">Removing map</string>
     <string name="title_input_name">Name</string>
+    <string name="titleMoveData">Move application data</string>
     <string name="titleCoordinatesInput">Enter coordinates</string>
 
     <string name="ok">OK</string>
@@ -77,9 +78,11 @@
     <string name="actionFontSize">Font size</string>
     <string name="actionRate">Say thanks</string>
     <string name="actionHillshades">Hillshades</string>
+    <string name="actionMoveData">Move data</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
+    <string name="share_map_intent_title">Share map file to:</string>
 
     <string name="notifTracking">Recording track</string>
     <string name="notifTrackingFailure">Track writing error</string>
@@ -104,6 +107,7 @@
     <string name="msgDataImported">File is saved in application folder.</string>
     <string name="msgSaveFailed">Failed to save: %s</string>
     <string name="msgReadExternalStorageRationale">Trekarta requests to %s to be able to access the file you want to open</string>
+    <string name="msgWriteExternalStorageRationale">Trekarta requests to %s to be able to store data and map files on external storage</string>
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
@@ -118,6 +122,7 @@
     <string name="msgDeleteSourcePermanently">Data source will be permanently deleted from storage. This action can not be undone.</string>
     <string name="msgCannotDeleteNativeSource">Native data sources can not be deleted</string>
     <string name="msgDeleteFailed">Failed to delete data source</string>
+    <string name="msgMapDeleteFailed">Failed to delete map file</string>
     <string name="msgNativeFormatExplanation">Native format stores all available data and is extremely compact and fast but is recognized only by Trekarta.</string>
     <string name="msgOtherFormatsExplanation">GPX format preserves essential data and is widely used but resulting files are very large. KML format does not preserve time related data but resulting files are 30% more compact then GPX files.</string>
     <string name="msgCoordinatesInputExplanation">You can enter coordinates in a number of supported formats including UTM and MGRS. If format is recognized coordinates are highlighted with blue color, otherwise they become red. You can enter several coordinates at once provided they are on separate lines. If you write something in a line after coordinates it will be used as a point name. Some examples:\n\n
@@ -147,6 +152,18 @@
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
     <string name="msgRateApplication">If you are enjoying Trekarta please rate it and leave comment on the Google Play Store to boost its spread</string>
     <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
+    <string name="msgMoveDataToApplicationStorage">Move back to default application storage</string>
+    <string name="msgMoveDataToExternalStorage">Move to user storage to prevent data loss on application uninstall</string>
+    <string name="msgMoveDataToSDCard">Move to SD card to free device storage space</string>
+    <string name="msgMoveDataToExternalStorageExplanation">All application data - places, tracks and maps will be moved to user storage root folder. This will prevent data from being silently removed when application is uninstalled. Application will restart to perform data move.</string>
+    <string name="msgMoveDataToSDCardExplanation">All application data - places, tracks and maps will be moved to SD card. Depending on SD card type this may result in significant performance degradation. Please notice that data will be still automatically removed upon application uninstall. Application will restart to perform data move.</string>
+    <string name="msgMovingFiles">Moving files…</string>
+    <string name="msgFailedToMoveData">Failed to move data: %s</string>
+    <string name="msgCannotCreateDestinationFolder">cannot create destination folder</string>
+    <string name="msgDestinationFolderIsNotEmpty">destination folder is not empty</string>
+    <string name="msgCannotAccessSourceFolder">cannot access source folder</string>
+    <string name="msgNotEnoughSpaceOnDestinationStorage">not enough space on destination storage</string>
+    <string name="msgFileMoveError">file move error</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
@@ -205,6 +222,7 @@
     <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
     <string name="intentCopyMap">Install map</string>
     <string name="intentImportData">Trekarta import</string>
+    <string name="intentMoveData">Trekarta data move</string>
     <string name="mapDownloadText">Download missing map</string>
     <string name="mapTitle" formatted="false">Area %d-%d map</string>
     <string name="hillshadeTitle" formatted="false">Area %d-%d hillshade</string>
@@ -227,6 +245,7 @@
     <string name="hide_map_objects">Hide map objects</string>
     <string name="send_crash_report">Send crash report</string>
     <string name="selectedLocation">selected location</string>
+    <string name="finishing">Finishing…</string>
     <string name="osmLicense"><![CDATA[&#169; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors]]></string>
 
     <string name="permReadFilesLabel">read user files</string>
@@ -244,6 +263,8 @@
     <string name="permAddPluginEntriesLabel">add menu entries</string>
     <string name="permAddPluginEntriesDescription">Allows the app to add entries to Trekarta menu.</string>
 
+    <string name="pref_general">General</string>
+    <string name="pref_zoom_buttons_visible_title">Visible zoom buttons</string>
     <string name="pref_units">Units</string>
     <string name="pref_unit_speed_title">Speed</string>
     <string name="pref_unit_distance_title">Distance</string>
@@ -272,5 +293,6 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
+    <string name="notificationChannelName">Ongoing events</string>
 
 </resources>

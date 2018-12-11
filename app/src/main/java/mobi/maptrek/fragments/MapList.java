@@ -23,11 +23,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import mobi.maptrek.R;
+import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.view.BitmapTileMapPreviewView;
 
@@ -73,18 +75,13 @@ public class MapList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_map_list, container, false);
 
-        mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
+        mEmptyView = rootView.findViewById(android.R.id.empty);
         mMapListHeader = rootView.findViewById(R.id.mapListHeader);
-        mHideSwitch = (Switch) rootView.findViewById(R.id.hideSwitch);
-        mTransparencySeekBar = (SeekBar) rootView.findViewById(R.id.transparencySeekBar);
-        mMapList = (LinearLayout) rootView.findViewById(R.id.mapList);
+        mHideSwitch = rootView.findViewById(R.id.hideSwitch);
+        mTransparencySeekBar = rootView.findViewById(R.id.transparencySeekBar);
+        mMapList = rootView.findViewById(R.id.mapList);
 
-        mHideSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mListener.onHideMapObjects(isChecked);
-            }
-        });
+        mHideSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mListener.onHideMapObjects(isChecked));
         mTransparencySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -166,27 +163,26 @@ public class MapList extends Fragment {
 
     public void setMaps(Collection<MapFile> maps, MapFile active) {
         mMaps.clear();
-        for (MapFile map : maps)
-            mMaps.add(map);
+        mMaps.addAll(maps);
         mActiveMap = active;
         Collections.sort(mMaps, new MapComparator());
     }
 
     private void addMap(final MapFile mapFile) {
         final View mapView = mInflater.inflate(R.layout.list_item_map, mMapList, false);
-        TextView name = (TextView) mapView.findViewById(R.id.name);
-        final BitmapTileMapPreviewView map = (BitmapTileMapPreviewView) mapView.findViewById(R.id.map);
+        TextView name = mapView.findViewById(R.id.name);
+        final BitmapTileMapPreviewView map = mapView.findViewById(R.id.map);
         View indicator = mapView.findViewById(R.id.indicator);
         name.setText(mapFile.name);
         map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
+        boolean isFileBasedMap = mapFile.tileSource.getOption("path") != null;
         if (mapFile.boundingBox.contains(mLocation)) {
             int zoomLevel = mapFile.tileSource.getZoomLevelMax();
             int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
             if (mapFile.tileSource instanceof SQLiteTileSource) {
                 minZoomLevel = ((SQLiteTileSource) mapFile.tileSource).sourceZoomMin;
             }
-            if (mapFile.tileSource.getOption("path") == null ||
-                    (mZoomLevel < zoomLevel && mZoomLevel > minZoomLevel))
+            if (!isFileBasedMap || (mZoomLevel < zoomLevel && mZoomLevel > minZoomLevel))
                 zoomLevel = mZoomLevel;
             map.setLocation(mLocation, zoomLevel);
         } else {
@@ -197,13 +193,35 @@ public class MapList extends Fragment {
         } else {
             indicator.setBackgroundColor(Color.TRANSPARENT);
         }
-        mapView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                map.setShouldNotCloseDataSource();
-                mListener.onMapSelected(mapFile);
-                mFragmentHolder.popCurrent();
+        mapView.setOnClickListener(v -> {
+            map.setShouldNotCloseDataSource();
+            mListener.onMapSelected(mapFile);
+            mFragmentHolder.popCurrent();
+        });
+        mapView.setOnLongClickListener(view -> {
+            if (isFileBasedMap) {
+                PopupMenu popup = new PopupMenu(getContext(), view);
+                popup.inflate(R.menu.context_menu_data_list);
+                popup.setOnMenuItemClickListener(item -> {
+                    switch (item.getItemId()) {
+                        case R.id.action_share:
+                            mListener.onMapShare(mapFile);
+                            return true;
+                        case R.id.action_delete:
+                            mListener.onMapDelete(mapFile);
+                            mMapList.removeView(view);
+                            mMaps.remove(mapFile);
+                            if (mMaps.size() == 0) {
+                                mEmptyView.setVisibility(View.VISIBLE);
+                                mMapListHeader.setVisibility(View.GONE);
+                            }
+                            return true;
+                    }
+                    return false;
+                });
+                popup.show();
             }
+            return true;
         });
         mMapList.addView(mapView);
     }

@@ -22,8 +22,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.VectorDrawable;
 import android.support.annotation.DrawableRes;
 
-import org.oscim.backend.CanvasAdapter;
-
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.style.MarkerStyle;

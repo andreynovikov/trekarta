@@ -117,50 +117,44 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
-        mPointCountView = (TextView) rootView.findViewById(R.id.pointCount);
-        mSegmentCountView = (TextView) rootView.findViewById(R.id.segmentCount);
-        mDistanceView = (TextView) rootView.findViewById(R.id.distance);
-        mStartCoordinatesView = (TextView) rootView.findViewById(R.id.startCoordinates);
-        mFinishCoordinatesView = (TextView) rootView.findViewById(R.id.finishCoordinates);
-        mTimeSpanView = (TextView) rootView.findViewById(R.id.timeSpan);
-        mStartDateView = (TextView) rootView.findViewById(R.id.startDate);
-        mFinishDateView = (TextView) rootView.findViewById(R.id.finishDate);
-        mMaxElevationView = (TextView) rootView.findViewById(R.id.maxElevation);
-        mMinElevationView = (TextView) rootView.findViewById(R.id.minElevation);
-        mMaxSpeedView = (TextView) rootView.findViewById(R.id.maxSpeed);
-        mAverageSpeedView = (TextView) rootView.findViewById(R.id.averageSpeed);
-        mElevationChart = (LineChart) rootView.findViewById(R.id.elevationChart);
-        mSpeedChart = (LineChart) rootView.findViewById(R.id.speedChart);
-        mMoreButton = (ImageButton) rootView.findViewById(R.id.moreButton);
-        mMoreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEditorMode) {
-                    mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                    mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
-                    mListener.onTrackSave(mTrack);
-                    setEditorMode(false);
-                } else {
-                    PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
-                    mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
-                    popup.inflate(R.menu.context_menu_track);
-                    Menu menu = popup.getMenu();
-                    menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
-                    menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
-                    popup.setOnMenuItemClickListener(TrackInformation.this);
-                    popup.show();
-                }
+        mPointCountView = rootView.findViewById(R.id.pointCount);
+        mSegmentCountView = rootView.findViewById(R.id.segmentCount);
+        mDistanceView = rootView.findViewById(R.id.distance);
+        mStartCoordinatesView = rootView.findViewById(R.id.startCoordinates);
+        mFinishCoordinatesView = rootView.findViewById(R.id.finishCoordinates);
+        mTimeSpanView = rootView.findViewById(R.id.timeSpan);
+        mStartDateView = rootView.findViewById(R.id.startDate);
+        mFinishDateView = rootView.findViewById(R.id.finishDate);
+        mMaxElevationView = rootView.findViewById(R.id.maxElevation);
+        mMinElevationView = rootView.findViewById(R.id.minElevation);
+        mMaxSpeedView = rootView.findViewById(R.id.maxSpeed);
+        mAverageSpeedView = rootView.findViewById(R.id.averageSpeed);
+        mElevationChart = rootView.findViewById(R.id.elevationChart);
+        mSpeedChart = rootView.findViewById(R.id.speedChart);
+        mMoreButton = rootView.findViewById(R.id.moreButton);
+        mMoreButton.setOnClickListener(v -> {
+            if (mEditorMode) {
+                mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+                mListener.onTrackSave(mTrack);
+                setEditorMode(false);
+            } else {
+                PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
+                mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
+                popup.inflate(R.menu.context_menu_track);
+                Menu menu = popup.getMenu();
+                menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
+                menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
+                popup.setOnMenuItemClickListener(TrackInformation.this);
+                popup.show();
             }
         });
         if (mIsCurrent) {
-            ImageButton stopButton = (ImageButton) rootView.findViewById(R.id.stopButton);
+            ImageButton stopButton = rootView.findViewById(R.id.stopButton);
             stopButton.setVisibility(View.VISIBLE);
-            stopButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mMapHolder.disableTracking();
-                    mFragmentHolder.popCurrent();
-                }
+            stopButton.setOnClickListener(v -> {
+                mMapHolder.disableTracking();
+                mFragmentHolder.popCurrent();
             });
         }
         mEditorMode = false;
@@ -467,27 +461,19 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
-        final ColorPickerSwatch colorSwatch = (ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch);
+        final ColorPickerSwatch colorSwatch = rootView.findViewById(R.id.colorSwatch);
 
         int viewsState, editsState;
         if (enabled) {
             mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mTrack.name);
             colorSwatch.setColor(mTrack.style.color);
-            colorSwatch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ColorPickerDialog dialog = new ColorPickerDialog();
-                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
-                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                    dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
-                        @Override
-                        public void onColorSelected(int color) {
-                            colorSwatch.setColor(color);
-                        }
-                    });
-                    dialog.show(getFragmentManager(), "ColorPickerDialog");
-                }
+            colorSwatch.setOnClickListener(v -> {
+                ColorPickerDialog dialog = new ColorPickerDialog();
+                dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
+                dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                dialog.setOnColorSelectedListener(colorSwatch::setColor);
+                dialog.show(getFragmentManager(), "ColorPickerDialog");
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;

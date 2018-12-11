@@ -16,6 +16,7 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ListFragment;
 import android.content.Context;
 import android.database.Cursor;
@@ -165,15 +166,12 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         if (mDataSource instanceof WaypointDbDataSource) {
             mFloatingButton = mFragmentHolder.enableListActionButton();
             mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_add_location));
-            mFloatingButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
-                    CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
-                            .setTitle(getString(R.string.titleCoordinatesInput))
-                            .create();
-                    coordinatesInput.show(getFragmentManager(), "pointCoordinatesInput");
-                }
+            mFloatingButton.setOnClickListener(v -> {
+                CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
+                CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
+                        .setTitle(getString(R.string.titleCoordinatesInput))
+                        .create();
+                coordinatesInput.show(getFragmentManager(), "pointCoordinatesInput");
             });
         }
     }
@@ -350,11 +348,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             }
             if (view != null) {
                 ItemHolder holder = new ItemHolder();
-                holder.separator = (TextView) view.findViewById(R.id.separator);
-                holder.name = (TextView) view.findViewById(R.id.name);
-                holder.distance = (TextView) view.findViewById(R.id.distance);
-                holder.icon = (ImageView) view.findViewById(R.id.icon);
-                holder.viewButton = (ImageView) view.findViewById(R.id.view);
+                holder.separator = view.findViewById(R.id.separator);
+                holder.name = view.findViewById(R.id.name);
+                holder.distance = view.findViewById(R.id.distance);
+                holder.icon = view.findViewById(R.id.icon);
+                holder.viewButton = view.findViewById(R.id.view);
                 view.setTag(holder);
             }
             return view;
@@ -400,6 +398,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             boolean isChecked = getListView().isItemChecked(position);
             boolean hasChecked = getListView().getCheckedItemCount() > 0;
             @DrawableRes int icon = R.drawable.ic_info_outline;
+            @SuppressLint("ResourceAsColor")
             @ColorInt int color = R.color.colorPrimaryDark;
 
             if (viewType == DataSource.TYPE_WAYPOINT) {
@@ -409,13 +408,10 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
                 holder.name.setText(waypoint.name);
                 holder.distance.setText(distance);
-                holder.viewButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mWaypointActionListener.onWaypointView(waypoint);
-                        mFragmentHolder.disableListActionButton();
-                        mFragmentHolder.popAll();
-                    }
+                holder.viewButton.setOnClickListener(v -> {
+                    mWaypointActionListener.onWaypointView(waypoint);
+                    mFragmentHolder.disableListActionButton();
+                    mFragmentHolder.popAll();
                 });
                 icon = R.drawable.ic_point;
                 color = waypoint.style.color;
@@ -424,13 +420,10 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 String distance = StringFormatter.distanceH(track.getDistance());
                 holder.name.setText(track.name);
                 holder.distance.setText(distance);
-                holder.viewButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mTrackActionListener.onTrackView(track);
-                        mFragmentHolder.disableListActionButton();
-                        mFragmentHolder.popAll();
-                    }
+                holder.viewButton.setOnClickListener(v -> {
+                    mTrackActionListener.onTrackView(track);
+                    mFragmentHolder.disableListActionButton();
+                    mFragmentHolder.popAll();
                 });
                 icon = R.drawable.ic_track;
                 color = track.style.color;

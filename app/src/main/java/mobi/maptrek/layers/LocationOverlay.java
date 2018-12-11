@@ -57,6 +57,14 @@ public class LocationOverlay extends Layer {
         return new Point(mLocation.x, mLocation.y);
     }
 
+    public double getX() {
+        return mLocation.x;
+    }
+
+    public double getY() {
+        return mLocation.y;
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         if (enabled == isEnabled())

@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -113,12 +112,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_search_list, container, false);
 
-        mFtsWait = (CircleProgressView) rootView.findViewById(R.id.ftsWait);
-        mMessage = (TextView) rootView.findViewById(R.id.message);
-        mFilterButton = (ImageButton) rootView.findViewById(R.id.filterButton);
+        mFtsWait = rootView.findViewById(R.id.ftsWait);
+        mMessage = rootView.findViewById(R.id.message);
+        mFilterButton = rootView.findViewById(R.id.filterButton);
         mFilterButton.setOnClickListener(this);
         mSearchFooter = rootView.findViewById(R.id.searchFooter);
-        final EditText textEdit = (EditText) rootView.findViewById(R.id.textEdit);
+        final EditText textEdit = rootView.findViewById(R.id.textEdit);
         textEdit.requestFocus();
 
         textEdit.addTextChangedListener(new TextWatcher() {
@@ -187,23 +186,15 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
             if (!mUpdating) {
                 mUpdating = true;
-                final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
-                    @Override
-                    public void run() {
-                        MapTrekDatabaseHelper.createFtsTable(mDatabase);
-                        hideProgress();
-                        mUpdating = false;
-                    }
+                final Message m = Message.obtain(mBackgroundHandler, () -> {
+                    MapTrekDatabaseHelper.createFtsTable(mDatabase);
+                    hideProgress();
+                    mUpdating = false;
                 });
                 m.what = MSG_CREATE_FTS;
                 mBackgroundHandler.sendMessage(m);
             } else {
-                mBackgroundHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideProgress();
-                    }
-                });
+                mBackgroundHandler.post(this::hideProgress);
             }
         } else {
             HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
@@ -269,15 +260,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         Activity activity = getActivity();
         if (activity == null)
             return;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mFtsWait.setVisibility(View.GONE);
-                mFtsWait.stopSpinning();
-                mMessage.setVisibility(View.GONE);
-                mSearchFooter.setVisibility(View.VISIBLE);
-                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
-            }
+        activity.runOnUiThread(() -> {
+            mFtsWait.setVisibility(View.GONE);
+            mFtsWait.stopSpinning();
+            mMessage.setVisibility(View.GONE);
+            mSearchFooter.setVisibility(View.VISIBLE);
+            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
         });
     }
 
@@ -286,15 +274,13 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         if (view != mFilterButton)
             return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setSingleChoiceItems(mKinds, mSelectedKind, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                boolean changed = which != mSelectedKind;
-                mSelectedKind = which;
-                mFilterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
-                if (changed && mText != null)
-                    search();
-            }
+        builder.setSingleChoiceItems(mKinds, mSelectedKind, (dialog, which) -> {
+            dialog.dismiss();
+            boolean changed = which != mSelectedKind;
+            mSelectedKind = which;
+            mFilterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+            if (changed && mText != null)
+                search();
         });
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -323,44 +309,38 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
         mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
         mFilterButton.setOnClickListener(null);
-        final Message m = Message.obtain(mBackgroundHandler, new Runnable() {
-            @Override
-            public void run() {
-                if (mCancellationSignal != null)
-                    mCancellationSignal.cancel();
-                mCancellationSignal = new CancellationSignal();
-                String[] selectionArgs = {match};
-                final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs, mCancellationSignal);
-                if (mCancellationSignal.isCanceled()) {
-                    mCancellationSignal = null;
-                    return;
-                }
+        final Message m = Message.obtain(mBackgroundHandler, () -> {
+            if (mCancellationSignal != null)
+                mCancellationSignal.cancel();
+            mCancellationSignal = new CancellationSignal();
+            String[] selectionArgs = {match};
+            final Cursor cursor = mDatabase.rawQuery(sql, selectionArgs, mCancellationSignal);
+            if (mCancellationSignal.isCanceled()) {
                 mCancellationSignal = null;
-                final Activity activity = getActivity();
-                if (activity == null)
-                    return;
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cursor resultCursor = cursor;
-                        if (cursor.getCount() == 0) {
-                            try {
-                                mFoundPoint = JosmCoordinatesParser.parse(mText);
-                                String[] columns = new String[] {"_id", "kind", "lat", "lon", "name"};
-                                MatrixCursor pointCursor = new MatrixCursor(columns);
-                                pointCursor.addRow(new Object[] {0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude(), StringFormatter.coordinates(mFoundPoint)});
-                                resultCursor = pointCursor;
-                            } catch (IllegalArgumentException ignore) {
-                            }
-                        }
-                        mAdapter.changeCursor(resultCursor);
-                        mFilterButton.setImageResource(R.drawable.ic_filter);
-                        mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
-                        mFilterButton.setOnClickListener(TextSearchFragment.this);
-                        updateListHeight();
-                    }
-                });
+                return;
             }
+            mCancellationSignal = null;
+            final Activity activity = getActivity();
+            if (activity == null)
+                return;
+            activity.runOnUiThread(() -> {
+                Cursor resultCursor = cursor;
+                if (cursor.getCount() == 0) {
+                    try {
+                        mFoundPoint = JosmCoordinatesParser.parse(mText);
+                        String[] columns = new String[] {"_id", "kind", "lat", "lon", "name"};
+                        MatrixCursor pointCursor = new MatrixCursor(columns);
+                        pointCursor.addRow(new Object[] {0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude(), StringFormatter.coordinates(mFoundPoint)});
+                        resultCursor = pointCursor;
+                    } catch (IllegalArgumentException ignore) {
+                    }
+                }
+                mAdapter.changeCursor(resultCursor);
+                mFilterButton.setImageResource(R.drawable.ic_filter);
+                mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+                mFilterButton.setOnClickListener(TextSearchFragment.this);
+                updateListHeight();
+            });
         });
         m.what = MSG_SEARCH;
         mBackgroundHandler.sendMessage(m);
@@ -398,10 +378,10 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             View view = mInflater.inflate(R.layout.list_item_amenity, parent, false);
             if (view != null) {
                 ItemHolder holder = new ItemHolder();
-                holder.name = (TextView) view.findViewById(R.id.name);
-                holder.distance = (TextView) view.findViewById(R.id.distance);
-                holder.icon = (ImageView) view.findViewById(R.id.icon);
-                holder.viewButton = (ImageView) view.findViewById(R.id.view);
+                holder.name = view.findViewById(R.id.name);
+                holder.distance = view.findViewById(R.id.distance);
+                holder.icon = view.findViewById(R.id.icon);
+                holder.viewButton = view.findViewById(R.id.view);
                 view.setTag(holder);
             }
             return view;
@@ -423,12 +403,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
             holder.name.setText(name);
             holder.distance.setText(distance);
-            holder.viewButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mMapHolder.setMapLocation(coordinates);
-                    //mFragmentHolder.popAll();
-                }
+            holder.viewButton.setOnClickListener(v -> {
+                mMapHolder.setMapLocation(coordinates);
+                //mFragmentHolder.popAll();
             });
 
             int color = mAccentColor;

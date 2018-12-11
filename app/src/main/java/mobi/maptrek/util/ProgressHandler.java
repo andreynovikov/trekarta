@@ -16,6 +16,7 @@
 
 package mobi.maptrek.util;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.CallSuper;
@@ -70,6 +71,13 @@ public class ProgressHandler extends Handler implements ProgressListener {
     @Override
     public final void onProgressFinished() {
         Message msg = obtainMessage(STOP_PROGRESS);
+        sendMessage(msg);
+    }
+
+    @Override
+    public void onProgressFinished(Bundle data) {
+        Message msg = obtainMessage(STOP_PROGRESS);
+        msg.setData(data);
         sendMessage(msg);
     }
 

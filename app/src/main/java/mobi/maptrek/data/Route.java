@@ -16,8 +16,6 @@
 
 package mobi.maptrek.data;
 
-import org.oscim.core.GeoPoint;
-
 import java.util.ArrayList;
 import java.util.List;
 

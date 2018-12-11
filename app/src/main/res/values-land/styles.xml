@@ -45,6 +45,11 @@
         <item name="android:layout_gravity">bottom|start</item>
     </style>
 
+    <style name="MapZoomHolder">
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
     <style name="GaugePanel">
         <item name="android:layout_marginTop">@dimen/gauge_padding</item>
         <item name="android:layout_marginBottom">@dimen/image_button_size_with_gap</item>

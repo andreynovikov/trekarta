@@ -25,7 +25,6 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -99,7 +98,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_text_input, null);
-        final EditText textEdit = (EditText) dialogView.findViewById(R.id.textEdit);
+        final EditText textEdit = dialogView.findViewById(R.id.textEdit);
 
         textEdit.setInputType(inputType);
         if (!"".equals(oldValue))
@@ -128,42 +127,29 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         });
 
         if (hint != null) {
-            TextInputLayout textInputLayout = (TextInputLayout) dialogView.findViewById(R.id.textWrapper);
+            TextInputLayout textInputLayout = dialogView.findViewById(R.id.textWrapper);
             textInputLayout.setHint(hint);
         }
 
         if (mShowPasteButton) {
-            mPasteButton = (ImageButton) dialogView.findViewById(R.id.pasteButton);
-            mPasteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mClipboard == null)
-                        return;
-                    ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
-                    CharSequence pasteData = item.getText();
-                    if (pasteData != null)
-                        textEdit.setText(pasteData);
-                }
+            mPasteButton = dialogView.findViewById(R.id.pasteButton);
+            mPasteButton.setOnClickListener(v -> {
+                if (mClipboard == null)
+                    return;
+                ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
+                CharSequence pasteData = item.getText();
+                if (pasteData != null)
+                    textEdit.setText(pasteData);
             });
             onPrimaryClipChanged();
         }
 
-        mDescription = (TextView) dialogView.findViewById(R.id.description);
+        mDescription = dialogView.findViewById(R.id.description);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputPositiveClick(id, textEdit.getText().toString());
-            }
-        });
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mCallback.onTextInputNegativeClick(id);
-            }
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> mCallback.onTextInputPositiveClick(id, textEdit.getText().toString()));
+        dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> mCallback.onTextInputNegativeClick(id));
         dialogBuilder.setView(dialogView);
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);

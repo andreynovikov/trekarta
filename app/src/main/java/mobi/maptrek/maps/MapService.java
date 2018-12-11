@@ -24,7 +24,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.JobIntentService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +48,20 @@ public class MapService extends IntentService {
     public static final String EXTRA_X = "x";
     public static final String EXTRA_Y = "y";
 
+    static final int JOB_ID = 1000;
+
     public MapService() {
-        super("ImportService");
+        super("MapService");
     }
 
+    /*
+    public static void enqueueWork(Context context, Intent work) {
+        enqueueWork(context, MapService.class, JOB_ID, work);
+    }
+    */
+
     @Override
+    //protected void onHandleWork(@NonNull Intent intent) {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent == null)
             return;
@@ -65,6 +78,8 @@ public class MapService extends IntentService {
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification.Builder builder = new Notification.Builder(this);
+        if (Build.VERSION.SDK_INT > 25)
+            builder.setChannelId("ongoing");
         int titleRes = actionImport ? R.string.title_map_import : R.string.title_map_removal;
         builder.setContentTitle(getString(titleRes))
                 .setSmallIcon(R.drawable.ic_import_export)
@@ -73,14 +88,19 @@ public class MapService extends IntentService {
                 .setPriority(Notification.PRIORITY_LOW)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setColor(getResources().getColor(R.color.colorAccent, getTheme()));
-        notificationManager.notify(0, builder.build());
+
+        startForeground(JOB_ID, builder.build());
 
         MapTrek application = MapTrek.getApplication();
         Index mapIndex = application.getMapIndex();
 
         if (actionImport) {
             Uri uri = intent.getData();
+            if (uri == null)
+                return;
             String filename = uri.getLastPathSegment();
+            if (filename == null)
+                return;
             boolean hillshade = false;
             final int x, y;
             if (Index.BASEMAP_FILENAME.equals(filename)) {
@@ -88,7 +108,7 @@ public class MapService extends IntentService {
                 y = -1;
                 builder.setContentTitle(getString(R.string.baseMapTitle));
             } else {
-                String[] parts = filename.split("[\\-\\.]");
+                String[] parts = filename.split("[\\-.]");
                 try {
                     if (parts.length != 3)
                         throw new NumberFormatException("unexpected name");
@@ -101,23 +121,27 @@ public class MapService extends IntentService {
                     logger.error(e.getMessage());
                     builder.setContentIntent(pendingIntent);
                     builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                    notificationManager.notify(0, builder.build());
+                    if (notificationManager != null)
+                        notificationManager.notify(JOB_ID, builder.build());
                     return;
                 }
                 builder.setContentTitle(getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y));
             }
-            notificationManager.notify(0, builder.build());
+            if (notificationManager != null)
+                notificationManager.notify(JOB_ID, builder.build());
 
             if (processDownload(mapIndex, x, y, hillshade, uri.getPath(),
                     new OperationProgressListener(notificationManager, builder))) {
                 application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
-                notificationManager.notify(0, builder.build());
-                notificationManager.cancel(0);
+                if (notificationManager != null) {
+                    notificationManager.notify(JOB_ID, builder.build());
+                }
             } else {
                 builder.setContentIntent(pendingIntent);
                 builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                notificationManager.notify(0, builder.build());
+                if (notificationManager != null)
+                    notificationManager.notify(JOB_ID, builder.build());
             }
         }
 
@@ -126,8 +150,11 @@ public class MapService extends IntentService {
             int y = intent.getIntExtra(EXTRA_Y, -1);
             mapIndex.removeNativeMap(x, y, new OperationProgressListener(notificationManager, builder));
             application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
-            notificationManager.cancel(0);
+            if (notificationManager != null)
+                notificationManager.cancel(0);
         }
+
+        stopForeground(true);
     }
 
     private boolean processDownload(Index mapIndex, int x, int y, boolean hillshade, String path,
@@ -155,7 +182,7 @@ public class MapService extends IntentService {
             if (step == 0f)
                 return;
             builder.setContentText(getString(R.string.processed, 0)).setProgress(100, 0, false);
-            notificationManager.notify(0, builder.build());
+            notificationManager.notify(JOB_ID, builder.build());
         }
 
         @Override
@@ -166,7 +193,7 @@ public class MapService extends IntentService {
             if (percent > this.progress) {
                 this.progress = percent;
                 builder.setContentText(getString(R.string.processed, this.progress)).setProgress(100, this.progress, false);
-                notificationManager.notify(0, builder.build());
+                notificationManager.notify(JOB_ID, builder.build());
             }
         }
 
@@ -175,7 +202,12 @@ public class MapService extends IntentService {
             if (step == 0f)
                 return;
             builder.setProgress(0, 0, false);
-            notificationManager.notify(0, builder.build());
+            notificationManager.notify(JOB_ID, builder.build());
+        }
+
+        @Override
+        public void onProgressFinished(Bundle data) {
+            onProgressFinished();
         }
 
         @Override

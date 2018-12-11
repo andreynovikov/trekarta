@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
@@ -67,7 +66,7 @@ import mobi.maptrek.util.ProgressListener;
 public class DataImportActivity extends Activity {
     private static final Logger logger = LoggerFactory.getLogger(DataImportActivity.class);
     private static final String DATA_IMPORT_FRAGMENT = "dataImportFragment";
-    private static final DateFormat SUFFIX_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
+    private static final DateFormat SUFFIX_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT);
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     private DataImportFragment mDataImportFragment;
@@ -84,9 +83,9 @@ public class DataImportActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_data_import);
 
-        mFileNameView = (TextView) findViewById(R.id.filename);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mActionButton = (Button) findViewById(R.id.action);
+        mFileNameView = findViewById(R.id.filename);
+        mProgressBar = findViewById(R.id.progressBar);
+        mActionButton = findViewById(R.id.action);
 
         FragmentManager fm = getFragmentManager();
         mDataImportFragment = (DataImportFragment) fm.findFragmentByTag(DATA_IMPORT_FRAGMENT);
@@ -100,21 +99,18 @@ public class DataImportActivity extends Activity {
 
         mActionButton.setText(R.string.cancel);
         mActionButton.setTag(false);
-        mActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean finished = (boolean) mActionButton.getTag();
-                if (finished) {
-                    Intent iLaunch = new Intent(Intent.ACTION_MAIN);
-                    iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-                    iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
-                    iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                    startActivity(iLaunch);
-                } else {
-                    mDataImportFragment.stopImport();
-                }
-                finish();
+        mActionButton.setOnClickListener(v -> {
+            boolean finished = (boolean) mActionButton.getTag();
+            if (finished) {
+                Intent iLaunch = new Intent(Intent.ACTION_MAIN);
+                iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
+                iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
+                iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                startActivity(iLaunch);
+            } else {
+                mDataImportFragment.stopImport();
             }
+            finish();
         });
     }
 
@@ -160,18 +156,8 @@ public class DataImportActivity extends Activity {
                 }
                 new AlertDialog.Builder(this)
                         .setMessage(getString(R.string.msgReadExternalStorageRationale, name))
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
+                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE))
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> finish())
                         .create()
                         .show();
             } else {
@@ -220,12 +206,7 @@ public class DataImportActivity extends Activity {
 
         @Override
         public void onProgressAnnotated(final String annotation) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mFileNameView.setText(annotation);
-                }
-            });
+            runOnUiThread(() -> mFileNameView.setText(annotation));
         }
     }
 
@@ -299,12 +280,7 @@ public class DataImportActivity extends Activity {
                 logger.debug("Uri: {}", uri.toString());
                 logger.debug("Authority: {}", uri.getAuthority());
                 final Uri finalUri = uri;
-                Runnable task = new Runnable() {
-                    @Override
-                    public void run() {
-                        readFile(finalUri);
-                    }
-                };
+                Runnable task = () -> readFile(finalUri);
                 String scheme = uri.getScheme();
                 if ("file".equals(scheme)) {
                     ((DataImportActivity) getActivity()).askForPermission(task);
@@ -312,15 +288,12 @@ public class DataImportActivity extends Activity {
                     startImport(task);
                 }
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-                startImport(new Runnable() {
-                    @Override
-                    public void run() {
-                        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                        //FIXME Not tested at all!
-                        if (uris != null) {
-                            for (Uri uri : uris)
-                                readFile(uri);
-                        }
+                startImport(() -> {
+                    ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    //FIXME Not tested at all!
+                    if (uris != null) {
+                        for (Uri uri : uris)
+                            readFile(uri);
                     }
                 });
             }
@@ -411,13 +384,10 @@ public class DataImportActivity extends Activity {
             try {
                 dst = getDestinationFile(name);
 
-                mInputStream.addChangeListener(new MonitoredInputStream.ChangeListener() {
-                    @Override
-                    public void stateChanged(long location) {
-                        if (mProgressListener != null) {
-                            //TODO Divide progress by 1024
-                            mProgressListener.onProgressChanged((int) location);
-                        }
+                mInputStream.addChangeListener(location -> {
+                    if (mProgressListener != null) {
+                        //TODO Divide progress by 1024
+                        mProgressListener.onProgressChanged((int) location);
                     }
                 });
 
@@ -435,7 +405,7 @@ public class DataImportActivity extends Activity {
         @Nullable
         private File getDestinationFile(String filename) {
             boolean isMap = filename.endsWith(".mbtiles") || filename.endsWith(".sqlitedb");
-            File dir = getContext().getExternalFilesDir(isMap ? "maps" : "data");
+            File dir = MapTrek.getApplication().getExternalDir(isMap ? "maps" : "data");
             if (dir == null) {
                 logger.error("Path for {} unavailable", isMap ? "maps" : "data");
                 return null;

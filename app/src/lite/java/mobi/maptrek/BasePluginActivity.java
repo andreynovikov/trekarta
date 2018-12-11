@@ -39,4 +39,7 @@ public abstract class BasePluginActivity extends Activity {
 
     public void initializePlugins() {
     }
+
+    protected void sendExplicitBroadcast(String action) {
+    }
 }

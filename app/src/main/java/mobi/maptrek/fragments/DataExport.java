@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -94,15 +93,12 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_progress, null);
-        mProgressView = (CircleProgressView) dialogView.findViewById(R.id.progress);
+        mProgressView = dialogView.findViewById(R.id.progress);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(R.string.title_export_track);
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //mCallback.onTextInputNegativeClick(id);
-            }
+        dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            //mCallback.onTextInputNegativeClick(id);
         });
         dialogBuilder.setView(dialogView);
         return dialogBuilder.create();
@@ -121,6 +117,11 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
     @Override
     public void onProgressFinished() {
+
+    }
+
+    @Override
+    public void onProgressFinished(Bundle data) {
 
     }
 
@@ -203,7 +204,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
                     logger.error("Failed to remove old file");
                 exportSource.name = name;
                 exportSource.path = exportFile.getAbsolutePath();
-                Manager manager = Manager.getDataManager(getContext(), exportSource.path);
+                Manager manager = Manager.getDataManager(exportSource.path);
                 if (manager == null) {
                     logger.error("Failed to get data manager for path: {}", exportSource.path);
                     dismiss();

@@ -26,10 +26,8 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -39,7 +37,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import mobi.maptrek.DataHolder;
@@ -80,31 +77,25 @@ public class DataSourceList extends ListFragment {
 
         mAdapter = new DataSourceListAdapter(getActivity());
         setListAdapter(mAdapter);
-        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                final DataSource dataSource = mAdapter.getItem(position);
-                PopupMenu popup = new PopupMenu(getContext(), view);
-                popup.inflate(R.menu.context_menu_data_list);
-                if (dataSource instanceof WaypointDbDataSource)
-                    popup.getMenu().findItem(R.id.action_delete).setVisible(false);
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.action_share:
-                                mDataHolder.onDataSourceShare(dataSource);
-                                return true;
-                            case R.id.action_delete:
-                                mDataHolder.onDataSourceDelete(dataSource);
-                                return true;
-                        }
-                        return false;
-                    }
-                });
-                popup.show();
-                return true;
-            }
+        getListView().setOnItemLongClickListener((parent, view, position, id) -> {
+            final DataSource dataSource = mAdapter.getItem(position);
+            PopupMenu popup = new PopupMenu(getContext(), view);
+            popup.inflate(R.menu.context_menu_data_list);
+            if (dataSource instanceof WaypointDbDataSource)
+                popup.getMenu().findItem(R.id.action_delete).setVisible(false);
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.action_share:
+                        mDataHolder.onDataSourceShare(dataSource);
+                        return true;
+                    case R.id.action_delete:
+                        mDataHolder.onDataSourceDelete(dataSource);
+                        return true;
+                }
+                return false;
+            });
+            popup.show();
+            return true;
         });
     }
 
@@ -156,17 +147,14 @@ public class DataSourceList extends ListFragment {
 
         List<FileDataSource> data = mDataHolder.getData();
         // TODO Preserve position after source is loaded and name changes
-        Collections.sort(data, new Comparator<FileDataSource>() {
-            @Override
-            public int compare(FileDataSource lhs, FileDataSource rhs) {
-                if (mNativeTracks) {
-                    // Newer tracks first
-                    File lf = new File(lhs.path);
-                    File rf = new File(rhs.path);
-                    return Long.compare(rf.lastModified(), lf.lastModified());
-                }
-                return lhs.name.compareTo(rhs.name);
+        Collections.sort(data, (lhs, rhs) -> {
+            if (mNativeTracks) {
+                // Newer tracks first
+                File lf = new File(lhs.path);
+                File rf = new File(rhs.path);
+                return Long.compare(rf.lastModified(), lf.lastModified());
             }
+            return lhs.name.compareTo(rhs.name);
         });
         for (FileDataSource source : data) {
             if (mNativeTracks ^ !source.isNativeTrack()) {
@@ -218,11 +206,11 @@ public class DataSourceList extends ListFragment {
             if (convertView == null) {
                 itemHolder = new DataSourceListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_data_source, parent, false);
-                itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.description = (TextView) convertView.findViewById(R.id.description);
-                itemHolder.filename = (TextView) convertView.findViewById(R.id.filename);
-                itemHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-                itemHolder.action = (ImageView) convertView.findViewById(R.id.action);
+                itemHolder.name = convertView.findViewById(R.id.name);
+                itemHolder.description = convertView.findViewById(R.id.description);
+                itemHolder.filename = convertView.findViewById(R.id.filename);
+                itemHolder.icon = convertView.findViewById(R.id.icon);
+                itemHolder.action = convertView.findViewById(R.id.action);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (DataSourceListItemHolder) convertView.getTag();
@@ -284,12 +272,9 @@ public class DataSourceList extends ListFragment {
                 else
                     itemHolder.action.setImageResource(R.drawable.ic_visibility_off);
                 itemHolder.action.setVisibility(View.VISIBLE);
-                itemHolder.action.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
-                        notifyDataSetChanged();
-                    }
+                itemHolder.action.setOnClickListener(v -> {
+                    mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
+                    notifyDataSetChanged();
                 });
             }
 

@@ -72,8 +72,8 @@
             style="@style/MapButtonHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/gauge_padding"
-            android:layout_marginStart="@dimen/gauge_padding">
+            android:layout_marginStart="@dimen/gauge_padding"
+            android:layout_marginEnd="@dimen/gauge_padding">
 
             <ImageButton
                 android:id="@+id/compass"
@@ -97,6 +97,40 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_navigation_arrow"
                 android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mapZoomHolder"
+            style="@style/MapZoomHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/gauge_padding"
+            android:layout_marginEnd="@dimen/gauge_padding"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/zoomIn"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:alpha="0.2"
+                android:background="?android:attr/selectableItemBackground"
+                android:elevation="@dimen/panel_elevation"
+                android:onClick="onZoomInClicked"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_add_circle" />
+
+            <ImageButton
+                android:id="@+id/zoomOut"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:alpha="0.2"
+                android:background="?android:attr/selectableItemBackground"
+                android:elevation="@dimen/panel_elevation"
+                android:onClick="onZoomOutClicked"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_remove_circle" />
         </LinearLayout>
 
         <RelativeLayout
@@ -248,7 +282,7 @@
             android:src="@drawable/ic_add_location"
             android:tint="@color/colorBackground"
             android:visibility="gone"
-            app:layout_anchor="@id/extendPanel"/>
+            app:layout_anchor="@id/extendPanel" />
 
     </android.support.design.widget.CoordinatorLayout>
 </FrameLayout>

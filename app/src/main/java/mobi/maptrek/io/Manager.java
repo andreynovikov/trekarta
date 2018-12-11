@@ -16,7 +16,6 @@
 
 package mobi.maptrek.io;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -28,14 +27,13 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.ProgressListener;
 
 public abstract class Manager {
     protected static final Logger logger = LoggerFactory.getLogger(Manager.class);
-
-    private Context mContext;
 
     /**
      * Returns manager for specified file. Manager is selected by file extension. No file format
@@ -45,15 +43,15 @@ public abstract class Manager {
      * @return File read and write manager
      */
     @Nullable
-    public static Manager getDataManager(Context context, String file) {
+    public static Manager getDataManager(String file) {
         if (file.toLowerCase().endsWith(TrackManager.EXTENSION)) {
-            return new TrackManager().setContext(context);
+            return new TrackManager();
         }
         if (file.toLowerCase().endsWith(GPXManager.EXTENSION)) {
-            return new GPXManager().setContext(context);
+            return new GPXManager();
         }
         if (file.toLowerCase().endsWith(KMLManager.EXTENSION)) {
-            return new KMLManager().setContext(context);
+            return new KMLManager();
         }
         return null;
     }
@@ -67,29 +65,29 @@ public abstract class Manager {
      * @return File read and write manager
      */
     @Nullable
-    private static Manager getDataManager(Context context, FileDataSource source) {
+    private static Manager getDataManager(FileDataSource source) {
         // FIXME Method not suitable for exporting data
         if (source.path == null)
-            return new TrackManager().setContext(context);
+            return new TrackManager();
         if (source.path.toLowerCase().endsWith(GPXManager.EXTENSION))
-            return new GPXManager().setContext(context);
+            return new GPXManager();
         if (source.path.toLowerCase().endsWith(KMLManager.EXTENSION))
-            return new KMLManager().setContext(context);
+            return new KMLManager();
         if (source.path.toLowerCase().endsWith(TrackManager.EXTENSION))
-            return new TrackManager().setContext(context);
+            return new TrackManager();
         return null;
     }
 
-    public static void save(Context context, FileDataSource source) {
-        save(context, source, null);
+    public static void save(FileDataSource source) {
+        save(source, null);
     }
 
-    public static void save(Context context, FileDataSource source, OnSaveListener saveListener) {
-        save(context, source, saveListener, null);
+    public static void save(FileDataSource source, OnSaveListener saveListener) {
+        save(source, saveListener, null);
     }
 
-    public static void save(Context context, FileDataSource source, OnSaveListener saveListener, ProgressListener progressListener) {
-        Manager manager = Manager.getDataManager(context, source);
+    public static void save(FileDataSource source, OnSaveListener saveListener, ProgressListener progressListener) {
+        Manager manager = Manager.getDataManager(source);
         assert manager != null : "Failed to get IO manager for " + source.path;
         manager.saveData(source, saveListener, progressListener);
     }
@@ -116,7 +114,7 @@ public abstract class Manager {
         File file;
         if (source.path == null) {
             String name = source.name != null && !"".equals(source.name) ? source.name : "data_source_" + System.currentTimeMillis();
-            file = mContext.getExternalFilesDir("data");
+            file = MapTrek.getApplication().getExternalDir("data");
             file = new File(file, FileUtils.sanitizeFilename(name) + getExtension());
         } else {
             file = new File(source.path);
@@ -165,11 +163,6 @@ public abstract class Manager {
                     mSaveListener.onError(mDataSource, e);
             }
         }
-    }
-
-    protected final Manager setContext(Context context) {
-        mContext = context;
-        return this;
     }
 
     public interface OnSaveListener {

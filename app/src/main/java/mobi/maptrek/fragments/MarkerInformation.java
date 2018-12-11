@@ -82,18 +82,15 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_pin_drop));
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name;
-                if (mName != null && !"".equals(mName))
-                    name = mName;
-                else
-                    name = getString(R.string.place_name, Configuration.getPointsCounter());
-                mListener.onWaypointCreate(point, name, true, true);
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
-            }
+        floatingButton.setOnClickListener(v -> {
+            String name1;
+            if (mName != null && !"".equals(mName))
+                name1 = mName;
+            else
+                name1 = getString(R.string.place_name, Configuration.getPointsCounter());
+            mListener.onWaypointCreate(point, name1, true, true);
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
         });
     }
 

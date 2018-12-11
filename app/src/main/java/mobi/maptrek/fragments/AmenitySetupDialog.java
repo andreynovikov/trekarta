@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -56,18 +55,14 @@ public class AmenitySetupDialog extends DialogFragment {
         final Activity activity = getActivity();
 
         @SuppressLint("InflateParams") final View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
-        final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
+        final ListView listView = dialogView.findViewById(android.R.id.list);
         AmenitySetupListAdapter listAdapter = new AmenitySetupListAdapter(getActivity());
         listView.setAdapter(listAdapter);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         if (title != null)
             dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> {});
         dialogBuilder.setView(dialogView);
 
         final Dialog dialog = dialogBuilder.create();
@@ -154,8 +149,8 @@ public class AmenitySetupDialog extends DialogFragment {
             if (convertView == null) {
                 itemHolder = new AmenitySetupListItemHolder();
                 convertView = mInflater.inflate(R.layout.list_item_amenity_setup, parent, false);
-                itemHolder.name = (TextView) convertView.findViewById(R.id.name);
-                itemHolder.zoom = (DiscreteSlider) convertView.findViewById(R.id.zoom);
+                itemHolder.name = convertView.findViewById(R.id.name);
+                itemHolder.zoom = convertView.findViewById(R.id.zoom);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (AmenitySetupListItemHolder) convertView.getTag();
@@ -164,14 +159,11 @@ public class AmenitySetupDialog extends DialogFragment {
             itemHolder.name.setText(group.first);
 
             itemHolder.zoom.setPosition(18 - group.second);
-            itemHolder.zoom.setOnDiscreteSliderChangeListener(new DiscreteSlider.OnDiscreteSliderChangeListener() {
-                @Override
-                public void onPositionChanged(int pos) {
-                    boolean changed = Tags.kindZooms[position] != 18 - pos;
-                    Tags.kindZooms[position] = 18 - pos;
-                    if (changed && mCallback != null) {
-                        mCallback.onAmenityKindVisibilityChanged();
-                    }
+            itemHolder.zoom.setOnDiscreteSliderChangeListener(pos -> {
+                boolean changed = Tags.kindZooms[position] != 18 - pos;
+                Tags.kindZooms[position] = 18 - pos;
+                if (changed && mCallback != null) {
+                    mCallback.onAmenityKindVisibilityChanged();
                 }
             });
 

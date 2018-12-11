@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.AsyncTask;
@@ -32,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -101,37 +99,26 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_map_selection, container, false);
         mHillshadesCheckboxHolder = rootView.findViewById(R.id.hillshadesCheckboxHolder);
-        mDownloadHillshades = (CheckBox) rootView.findViewById(R.id.downloadHillshades);
+        mDownloadHillshades = rootView.findViewById(R.id.downloadHillshades);
         mDownloadHillshades.setChecked(Configuration.getHillshadesEnabled());
-        mDownloadHillshades.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mMapIndex.accountHillshades(isChecked);
-                updateUI(mMapIndex.getMapStats());
-            }
+        mDownloadHillshades.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            mMapIndex.accountHillshades(isChecked);
+            updateUI(mMapIndex.getMapStats());
         });
         mDownloadCheckboxHolder = rootView.findViewById(R.id.downloadCheckboxHolder);
-        mDownloadBasemap = (CheckBox) rootView.findViewById(R.id.downloadBasemap);
-        mDownloadBasemap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateUI(mMapIndex.getMapStats());
-            }
-        });
-        mMessageView = (TextView) rootView.findViewById(R.id.message);
+        mDownloadBasemap = rootView.findViewById(R.id.downloadBasemap);
+        mDownloadBasemap.setOnCheckedChangeListener((buttonView, isChecked) -> updateUI(mMapIndex.getMapStats()));
+        mMessageView = rootView.findViewById(R.id.message);
         mMessageView.setText(mResources.getQuantityString(R.plurals.itemsSelected, 0, 0));
-        mStatusView = (TextView) rootView.findViewById(R.id.status);
-        mCounterView = (TextView) rootView.findViewById(R.id.count);
-        mHelpButton = (ImageButton) rootView.findViewById(R.id.helpButton);
-        mHelpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(R.string.msgMapSelectionExplanation);
-                builder.setPositiveButton(R.string.ok, null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+        mStatusView = rootView.findViewById(R.id.status);
+        mCounterView = rootView.findViewById(R.id.count);
+        mHelpButton = rootView.findViewById(R.id.helpButton);
+        mHelpButton.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.msgMapSelectionExplanation);
+            builder.setPositiveButton(R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
         if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_ACTIVE_MAPS_SIZE)) {
@@ -161,21 +148,18 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
         mFloatingButton = mFragmentHolder.enableActionButton();
         mFloatingButton.setImageResource(R.drawable.ic_file_download);
-        mFloatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mDownloadBasemap.isChecked()) {
-                    mMapIndex.downloadBaseMap();
-                }
-                if (mCounter > 0) {
-                    mListener.onManageNativeMaps(mDownloadHillshades.isChecked());
-                }
-                if (mDownloadBasemap.isChecked() || mCounter > 0) {
-                    mListener.onFinishMapManagement();
-                }
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
+        mFloatingButton.setOnClickListener(v -> {
+            if (mDownloadBasemap.isChecked()) {
+                mMapIndex.downloadBaseMap();
             }
+            if (mCounter > 0) {
+                mListener.onManageNativeMaps(mDownloadHillshades.isChecked());
+            }
+            if (mDownloadBasemap.isChecked() || mCounter > 0) {
+                mListener.onFinishMapManagement();
+            }
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
         });
     }
 
@@ -230,18 +214,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
             final Activity activity = getActivity();
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(R.string.msgCancelDownload);
-            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mMapIndex.cancelDownload(x, y);
-                }
-            });
-            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
+            builder.setPositiveButton(R.string.yes, (dialog, which) -> mMapIndex.cancelDownload(x, y));
+            builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
             AlertDialog dialog = builder.create();
             dialog.show();
             return;
@@ -319,12 +293,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     @Override
     public void onStatsChanged() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateUI(mMapIndex.getMapStats());
-            }
-        });
+        getActivity().runOnUiThread(() -> updateUI(mMapIndex.getMapStats()));
     }
 
     @Override

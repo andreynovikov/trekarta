@@ -36,7 +36,7 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_basemap_download, container, false);
-        mMessageView = (TextView) rootView.findViewById(R.id.message);
+        mMessageView = rootView.findViewById(R.id.message);
         return rootView;
     }
 
@@ -46,13 +46,10 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMapIndex.downloadBaseMap();
-                mFragmentHolder.disableActionButton();
-                mFragmentHolder.popCurrent();
-            }
+        floatingButton.setOnClickListener(v -> {
+            mMapIndex.downloadBaseMap();
+            mFragmentHolder.disableActionButton();
+            mFragmentHolder.popCurrent();
         });
     }
 

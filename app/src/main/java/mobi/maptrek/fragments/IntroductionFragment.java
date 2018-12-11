@@ -63,7 +63,7 @@ public class IntroductionFragment extends AppIntroBaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View rootView = super.onCreateView(inflater, container, savedInstanceState);
         assert rootView != null;
-        mImageView = (CircleImageView) rootView.findViewById(R.id.image);
+        mImageView = rootView.findViewById(R.id.image);
 
         ViewTreeObserver viewTreeObserver = rootView.getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {

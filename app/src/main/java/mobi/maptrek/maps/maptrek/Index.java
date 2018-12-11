@@ -82,8 +82,9 @@ public class Index {
 
     public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
-    public static final int BASEMAP_SIZE_STUB = 41;
+    public static final int BASEMAP_SIZE_STUB = 44;
     public static final String HILLSHADE_FILENAME = "hillshade.mbtiles";
+    private static final long HUGE_MAP_THRESHOLD = 400 * 1024 * 1024; // 400MB
 
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
@@ -116,18 +117,18 @@ public class Index {
                 int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
                 int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
                 short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
+                byte version = (byte) cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_VERSION));
+                logger.debug("index({}, {}, {}, {})", x, y, date, version);
                 if (x == -1 && y == -1) {
                     mBaseMapVersion = date;
                     cursor.moveToNext();
                     continue;
                 }
-                byte version = (byte) cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_VERSION));
                 long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
                 long hillshadeDownloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_HILLSHADE_DOWNLOADING));
                 MapStatus mapStatus = getNativeMap(x, y);
                 mapStatus.created = date;
                 mapStatus.hillshadeVersion = version;
-                logger.debug("index({}, {}, {}, {})", x, y, date, version);
                 int status = checkDownloadStatus(downloading);
                 if (status == DownloadManager.STATUS_PAUSED
                         || status == DownloadManager.STATUS_PENDING
@@ -382,14 +383,16 @@ public class Index {
         File mapFile = new File(filePath);
         try {
             logger.error("Importing from {}", mapFile.getName());
+            boolean huge = mapFile.length() > HUGE_MAP_THRESHOLD;
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
 
-            int total = 0, progress = 0;
+            int total = 0, progress = 0, step = 0;
             if (progressListener != null) {
                 total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                step = total / 100;
                 progressListener.onProgressStarted(total);
             }
             boolean hasFts = MapTrekDatabaseHelper.hasFullTextIndex(mMapsDatabase);
@@ -418,6 +421,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -446,6 +454,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -468,6 +481,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -491,6 +509,11 @@ public class Index {
                 if (progressListener != null) {
                     progress++;
                     progressListener.onProgressChanged(progress);
+                    if (huge && progress % step == 0) {
+                        mMapsDatabase.setTransactionSuccessful();
+                        mMapsDatabase.endTransaction();
+                        mMapsDatabase.beginTransaction();
+                    }
                 }
                 cursor.moveToNext();
             }
@@ -724,17 +747,16 @@ public class Index {
     }
 
     private void setDownloading(final int x, final int y, final long enqueue, long hillshadeEnquire) {
-        new Thread(new Runnable() { // do not block if another map is being imported
-            public void run() {
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_MAPS_DOWNLOADING, enqueue);
-                int updated = mMapsDatabase.update(TABLE_MAPS, values, WHERE_MAPS_XY,
-                        new String[]{String.valueOf(x), String.valueOf(y)});
-                if (updated == 0) {
-                    values.put(COLUMN_MAPS_X, x);
-                    values.put(COLUMN_MAPS_Y, y);
-                    mMapsDatabase.insert(TABLE_MAPS, null, values);
-                }
+        // do not block if another map is being imported
+        new Thread(() -> {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_MAPS_DOWNLOADING, enqueue);
+            int updated = mMapsDatabase.update(TABLE_MAPS, values, WHERE_MAPS_XY,
+                    new String[]{String.valueOf(x), String.valueOf(y)});
+            if (updated == 0) {
+                values.put(COLUMN_MAPS_X, x);
+                values.put(COLUMN_MAPS_Y, y);
+                mMapsDatabase.insert(TABLE_MAPS, null, values);
             }
         }).start();
         if (x < 0 || y < 0)

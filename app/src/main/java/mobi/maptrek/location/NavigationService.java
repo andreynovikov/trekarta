@@ -27,6 +27,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -284,6 +285,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         Notification.Action actionPause = new Notification.Action.Builder(pauseIcon, getString(R.string.actionPause), piPause).build();
 
         Notification.Builder builder = new Notification.Builder(this);
+        if (Build.VERSION.SDK_INT > 25)
+            builder.setChannelId("ongoing");
         builder.setSmallIcon(R.mipmap.ic_stat_navigation);
         builder.setContentIntent(piResult);
         builder.setContentTitle(title);

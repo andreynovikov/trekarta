@@ -113,12 +113,9 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             mLastShown = SystemClock.elapsedRealtime();
             if (!mFading)
                 return;
-            mMap.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mLastShown + FADE_TIMEOUT <= SystemClock.elapsedRealtime())
-                        animate(true);
-                }
+            mMap.postDelayed(() -> {
+                if (mLastShown + FADE_TIMEOUT <= SystemClock.elapsedRealtime())
+                    animate(true);
             }, FADE_TIMEOUT + 100);
         }
 

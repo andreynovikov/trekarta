@@ -18,7 +18,6 @@ package mobi.maptrek.data.source;
 
 import android.database.Cursor;
 import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;

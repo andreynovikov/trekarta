@@ -20,7 +20,6 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.util.OsmcSymbolFactory;

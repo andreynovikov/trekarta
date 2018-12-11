@@ -53,22 +53,21 @@ public class About extends Fragment {
         } catch (PackageManager.NameNotFoundException ex) {
             versionName = "unknown";
         }
-        final TextView version = (TextView) view.findViewById(R.id.version);
+        final TextView version = view.findViewById(R.id.version);
         if (BuildConfig.DEBUG) {
-            version.setText(getString(R.string.version, versionBuild));
+            version.setText(getString(R.string.version, Integer.toString(versionBuild)));
         } else {
             version.setText(getString(R.string.version, versionName));
         }
 
         // Links
-        StringBuilder links = new StringBuilder();
-        links.append("<a href=\"");
-        links.append("https://trekarta.info/");
-        links.append("\">");
-        links.append("https://trekarta.info/");
-        links.append("</a>");
-        final TextView homeLinks = (TextView) view.findViewById(R.id.links);
-        homeLinks.setText(Html.fromHtml(links.toString()));
+        final TextView homeLinks = view.findViewById(R.id.links);
+        String links = "<a href=\"" +
+                "https://trekarta.info/" +
+                "\">" +
+                "https://trekarta.info/" +
+                "</a>";
+        homeLinks.setText(Html.fromHtml(links));
         homeLinks.setMovementMethod(LinkMovementMethod.getInstance());
 
         /*
@@ -105,7 +104,7 @@ public class About extends Fragment {
             e.printStackTrace();
         }
 
-        final TextView license = (TextView) view.findViewById(R.id.license);
+        final TextView license = view.findViewById(R.id.license);
         license.setText(Html.fromHtml(out.toString()));
         license.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -123,7 +122,7 @@ public class About extends Fragment {
             e.printStackTrace();
         }
 
-        final TextView credits = (TextView) view.findViewById(R.id.credits);
+        final TextView credits = view.findViewById(R.id.credits);
         credits.setText(Html.fromHtml(out.toString()));
         credits.setMovementMethod(LinkMovementMethod.getInstance());
     }

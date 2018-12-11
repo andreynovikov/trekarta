@@ -62,6 +62,7 @@ public class Configuration {
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
+    public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
     public static final String PREF_SPEED_UNIT = "speed_unit";
     public static final String PREF_DISTANCE_UNIT = "distance_unit";
     public static final String PREF_ELEVATION_UNIT = "elevation_unit";
@@ -76,6 +77,8 @@ public class Configuration {
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
+    private static final String PREF_EXTERNAL_STORAGE = "external_storage";
+    private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
@@ -101,6 +104,10 @@ public class Configuration {
         mSharedPreferences = sharedPreferences;
     }
 
+    public static boolean isInitialized() {
+        return mSharedPreferences != null;
+    }
+
     public static int getPointsCounter() {
         int counter = loadInt(PREF_POINTS_COUNTER, 0) + 1;
         saveInt(PREF_POINTS_COUNTER, counter);
@@ -114,7 +121,7 @@ public class Configuration {
     }
 
     public static int getLocationState() {
-        return loadInt(PREF_LOCATION_STATE, 0);
+        return loadInt(PREF_LOCATION_STATE, LocationState.DISABLED.ordinal());
     }
 
     public static void setLocationState(int locationState) {
@@ -122,7 +129,7 @@ public class Configuration {
     }
 
     public static int getPreviousLocationState() {
-        return loadInt(PREF_PREVIOUS_LOCATION_STATE, 0);
+        return loadInt(PREF_PREVIOUS_LOCATION_STATE, LocationState.NORTH.ordinal());
     }
 
     public static void setPreviousLocationState(int locationState) {
@@ -349,6 +356,10 @@ public class Configuration {
         return loadBoolean(PREF_UNIT_PRECISION, false);
     }
 
+    public static boolean getZoomButtonsVisible() {
+        return loadBoolean(PREF_ZOOM_BUTTONS_VISIBLE, false);
+    }
+
     public static int getCoordinatesFormat() {
         return loadInt(PREF_COORDINATES_FORMAT, 0);
     }
@@ -395,6 +406,22 @@ public class Configuration {
 
     public static void setLastSeenIntroduction(int last) {
         saveInt(LAST_SEEN_INTRODUCTION, last);
+    }
+
+    public static String getExternalStorage() {
+        return loadString(PREF_EXTERNAL_STORAGE, null);
+    }
+
+    public static void setExternalStorage(String storage) {
+        saveString(PREF_EXTERNAL_STORAGE, storage);
+    }
+
+    public static String getNewExternalStorage() {
+        return loadString(PREF_NEW_EXTERNAL_STORAGE, null);
+    }
+
+    public static void setNewExternalStorage(String storage) {
+        saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
     }
 
     public static long getRunningTime() {
@@ -484,6 +511,12 @@ public class Configuration {
         editor.putString(key, value);
         editor.apply();
         EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    public static boolean commit() {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        return editor.commit();
     }
 
     public static void loadKindZoomState() {

@@ -86,8 +86,8 @@ public class DiscreteSlider extends FrameLayout {
         }
 
         View view = inflate(context, R.layout.discrete_slider, this);
-        discreteSliderBackdrop = (DiscreteSliderBackdrop) view.findViewById(R.id.discrete_slider_backdrop);
-        discreteSeekBar = (DiscreteSeekBar) view.findViewById(R.id.discrete_seek_bar);
+        discreteSliderBackdrop = view.findViewById(R.id.discrete_slider_backdrop);
+        discreteSeekBar = view.findViewById(R.id.discrete_seek_bar);
 
         setTickMarkCount(tickMarkCount);
         setTickMarkRadius(tickMarkRadius);
@@ -99,13 +99,10 @@ public class DiscreteSlider extends FrameLayout {
         setThumb(thumb, backdropStrokeWidth);
         setProgressDrawable(progressDrawable);
 
-        discreteSeekBar.setOnDiscreteSeekBarChangeListener(new DiscreteSeekBar.OnDiscreteSeekBarChangeListener() {
-            @Override
-            public void onPositionChanged(int position) {
-                if (onDiscreteSliderChangeListener != null) {
-                    onDiscreteSliderChangeListener.onPositionChanged(position);
-                    setPosition(position);
-                }
+        discreteSeekBar.setOnDiscreteSeekBarChangeListener(position -> {
+            if (onDiscreteSliderChangeListener != null) {
+                onDiscreteSliderChangeListener.onPositionChanged(position);
+                setPosition(position);
             }
         });
     }

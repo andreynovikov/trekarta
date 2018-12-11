@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:key="category_general"
+        android:title="@string/pref_general">
+        <org.anasthase.androidseekbarpreference.SeekBarPreference
+            android:defaultValue="50"
+            android:key="hillshades_transparency"
+            android:title="@string/pref_hillshades_transparency"
+            app:format="%d%%"
+            app:maxValue="70"
+            app:minValue="30"
+            app:stepValue="10" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/def_zoom_buttons_visible"
+            android:key="zoom_buttons_visible"
+            android:title="@string/pref_zoom_buttons_visible_title" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_units">
-
         <ListPreference
             android:defaultValue="@integer/default_speed_unit"
             android:dialogTitle="@string/pref_unit_speed_title"
@@ -35,19 +50,15 @@
             android:defaultValue="@bool/def_unit_precision"
             android:key="unit_precision"
             android:title="@string/pref_unit_precision_title" />
-
     </PreferenceCategory>
     <PreferenceCategory
         android:key="category_advanced"
         android:title="@string/pref_advanced">
-        <org.anasthase.androidseekbarpreference.SeekBarPreference
-            android:defaultValue="50"
-            android:key="hillshades_transparency"
-            android:title="@string/pref_hillshades_transparency"
-            app:format="%d%%"
-            app:maxValue="70"
-            app:minValue="30"
-            app:stepValue="10" />
+        <Preference
+            android:key="move_data"
+            android:title="@string/actionMoveData">
+            <intent android:action="mobi.maptrek.action.MOVE_DATA" />
+        </Preference>
         <Preference
             android:key="reset_advices"
             android:title="@string/actionResetAdvices">

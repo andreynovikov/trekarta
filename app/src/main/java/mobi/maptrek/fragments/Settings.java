@@ -47,17 +47,19 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
 
         Bundle args = getArguments();
         if (!args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
-            PreferenceCategory category = (PreferenceCategory) findPreference("category_advanced");
-            Preference hillshadePref = findPreference("hillshades_transparency");
-            category.removePreference(hillshadePref);
+            PreferenceCategory category = (PreferenceCategory) findPreference("category_general");
+            category.removePreference(findPreference("hillshades_transparency"));
         }
 
+        Preference sdcardPref = findPreference("move_data");
+        sdcardPref.setOnPreferenceClickListener(preference -> {
+            mFragmentHolder.popCurrent();
+            return false;
+        });
         Preference resetPref = findPreference("reset_advices");
-        resetPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                mFragmentHolder.popCurrent();
-                return false;
-            }
+        resetPref.setOnPreferenceClickListener(preference -> {
+            mFragmentHolder.popCurrent();
+            return false;
         });
 
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
