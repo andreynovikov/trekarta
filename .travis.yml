@@ -1,0 +1,17 @@
+# configuration for https://travis-ci.org/andreynovikov/maptrek
+sudo: false
+language: android
+jdk:
+  - openjdk7
+  - oraclejdk7
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-28.0.3
+    - android-27
+    - extra-android-m2repository
+env:
+  global:
+    - GRADLE_OPTS="-Xmx2048m -XX:MaxPermSize=512m -Dorg.gradle.parallel=true"
+script: ./gradlew clean build
