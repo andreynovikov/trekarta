@@ -3,8 +3,8 @@ sudo: false
 language: android
 android:
   components:
-    - platform-tools
     - tools
+    - platform-tools
     - build-tools-28.0.3
     - android-27
     - extra-android-m2repository
@@ -13,6 +13,9 @@ os:
 env:
   global:
     - GRADLE_OPTS="-Xmx2048m -XX:MaxPermSize=512m -Dorg.gradle.parallel=true"
+install:
+  - echo y | sdkmanager "ndk-bundle"
 before_script:
- - chmod +x gradlew
+  - export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+  - chmod +x gradlew
 script: ./gradlew clean build
