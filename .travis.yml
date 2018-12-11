@@ -1,8 +1,6 @@
 # configuration for https://travis-ci.org/andreynovikov/maptrek
 sudo: false
 language: android
-jdk:
-  - openjdk7
 android:
   components:
     - platform-tools
