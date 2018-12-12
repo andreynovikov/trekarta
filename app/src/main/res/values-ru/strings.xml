@@ -286,4 +286,5 @@
     <string name="msgMapDeleteFailed">Ошибка удаления файла карты</string>
     <string name="share_map_intent_title">Поделиться файлом карты через:</string>
     <string name="notificationChannelName">Текущие события</string>
+    <string name="actionRuler">Линейка</string>
 </resources>

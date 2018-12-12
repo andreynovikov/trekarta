@@ -16,6 +16,8 @@
 
 package mobi.maptrek.data;
 
+import org.oscim.core.GeoPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +121,9 @@ public class Route {
         if (waypoints.size() > 0) {
             lastWaypoint = waypoints.get(waypoints.size() - 1);
             distance = distanceBetween(0, waypoints.size() - 1);
+        } else {
+            lastWaypoint = null;
+            distance = 0f;
         }
     }
 
@@ -151,6 +156,21 @@ public class Route {
     public double course(int prev, int next) {
         synchronized (waypoints) {
             return waypoints.get(prev).coordinates.bearingTo(waypoints.get(next).coordinates);
+        }
+    }
+
+    public Waypoint getNearestWaypoint(GeoPoint point) {
+        synchronized (waypoints) {
+            int index = waypoints.size() - 1;
+            double distance = point.vincentyDistance(waypoints.get(index).coordinates);
+            for (int i = index - 1; i >= 0; i--) {
+                double d = point.vincentyDistance(waypoints.get(i).coordinates);
+                if (d < distance) {
+                    distance = d;
+                    index = i;
+                }
+            }
+            return waypoints.get(index);
         }
     }
 }

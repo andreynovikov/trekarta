@@ -16,6 +16,8 @@
 
 package mobi.maptrek.data;
 
+import org.oscim.core.GeoPoint;
+
 import java.util.Date;
 
 import mobi.maptrek.data.source.DataSource;
@@ -38,6 +40,10 @@ public class Waypoint extends MapObject
 	public Waypoint(int latitudeE6, int longitudeE6)
 	{
 		super(latitudeE6, longitudeE6);
+	}
+
+	public Waypoint(GeoPoint coordinates) {
+		super(coordinates);
 	}
 
 	public Waypoint(String name, double lat, double lon)

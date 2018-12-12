@@ -114,6 +114,13 @@ public class PathLayer extends Layer implements GestureListener {
         updatePoints();
     }
 
+    public void removePoint(GeoPoint pt) {
+        synchronized (mPoints) {
+            mPoints.remove(pt);
+        }
+        updatePoints();
+    }
+
     public void addPoint(int latitudeE6, int longitudeE6) {
         synchronized (mPoints) {
             mPoints.add(new GeoPoint(latitudeE6, longitudeE6));
@@ -128,7 +135,7 @@ public class PathLayer extends Layer implements GestureListener {
         updatePoints();
     }
 
-    private void updatePoints() {
+    protected void updatePoints() {
         mWorker.submit(10);
         mUpdatePoints = true;
     }

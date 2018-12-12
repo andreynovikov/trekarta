@@ -20,6 +20,9 @@
         android:id="@+id/actionAddGauge"
         android:title="@string/actionAddGauge" />
     <item
+        android:id="@+id/actionRuler"
+        android:title="@string/actionRuler" />
+    <item
         android:id="@+id/actionActivity"
         android:actionLayout="@layout/menu_item_action"
         android:title="@string/actionActivity" />

@@ -79,6 +79,7 @@
     <string name="actionRate">Say thanks</string>
     <string name="actionHillshades">Hillshades</string>
     <string name="actionMoveData">Move data</string>
+    <string name="actionRuler">Ruler</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -247,6 +248,7 @@
     <string name="selectedLocation">selected location</string>
     <string name="finishing">Finishing…</string>
     <string name="osmLicense"><![CDATA[&#169; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors]]></string>
+    <string name="notificationChannelName">Ongoing events</string>
 
     <string name="permReadFilesLabel">read user files</string>
     <string name="permReadFilesDescription">Allows the app to read Trekarta user data files such as places and tracks.</string>
@@ -293,6 +295,5 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
-    <string name="notificationChannelName">Ongoing events</string>
 
 </resources>

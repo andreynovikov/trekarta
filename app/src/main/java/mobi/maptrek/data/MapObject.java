@@ -51,6 +51,10 @@ public class MapObject {
         this.coordinates = coordinates;
     }
 
+    public MapObject(GeoPoint coordinates) {
+        this.coordinates = coordinates;
+    }
+
     public void setCoordinates(GeoPoint coordinates) {
         this.coordinates = coordinates;
     }

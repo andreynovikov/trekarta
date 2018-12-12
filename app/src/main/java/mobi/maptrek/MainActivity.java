@@ -109,6 +109,7 @@ import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
+import org.oscim.layers.PathLayer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -169,6 +170,7 @@ import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.Ruler;
 import mobi.maptrek.fragments.Settings;
 import mobi.maptrek.fragments.TextSearchFragment;
 import mobi.maptrek.fragments.TrackInformation;
@@ -388,6 +390,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private int mTotalDataItems = 0;
     private boolean mFirstMove = true;
     private boolean mBaseMapWarningShown = false;
+    private boolean mObjectInteractionEnabled = true;
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
 
@@ -1379,6 +1382,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     hideSystemUI();
                 return true;
             }
+            case R.id.actionRuler: {
+                Ruler fragment = (Ruler) Fragment.instantiate(this, Ruler.class.getName());
+                FragmentTransaction ft = mFragmentManager.beginTransaction();
+                ft.replace(R.id.contentPanel, fragment, "ruler");
+                ft.addToBackStack("ruler");
+                ft.commit();
+                return true;
+            }
             case R.id.actionAddGauge: {
                 mGaugePanel.onLongClick(mGaugePanel);
                 return true;
@@ -1822,6 +1833,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public boolean onItemSingleTapUp(int index, MarkerItem item) {
+        if (!mObjectInteractionEnabled)
+            return true;
         Object uid = item.getUid();
         if (uid != null)
             onWaypointDetails((Waypoint) uid, false);
@@ -1830,6 +1843,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public boolean onItemLongPress(int index, MarkerItem item) {
+        if (!mObjectInteractionEnabled)
+            return true;
         if (mLocationState != LocationState.DISABLED && mLocationState != LocationState.ENABLED)
             return false;
         Object uid = item.getUid();
@@ -1919,6 +1934,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.updateMap(true);
         mMarker.getMarker().getBitmap().recycle();
         mMarker = null;
+    }
+
+    @Override
+    public void setObjectInteractionEnabled(boolean enabled) {
+        mObjectInteractionEnabled = enabled;
     }
 
     private ServiceConnection mLocationConnection = new ServiceConnection() {
@@ -2166,7 +2186,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             zoomMap(scaleBy);
             return true;
         } else if (gesture == Gesture.LONG_PRESS) {
-            if (!mMap.getEventLayer().moveEnabled())
+            if (!mMap.getEventLayer().moveEnabled() || !mObjectInteractionEnabled)
                 return true;
             mPopupAnchor.setX(event.getX() + mFingerTipSize);
             mPopupAnchor.setY(event.getY() - mFingerTipSize);
@@ -3815,7 +3835,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             for (Layer layer : mMap.layers()) {
-                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer || layer instanceof MarkerLayer)
+                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer
+                        || layer instanceof MarkerLayer || layer instanceof PathLayer)
                     layer.setEnabled(false);
             }
             mMap.updateMap(true);
@@ -3838,7 +3859,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             for (Layer layer : mMap.layers()) {
-                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer || layer instanceof MarkerLayer)
+                if (layer instanceof TrackLayer || layer instanceof MapObjectLayer
+                        || layer instanceof MarkerLayer || layer instanceof PathLayer)
                     layer.setEnabled(true);
             }
             mMap.updateMap(true);

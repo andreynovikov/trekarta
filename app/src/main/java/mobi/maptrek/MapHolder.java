@@ -55,4 +55,6 @@ public interface MapHolder {
     void showMarker(@NonNull GeoPoint point, @Nullable String name);
 
     void removeMarker();
+
+    void setObjectInteractionEnabled(boolean enabled);
 }
