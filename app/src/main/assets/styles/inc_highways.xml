@@ -233,6 +233,9 @@
                 <!-- when bridge is present it must be 'no' -->
                 <m k="bridge" v="~|no">
                     <m closed="no">
+                        <m cat="pedestrian" v="via_ferrata">
+                            <line use="steps" stipple-stroke="#000000" />
+                        </m>
                         <m cat="pedestrian" v="steps">
                             <m zoom-min="16">
                                 <line use="steps" />
