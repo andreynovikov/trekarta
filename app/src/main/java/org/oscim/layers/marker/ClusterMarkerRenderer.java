@@ -416,20 +416,4 @@ public class ClusterMarkerRenderer extends MarkerRenderer {
             background = back;
         }
     }
-
-    /**
-     * Convenience method for instantiating this renderer via a factory, so the layer construction semantic is more pleasing to the eye
-     *
-     * @param defaultSymbol Default symbol to use if the Marker is not assigned a symbol
-     * @param style         Cluster icon style, or NULL to disable clustering functionality
-     * @return A factory to be passed to the ItemizedLayer constructor in order to enable the cluster functionality
-     */
-    public static MarkerRendererFactory factory(final MarkerSymbol defaultSymbol, final ClusterStyle style) {
-        return new MarkerRendererFactory() {
-            @Override
-            public MarkerRenderer create(MarkerLayer markerLayer) {
-                return new ClusterMarkerRenderer(markerLayer, defaultSymbol, style);
-            }
-        };
-    }
 }
