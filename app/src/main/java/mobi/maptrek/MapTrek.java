@@ -239,7 +239,7 @@ public class MapTrek extends Application {
                     mUserNotification = getString(R.string.msgMapDatabaseError);
                 }
             }
-            if (fresh)
+            if (fresh && mDetailedMapDatabase != null)
                 MapTrekDatabaseHelper.createFtsTable(mDetailedMapDatabase);
         }
         return mDetailedMapDatabase;
