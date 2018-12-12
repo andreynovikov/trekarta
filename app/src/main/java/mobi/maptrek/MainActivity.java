@@ -208,6 +208,7 @@ import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.provider.ExportProvider;
+import mobi.maptrek.ui.SoftInputAssist;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -339,6 +340,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private FloatingActionButton mListActionButton;
     private CoordinatorLayout mCoordinatorLayout;
     private View mPopupAnchor;
+    private SoftInputAssist mSoftwareInputAssist;
     private boolean mVerticalOrientation;
     private int mSlideGravity;
 
@@ -817,6 +819,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         });
         */
 
+        mSoftwareInputAssist = new SoftInputAssist(this);
+
         mStartTime = SystemClock.uptimeMillis();
 
         onNewIntent(getIntent());
@@ -977,6 +981,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onResume();
         logger.debug("onResume()");
 
+        mSoftwareInputAssist.onResume();
+
         if (mSavedLocationState != LocationState.DISABLED)
             askForPermission();
         if (mTrackingState == TRACKING_STATE.TRACKING) {
@@ -1040,6 +1046,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             hideSystemUI();
 
         updateMapViewArea();
+
         mMap.updateMap(true);
     }
 
@@ -1047,6 +1054,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     protected void onPause() {
         super.onPause();
         logger.debug("onPause()");
+
+        mSoftwareInputAssist.onPause();
 
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
@@ -1106,6 +1115,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
+
+        mSoftwareInputAssist.onDestroy();
 
         if (mMap != null)
             mMap.destroy();
