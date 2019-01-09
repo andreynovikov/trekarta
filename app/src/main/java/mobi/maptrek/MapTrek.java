@@ -182,7 +182,7 @@ public class MapTrek extends Application {
     }
 
     public boolean hasSDCard() {
-        return mSDCardDirectory != null;
+        return mSDCardDirectory != null && BuildConfig.FULL_VERSION;
     }
 
     public File getExternalDirectory() {
