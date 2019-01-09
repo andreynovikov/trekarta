@@ -1705,10 +1705,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 Location location = mLocationService.getLocation();
                 args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
                 args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
             } else {
                 MapPosition position = mMap.getMapPosition();
                 args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
                 args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
             }
             args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, BuildConfig.FULL_VERSION);
             DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
@@ -3920,10 +3922,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             Location location = mLocationService.getLocation();
             args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
             args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+            args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
         } else {
             MapPosition position = mMap.getMapPosition();
             args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
             args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+            args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
         }
         args.putInt(DataList.ARG_HEIGHT, mExtendPanel.getHeight());
         DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);

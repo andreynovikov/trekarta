@@ -67,6 +67,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_NO_EXTRA_SOURCES = "msg";
     public static final String ARG_HEIGHT = "hgt";
+    public static final String ARG_CURRENT_LOCATION = "cur";
 
     private DataListAdapter mAdapter;
     private DataSource mDataSource;
@@ -123,6 +124,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         Bundle arguments = getArguments();
         double latitude = arguments.getDouble(ARG_LATITUDE);
         double longitude = arguments.getDouble(ARG_LONGITUDE);
+        boolean currentLocation = arguments.getBoolean(ARG_CURRENT_LOCATION);
         boolean noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
         int minHeight = arguments.getInt(ARG_HEIGHT, 0);
 
@@ -132,6 +134,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         }
 
         mCoordinates = new GeoPoint(latitude, longitude);
+
+        if (currentLocation)
+            mDataSource.setReferenceLocation(mCoordinates);
+        else
+            mDataSource.setReferenceLocation(null);
 
         TextView emptyView = (TextView) getListView().getEmptyView();
         if (emptyView != null) {
@@ -160,7 +167,8 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         // message being shown twice
         if (noExtraSources) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false), null, false);
+            if (inflater != null)
+                listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false), null, false);
         }
 
         if (mDataSource instanceof WaypointDbDataSource) {

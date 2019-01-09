@@ -246,7 +246,8 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         if (view != null) {
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (imm != null)
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         if (id == 0) {
             mMapHolder.setMapLocation(mFoundPoint);
@@ -300,11 +301,18 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             kindFilter = " AND (kind & " + mask + ") == " + mask;
             logger.debug("kind filter: {}", kindFilter);
         }
+
+        double cos2 = Math.pow(Math.cos(Math.toRadians(mCoordinates.getLatitude())), 2d);
+        final String orderBy = " ORDER BY ((lat-(" + Double.toString(mCoordinates.getLatitude()) +
+                "))*(lat-(" + Double.toString(mCoordinates.getLatitude()) + "))+(" + Double.toString(cos2) +
+                ")*(lon-(" + Double.toString(mCoordinates.getLongitude())+ "))*(lon-(" +
+                Double.toString(mCoordinates.getLongitude())+ "))) ASC";
+
         final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
                 " INNER JOIN names ON (names_fts.docid = names.ref)" +
                 " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
                 " INNER JOIN features ON (feature_names.id = features.id)" +
-                " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter +
+                " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter + orderBy +
                 " LIMIT 200";
         mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
         mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));

@@ -18,6 +18,9 @@ package mobi.maptrek.data.source;
 
 import android.database.Cursor;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
+
+import org.oscim.core.GeoPoint;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,12 +37,24 @@ public abstract class DataSource {
     public static final int TYPE_TRACK = 1;
 
     public String name;
+    int mLatitudeE6 = 0;
+    int mLongitudeE6 = 0;
     private boolean loaded = false;
     private boolean loadable = true;
     private boolean visible = false;
     private final Set<DataSourceUpdateListener> mListeners = new HashSet<>();
 
     public DataSource() {
+    }
+
+    public void setReferenceLocation(@Nullable GeoPoint coordinates) {
+        if (coordinates != null) {
+            mLatitudeE6 = coordinates.latitudeE6;
+            mLongitudeE6 = coordinates.longitudeE6;
+        } else {
+            mLatitudeE6 = 0;
+            mLongitudeE6 = 0;
+        }
     }
 
     /**

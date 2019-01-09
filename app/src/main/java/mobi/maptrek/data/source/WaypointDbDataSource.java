@@ -23,6 +23,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import org.oscim.core.GeoPoint;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -137,7 +139,19 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
 
     @Override
     public Cursor getCursor() {
-        return mDatabase.query(WaypointDbHelper.TABLE_NAME, mAllColumns, null, null, null, null, WaypointDbHelper.COLUMN_NAME);
+        String orderBy;
+        if (mLatitudeE6 != 0 || mLongitudeE6 != 0) {
+            double cos2 = Math.pow(Math.cos(Math.toRadians(GeoPoint.e6ToDegree(mLatitudeE6))), 2d);
+            orderBy = "((" + WaypointDbHelper.COLUMN_LATE6 + "-(" + Integer.toString(mLatitudeE6) +
+                    "))*(" + WaypointDbHelper.COLUMN_LATE6 + "-(" + Integer.toString(mLatitudeE6) +
+                    "))+(" +Double.toString(cos2) + ")*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
+                    Integer.toString(mLongitudeE6)+ "))*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
+                    Integer.toString(mLongitudeE6) + "))) ASC";
+        } else {
+            orderBy = WaypointDbHelper.COLUMN_NAME;
+        }
+
+        return mDatabase.query(WaypointDbHelper.TABLE_NAME, mAllColumns, null, null, null, null, orderBy);
     }
 
     @Override

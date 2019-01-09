@@ -78,9 +78,9 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
      */
     public GeoPoint(double lat, double lon) {
         lat = FastMath.clamp(lat, MercatorProjection.LATITUDE_MIN, MercatorProjection.LATITUDE_MAX);
-        this.latitudeE6 = (int) (lat * CONVERSION_FACTOR);
+        this.latitudeE6 = degreeToE6(lat);
         lon = FastMath.clamp(lon, MercatorProjection.LONGITUDE_MIN, MercatorProjection.LONGITUDE_MAX);
-        this.longitudeE6 = (int) (lon * CONVERSION_FACTOR);
+        this.longitudeE6 = degreeToE6(lon);
     }
 
     /**
@@ -90,7 +90,7 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
      *                    limited to the possible longitude range.
      */
     public GeoPoint(int latitudeE6, int longitudeE6) {
-        this(latitudeE6 / CONVERSION_FACTOR, longitudeE6 / CONVERSION_FACTOR);
+        this(e6ToDegree(latitudeE6), e6ToDegree(longitudeE6));
     }
 
     public double bearingTo(GeoPoint other) {
@@ -232,6 +232,14 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
         return (meters * 360) / (2 * Math.PI * EQUATORIAL_RADIUS * Math.cos(Math.toRadians(latitude)));
     }
 
+    public static int degreeToE6(double degree) {
+        return (int) (degree * CONVERSION_FACTOR);
+    }
+
+    public static double e6ToDegree(int e6) {
+        return e6  / CONVERSION_FACTOR;
+    }
+
     public void project(Point out) {
         out.x = MercatorProjection.longitudeToX(this.longitudeE6 / CONVERSION_FACTOR);
         out.y = MercatorProjection.latitudeToY(this.latitudeE6 / CONVERSION_FACTOR);
@@ -258,13 +266,7 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder()
-                .append("[lat=")
-                .append(this.getLatitude())
-                .append(",lon=")
-                .append(this.getLongitude())
-                .append("]")
-                .toString();
+        return "[lat=" + getLatitude() + ",lon=" + getLongitude() + "]";
     }
 
     /**
@@ -335,8 +337,6 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
                 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) - B / 6 * cos2SigmaM
                 * (-3 + 4 * sinSigma * sinSigma)
                 * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-        double s = POLAR_RADIUS * A * (sigma - deltaSigma);
-
-        return s;
+        return POLAR_RADIUS * A * (sigma - deltaSigma);
     }
 }
