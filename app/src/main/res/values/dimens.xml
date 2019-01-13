@@ -16,6 +16,7 @@
     <dimen name="fragment_width">-1px</dimen> <!-- match_parent -->
     <dimen name="fragment_elevation">4dp</dimen>
     <dimen name="fragment_padding">16dp</dimen>
+    <dimen name="bottom_sheet_elevation">6dp</dimen>
     <dimen name="offset_distance">8dp</dimen>
     <dimen name="gauge_padding">4dp</dimen>
     <dimen name="table_padding">8dp</dimen>
@@ -31,4 +32,5 @@
     <dimen name="fragment_with_fab_top_padding">32dp</dimen>
     <dimen name="fragment_with_fab_start_padding">16dp</dimen>
     <dimen name="list_fab_margin">40dp</dimen>
+    <dimen name="destinationTopPadding">16dp</dimen>
 </resources>

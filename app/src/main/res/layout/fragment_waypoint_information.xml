@@ -3,47 +3,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:animateLayoutChanges="true"
     android:background="@color/panelSolidBackground"
-    android:paddingEnd="@dimen/fragment_padding"
     android:paddingStart="@dimen/fragment_with_fab_start_padding"
+    android:paddingEnd="@dimen/fragment_padding"
     tools:context=".fragments.WaypointInformation">
 
     <View
         android:id="@+id/topLine"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/dottedLine"
-        android:layout_width="30dp"
-        android:layout_height="10dp"
+        android:id="@+id/dragHandle"
+        android:layout_width="24dp"
+        android:layout_height="12dp"
         android:layout_below="@id/topLine"
         android:layout_centerHorizontal="true"
         android:scaleType="center"
-        android:src="@drawable/dots"
-        android:tint="@color/colorPrimaryDark" />
+        android:src="@drawable/drag_handle"
+        android:tint="@color/colorPrimaryLighter"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/destination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/extendTable"
+        android:layout_below="@id/dragHandle"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/dottedLine"
         android:layout_marginStart="@dimen/textPadding"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_marginTop="@dimen/destinationTopPadding"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/colorAccent"/>
 
     <FrameLayout
         android:id="@+id/namePlaceholder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/dragHandle"
         android:layout_alignParentStart="true"
-        android:layout_below="@id/dottedLine"
         android:layout_toStartOf="@id/destination">
 
         <TextView
@@ -76,31 +77,157 @@
         android:id="@+id/source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_below="@id/namePlaceholder"
+        android:layout_alignParentStart="true"
         android:layout_toStartOf="@id/destination"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <ViewStub
-        android:id="@id/extendTable"
-        android:layout_width="fill_parent"
+    <TableLayout
+        android:id="@+id/extendTable"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
         android:layout_below="@id/source"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="16dp"
-        android:layout="@layout/include_waypoint_details" />
+        android:shrinkColumns="1"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_place"
+                android:tint="@color/colorPrimaryLighter"
+                tools:ignore="ContentDescription" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/coordinates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/ic_lock_open"
+                    android:drawablePadding="@dimen/textPadding"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true" />
+
+                <TextView
+                    android:id="@+id/altitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/proximity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/descriptionRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_description"
+                android:tint="@color/colorPrimaryLighter"
+                tools:ignore="ContentDescription" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- TODO Use code from NestedScrollView to implement root ScrollView with fling support -->
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="10"
+                    android:scrollbars="vertical"
+                    android:textColor="?android:textColorPrimary" />
+
+                <LinearLayout
+                    android:id="@+id/descriptionWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/descriptionEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/description"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:maxLines="10"
+                            android:scrollHorizontally="false" />
+                    </android.support.design.widget.TextInputLayout>
+
+                    <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
+                        android:id="@+id/colorSwatch"
+                        android:layout_width="@dimen/color_swatch_smallest"
+                        android:layout_height="@dimen/color_swatch_smallest"
+                        android:layout_marginLeft="@dimen/color_swatch_margins_large"
+                        android:layout_marginRight="@dimen/color_swatch_margins_large" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/dateRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_schedule"
+                android:tint="@color/colorPrimaryLighter"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary" />
+
+        </TableRow>
+    </TableLayout>
 
     <LinearLayout
         android:id="@+id/actionButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
         android:layout_below="@id/extendTable"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:orientation="horizontal"
-        android:paddingBottom="@dimen/image_button_padding"
-        android:paddingTop="@dimen/panel_padding">
+        android:paddingTop="@dimen/panel_padding"
+        android:paddingBottom="@dimen/image_button_padding">
 
         <ImageButton
             android:id="@+id/editButton"
@@ -112,18 +239,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_mode_edit"
             android:tint="@color/colorPrimaryDark"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/navigateButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/image_button_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_navigate"
-            android:tint="@color/colorPrimaryDark" />
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/shareButton"
@@ -134,7 +250,8 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_share"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="@color/colorPrimaryDark"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/deleteButton"
@@ -145,7 +262,8 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_delete"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="@color/colorPrimaryDark"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 

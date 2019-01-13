@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -58,6 +58,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -336,6 +337,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private ViewGroup mExtendPanel;
     private TextView mLicense;
     private ProgressBar mProgressBar;
+    private ViewGroup mBottomSheetPanel;
     private FloatingActionButton mActionButton;
     private FloatingActionButton mListActionButton;
     private CoordinatorLayout mCoordinatorLayout;
@@ -532,6 +534,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         });
         mExtendPanel = findViewById(R.id.extendPanel);
+        mBottomSheetPanel = findViewById(R.id.bottomSheetPanel);
         mProgressBar = findViewById(R.id.progressBar);
 
         mExtendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -2444,6 +2447,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mMarkerLayer.setFocus(null);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
         Bundle args = new Bundle(3);
@@ -2464,14 +2468,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (fragment == null) {
             fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
             Slide slide = new Slide(Gravity.BOTTOM);
-            // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "waypointInformation");
+            ft.replace(R.id.bottomSheetPanel, fragment, "waypointInformation");
             ft.addToBackStack("waypointInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((WaypointInformation) fragment).setWaypoint(waypoint);
         mExtendPanel.setForeground(getDrawable(R.drawable.dim));
@@ -3550,15 +3552,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void updateMapViewArea() {
         logger.debug("updateMapViewArea()");
-        final ViewTreeObserver vto = mMapView.getViewTreeObserver();
+        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 logger.debug("onGlobalLayout()");
-
                 FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mCoordinatorLayout.getLayoutParams();
                 p.topMargin = mStatusBarHeight;
 
-                if (mFragmentManager.getBackStackEntryCount() == 0) {
+                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetPanel);
+
+                if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
                     if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
                     } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
@@ -3613,6 +3616,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             area.right = contentPanel.getLeft();
                 }
 
+                if (mVerticalOrientation) {
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                            || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                        area.bottom = mBottomSheetPanel.getTop();
+                }
+
                 if (!area.isEmpty()) {
                     int centerX = mapWidth / 2;
                     int centerY = mapHeight / 2;
@@ -3633,7 +3642,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (vto.isAlive())
                     ob = vto;
                 else
-                    ob = mMapView.getViewTreeObserver();
+                    ob = getWindow().getDecorView().getViewTreeObserver();
 
                 ob.removeOnGlobalLayoutListener(this);
             }

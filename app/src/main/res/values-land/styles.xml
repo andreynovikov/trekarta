@@ -32,6 +32,10 @@
         <item name="android:layout_gravity">bottom|end</item>
     </style>
 
+    <style name="BottomSheet">
+        <item name="android:layout_gravity">end</item>
+    </style>
+
     <style name="ExtendPanel">
         <item name="android:layout_toStartOf">@id/actionPanel</item>
     </style>

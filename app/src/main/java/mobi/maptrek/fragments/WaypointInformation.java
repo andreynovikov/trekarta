@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -25,18 +26,20 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -45,7 +48,6 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
@@ -69,20 +71,18 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
 
-    final int SWIPE_MIN_DISTANCE = (int) (40 * MapTrek.density); // vertical distance
-    final int SWIPE_MAX_OFF_PATH = (int) (30 * MapTrek.density); // horizontal displacement during fling
-    final int SWIPE_THRESHOLD_VELOCITY = 200;
-
     private Waypoint mWaypoint;
     private double mLatitude;
     private double mLongitude;
 
+    private BottomSheetBehavior mBottomSheetBehavior;
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
     private boolean mExpanded;
     private boolean mEditorMode;
+    private boolean mPopAll;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,15 +93,12 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_waypoint_information, container, false);
         final ImageButton editButton = rootView.findViewById(R.id.editButton);
-        final ImageButton navigateButton = rootView.findViewById(R.id.navigateButton);
         final ImageButton shareButton = rootView.findViewById(R.id.shareButton);
         final ImageButton deleteButton = rootView.findViewById(R.id.deleteButton);
 
         editButton.setOnClickListener(v -> setEditorMode(true));
-        navigateButton.setOnClickListener(v -> onNavigate());
         shareButton.setOnClickListener(v -> {
-            mFragmentHolder.disableActionButton();
-            mFragmentHolder.popCurrent();
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             mListener.onWaypointShare(mWaypoint);
         });
         deleteButton.setOnClickListener(v -> {
@@ -109,40 +106,25 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             v.startAnimation(shake);
         });
         deleteButton.setOnLongClickListener(v -> {
-            mFragmentHolder.disableActionButton();
-            mFragmentHolder.popCurrent();
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             mListener.onWaypointDelete(mWaypoint);
             return true;
         });
 
-        mExpanded = false;
-
-        final GestureDetector gesture = new GestureDetector(getActivity(),
-                new GestureDetector.SimpleOnGestureListener() {
-
-                    @Override
-                    public boolean onDown(MotionEvent e) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                        if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH)
-                            return false;
-                        if (!mExpanded && e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-                            expand();
-                            updateWaypointInformation(mLatitude, mLongitude);
-                        } else if (!mEditorMode && e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-                            mFragmentHolder.disableActionButton();
-                            mFragmentHolder.popCurrent();
-                        }
-                        return super.onFling(e1, e2, velocityX, velocityY);
-                    }
-                });
-
-        rootView.setOnTouchListener((v, event) -> gesture.onTouchEvent(event));
-
         mEditorMode = false;
+        mPopAll = false;
+
+        rootView.post(() -> {
+            updatePeekHeight(rootView, false);
+            mBottomSheetBehavior.setSkipCollapsed(mExpanded);
+            int panelState = mExpanded ? BottomSheetBehavior.STATE_EXPANDED : BottomSheetBehavior.STATE_COLLAPSED;
+            if (savedInstanceState != null) {
+                panelState = savedInstanceState.getInt("panelState", panelState);
+                View dragHandle = rootView.findViewById(R.id.dragHandle);
+                dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
+            }
+            mBottomSheetBehavior.setState(panelState);
+        });
 
         return rootView;
     }
@@ -153,18 +135,96 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
         double latitude = getArguments().getDouble(ARG_LATITUDE, Double.NaN);
         double longitude = getArguments().getDouble(ARG_LONGITUDE, Double.NaN);
-        boolean full = getArguments().getBoolean(ARG_DETAILS);
+        mExpanded = getArguments().getBoolean(ARG_DETAILS);
 
+        boolean editorMode = false;
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
-            full = savedInstanceState.getBoolean(ARG_DETAILS);
+            mExpanded = savedInstanceState.getBoolean(ARG_DETAILS);
+            editorMode = savedInstanceState.getBoolean("editorMode");
         }
-        if (full)
-            expand();
+
+        final ViewGroup rootView = (ViewGroup) getView();
+        assert rootView != null;
+
+        mFloatingButton = mFragmentHolder.enableActionButton();
+        setFloatingPointDrawable();
+        mFloatingButton.setOnClickListener(v -> {
+            if (!isVisible())
+                return;
+            if (mEditorMode) {
+                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
+                mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
+                mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+
+                mListener.onWaypointSave(mWaypoint);
+                mListener.onWaypointFocus(mWaypoint);
+                setEditorMode(false);
+            } else {
+                if (mMapHolder.isNavigatingTo(mWaypoint.coordinates))
+                    mMapHolder.stopNavigation();
+                else
+                    mListener.onWaypointNavigate(mWaypoint);
+                mPopAll = true;
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            }
+        });
+
+        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
+        p.setAnchorId(R.id.bottomSheetPanel);
+        mFloatingButton.setLayoutParams(p);
+
+        updateWaypointInformation(latitude, longitude);
+        if (editorMode)
+            setEditorMode(true);
+
+        final View dragHandle = rootView.findViewById(R.id.dragHandle);
+        dragHandle.setAlpha(mExpanded ? 0f : 1f);
+        ViewParent parent = rootView.getParent();
+        mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
+                    mFragmentHolder.disableActionButton();
+                    CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
+                    p.setAnchorId(R.id.contentPanel);
+                    mFloatingButton.setLayoutParams(p);
+                    mFloatingButton.setAlpha(1f);
+                    if (mPopAll)
+                        mFragmentHolder.popAll();
+                    else
+                        mFragmentHolder.popCurrent();
+                }
+                if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
+                    mMapHolder.updateMapViewArea();
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    TextView coordsView = rootView.findViewById(R.id.coordinates);
+                    if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
+                            && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
+                        Rect r = new Rect();
+                        coordsView.getGlobalVisibleRect(r);
+                        if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                            r.left = r.right - coordsView.getTotalPaddingRight();
+                        } else {
+                            r.right = r.left + coordsView.getTotalPaddingLeft();
+                        }
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
+                    }
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                if (!mExpanded)
+                    dragHandle.setAlpha(1f - slideOffset);
+                mFloatingButton.setAlpha(1f + slideOffset);
+            }
+        });
 
         mListener.onWaypointFocus(mWaypoint);
-        updateWaypointInformation(latitude, longitude);
     }
 
     @Override
@@ -216,57 +276,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
         outState.putBoolean(ARG_DETAILS, mExpanded);
-        //TODO Preserve edit mode on rotation
-    }
-
-    private void expand() {
-        final ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
-
-        rootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.dottedLine).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.source).setVisibility(View.GONE);
-        TextView destination = rootView.findViewById(R.id.destination);
-        destination.setTextAppearance(android.R.style.TextAppearance_Small);
-        destination.setTextColor(getContext().getColor(R.color.colorAccent));
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) destination.getLayoutParams();
-        params.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.fragment_padding);
-        params.bottomMargin = -params.topMargin;
-        destination.setLayoutParams(params);
-
-        rootView.findViewById(R.id.navigateButton).setVisibility(View.GONE);
-        rootView.findViewById(R.id.editButton).setVisibility(View.VISIBLE);
-
-        mFloatingButton = mFragmentHolder.enableActionButton();
-        setFloatingPointDrawable();
-        mFloatingButton.setOnClickListener(v -> {
-            if (!isVisible())
-                return;
-            if (mEditorMode) {
-                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
-                mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
-
-                mListener.onWaypointSave(mWaypoint);
-                mListener.onWaypointFocus(mWaypoint);
-                setEditorMode(false);
-            } else {
-                mFragmentHolder.disableActionButton();
-                onNavigate();
-            }
-        });
-
-        mMapHolder.updateMapViewArea();
-
-        mExpanded = true;
-    }
-
-    private void onNavigate() {
-        if (mMapHolder.isNavigatingTo(mWaypoint.coordinates))
-            mMapHolder.stopNavigation();
-        else
-            mListener.onWaypointNavigate(mWaypoint);
-        mFragmentHolder.popAll();
+        outState.putInt("panelState", mBottomSheetBehavior.getState());
+        outState.putBoolean("editorMode", mEditorMode);
     }
 
     public void setWaypoint(Waypoint waypoint) {
@@ -274,9 +285,13 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         if (isVisible()) {
             mListener.onWaypointFocus(mWaypoint);
             updateWaypointInformation(mLatitude, mLongitude);
+            final ViewGroup rootView = (ViewGroup) getView();
+            if (rootView != null)
+                rootView.post(() -> updatePeekHeight(rootView, true));
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void updateWaypointInformation(double latitude, double longitude) {
         Activity activity = getActivity();
         final View rootView = getView();
@@ -287,9 +302,6 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             nameView.setText(mWaypoint.name);
 
         TextView sourceView = rootView.findViewById(R.id.source);
-        if (sourceView != null)
-            sourceView.setText(mWaypoint.source.name);
-        sourceView = rootView.findViewById(R.id.sourceExtended);
         if (sourceView != null)
             sourceView.setText(mWaypoint.source.name);
 
@@ -311,16 +323,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         if (coordsView != null) {
             coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
 
-            int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
-            Drawable drawable = activity.getDrawable(imageResource);
-            if (drawable != null) {
-                int drawableSize = (int) Math.round(coordsView.getLineHeight() * 0.7);
-                int drawablePadding = (int) (MapTrek.density * 1.5f);
-                drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
-                int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
-                drawable.setTint(activity.getColor(tintColor));
-                coordsView.setCompoundDrawables(null, null, drawable, null);
-            }
+            setLockDrawable(coordsView);
 
             coordsView.setOnTouchListener((v, event) -> {
                 if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
@@ -329,7 +332,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                         mWaypoint.locked = !mWaypoint.locked;
                         mListener.onWaypointSave(mWaypoint);
                         mListener.onWaypointFocus(mWaypoint);
-                        updateWaypointInformation(mLatitude, mLongitude);
+                        setLockDrawable(coordsView);
                         return true;
                     }
                 }
@@ -342,27 +345,6 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
                 Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
             });
-
-            if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)
-                    || HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
-                ViewTreeObserver vto = rootView.getViewTreeObserver();
-                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        Rect r = new Rect();
-                        coordsView.getGlobalVisibleRect(r);
-                        if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r)) {
-                            if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
-                                r.left = r.right - coordsView.getTotalPaddingRight();
-                            } else {
-                                r.right = r.left + coordsView.getTotalPaddingLeft();
-                            }
-                            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
-                        }
-                    }
-                });
-            }
         }
 
         TextView altitudeView = rootView.findViewById(R.id.altitude);
@@ -407,11 +389,6 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             }
         }
 
-        if (mMapHolder.isNavigatingTo(mWaypoint.coordinates)) {
-            ImageButton navigateButton = rootView.findViewById(R.id.navigateButton);
-            navigateButton.setImageResource(R.drawable.ic_navigation_off);
-        }
-
         mLatitude = latitude;
         mLongitude = longitude;
     }
@@ -449,7 +426,9 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             editsState = View.GONE;
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+            if (imm != null)
+                imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+            rootView.post(() -> updatePeekHeight(rootView, false));
         }
         // TODO Optimize view findings
         TransitionManager.beginDelayedTransition(rootView, new Fade());
@@ -480,6 +459,20 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             mFloatingButton.setImageResource(R.drawable.ic_navigation_off);
         } else {
             mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        }
+    }
+
+    private void setLockDrawable(TextView coordsView) {
+        Activity activity = getActivity();
+        int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
+        Drawable drawable = activity.getDrawable(imageResource);
+        if (drawable != null) {
+            int drawableSize = (int) Math.round(coordsView.getLineHeight() * 0.7);
+            int drawablePadding = (int) (MapTrek.density * 1.5f);
+            drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
+            int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
+            drawable.setTint(activity.getColor(tintColor));
+            coordsView.setCompoundDrawables(null, null, drawable, null);
         }
     }
 
@@ -520,15 +513,22 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
+    private void updatePeekHeight(ViewGroup rootView, boolean setState) {
+        View dragHandle = rootView.findViewById(R.id.dragHandle);
+        View nameView = rootView.findViewById(R.id.name);
+        View sourceView = rootView.findViewById(R.id.source);
+        mBottomSheetBehavior.setPeekHeight(dragHandle.getHeight() * 2 + nameView.getHeight() + sourceView.getHeight());
+        if (setState)
+            mBottomSheetBehavior.setState(mBottomSheetBehavior.getState());
+    }
+
     @Override
     public boolean onBackClick() {
-        if (mEditorMode) {
+        if (mEditorMode)
             setEditorMode(false);
-            return true;
-        } else {
-            mFragmentHolder.disableActionButton();
-            return false;
-        }
+        else
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        return true;
     }
 
     @Override

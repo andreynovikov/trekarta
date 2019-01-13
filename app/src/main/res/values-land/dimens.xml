@@ -4,4 +4,5 @@
     <dimen name="fragment_width">420dp</dimen>
     <dimen name="fragment_with_fab_top_padding">16dp</dimen>
     <dimen name="fragment_with_fab_start_padding">32dp</dimen>
+    <dimen name="destinationTopPadding">0dp</dimen>
 </resources>

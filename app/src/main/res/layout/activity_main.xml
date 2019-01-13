@@ -262,6 +262,16 @@
             android:clickable="true"
             android:elevation="@dimen/fragment_elevation" />
 
+        <android.support.v7.widget.ContentFrameLayout
+            android:id="@+id/bottomSheetPanel"
+            style="@style/BottomSheet"
+            android:layout_height="wrap_content"
+            android:layout_width="@dimen/fragment_width"
+            android:clickable="true"
+            android:elevation="@dimen/bottom_sheet_elevation"
+            app:behavior_hideable="true"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior" />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/actionButton"
             style="@style/FloatingActionButton"

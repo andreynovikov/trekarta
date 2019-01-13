@@ -65,6 +65,9 @@
         <item name="android:layout_gravity">bottom</item>
     </style>
 
+    <style name="BottomSheet">
+    </style>
+
     <style name="ExtendPanel">
         <item name="android:layout_above">@id/actionPanel</item>
     </style>
