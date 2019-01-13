@@ -34,6 +34,8 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 
 public class HelperUtils {
+    private static boolean isShowingTargetedAdvice = false;
+
     public static void showError(String message, CoordinatorLayout coordinatorLayout) {
         final Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
@@ -60,7 +62,7 @@ public class HelperUtils {
     }
 
     public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, @DrawableRes int icon) {
-        if (!Configuration.getAdviceState(advice))
+        if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
         TapTarget target = TapTarget.forView(focusOn, activity.getString(messageResId))
@@ -73,7 +75,7 @@ public class HelperUtils {
     }
 
     public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
-        if (!Configuration.getAdviceState(advice))
+        if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
         TapTarget target;
@@ -93,7 +95,7 @@ public class HelperUtils {
     }
 
     public static boolean showTargetedAdvice(Activity activity, long advice, @StringRes int messageResId, Rect rect) {
-        if (!Configuration.getAdviceState(advice))
+        if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
         TapTarget target = TapTarget.forBounds(rect, activity.getString(messageResId))
@@ -106,7 +108,7 @@ public class HelperUtils {
     }
 
     public static boolean showTargetedAdvice(Dialog dialog, long advice, @StringRes int messageResId, Rect rect) {
-        if (!Configuration.getAdviceState(advice))
+        if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
         TapTarget target = TapTarget.forBounds(rect, dialog.getContext()
@@ -120,6 +122,7 @@ public class HelperUtils {
     }
 
     private static void showTargetedAdvice(Activity activity, final long advice, TapTarget target) {
+        isShowingTargetedAdvice = true;
         target.tintTarget(false);
         TapTargetView.showFor(activity, target,
                 new TapTargetView.Listener() {
@@ -131,11 +134,13 @@ public class HelperUtils {
                     @Override
                     public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
                         Configuration.setAdviceState(advice);
+                        isShowingTargetedAdvice = false;
                     }
                 });
     }
 
     private static void showTargetedAdvice(Dialog dialog, final long advice, TapTarget target) {
+        isShowingTargetedAdvice = true;
         target.tintTarget(false);
         TapTargetView.showFor(dialog, target,
                 new TapTargetView.Listener() {
@@ -147,6 +152,7 @@ public class HelperUtils {
                     @Override
                     public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
                         Configuration.setAdviceState(advice);
+                        isShowingTargetedAdvice = false;
                     }
                 });
     }
