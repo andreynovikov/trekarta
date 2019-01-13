@@ -3583,11 +3583,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 int mapHeight = area.height();
                 int pointerOffset = (int) (50 * MapTrek.density);
 
+                int scaleBarOffset = 0;
                 area.top = mStatusBarHeight;
                 if (mGaugePanel.getTranslationX() >= 0f) {
+                    scaleBarOffset = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
                     int h = mGaugePanel.getHeight();
                     if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
-                        area.left = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
+                        area.left = scaleBarOffset;
                 }
 
                 View v = findViewById(R.id.actionPanel);
@@ -3633,10 +3635,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         mMovingOffset = 0;
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
-
-                    BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                    renderer.setOffset(area.left + 8 * MapTrek.density, area.top);
                 }
+
+                BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
+                renderer.setOffset(scaleBarOffset + 8 * MapTrek.density, area.top);
 
                 ViewTreeObserver ob;
                 if (vto.isAlive())
