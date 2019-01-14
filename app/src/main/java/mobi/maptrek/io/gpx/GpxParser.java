@@ -115,6 +115,9 @@ public class GpxParser {
                     break;
                 case GpxFile.TAG_DESC:
                     waypoint.description = readTextElement(parser, GpxFile.TAG_DESC);
+                    // Default XMLSerializer puts line break after CDATA, so we will remove
+                    // trailing spaces here
+                    waypoint.description = waypoint.description.trim();
                     break;
                 case GpxFile.TAG_ELE:
                     waypoint.altitude = (int) readFloatElement(parser, GpxFile.TAG_ELE);

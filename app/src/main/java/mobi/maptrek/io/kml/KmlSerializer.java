@@ -92,9 +92,9 @@ public class KmlSerializer {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         serializer.text(waypoint.name);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_NAME);
-        if (waypoint.description != null) {
+        if (waypoint.description != null && !waypoint.description.trim().isEmpty()) {
             serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
-            serializer.cdsect(waypoint.description);
+            serializer.cdsect(waypoint.description.trim());
             serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
         }
         if (!waypoint.style.isDefault()) {

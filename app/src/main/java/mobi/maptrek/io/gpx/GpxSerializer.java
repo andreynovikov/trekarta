@@ -78,9 +78,9 @@ public class GpxSerializer {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.text(waypoint.name);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
-        if (waypoint.description != null) {
+        if (waypoint.description != null && !waypoint.description.trim().isEmpty()) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
-            serializer.cdsect(waypoint.description);
+            serializer.cdsect(waypoint.description.trim());
             serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
         }
         if (waypoint.altitude != Integer.MIN_VALUE) {
