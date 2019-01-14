@@ -3154,7 +3154,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                         mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
-                                                mExtendPanel.postInvalidate();
+                                                mExtendPanel.requestLayout();
                                             }
                                         });
                                     }
@@ -3171,6 +3171,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mRecordButton.setAlpha(1f);
                 mLocationButton.setVisibility(View.VISIBLE);
                 mLocationButton.setAlpha(1f);
+                mExtendPanel.requestLayout();
             }
         } else {
             if (animate) {
