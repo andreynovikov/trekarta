@@ -124,6 +124,10 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
             }
             mBottomSheetBehavior.setState(panelState);
+            // Workaround for panel partially drawn on first slide
+            // TODO Try to put transparent view above map
+            if (Configuration.getHideSystemUI())
+                rootView.requestLayout();
         });
 
         return rootView;
@@ -283,6 +287,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     public void setWaypoint(Waypoint waypoint) {
         mWaypoint = waypoint;
         if (isVisible()) {
+            if (mEditorMode)
+                setEditorMode(false);
             mListener.onWaypointFocus(mWaypoint);
             updateWaypointInformation(mLatitude, mLongitude);
             final ViewGroup rootView = (ViewGroup) getView();
