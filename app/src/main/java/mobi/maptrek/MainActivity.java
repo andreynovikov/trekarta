@@ -1119,7 +1119,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
 
-        mSoftwareInputAssist.onDestroy();
+        if (mSoftwareInputAssist != null)
+            mSoftwareInputAssist.onDestroy();
 
         if (mMap != null)
             mMap.destroy();

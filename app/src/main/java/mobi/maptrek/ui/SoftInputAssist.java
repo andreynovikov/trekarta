@@ -48,6 +48,8 @@ public class SoftInputAssist {
     }
 
     private void possiblyResizeChildOfContent() {
+        if (contentContainer == null)
+            return;
         contentContainer.getWindowVisibleDisplayFrame(contentAreaOfWindowBounds);
         int usableHeightNow = contentAreaOfWindowBounds.bottom;
 
