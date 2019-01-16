@@ -227,6 +227,15 @@ public abstract class Map implements TaskQueue {
         clearMap();
     }
 
+    public IRenderTheme getTheme() {
+        for (Layer layer : mLayers) {
+            if (layer instanceof VectorTileLayer) {
+                return ((VectorTileLayer) layer).getTheme();
+            }
+        }
+        return null;
+    }
+
     public void destroy() {
         mLayers.destroy();
         mAsyncExecutor.dispose();

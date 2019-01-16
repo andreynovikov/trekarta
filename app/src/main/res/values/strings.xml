@@ -295,5 +295,6 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
+    <string name="actionLegend">Legend</string>
 
 </resources>

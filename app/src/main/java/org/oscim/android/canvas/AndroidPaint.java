@@ -24,7 +24,7 @@ import android.graphics.Typeface;
 
 import org.oscim.backend.canvas.Paint;
 
-class AndroidPaint implements Paint {
+public class AndroidPaint implements Paint {
 
     private static int getStyle(org.oscim.backend.canvas.Paint.FontStyle fontStyle) {
         switch (fontStyle) {
@@ -158,5 +158,9 @@ class AndroidPaint implements Paint {
     @Override
     public float getTextWidth(String text) {
         return measureText(text);
+    }
+
+    public android.graphics.Paint getPaint() {
+        return mPaint;
     }
 }

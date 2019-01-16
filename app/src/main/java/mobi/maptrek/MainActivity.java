@@ -158,6 +158,7 @@ import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
+import mobi.maptrek.fragments.Legend;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.LocationShareDialog;
 import mobi.maptrek.fragments.MapList;
@@ -1051,6 +1052,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         updateMapViewArea();
 
         mMap.updateMap(true);
+
+        //Fragment fragment = Fragment.instantiate(this, Legend.class.getName());
+        //showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
     }
 
     @Override
@@ -1430,6 +1434,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 snackbar.show();
                 return true;
             }
+            case R.id.actionLegend: {
+                Fragment fragment = Fragment.instantiate(this, Legend.class.getName());
+                showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
+                return true;
+            }
             case R.id.actionSettings: {
                 Bundle args = new Bundle(1);
                 args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mNativeMapIndex.hasHillshades());
@@ -1767,6 +1776,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             //if (!BuildConfig.FULL_VERSION) {
             menu.removeItem(R.id.actionNightMode);
             //}
+            if (!BuildConfig.DEBUG)
+                menu.removeItem(R.id.actionLegend);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
     }

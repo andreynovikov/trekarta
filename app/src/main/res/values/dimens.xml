@@ -33,4 +33,6 @@
     <dimen name="fragment_with_fab_start_padding">16dp</dimen>
     <dimen name="list_fab_margin">40dp</dimen>
     <dimen name="destinationTopPadding">16dp</dimen>
+    <dimen name="legend_item_width">100dp</dimen>
+    <dimen name="legendWidth">300dp</dimen>
 </resources>
