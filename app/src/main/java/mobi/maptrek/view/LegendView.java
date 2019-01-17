@@ -17,6 +17,8 @@
 package mobi.maptrek.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
@@ -54,6 +56,7 @@ public class LegendView extends View {
     private float mCenterX;
     private float mCenterY;
     private float mLastLineWidth;
+    private int mSymbolCount;
 
     public LegendView(Context context) {
         super(context);
@@ -101,6 +104,7 @@ public class LegendView extends View {
         if (mStyle == null)
             return;
 
+        mSymbolCount = 1;
         Log.e("I", mItem.name);
         for (RenderStyle style : mStyle) {
             Log.e("S", style.getClass().getName());
@@ -139,12 +143,14 @@ public class LegendView extends View {
     }
 
     void renderSymbol(Canvas canvas, SymbolStyle symbol) {
-        if (mItem.type == GeometryType.POINT) {
-            canvas.drawBitmap(symbol.bitmap.getPixels(), 0, symbol.bitmap.getWidth(),
-                    mCenterX - symbol.bitmap.getWidth() / 2f,
-                    mCenterY - symbol.bitmap.getHeight() / 2f,
-                    symbol.bitmap.getWidth(), symbol.bitmap.getHeight(), true, null);
-        }
+        if (mItem.totalSymbols == 0)
+            return;
+        float x = mItem.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (mItem.totalSymbols + 1) * mSymbolCount : mCenterX;
+        mSymbolCount++;
+        canvas.drawBitmap(symbol.bitmap.getPixels(), 0, symbol.bitmap.getWidth(),
+                x - symbol.bitmap.getWidth() / 2f,
+                mCenterY - symbol.bitmap.getHeight() / 2f,
+                symbol.bitmap.getWidth(), symbol.bitmap.getHeight(), true, null);
     }
 
     void renderLine(Canvas canvas, LineStyle line) {
@@ -160,20 +166,27 @@ public class LegendView extends View {
         paint.setStrokeWidth(line.fixed ? line.width * MapTrek.density * .6f : line.width * MapTrek.density * 8f);
         paint.setColor(line.color);
         if (line.texture != null) {
-            Log.e("L", "" + line.texture.bitmap.getWidth());
-            canvas.drawBitmap(line.texture.bitmap.getPixels(), 0, line.texture.bitmap.getWidth(),
-                    mCenterX - line.texture.bitmap.getWidth() / 2f,
-                    mCenterY - line.texture.bitmap.getHeight() / 2f,
-                    line.texture.bitmap.getWidth(), line.texture.bitmap.getHeight(), true, null);
+            // XMLThemeBuilder(623)
+            Log.e("LT", "" + line.stipple);
+            Log.e("LT", "" + line.repeatStart);
+            Log.e("LT", "" + line.repeatGap);
+            Log.e("LT", "" + line.texture.offset);
+            Log.e("LT", "" + line.texture.width);
+            float r = 1f * line.texture.width / line.stipple;
+            float symbolWidth = line.stipple - line.repeatGap;
+            Bitmap bmp = Bitmap.createBitmap(line.texture.bitmap.getPixels(),
+                    line.texture.bitmap.getWidth(), line.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+            canvas.drawBitmap(bmp, mCenterX - (line.repeatStart + symbolWidth / 2f) * r,
+                    mCenterY - line.texture.height / 2f, null);
         } else if (line.outline) {
             float halfWidth = mLastLineWidth / 2f;
             canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
             canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
         } else if (line.stipple != 0) {
-            float stipple = line.stipple * MapTrek.density * .5f;
+            float stipple = line.stipple * MapTrek.density * .4f;
             Path path = new Path();
             path.moveTo(mLeft, mCenterY);
-            path.quadTo(mRight / 2f, mCenterY, mRight - stipple, mCenterY);
+            path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
             paint.setPathEffect(new DashPathEffect(new float[]{stipple, stipple}, 0));
             canvas.drawPath(path, paint);
             Matrix matrix = new Matrix();
@@ -222,6 +235,7 @@ public class LegendView extends View {
     public static class LegendItem {
         public GeometryType type;
         public int zoomLevel;
+        public int totalSymbols;
         public TagSet tags;
         public String text;
         public String name;
@@ -231,6 +245,7 @@ public class LegendView extends View {
             this.name = name;
             this.zoomLevel = zoomLevel;
             tags = new TagSet();
+            totalSymbols = 1;
         }
 
         public LegendItem addTag(String key, String value) {
@@ -240,6 +255,11 @@ public class LegendView extends View {
 
         public LegendItem setText(String text) {
             this.text = text;
+            return this;
+        }
+
+        public LegendItem setTotalSymbols(int totalSymbols) {
+            this.totalSymbols = totalSymbols;
             return this;
         }
     }

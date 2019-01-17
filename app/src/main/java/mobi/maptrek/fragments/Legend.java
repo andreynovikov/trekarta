@@ -28,6 +28,8 @@ import android.widget.TextView;
 
 import org.oscim.core.GeometryBuffer.GeometryType;
 import org.oscim.theme.IRenderTheme;
+import org.oscim.theme.styles.AreaStyle;
+import org.oscim.theme.styles.RenderStyle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,12 +124,39 @@ public class Legend extends ListFragment {
     private static LegendItem bridge = new LegendItem(GeometryType.LINE, "Bridge", 17)
             .addTag("highway", "unclassified").addTag("bridge", "yes");
     private static LegendItem tunnel = new LegendItem(GeometryType.LINE, "Tunnel", 17)
-            .addTag("highway", "secondary").addTag("tunnel", "yes");
+            .addTag("highway", "unclassified").addTag("tunnel", "yes");
     private static LegendItem construction_road = new LegendItem(GeometryType.LINE, "Road under construction", 17)
             .addTag("highway", "construction").addTag("tunnel", "yes");
     private static LegendItem ford = new LegendItem(GeometryType.LINE, "Ford", 17)
             .addTag("highway", "unclassified").addTag("ford", "yes");
 
+
+    // Pistes
+    private static LegendItem piste_nordic = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic");
+    private static LegendItem piste_nordic_lit = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:lit", "yes").setTotalSymbols(2);
+    private static LegendItem piste_nordic_oneway = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:oneway", "yes").setTotalSymbols(0);
+    private static LegendItem piste_nordic_scooter = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:grooming", "scooter").setTotalSymbols(0);
+    private static LegendItem piste_nordic_backcountry = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:grooming", "backcountry").setTotalSymbols(0);
+    private static LegendItem piste_nordic_novice = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:difficulty", "novice");
+    private static LegendItem piste_nordic_easy = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:difficulty", "easy");
+    private static LegendItem piste_nordic_intermediate = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:difficulty", "intermediate");
+    private static LegendItem piste_nordic_advanced = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:difficulty", "advanced");
+    private static LegendItem piste_nordic_expert = new LegendItem(GeometryType.LINE, "Nordic", 15)
+            .addTag("piste:type", "nordic").addTag("piste:difficulty", "expert");
+
+
+
+    private static LegendItem land = new LegendItem(GeometryType.POLY, "Land", 14)
+            .addTag("natural", "land");
 
     private static LegendSection administrative = new LegendSection("Administrative", new LegendItem[]{
             country,
@@ -195,9 +224,25 @@ public class Legend extends ListFragment {
             //other
     };
 
+    private static LegendSection[] themeWinter = new LegendSection[]{
+            new LegendSection("Nordic", new LegendItem[]{
+                    piste_nordic,
+                    piste_nordic_oneway,
+                    piste_nordic_lit,
+                    piste_nordic_scooter,
+                    piste_nordic_backcountry,
+                    piste_nordic_novice,
+                    piste_nordic_easy,
+                    piste_nordic_intermediate,
+                    piste_nordic_advanced,
+                    piste_nordic_expert
+            })
+    };
+
     private Legend.LegendListAdapter mAdapter;
     private MapHolder mMapHolder;
     private IRenderTheme mTheme;
+    private int mBackground;
 
     private List<LegendItem> mData = new ArrayList<>();
 
@@ -244,10 +289,17 @@ public class Legend extends ListFragment {
     public void updateData() {
         mData.clear();
 
-        LegendSection[] theme = themeRoads;
+        LegendSection[] theme = themeWinter;
+
         for (LegendSection section : theme) {
             mData.add(new LegendItem(GeometryType.NONE, section.title, 0));
             Collections.addAll(mData, section.items);
+        }
+
+        for (RenderStyle style : mTheme.matchElement(land.type, land.tags, land.zoomLevel)) {
+            if (style instanceof AreaStyle) {
+                mBackground = ((AreaStyle)style).color;
+            }
         }
 
         mAdapter.notifyDataSetChanged();
@@ -302,7 +354,7 @@ public class Legend extends ListFragment {
 
             itemHolder.name.setText(legendItem.name);
             if (legendItem.type != GeometryType.NONE) {
-                itemHolder.item.setLegend(legendItem, mTheme.getMapBackground(),
+                itemHolder.item.setLegend(legendItem, mBackground,
                         mTheme.matchElement(legendItem.type, legendItem.tags, legendItem.zoomLevel));
             }
             return convertView;
