@@ -18,19 +18,18 @@ package mobi.maptrek.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import org.oscim.android.canvas.AndroidPaint;
-import org.oscim.backend.canvas.Color;
 import org.oscim.core.GeometryBuffer.GeometryType;
 import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
@@ -40,6 +39,8 @@ import org.oscim.theme.styles.LineStyle;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
+
+import java.util.ArrayList;
 
 import mobi.maptrek.MapTrek;
 
@@ -57,6 +58,7 @@ public class LegendView extends View {
     private float mCenterY;
     private float mLastLineWidth;
     private int mSymbolCount;
+    ArrayList<RenderStyle> mLines = new ArrayList<>();
 
     public LegendView(Context context) {
         super(context);
@@ -94,55 +96,75 @@ public class LegendView extends View {
 
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(mBackground);
-        // Draw the label text
-        //canvas.drawText(mData.get(mCurrentItem).mLabel, mTextX, mTextY, mTextPaint);
-
-        // Draw the pointer
-        //canvas.drawLine(mTextX, mPointerY, mPointerX, mPointerY, mTextPaint);
-        //canvas.drawCircle(mCenterX, mCenterY, 20, mCirclePaint);
 
         if (mStyle == null)
             return;
 
+        float gap = 3f * MapTrek.density;
+        canvas.clipRect(mLeft - gap, 0, mRight + gap, getHeight());
+
+        mLines.clear();
         mSymbolCount = 1;
         Log.e("I", mItem.name);
         for (RenderStyle style : mStyle) {
-            Log.e("S", style.getClass().getName());
-            if (style instanceof AreaStyle)
+            if (style instanceof LineStyle) {
+                if (((LineStyle) style).texture != null)
+                    mLines.add(0, style);
+                else
+                    renderLine(canvas, (LineStyle) style);
+            } else if (style instanceof AreaStyle)
                 renderArea(canvas, (AreaStyle) style);
             else if (style instanceof CircleStyle)
                 renderCircle(canvas, (CircleStyle) style);
-            else if (style instanceof SymbolStyle)
+        }
+        for (RenderStyle style : mLines) {
+            renderLine(canvas, (LineStyle) style);
+        }
+        for (RenderStyle style : mStyle) {
+            if (style instanceof SymbolStyle)
                 renderSymbol(canvas, (SymbolStyle) style);
-            else if (style instanceof LineStyle)
-                renderLine(canvas, (LineStyle) style);
             else if (style instanceof TextStyle)
                 renderText(canvas, (TextStyle) style);
         }
     }
 
     void renderArea(Canvas canvas, AreaStyle area) {
+        Log.e("S", area.toString());
         Log.e("A", "" + area.style);
         Log.e("A", "" + area.color);
         Log.e("A", "" + area.strokeWidth);
         Log.e("A", "" + area.strokeColor);
+        Log.e("A", "" + area.texture);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(area.color);
-        canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
-        if (area.strokeWidth != 0f) {
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(area.strokeWidth * MapTrek.density * .25f);
-            paint.setColor(area.strokeColor);
-            canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+        if (mItem.type == GeometryType.POINT) {
+            canvas.drawCircle(mCenterX, mCenterY, 5 * MapTrek.density, paint);
+        } else {
+            if (area.texture != null) {
+                Log.e("AT", "" + area.texture.offset);
+                Log.e("AT", "" + area.texture.width);
+                Bitmap bmp = Bitmap.createBitmap(area.texture.bitmap.getPixels(),
+                        area.texture.bitmap.getWidth(), area.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                canvas.drawBitmap(bmp, mCenterX - area.texture.width / 2f, mCenterY - area.texture.height / 2f, null);
+            } else {
+                canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+            }
+            if (area.strokeWidth != 0f) {
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(area.strokeWidth * MapTrek.density * .25f);
+                paint.setColor(area.strokeColor);
+                canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+            }
         }
     }
 
     void renderCircle(Canvas canvas, CircleStyle circle) {
-
+        Log.e("S", circle.toString());
     }
 
     void renderSymbol(Canvas canvas, SymbolStyle symbol) {
+        Log.e("S", symbol.toString());
         if (mItem.totalSymbols == 0)
             return;
         float x = mItem.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (mItem.totalSymbols + 1) * mSymbolCount : mCenterX;
@@ -154,6 +176,7 @@ public class LegendView extends View {
     }
 
     void renderLine(Canvas canvas, LineStyle line) {
+        Log.e("S", line.toString());
         Log.e("L", "" + line.style);
         Log.e("L", "" + line.color);
         Log.e("L", "" + line.width);
@@ -161,47 +184,67 @@ public class LegendView extends View {
         Log.e("L", "" + line.stipple);
         Log.e("L", "" + line.stippleWidth);
         Log.e("L", "" + line.stippleColor);
+        Log.e("L", "" + line.texture);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(line.fixed ? line.width * MapTrek.density * .6f : line.width * MapTrek.density * 8f);
+        paint.setStrokeWidth(line.fixed ? line.width * MapTrek.density : line.width * MapTrek.density * 8f);
         paint.setColor(line.color);
-        if (line.texture != null) {
-            // XMLThemeBuilder(623)
-            Log.e("LT", "" + line.stipple);
-            Log.e("LT", "" + line.repeatStart);
-            Log.e("LT", "" + line.repeatGap);
-            Log.e("LT", "" + line.texture.offset);
-            Log.e("LT", "" + line.texture.width);
-            float r = 1f * line.texture.width / line.stipple;
-            float symbolWidth = line.stipple - line.repeatGap;
-            Bitmap bmp = Bitmap.createBitmap(line.texture.bitmap.getPixels(),
-                    line.texture.bitmap.getWidth(), line.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-            canvas.drawBitmap(bmp, mCenterX - (line.repeatStart + symbolWidth / 2f) * r,
-                    mCenterY - line.texture.height / 2f, null);
-        } else if (line.outline) {
-            float halfWidth = mLastLineWidth / 2f;
-            canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
-            canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
-        } else if (line.stipple != 0) {
-            float stipple = line.stipple * MapTrek.density * .4f;
-            Path path = new Path();
-            path.moveTo(mLeft, mCenterY);
-            path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
-            paint.setPathEffect(new DashPathEffect(new float[]{stipple, stipple}, 0));
-            canvas.drawPath(path, paint);
-            Matrix matrix = new Matrix();
-            matrix.setTranslate(stipple, 0f);
-            path.transform(matrix);
-            paint.setStrokeWidth(paint.getStrokeWidth() * line.stippleWidth);
-            paint.setColor(line.stippleColor);
-            canvas.drawPath(path, paint);
-        } else {
-            canvas.drawLine(mLeft, mCenterY, mRight, mCenterY, paint);
-            mLastLineWidth = paint.getStrokeWidth();
+        if (mItem.type == GeometryType.LINE) {
+            if (line.texture != null) {
+                // XMLThemeBuilder(623)
+                Log.e("LT", "" + line.repeatStart);
+                Log.e("LT", "" + line.repeatGap);
+                Log.e("LT", "" + line.texture.offset);
+                Log.e("LT", "" + line.texture.width);
+                Log.e("LT", "" + line.texture.height);
+                float xOffset = 0;
+                float symbolWidth = line.stipple - line.repeatGap;
+                if (symbolWidth > 0) {
+                    float r = .5f * line.texture.width / line.stipple;
+                    xOffset = (line.repeatStart + symbolWidth / 2f) * r;
+                }
+                Bitmap bmp = Bitmap.createBitmap(line.texture.bitmap.getPixels(),
+                        line.texture.bitmap.getWidth(), line.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                Bitmap resized = Bitmap.createScaledBitmap(bmp, bmp.getWidth() >> 1, bmp.getHeight() >> 1, false);
+                bmp.recycle();
+                Paint bmpPaint = null;
+                if (line.stippleColor != 0xFF000000 && line.stippleColor != 0xFFFFFFFF) {
+                    bmpPaint = new Paint();
+                    bmpPaint.setColorFilter(new PorterDuffColorFilter(line.stippleColor, PorterDuff.Mode.SRC_IN));
+                }
+                //canvas.drawBitmap(resized, mCenterX - xOffset, mCenterY - line.texture.height / 2f, bmpPaint);
+                canvas.drawBitmap(resized, mCenterX - xOffset, mCenterY - resized.getHeight() / 2f, bmpPaint);
+                resized.recycle();
+            } else if (line.outline) {
+                float halfWidth = mLastLineWidth / 2f;
+                canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
+                canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
+            } else if (line.stipple != 0) {
+                float stipple = line.stipple * MapTrek.density * .5f;
+                Path path = new Path();
+                path.moveTo(mLeft, mCenterY);
+                path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
+                paint.setPathEffect(new DashPathEffect(new float[]{stipple, stipple}, 0));
+                canvas.drawPath(path, paint);
+                path.rewind();
+                path.moveTo(mLeft + stipple, mCenterY);
+                path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
+                paint.setAlpha(android.graphics.Color.alpha(line.stippleColor));
+                canvas.drawPath(path, paint);
+                paint.setStrokeWidth(paint.getStrokeWidth() * line.stippleWidth);
+                paint.setColor(line.stippleColor);
+                canvas.drawPath(path, paint);
+            } else {
+                canvas.drawLine(mLeft, mCenterY, mRight, mCenterY, paint);
+                mLastLineWidth = paint.getStrokeWidth();
+            }
+        } else if (mItem.type == GeometryType.POLY) {
+            canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
         }
     }
 
     void renderText(Canvas canvas, TextStyle text) {
+        Log.e("S", text.toString());
         Log.e("T", "" + text.style);
         Log.e("T", "" + text.dy);
         Log.e("T", "" + ((AndroidPaint) text.paint).getPaint().getTextSize());
