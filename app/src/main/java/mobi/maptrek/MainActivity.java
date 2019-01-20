@@ -1052,9 +1052,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         updateMapViewArea();
 
         mMap.updateMap(true);
-
-        //Fragment fragment = Fragment.instantiate(this, Legend.class.getName());
-        //showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
     }
 
     @Override
@@ -1776,7 +1773,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             //if (!BuildConfig.FULL_VERSION) {
             menu.removeItem(R.id.actionNightMode);
             //}
-            if (!BuildConfig.DEBUG)
+            if (Configuration.getActivity() != 2)
                 menu.removeItem(R.id.actionLegend);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
@@ -1892,7 +1889,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         deltaY = (float) (downY - point.y);
         // Shift map to reveal marker tip position
         mMap.getEventLayer().enableMove(false);
-        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 + 3 * mFingerTipSize), 1, true);
+        mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2f, mMap.getHeight() / 2f + 3 * mFingerTipSize), 1, true);
         return true;
     }
 
@@ -2126,8 +2123,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onInputEvent(Event e, MotionEvent motionEvent) {
         int action = motionEvent.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
-            downX = motionEvent.getX() - mMap.getWidth() / 2;
-            downY = motionEvent.getY() - mMap.getHeight() / 2;
+            downX = motionEvent.getX() - mMap.getWidth() / 2f;
+            downY = motionEvent.getY() - mMap.getHeight() / 2f;
         }
         if (mActiveMarker == null)
             return;
@@ -2138,7 +2135,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             onWaypointSave(waypoint);
             mActiveMarker = null;
             // Unshift map to its original position
-            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2, mMap.getHeight() / 2 - mFingerTipSize), 1, true);
+            mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2f, mMap.getHeight() / 2f - mFingerTipSize), 1, true);
             mMap.getEventLayer().enableMove(true);
         } else if (action == MotionEvent.ACTION_MOVE) {
             float eventX = motionEvent.getX() - deltaX;
@@ -4166,6 +4163,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         switch (Configuration.getActivity()) {
             case 2:
                 themeFile = Themes.WINTER;
+                runOnUiThread(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false));
                 break;
             case 1:
                 if (Tags.kindZooms[13] == 18)
