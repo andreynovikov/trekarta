@@ -26,4 +26,7 @@
     <item
         android:id="@+id/actionOtherFeatures"
         android:title="@string/actionOtherFeatures" />
+    <item
+        android:id="@+id/actionLegend"
+        android:title="@string/actionLegend" />
 </menu>
