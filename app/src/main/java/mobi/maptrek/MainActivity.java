@@ -479,6 +479,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String language = Configuration.getLanguage();
             if (language == null) {
                 if (BuildConfig.RUSSIAN_EDITION) {
+                    //noinspection UnusedAssignment
                     language = "ru";
                 } else {
                     language = resources.getConfiguration().locale.getLanguage();
@@ -4155,15 +4156,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         switch (Configuration.getActivity()) {
             case 2:
                 themeFile = Themes.WINTER;
+                Configuration.accountSkiing();
                 break;
             case 1:
                 if (Tags.kindZooms[13] == 18)
                     Tags.kindZooms[13] = 14;
                 themeFile = Themes.MAPTREK;
+                Configuration.accountHiking();
                 break;
             case 0:
             default:
                 themeFile = night ? Themes.NEWTRON : Themes.MAPTREK;
+                break;
         }
         IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = Themes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
@@ -4220,7 +4224,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mData.size() + "," +
                 mNativeMapIndex.getMapsCount() + "," +
                 mMapIndex.getMaps().size() + "," +
-                Configuration.getFullScreenTimes();
+                Configuration.getFullScreenTimes() + "," +
+                Configuration.getHikingTimes() + "," +
+                Configuration.getSkiingTimes();
     }
 
     private double movingAverage(double current, double previous) {

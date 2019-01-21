@@ -79,6 +79,8 @@ public class Configuration {
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
     private static final String PREF_EXTERNAL_STORAGE = "external_storage";
     private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
+    private static final String PREF_HIKING_TIMES = "hiking_times";
+    private static final String PREF_SKIING_TIMES = "skiing_times";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
@@ -446,6 +448,22 @@ public class Configuration {
 
     public static void accountFullScreen() {
         saveInt(PREF_FULLSCREEN_TIMES, Configuration.getFullScreenTimes() + 1);
+    }
+
+    public static int getHikingTimes() {
+        return loadInt(PREF_HIKING_TIMES, 0);
+    }
+
+    public static void accountHiking() {
+        saveInt(PREF_HIKING_TIMES, Configuration.getHikingTimes() + 1);
+    }
+
+    public static int getSkiingTimes() {
+        return loadInt(PREF_SKIING_TIMES, 0);
+    }
+
+    public static void accountSkiing() {
+        saveInt(PREF_SKIING_TIMES, Configuration.getSkiingTimes() + 1);
     }
 
     private static int loadInt(String key, int defValue) {
