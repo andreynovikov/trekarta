@@ -288,7 +288,7 @@
     <string name="notificationChannelName">Текущие события</string>
     <string name="actionRuler">Линейка</string>
     <string name="legend_country">Страна</string>
-    <string name="legend_country_name">Финляндия</string>
+    <string name="legend_country_name">Кипр</string>
     <string name="legend_state_name">Техас</string>
     <string name="legend_state">Штат/область</string>
     <string name="legend_country_boundary">Граница государства</string>
@@ -307,7 +307,7 @@
     <string name="legend_allotments">Садоводство</string>
     <string name="legend_allotments_name">Полька</string>
     <string name="legend_unpopulated_location">Незаселенное место</string>
-    <string name="legend_unpopulated_location_name">Валиваара</string>
+    <string name="legend_unpopulated_location_name">Горбуха</string>
     <string name="legend_glacier">Ледник</string>
     <string name="legend_pond">Водоём</string>
     <string name="legend_pond_name">Вселуг</string>
@@ -471,7 +471,7 @@
     <string name="legend_post_office">Почтовое отделение</string>
     <string name="legend_atm">Банкомат</string>
     <string name="legend_currency_exchange">Обмен валют</string>
-    <string name="legend_post_box">почтовый ящик</string>
+    <string name="legend_post_box">Почтовый ящик</string>
     <string name="legend_lighthouse">Маяк</string>
     <string name="legend_windmill">Мельница</string>
     <string name="legend_museum">Музей</string>
@@ -529,4 +529,6 @@
     <string name="legend_terrain_features">Особенности местности</string>
     <string name="legend_manmade_features">Искусственные объекты</string>
     <string name="legend_transportation">Транспорт</string>
+    <string name="advice_map_legend">Вы можете посмотреть список условных обозначений с помощью долгого нажатия на кнопку Карты</string>
+    <string name="actionLegend">Условные обозначения</string>
 </resources>

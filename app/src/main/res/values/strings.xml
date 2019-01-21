@@ -297,6 +297,7 @@
     <string name="kind_hikebike">Hike and bike</string>
     <string name="kind_service">Service</string>
     <string name="kind_urban">Urban</string>
+
     <string name="legend_country">Country</string>
     <string name="legend_country_name">Finland</string>
     <string name="legend_state_name">Texas</string>
@@ -422,7 +423,7 @@
     <string name="legend_gondola">Gondola</string>
     <string name="legend_chair_lift">Chair lift</string>
     <string name="legend_drag_lift">Drag lift</string>
-    <string name="legend_zip_line">Zip line</string>
+    <string name="legend_zip_line">Zipline</string>
     <string name="legend_magic_carpet">Magic carpet</string>
     <string name="legend_station">Station</string>
     <string name="legend_wilderness_hut">Wilderness hut</string>
@@ -539,6 +540,6 @@
     <string name="legend_terrain_features">Terrain features</string>
     <string name="legend_manmade_features">Man-made features</string>
     <string name="legend_transportation">Transportation</string>
-    <string name="legend_thirteen">13</string>
+    <string name="legend_thirteen" translatable="false">13</string>
 
 </resources>
