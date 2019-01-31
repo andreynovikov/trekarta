@@ -44,7 +44,7 @@ import mobi.maptrek.util.ByteArrayInOutStream;
 public enum Themes implements ThemeFile {
     MAPTREK("styles/maptrek.xml"),
     WINTER("styles/winter.xml"),
-    NEWTRON("styles/newtron.xml");
+    NIGHT("styles/night.xml");
 
     private static final Logger logger = LoggerFactory.getLogger(Themes.class);
 

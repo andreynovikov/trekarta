@@ -4,32 +4,32 @@
         <m select="first" zoom-min="13">
             <m v="volcano">
                 <symbol src="assets:symbols/natural/volcano.svg" />
-                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                <text caption="true" style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="peak">
                 <symbol src="assets:symbols/natural/peak.svg" />
-                <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                <text caption="true" style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="saddle">
                 <m k="mountain_pass" v="~|no">
                     <symbol src="assets:symbols/natural/saddle.svg" />
-                    <caption style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
+                    <text caption="true" style="bold" dy="-12" fill="#000000" k="ele" size="14" stroke="#ffffff"
                         stroke-width="2.0" />
                 </m>
             </m>
         </m>
         <m select="when-matched">
-            <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+            <text caption="true" style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
     </m>
     <m cat="roads" k="mountain_pass" v="yes">
         <symbol src="assets:symbols/natural/mountain_pass.svg" symbol-percent="70" />
-        <caption style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+        <text caption="true" style="bold" dy="16" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
             stroke-width="2.0" />
-        <caption style="bold" dy="-16" fill="#000000" k="ele" size="14" stroke="#ffffff"
+        <text caption="true" style="bold" dy="-16" fill="#000000" k="ele" size="14" stroke="#ffffff"
             stroke-width="2.0" />
     </m>
 </rendertheme>

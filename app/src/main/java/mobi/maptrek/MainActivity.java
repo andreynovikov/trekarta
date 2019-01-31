@@ -446,8 +446,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mSunriseSunset = new SunriseSunset();
         //noinspection ConstantConditions
-        //mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
-        mNightModeState = NIGHT_MODE_STATE.DAY;
+        mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
 
         // Apply default styles at start
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
@@ -715,9 +714,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap, false);
 
-        setNightMode(false);
-        //setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
-        //        savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
+        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
+                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -1771,9 +1769,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             item = menu.findItem(R.id.actionLanguage);
             ((TextView) item.getActionView()).setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-            //if (!BuildConfig.FULL_VERSION) {
-            menu.removeItem(R.id.actionNightMode);
-            //}
+            if (!BuildConfig.FULL_VERSION)
+                menu.removeItem(R.id.actionNightMode);
             if (Configuration.getActivity() != 2)
                 menu.removeItem(R.id.actionLegend);
         });
@@ -4175,7 +4172,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 break;
             case 0:
             default:
-                themeFile = night ? Themes.NEWTRON : Themes.MAPTREK;
+                themeFile = night ? Themes.NIGHT : Themes.MAPTREK;
                 break;
         }
         IRenderTheme theme = ThemeLoader.load(themeFile);

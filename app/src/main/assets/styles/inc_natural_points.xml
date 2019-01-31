@@ -10,7 +10,7 @@
             </m>
         </m>
         <m select="when-matched">
-            <caption style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+            <text caption="true" style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
     </m>

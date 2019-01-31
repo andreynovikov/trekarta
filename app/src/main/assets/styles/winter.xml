@@ -7,7 +7,7 @@
         gladed=yes (trees)
     -->
 
-    <stylemenu defaultlang="en" defaultvalue="topo" id="menu">
+    <stylemenu defaultlang="en" defaultvalue="urban" id="menu">
         <layer enabled="true" id="base">
             <cat id="land" />
             <cat id="water" />
