@@ -110,6 +110,7 @@ public class XmlThemeBuilder extends DefaultHandler {
         try {
             new XMLReaderAdapter().parse(renderThemeHandler, theme.getRenderThemeAsStream());
         } catch (Exception e) {
+            log.error("Parsing error", e);
             throw new ThemeException(e.getMessage());
         }
 
@@ -134,9 +135,8 @@ public class XmlThemeBuilder extends DefaultHandler {
     private final Stack<Element> mElementStack = new Stack<>();
     private final Stack<RuleBuilder> mRuleStack = new Stack<>();
     private final HashMap<String, RenderStyle> mStyles = new HashMap<>(10);
-
     private final HashMap<String, TextStyle.TextBuilder<?>> mTextStyles = new HashMap<>(10);
-
+    private final HashMap<String, Integer> mColors = new HashMap<>(10);
     private final AreaBuilder<?> mAreaBuilder = AreaStyle.builder();
     private final CircleBuilder<?> mCircleBuilder = CircleStyle.builder();
     private final ExtrusionBuilder<?> mExtrusionBuilder = ExtrusionStyle.builder();
@@ -243,6 +243,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 }
                 mCurrentRule = rule;
                 mRuleStack.push(mCurrentRule);
+
+            } else if ("style-color".equals(localName)) {
+                checkState(localName, Element.STYLE);
+                handleColorElement(localName, attributes);
 
             } else if ("style-text".equals(localName)) {
                 checkState(localName, Element.STYLE);
@@ -511,7 +515,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 ;// ignore
 
             else if ("stroke".equals(name))
-                b.color(value);
+                b.color(parseColor(value));
 
             else if ("width".equals(name) || "stroke-width".equals(name)) {
                 b.strokeWidth = parseFloat(value) * mScale2 * mStrokeScale;
@@ -534,7 +538,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.stipple = Math.round(parseInt(value) * mScale2 * mStrokeScale);
 
             else if ("stipple-stroke".equals(name))
-                b.stippleColor(value);
+                b.stippleColor(parseColor(value));
 
             else if ("stipple-width".equals(name))
                 b.stippleWidth = parseFloat(value);
@@ -877,7 +881,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 version = Integer.parseInt(value);
 
             else if ("map-background".equals(name)) {
-                mapBackground = Color.parseColor(value);
+                mapBackground = parseColor(value);
                 if (mThemeCallback != null)
                     mapBackground = mThemeCallback.getColor(mapBackground);
 
@@ -903,6 +907,31 @@ public class XmlThemeBuilder extends DefaultHandler {
         mMapBackground = mapBackground;
         mStrokeScale = baseStrokeWidth;
         mTextScale = baseTextScale;
+    }
+
+    private void handleColorElement(String localName, Attributes attributes) {
+        Integer color = null;
+        String style = null;
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            String name = attributes.getLocalName(i);
+            String value = attributes.getValue(i);
+
+            if ("id".equals(name))
+                style = value;
+
+            else if ("color".equals(name))
+                color = Color.parseColor(value);
+
+            else
+                logUnknownAttribute(localName, name, value, i);
+        }
+
+        validateExists("id", style, localName);
+        validateExists("color", color, localName);
+
+        log.debug("put color {}", color);
+        mColors.put(style, color);
     }
 
     private void handleTextElement(String localName, Attributes attributes, boolean isStyle,
@@ -968,10 +997,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.fontSize = Float.parseFloat(value);
 
             else if ("fill".equals(name))
-                b.fillColor = Color.parseColor(value);
+                b.fillColor = parseColor(value);
 
             else if ("stroke".equals(name))
-                b.strokeColor = Color.parseColor(value);
+                b.strokeColor = parseColor(value);
 
             else if ("stroke-width".equals(name))
                 b.strokeWidth = Float.parseFloat(value) * mScale;
@@ -1053,10 +1082,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.scaleRadius(Boolean.parseBoolean(value));
 
             else if ("fill".equals(name))
-                b.color(Color.parseColor(value));
+                b.color(parseColor(value));
 
             else if ("stroke".equals(name))
-                b.strokeColor(Color.parseColor(value));
+                b.strokeColor(parseColor(value));
 
             else if ("stroke-width".equals(name))
                 b.strokeWidth(Float.parseFloat(value) * mScale * mStrokeScale);
@@ -1155,13 +1184,13 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.cat(value);
 
             else if ("side-color".equals(name))
-                b.colorSide(Color.parseColor(value));
+                b.colorSide(parseColor(value));
 
             else if ("top-color".equals(name))
-                b.colorTop(Color.parseColor(value));
+                b.colorTop(parseColor(value));
 
             else if ("line-color".equals(name))
-                b.colorLine(Color.parseColor(value));
+                b.colorLine(parseColor(value));
 
             else if ("default-height".equals(name))
                 b.defaultHeight(Integer.parseInt(value));
@@ -1205,6 +1234,21 @@ public class XmlThemeBuilder extends DefaultHandler {
             dashIntervals[i] = Float.parseFloat(dashEntries[i]);
         }
         return dashIntervals;
+    }
+
+    private int parseColor(String value) {
+        Integer color;
+        if (value.startsWith("color:")) {
+            String style = value.substring(6);
+            color = mColors.get(style);
+            if (color == null) {
+                log.error("missing color style: " + style);
+                color = 0;
+            }
+        } else {
+            color = Color.parseColor(value);
+        }
+        return color;
     }
 
     private static void validateNonNegative(String name, float value) {

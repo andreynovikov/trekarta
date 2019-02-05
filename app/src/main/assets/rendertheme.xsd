@@ -22,7 +22,7 @@
 
     <xs:simpleType name="color">
         <xs:restriction base="xs:string">
-            <xs:pattern value="#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})" />
+            <xs:pattern value="(#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})|color:.+)" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -279,6 +279,11 @@
         <xs:attribute name="id" type="xs:string" use="required" />
     </xs:complexType>
 
+    <xs:complexType name="style-color">
+        <xs:attribute name="id" default="0" type="xs:string" use="required" />
+        <xs:attribute name="color" default="#000000" type="tns:color" use="required" />
+    </xs:complexType>
+
     <!-- rendertheme element -->
     <xs:complexType name="rendertheme">
         <xs:sequence minOccurs="0">
@@ -287,6 +292,7 @@
             <!-- style definitions -->
             <xs:sequence maxOccurs="256" minOccurs="0">
                 <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="style-color" type="tns:style-color" />
                     <xs:element name="style-text" type="tns:text" />
                     <xs:element name="style-area" type="tns:area" />
                     <xs:element name="style-line" type="tns:line" />
