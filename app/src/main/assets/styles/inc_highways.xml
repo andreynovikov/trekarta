@@ -2,20 +2,20 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Roads -->
     <m e="way" k="highway">
-        <outline-layer fade="14" id="service-road" stroke="#aa807040" width="0.05" />
-        <outline-layer id="road" stroke="#807040" width="0.15" />
-        <outline-layer id="primary" stroke="#7f7700" width="0.15" />
-        <outline-layer id="motorway" stroke="#805f2e" width="0.15" />
+        <outline-layer fade="14" id="service-road" stroke="color:service-road-outline" width="0.05" />
+        <outline-layer id="road" stroke="color:road-outline" width="0.15" />
+        <outline-layer id="primary" stroke="color:primary-road-outline" width="0.15" />
+        <outline-layer id="motorway" stroke="color:motorway-road-outline" width="0.15" />
 
         <m cat="roads" select="first" zoom-max="7">
             <m v="motorway">
-                <line fade="6" stroke="#deb683" use="fix" width="0.6" />
+                <line fade="6" stroke="color:motorway-overview" use="fix" width="0.6" />
             </m>
             <m v="trunk">
-                <line fade="6" stroke="#c6c5a2" use="fix" width="0.5" />
+                <line fade="6" stroke="color:trunk-overview" use="fix" width="0.5" />
             </m>
             <m v="primary">
-                <line fade="7" stroke="#c6c5a2" use="fix" width="0.5" />
+                <line fade="7" stroke="color:primary-overview" use="fix" width="0.5" />
             </m>
         </m>
         <m zoom-min="8">

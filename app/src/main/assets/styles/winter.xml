@@ -38,6 +38,19 @@
         </layer>
     </stylemenu>
 
+    <style-color id="motorway-overview" color="#deb683" />
+    <style-color id="trunk-overview" color="#c6c5a2" />
+    <style-color id="primary-overview" color="#c6c5a2" />
+
+    <style-color id="service-road-outline" color="#aa807040" />
+    <style-color id="road-outline" color="#807040" />
+    <style-color id="primary-road-outline" color="#7f7700" />
+    <style-color id="motorway-road-outline" color="#805f2e" />
+
+    <style-color id="highway-service" color="#eeeeee" />
+
+    <style-color id="service-tunnel" color="#e5e5e5" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -79,7 +92,7 @@
     <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
         width="0.8" />
     <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.1" />
-    <style-line id="highway-service" stroke="#eeeeee" width="0.4" />
+    <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
     <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.2" />
     <style-area fill="#d0d0d0" id="pedestrian" />
     <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
@@ -108,7 +121,7 @@
     <style-line id="tertiary-tunnel" use="tunnel" />
     <style-line id="unclassified-tunnel" use="tunnel" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
-    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel"
+    <style-line id="service-tunnel" stipple="10" stipple-stroke="color:service-tunnel" use="tunnel"
         width="-0.9" />
     <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
 

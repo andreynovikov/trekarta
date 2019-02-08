@@ -48,6 +48,28 @@
         </layer>
     </stylemenu>
 
+    <style-color id="motorway-overview" color="#664444" />
+    <style-color id="trunk-overview" color="#884444" />
+    <style-color id="primary-overview" color="#553333" />
+
+    <style-color id="service-road-outline" color="#aa333333" />
+    <style-color id="road-outline" color="#3a3a3a" />
+    <style-color id="primary-road-outline" color="#6a4a4a" />
+    <style-color id="motorway-road-outline" color="#8a4a4a" />
+
+    <style-color id="trunk" color="#884444" />
+    <style-color id="trunk_link" color="#774444" />
+    <style-color id="highway" color="#664444" />
+    <style-color id="primary" color="#553333" />
+    <style-color id="secondary" color="#443333" />
+    <style-color id="unclassified" color="#333333" />
+    <style-color id="road-construction" color="#111111" />
+    <style-color id="road-construction-stipple" color="#333333" />
+    <style-color id="residential" color="#333333" />
+    <style-color id="highway-service" color="#222222" />
+
+    <style-color id="service-tunnel" color="#222222" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aa000000"
         stroke-width="2.5" />
@@ -69,58 +91,8 @@
     <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
     <style-area fade="-1" fill="#1B1B1D" id="water" mesh="true" />
 
-    <!-- Roads -->
-    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
-    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
-        width="0.7" />
-    <style-line id="trunk" stroke="#434343" width="1.3" />
-    <style-line cap="butt" id="trunk_link" stroke="#fee16e" width="1.0" />
-    <style-line id="highway" stroke="#373737" width="1.2" />
-    <style-line id="primary" stroke="#373737" width="1.0" />
-    <style-line id="secondary" stroke="#373737" use="primary" width="-0.1" />
-    <style-line id="unclassified" stroke="#2a2a2a" width="0.8" />
-    <style-line id="tertiary" use="unclassified" width="0.1" />
-    <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
-        width="0.8" />
-    <style-line id="residential" stroke="#2a2a2a" use="unclassified" width="-0.1" />
-    <style-line id="highway-service" stroke="#111111" width="0.4" />
-    <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.2" />
-    <style-area fill="#d0d0d0" id="pedestrian" />
-    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
-    <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#8f8f8f"
-        stroke="#00ffffff" width="1.8" />
-    <style-line id="highway:track:g1" use="highway:track:g2" />
-    <style-line id="highway:track:g3" use="highway:track:g2" />
-    <style-line id="highway:track:g4" use="highway:track:g2" />
-    <style-line id="highway:track:g5" use="highway:track:g2" />
-    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
-    <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#999999"
-        stroke="#00ffffff" width="1.5" />
-    <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
-
-    <style-line id="path" stipple="4" use="footway" width="0.1" />
-    <style-line id="bridleway" use="footway" width="0.2" />
-    <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#999999"
-        stroke="#aaffffff" width="3.5" />
-
-    <style-line cap="butt" id="tunnel" stipple="20" stipple-stroke="#f0f0f0" stroke="#00ffffff"
-        width="1.3" />
-    <style-line id="highway-tunnel" stipple-stroke="#dacfa9" use="tunnel" width="0.5" />
-    <style-line id="trunk-tunnel" stipple-stroke="#ecda97" use="tunnel" width="0.4" />
-    <style-line id="primary-tunnel" stipple-stroke="#dacfa9" use="tunnel" width="0.2" />
-    <style-line id="secondary-tunnel" use="primary-tunnel" width="-0.1" />
-    <style-line id="tertiary-tunnel" use="tunnel" />
-    <style-line id="unclassified-tunnel" use="tunnel" />
-    <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
-    <style-line id="service-tunnel" stipple="10" stipple-stroke="#e5e5e5" use="tunnel"
-        width="-0.9" />
-    <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
-
-    <style-text style="bold" fill="#666666" id="major-road-name" k="name" priority="5" size="16"
-        stroke="#aa000000" stroke-width="2.0" />
-    <style-text fill="#666666" id="road-name" k="name" priority="7" size="16" stroke="#aa000000"
-        stroke-width="2.0" />
-
+    <!-- Road styles -->
+    <xi:include href="inc_highway_styles.xml" />
 
 
     <m cat="water" e="way" k="natural" v="sea">
