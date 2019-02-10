@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
@@ -65,11 +66,14 @@ public class HelperUtils {
         if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
+        Drawable drawable = activity.getDrawable(icon);
+        if (drawable != null)
+            drawable.setTint(activity.getResources().getColor(R.color.textColorPrimary, activity.getTheme()));
         TapTarget target = TapTarget.forView(focusOn, activity.getString(messageResId))
                 .outerCircleColor(R.color.explanationBackground)
-                .targetCircleColor(android.R.color.white)
+                .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white)
-                .icon(activity.getDrawable(icon));
+                .icon(drawable);
         showTargetedAdvice(activity, advice, target);
         return true;
     }
@@ -87,7 +91,7 @@ public class HelperUtils {
             target = TapTarget.forView(focusOn, activity.getString(messageResId));
         }
         target.outerCircleColor(R.color.explanationBackground)
-                .targetCircleColor(android.R.color.white)
+                .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white);
 
         showTargetedAdvice(activity, advice, target);
@@ -100,7 +104,7 @@ public class HelperUtils {
 
         TapTarget target = TapTarget.forBounds(rect, activity.getString(messageResId))
                 .outerCircleColor(R.color.explanationBackground)
-                .targetCircleColor(android.R.color.white)
+                .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white)
                 .transparentTarget(true);
         showTargetedAdvice(activity, advice, target);
@@ -114,7 +118,7 @@ public class HelperUtils {
         TapTarget target = TapTarget.forBounds(rect, dialog.getContext()
                 .getString(messageResId))
                 .outerCircleColor(R.color.explanationBackground)
-                .targetCircleColor(android.R.color.white)
+                .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white)
                 .transparentTarget(true);
         showTargetedAdvice(dialog, advice, target);
