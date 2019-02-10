@@ -121,6 +121,7 @@
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" />
     <style-area fade="10" fill="#c2cba5" id="scrub" />
+    <style-area fade="10" fill="#d6d99f" id="heath" />
     <style-area fade="12" fill="#eee5dc" id="scree" />
     <style-area fade="12" fill="#e4dab5" id="farmyard" />
     <style-area fade="12" fill="#e6ddd0" id="farmland" />
@@ -293,8 +294,11 @@
         <m cat="nature" v="scrub">
             <area use="scrub" />
         </m>
-        <m cat="nature" v="grassland|heath">
-            <area fade="12" use="scrub" />
+        <m cat="nature" v="heath">
+            <area fade="12" use="heath" />
+        </m>
+        <m cat="nature" v="grassland">
+            <area fade="12" use="grass" />
         </m>
         <m cat="nature" v="scree">
             <area fade="10" use="scree" />
