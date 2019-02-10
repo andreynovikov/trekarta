@@ -40,7 +40,7 @@
         android:paddingEnd="0dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_play_arrow_black"
-        android:tint="@color/colorPrimaryDark" />
+        android:tint="?attr/actionIconColor" />
 
     <TextView
         android:id="@+id/name"

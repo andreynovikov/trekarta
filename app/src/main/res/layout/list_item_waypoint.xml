@@ -40,7 +40,7 @@
         android:paddingEnd="0dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_play_arrow_black"
-        android:tint="@color/colorPrimaryDark" />
+        android:tint="?attr/actionIconColor" />
 
     <TextView
         android:id="@+id/name"
@@ -50,9 +50,8 @@
         android:layout_below="@id/separator"
         android:layout_toEndOf="@id/icon"
         android:layout_toStartOf="@id/view"
-        android:ellipsize="marquee"
+        android:singleLine="true"
         android:gravity="center_vertical"
-        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -62,8 +61,7 @@
         android:layout_below="@id/name"
         android:layout_toEndOf="@id/icon"
         android:layout_toStartOf="@id/view"
-        android:ellipsize="marquee"
-        android:maxLines="1"
+        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

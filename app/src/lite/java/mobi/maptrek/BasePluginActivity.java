@@ -1,9 +1,9 @@
 package mobi.maptrek;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import org.greenrobot.eventbus.EventBus;
@@ -11,7 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.AbstractMap;
 import java.util.HashMap;
 
-public abstract class BasePluginActivity extends Activity {
+public abstract class BasePluginActivity extends AppCompatActivity {
     // Plugins
     private AbstractMap<String, Intent> mPluginPreferences = new HashMap<>();
     private AbstractMap<String, Pair<Drawable, Intent>> mPluginTools = new HashMap<>();

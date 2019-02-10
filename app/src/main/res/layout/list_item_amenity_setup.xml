@@ -15,7 +15,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
-        app:backdropFillColor="@android:color/white"
+        app:backdropFillColor="@color/colorBackground"
         app:backdropStrokeColor="@color/textColorSecondary"
         app:backdropStrokeWidth="1dp"
         app:horizontalBarThickness="4dp"

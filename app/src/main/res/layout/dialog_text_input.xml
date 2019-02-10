@@ -35,7 +35,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:paddingStart="@dimen/list_item_padding"
             android:src="@drawable/ic_content_paste"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="?attr/actionIconColor"
             android:visibility="visible"
             tools:ignore="RtlSymmetry" />
 

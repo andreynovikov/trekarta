@@ -23,7 +23,7 @@
             android:layout_marginStart="@dimen/image_button_padding"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_more_vert"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/stopButton"
@@ -34,7 +34,7 @@
             android:layout_marginStart="@dimen/image_button_padding"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_record_stop"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="?attr/actionIconColor"
             android:visibility="gone" />
 
         <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_folder"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/source"
@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_linear_scale"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -156,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_straighten"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/distance"
@@ -177,7 +177,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_timer"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/timeSpan"
@@ -208,7 +208,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_place"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/startCoordinates"
@@ -230,7 +230,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_schedule"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/startDate"
@@ -260,7 +260,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_place"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/finishCoordinates"
@@ -282,7 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_schedule"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/finishDate"
@@ -314,7 +314,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_timer"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -346,7 +346,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_trending_up"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/maxElevation"
@@ -366,7 +366,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_trending_down"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/minElevation"

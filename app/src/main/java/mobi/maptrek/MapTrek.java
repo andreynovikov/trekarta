@@ -34,6 +34,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
@@ -129,6 +130,10 @@ public class MapTrek extends Application {
         logger.error("Has SD card: {}", mSDCardDirectory);
 
         mapObjects.clear();
+
+        //noinspection SimplifiableConditionalExpression
+        int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
+        AppCompatDelegate.setDefaultNightMode(nightMode);
     }
 
     private void initializeSettings() {

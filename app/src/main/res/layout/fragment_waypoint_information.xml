@@ -24,7 +24,7 @@
         android:layout_centerHorizontal="true"
         android:scaleType="center"
         android:src="@drawable/drag_handle"
-        android:tint="@color/colorPrimaryLighter"
+        android:tint="?attr/dragHandleColor"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -103,7 +103,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_place"
-                android:tint="@color/colorPrimaryLighter"
+                android:tint="?attr/informationIconColor"
                 tools:ignore="ContentDescription" />
 
             <LinearLayout
@@ -145,7 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_description"
-                android:tint="@color/colorPrimaryLighter"
+                android:tint="?attr/informationIconColor"
                 tools:ignore="ContentDescription" />
 
             <FrameLayout
@@ -206,7 +206,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_schedule"
-                android:tint="@color/colorPrimaryLighter"
+                android:tint="?attr/informationIconColor"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -238,7 +238,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_mode_edit"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="?attr/actionIconColor"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -250,7 +250,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_share"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="?attr/actionIconColor"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -262,7 +262,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_delete"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="?attr/actionIconColor"
             tools:ignore="ContentDescription" />
 
     </LinearLayout>

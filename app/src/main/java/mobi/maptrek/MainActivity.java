@@ -62,6 +62,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.transition.Fade;
@@ -284,16 +285,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         MORE
     }
 
-    private enum NIGHT_MODE_STATE {
-        AUTO,
-        DAY,
-        NIGHT
-    }
-
     private float mFingerTipSize;
     private int mStatusBarHeight;
     private int mColorAccent;
-    private int mColorPrimaryDark;
+    private int mColorActionIcon;
     private int mPanelSolidBackground;
     private int mPanelBackground;
     private int mPanelExtendedBackground;
@@ -353,7 +348,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private float mAveragedBearing = 0f;
 
     private SunriseSunset mSunriseSunset;
-    private NIGHT_MODE_STATE mNightModeState;
     private boolean mNightMode = false;
     private long mNextNightCheck = 0L;
 
@@ -429,7 +423,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Resources resources = getResources();
         Resources.Theme theme = getTheme();
         mColorAccent = resources.getColor(R.color.colorAccent, theme);
-        mColorPrimaryDark = resources.getColor(R.color.colorPrimaryDark, theme);
+        mColorActionIcon = resources.getColor(R.color.actionIconColor, theme);
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
@@ -445,8 +439,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mFingerTipSize = (float) (MapTrek.ydpi * 0.1);
 
         mSunriseSunset = new SunriseSunset();
-        //noinspection ConstantConditions
-        mNightModeState = BuildConfig.FULL_VERSION ? NIGHT_MODE_STATE.values()[Configuration.getNightModeState()] : NIGHT_MODE_STATE.DAY;
 
         // Apply default styles at start
         TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
@@ -714,8 +706,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap, false);
 
-        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT ||
-                savedInstanceState != null && savedInstanceState.getBoolean("nightMode"));
+        //noinspection ConstantConditions
+        int mNightModeState = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
+        setNightMode(mNightModeState == AppCompatDelegate.MODE_NIGHT_YES);
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -1188,7 +1181,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mProgressBar.getVisibility() == View.VISIBLE)
             savedInstanceState.putInt("progressBar", mProgressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
-        savedInstanceState.putBoolean("nightMode", mNightMode);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -1219,13 +1211,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionNightMode);
                 builder.setItems(R.array.night_mode_array, (dialog, which) -> {
-                    mNightModeState = NIGHT_MODE_STATE.values()[which];
-                    if ((mNightModeState == NIGHT_MODE_STATE.NIGHT) != mNightMode) {
-                        // With rule categories it became a long lasting operation
-                        // so it has to be run in background
-                        mBackgroundHandler.post(() -> setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT));
-                        Configuration.setNightModeState(mNightModeState.ordinal());
-                    }
+                    Configuration.setNightModeState(which);
+                    AppCompatDelegate.setDefaultNightMode(which);
+                    getDelegate().applyDayNight();
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1240,7 +1228,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
                         //TODO Refactor
-                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1256,7 +1244,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
                         //TODO Refactor
-                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1309,7 +1297,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
                         //TODO Refactor
-                        setNightMode(mNightModeState == NIGHT_MODE_STATE.NIGHT);
+                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1584,8 +1572,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mNavigationLayer != null)
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
-        //if (mNightModeState == NIGHT_MODE_STATE.AUTO)
-        //    checkNightMode(location);
+
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO)
+            checkNightMode(location);
 
         for (WeakReference<LocationChangeListener> weakRef : mLocationChangeListeners) {
             LocationChangeListener locationChangeListener = weakRef.get();
@@ -1759,7 +1748,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             Resources resources = getResources();
             MenuItem item = menu.findItem(R.id.actionNightMode);
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
-            ((TextView) item.getActionView()).setText(nightModes[mNightModeState.ordinal()]);
+            ((TextView) item.getActionView()).setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
             item = menu.findItem(R.id.actionStyle);
             String[] mapStyles = resources.getStringArray(R.array.mapStyles);
             ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
@@ -2264,7 +2253,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void updateLocationDrawable() {
         logger.debug("updateLocationDrawable()");
         if (mRecordButton.getTag() != mTrackingState) {
-            int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorPrimaryDark;
+            int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
             mRecordButton.getDrawable().setTint(recordColor);
             mRecordButton.setTag(mTrackingState);
         }
@@ -2289,7 +2278,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         });
         switch (mLocationState) {
             case DISABLED:
-                mNavigationNorthDrawable.setTint(mColorPrimaryDark);
+                mNavigationNorthDrawable.setTint(mColorActionIcon);
                 mLocationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
                 if (mGaugePanel.getWidth() > 0) {
@@ -2313,7 +2302,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 break;
             case ENABLED:
-                mMyLocationDrawable.setTint(mColorPrimaryDark);
+                mMyLocationDrawable.setTint(mColorActionIcon);
                 mLocationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
                 gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
@@ -3569,84 +3558,86 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
                 BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetPanel);
 
-                if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
-                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
-                    } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                        mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                        mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
+                if (mFragmentManager != null) {
+                    if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
+                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                        } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
+                            mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                            mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
+                        }
                     }
-                }
 
-                if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
-                    mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
-                    mGaugePanel.setVisibility(View.VISIBLE);
-                    mGaugePanel.setTag(null);
-                }
+                    if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
+                        mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
+                        mGaugePanel.setVisibility(View.VISIBLE);
+                        mGaugePanel.setTag(null);
+                    }
 
-                Rect area = new Rect();
-                mMapView.getLocalVisibleRect(area);
-                int mapWidth = area.width();
-                int mapHeight = area.height();
-                int pointerOffset = (int) (50 * MapTrek.density);
+                    Rect area = new Rect();
+                    mMapView.getLocalVisibleRect(area);
+                    int mapWidth = area.width();
+                    int mapHeight = area.height();
+                    int pointerOffset = (int) (50 * MapTrek.density);
 
-                int scaleBarOffset = 0;
-                area.top = mStatusBarHeight;
-                if (mGaugePanel.getTranslationX() >= 0f) {
-                    scaleBarOffset = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
-                    int h = mGaugePanel.getHeight();
-                    if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
-                        area.left = scaleBarOffset;
-                }
+                    int scaleBarOffset = 0;
+                    area.top = mStatusBarHeight;
+                    if (mGaugePanel.getTranslationX() >= 0f) {
+                        scaleBarOffset = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
+                        int h = mGaugePanel.getHeight();
+                        if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
+                            area.left = scaleBarOffset;
+                    }
 
-                View v = findViewById(R.id.actionPanel);
-                if (v != null) {
-                    if (mVerticalOrientation)
-                        area.bottom = v.getTop();
-                    else
-                        area.right = v.getLeft();
-                }
-                if (mPanelState != PANEL_STATE.NONE) {
-                    if (mVerticalOrientation)
-                        area.bottom = mExtendPanel.getTop();
-                    else
-                        area.right = mExtendPanel.getLeft();
-                }
-
-                // This part does not currently make sense as map center is not adjusted yet
-                int count = mFragmentManager.getBackStackEntryCount();
-                if (count > 0) {
-                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-                    View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
-                    if ("search".equals(bse.getName()))
+                    View v = findViewById(R.id.actionPanel);
+                    if (v != null) {
                         if (mVerticalOrientation)
-                            area.bottom = contentPanel.getTop();
+                            area.bottom = v.getTop();
                         else
-                            area.right = contentPanel.getLeft();
+                            area.right = v.getLeft();
+                    }
+                    if (mPanelState != PANEL_STATE.NONE) {
+                        if (mVerticalOrientation)
+                            area.bottom = mExtendPanel.getTop();
+                        else
+                            area.right = mExtendPanel.getLeft();
+                    }
+
+                    // This part does not currently make sense as map center is not adjusted yet
+                    int count = mFragmentManager.getBackStackEntryCount();
+                    if (count > 0) {
+                        FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+                        View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
+                        if ("search".equals(bse.getName()))
+                            if (mVerticalOrientation)
+                                area.bottom = contentPanel.getTop();
+                            else
+                                area.right = contentPanel.getLeft();
+                    }
+
+                    if (mVerticalOrientation) {
+                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                                || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                            area.bottom = mBottomSheetPanel.getTop();
+                    }
+
+                    if (!area.isEmpty()) {
+                        int centerX = mapWidth / 2;
+                        int centerY = mapHeight / 2;
+                        mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
+                        mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
+                        mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
+                        mMovingOffset -= pointerOffset;
+                        if (mMovingOffset < 0)
+                            mMovingOffset = 0;
+
+                        mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
+                    }
+
+                    BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
+                    renderer.setOffset(scaleBarOffset + 8 * MapTrek.density, area.top);
                 }
-
-                if (mVerticalOrientation) {
-                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
-                            || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                        area.bottom = mBottomSheetPanel.getTop();
-                }
-
-                if (!area.isEmpty()) {
-                    int centerX = mapWidth / 2;
-                    int centerY = mapHeight / 2;
-                    mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
-                    mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
-                    mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
-                    mMovingOffset -= pointerOffset;
-                    if (mMovingOffset < 0)
-                        mMovingOffset = 0;
-
-                    mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
-                }
-
-                BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                renderer.setOffset(scaleBarOffset + 8 * MapTrek.density, area.top);
 
                 ViewTreeObserver ob;
                 if (vto.isAlive())
@@ -4118,7 +4109,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    @SuppressWarnings("unused")
     private void checkNightMode(Location location) {
         if (mNextNightCheck > mLastLocationMilliseconds)
             return;
@@ -4127,9 +4117,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         final boolean isNightTime = !mSunriseSunset.isDaytime((location.getTime() * 1d / 3600000) % 24);
 
         if (isNightTime ^ mNightMode) {
-            // With rule categories it became a long lasting operation
-            // so it has to be run in background
-            mBackgroundHandler.post(() -> setNightMode(isNightTime));
+            int nightMode = isNightTime ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+            getDelegate().setLocalNightMode(nightMode);
         }
 
         mNextNightCheck = mLastLocationMilliseconds + NIGHT_CHECK_PERIOD;
@@ -4172,7 +4161,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 break;
             case 0:
             default:
-                themeFile = night ? Themes.NIGHT : Themes.MAPTREK;
+                int nightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+                themeFile = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES ? Themes.NIGHT : Themes.MAPTREK;
                 break;
         }
         IRenderTheme theme = ThemeLoader.load(themeFile);

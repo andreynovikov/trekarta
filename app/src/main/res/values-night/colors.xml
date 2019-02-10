@@ -17,32 +17,32 @@
 
 <resources>
     <!-- http://www.materialui.co/colors -->
-    <color name="colorPrimary">#9e9e9e</color>
+    <color name="colorPrimary">#bebebe</color>
     <color name="colorPrimaryDark">#616161</color>
-    <color name="colorPrimaryLighter">#ababab</color>
+    <color name="colorPrimaryLighter">#c5c5c5</color>
     <color name="colorPrimaryLight">#f5f5f5</color>
-    <color name="colorAccentDarkest">#bf360c</color> <!-- 900 -->
+    <color name="colorAccentDarkest">#ab4120</color> <!-- 900 + desaturate 20% -->
     <color name="colorAccentDark">#e64a19</color> <!-- 700 -->
-    <color name="colorAccent">#ff5722</color> <!-- 500 -->
-    <color name="colorAccentLight">#ff8a65</color> <!-- 300 -->
+    <color name="colorAccent">#e96238</color> <!-- 500 + desaturate 20% -->
+    <color name="colorAccentLight">#f09274</color> <!-- 300 + desaturate 20% -->
     <color name="colorAccentLightest">#ffccbc</color> <!-- 100 -->
-    <color name="colorBackground">#f5f5f5</color>
-    <color name="textColorPrimary">#212121</color>
-    <color name="textColorPrimaryDisabled">#80212121</color>
-    <color name="textColorSecondary">#727272</color>
-    <color name="textColorSecondaryDisabled">#80727272</color>
+    <color name="colorBackground">#111111</color>
+    <color name="textColorPrimary">#a1a1a1</color>
+    <color name="textColorPrimaryDisabled">#80a1a1a1</color>
+    <color name="textColorSecondary">#828282</color>
+    <color name="textColorSecondaryDisabled">#80828282</color>
     <color name="textColorTertiary">#626262</color>
     <color name="textColorTertiaryDisabled">#80626262</color>
-    <color name="panelBackground">#99ffffff</color>
+    <color name="panelBackground">#99333333</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
-    <color name="panelExtendedBackground">#cc999999</color>
+    <color name="panelExtendedBackground">#cc333333</color>
     <color name="colorControlActivated">#e0e0e0</color>
     <color name="trackColor">#e64a19</color>
     <color name="dim">#33000000</color>
-    <color name="red">#cc0000</color>
-    <color name="darkBlue">#000090</color>
+    <color name="red">#f56262</color>
+    <color name="darkBlue">#6262f5</color>
     <color name="explanationBackground">#2196F3</color> <!-- Blue 500 -->
-    <color name="dragHandle">@color/colorPrimaryLighter</color>
-    <color name="informationIconColor">@color/colorPrimaryLighter</color>
-    <color name="actionIconColor">@color/colorPrimaryDark</color>
+    <color name="dragHandle">@color/colorPrimaryDark</color>
+    <color name="informationIconColor">@color/colorPrimaryDark</color>
+    <color name="actionIconColor">@color/colorPrimary</color>
 </resources>

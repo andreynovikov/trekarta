@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_label"
-                android:tint="@color/colorPrimaryDark" />
+                android:tint="?attr/informationIconColor" />
 
             <TextView
                 android:id="@+id/kind"
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_place"
-                android:tint="@color/colorPrimaryDark" />
+                android:tint="?attr/informationIconColor" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -88,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:drawableEnd="@drawable/ic_share_small"
                     android:drawablePadding="@dimen/textPadding"
-                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableTint="?attr/actionIconColor"
                     android:textColor="?android:textColorPrimary"
                     android:textIsSelectable="true" />
 

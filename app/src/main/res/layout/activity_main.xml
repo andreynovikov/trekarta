@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|start"
-            android:background="#99ffffff"
+            android:background="@color/panelBackground"
             android:visibility="invisible" />
 
         <TextView
@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
-            android:background="#99ffffff"
+            android:background="@color/panelBackground"
             android:elevation="@dimen/panel_elevation"
             android:padding="4dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -118,7 +118,8 @@
                 android:onClick="onZoomInClicked"
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_add_circle" />
+                android:src="@drawable/ic_add_circle"
+                android:tint="@color/textColorPrimary" />
 
             <ImageButton
                 android:id="@+id/zoomOut"
@@ -130,7 +131,8 @@
                 android:onClick="onZoomOutClicked"
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_remove_circle" />
+                android:src="@drawable/ic_remove_circle"
+                android:tint="@color/textColorPrimary" />
         </LinearLayout>
 
         <RelativeLayout
@@ -202,7 +204,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_record"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/placesButton"
@@ -213,7 +215,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_place"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/mapsButton"
@@ -224,7 +226,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_layers"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/moreButton"
@@ -235,7 +237,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_menu"
-                    android:tint="@color/colorPrimaryDark" />
+                    android:tint="?attr/actionIconColor" />
 
             </LinearLayout>
 
@@ -265,8 +267,8 @@
         <android.support.v7.widget.ContentFrameLayout
             android:id="@+id/bottomSheetPanel"
             style="@style/BottomSheet"
-            android:layout_height="wrap_content"
             android:layout_width="@dimen/fragment_width"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:elevation="@dimen/bottom_sheet_elevation"
             app:behavior_hideable="true"

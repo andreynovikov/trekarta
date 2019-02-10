@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_straighten"
             android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="@color/colorPrimaryDark"
+            android:drawableTint="?attr/informationIconColor"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:textColorPrimary" />
 
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_linear_scale"
             android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="@color/colorPrimaryDark"
+            android:drawableTint="?attr/informationIconColor"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:textColorPrimary" />
 
@@ -91,7 +91,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_add"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/insertButton"
@@ -102,7 +102,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_insert"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/removeButton"
@@ -113,7 +113,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_delete"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/undoButton"
@@ -124,7 +124,7 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_undo"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
     </LinearLayout>
 

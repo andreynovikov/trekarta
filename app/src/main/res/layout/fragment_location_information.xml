@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_share"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/inputButton"
@@ -47,7 +47,7 @@
             android:paddingBottom="@dimen/image_button_padding"
             android:paddingTop="@dimen/image_button_padding"
             android:src="@drawable/ic_input"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/switchOffButton"
@@ -56,7 +56,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:paddingTop="@dimen/image_button_padding"
             android:src="@drawable/ic_location_disable"
-            android:tint="@color/colorPrimaryDark" />
+            android:tint="?attr/actionIconColor" />
 
     </LinearLayout>
 
