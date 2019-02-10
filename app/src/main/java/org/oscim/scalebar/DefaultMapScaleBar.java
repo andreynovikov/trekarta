@@ -49,10 +49,10 @@ public class DefaultMapScaleBar extends MapScaleBar {
     private final Paint paintScaleTextStroke;
 
     public DefaultMapScaleBar(Map map) {
-        this(map, CanvasAdapter.getScale());
+        this(map, CanvasAdapter.getScale(), Color.BLACK, Color.WHITE);
     }
 
-    public DefaultMapScaleBar(Map map, float scale) {
+    public DefaultMapScaleBar(Map map, float scale, int paintColor, int strokeColor) {
         super(map, (int) (BITMAP_WIDTH * scale), (int) (BITMAP_HEIGHT * scale));
 
         setMarginHorizontal((int) (DEFAULT_HORIZONTAL_MARGIN * scale));
@@ -62,10 +62,10 @@ public class DefaultMapScaleBar extends MapScaleBar {
         this.scaleBarMode = ScaleBarMode.BOTH;
         this.secondaryDistanceUnitAdapter = ImperialUnitAdapter.INSTANCE;
 
-        this.paintScaleBar = createScaleBarPaint(Color.BLACK, STROKE_INTERNAL, Paint.Style.FILL);
-        this.paintScaleBarStroke = createScaleBarPaint(Color.WHITE, STROKE_EXTERNAL, Paint.Style.STROKE);
-        this.paintScaleText = createTextPaint(Color.BLACK, 0, Paint.Style.FILL);
-        this.paintScaleTextStroke = createTextPaint(Color.WHITE, 2, Paint.Style.STROKE);
+        this.paintScaleBar = createScaleBarPaint(paintColor, STROKE_INTERNAL, Paint.Style.FILL);
+        this.paintScaleBarStroke = createScaleBarPaint(strokeColor, STROKE_EXTERNAL, Paint.Style.STROKE);
+        this.paintScaleText = createTextPaint(paintColor, 0, Paint.Style.FILL);
+        this.paintScaleTextStroke = createTextPaint(strokeColor, 2, Paint.Style.STROKE);
     }
 
     /**
