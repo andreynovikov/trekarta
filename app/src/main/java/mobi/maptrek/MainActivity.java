@@ -676,7 +676,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int strokeColor = resources.getColor(R.color.colorBackground, theme);
         DefaultMapScaleBar mapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f, paintColor, strokeColor);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mapScaleBar);
-        mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density);
+        mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density, paintColor);
         mLocationOverlay = new LocationOverlay(mMap, MapTrek.density);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mCrosshairLayer, MAP_OVERLAYS);

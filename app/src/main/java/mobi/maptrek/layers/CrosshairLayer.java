@@ -33,11 +33,12 @@ import org.oscim.renderer.MapRenderer;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class CrosshairLayer extends Layer implements Map.UpdateListener {
-    private static final int DEFAULT_COLOR = 0xff333333;
+    private int mColor;
 
-    public CrosshairLayer(Map map, float scale) {
+    public CrosshairLayer(Map map, float scale, int color) {
         super(map);
-        mRenderer = new CrosshairRenderer(scale);
+        mColor = color;
+        mRenderer = new CrosshairRenderer(scale, color);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
     }
 
     public void unlock() {
-        ((CrosshairRenderer) mRenderer).setColor(DEFAULT_COLOR);
+        ((CrosshairRenderer) mRenderer).setColor(mColor);
         ((CrosshairRenderer) mRenderer).setFading(true);
     }
 
@@ -88,10 +89,10 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
         private long mAnimStart;
         private long mLastShown;
 
-        CrosshairRenderer(float scale) {
+        CrosshairRenderer(float scale, int color) {
             super();
             mScale = scale;
-            mColor = DEFAULT_COLOR;
+            mColor = color;
             mAlpha = 1f;
             mFading = true;
         }
@@ -153,8 +154,8 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
         @Override
         public void update(GLViewport v) {
             if (!mInitialized) {
-                init();
-                show();
+                if (init())
+                    show();
                 mInitialized = true;
             }
             setReady(isEnabled());
