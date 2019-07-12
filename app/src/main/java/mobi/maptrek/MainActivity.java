@@ -458,10 +458,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mFragmentManager.addOnBackStackChangedListener(this);
         mDataFragment = (DataFragment) mFragmentManager.findFragmentByTag("data");
 
-        File mapsDir = application.getExternalDir("maps");
-
         // Provide application context so that maps can be cached on rotation
         mNativeMapIndex = application.getMapIndex();
+        mMapIndex = application.getExtraMapIndex();
+
+        mShieldFactory = application.getShieldFactory();
+        mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
         if (mDataFragment == null) {
             // add the fragment
@@ -469,7 +471,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
 
             // Provide application context so that maps can be cached on rotation
-            mMapIndex = new MapIndex(getApplicationContext(), mapsDir);
             if (BuildConfig.FULL_VERSION) {
                 initializePlugins();
                 mMapIndex.initializeOnlineMapProviders();
@@ -489,15 +490,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 Configuration.setLanguage(language);
             }
-
-            mShieldFactory = new ShieldFactory();
-            mOsmcSymbolFactory = new OsmcSymbolFactory();
         } else {
-            mMapIndex = mDataFragment.getMapIndex();
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
             mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
-            mShieldFactory = mDataFragment.getShieldFactory();
-            mOsmcSymbolFactory = mDataFragment.getOsmcSymbolFactory();
         }
 
         mLocationState = LocationState.DISABLED;
@@ -1160,7 +1155,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mOsmcSymbolFactory.dispose();
         }
 
-        mFragmentManager = null;
+        //mFragmentManager = null;
 
         Configuration.commit();
         logger.debug("  done!");
@@ -1175,11 +1170,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mNavigationService != null)
             startService(new Intent(getApplicationContext(), NavigationService.class));
 
-        mDataFragment.setMapIndex(mMapIndex);
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
         mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
-        mDataFragment.setShieldFactory(mShieldFactory);
-        mDataFragment.setOsmcSymbolFactory(mOsmcSymbolFactory);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
@@ -3567,6 +3559,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 logger.debug("onGlobalLayout()");
+                if (isFinishing())
+                        return;
+
                 FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mCoordinatorLayout.getLayoutParams();
                 p.topMargin = mStatusBarHeight;
 
