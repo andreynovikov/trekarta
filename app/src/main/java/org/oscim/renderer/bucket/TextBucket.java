@@ -89,7 +89,9 @@ public class TextBucket extends TextureBucket {
         int advanceY = 0;
         float x = 0;
         float y = 0;
+        float xx;
         float yy;
+        float stroke;
 
         TextureItem t = pool.get();
         textures = t;
@@ -99,6 +101,14 @@ public class TextBucket extends TextureBucket {
 
             float width = it.width + 2 * mFontPadX;
             float height = (int) (it.text.fontHeight) + 0.5f;
+
+            if (it.text.stroke != null) {
+                stroke = (float) Math.ceil(it.text.stroke.getStrokeWidth());
+                width += stroke;
+                height += stroke;
+            } else {
+                stroke = 0f;
+            }
 
             if (height > TEXTURE_HEIGHT)
                 height = TEXTURE_HEIGHT;
@@ -127,9 +137,10 @@ public class TextBucket extends TextureBucket {
                 }
             }
 
-            yy = y + height - it.text.fontDescent;
+            xx = x + width / 2;
+            yy = y + height - it.text.fontDescent - stroke;
 
-            mCanvas.drawText(it.label, x, yy, it.text.paint, it.text.stroke);
+            mCanvas.drawText(it.label, xx, yy, it.text.paint, it.text.stroke);
 
             // FIXME !!!
             if (width > TEXTURE_WIDTH)
