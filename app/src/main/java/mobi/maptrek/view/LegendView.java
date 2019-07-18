@@ -234,12 +234,10 @@ public class LegendView extends View {
         }
 
         if (textStyle.stroke != null) {
-            float w = textStyle.stroke.getTextWidth(text);
-            canvas.drawText(text, mCenterX - w / 2f, mCenterY + textStyle.dy * .8f - h,
+            canvas.drawText(text, mCenterX, mCenterY + textStyle.dy * .8f - h,
                     ((AndroidPaint) textStyle.stroke).getPaint());
         }
-        float w = textStyle.paint.getTextWidth(text);
-        canvas.drawText(text, mCenterX - w / 2f, mCenterY + textStyle.dy * .8f - h,
+        canvas.drawText(text, mCenterX, mCenterY + textStyle.dy * .8f - h,
                 ((AndroidPaint) textStyle.paint).getPaint());
     }
 

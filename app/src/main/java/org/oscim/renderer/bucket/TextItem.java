@@ -37,6 +37,7 @@ public class TextItem extends Inlist<TextItem> {
             // drop references
             ti.label = null;
             ti.text = null;
+            ti.lineSplits = null;
             //ti.n1 = null;
             //ti.n2 = null;
             return true;
@@ -55,6 +56,9 @@ public class TextItem extends Inlist<TextItem> {
         ti.x2 = orig.x2;
         ti.y2 = orig.y2;
 
+        ti.lines = orig.lines;
+        ti.lineSplits = orig.lineSplits;
+
         return ti;
     }
 
@@ -68,6 +72,45 @@ public class TextItem extends Inlist<TextItem> {
         this.x2 = 1;
         this.y2 = 0;
         this.width = text.paint.measureText(label);
+
+        if (this.width > TextStyle.MAX_TEXT_WIDTH) {
+            this.width = 0;
+            this.lines = 0;
+            this.lineSplits = new int[10]; // max 5 lines
+            int index = 0;
+            int length = label.length();
+            while(index <= length - 1) {
+                int lsi = this.lines << 1;
+                this.lineSplits[lsi] = index;
+                int n;
+                if (this.lines == 4) {
+                    n = length;
+                } else {
+                    n = index + text.paint.breakText(label, index, length, TextStyle.MAX_TEXT_WIDTH);
+                    if (length - n < 6) // do not hang short lines
+                        n = length;
+                }
+                this.lineSplits[lsi + 1] = n;
+                if (n < length) { // find nearest space to split
+                    for (int i = n - 1; i > index; i--) {
+                        if (label.charAt(i) == ' ') {
+                            n = i + 1;
+                            this.lineSplits[lsi + 1] = i;
+                            break;
+                        }
+                    }
+                }
+                float w = text.paint.measureText(label.substring(index, n));
+                if (w > this.width)
+                    this.width = w;
+                index = n;
+                this.lines++;
+            }
+        } else {
+            this.lines = 1;
+        }
+        this.height = text.fontHeight * this.lines;
+
         return this;
     }
 
@@ -83,6 +126,9 @@ public class TextItem extends Inlist<TextItem> {
     // label width
     public float width;
 
+    // label height
+    public float height;
+
     // left and right corner of segment
     public float x1, y1, x2, y2;
 
@@ -94,6 +140,9 @@ public class TextItem extends Inlist<TextItem> {
     //public TextItem n2;
 
     public byte edges;
+
+    public int lines;
+    public int[] lineSplits;
 
     @Override
     public String toString() {

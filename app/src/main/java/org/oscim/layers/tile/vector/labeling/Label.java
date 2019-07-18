@@ -38,7 +38,10 @@ final class Label extends TextItem {
         this.label = ti.label;
         this.text = ti.text;
         this.width = ti.width;
+        this.height = ti.height;
         this.length = ti.length;
+        this.lines = ti.lines;
+        this.lineSplits = ti.lineSplits;
         return this;
     }
 
@@ -94,8 +97,8 @@ final class Label extends TextItem {
 
     public void setAxisAlignedBBox() {
         this.x1 = (int) (x - width / 2);
-        this.y1 = (int) (y - text.fontHeight / 2);
+        this.y1 = (int) (y - height / 2);
         this.x2 = (int) (x + width / 2);
-        this.y2 = (int) (y + text.fontHeight / 2);
+        this.y2 = (int) (y + height / 2);
     }
 }

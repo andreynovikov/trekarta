@@ -40,6 +40,7 @@ import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
 
 import org.greenrobot.eventbus.EventBus;
+import org.oscim.theme.styles.TextStyle;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Parameters;
@@ -58,10 +59,13 @@ import java.util.Iterator;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.LongSparseArrayIterator;
+import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 
 public class MapTrek extends Application {
@@ -78,11 +82,14 @@ public class MapTrek extends Application {
     public static boolean isMainActivityRunning = false;
 
     private Index mIndex;
+    private MapIndex mExtraMapIndex;
     private MapTrekDatabaseHelper mDetailedMapHelper;
     private SQLiteDatabase mDetailedMapDatabase;
     private HillshadeDatabaseHelper mHillshadeHelper;
     private SQLiteDatabase mHillshadeDatabase;
     private WaypointDbDataSource mWaypointDbDataSource;
+    private ShieldFactory mShieldFactory;
+    private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
     private File mSDCardDirectory;
 
@@ -114,6 +121,8 @@ public class MapTrek extends Application {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         density = metrics.density;
         ydpi = metrics.ydpi;
+
+        TextStyle.MAX_TEXT_WIDTH = (int) (density * 220);
 
         if (Build.VERSION.SDK_INT > 25)
             createNotificationChannel();
@@ -292,12 +301,30 @@ public class MapTrek extends Application {
         return mIndex;
     }
 
+    public MapIndex getExtraMapIndex() {
+        if (mExtraMapIndex == null)
+            mExtraMapIndex = new MapIndex(this, getExternalDir("maps"));
+        return mExtraMapIndex;
+    }
+
     public synchronized WaypointDbDataSource getWaypointDbDataSource() {
         if (mWaypointDbDataSource == null) {
             File waypointsFile = new File(getExternalDir("databases"), "waypoints.sqlitedb");
             mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
         }
         return mWaypointDbDataSource;
+    }
+
+    public ShieldFactory getShieldFactory() {
+        if (mShieldFactory == null)
+            mShieldFactory = new ShieldFactory();
+        return mShieldFactory;
+    }
+
+    public OsmcSymbolFactory getOsmcSymbolFactory() {
+        if (mOsmcSymbolFactory == null)
+            mOsmcSymbolFactory = new OsmcSymbolFactory();
+        return mOsmcSymbolFactory;
     }
 
     private void copyAsset(String asset, File outFile) {
