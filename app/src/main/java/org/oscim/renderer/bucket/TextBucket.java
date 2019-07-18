@@ -91,7 +91,6 @@ public class TextBucket extends TextureBucket {
         float y = 0;
         float xx;
         float yy;
-        float stroke;
 
         TextureItem t = pool.get();
         textures = t;
@@ -100,14 +99,11 @@ public class TextBucket extends TextureBucket {
         for (TextItem it = labels; it != null; ) {
 
             float width = it.width + 2 * mFontPadX;
-            float height = (int) (it.text.fontHeight) + 0.5f;
+            float height = it.height + 0.5f;
 
             if (it.text.stroke != null) {
-                stroke = (float) Math.ceil(it.text.stroke.getStrokeWidth());
-                width += stroke;
-                height += stroke;
-            } else {
-                stroke = 0f;
+                width += it.text.strokeWidth;
+                height += it.text.strokeWidth;
             }
 
             if (height > TEXTURE_HEIGHT)
@@ -138,9 +134,18 @@ public class TextBucket extends TextureBucket {
             }
 
             xx = x + width / 2;
-            yy = y + height - it.text.fontDescent - stroke;
+            yy = y + height - it.text.fontDescent - it.text.strokeWidth;
 
-            mCanvas.drawText(it.label, xx, yy, it.text.paint, it.text.stroke);
+            if (it.lines > 1) {
+                for (int line = it.lines - 1; line >= 0; line--) {
+                    int s = it.lineSplits[line << 1];
+                    int f = it.lineSplits[(line << 1) + 1];
+                    mCanvas.drawText(it.label.substring(s, f), xx, yy, it.text.paint, it.text.stroke);
+                    yy -= it.text.fontHeight;
+                }
+            } else {
+                mCanvas.drawText(it.label, xx, yy, it.text.paint, it.text.stroke);
+            }
 
             // FIXME !!!
             if (width > TEXTURE_WIDTH)
@@ -181,10 +186,16 @@ public class TextBucket extends TextureBucket {
         float hw = width / 2.0f;
         float hh = height / 2.0f;
         if (it.text.caption) {
+            float hlh = it.text.fontHeight / 2.0f;
             x1 = x3 = (short) (COORD_SCALE * -hw);
             x2 = x4 = (short) (COORD_SCALE * hw);
-            y1 = y2 = (short) (COORD_SCALE * (it.text.dy + hh));
-            y3 = y4 = (short) (COORD_SCALE * (it.text.dy - hh));
+            if (it.text.dy > 0) {
+                y1 = y2 = (short) (COORD_SCALE * (it.text.dy - hlh + height));
+                y3 = y4 = (short) (COORD_SCALE * (it.text.dy - hlh));
+            } else {
+                y1 = y2 = (short) (COORD_SCALE * (it.text.dy + hlh));
+                y3 = y4 = (short) (COORD_SCALE * (it.text.dy + (hlh - height)));
+            }
         } else {
             float vx = it.x1 - it.x2;
             float vy = it.y1 - it.y2;

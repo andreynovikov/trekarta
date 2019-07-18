@@ -39,6 +39,7 @@ import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
 
 import org.greenrobot.eventbus.EventBus;
+import org.oscim.theme.styles.TextStyle;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
 import org.oscim.utils.Parameters;
@@ -119,6 +120,8 @@ public class MapTrek extends Application {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         density = metrics.density;
         ydpi = metrics.ydpi;
+
+        TextStyle.MAX_TEXT_WIDTH = (int) (density * 220);
 
         if (Build.VERSION.SDK_INT > 25)
             createNotificationChannel();

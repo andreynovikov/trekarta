@@ -28,6 +28,8 @@ import org.oscim.renderer.atlas.TextureRegion;
 
 public final class TextStyle extends RenderStyle<TextStyle> {
 
+    public static int MAX_TEXT_WIDTH = 600;
+
     public static class TextBuilder<T extends TextBuilder<T>> extends StyleBuilder<T> {
 
         public float fontSize;
@@ -230,8 +232,11 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             stroke.setColor(b.themeCallback != null ? b.themeCallback.getColor(b.strokeColor) : b.strokeColor);
             stroke.setStrokeWidth(b.strokeWidth);
             stroke.setTextSize(b.fontSize);
-        } else
+            strokeWidth = b.strokeWidth;
+        } else {
             stroke = null;
+            strokeWidth = 0;
+        }
 
         this.fontFamily = b.fontFamily;
         this.fontStyle = b.fontStyle;
@@ -258,6 +263,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
 
     public float fontHeight;
     public float fontDescent;
+    public float strokeWidth;
 
     public final Bitmap bitmap;
     public final TextureRegion texture;

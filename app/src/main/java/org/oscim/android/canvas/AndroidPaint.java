@@ -122,6 +122,11 @@ public class AndroidPaint implements Paint {
     }
 
     @Override
+    public int breakText(String text, int start, int end, int maxWidth) {
+        return mPaint.breakText(text, start, end, true, maxWidth, null);
+    }
+
+    @Override
     public float getFontHeight() {
         FontMetrics fm = mPaint.getFontMetrics();
         return (float) Math.ceil(Math.abs(fm.bottom) + Math.abs(fm.top));

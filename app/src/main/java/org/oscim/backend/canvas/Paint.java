@@ -68,6 +68,8 @@ public interface Paint {
 
     float measureText(String text);
 
+    int breakText(String text, int start, int end, int maxWidth);
+
     float getFontHeight();
 
     float getFontDescent();

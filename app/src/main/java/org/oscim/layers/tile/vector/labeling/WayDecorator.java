@@ -213,11 +213,13 @@ public final class WayDecorator {
             t.label = label;
             t.text = text;
             t.width = labelWidth;
+            t.height = text.fontHeight;
             t.x1 = x1;
             t.y1 = y1;
             t.x2 = x2;
             t.y2 = y2;
             t.length = (short) segmentLength;
+            t.lines = 1;
 
             t.edges = edge;
             ld.labels.push(t);

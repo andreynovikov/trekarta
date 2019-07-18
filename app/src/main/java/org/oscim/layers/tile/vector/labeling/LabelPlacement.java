@@ -365,10 +365,19 @@ public class LabelPlacement {
             if (l.bbox == null)
                 l.bbox = new OBB2D();
 
+            float text_dy = l.text.dy;
+            if (l.lines > 1) {
+                if (l.text.dy > 0) {
+                    text_dy += l.height / 2;
+                } else {
+                    text_dy -= l.height / 2;
+                }
+            }
+
             l.bbox.setNormalized(l.x, l.y, cos, -sin,
                     l.width + MIN_CAPTION_DIST,
-                    l.text.fontHeight + MIN_CAPTION_DIST,
-                    l.text.dy);
+                    l.height + MIN_CAPTION_DIST,
+                    text_dy);
 
             for (Label o = mLabels; o != null; ) {
                 if (l.bbox.overlaps(o.bbox)) {
