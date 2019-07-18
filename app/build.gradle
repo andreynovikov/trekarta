@@ -7,6 +7,7 @@ android {
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
+        //noinspection OldTargetApi
         targetSdkVersion 27
         versionCode 67
         versionName "2019.01"
