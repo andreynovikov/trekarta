@@ -223,7 +223,7 @@ public final class Color {
         if (colorString.charAt(0) == 'r') {
             return parseColorComponents(colorString);
         }
-        throw new IllegalArgumentException("Unknown color");
+        throw new IllegalArgumentException("Unknown color: " + colorString);
     }
 
     public static int parseColor(String colorString, int fallBackColor) {

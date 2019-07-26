@@ -695,10 +695,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 src = value;
 
             else if ("fill".equals(name))
-                b.color(value);
+                b.color(parseColor(value));
 
             else if ("stroke".equals(name))
-                b.strokeColor(value);
+                b.strokeColor(parseColor(value));
 
             else if ("stroke-width".equals(name)) {
                 float strokeWidth = Float.parseFloat(value);
@@ -712,7 +712,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.blendScale = Integer.parseInt(value);
 
             else if ("blend-fill".equals(name))
-                b.blendColor(value);
+                b.blendColor(parseColor(value));
 
             else if ("mesh".equals(name))
                 b.mesh(Boolean.parseBoolean(value));
@@ -1040,7 +1040,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 logUnknownAttribute(elementName, name, value, i);
         }
 
-        validateExists("k", b.textKey, elementName);
+        //validateExists("k", b.textKey, elementName);
         validateNonNegative("size", b.fontSize);
         validateNonNegative("stroke-width", b.strokeWidth);
 
