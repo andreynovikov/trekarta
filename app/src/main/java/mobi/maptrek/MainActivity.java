@@ -472,7 +472,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String language = Configuration.getLanguage();
             if (language == null) {
                 if (BuildConfig.RUSSIAN_EDITION) {
-                    //noinspection UnusedAssignment
                     language = "ru";
                 } else {
                     language = resources.getConfiguration().locale.getLanguage();
@@ -703,7 +702,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap, false);
 
-        //noinspection ConstantConditions
         int mNightModeState = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
         setNightMode(mNightModeState == AppCompatDelegate.MODE_NIGHT_YES);
 
@@ -1685,7 +1683,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             }
         }
-        //noinspection ConstantConditions
         if (hasExtraSources) {
             Bundle args = new Bundle(1);
             args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, false);
@@ -3665,7 +3662,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.

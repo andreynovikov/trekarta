@@ -47,7 +47,9 @@
             <cat id="roads-surface" />
             <cat id="roads-shield" />
             <cat id="ferries" />
+            <cat id="underground-railways" />
             <cat id="railways" />
+            <cat id="trams" />
             <cat id="buildings" />
         </layer>
 
@@ -100,6 +102,22 @@
 
     <style-color id="service-tunnel" color="#e5e5e5" />
 
+    <style-color id="access-no" color="#ffdddd" />
+    <style-color id="access-private" color="#eeeeee" />
+    <style-color id="service-access-private" color="#e0e0e0" />
+    <style-color id="road-ice" color="#bcdada" />
+    <style-color id="road-winter" color="#deebeb" />
+    <style-color id="surface-dirt" color="#b28f67" />
+    <style-color id="surface-unpaved" color="#d4c1aa" />
+
+    <style-color id="road-text" color="#101010" />
+    <style-color id="road-text-outline" color="#eeeeee" />
+
+    <style-color id="nature-reserve-text" color="#0a5c0a" />
+    <style-color id="nature-reserve-text-outline" color="#d1fad1" />
+    <style-color id="military-text" color="#990000" />
+    <style-color id="military-text-outline" color="#ffcccc" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -136,8 +154,19 @@
     <style-area fade="12" fill="#ddddcc" id="quarry" />
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
-    <style-text caption="true" fill="#368167" id="sports_centre" k="name" priority="8" size="16"
+    <style-text caption="true" fill="#368167" id="sports_centre" priority="8" size="16"
         stroke="#cdeae0" stroke-width="2.0" />
+
+    <!-- Place styles -->
+    <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
+        stroke-width="2.5" />
+    <style-text caption="true" fill="#000000" id="place" size="16" stroke="#ffffff"
+        stroke-width="2.0" />
+    <style-text caption="true" fill="#444411" id="place_village" use="place" />
+    <style-text style="italic" caption="true" fill="#606060" id="place_suburb" use="place" />
+    <style-text id="place_town" symbol="assets:symbols/dot_black.svg" use="place" />
+    <style-text id="place_city" symbol="assets:symbols/dot_white.svg" use="place" />
+    <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
 
     <!-- Road styles -->
     <xi:include href="inc_highway_styles.xml" />
@@ -368,13 +397,7 @@
     prerequisites how includes are formatted, see Themes class for details -->
     <xi:include href="inc_water.xml" />
 
-    <m e="node" k="waterway">
-        <m cat="urban" v="lock_gate" zoom-min="14">
-            <symbol src="assets:symbols/lock_gate.svg" />
-        </m>
-    </m>
-
-    <xi:include href="inc_ground_objects.xml" />
+     <xi:include href="inc_ground_objects.xml" />
 
     <xi:include href="inc_buildings.xml" />
 

@@ -17,8 +17,8 @@
             <m zoom-min="8">
                 <line use="nature_reserve" />
             </m>
-            <text style="bold_italic" area-size="0.1" caption="true" fill="#0a5c0a" k="name"
-                priority="3" size="18" stroke="#d1fad1" stroke-width="2.0" />
+            <text style="bold_italic" area-size="0.1" caption="true" fill="color:nature-reserve-text" k="name"
+                priority="3" size="18" stroke="color:nature-reserve-text-outline" stroke-width="2.0" />
         </m>
     </m>
     <m cat="urban" closed="yes" k="landuse" zoom-min="7">
@@ -30,8 +30,8 @@
             <m zoom-min="8">
                 <line use="military" />
             </m>
-            <text style="bold_italic" area-size="0.3" caption="true" fill="#990000" k="name"
-                priority="6" size="18" stroke="#ffcccc" stroke-width="2.0" />
+            <text style="bold_italic" area-size="0.3" caption="true" fill="color:military-text" k="name"
+                priority="6" size="18" stroke="color:military-text-outline" stroke-width="2.0" />
         </m>
     </m>
 </rendertheme>

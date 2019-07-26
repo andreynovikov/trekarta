@@ -19,7 +19,9 @@
 
         <layer enabled="true" id="roads" parent="base">
             <cat id="roads" />
+            <cat id="underground-railways" />
             <cat id="railways" />
+            <cat id="trams" />
             <cat id="buildings" />
         </layer>
 
@@ -51,6 +53,9 @@
 
     <style-color id="service-tunnel" color="#e5e5e5" />
 
+    <style-color id="road-text" color="#101010" />
+    <style-color id="road-text-outline" color="#eeeeee" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -76,6 +81,14 @@
     <style-text caption="true" fill="#415d5d" id="sports_centre" k="name" priority="8" size="18"
         stroke="#e4ecec" stroke-width="2.0" />
 
+    <!-- Place styles -->
+    <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
+        stroke-width="2.5" />
+    <style-text caption="true" fill="#000000" id="place" size="16" stroke="#ffffff"
+        stroke-width="2.0" />
+    <style-text id="place_town" symbol="assets:symbols/dot_black.svg" use="place" />
+    <style-text id="place_city" symbol="assets:symbols/dot_white.svg" use="place" />
+    <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
 
     <!-- Roads -->
     <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />

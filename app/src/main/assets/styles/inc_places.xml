@@ -3,75 +3,61 @@
     <!-- places -->
     <m cat="places" k="place">
         <m v="neighbourhood|allotments">
-            <text style="italic" caption="true" fill="#444411" k="name" priority="12" size="14"
-                stroke="#ffffff" stroke-width="1.6" />
+            <text style="italic" k="name" priority="12" size="14" stroke-width="1.6"
+                use="place_village" />
         </m>
         <m v="hamlet|isolated_dwelling">
-            <text caption="true" fill="#444411" k="name" priority="10" size="16" stroke="#ffffff"
-                stroke-width="2.0" />
+            <text k="name" priority="10" use="place_village" />
         </m>
         <m v="suburb" zoom-max="14">
-            <text style="italic" caption="true" fill="#606060" k="name" priority="10" size="16"
-                stroke="#ffffff" stroke-width="2.0" />
+            <text k="name" priority="10" use="place_suburb" />
         </m>
         <m v="village">
-            <text caption="true" fill="#444411" k="name" priority="9" size="16" stroke="#ffffff"
-                stroke-width="2.0" />
+            <text k="name" priority="9" use="place_village" />
         </m>
         <m select="first" v="town">
             <m k="admin_level" v="2">
-                <text caption="true" dy="14" k="name" priority="2" size="18" symbol="assets:symbols/star.svg"
-                    use="place" />
+                <text dy="14" k="name" priority="2" size="18" use="place_capital" />
             </m>
             <m k="admin_level">
-                <text caption="true" dy="14" k="name" priority="5" size="17" symbol="assets:symbols/dot_black.svg"
-                    use="place" />
+                <text dy="12" k="name" priority="5" size="17" use="place_town" />
             </m>
             <m k="admin_level" v="~">
-                <text caption="true" dy="14" k="name" priority="8" size="17" symbol="assets:symbols/dot_black.svg"
-                    use="place" />
+                <text dy="12" k="name" priority="8" size="17" use="place_town" />
             </m>
         </m>
         <m select="first" v="city">
             <m k="admin_level" v="2">
                 <m zoom-min="7">
-                    <text style="bold" caption="true" dy="14" k="name" priority="2" size="18"
-                        symbol="assets:symbols/star.svg" use="place" />
+                    <text style="bold" dy="14" k="name" priority="2" size="18" use="place_capital" />
                 </m>
                 <m zoom-max="6">
-                    <text caption="true" dy="14" k="name" priority="2" size="18"
-                        symbol="assets:symbols/star.svg" use="place" />
+                    <text dy="14" k="name" priority="2" size="18" use="place_capital" />
                 </m>
             </m>
             <m k="admin_level">
                 <m zoom-min="7">
-                    <text style="bold" caption="true" dy="14" k="name" priority="3" size="17"
-                        symbol="assets:symbols/dot_white.svg" use="place" />
+                    <text style="bold" dy="14" k="name" priority="3" size="17" use="place_city" />
                 </m>
                 <m zoom-max="6">
-                    <text caption="true" dy="14" k="name" priority="3" size="17"
-                        symbol="assets:symbols/dot_white.svg" use="place" />
+                    <text dy="14" k="name" priority="3" size="17" use="place_city" />
                 </m>
             </m>
             <m k="admin_level" v="~">
                 <m zoom-min="7">
-                    <text style="bold" caption="true" dy="14" k="name" priority="7" size="17"
-                        symbol="assets:symbols/dot_white.svg" use="place" />
+                    <text style="bold" dy="14" k="name" priority="7" size="17" use="place_city" />
                 </m>
                 <m zoom-max="6">
-                    <text caption="true" dy="14" k="name" priority="4" size="17"
-                        symbol="assets:symbols/dot_white.svg" use="place" />
+                    <text dy="14" k="name" priority="4" size="17" use="place_city" />
                 </m>
             </m>
         </m>
         <m v="state">
             <m zoom-max="7" zoom-min="7">
-                <text caption="true" k="name" priority="6" size="16" stroke-width="2.0"
-                    use="place_country" />
+                <text k="name" priority="6" size="16" stroke-width="2.0" use="place_country" />
             </m>
             <m zoom-max="6">
-                <text caption="true" k="name" priority="5" size="14" stroke-width="1.8"
-                    use="place_country" />
+                <text k="name" priority="5" size="14" stroke-width="1.8" use="place_country" />
             </m>
         </m>
         <m v="country">
@@ -86,10 +72,10 @@
             </m>
         </m>
         <m v="locality" zoom-max="17">
-            <text style="italic" caption="true" k="name" priority="7" size="18" use="place" />
+            <text style="italic" k="name" priority="7" size="18" use="place" />
         </m>
         <m v="island" zoom-max="14">
-            <text style="italic" caption="true" k="name" priority="4" size="20" use="place" />
+            <text style="italic" k="name" priority="4" size="20" use="place" />
         </m>
         <m v="sea">
             <m zoom-min="5">

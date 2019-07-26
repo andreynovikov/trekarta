@@ -49,8 +49,7 @@
         width="-0.9" />
     <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
 
-    <style-text style="bold" fill="#101010" id="major-road-name" k="name" priority="5" size="16"
-        stroke="#eeeeee" stroke-width="2.0" />
-    <style-text fill="#101010" id="road-name" k="name" priority="7" size="16" stroke="#eeeeee"
-        stroke-width="2.0" />
+    <style-text fill="color:road-text" id="road-name" k="name" priority="7" size="16"
+        stroke="color:road-text-outline" stroke-width="2.0" />
+    <style-text style="bold" id="major-road-name" priority="5" use="road-name" />
 </rendertheme>

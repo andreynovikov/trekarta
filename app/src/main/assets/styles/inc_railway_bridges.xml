@@ -6,7 +6,7 @@
             <outline-layer id="rail-bridge" stroke="#aa202020" width="0.15" />
             <m k="bridge">
                 <m k="bridge" v="-|no">
-                    <m k="railway" v="tram|miniature" zoom-min="16">
+                    <m cat="trams" k="railway" v="tram|miniature" zoom-min="16">
                         <line cap="butt" fix="true" outline="rail-bridge" stroke="#ffffff"
                             width="4.0" />
                     </m>
@@ -31,7 +31,7 @@
                     <m k="railway" v="monorail|funicular" zoom-min="15">
                         <line cap="butt" fix="true" stroke="#663322" width="2.0" />
                     </m>
-                    <m k="railway" v="tram|miniature" zoom-min="15">
+                    <m cat="trams" k="railway" v="tram|miniature" zoom-min="15">
                         <m zoom-min="16">
                             <line cap="butt" fix="true" stipple="2" stipple-stroke="#00ffffff"
                                 stroke="#aa9988" width="4.0" />

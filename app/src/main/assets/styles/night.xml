@@ -32,9 +32,7 @@
             <cat id="forest" />
             <cat id="mountains" />
             <cat id="nature" />
-            <cat id="grass" />
             <cat id="insignificant-water" />
-            <cat id="underground-water" />
         </layer>
 
         <layer enabled="true" id="roads" parent="base">
@@ -42,9 +40,20 @@
             <cat id="roads" />
             <cat id="roads-surface" />
             <cat id="roads-shield" />
-            <cat id="ferries" />
             <cat id="railways" />
             <cat id="buildings" />
+        </layer>
+
+        <layer enabled="true" id="urban" parent="roads">
+            <cat id="urban" />
+            <cat id="forest" />
+            <cat id="insignificant-water" />
+        </layer>
+
+        <layer enabled="true" id="topo" parent="urban">
+            <cat id="fords" />
+            <cat id="topo" />
+            <overlay id="nature" />
         </layer>
     </stylemenu>
 
@@ -70,18 +79,40 @@
 
     <style-color id="service-tunnel" color="#222222" />
 
+    <style-color id="access-no" color="#331111" />
+    <style-color id="access-private" color="#111111" />
+    <style-color id="service-access-private" color="#111111" />
+    <style-color id="road-ice" color="#293b3b" /><!-- darken 60% desaturate 10% -->
+    <style-color id="road-winter" color="#415656" /><!-- darken 60% desaturate 10% -->
+    <style-color id="surface-dirt" color="#2f271e" /><!-- darken 40% desaturate 10% -->
+    <style-color id="surface-unpaved" color="#4e4131" /><!-- darken 50% desaturate 10% -->
+
+    <style-color id="road-text" color="#5E5E5E" />
+    <style-color id="road-text-outline" color="#000000" />
+
+    <style-color id="nature-reserve-text" color="#1e481e" />
+    <style-color id="nature-reserve-text-outline" color="#0a290a" />
+    <style-color id="military-text" color="#7a1f1f" />
+    <style-color id="military-text-outline" color="#2e0505" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aa000000"
         stroke-width="2.5" />
 
     <style-area fill="#0C0C0C" id="land" mesh="true" />
 
-    <style-text caption="true" fill="#694869" id="place_country" k="name" size="16" stroke="#aa000000"
-        stroke-width="2.5" />
-    <style-text caption="true" fill="#656565" id="place" k="name" size="16" stroke="#aa000000"
+    <!-- Place styles -->
+    <style-text caption="true" fill="#694869" id="place_country" size="16"
+        stroke="#aa000000" stroke-width="2.5" />
+    <style-text caption="true" fill="#656565" id="place" size="16" stroke="#aa000000"
         stroke-width="2.0" />
+    <style-text caption="true" fill="#444411" id="place_village" use="place" />
+    <style-text style="italic" caption="true" fill="#505050" id="place_suburb" use="place" />
+    <style-text id="place_town" symbol="assets:symbols/dot_grey.svg" use="place" />
+    <style-text id="place_city" symbol="assets:symbols/dot_black.svg" use="place" />
+    <style-text id="place_capital" symbol="assets:symbols/star_dark.svg" use="place" />
 
-    <!-- Water -->
+    <!-- Water styles -->
     <style-text style="italic" fill="#454545" id="water" k="name" size="16" stroke="#000000"
         stroke-width="2.0" />
     <style-line id="water" stroke="#1B1B1D" use="fix" />
@@ -91,8 +122,28 @@
     <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
     <style-area fade="-1" fill="#1B1B1D" id="water" mesh="true" />
 
+    <!-- Natural -->
+    <style-area blend="11" blend-fill="#151715" fade="8" fill="#101210" id="wood" />
+
+    <!-- Landuse -->
+    <style-area fade="6" fill="#0e0e0e" id="residential" />
+    <style-area fade="10" fill="#0e0e0e" id="industrial" />
+    <style-area fade="12" fill="#0e0e0e" id="allotments" />
+
     <!-- Road styles -->
     <xi:include href="inc_highway_styles.xml" />
+
+    <!-- Protected areas -->
+    <style-area fade="6" fill="#20004000" id="nature_reserve" />
+    <style-area fill="#18004000" id="nature_reserve_light" />
+    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#40004000" width="2.5" />
+    <style-area fill="#20840000" id="military" />
+    <style-line cap="butt" fix="true" id="military" stroke="#40840000" width="2.5" />
+
+    <!-- Barriers -->
+    <style-line cap="butt" fix="true" id="fence" stroke="#333333" width="1.1" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="#151715" width="2.0" />
+
 
 
     <m cat="water" e="way" k="natural" v="sea">
@@ -102,6 +153,24 @@
         <area use="land" />
     </m>
 
+    <!-- Natural -->
+    <m closed="yes" e="way" k="natural">
+        <m cat="nature" v="mud">
+            <area fill="#211e13" />
+        </m>
+        <m cat="forest" v="forest|wood">
+            <area use="wood" />
+        </m>
+        <m cat="nature" v="marsh">
+            <area src="assets:patterns/wetland.svg" />
+            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
+            <text area-size="0.05" caption="true" use="water" />
+        </m>
+        <m cat="nature" v="wetland">
+            <area src="assets:patterns/wetland.svg" />
+            <text area-size="0.05" caption="true" use="water" />
+        </m>
+    </m>
     <!-- Land usages -->
     <m closed="yes" e="way" k="landuse|leisure|amenity|tourism">
         <m cat="landclasses" v="residential|commercial|retail">
@@ -114,20 +183,14 @@
             <area use="allotments" />
         </m>
         <m v="parking" zoom-min="16">
-                    <area fill="#f0f0f0" />
-        </m>
-        <m cat="nature" v="meadow">
-            <area use="greens" />
-        </m>
-        <m cat="grass" v="grass">
-            <area use="grass" />
+            <area fill="color:highway-service" />
         </m>
     </m>
 
     <!-- Base landuse areas -->
     <m cat="landclasses" k="aeroway">
         <m closed="yes" v="aerodrome">
-            <area fill="#e8ecde" />
+            <area fill="#101010" />
         </m>
     </m>
 
@@ -135,7 +198,13 @@
 
     <xi:include href="inc_water.xml" />
 
+    <m e="node" k="waterway">
+        <m cat="urban" v="lock_gate" zoom-min="14">
+            <symbol src="assets:symbols/lock_gate.svg" />
+        </m>
+    </m>
 
+    <xi:include href="inc_ground_objects.xml" />
 
     <xi:include href="inc_highways.xml" />
 
@@ -145,12 +214,44 @@
 
     <xi:include href="inc_railway_bridges.xml" />
 
+    <xi:include href="inc_barier_lines.xml" />
 
+    <m cat="nature" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="#151715" mesh="true" />
+    </m>
 
     <xi:include href="inc_boundaries.xml" />
 
+    <!-- Topological (orientational) objects above ground -->
+    <m k="power">
+        <m cat="topo" e="way" v="line" zoom-min="14">
+            <line cap="butt" fix="true" stroke="#6e6e6e" width="1.5" />
+        </m>
+        <m cat="topo" v="tower" zoom-min="16">
+            <symbol src="assets:symbols/power/tower.svg" />
+        </m>
+        <m cat="urban" v="generator" zoom-min="14">
+            <m k="generator:source" select="first">
+                <m v="wind">
+                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" />
+                </m>
+            </m>
+        </m>
+    </m>
+    <m cat="topo" k="man_made">
+        <m v="tower" zoom-min="16">
+            <!-- building tag should not be present -->
+            <m k="building" v="~">
+                <symbol src="assets:symbols/tower.svg" />
+            </m>
+        </m>
+    </m>
 
+    <xi:include href="inc_natural_points.xml" />
 
+    <xi:include href="inc_mountain_points.xml" />
+
+    <xi:include href="inc_protected_areas.xml" />
 
     <!-- POI symbols, names and house numbers -->
 
