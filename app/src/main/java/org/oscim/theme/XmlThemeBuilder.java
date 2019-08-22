@@ -620,7 +620,8 @@ public class XmlThemeBuilder extends DefaultHandler {
             b.stippleWidth = 1;
             b.stippleColor = b.fillColor;
         } else {
-            b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+            if (src != null)
+                b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
 
             if (hasSymbol) {
                 // Line symbol
@@ -1040,7 +1041,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 logUnknownAttribute(elementName, name, value, i);
         }
 
-        //validateExists("k", b.textKey, elementName);
+        validateExists("k", b.textKey, elementName);
         validateNonNegative("size", b.fontSize);
         validateNonNegative("stroke-width", b.strokeWidth);
 

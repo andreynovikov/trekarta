@@ -29,6 +29,7 @@ import org.oscim.renderer.atlas.TextureRegion;
 public final class TextStyle extends RenderStyle<TextStyle> {
 
     public static int MAX_TEXT_WIDTH = 600;
+    public static String K = "name";
 
     public static class TextBuilder<T extends TextBuilder<T>> extends StyleBuilder<T> {
 
@@ -53,7 +54,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             fontFamily = FontFamily.DEFAULT;
             fontStyle = FontStyle.NORMAL;
             style = null;
-            textKey = null;
+            textKey = K;
             fontSize = 0;
             caption = false;
             priority = Integer.MAX_VALUE;
