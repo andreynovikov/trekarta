@@ -848,7 +848,12 @@ public class Tags {
             "ski_jump",
             "ski_jump_landing",
             "ranger_station",
-            "car_rental"
+            "car_rental",
+            "archaeological_site",
+            "beach_resort",
+            "sauna",
+            "ferry_terminal",
+            "shower"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
