@@ -1,77 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16"
-   height="16"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="toll_booth.svg"
-   inkscape:export-filename="/home/manchito/Downloads/mapnik/symbols/toll_booth.png"
-   inkscape:export-xdpi="92.800003"
-   inkscape:export-ydpi="92.800003">
-  <defs
-     id="defs4" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="23.201941"
-     inkscape:cx="-3.53582"
-     inkscape:cy="8.2245734"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="true"
-     inkscape:window-width="1536"
-     inkscape:window-height="801"
-     inkscape:window-x="-8"
-     inkscape:window-y="32"
-     inkscape:window-maximized="1">
-    <inkscape:grid
-       type="xygrid"
-       id="grid2985"
-       empspacing="5"
-       visible="true"
-       enabled="true"
-       snapvisiblegridlinesonly="true" />
-  </sodipodi:namedview>
-  <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Ebene 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-1036.3622)">
-    <path
-       style="fill:#0092da;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       d="m 4.2651846,1039.3694 c -0.6240978,0 -1.2481956,0.6241 -1.2481956,1.2482 l 0,8.7374 5.6168805,0 0,-4.0372 3.9006115,-0.9751 c 0.323596,-0.069 0.559377,-0.4375 0.487576,-0.7606 -0.0718,-0.3231 -0.438022,-0.5422 -0.760619,-0.4681 -0.01323,0.01 -0.02624,0.013 -0.03901,0.019 l -3.5885625,0.8971 0,-3.413 c 0,-0.6241 -0.6240979,-1.2482 -1.2481957,-1.2482 z m 0,1.2482 3.1204892,0 0,2.4964 -3.1204892,0 z m 1.2481957,3.7446 0.6240978,0 0,0.3316 c 0.6817048,0.062 1.2481957,0.2925 1.2481957,0.2925 l 0,0.6241 c 0,0 -0.4960494,-0.2341 -1.2481957,-0.2926 l 0,0.6046 c 0,0 0.2723449,-2e-4 0.5655887,0.098 0.1466219,0.049 0.3117728,0.1167 0.4485703,0.2535 0.1367975,0.1368 0.2340367,0.3511 0.2340367,0.5851 0,0.5407 -0.5668854,0.8249 -1.2481957,0.8971 l 0,0.3511 -0.6240978,0 0,-0.3316 c -0.6817048,-0.062 -1.2481957,-0.2925 -1.2481957,-0.2925 l 0,-0.6241 c 0,0 0.4960494,0.2341 1.2481957,0.2925 l 0,-0.6046 c 0,0 -0.2723449,3e-4 -0.5655887,-0.097 -0.1466219,-0.049 -0.3117728,-0.1167 -0.4485703,-0.2535 -0.1367975,-0.1368 -0.2340367,-0.3511 -0.2340367,-0.5851 0,-0.5407 0.5668854,-0.8249 1.2481957,-0.8971 z m 0,0.9556 c -0.6271452,0.06 -0.6240978,0.2926 -0.6240978,0.2926 0,0.078 0.019779,0.098 0.058509,0.1365 0.03873,0.039 0.1076158,0.088 0.1950306,0.117 0.1748296,0.058 0.3705581,0.058 0.3705581,0.058 z m 0.6240978,1.2287 0,0.6046 c 0.6271452,-0.06 0.6240979,-0.2925 0.6240979,-0.2925 0,-0.078 -0.019779,-0.098 -0.058509,-0.1365 -0.03873,-0.039 -0.1076158,-0.088 -0.1950306,-0.117 -0.1748296,-0.059 -0.3705581,-0.059 -0.3705581,-0.059 z"
-       id="rect2987"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ssccccccccssscccccccccccccsscccccccccsscccccccccccscc" />
-    <g
-       style="font-size:14.7029562px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3dbdb;fill-opacity:1;stroke:none;font-family:Sans"
-       id="text3761"
-       transform="matrix(0.43393058,0,0,0.37504594,3.0364748,653.49255)" />
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<path d="m7.168 4.5117-7.168 1.4883v8.0098h6v-2.5098a1 1 0 0 0 0.99609-0.93945l6.7266-3.3633-0.44531-0.89453-6.7246 3.3633a1 1 0 0 0-0.55273-0.16602v-2.7305l1.6035-1.3906-0.43555-0.86719zm-6.168 2.4883h4v3h-4v-3z" fill="#0092da"/>
 </svg>

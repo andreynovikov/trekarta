@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" height="580" width="580" version="1.1" viewBox="0 0 6444.4444 6444.4444">
- <path d="m2126.6 4166.7 1228.9-2011 1228.9 2011z" stroke="#000" stroke-width="266.67" fill="#aaa"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<path d="m4 2.25-2 3.5h4z" fill="#d08f55" fill-rule="evenodd"/>
 </svg>

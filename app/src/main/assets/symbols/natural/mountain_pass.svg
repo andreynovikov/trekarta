@@ -1,5 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg" version="1.0">
- <path stroke="#000" stroke-width="60" d="m332.15 34.355 1.246 77.253-221.79 221.79h-77.253" fill="none"/>
- <path stroke="#000" stroke-width="60" d="m540 242.2-77.253-1.246-221.79 221.79v77.253" fill="none"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.0" viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<path d="m332.15 34.355 1.246 77.253-221.79 221.79h-77.253" fill="none" stroke="#d08f55" stroke-width="60"/>
+<path d="m540 242.2-77.253-1.246-221.79 221.79v77.253" fill="none" stroke="#d08f55" stroke-width="60"/>
 </svg>

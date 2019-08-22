@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="b" width="7" height="7" version="1.1" viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-<metadata id="c">
+<svg version="1.1" viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
 <rdf:RDF>
 <cc:Work rdf:about="">
 <dc:format>image/svg+xml</dc:format>
@@ -8,6 +8,5 @@
 </cc:Work>
 </rdf:RDF>
 </metadata>
-<path id="d" d="m1.2754 1.2754h0.95339l1.2712 1.2712 1.2712-1.2712h0.95339v0.95339l-1.2712 1.2712 1.2712 1.2712v0.95339h-0.95339l-1.2712-1.2712-1.2712 1.2712h-0.95339v-0.95339l1.2712-1.2712-1.2712-1.2712z" fill="#fff"/>
-<path id="a" d="m1.4492 1.4492v0.34181l1.709 1.709-1.709 1.709v0.34181h0.34181l1.709-1.709 1.709 1.709h0.34181v-0.34181l-1.709-1.709 1.709-1.709v-0.34181h-0.34181l-1.709 1.709-1.709-1.709z" fill="#4d4d4d"/>
+<path d="m1.4492 1.4492v0.34181l1.709 1.709-1.709 1.709v0.34181h0.34181l1.709-1.709 1.709 1.709h0.34181v-0.34181l-1.709-1.709 1.709-1.709v-0.34181h-0.34181l-1.709 1.709-1.709-1.709z" fill="#4d4d4d"/>
 </svg>

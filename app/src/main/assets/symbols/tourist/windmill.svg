@@ -1,23 +1,14 @@
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" 
-   xmlns:cc="http://creativecommons.org/ns#" 
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-   xmlns:svg="http://www.w3.org/2000/svg" 
-   xmlns="http://www.w3.org/2000/svg" 
-   version="1.1" 
-   width="16"
-   height="16"
-   viewBox="0 0 16 16" 
-   id="svg2">
-  <metadata id="metadata8">
-    <rdf:RDF>
-      <cc:Work rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-        <dc:title/>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs id="defs6"/>
-  <rect width="16" height="16" x="0" y="0" id="canvas" style="fill:none;stroke:none;visibility:hidden"/>
-  <path d="M 2.71875,0 1,1.71875 5.96875,6 1,10.28125 2.71875,12 7,7.03125 11.28125,12 13,10.28125 8.03125,6 13,1.71875 11.28125,0 7,4.96875 2.71875,0 z M 7,2 C 6.5846058,2 6.2371923,2.0902004 5.9375,2.21875 L 7,3.4375 8.0625,2.21875 C 7.7644902,2.0832701 7.4104059,2 7,2 z M 7,5.5 C 7.2761424,5.5 7.5,5.7238576 7.5,6 7.5,6.2761424 7.2761424,6.5 7,6.5 6.7238576,6.5 6.5,6.2761424 6.5,6 6.5,5.7238576 6.7238576,5.5 7,5.5 z M 4.1875,5.78125 4.15625,6.25 4.4375,6 4.1875,5.78125 z m 5.625,0 L 9.5625,6 9.84375,6.25 9.8125,5.78125 z M 7,8.5625 3.625,12.46875 3.5,14 10.5,14 10.375,12.46875 7,8.5625 z" id="windmill" style="fill:#734a08;fill-opacity:1" transform="translate(1,1)"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<rect width="16" height="16" fill="none" visibility="hidden"/>
+<path transform="translate(1,1)" d="m2.7188 0-1.7188 1.7188 4.9688 4.2812-4.9688 4.2812 1.7188 1.7188 4.2812-4.9688 4.2812 4.9688 1.7188-1.7188-4.9688-4.2812 4.9688-4.2812-1.7188-1.7188-4.2812 4.9688-4.2812-4.9688zm4.2812 2c-0.41539 0-0.76281 0.0902-1.0625 0.21875l1.0625 1.2188 1.0625-1.2188c-0.29801-0.13548-0.65209-0.21875-1.0625-0.21875zm0 3.5c0.27614 0 0.5 0.22386 0.5 0.5s-0.22386 0.5-0.5 0.5-0.5-0.22386-0.5-0.5 0.22386-0.5 0.5-0.5zm-2.8125 0.28125-0.03125 0.46875 0.28125-0.25-0.25-0.21875zm5.625 0-0.25 0.21875 0.28125 0.25-0.03125-0.46875zm-2.8125 2.7812-3.375 3.9062-0.125 1.5312h7l-0.125-1.5312-3.375-3.9062z" fill="#734a08"/>
 </svg>
