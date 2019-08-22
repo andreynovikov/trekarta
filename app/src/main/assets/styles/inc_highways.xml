@@ -71,7 +71,7 @@
                                 <text use="major-road-name" />
                             </m>
                             <m cat="roads" v="construction">
-                                <line stroke="#00ffffff" use="road-construction" />
+                                <line stroke="color:transparent" use="road-construction" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols"
@@ -196,7 +196,7 @@
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
                             <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol src="assets:symbols/oneway.svg" />
+                                <lineSymbol use="oneway" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
@@ -204,7 +204,7 @@
                         </m>
                         <m k="oneway" v="-1" zoom-min="16">
                             <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                                <lineSymbol use="oneway-reverse" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle_reverse.svg" />
@@ -367,11 +367,11 @@
                                         </m>
                                         <m k="access" v="private">
                                             <line fade="14" stipple="15" stipple-stroke="color:service-access-private"
-                                                stroke="#00ffffff" use="highway-service" />
+                                                stroke="color:transparent" use="highway-service" />
                                         </m>
                                         <m k="access" v="no">
                                             <line fade="14" stipple="15" stipple-stroke="color:access-no"
-                                                stroke="#00ffffff" use="highway-service" />
+                                                stroke="color:transparent" use="highway-service" />
                                         </m>
                                     </m>
                                 </m>
@@ -379,11 +379,11 @@
                             <m k="service" v="parking_aisle" zoom-min="16">
                                 <line outline="service-road" use="highway-service" width="-0.2" />
                                 <m k="access" v="private">
-                                    <line stipple="15" stipple-stroke="color:service-access-private" stroke="#00ffffff"
+                                    <line stipple="15" stipple-stroke="color:service-access-private" stroke="color:transparent"
                                         use="highway-service" width="-0.2" />
                                 </m>
                                 <m k="access" v="no">
-                                    <line stipple="15" stipple-stroke="color:access-no" stroke="#00ffffff"
+                                    <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
                                         use="highway-service" width="-0.2" />
                                 </m>
                             </m>
@@ -507,11 +507,11 @@
                                 <line use="4wd_only" width="-0.2" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="color:access-private" stroke="#00ffffff"
+                                <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
                                     use="residential" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="color:access-no" stroke="#00ffffff"
+                                <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
                                     use="residential" />
                             </m>
                             <text use="road-name" />
@@ -546,11 +546,11 @@
                                 <line use="4wd_only" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="color:access-private" stroke="#00ffffff"
+                                <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
                                     use="unclassified" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="color:access-no" stroke="#00ffffff"
+                                <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
                                     use="unclassified" />
                             </m>
                             <text use="road-name" />
@@ -723,7 +723,7 @@
                         </m>
                         <m k="oneway" v="1" zoom-min="16">
                             <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol src="assets:symbols/oneway.svg" />
+                                <lineSymbol use="oneway" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
@@ -731,7 +731,7 @@
                         </m>
                         <m k="oneway" v="-1" zoom-min="16">
                             <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                                <lineSymbol use="oneway-reverse" />
                             </m>
                             <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
                                 <lineSymbol src="assets:symbols/oneway_bicycle_reverse.svg" />
@@ -750,7 +750,7 @@
         </m>
         <!-- or not a road -->
         <m k="highway" v="~|footway|path|cycleway|bridleway">
-            <symbol src="assets:symbols/natural/ford.svg" symbol-percent="60" />
+            <symbol src="assets:symbols/natural/ford.svg" symbol-percent="60" merge-gap="150" repeat-gap="150"/>
         </m>
     </m>
 </rendertheme>

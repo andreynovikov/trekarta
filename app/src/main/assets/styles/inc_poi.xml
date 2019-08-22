@@ -12,7 +12,7 @@
                         <symbol src="assets:symbols/accommodation/alpinehut.svg" />
                     </m>
                     <m v="guest_house">
-                        <symbol src="assets:symbols/accommodation/hostel.svg" />
+                        <symbol src="assets:symbols/accommodation/guesthouse.svg" />
                     </m>
                     <m v="motel">
                         <symbol src="assets:symbols/accommodation/motel.svg" />
@@ -116,6 +116,12 @@
                 <m k="leisure">
                     <m v="water_park">
                         <symbol src="assets:symbols/amenity/swimming.svg" />
+                    </m>
+                    <m v="beach_resort">
+                        <symbol src="assets:symbols/amenity/beach_resort.svg" />
+                    </m>
+                    <m v="sauna">
+                        <symbol src="assets:symbols/amenity/sauna.svg" />
                     </m>
                 </m>
             </m>
@@ -264,6 +270,9 @@
                     </m>
                     <m v="monument">
                         <symbol src="assets:symbols/tourist/monument.svg" />
+                    </m>
+                    <m v="archaeological_site">
+                        <symbol src="assets:symbols/tourist/archaeological_site.svg" />
                     </m>
                     <m v="ruins">
                         <symbol src="assets:symbols/tourist/ruin.svg" />
@@ -443,6 +452,9 @@
                     </m>
                     <m v="post_box">
                         <symbol src="assets:symbols/amenity/post_box.svg" />
+                    </m>
+                    <m v="shower">
+                        <symbol src="assets:symbols/amenity/shower.svg" />
                     </m>
                 </m>
             </m>

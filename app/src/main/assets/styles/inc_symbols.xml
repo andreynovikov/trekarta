@@ -33,7 +33,7 @@
                 <m v="subway_entrance" zoom-min="17">
                     <symbol src="assets:symbols/transport/entrance.svg" symbol-percent="70" />
                     <text caption="true" style="bold" dy="-15" fill="#1f69a4" k="name" size="14"
-                        stroke="#ffffff" stroke-width="2.0" />
+                        stroke="color:text-outline" stroke-width="2.0" />
                 </m>
             </m>
         </m>
@@ -43,17 +43,17 @@
                 <m k="station" v="subway" zoom-max="16" zoom-min="15">
                     <symbol src="assets:symbols/transport/station.svg" />
                     <text caption="true" style="bold" dy="-10" fill="#1f69a4" k="name" size="14"
-                        stroke="#ffffff" stroke-width="2.0" priority="4" />
+                        stroke="color:text-outline" stroke-width="2.0" priority="4" />
                 </m>
                 <m k="station" v="-|subway">
                     <symbol src="assets:symbols/transport/station.svg" />
                     <text caption="true" style="bold" dy="-10" fill="#7981b0" k="name" size="14"
-                        stroke="#ffffff" stroke-width="2.0" priority="4" />
+                        stroke="color:text-outline" stroke-width="2.0" priority="4" />
                 </m>
             </m>
             <m cat="urban" v="halt">
                 <symbol src="assets:symbols/transport/station.svg" />
-                <text caption="true" style="bold" dy="-10" fill="#7981b0" k="name" size="13" stroke="#ffffff"
+                <text caption="true" style="bold" dy="-10" fill="#7981b0" k="name" size="13" stroke="color:text-outline"
                     stroke-width="2.0" />
             </m>
             <m cat="pedestrian" v="crossing" zoom-min="16">
@@ -61,6 +61,13 @@
             </m>
             <m cat="roads" v="level_crossing" zoom-min="16">
                 <symbol src="assets:symbols/transport/level_crossing.svg" />
+            </m>
+        </m>
+        <!-- ferry -->
+        <m k="amenity">
+            <m cat="urban" v="ferry_terminal" zoom-min="14">
+                <symbol src="assets:symbols/transport/ferry_terminal.svg" merge-gap="0" />
+                <text use="poi" />
             </m>
         </m>
         <!-- aeroway -->

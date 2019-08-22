@@ -200,12 +200,12 @@
                     </m>
                     <m cat="roads" k="oneway" v="1" zoom-min="16">
                         <m k="highway" v="-|track|path|footway">
-                            <lineSymbol src="assets:symbols/oneway.svg" />
+                            <lineSymbol use="oneway" />
                         </m>
                     </m>
                     <m cat="roads" k="oneway" v="-1" zoom-min="16">
                         <m k="highway" v="-|track|path|footway">
-                            <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                            <lineSymbol use="oneway-reverse" />
                         </m>
                     </m>
                 </m> <!-- end area=no -->

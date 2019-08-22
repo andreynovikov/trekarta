@@ -17,7 +17,7 @@
             <m zoom-min="8">
                 <line use="nature_reserve" />
             </m>
-            <text style="bold_italic" area-size="0.1" caption="true" fill="color:nature-reserve-text" k="name"
+            <text style="bold_italic" area-size="0.1" caption="true" fill="color:nature-reserve-text"
                 priority="3" size="18" stroke="color:nature-reserve-text-outline" stroke-width="2.0" />
         </m>
     </m>
@@ -30,7 +30,7 @@
             <m zoom-min="8">
                 <line use="military" />
             </m>
-            <text style="bold_italic" area-size="0.3" caption="true" fill="color:military-text" k="name"
+            <text style="bold_italic" area-size="0.3" caption="true" fill="color:military-text"
                 priority="6" size="18" stroke="color:military-text-outline" stroke-width="2.0" />
         </m>
     </m>

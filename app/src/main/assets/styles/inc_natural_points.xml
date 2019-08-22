@@ -10,7 +10,7 @@
             </m>
         </m>
         <m select="when-matched">
-            <text caption="true" style="bold" dy="12" fill="#2d2d2d" k="name" size="13" stroke="#ffffff"
+            <text caption="true" style="bold" dy="12" fill="color:natural-text" size="13" stroke="color:text-outline"
                 stroke-width="2.0" />
         </m>
     </m>

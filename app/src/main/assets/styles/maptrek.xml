@@ -80,6 +80,10 @@
     -->
 
     <!-- Color adjustment tool: http://scg.ar-ch.org/ -->
+    <style-color id="transparent" color="#00ffffff" />
+    <style-color id="text-outline" color="#ffffff" />
+    <style-color id="text" color="#000000" />
+
     <style-color id="motorway-overview" color="#deb683" />
     <style-color id="trunk-overview" color="#c6c5a2" />
     <style-color id="primary-overview" color="#c6c5a2" />
@@ -98,9 +102,15 @@
     <style-color id="road-construction" color="#f0f0f0" />
     <style-color id="road-construction-stipple" color="#e0e0e0" />
     <style-color id="residential" color="#ffffff" />
+    <style-color id="pedestrian" color="#e0e0e0" />
     <style-color id="highway-service" color="#f5f5f5" />
 
+    <style-color id="tunnel" color="#ffffff" />
+    <style-color id="highway-tunnel" color="#fdcf8c" />
+    <style-color id="trunk-tunnel" color="#fee685" />
+    <style-color id="primary-tunnel" color="#f8e19d" />
     <style-color id="service-tunnel" color="#e5e5e5" />
+    <style-color id="pedestrian-tunnel" color="#e0e0e0" />
 
     <style-color id="access-no" color="#ffdddd" />
     <style-color id="access-private" color="#eeeeee" />
@@ -118,6 +128,25 @@
     <style-color id="military-text" color="#990000" />
     <style-color id="military-text-outline" color="#ffcccc" />
 
+    <style-color id="railway-stroke" color="#777777" />
+    <style-color id="railway-stipple" color="#ffffff" />
+    <style-color id="railway-subway" color="#888888" />
+    <style-color id="railway-funicular" color="#663322" />
+    <style-color id="railway-tram" color="#aa9988" />
+    <style-color id="railway-narrow" color="#999999" />
+    <style-color id="railway-abandoned" color="#cccccc" />
+    <style-color id="railway-bridge" color="#ffffff" />
+    <style-color id="railway-bridge-outline" color="#aa202020" />
+
+    <style-color id="dam-stroke" color="#333333" />
+    <style-color id="dam-fill" color="#999999" />
+
+    <style-color id="cliff" color="#888888" />
+    <style-color id="natural-text" color="#2d2d2d" />
+
+    <style-color id="pier-stroke" color="#d0d0d0" />
+    <style-color id="pier-fill" color="#e4e4e4" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
@@ -127,6 +156,7 @@
     <!-- Water -->
     <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
+    <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
     <style-line id="water" stroke="#a4bbcc" use="fix" />
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
@@ -135,6 +165,7 @@
     <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
+    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
     <style-area blend="11" blend-fill="#90b36c" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" />
@@ -169,6 +200,8 @@
     <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
 
     <!-- Road styles -->
+    <style-line id="oneway" src="assets:symbols/oneway.svg" />
+    <style-line id="oneway-reverse" src="assets:symbols/oneway_reverse.svg" />
     <xi:include href="inc_highway_styles.xml" />
 
     <!-- Protected areas -->
@@ -307,6 +340,7 @@
     </m>
 
     <!-- Natural -->
+    <!-- TODO https://github.com/gravitystorm/openstreetmap-carto/tree/master/symbols/generating_patterns -->
     <m closed="yes" e="way" k="natural">
         <m cat="nature" v="glacier">
             <area fill="#ddecec" />
@@ -322,6 +356,7 @@
         </m>
         <m cat="nature" v="scrub">
             <area use="scrub" />
+            <area src="assets:patterns/scrub.svg" />
         </m>
         <m cat="nature" v="heath">
             <area fade="12" use="heath" />

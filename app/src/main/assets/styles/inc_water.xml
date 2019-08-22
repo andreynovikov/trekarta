@@ -14,8 +14,8 @@
             <area use="water" />
         </m>
         <m cat="topo" v="dam">
-            <area fade="12" fill="#999999" />
-            <line fade="12" stroke="#333333" use="fix" width="0.5" />
+            <area fade="12" fill="color:dam-fill" />
+            <line fade="12" stroke="color:dam-stroke" use="fix" width="0.5" />
         </m>
     </m>
     <m closed="no" e="way">
@@ -29,16 +29,16 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <m cat="underground-water" v="river">
-                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="color:transparent"
                             width="1.3" />
                     </m>
                     <m cat="underground-water" v="canal">
-                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="#00ffffff"
+                        <line cap="butt" stipple="20" stipple-stroke="#b4c7d5" stroke="color:transparent"
                             width="0.7" />
                     </m>
                     <m cat="underground-water" v="stream">
                         <line cap="butt" fix="true" stipple="20" stipple-stroke="#b4c7d5"
-                            stroke="#00ffffff" width="1.5" />
+                            stroke="color:transparent" width="1.5" />
                     </m>
                 </m>
             </m>
@@ -46,7 +46,7 @@
                 <m cat="water" v="river">
                     <line fade="10" use="river" width="0.3" />
                     <m zoom-min="17">
-                        <lineSymbol src="assets:symbols/oneway_river.svg" />
+                        <lineSymbol use="oneway-water" />
                     </m>
                     <text priority="4" use="water" />
                 </m>
@@ -61,7 +61,7 @@
                     <line fade="14" use="water" width="0.2" />
                 </m>
                 <m cat="topo" v="dam">
-                    <line fade="12" stroke="#333333" use="fix" width="0.5" />
+                    <line fade="12" stroke="color:dam-stroke" use="fix" width="0.5" />
                 </m>
                 <m cat="topo" v="lock_gate">
                     <line fade="12" stroke="#aaaaaa" use="fix" width="0.7" />

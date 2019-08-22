@@ -2,7 +2,7 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Road styles -->
     <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
-    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
+    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="color:transparent"
         width="0.7" />
     <style-line id="trunk" stroke="color:trunk" width="1.3" />
     <style-line cap="butt" id="trunk_link" stroke="color:trunk_link" width="1.0" />
@@ -15,7 +15,7 @@
         stroke="color:road-construction" width="0.8" />
     <style-line id="residential" stroke="color:residential" use="unclassified" width="-0.1" />
     <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
-    <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.2" />
+    <style-line id="pedestrian" stroke="color:pedestrian" use="residential" width="-0.2" />
     <style-area fill="#e0e0e0" id="pedestrian" />
     <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
     <style-line cap="butt" fix="true" id="highway:track:g1" stroke="#99764D" width="1.8" />
@@ -36,20 +36,20 @@
     <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#be6253"
         stroke="#aaffffff" width="3.5" />
 
-    <style-line cap="butt" id="tunnel" stipple="20" stipple-stroke="#ffffff" stroke="#00ffffff"
+    <style-line cap="butt" id="tunnel" stipple="20" stipple-stroke="color:tunnel" stroke="color:transparent"
         width="1.3" />
-    <style-line id="highway-tunnel" stipple-stroke="#fdcf8c" use="tunnel" width="0.5" />
-    <style-line id="trunk-tunnel" stipple-stroke="#fee685" use="tunnel" width="0.4" />
-    <style-line id="primary-tunnel" stipple-stroke="#f8e19d" use="tunnel" width="0.2" />
+    <style-line id="highway-tunnel" stipple-stroke="color:highway-tunnel" use="tunnel" width="0.5" />
+    <style-line id="trunk-tunnel" stipple-stroke="color:trunk-tunnel" use="tunnel" width="0.4" />
+    <style-line id="primary-tunnel" stipple-stroke="color:primary-tunnel" use="tunnel" width="0.2" />
     <style-line id="secondary-tunnel" use="primary-tunnel" width="-0.1" />
     <style-line id="unclassified-tunnel" use="tunnel" />
     <style-line id="tertiary-tunnel" use="unclassified-tunnel" width="0.1" />
     <style-line id="residential-tunnel" use="tunnel" width="-0.1" />
     <style-line id="service-tunnel" stipple="10" stipple-stroke="color:service-tunnel" use="tunnel"
         width="-0.9" />
-    <style-line id="pedestrian-tunnel" stipple-stroke="#e0e0e0" use="tunnel" width="-0.3" />
+    <style-line id="pedestrian-tunnel" stipple-stroke="color:pedestrian-tunnel" use="tunnel" width="-0.3" />
 
-    <style-text fill="color:road-text" id="road-name" k="name" priority="7" size="16"
+    <style-text fill="color:road-text" id="road-name" priority="7" size="16"
         stroke="color:road-text-outline" stroke-width="2.0" />
     <style-text style="bold" id="major-road-name" priority="5" use="road-name" />
 </rendertheme>

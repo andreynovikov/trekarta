@@ -13,7 +13,7 @@
         android:fillColor="#ff5722"
         android:strokeColor="#00000000"/>
     <path
+        android:fillAlpha="0.5"
         android:pathData="m4.929,4.929c-3.903,3.903 -3.903,10.239 0,14.142 3.903,3.903 10.239,3.903 14.142,0 3.903,-3.903 3.903,-10.239 0,-14.142 -3.903,-3.903 -10.239,-3.903 -14.142,0zM17,19 L12,17 7,19 12,3.515Z"
-        android:fillAlpha="1"
-        android:fillColor="#616161"/>
+        android:fillColor="@color/colorPrimaryDark"/>
 </vector>

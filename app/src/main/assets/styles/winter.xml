@@ -40,6 +40,10 @@
         </layer>
     </stylemenu>
 
+    <style-color id="transparent" color="#00ffffff" />
+    <style-color id="text-outline" color="#ffffff" />
+    <style-color id="text" color="#000000" />
+
     <style-color id="motorway-overview" color="#deb683" />
     <style-color id="trunk-overview" color="#c6c5a2" />
     <style-color id="primary-overview" color="#c6c5a2" />
@@ -50,11 +54,31 @@
     <style-color id="motorway-road-outline" color="#805f2e" />
 
     <style-color id="highway-service" color="#eeeeee" />
+    <style-color id="pedestrian" color="#e0e0e0" />
 
     <style-color id="service-tunnel" color="#e5e5e5" />
 
     <style-color id="road-text" color="#101010" />
     <style-color id="road-text-outline" color="#eeeeee" />
+
+    <style-color id="railway-stroke" color="#777777" />
+    <style-color id="railway-stipple" color="#ffffff" />
+    <style-color id="railway-subway" color="#888888" />
+    <style-color id="railway-funicular" color="#663322" />
+    <style-color id="railway-tram" color="#aa9988" />
+    <style-color id="railway-narrow" color="#999999" />
+    <style-color id="railway-abandoned" color="#cccccc" />
+    <style-color id="railway-bridge" color="#ffffff" />
+    <style-color id="railway-bridge-outline" color="#aa202020" />
+
+    <style-color id="dam-stroke" color="#333333" />
+    <style-color id="dam-fill" color="#999999" />
+
+    <style-color id="cliff" color="#888888" />
+    <style-color id="natural-text" color="#2d2d2d" />
+
+    <style-color id="pier-stroke" color="#d0d0d0" />
+    <style-color id="pier-fill" color="#e4e4e4" />
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
@@ -68,12 +92,14 @@
     -->
     <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
+    <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
     <style-line id="water" stroke="#a4bbcc" use="fix" />
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
     <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
+    <!-- Natural -->
+    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
     <style-area blend="11" blend-fill="#c6d7d7" fade="8" fill="#e4ecec" id="wood" />
-
 
     <!-- Landuse -->
     <style-area fade="6" fill="#efefef" id="residential" />
@@ -142,6 +168,9 @@
         stroke="#eeeeee" stroke-width="2.0" />
     <style-text fill="#666666" id="road-name" k="name" priority="7" size="16" stroke="#eeeeee"
         stroke-width="2.0" />
+
+    <style-line id="oneway" src="assets:symbols/oneway.svg" />
+    <style-line id="oneway-reverse" src="assets:symbols/oneway_reverse.svg" />
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
