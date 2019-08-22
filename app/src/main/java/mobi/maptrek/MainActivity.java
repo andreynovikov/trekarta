@@ -702,8 +702,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mBitmapLayerMap != null)
             showBitmapMap(mBitmapLayerMap, false);
 
-        int mNightModeState = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
-        setNightMode(mNightModeState == AppCompatDelegate.MODE_NIGHT_YES);
+        setMapTheme();
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -1205,6 +1204,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 builder.setItems(R.array.night_mode_array, (dialog, which) -> {
                     Configuration.setNightModeState(which);
                     AppCompatDelegate.setDefaultNightMode(which);
+                    getDelegate().setLocalNightMode(which);
                     getDelegate().applyDayNight();
                 });
                 AlertDialog dialog = builder.create();
@@ -1219,8 +1219,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
-                        //TODO Refactor
-                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
+                        setMapTheme();
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1235,8 +1234,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
-                        //TODO Refactor
-                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
+                        setMapTheme();
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1288,8 +1286,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
                     mBackgroundHandler.post(() -> {
-                        //TODO Refactor
-                        setNightMode(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
+                        setMapTheme();
                     });
                 });
                 AlertDialog dialog = builder.create();
@@ -1751,8 +1748,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
             if (!BuildConfig.FULL_VERSION)
                 menu.removeItem(R.id.actionNightMode);
-            if (Configuration.getActivity() != 2)
-                menu.removeItem(R.id.actionLegend);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
     }
@@ -4139,7 +4134,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    private void setNightMode(final boolean night) {
+    private void setMapTheme() {
         Configuration.loadKindZoomState();
         ThemeFile themeFile;
         switch (Configuration.getActivity()) {
@@ -4147,17 +4142,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 themeFile = Themes.WINTER;
                 Configuration.accountSkiing();
                 runOnUiThread(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false));
+                mNightMode = false;
                 break;
             case 1:
                 if (Tags.kindZooms[13] == 18)
                     Tags.kindZooms[13] = 14;
                 themeFile = Themes.MAPTREK;
                 Configuration.accountHiking();
+                mNightMode = false;
                 break;
             case 0:
             default:
                 int nightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-                themeFile = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES ? Themes.NIGHT : Themes.MAPTREK;
+                mNightMode = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                themeFile = mNightMode ? Themes.NIGHT : Themes.MAPTREK;
                 break;
         }
         IRenderTheme theme = ThemeLoader.load(themeFile);
@@ -4167,7 +4165,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mShieldFactory.setFontSize(fontSize);
         mShieldFactory.dispose();
         mOsmcSymbolFactory.dispose();
-        mNightMode = night;
     }
 
     private void hideSystemUI() {
