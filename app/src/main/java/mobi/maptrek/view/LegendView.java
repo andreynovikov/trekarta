@@ -109,10 +109,13 @@ public class LegendView extends View {
                     mLines.add(0, style);
                 else
                     renderLine(canvas, (LineStyle) style);
-            } else if (style instanceof AreaStyle)
+            } else if (style instanceof AreaStyle) {
+                if (mItem.type == GeometryType.LINE)
+                    continue;
                 renderArea(canvas, (AreaStyle) style);
-            else if (style instanceof CircleStyle)
+            } else if (style instanceof CircleStyle) {
                 renderCircle(canvas, (CircleStyle) style);
+            }
         }
         for (RenderStyle style : mLines) {
             renderLine(canvas, (LineStyle) style);
