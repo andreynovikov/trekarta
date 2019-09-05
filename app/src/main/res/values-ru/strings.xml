@@ -516,7 +516,6 @@
     <string name="legend_administrative">Административные объекты</string>
     <string name="legend_roads">Дороги</string>
     <string name="legend_railways">Железные дороги</string>
-    <string name="legend_amenities">Объекты</string>
     <string name="legend_water">Водные объекты</string>
     <string name="legend_urban">Городские объекты</string>
     <string name="legend_downhill_skiing">Горные лыжи/сноуборд</string>
@@ -531,4 +530,5 @@
     <string name="legend_transportation">Транспорт</string>
     <string name="advice_map_legend">Вы можете посмотреть список условных обозначений с помощью долгого нажатия на кнопку Карты</string>
     <string name="actionLegend">Условные обозначения</string>
+    <string name="legend_farmland">Сельхозугодья</string>
 </resources>

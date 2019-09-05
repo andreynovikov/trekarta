@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.view.LegendView;
@@ -43,6 +44,7 @@ import mobi.maptrek.view.LegendView.LegendItem;
 
 // http://www.compassdude.com/map-symbols.php
 // https://support.viewranger.com/index.php?pg=kb.page&id=143
+// TODO add newly added POIs
 
 public class Legend extends ListFragment {
     // Administrative
@@ -66,10 +68,43 @@ public class Legend extends ListFragment {
             .addTag("place", "village").setText(R.string.legend_village_name);
     private static LegendItem suburb = new LegendItem(GeometryType.POINT, R.string.legend_suburb, 14)
             .addTag("place", "suburb").setText(R.string.legend_suburb_name);
-    private static LegendItem allotments = new LegendItem(GeometryType.POINT, R.string.legend_allotments, 14)
+    private static LegendItem allotment = new LegendItem(GeometryType.POINT, R.string.legend_allotments, 14)
             .addTag("place", "allotments").setText(R.string.legend_allotments_name);
     private static LegendItem locality = new LegendItem(GeometryType.POINT, R.string.legend_unpopulated_location, 14)
             .addTag("place", "locality").setText(R.string.legend_unpopulated_location_name);
+    private static LegendItem island = new LegendItem(GeometryType.POINT, R.string.legend_island, 14)
+            .addTag("place", "island").setText(R.string.legend_island_name);
+
+    // Land use
+    private static LegendItem residential = new LegendItem(GeometryType.POLY, R.string.legend_residental, 17)
+            .addTag("landuse", "residential");
+    private static LegendItem industrial = new LegendItem(GeometryType.POLY, R.string.legend_industrial, 17)
+            .addTag("landuse", "industrial");
+    private static LegendItem recreation = new LegendItem(GeometryType.POLY, R.string.legend_recreation, 17)
+            .addTag("landuse", "recreation_ground");
+    private static LegendItem educational = new LegendItem(GeometryType.POLY, R.string.legend_educational, 17)
+            .addTag("amenity", "school");
+    private static LegendItem hospital_area = new LegendItem(GeometryType.POLY, R.string.legend_hospital, 17)
+            .addTag("amenity", "hospital");
+    private static LegendItem construction = new LegendItem(GeometryType.POLY, R.string.legend_construction, 17)
+            .addTag("landuse", "construction");
+    private static LegendItem aerodrome = new LegendItem(GeometryType.POLY, R.string.legend_aerodrome, 10) // do not show icon
+            .addTag("aeroway", "aerodrome");
+    private static LegendItem allotments = new LegendItem(GeometryType.POLY, R.string.legend_allotments, 17)
+            .addTag("landuse", "allotments");
+    private static LegendItem quarry = new LegendItem(GeometryType.POLY, R.string.legend_quarry, 17)
+            .addTag("landuse", "residential");
+    private static LegendItem farmland = new LegendItem(GeometryType.POLY, R.string.legend_farmland, 17)
+            .addTag("landuse", "farmland");
+    private static LegendItem farmyard = new LegendItem(GeometryType.POLY, R.string.legend_farmyard, 17)
+            .addTag("landuse", "farmyard");
+    private static LegendItem nature_reserve = new LegendItem(GeometryType.POLY, R.string.legend_nature_reserve, 13)
+            .addTag("boundary", "nature_reserve").setText(R.string.legend_nature_reserve_name);
+    private static LegendItem military = new LegendItem(GeometryType.POLY, R.string.legend_military, 13)
+            .addTag("landuse", "military").setText(R.string.legend_military_name);
+    private static LegendItem zoo_area = new LegendItem(GeometryType.POLY, R.string.legend_zoo, 17)
+            .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
+
     // Water
     private static LegendItem glacier = new LegendItem(GeometryType.POLY, R.string.legend_glacier, 17)
             .addTag("natural", "glacier");
@@ -77,15 +112,34 @@ public class Legend extends ListFragment {
             .addTag("natural", "water").setText(R.string.legend_pond_name);
     private static LegendItem river = new LegendItem(GeometryType.LINE, R.string.legend_river, 17)
             .addTag("waterway", "river");
+    private static LegendItem underground_river = new LegendItem(GeometryType.LINE, R.string.legend_underground_river, 17)
+            .addTag("waterway", "river").addTag("tunnel", "yes");
     private static LegendItem canal = new LegendItem(GeometryType.LINE, R.string.legend_canal, 17)
             .addTag("waterway", "canal");
     private static LegendItem stream = new LegendItem(GeometryType.LINE, R.string.legend_stream, 17)
             .addTag("waterway", "stream");
+    private static LegendItem ditch = new LegendItem(GeometryType.LINE, R.string.legend_ditch, 17)
+            .addTag("waterway", "ditch");
     private static LegendItem waterfall = new LegendItem(GeometryType.POINT, R.string.legend_waterfall, 17)
             .addTag("waterway", "waterfall").addTag("kind_attraction", "yes");
+    private static LegendItem dam = new LegendItem(GeometryType.LINE, R.string.legend_dam, 17)
+            .addTag("waterway", "dam");
+    private static LegendItem lock_gate = new LegendItem(GeometryType.LINE, R.string.legend_lock_gate, 17)
+            .addTag("waterway", "lock_gate");
+
     // Land
     private static LegendItem bare_rock = new LegendItem(GeometryType.POLY, R.string.legend_bare_rock, 17)
             .addTag("natural", "bare_rock");
+    private static LegendItem scree = new LegendItem(GeometryType.POLY, R.string.legend_scree, 17)
+            .addTag("natural", "scree");
+    private static LegendItem shingle = new LegendItem(GeometryType.POLY, R.string.legend_shingle, 17)
+            .addTag("natural", "shingle");
+    private static LegendItem mud = new LegendItem(GeometryType.POLY, R.string.legend_mud, 17)
+            .addTag("natural", "mud");
+    private static LegendItem sand = new LegendItem(GeometryType.POLY, R.string.legend_sand, 17)
+            .addTag("natural", "sand");
+    private static LegendItem beach = new LegendItem(GeometryType.POLY, R.string.legend_beach, 17)
+            .addTag("natural", "beach");
     //TODO Elevation
     private static LegendItem peak = new LegendItem(GeometryType.POINT, R.string.legend_peak, 17)
             .addTag("natural", "peak");
@@ -97,6 +151,10 @@ public class Legend extends ListFragment {
             .addTag("mountain_pass", "yes");
     private static LegendItem cliff = new LegendItem(GeometryType.LINE, R.string.legend_cliff, 17)
             .addTag("natural", "cliff");
+    private static LegendItem cave_entrance = new LegendItem(GeometryType.POINT, R.string.legend_cave_entrance, 17)
+            .addTag("natural", "cave_entrance");
+    private static LegendItem contour = new LegendItem(GeometryType.LINE, R.string.legend_contour, 14)
+            .addTag("contour", "elevation_major").setText(R.string.legend_elevation);
 
     // Vegetation
     private static LegendItem forest = new LegendItem(GeometryType.POLY, R.string.legend_forest, 17)
@@ -107,22 +165,66 @@ public class Legend extends ListFragment {
             .addTag("natural", "wetland");
     private static LegendItem tree = new LegendItem(GeometryType.POINT, R.string.legend_tree, 17)
             .addTag("natural", "tree");
+    private static LegendItem grass = new LegendItem(GeometryType.POLY, R.string.legend_grass, 17)
+            .addTag("landuse", "grass"); // ?
+    private static LegendItem grassland = new LegendItem(GeometryType.POLY, R.string.legend_grass, 17)
+            .addTag("natural", "grassland"); // ?
+    private static LegendItem scrub = new LegendItem(GeometryType.POLY, R.string.legend_scrub, 17)
+            .addTag("natural", "scrub");
+    private static LegendItem heath = new LegendItem(GeometryType.POLY, R.string.legend_heath, 17)
+            .addTag("natural", "heath");
 
-
-    private static LegendItem swimming_pool = new LegendItem(GeometryType.POLY, R.string.legend_swimming_pool, 17)
-            .addTag("leisure", "swimming_pool");
+    // Urban
     private static LegendItem hedge = new LegendItem(GeometryType.LINE, R.string.legend_hedge, 17)
             .addTag("barrier", "hedge");
     private static LegendItem fence = new LegendItem(GeometryType.LINE, R.string.legend_fence, 17)
             .addTag("barrier", "fence");
     private static LegendItem wall = new LegendItem(GeometryType.LINE, R.string.legend_wall, 17)
             .addTag("barrier", "wall");
+    private static LegendItem city_wall = new LegendItem(GeometryType.LINE, R.string.legend_city_wall, 17)
+            .addTag("barrier", "city_wall");
+    private static LegendItem retaining_wall = new LegendItem(GeometryType.LINE, R.string.legend_retaining_wall, 17)
+            .addTag("barrier", "retaining_wall");
     private static LegendItem building = new LegendItem(GeometryType.POLY, R.string.legend_building, 17)
             .addTag("building", "yes").addTag("kind", "yes").addTag("addr:housenumber", "13").setText(R.string.legend_thirteen);
+    private static LegendItem stadium = new LegendItem(GeometryType.POLY, R.string.legend_stadium, 17)
+            .addTag("leisure", "stadium");
     private static LegendItem sports_centre = new LegendItem(GeometryType.POLY, R.string.legend_sports_centre, 17)
             .addTag("leisure", "sports_centre").addTag("kind", "yes").setText(R.string.legend_sports_centre_name);
+    private static LegendItem swimming_pool = new LegendItem(GeometryType.POLY, R.string.legend_swimming_pool, 17)
+            .addTag("leisure", "swimming_pool");
+    private static LegendItem garden = new LegendItem(GeometryType.POLY, R.string.legend_garden, 17)
+            .addTag("leisure", "garden");
+    private static LegendItem camp_site_area = new LegendItem(GeometryType.POLY, R.string.legend_camp_site, 17)
+            .addTag("leisure", "camp_site");
+    private static LegendItem playground_area = new LegendItem(GeometryType.POLY, R.string.legend_playground, 17)
+            .addTag("leisure", "playground").addTag("kind_kids", "yes");
+    private static LegendItem pitch = new LegendItem(GeometryType.POLY, R.string.legend_pitch, 17)
+            .addTag("leisure", "pitch");
+    private static LegendItem meadow = new LegendItem(GeometryType.POLY, R.string.legend_meadow, 17)
+            .addTag("leisure", "meadow"); // ?
+    private static LegendItem dog_park = new LegendItem(GeometryType.POLY, R.string.legend_dog_park, 17)
+            .addTag("leisure", "dog_park");
+    private static LegendItem cemetery = new LegendItem(GeometryType.POLY, R.string.legend_cemetery, 17)
+            .addTag("landuse", "cemetery");
     private static LegendItem fountain = new LegendItem(GeometryType.POINT, R.string.legend_fountain, 17)
             .addTag("amenity", "fountain").addTag("kind_urban", "yes");
+    private static LegendItem runway = new LegendItem(GeometryType.LINE, R.string.legend_runway, 17)
+            .addTag("aeroway", "runway").setText(R.string.legend_runway_name);
+    private static LegendItem apron = new LegendItem(GeometryType.POLY, R.string.legend_apron, 17)
+            .addTag("aeroway", "apron");
+    private static LegendItem pier = new LegendItem(GeometryType.POLY, R.string.legend_pier, 17)
+            .addTag("man_made", "pier");
+    private static LegendItem bridge = new LegendItem(GeometryType.POLY, R.string.legend_bridge, 17)
+            .addTag("man_made", "bridge");
+    private static LegendItem tower = new LegendItem(GeometryType.POINT, R.string.legend_tower, 17)
+            .addTag("man_made", "tower");
+    private static LegendItem power_line = new LegendItem(GeometryType.LINE, R.string.legend_power_line, 17)
+            .addTag("power", "line");
+    private static LegendItem power_tower = new LegendItem(GeometryType.POINT, R.string.legend_power_tower, 17)
+            .addTag("power", "tower");
+    private static LegendItem power_generator_wind = new LegendItem(GeometryType.POINT, R.string.legend_power_generator_wind, 17)
+            .addTag("power", "generator").addTag("generator:source", "wind");
 
     // Roads
     private static LegendItem motorway = new LegendItem(GeometryType.LINE, R.string.legend_motorway, 17)
@@ -139,8 +241,6 @@ public class Legend extends ListFragment {
             .addTag("highway", "unclassified");
     private static LegendItem residential_road = new LegendItem(GeometryType.LINE, R.string.legend_residental_road, 17)
             .addTag("highway", "residential");
-    private static LegendItem pedestrian_road = new LegendItem(GeometryType.LINE, R.string.legend_pedestrian_road, 17)
-            .addTag("highway", "pedestrian");
     private static LegendItem service_road = new LegendItem(GeometryType.LINE, R.string.legend_service_road, 17)
             .addTag("highway", "service");
     private static LegendItem oneway_road = new LegendItem(GeometryType.LINE, R.string.legend_oneway_road, 17)
@@ -161,14 +261,16 @@ public class Legend extends ListFragment {
             .addTag("highway", "unclassified").addTag("ice_road", "yes");
     private static LegendItem toll_road = new LegendItem(GeometryType.LINE, R.string.legend_toll_road, 17)
             .addTag("highway", "unclassified").addTag("toll", "yes");
-    private static LegendItem bridge = new LegendItem(GeometryType.LINE, R.string.legend_bridge, 17)
+    private static LegendItem road_bridge = new LegendItem(GeometryType.LINE, R.string.legend_bridge, 17)
             .addTag("highway", "unclassified").addTag("bridge", "yes");
-    private static LegendItem tunnel = new LegendItem(GeometryType.LINE, R.string.legend_tunnel, 17)
+    private static LegendItem road_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_tunnel, 17)
             .addTag("highway", "unclassified").addTag("tunnel", "yes");
     private static LegendItem construction_road = new LegendItem(GeometryType.LINE, R.string.legend_road_under_construction, 17)
             .addTag("highway", "construction");
     private static LegendItem ford = new LegendItem(GeometryType.LINE, R.string.legend_ford, 17)
             .addTag("highway", "unclassified").addTag("ford", "yes");
+    private static LegendItem ford_point = new LegendItem(GeometryType.POINT, R.string.legend_ford, 17)
+            .addTag("ford", "yes");
     private static LegendItem border_control = new LegendItem(GeometryType.POINT, R.string.legend_border_control, 17)
             .addTag("barrier", "border_control");
     private static LegendItem toll_booth = new LegendItem(GeometryType.POINT, R.string.legend_toll_booth, 17)
@@ -186,6 +288,47 @@ public class Legend extends ListFragment {
     private static LegendItem gate = new LegendItem(GeometryType.POINT, R.string.legend_gate, 17)
             .addTag("barrier", "gate").addTag("kind_barrier", "yes");
 
+    // Tracks
+    private static LegendItem track = new LegendItem(GeometryType.LINE, R.string.legend_track, 17)
+            .addTag("highway", "track");
+    private static LegendItem track_bridge = new LegendItem(GeometryType.LINE, R.string.legend_track_bridge, 17)
+            .addTag("highway", "track").addTag("bridge", "yes");
+    private static LegendItem grade1_track = new LegendItem(GeometryType.LINE, R.string.legend_grade1_track, 17)
+            .addTag("highway", "track").addTag("tracktype", "grade1");
+    private static LegendItem grade2_track = new LegendItem(GeometryType.LINE, R.string.legend_grade2_track, 17)
+            .addTag("highway", "track").addTag("tracktype", "grade2");
+    private static LegendItem grade3_track = new LegendItem(GeometryType.LINE, R.string.legend_grade3_track, 17)
+            .addTag("highway", "track").addTag("tracktype", "grade3");
+    private static LegendItem grade4_track = new LegendItem(GeometryType.LINE, R.string.legend_grade4_track, 17)
+            .addTag("highway", "track").addTag("tracktype", "grade4");
+    private static LegendItem grade5_track = new LegendItem(GeometryType.LINE, R.string.legend_grade5_track, 17)
+            .addTag("highway", "track").addTag("tracktype", "grade5");
+    private static LegendItem winter_track = new LegendItem(GeometryType.LINE, R.string.legend_winter_track, 17)
+            .addTag("highway", "track").addTag("winter_road", "yes");
+    private static LegendItem ice_track = new LegendItem(GeometryType.LINE, R.string.legend_ice_track, 17)
+            .addTag("highway", "track").addTag("ice_road", "yes");
+    private static LegendItem ford_track = new LegendItem(GeometryType.LINE, R.string.legend_track_ford, 17)
+            .addTag("highway", "track").addTag("ford", "yes");
+    private static LegendItem bridleway = new LegendItem(GeometryType.LINE, R.string.legend_bridleway, 17)
+            .addTag("highway", "bridleway");
+
+    // Pedestrian ways
+    private static LegendItem pedestrian_area = new LegendItem(GeometryType.POLY, R.string.legend_pedestrian_area, 17)
+            .addTag("highway", "pedestrian"); //.addTag("area", "yes");
+    private static LegendItem pedestrian_road = new LegendItem(GeometryType.LINE, R.string.legend_pedestrian_road, 17)
+            .addTag("highway", "pedestrian");
+    private static LegendItem footway = new LegendItem(GeometryType.LINE, R.string.legend_footway, 17)
+            .addTag("highway", "footway");
+    private static LegendItem path = new LegendItem(GeometryType.LINE, R.string.legend_path, 17)
+            .addTag("highway", "path");
+    private static LegendItem footway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_footway_bridge, 17)
+            .addTag("highway", "footway").addTag("bridge", "yes");
+    private static LegendItem steps = new LegendItem(GeometryType.LINE, R.string.legend_steps, 17)
+            .addTag("highway", "steps");
+    private static LegendItem via_ferrata = new LegendItem(GeometryType.LINE, R.string.legend_via_ferrata, 17)
+            .addTag("highway", "via_ferrata");
+    private static LegendItem cycleway = new LegendItem(GeometryType.LINE, R.string.legend_cycleway, 17)
+            .addTag("highway", "cycleway");
 
     // Railways
     private static LegendItem railway = new LegendItem(GeometryType.LINE, R.string.legend_railway, 17)
@@ -215,16 +358,23 @@ public class Legend extends ListFragment {
     private static LegendItem railway_crossing = new LegendItem(GeometryType.POINT, R.string.legend_pedestrian_crossing, 17)
             .addTag("railway", "crossing");
 
+    // Transportation
     private static LegendItem bus_stop = new LegendItem(GeometryType.POINT, R.string.legend_bus_stop, 17)
             .addTag("highway", "bus_stop").addTag("kind_transportation", "yes").setText(R.string.legend_bus_stop_name);
     private static LegendItem tram_stop = new LegendItem(GeometryType.POINT, R.string.legend_tram_stop, 17)
             .addTag("railway", "tram_stop").addTag("kind_transportation", "yes").setText(R.string.legend_tram_stop_name);
+    private static LegendItem subway_entrance = new LegendItem(GeometryType.POINT, R.string.legend_subway_entrance, 17)
+            .addTag("railway", "subway_entrance").addTag("kind_transportation", "yes");
     private static LegendItem subway_station = new LegendItem(GeometryType.POINT, R.string.legend_subway_station, 15)
             .addTag("railway", "station").addTag("station", "subway").setText(R.string.legend_subway_station_name);
     private static LegendItem aeroway_aerodrome = new LegendItem(GeometryType.POINT, R.string.legend_aerodrome, 17)
             .addTag("aeroway", "aerodrome").setText(R.string.legend_aerodrome_name);
     private static LegendItem aeroway_heliport = new LegendItem(GeometryType.POINT, R.string.legend_heliport, 17)
             .addTag("aeroway", "heliport");
+    private static LegendItem ferry = new LegendItem(GeometryType.LINE, R.string.legend_ferry, 17)
+            .addTag("route", "ferry");
+    private static LegendItem ferry_terminal = new LegendItem(GeometryType.POINT, R.string.legend_ferry_terminal, 17)
+            .addTag("amenity", "ferry_terminal");
 
     // Pistes
     private static LegendItem piste_downhill_novice = new LegendItem(GeometryType.POLY, R.string.legend_novice_difficulty, 15)
@@ -328,7 +478,7 @@ public class Legend extends ListFragment {
     private static LegendItem piste_ski_tour = new LegendItem(GeometryType.LINE, R.string.legend_ski_tour, 15)
             .addTag("piste:type", "skitour").setTotalSymbols(3);
 
-    // Aerial ways
+    // Aerial cableways
     private static LegendItem cable_car = new LegendItem(GeometryType.LINE, R.string.legend_cable_car, 15)
             .addTag("aerialway", "cable_car").setTotalSymbols(3);
     private static LegendItem gondola = new LegendItem(GeometryType.LINE, R.string.legend_gondola, 15)
@@ -345,6 +495,8 @@ public class Legend extends ListFragment {
             .addTag("aerialway", "station");
 
     // POI
+
+    // Accommodation
     private static LegendItem wilderness_hut = new LegendItem(GeometryType.POINT, R.string.legend_wilderness_hut, 17)
             .addTag("tourism", "wilderness_hut").addTag("kind_accommodation", "yes");
     private static LegendItem alpine_hut = new LegendItem(GeometryType.POINT, R.string.legend_alpine_hut, 17)
@@ -399,6 +551,10 @@ public class Legend extends ListFragment {
             .addTag("amenity", "cinema").addTag("kind_entertainment", "yes");
     private static LegendItem water_park = new LegendItem(GeometryType.POINT, R.string.legend_water_park, 17)
             .addTag("leisure", "water_park").addTag("kind_entertainment", "yes");
+    private static LegendItem beach_resort = new LegendItem(GeometryType.POINT, R.string.legend_beach_resort, 17)
+            .addTag("leisure", "beach_resort").addTag("kind_entertainment", "yes");
+    private static LegendItem sauna = new LegendItem(GeometryType.POINT, R.string.legend_sauna, 17)
+            .addTag("leisure", "sauna").addTag("kind_entertainment", "yes");
 
     private static LegendItem police = new LegendItem(GeometryType.POINT, R.string.legend_police_office, 17)
             .addTag("amenity", "police").addTag("kind_emergency", "yes");
@@ -424,7 +580,7 @@ public class Legend extends ListFragment {
 
     private static LegendItem toys = new LegendItem(GeometryType.POINT, R.string.legend_toys_shop, 17)
             .addTag("shop", "toys").addTag("kind_kids", "yes");
-    private static LegendItem playground = new LegendItem(GeometryType.POLY, R.string.legend_playground, 17)
+    private static LegendItem playground = new LegendItem(GeometryType.POINT, R.string.legend_playground, 17)
             .addTag("leisure", "playground").addTag("kind_kids", "yes");
     private static LegendItem kindergarten = new LegendItem(GeometryType.POINT, R.string.legend_kindergarten, 17)
             .addTag("amenity", "kindergarten").addTag("kind_kids", "yes");
@@ -466,6 +622,8 @@ public class Legend extends ListFragment {
             .addTag("amenity", "bureau_de_change").addTag("kind_service", "yes");
     private static LegendItem post_box = new LegendItem(GeometryType.POINT, R.string.legend_post_box, 17)
             .addTag("amenity", "post_box").addTag("kind_service", "yes");
+    private static LegendItem shower = new LegendItem(GeometryType.POINT, R.string.legend_shower, 17)
+            .addTag("amenity", "shower").addTag("kind_service", "yes");
 
     private static LegendItem lighthouse = new LegendItem(GeometryType.POINT, R.string.legend_lighthouse, 17)
             .addTag("man_made", "lighthouse").addTag("kind_attraction", "yes");
@@ -485,6 +643,8 @@ public class Legend extends ListFragment {
             .addTag("historic", "castle").addTag("kind_attraction", "yes");
     private static LegendItem monument = new LegendItem(GeometryType.POINT, R.string.legend_monument, 17)
             .addTag("historic", "monument").addTag("kind_attraction", "yes");
+    private static LegendItem archaeological_site = new LegendItem(GeometryType.POINT, R.string.legend_archaeological_site, 17)
+            .addTag("historic", "archaeological_site").addTag("kind_attraction", "yes");
     private static LegendItem ruins = new LegendItem(GeometryType.POINT, R.string.legend_ruins, 17)
             .addTag("historic", "ruins").addTag("kind_attraction", "yes");
 
@@ -509,6 +669,10 @@ public class Legend extends ListFragment {
             .addTag("amenity", "slipway").addTag("kind_vehicles", "yes");
     private static LegendItem parking = new LegendItem(GeometryType.POLY, R.string.legend_parking, 17)
             .addTag("amenity", "parking").addTag("kind_vehicles", "yes");
+    private static LegendItem parking_unpaved = new LegendItem(GeometryType.POLY, R.string.legend_unpaved_parking, 17)
+            .addTag("amenity", "parking").addTag("surface", "unpaved").addTag("kind_vehicles", "yes");
+    private static LegendItem parking_dirt = new LegendItem(GeometryType.POLY, R.string.legend_dirt_parking, 17)
+            .addTag("amenity", "parking").addTag("surface", "dirt").addTag("kind_vehicles", "yes");
     private static LegendItem parking_car_paid = new LegendItem(GeometryType.POLY, R.string.legend_paid_parking, 17)
             .addTag("amenity", "parking").addTag("fee", "yes").addTag("kind_vehicles", "yes");
     private static LegendItem parking_private = new LegendItem(GeometryType.POLY, R.string.legend_private_parking, 17)
@@ -565,10 +729,11 @@ public class Legend extends ListFragment {
             capital,
             city,
             town,
-            locality,
             village,
             suburb,
-            allotments
+            allotment,
+            island,
+            locality
     });
 
     private static LegendSection roads = new LegendSection(R.string.legend_roads, new LegendItem[]{
@@ -589,21 +754,48 @@ public class Legend extends ListFragment {
             dirt_road,
             winter_road,
             ice_road,
-            bridge,
-            tunnel,
+            road_bridge,
+            road_tunnel,
             ford,
             construction_road,
             parking,
             parking_car_paid,
             parking_private,
+            parking_unpaved,
+            parking_dirt,
             border_control,
             toll_booth,
             traffic_signals,
+            lift_gate,
+            gate,
             block,
             bollard,
-            cycle_barrier,
-            lift_gate,
-            gate
+            cycleway,
+            cycle_barrier
+    });
+
+    private static LegendSection tracks = new LegendSection(R.string.legend_tracks, new LegendItem[]{
+            track,
+            track_bridge,
+            winter_track,
+            ice_track,
+            ford_track,
+            grade1_track,
+            grade2_track,
+            grade3_track,
+            grade4_track,
+            grade5_track,
+            bridleway
+    });
+
+    private static LegendSection pedestrian = new LegendSection(R.string.legend_pedestrian, new LegendItem[]{
+            pedestrian_area,
+            pedestrian_road,
+            footway,
+            path,
+            footway_bridge,
+            steps,
+            via_ferrata // TODO Should go to hiking
     });
 
     private static LegendSection railways = new LegendSection(R.string.legend_railways, new LegendItem[]{
@@ -619,7 +811,17 @@ public class Legend extends ListFragment {
             railway_crossing
     });
 
-    private static LegendSection amenities = new LegendSection(R.string.legend_amenities, new LegendItem[]{
+    private static LegendSection aerial_ways = new LegendSection(R.string.legend_aerial_ways, new LegendItem[]{
+            cable_car,
+            gondola,
+            chair_lift,
+            drag_lift,
+            zip_line,
+            magic_carpet,
+            aerialway_station
+    });
+
+    private static LegendSection amenities_accomodation = new LegendSection(R.string.kind_accommodation, new LegendItem[]{
             wilderness_hut,
             alpine_hut,
             guest_house,
@@ -627,72 +829,111 @@ public class Legend extends ListFragment {
             hostel,
             hotel,
             camp_site,
-            caravan_site,
+            caravan_site
+    });
+
+    private static LegendSection amenities_food = new LegendSection(R.string.kind_food, new LegendItem[]{
             ice_cream,
             confectionery,
             alcohol,
             beverages,
             bakery,
             greengrocer,
-            marketplace,
             supermarket,
+            marketplace,
+            cafe,
+            pub,
+            bar,
+            fast_food,
+            restaurant
+    });
+
+
+    private static LegendSection amenities_entertainment = new LegendSection(R.string.kind_entertainment, new LegendItem[]{
+            zoo,
+            theatre,
+            cinema,
+            picnic_site,
+            water_park,
+            beach_resort,
+            sauna
+    });
+
+    private static LegendSection amenities_emergency = new LegendSection(R.string.kind_emergency, new LegendItem[]{
+            police,
+            fire_station,
+            hospital,
+            doctors,
+            pharmacy,
+            ranger_station,
+            telephone,
+            emergency_telephone
+    });
+
+    private static LegendSection amenities_pets = new LegendSection(R.string.kind_pets, new LegendItem[]{
             pet_shop,
+            veterinary
+    });
+
+    private static LegendSection amenities_kids = new LegendSection(R.string.kind_kids, new LegendItem[]{
             toys,
-            bicycle,
-            outdoor,
+            playground,
+            kindergarten
+    });
+
+    private static LegendSection amenities_shopping = new LegendSection(R.string.kind_shopping, new LegendItem[]{
             sports,
             gift,
             jewelry,
             photo,
             books,
             variety_store,
+            supermarket,
             doityourself,
             department_store,
-            copyshop,
-            laundry,
-            hairdresser,
+            marketplace
+    });
+
+    private static LegendSection amenities_attraction = new LegendSection(R.string.kind_attraction, new LegendItem[]{
+            waterfall,
+            windmill,
+            lighthouse,
+            museum,
+            attraction,
+            viewpoint,
+            artwork,
+            memorial,
+            castle,
+            monument,
+            archaeological_site,
+            ruins
+    });
+
+    private static LegendSection amenities_urban = new LegendSection(R.string.kind_urban, new LegendItem[]{
+            fountain
+    });
+
+    private static LegendSection amenities_education = new LegendSection(R.string.kind_education, new LegendItem[]{
+            university,
+            college,
+            school,
+            library
+    });
+
+    private static LegendSection amenities_vehicles = new LegendSection(R.string.kind_vehicles, new LegendItem[]{
             car,
             car_repair,
             car_rental,
             fuel,
-            bicycle_rental,
-            cafe,
-            pub,
-            bar,
-            fast_food,
-            restaurant,
-            zoo,
-            theatre,
-            cinema,
-            water_park,
-            university,
-            college,
-            school,
-            kindergarten,
-            police,
-            fire_station,
-            ranger_station,
-            hospital,
-            doctors,
-            pharmacy,
-            veterinary,
-            bank,
-            post_office,
-            atm,
-            bureau_de_change,
-            post_box,
-            museum,
-            library,
             slipway,
-            memorial,
-            castle,
-            monument,
-            ruins,
-            attraction,
-            viewpoint,
-            artwork,
-            windmill,
-            lighthouse,
+            parking
+    });
+
+    private static LegendSection amenities_transportation = new LegendSection(R.string.kind_transportation, new LegendItem[]{
+            bus_station
+    });
+
+    private static LegendSection amenities_religion = new LegendSection(R.string.kind_religion, new LegendItem[]{
             place_of_worship,
             jewish,
             muslim,
@@ -701,40 +942,152 @@ public class Legend extends ListFragment {
             shinto,
             christian,
             sikh,
-            taoist,
-            picnic_site,
+            taoist
+    });
+
+    private static LegendSection amenities_hikebike = new LegendSection(R.string.kind_hikebike, new LegendItem[]{
+            bicycle,
+            outdoor,
+            bicycle_rental,
             drinking_water,
             shelter,
             toilets,
-            telephone,
-            emergency_telephone,
             information_office,
             information_guidepost,
             information_map,
             information
     });
 
-    private static LegendSection[] themeRoads = new LegendSection[]{
-            /*
-            <cat id="roads" />
-            <cat id="ferries" />
-            <cat id="railways" />
-            urban areas
-            */
-            roads,
+    private static LegendSection amenities_service = new LegendSection(R.string.kind_service, new LegendItem[]{
+            copyshop,
+            laundry,
+            hairdresser,
+            bank,
+            post_office,
+            atm,
+            bureau_de_change,
+            post_box,
+            shower
+    });
+
+    private static LegendSection[] themeTopo = new LegendSection[]{
+            administrative,
+            new LegendSection(R.string.legend_land_use, new LegendItem[]{
+                    residential,
+                    educational,
+                    recreation,
+                    industrial,
+                    construction,
+                    hospital_area,
+                    aerodrome,
+                    allotments,
+                    quarry,
+                    farmland,
+                    farmyard,
+                    nature_reserve,
+                    military
+            }),
             new LegendSection(R.string.legend_water, new LegendItem[]{
                     water,
                     river,
+                    underground_river,
                     canal,
                     stream,
+                    ditch,
+                    dam,
+                    lock_gate,
+                    ford_point,
                     waterfall
             }),
-            new LegendSection(R.string.legend_urban, new LegendItem[]{
-                    building,
-                    swimming_pool
+            new LegendSection(R.string.legend_terrain_features, new LegendItem[]{
+                    grass,
+                    grassland,
+                    forest,
+                    tree,
+                    scrub,
+                    heath,
+                    marsh,
+                    wetland,
+                    bare_rock,
+                    scree,
+                    shingle,
+                    mud,
+                    sand,
+                    beach,
+                    glacier,
+                    cliff,
+                    peak,
+                    volcano,
+                    saddle,
+                    mountain_pass,
+                    cave_entrance,
+                    contour
             }),
-            administrative
-            //other
+            new LegendSection(R.string.legend_manmade_features, new LegendItem[]{
+                    city_wall,
+                    wall,
+                    retaining_wall,
+                    fence,
+                    hedge,
+                    power_line,
+                    power_tower,
+                    power_generator_wind,
+                    tower,
+                    building,
+                    runway,
+                    apron,
+                    railway_platform,
+                    bridge,
+                    pier,
+                    fountain
+            }),
+            new LegendSection(R.string.legend_urban, new LegendItem[]{
+                    pitch, //?
+                    meadow, //?
+                    building,
+                    sports_centre,
+                    stadium,
+                    swimming_pool,
+                    garden,
+                    camp_site_area,
+                    playground_area,
+                    zoo_area,
+                    dog_park,
+                    cemetery
+            }),
+            roads,
+            tracks,
+            pedestrian,
+            railways,
+            aerial_ways,
+            new LegendSection(R.string.legend_transportation, new LegendItem[]{
+                    bus_station,
+                    bus_stop,
+                    tram_stop,
+                    subway_entrance,
+                    subway_station,
+                    railway_station,
+                    railway_halt,
+                    aeroway_aerodrome,
+                    aeroway_heliport,
+                    ferry_terminal,
+                    ferry
+            }),
+            amenities_emergency,
+            amenities_accomodation,
+            amenities_food,
+            amenities_attraction,
+            amenities_entertainment,
+            amenities_shopping,
+            amenities_service,
+            amenities_religion,
+            amenities_education,
+            amenities_kids,
+            amenities_pets,
+            amenities_vehicles,
+            amenities_transportation,
+            amenities_hikebike,
+            amenities_urban
     };
 
     private static LegendSection[] themeWinter = new LegendSection[]{
@@ -798,15 +1151,7 @@ public class Legend extends ListFragment {
                     piste_ski_tour,
                     sports_centre
             }),
-            new LegendSection(R.string.legend_aerial_ways, new LegendItem[]{
-                    cable_car,
-                    gondola,
-                    chair_lift,
-                    drag_lift,
-                    zip_line,
-                    magic_carpet,
-                    aerialway_station
-            }),
+            aerial_ways,
             administrative,
             new LegendSection(R.string.legend_terrain_features, new LegendItem[]{
                     glacier,
@@ -830,7 +1175,6 @@ public class Legend extends ListFragment {
                     fence,
                     hedge,
                     railway_platform,
-                    playground,
                     fountain
             }),
             new LegendSection(R.string.legend_transportation, new LegendItem[]{
@@ -843,9 +1187,23 @@ public class Legend extends ListFragment {
                     aeroway_aerodrome,
                     aeroway_heliport
             }),
-            roads.remove(dirt_road).remove(unpaved_road),
+            roads.remove(dirt_road).remove(unpaved_road).remove(parking_unpaved).remove(parking_dirt),
             railways,
-            amenities
+            amenities_emergency,
+            amenities_accomodation,
+            amenities_food,
+            amenities_attraction,
+            amenities_entertainment,
+            amenities_shopping,
+            amenities_service,
+            amenities_religion,
+            amenities_education,
+            amenities_kids,
+            amenities_pets,
+            amenities_vehicles,
+            amenities_transportation,
+            amenities_hikebike,
+            amenities_urban
     };
 
     private Legend.LegendListAdapter mAdapter;
@@ -898,7 +1256,22 @@ public class Legend extends ListFragment {
     public void updateData() {
         mData.clear();
 
-        LegendSection[] theme = themeWinter;
+        LegendSection[] theme;
+
+        switch (Configuration.getActivity()) {
+            case 2:
+                theme = themeWinter;
+                break;
+            case 1:
+                 theme = themeTopo;
+                //categories.add("hiking");
+                break;
+            case 0:
+            default:
+                int nightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+                theme = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES ? themeTopo : themeTopo; // TODO night
+                break;
+        }
 
         for (LegendSection section : theme) {
             mData.add(new LegendItem(GeometryType.NONE, section.title, 0));
