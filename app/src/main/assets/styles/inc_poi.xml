@@ -220,7 +220,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_attraction">
+            <m k="kind_attraction" select="first">
                 <m k="waterway">
                     <m v="waterfall">
                         <symbol src="assets:symbols/natural/waterfall.svg" />
@@ -232,33 +232,6 @@
                     </m>
                     <m v="windmill">
                         <symbol src="assets:symbols/tourist/windmill.svg" />
-                    </m>
-                </m>
-                <m k="tourism">
-                    <m v="museum">
-                        <symbol src="assets:symbols/tourist/museum.svg" />
-                    </m>
-                    <m v="attraction">
-                        <symbol src="assets:symbols/tourist/attraction.svg" />
-                    </m>
-                    <m select="first" v="information">
-                        <m k="information" v="guidepost">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg"
-                                symbol-percent="60" />
-                        </m>
-                        <m k="information" v="map">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg" />
-                        </m>
-                        <m>
-                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg"
-                                symbol-percent="80" />
-                        </m>
-                    </m>
-                    <m v="viewpoint">
-                        <symbol src="assets:symbols/tourist/view_point.svg" />
-                    </m>
-                    <m v="artwork">
-                        <symbol src="assets:symbols/tourist/artwork.svg" />
                     </m>
                 </m>
                 <m k="historic">
@@ -276,6 +249,37 @@
                     </m>
                     <m v="ruins">
                         <symbol src="assets:symbols/tourist/ruin.svg" />
+                    </m>
+                </m>
+                <m k="tourism">
+                    <m v="museum">
+                        <symbol src="assets:symbols/tourist/museum.svg" />
+                    </m>
+                    <m select="first" v="information">
+                        <m k="information" v="office">
+                            <symbol src="assets:symbols/tourist/information_office.svg" />
+                        </m>
+                        <m k="information" v="guidepost">
+                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg"
+                                symbol-percent="70" />
+                        </m>
+                        <m k="information" v="map">
+                            <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg"
+                                symbol-percent="70" />
+                        </m>
+                        <m>
+                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg"
+                                symbol-percent="70" />
+                        </m>
+                    </m>
+                    <m v="artwork">
+                        <symbol src="assets:symbols/tourist/artwork.svg" />
+                    </m>
+                    <m v="viewpoint">
+                        <symbol src="assets:symbols/tourist/view_point.svg" />
+                    </m>
+                    <m v="attraction">
+                        <symbol src="assets:symbols/tourist/attraction.svg" />
                     </m>
                 </m>
             </m>
