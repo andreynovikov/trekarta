@@ -112,6 +112,8 @@
         stroke-width="2.5" />
     <style-text caption="true" fill="#000000" id="place" size="16" stroke="#ffffff"
         stroke-width="2.0" />
+    <style-text caption="true" fill="#444411" id="place_village" use="place" />
+    <style-text style="italic" caption="true" fill="#606060" id="place_suburb" use="place" />
     <style-text id="place_town" symbol="assets:symbols/dot_black.svg" use="place" />
     <style-text id="place_city" symbol="assets:symbols/dot_white.svg" use="place" />
     <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
@@ -935,7 +937,7 @@
 
     <xi:include href="inc_railway_bridges.xml" />
 
-    <xi:include href="inc_barier_lines.xml" />
+    <xi:include href="inc_barrier_lines.xml" />
 
     <m cat="forest" k="natural" v="tree" zoom-min="15">
         <area fade="15" fill="#c6d7d7" mesh="true" />

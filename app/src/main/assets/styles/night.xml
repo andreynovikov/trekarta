@@ -247,7 +247,7 @@
 
     <xi:include href="inc_railway_bridges.xml" />
 
-    <xi:include href="inc_barier_lines.xml" />
+    <xi:include href="inc_barrier_lines.xml" />
 
     <m cat="nature" k="natural" v="tree" zoom-min="15">
         <area fade="15" fill="#151715" mesh="true" />
