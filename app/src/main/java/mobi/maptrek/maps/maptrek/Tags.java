@@ -853,7 +853,8 @@ public class Tags {
             "beach_resort",
             "sauna",
             "ferry_terminal",
-            "shower"
+            "shower",
+            "zip_line"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
