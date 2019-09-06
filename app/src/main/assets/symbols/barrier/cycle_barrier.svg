@@ -8,12 +8,5 @@
 </cc:Work>
 </rdf:RDF>
 </metadata>
-<g transform="translate(-9.2013 4.465)" fill="none" stroke="#666" stroke-linecap="round" stroke-linejoin="round">
-<line x1="221.75" x2="155.75" y1="147" y2="491.86" stroke-width="50"/>
-<line x1="79.945" x2="79.945" y1="499.45" y2="211.91" stroke-width="35"/>
-<line x1="82.15" x2="207.54" y1="255.08" y2="255.08" stroke-width="35"/>
-<line x1="382.55" x2="448.55" y1="147" y2="491.86" stroke-width="50"/>
-<line x1="524.35" x2="524.35" y1="499.45" y2="211.91" stroke-width="35"/>
-<line x1="522.15" x2="396.75" y1="255.08" y2="255.08" stroke-width="35"/>
-</g>
+<path d="m226 226v32h224v-32zm-96 96v32h224v-32z" fill="#666"/>
 </svg>

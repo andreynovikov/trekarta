@@ -10,5 +10,5 @@
 </rdf:RDF>
 </metadata>
 <rect width="16" height="16" fill="none" visibility="hidden"/>
-<path transform="translate(1,1)" d="m7 0c-1 0-1 1-1 1l-1e-6 3h-4v2h4l1e-6 8h2l-1e-6 -8h4v-2h-4v-3s0-1-1-1z"/>
+<path transform="translate(1,1)" d="m7 0c-1 0-1 1-1 1l-1e-6 3h-4v2h4l1e-6 8h2l-1e-6 -8h4v-2h-4v-3s0-1-1-1z" fill="#444"/>
 </svg>
