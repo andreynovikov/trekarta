@@ -221,7 +221,7 @@ public class Legend extends ListFragment {
             .addTag("man_made", "tower");
     private static LegendItem power_line = new LegendItem(GeometryType.LINE, R.string.legend_power_line, 17)
             .addTag("power", "line");
-    private static LegendItem power_tower = new LegendItem(GeometryType.POINT, R.string.legend_power_tower, 17)
+    private static LegendItem power_tower = new LegendItem(GeometryType.POINT, R.string.legend_power_line, 17)
             .addTag("power", "tower");
     private static LegendItem power_generator_wind = new LegendItem(GeometryType.POINT, R.string.legend_power_generator_wind, 17)
             .addTag("power", "generator").addTag("generator:source", "wind");
@@ -1029,8 +1029,7 @@ public class Legend extends ListFragment {
                     retaining_wall,
                     fence,
                     hedge,
-                    power_line,
-                    power_tower,
+                    power_line.setOverlay(power_tower),
                     power_generator_wind,
                     tower,
                     building,
@@ -1336,8 +1335,7 @@ public class Legend extends ListFragment {
 
             itemHolder.name.setText(legendItem.name);
             if (legendItem.type != GeometryType.NONE) {
-                itemHolder.item.setLegend(legendItem, mBackground,
-                        mTheme.matchElement(legendItem.type, legendItem.tags, legendItem.zoomLevel));
+                itemHolder.item.setLegend(legendItem, mBackground, mTheme);
             }
             return convertView;
         }

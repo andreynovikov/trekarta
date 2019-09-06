@@ -33,6 +33,7 @@ import org.oscim.android.canvas.AndroidPaint;
 import org.oscim.core.GeometryBuffer.GeometryType;
 import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
+import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.CircleStyle;
 import org.oscim.theme.styles.LineStyle;
@@ -47,7 +48,8 @@ import mobi.maptrek.MapTrek;
 public class LegendView extends View {
     private LegendItem mItem;
     private int mBackground;
-    private RenderStyle[] mStyle;
+    private IRenderTheme mTheme;
+    private float mDensity;
     private float mLeft;
     private float mRight;
     private float mTop;
@@ -70,10 +72,11 @@ public class LegendView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setLegend(LegendItem item, int background, RenderStyle[] style) {
+    public void setLegend(LegendItem item, int background, IRenderTheme theme) {
         mItem = item;
         mBackground = background;
-        mStyle = style;
+        mTheme = theme;
+        mDensity = MapTrek.density * 0.75f;
         invalidate();
         requestLayout();
     }
@@ -95,82 +98,88 @@ public class LegendView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(mBackground);
 
-        if (mStyle == null)
-            return;
+        for (LegendItem item = mItem; item != null; item = item.overlay) {
+            RenderStyle[] styles = mTheme.matchElement(item.type, item.tags, item.zoomLevel);
+            if (styles == null)
+                return;
 
-        float gap = 3f * MapTrek.density;
-        canvas.clipRect(mLeft - gap, 0, mRight + gap, getHeight());
+            float gap = 3f * mDensity;
+            canvas.clipRect(mLeft - gap, 0, mRight + gap, getHeight());
 
-        mLines.clear();
-        mSymbolCount = 1;
-        for (RenderStyle style : mStyle) {
-            if (style instanceof LineStyle) {
-                if (((LineStyle) style).texture != null)
-                    mLines.add(0, style);
-                else
-                    renderLine(canvas, (LineStyle) style);
-            } else if (style instanceof AreaStyle) {
-                if (mItem.type == GeometryType.LINE)
-                    continue;
-                renderArea(canvas, (AreaStyle) style);
-            } else if (style instanceof CircleStyle) {
-                renderCircle(canvas, (CircleStyle) style);
+            mLines.clear();
+            mSymbolCount = 1;
+            for (RenderStyle style : styles) {
+                if (style instanceof LineStyle) {
+                    if (((LineStyle) style).texture != null)
+                        mLines.add(0, style);
+                    else
+                        renderLine(item, canvas, (LineStyle) style);
+                } else if (style instanceof AreaStyle) {
+                    if (item.type == GeometryType.LINE)
+                        continue;
+                    renderArea(item, canvas, (AreaStyle) style);
+                } else if (style instanceof CircleStyle) {
+                    renderCircle(item, canvas, (CircleStyle) style);
+                }
             }
-        }
-        for (RenderStyle style : mLines) {
-            renderLine(canvas, (LineStyle) style);
-        }
-        for (RenderStyle style : mStyle) {
-            if (style instanceof SymbolStyle)
-                renderSymbol(canvas, (SymbolStyle) style);
-            else if (style instanceof TextStyle)
-                renderText(canvas, (TextStyle) style);
+            for (RenderStyle style : mLines) {
+                renderLine(item, canvas, (LineStyle) style);
+            }
+            for (RenderStyle style : styles) {
+                if (style instanceof SymbolStyle)
+                    renderSymbol(item, canvas, (SymbolStyle) style);
+                else if (style instanceof TextStyle)
+                    renderText(item, canvas, (TextStyle) style);
+            }
         }
     }
 
-    void renderArea(Canvas canvas, AreaStyle areaStyle) {
+    void renderArea(LegendItem item, Canvas canvas, AreaStyle areaStyle) {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(areaStyle.color);
-        if (mItem.type == GeometryType.POINT) {
-            canvas.drawCircle(mCenterX, mCenterY, 5 * MapTrek.density, paint);
+        if (item.type == GeometryType.POINT) {
+            canvas.drawCircle(mCenterX, mCenterY, 5 * mDensity, paint);
         } else {
             if (areaStyle.texture != null) {
                 Bitmap bmp = Bitmap.createBitmap(areaStyle.texture.bitmap.getPixels(),
-                        areaStyle.texture.bitmap.getWidth(), areaStyle.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                canvas.drawBitmap(bmp, mCenterX - areaStyle.texture.width / 2f, mCenterY - areaStyle.texture.height / 2f, null);
+                        areaStyle.texture.bitmap.getWidth(), areaStyle.texture.bitmap.getHeight(),
+                        Bitmap.Config.ARGB_8888);
+                canvas.drawBitmap(bmp, mCenterX - areaStyle.texture.width / 2f,
+                        mCenterY - areaStyle.texture.height / 2f, null);
             } else {
                 canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
             }
             if (areaStyle.strokeWidth != 0f) {
                 paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(areaStyle.strokeWidth * MapTrek.density * .25f);
+                paint.setStrokeWidth(areaStyle.strokeWidth * mDensity * .25f);
                 paint.setColor(areaStyle.strokeColor);
                 canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
             }
         }
     }
 
-    void renderCircle(Canvas canvas, CircleStyle circleStyle) {
+    void renderCircle(LegendItem item, Canvas canvas, CircleStyle circleStyle) {
     }
 
-    void renderSymbol(Canvas canvas, SymbolStyle symbolStyle) {
-        if (mItem.totalSymbols == 0)
+    void renderSymbol(LegendItem item, Canvas canvas, SymbolStyle symbolStyle) {
+        if (item.totalSymbols == 0)
             return;
-        float x = mItem.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (mItem.totalSymbols + 1) * mSymbolCount : mCenterX;
+        float x = item.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (item.totalSymbols + 1) * mSymbolCount : mCenterX;
         mSymbolCount++;
         canvas.drawBitmap(symbolStyle.bitmap.getPixels(), 0, symbolStyle.bitmap.getWidth(),
                 x - symbolStyle.bitmap.getWidth() / 2f,
                 mCenterY - symbolStyle.bitmap.getHeight() / 2f,
-                symbolStyle.bitmap.getWidth(), symbolStyle.bitmap.getHeight(), true, null);
+                symbolStyle.bitmap.getWidth(), symbolStyle.bitmap.getHeight(),
+                true, null);
     }
 
-    void renderLine(Canvas canvas, LineStyle lineStyle) {
+    void renderLine(LegendItem item, Canvas canvas, LineStyle lineStyle) {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(lineStyle.fixed ? lineStyle.width * MapTrek.density : lineStyle.width * MapTrek.density * 8f);
+        paint.setStrokeWidth(lineStyle.fixed ? lineStyle.width * mDensity : lineStyle.width * mDensity * 8f);
         paint.setColor(lineStyle.color);
-        if (mItem.type == GeometryType.LINE) {
+        if (item.type == GeometryType.LINE) {
             if (lineStyle.texture != null) {
                 // XMLThemeBuilder(623)
                 float xOffset = 0;
@@ -180,7 +189,8 @@ public class LegendView extends View {
                     xOffset = (lineStyle.repeatStart + symbolWidth / 2f) * r;
                 }
                 Bitmap bmp = Bitmap.createBitmap(lineStyle.texture.bitmap.getPixels(),
-                        lineStyle.texture.bitmap.getWidth(), lineStyle.texture.bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                        lineStyle.texture.bitmap.getWidth(), lineStyle.texture.bitmap.getHeight(),
+                        Bitmap.Config.ARGB_8888);
                 Bitmap resized = Bitmap.createScaledBitmap(bmp, bmp.getWidth() >> 1, bmp.getHeight() >> 1, false);
                 bmp.recycle();
                 Paint bmpPaint = null;
@@ -196,7 +206,7 @@ public class LegendView extends View {
                 canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
                 canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
             } else if (lineStyle.stipple != 0) {
-                float stipple = lineStyle.stipple * MapTrek.density * .5f;
+                float stipple = lineStyle.stipple * mDensity * .5f;
                 Path path = new Path();
                 path.moveTo(mLeft, mCenterY);
                 path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
@@ -214,26 +224,27 @@ public class LegendView extends View {
                 canvas.drawLine(mLeft, mCenterY, mRight, mCenterY, paint);
                 mLastLineWidth = paint.getStrokeWidth();
             }
-        } else if (mItem.type == GeometryType.POLY) {
+        } else if (item.type == GeometryType.POLY) {
             canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
         }
     }
 
-    void renderText(Canvas canvas, TextStyle textStyle) {
-        if (mItem.text == 0)
+    void renderText(LegendItem item, Canvas canvas, TextStyle textStyle) {
+        if (item.text == 0)
             return;
-        String text = getResources().getString(mItem.text);
+        String text = getResources().getString(item.text);
         float h = textStyle.paint.getTextHeight(text);
         if (textStyle.bitmap != null)
             h = h * Math.signum(textStyle.dy);
         else
             h = h / -2f;
-        if (mItem.type == GeometryType.POINT) {
+        if (item.type == GeometryType.POINT) {
             if (textStyle.bitmap != null)
                 canvas.drawBitmap(textStyle.bitmap.getPixels(), 0, textStyle.bitmap.getWidth(),
                         mCenterX - textStyle.bitmap.getWidth() / 2f,
                         mCenterY - textStyle.bitmap.getHeight() / 2f - h,
-                        textStyle.bitmap.getWidth(), textStyle.bitmap.getHeight(), true, null);
+                        textStyle.bitmap.getWidth(), textStyle.bitmap.getHeight(),
+                        true, null);
         }
 
         if (textStyle.stroke != null) {
@@ -253,6 +264,7 @@ public class LegendView extends View {
         @StringRes
         public int name;
         int totalSymbols;
+        LegendItem overlay;
 
         public LegendItem(GeometryType type, @StringRes int name, int zoomLevel) {
             this.type = type;
@@ -261,6 +273,7 @@ public class LegendView extends View {
             this.tags = new TagSet();
             this.text = 0;
             this.totalSymbols = 1;
+            this.overlay = null;
         }
 
         public LegendItem addTag(String key, String value) {
@@ -275,6 +288,11 @@ public class LegendView extends View {
 
         public LegendItem setTotalSymbols(int totalSymbols) {
             this.totalSymbols = totalSymbols;
+            return this;
+        }
+
+        public LegendItem setOverlay(LegendItem overlay) {
+            this.overlay = overlay;
             return this;
         }
     }
