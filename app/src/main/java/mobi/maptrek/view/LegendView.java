@@ -145,8 +145,17 @@ public class LegendView extends View {
                 Bitmap bmp = Bitmap.createBitmap(areaStyle.texture.bitmap.getPixels(),
                         areaStyle.texture.bitmap.getWidth(), areaStyle.texture.bitmap.getHeight(),
                         Bitmap.Config.ARGB_8888);
-                canvas.drawBitmap(bmp, mCenterX - areaStyle.texture.width / 2f,
-                        mCenterY - areaStyle.texture.height / 2f, null);
+                canvas.save();
+                canvas.clipRect(mLeft, mTop, mRight, mBottom);
+                float left = mCenterX - areaStyle.texture.width / 2f;
+                float top = mCenterY - areaStyle.texture.height / 2f;
+                canvas.drawBitmap(bmp, left, top, null);
+                if (left > mLeft)
+                    canvas.drawBitmap(bmp, left - areaStyle.texture.width, top, null);
+                left = left + areaStyle.texture.width;
+                if (left < mRight)
+                    canvas.drawBitmap(bmp, left, top, null);
+                canvas.restore();
             } else {
                 canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
             }
