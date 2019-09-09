@@ -96,6 +96,8 @@
     <style-color id="road-winter" color="#415656" /><!-- darken 60% desaturate 10% -->
     <style-color id="surface-dirt" color="#2f271e" /><!-- darken 40% desaturate 10% -->
     <style-color id="surface-unpaved" color="#4e4131" /><!-- darken 50% desaturate 10% -->
+    <style-color id="parking-dirt" color="#100d0a" />
+    <style-color id="parking-unpaved" color="#1f1a13" />
 
     <style-color id="road-text" color="#5E5E5E" />
     <style-color id="road-text-outline" color="#000000" />
@@ -215,8 +217,24 @@
         <m cat="landclasses" v="allotments">
             <area use="allotments" />
         </m>
+        <m cat="urban" k="amenity" v="kindergarten|school|college|university">
+            <area use="residential" />
+        </m>
+        <m cat="urban" k="amenity" v="hospital">
+            <area use="residential" />
+        </m>
         <m v="parking" zoom-min="16">
-            <area fill="color:highway-service" />
+            <m select="first">
+                <m cat="roads-surface" k="surface" v="dirt">
+                    <area fill="color:parking-dirt" />
+                </m>
+                <m cat="roads-surface" k="surface" v="unpaved">
+                    <area fill="color:parking-unpaved" />
+                </m>
+                <m>
+                    <area fill="color:highway-service" />
+                </m>
+            </m>
         </m>
     </m>
 
@@ -249,7 +267,7 @@
 
     <xi:include href="inc_barrier_lines.xml" />
 
-    <m cat="nature" k="natural" v="tree" zoom-min="15">
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
         <area fade="15" fill="#151715" mesh="true" />
     </m>
 
