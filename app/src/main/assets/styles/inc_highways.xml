@@ -315,15 +315,15 @@
                                 </m>
                                 <m k="tracktype" v="~|grade2">
                                     <line cat="tracks" use="highway:track:g2" />
-                                    <line cat="hiking" use="highway:track:g2" width="2.2" />
+                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade3">
                                     <line cat="tracks" use="highway:track:g3" />
-                                    <line cat="hiking" use="highway:track:g3" width="2.2" />
+                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade4">
                                     <line cat="tracks" use="highway:track:g4" />
-                                    <line cat="hiking" use="highway:track:g4" width="2.2" />
+                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
                                 </m>
                                 <m k="tracktype" v="grade5">
                                     <line cat="tracks" use="highway:track:g5" />
