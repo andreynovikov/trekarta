@@ -1218,9 +1218,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Configuration.setMapStyle(which);
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
-                    mBackgroundHandler.post(() -> {
-                        setMapTheme();
-                    });
+                    mBackgroundHandler.post(this::setMapTheme);
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -1233,9 +1231,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Configuration.setMapFontSize(which);
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
-                    mBackgroundHandler.post(() -> {
-                        setMapTheme();
-                    });
+                    mBackgroundHandler.post(this::setMapTheme);
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -3885,6 +3881,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public Map getMap() {
         return mMap;
+    }
+
+    @Override
+    public ShieldFactory getShieldFactory() {
+        return mShieldFactory;
+    }
+
+    @Override
+    public OsmcSymbolFactory getOsmcSymbolFactory() {
+        return mOsmcSymbolFactory;
     }
 
     @NonNull

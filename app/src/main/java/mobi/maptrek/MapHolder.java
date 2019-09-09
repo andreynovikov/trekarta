@@ -22,8 +22,15 @@ import android.support.annotation.Nullable;
 import org.oscim.core.GeoPoint;
 import org.oscim.map.Map;
 
+import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.ShieldFactory;
+
 public interface MapHolder {
     Map getMap();
+
+    ShieldFactory getShieldFactory();
+
+    OsmcSymbolFactory getOsmcSymbolFactory();
 
     void updateMapViewArea();
 

@@ -18,6 +18,7 @@ package mobi.maptrek.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -44,11 +45,15 @@ import org.oscim.theme.styles.TextStyle;
 import java.util.ArrayList;
 
 import mobi.maptrek.MapTrek;
+import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.ShieldFactory;
 
 public class LegendView extends View {
     private LegendItem mItem;
     private int mBackground;
     private IRenderTheme mTheme;
+    private ShieldFactory mShieldFactory;
+    private OsmcSymbolFactory mOsmcSymbolFactory;
     private float mDensity;
     private float mLeft;
     private float mRight;
@@ -61,21 +66,24 @@ public class LegendView extends View {
     ArrayList<RenderStyle> mLines = new ArrayList<>();
 
     public LegendView(Context context) {
-        super(context);
+        this(context, null, 0);
     }
 
     public LegendView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public LegendView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 
-    public void setLegend(LegendItem item, int background, IRenderTheme theme) {
+    public void setLegend(LegendItem item, int background, IRenderTheme theme, ShieldFactory shieldFactory, OsmcSymbolFactory osmcSymbolFactory) {
         mItem = item;
         mBackground = background;
         mTheme = theme;
+        mShieldFactory = shieldFactory;
+        mOsmcSymbolFactory = osmcSymbolFactory;
         mDensity = MapTrek.density * 0.75f;
         invalidate();
         requestLayout();
@@ -176,11 +184,22 @@ public class LegendView extends View {
             return;
         float x = item.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (item.totalSymbols + 1) * mSymbolCount : mCenterX;
         mSymbolCount++;
-        canvas.drawBitmap(symbolStyle.bitmap.getPixels(), 0, symbolStyle.bitmap.getWidth(),
-                x - symbolStyle.bitmap.getWidth() / 2f,
-                mCenterY - symbolStyle.bitmap.getHeight() / 2f,
-                symbolStyle.bitmap.getWidth(), symbolStyle.bitmap.getHeight(),
-                true, null);
+        org.oscim.backend.canvas.Bitmap bitmap = null;
+        if (symbolStyle.src != null) {
+            if (symbolStyle.src.equals("/osmc-symbol")) {
+                String osmcSymbol = item.tags.getValue("osmc:symbol");
+                bitmap = mOsmcSymbolFactory.getBitmap(osmcSymbol, symbolStyle.symbolPercent);
+            } else if (symbolStyle.src.startsWith("/shield/")) {
+                bitmap = mShieldFactory.getBitmap(item.tags, symbolStyle.src, symbolStyle.symbolPercent);
+            }
+        } else {
+            bitmap = symbolStyle.bitmap;
+        }
+        if (bitmap == null)
+            return;
+        canvas.drawBitmap(bitmap.getPixels(), 0, bitmap.getWidth(),
+                x - bitmap.getWidth() / 2f, mCenterY - bitmap.getHeight() / 2f,
+                bitmap.getWidth(), bitmap.getHeight(), true, null);
     }
 
     void renderLine(LegendItem item, Canvas canvas, LineStyle lineStyle) {
@@ -230,7 +249,16 @@ public class LegendView extends View {
                 paint.setColor(lineStyle.stippleColor);
                 canvas.drawPath(path, paint);
             } else {
+                if (lineStyle.blur != 0f) {
+                    canvas.save();
+                    canvas.clipRect(mLeft, mTop, mRight, mBottom);
+                    paint.setStrokeCap(Paint.Cap.SQUARE);
+                    paint.setMaskFilter(new BlurMaskFilter(paint.getStrokeWidth() * lineStyle.blur, BlurMaskFilter.Blur.INNER));
+                }
                 canvas.drawLine(mLeft, mCenterY, mRight, mCenterY, paint);
+                if (lineStyle.blur != 0f) {
+                    canvas.restore();
+                }
                 mLastLineWidth = paint.getStrokeWidth();
             }
         } else if (item.type == GeometryType.POLY) {

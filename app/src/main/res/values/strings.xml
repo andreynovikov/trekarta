@@ -464,7 +464,6 @@
     <string name="legend_veterinary_clinic">Veterinary clinic</string>
     <string name="legend_toys_shop">Toys shop</string>
     <string name="legend_playground">Playground</string>
-    <string name="legend_kindergarten">Kindergarten</string>
     <string name="legend_bicycle_shop">Bicycle shop</string>
     <string name="legend_outdoor_shop">Outdoor sports equipment shop</string>
     <string name="legend_sports_shop">Sports shop</string>
@@ -493,9 +492,6 @@
     <string name="legend_castle">Castle</string>
     <string name="legend_monument">Monument</string>
     <string name="legend_ruins">Ruins</string>
-    <string name="legend_school">School</string>
-    <string name="legend_university">University</string>
-    <string name="legend_college">College</string>
     <string name="legend_library">Library</string>
     <string name="legend_car_dialer">Car dealer</string>
     <string name="legend_car_repair">Car repair</string>
@@ -615,5 +611,24 @@
     <string name="legend_beach_resort">Beach resort</string>
     <string name="legend_sauna">Sauna</string>
     <string name="legend_archaeological_site">Archaeological site</string>
+    <string name="legend_hiking_routes">Hiking routes</string>
+    <string name="legend_hiking_visibility">Trail visibility</string>
+    <string name="legend_hiking_sac_scale_t1">Flat trails, SAC T1</string>
+    <string name="legend_hiking_sac_scale_t2">Partially steep trails, SAC T2</string>
+    <string name="legend_hiking_sac_scale_t3">Demanding trails, SAC T3</string>
+    <string name="legend_hiking_sac_scale_t4">Difficult trails, SAC T4</string>
+    <string name="legend_hiking_sac_scale_t5">Demanding alpine trails, SAC T5</string>
+    <string name="legend_hiking_sac_scale_t6">Mature alpine trails, SAC T6</string>
+    <string name="legend_hiking_route_iwn">International route</string>
+    <string name="legend_hiking_route_nwn">National route</string>
+    <string name="legend_hiking_route_rwn">Regional route</string>
+    <string name="legend_hiking_route_lwn">Local route</string>
+    <string name="legend_hiking_route_symbol">Route symbol</string>
+    <string name="legend_hiking_path_with_route">Route along trail</string>
+    <string name="legend_hiking_road_with_route">Route along road</string>
+    <string name="legend_hiking_visibility_unknown">Unknown visibility</string>
+    <string name="legend_hiking_visibility_good">Good visibility</string>
+    <string name="legend_hiking_visibility_intermediate">Intermediate visibility</string>
+    <string name="legend_hiking_visibility_bad">Bad visibility</string>
 
 </resources>

@@ -348,7 +348,7 @@
         <m cat="nature" v="glacier">
             <area fill="#ddecec" />
         </m>
-        <m cat="nature" v="beach">
+        <m cat="urban" v="beach">
             <area fill="#f7f5c8" />
         </m>
         <m cat="nature" v="mud">
@@ -390,12 +390,10 @@
             <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
-    <!-- LEGEND ENDS HERE -->
     <m cat="nature" k="man_made" v="cutline">
         <line cap="butt" fade="14" stroke="#d3dcb9" width="2.0" />
     </m>
 
-    <!-- LEGEND STARTS HERE -->
     <!-- Landuse -->
     <m closed="yes" e="way" k="landuse">
         <m cat="urban" v="cemetery" zoom-min="11">
@@ -441,11 +439,9 @@
     <xi:include href="inc_ground_objects.xml" />
 
     <xi:include href="inc_buildings.xml" />
-    <!-- LEGEND ENDS HERE -->
 
     <xi:include href="inc_hiking_routes.xml" />
 
-    <!-- LEGEND STARTS HERE -->
     <xi:include href="inc_highways.xml" />
 
     <xi:include href="inc_railways.xml" />
@@ -456,7 +452,7 @@
 
     <xi:include href="inc_barrier_lines.xml" />
 
-    <m cat="nature" k="natural" v="tree" zoom-min="15">
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
         <area fade="15" fill="#90b36c" mesh="true" />
     </m>
 
@@ -505,5 +501,5 @@
     <xi:include href="inc_symbols.xml" />
 
     <xi:include href="inc_poi.xml" />
-    <!-- LEGEND ENDS HERE -->
+
 </rendertheme>
