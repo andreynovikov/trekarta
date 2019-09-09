@@ -65,7 +65,7 @@
         </m>
         <!-- ferry -->
         <m k="amenity">
-            <m cat="urban" v="ferry_terminal" zoom-min="14">
+            <m cat="roads" v="ferry_terminal" zoom-min="14">
                 <symbol src="assets:symbols/transport/ferry_terminal.svg" merge-gap="0" />
                 <text use="poi" />
             </m>
