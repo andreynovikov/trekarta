@@ -453,7 +453,6 @@
     <string name="legend_veterinary_clinic">Ветеринарная клиника</string>
     <string name="legend_toys_shop">Магазин игрушек</string>
     <string name="legend_playground">Игровая площадка</string>
-    <string name="legend_kindergarten">Детский сад</string>
     <string name="legend_bicycle_shop">Веломагазин</string>
     <string name="legend_outdoor_shop">Магазин походного инвентаря</string>
     <string name="legend_sports_shop">Спортивный магазин</string>
@@ -482,9 +481,6 @@
     <string name="legend_castle">Замок</string>
     <string name="legend_monument">Памятник</string>
     <string name="legend_ruins">Руины</string>
-    <string name="legend_school">Школа</string>
-    <string name="legend_university">Университет</string>
-    <string name="legend_college">Колледж</string>
     <string name="legend_library">Библиотека</string>
     <string name="legend_car_dialer">Автомобильный дилер</string>
     <string name="legend_car_repair">Ремонт автомобилей</string>

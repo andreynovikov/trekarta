@@ -112,6 +112,9 @@
                     <m v="cinema">
                         <symbol src="assets:symbols/tourist/cinema.svg" />
                     </m>
+                    <m v="library">
+                        <symbol src="assets:symbols/amenity/library.svg" />
+                    </m>
                 </m>
                 <m k="leisure">
                     <m v="water_park">
@@ -173,11 +176,6 @@
                 </m>
                 <m k="leisure" v="playground">
                     <symbol src="assets:symbols/amenity/playground.svg" symbol-percent="70" />
-                </m>
-                <m k="amenity">
-                    <m v="kindergarten">
-                        <symbol src="assets:symbols/education/nursery.svg" />
-                    </m>
                 </m>
             </m>
             <m k="kind_shopping" select="first">
@@ -286,19 +284,6 @@
             <m k="kind_urban">
                 <m k="amenity" v="fountain">
                     <symbol src="assets:symbols/amenity/fountain.svg" />
-                </m>
-            </m>
-            <m k="kind_education">
-                <m k="amenity">
-                    <m v="school">
-                        <symbol src="assets:symbols/education/school.svg" />
-                    </m>
-                    <m v="university|college">
-                        <symbol src="assets:symbols/education/university.svg" />
-                    </m>
-                    <m v="library">
-                        <symbol src="assets:symbols/amenity/library.svg" />
-                    </m>
                 </m>
             </m>
             <m k="kind_vehicles">
