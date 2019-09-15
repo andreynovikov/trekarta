@@ -3,16 +3,19 @@
     xmlns="http://opensciencemap.org/rendertheme">
 
     <!--
+    https://wiki.openstreetmap.org/wiki/SymbolsTab
+    https://github.com/gravitystorm/openstreetmap-carto
+    http://scg.ar-ch.org/
+
     TODO:
-    https://wiki.openstreetmap.org/wiki/Key:natural - many features missing
+    lock_gate as a point
+    https://wiki.openstreetmap.org/wiki/Key:memorial
     https://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
-    https://wiki.openstreetmap.org/wiki/Key:lock
-    https://wiki.openstreetmap.org/wiki/Key:lock
     https://wiki.openstreetmap.org/wiki/Tag:craft=winery
     https://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
     https://wiki.openstreetmap.org/wiki/Key:intermittent - draw with condensed stipple
-    https://wiki.openstreetmap.org/wiki/Tag:amenity=boat rental
     railway:subway
+    https://wiki.openstreetmap.org/wiki/Key:service - insignificant rails
     https://wiki.openstreetmap.org/wiki/Tag:aerialway=goods
     https://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
@@ -20,8 +23,6 @@
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmini_roundabout
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dservices
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Drest_area
-    https://wiki.openstreetmap.org/wiki/Key:smoothness - use instead of tracktype
-    https://wiki.openstreetmap.org/wiki/Tag:natural%3Dscrub - add symbols
     protect_class:1
     https://wiki.openstreetmap.org/wiki/Key:depth - for fords and waterways
     -->
@@ -89,6 +90,8 @@
     <style-color id="text-outline" color="#ffffff" />
     <style-color id="text" color="#000000" />
 
+    <style-color id="trees" color="#90b36c" />
+
     <style-color id="motorway-overview" color="#deb683" />
     <style-color id="trunk-overview" color="#c6c5a2" />
     <style-color id="primary-overview" color="#c6c5a2" />
@@ -153,36 +156,40 @@
     <style-color id="pier-fill" color="#e4e4e4" />
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
-    <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
+    <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
 
-    <style-area fade="-1" fill="#faf7f1" id="land" mesh="true" />
+    <style-area fill="#faf7f1" id="land" mesh="true" />
 
     <!-- Water -->
-    <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
+    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
     <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
     <style-line id="water" stroke="#a4bbcc" use="fix" />
+    <!--suppress XmlDefaultAttributeValue -->
     <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
         stroke="#00ffffff" width="2.0" />
     <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
-    <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
+    <style-area fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
-    <style-area blend="11" blend-fill="#90b36c" fade="8" fill="#b3d095" id="wood" />
+    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
-    <style-area fade="12" fill="#d3dcb9" id="grass" />
+    <style-area fade="12" fill="#d3dcb9" id="grass" mesh="true" />
     <style-area fade="10" fill="#c2cba5" id="scrub" />
     <style-area fade="10" fill="#d6d99f" id="heath" />
     <style-area fade="12" fill="#eee5dc" id="scree" />
     <style-area fade="12" fill="#e4dab5" id="farmyard" />
     <style-area fade="12" fill="#e6ddd0" id="farmland" />
+    <style-area fade="12" fill="#ab9d6f" id="mud" />
 
     <!-- Landuse -->
-    <style-line cap="butt" fix="true" id="park" stroke="#9ac56e" width="1.0" />
-    <style-area fade="11" fill="#9ac56e" id="park" />
+    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="2.5" />
+    <style-line cap="butt" fix="true" id="park" stroke="#d9e9c9" width="1.0" />
+    <style-area fade="11" fill="#d9e9c9" id="park" mesh="true" />
     <style-area fade="12" fill="#c9dc91" id="garden" />
     <style-area fade="6" fill="#e8e7e3" id="residential" />
     <style-area fade="10" fill="#e7e2e6" id="industrial" />
@@ -190,12 +197,22 @@
     <style-area fade="12" fill="#ddddcc" id="quarry" />
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
+    <style-text style="bold_italic" area-size="0.1" caption="true" fill="#597f34" id="park"
+        priority="4" size="16" stroke="#cce2b7" stroke-width="2.0" />
+    <style-text style="bold_italic" caption="true" fill="#660033" id="theme_park"
+        priority="4" size="16" stroke="#f9ebf2" stroke-width="2.0" />
     <style-text caption="true" fill="#368167" id="sports_centre" priority="8" size="16"
         stroke="#cdeae0" stroke-width="2.0" />
+    <style-text caption="true" fill="#787434" id="education" priority="9" size="16" stroke="#f5f5e8"
+        stroke-width="2.0" />
+    <style-text style="bold_italic" area-size="0.01" caption="true" fill="#7b7712" id="beach"
+        priority="6" size="14" stroke="#f1efce" stroke-width="2.0" />
+
 
     <!-- Place styles -->
     <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
         stroke-width="2.5" />
+    <!--suppress XmlDefaultAttributeValue -->
     <style-text caption="true" fill="#000000" id="place" size="16" stroke="#ffffff"
         stroke-width="2.0" />
     <style-text caption="true" fill="#444411" id="place_village" use="place" />
@@ -218,14 +235,15 @@
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="#90b36c" width="2.0" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
 
     <!-- Buildings -->
-    <style-line id="building" stroke="#eeb7b6b3" use="fix" />
-    <style-area fill="#f2f0eb" id="building" stroke="#b7b6b3" stroke-width="1.0" />
+    <style-line id="building" stroke="#eeb2a9a3" use="fix" />
+    <style-area fill="#d5d0cd" id="building" stroke="#b2a9a3" stroke-width="1.0" />
     <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="9"
         size="12" stroke="#ffffff" stroke-width="2.0" />
-    <style-text style="bold" fill="#202080" id="house-name" k="name" size="10" use="house-number" />
+    <!--suppress XmlDefaultAttributeValue -->
+    <style-text style="bold" fill="#383868" id="house-name" k="name" size="10" use="house-number" />
 
     <!-- Aeroways -->
     <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
@@ -235,11 +253,11 @@
     ==== RULES ====
     -->
 
-    <m cat="water" e="way" k="natural" v="sea">
-        <area use="water" />
-    </m>
     <m cat="land" closed="yes" e="way" k="natural" v="land">
         <area use="land" />
+    </m>
+    <m cat="water" closed="yes" e="way" k="natural" v="sea">
+        <area use="water" />
     </m>
 
     <!-- Land usages -->
@@ -253,8 +271,14 @@
         <m cat="urban" v="construction|brownfield|landfill">
             <area use="construction" />
         </m>
-        <m cat="urban" v="quarry">
-            <area use="quarry" />
+        <m cat="topo" v="quarry">
+            <m zoom-max="13">
+                <area use="quarry" />
+            </m>
+            <m zoom-min="14">
+                <area use="quarry" />
+                <area src="assets:patterns/scree.svg" />
+            </m>
         </m>
         <m cat="landclasses" v="allotments">
             <area use="allotments" />
@@ -262,11 +286,15 @@
         <m cat="agriculture" v="farmland|vineyard|greenhouse_horticulture|plant_nursery|orchard">
             <area use="farmland" />
         </m>
+        <m cat="agriculture" v="orchard">
+            <area use="garden" />
+        </m>
+        <m cat="agriculture" v="plant_nursery">
+            <area use="garden" />
+            <area src="assets:patterns/plant_nursery.svg" />
+        </m>
         <m cat="agriculture" v="farmyard">
             <area use="farmyard" />
-        </m>
-        <m cat="urban" k="tourism" v="zoo">
-            <area fill="#c0d69a" />
         </m>
         <m v="parking" zoom-min="16">
             <m select="first">
@@ -283,6 +311,9 @@
         </m>
         <m cat="urban" k="amenity" v="kindergarten|school|college|university">
             <area fill="#e6e4c5" />
+            <m zoom-min="16">
+                <text use="education" />
+            </m>
         </m>
         <m cat="urban" k="amenity" v="hospital">
             <area fill="#f2d9b1" />
@@ -290,13 +321,12 @@
         <m cat="urban" v="village_green|recreation_ground|park|golf_course|common">
             <area use="park" />
             <m zoom-min="14">
-                <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#5d8236" k="name"
-                    priority="4" size="16" stroke="#dceacd" stroke-width="2.0" />
+                <text use="park" />
             </m>
         </m>
         <m cat="urban" v="garden">
             <area use="garden" />
+            <area src="assets:patterns/plant_nursery.svg" />
         </m>
         <m cat="urban" v="sports_centre|water_park">
             <m k="building" v="~">
@@ -304,6 +334,12 @@
                 <m zoom-min="14">
                     <text use="sports_centre" />
                 </m>
+            </m>
+        </m>
+        <m cat="urban" k="tourism" v="zoo|theme_park" zoom-min="15">
+            <line use="tourism" />
+            <m v="theme_park">
+                <text use="theme_park" />
             </m>
         </m>
         <m cat="urban" v="stadium">
@@ -327,6 +363,7 @@
             <area use="grass" />
         </m>
         <m cat="urban" v="dog_park">
+            <area use="park" />
             <area src="assets:patterns/dog_park.svg" />
             <line use="park" />
         </m>
@@ -343,23 +380,28 @@
     </m>
 
     <!-- Natural -->
-    <!-- TODO https://github.com/gravitystorm/openstreetmap-carto/tree/master/symbols/generating_patterns -->
     <m closed="yes" e="way" k="natural">
         <m cat="nature" v="glacier">
             <area fill="#ddecec" />
         </m>
         <m cat="urban" v="beach">
             <area fill="#f7f5c8" />
+            <text use="beach" />
         </m>
         <m cat="nature" v="mud">
-            <area fill="#ab9d6f" />
+            <area use="mud" />
         </m>
         <m cat="nature" v="sand" zoom-min="10">
             <area fill="#fffad1" />
         </m>
         <m cat="nature" v="scrub">
-            <area use="scrub" />
-            <area src="assets:patterns/scrub.svg" />
+            <m zoom-max="13">
+                <area use="scrub" />
+            </m>
+            <m zoom-min="14">
+                <area use="scrub" />
+                <area src="assets:patterns/scrub.svg" />
+            </m>
         </m>
         <m cat="nature" v="heath">
             <area fade="12" use="heath" />
@@ -367,26 +409,116 @@
         <m cat="nature" v="grassland">
             <area fade="12" use="grass" />
         </m>
-        <m cat="nature" v="scree">
-            <area fade="10" use="scree" />
-        </m>
-        <m cat="nature" v="shingle">
-            <area use="scree" />
+        <m cat="nature" v="scree|shingle">
+            <m zoom-max="13">
+                <area fade="10" use="scree" />
+            </m>
+            <m zoom-min="14">
+                <area fade="10" use="scree" />
+                <area src="assets:patterns/scree.svg" />
+            </m>
         </m>
         <m cat="nature" v="bare_rock">
             <area use="scree" />
             <area src="assets:patterns/rock_overlay.png" />
         </m>
         <m cat="forest" v="forest|wood">
-            <area use="wood" />
+            <m zoom-max="9">
+                <area use="wood" /> <!-- there is a problem with meshing on low zooms -->
+            </m>
+            <m zoom-min="10">
+                <area use="wood" mesh="true" />
+            </m>
         </m>
         <m cat="nature" v="marsh">
-            <area src="assets:patterns/wetland.svg" />
-            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
+            <m zoom-max="13">
+                <area use="grass" />
+                <area src="assets:patterns/wetland.svg" />
+            </m>
+            <m zoom-min="14">
+                <area use="grass" />
+                <area src="assets:patterns/marsh.svg" />
+            </m>
             <text area-size="0.05" caption="true" use="water" />
         </m>
         <m cat="nature" v="wetland">
-            <area src="assets:patterns/wetland.svg" />
+            <m k="wetland">
+                <m v="marsh|wet_meadow">
+                    <m zoom-max="13">
+                        <area use="grass" /> <!-- problem with legend style ordering -->
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="grass" />
+                        <area src="assets:patterns/marsh.svg" />
+                    </m>
+                </m>
+                <m v="reedbed">
+                    <m zoom-max="13">
+                        <area use="grass" />
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="grass" />
+                        <area src="assets:patterns/reed.svg" />
+                    </m>
+                </m>
+                <m v="saltmarsh">
+                    <m zoom-max="13">
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area src="assets:patterns/marsh.svg" />
+                    </m>
+                </m>
+                <m v="swamp">
+                    <m zoom-max="13">
+                        <area use="wood" mesh="true" />
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="wood" mesh="true" />
+                        <area src="assets:patterns/swamp.svg" />
+                    </m>
+                </m>
+                <m v="mangrove">
+                    <m zoom-max="13">
+                        <area use="scrub" />
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="scrub" />
+                        <area src="assets:patterns/mangrove.svg" />
+                    </m>
+                </m>
+                <m v="bog|string_bog">
+                    <m zoom-max="13">
+                        <area use="heath" />
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="heath" />
+                        <area src="assets:patterns/bog.svg" />
+                    </m>
+                </m>
+                <m v="fen">
+                    <m zoom-max="13">
+                        <area use="grass" />
+                        <area src="assets:patterns/wetland.svg" />
+                    </m>
+                    <m zoom-min="14">
+                        <area use="grass" />
+                        <area src="assets:patterns/bog.svg" />
+                    </m>
+                </m>
+                <m v="tidalflat">
+                    <area use="mud" />
+                    <area src="assets:patterns/wetland.svg" />
+                </m>
+            </m>
+            <m k="wetland" v="~">
+                <area src="assets:patterns/wetland.svg" />
+            </m>
             <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
@@ -400,7 +532,7 @@
             <area src="assets:patterns/cemetery.svg" />
             <m zoom-min="14">
                 <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#777777" k="name"
+                <text style="bold_italic" area-size="0.1" caption="true" fill="#777777"
                     priority="4" size="16" stroke="#f6f6f6" stroke-width="2.0" />
             </m>
         </m>
@@ -436,6 +568,13 @@
     prerequisites how includes are formatted, see Themes class for details -->
     <xi:include href="inc_water.xml" />
 
+    <m cat="forest" k="natural" v="tree_row" zoom-min="15">
+        <line use="trees" />
+    </m>
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="color:trees" mesh="true" />
+    </m>
+
     <xi:include href="inc_ground_objects.xml" />
 
     <xi:include href="inc_buildings.xml" />
@@ -451,10 +590,6 @@
     <xi:include href="inc_railway_bridges.xml" />
 
     <xi:include href="inc_barrier_lines.xml" />
-
-    <m cat="forest" k="natural" v="tree" zoom-min="15">
-        <area fade="15" fill="#90b36c" mesh="true" />
-    </m>
 
     <xi:include href="inc_boundaries.xml" />
 
