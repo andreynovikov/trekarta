@@ -3,6 +3,7 @@
     xmlns="http://opensciencemap.org/rendertheme">
 
     <!-- TODO:
+        piste:type=connection
         piste:name
         gladed=yes (trees)
     -->
@@ -43,6 +44,8 @@
     <style-color id="transparent" color="#00ffffff" />
     <style-color id="text-outline" color="#ffffff" />
     <style-color id="text" color="#000000" />
+
+    <style-color id="trees" color="#c6d7d7" />
 
     <style-color id="motorway-overview" color="#deb683" />
     <style-color id="trunk-overview" color="#c6c5a2" />
@@ -99,12 +102,17 @@
 
     <!-- Natural -->
     <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
-    <style-area blend="11" blend-fill="#c6d7d7" fade="8" fill="#e4ecec" id="wood" />
+    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-area blend="11" blend-fill="color:trees" fade="8" fill="#e4ecec" id="wood" />
 
     <!-- Landuse -->
+    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="2.5" />
+
     <style-area fade="6" fill="#efefef" id="residential" />
 
-    <style-text caption="true" fill="#415d5d" id="sports_centre" k="name" priority="8" size="18"
+    <style-text caption="true" fill="#660033" id="theme_park" priority="8" size="18"
+        stroke="#f9ebf2" stroke-width="2.0" />
+    <style-text caption="true" fill="#415d5d" id="sports_centre" priority="8" size="18"
         stroke="#e4ecec" stroke-width="2.0" />
 
     <!-- Place styles -->
@@ -176,7 +184,7 @@
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="#c6d7d7" width="2.0" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
 
     <!-- Buildings -->
     <style-line id="building" stroke="#aaaaaa" use="fix" />
@@ -193,20 +201,24 @@
         stroke="#eeeeee" stroke-width="2.0" />
 
 
-    <m cat="water" e="way" k="natural" v="sea">
-        <area use="water" />
-    </m>
     <m cat="land" closed="yes" e="way" k="natural" v="land">
         <area use="land" />
     </m>
+    <m cat="water" closed="yes" e="way" k="natural" v="sea">
+        <area use="water" />
+    </m>
 
     <!-- Land usages -->
-    <m closed="yes" e="way" k="landuse|amenity|leisure">
+    <m closed="yes" e="way" k="landuse|amenity|leisure|tourism">
         <m v="residential|commercial|retail|industrial|allotments">
             <area use="residential" />
         </m>
         <m v="parking" zoom-min="16">
             <area fill="#fefefe" />
+        </m>
+        <m cat="urban" k="tourism" v="theme_park" zoom-min="15">
+            <line use="tourism" />
+            <text use="theme_park" />
         </m>
         <m v="sports_centre">
             <m k="building" v="~">
@@ -229,7 +241,6 @@
         </m>
         <m cat="winter-topo" v="marsh">
             <area src="assets:patterns/wetland.svg" />
-            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
         </m>
         <m cat="winter-topo" v="wetland">
             <area src="assets:patterns/wetland.svg" />
@@ -793,7 +804,9 @@
         </m>
         <m k="piste:type" v="ice_skate">
             <m closed="yes">
-                <area fill="#aae2f3f6" />
+                <m k="building" v="~|no">
+                    <area fill="#aae2f3f6" />
+                </m>
                 <m zoom-max="14">
                     <line fix="true" stroke="#aa6fc4d0" width="2" />
                 </m>
@@ -812,7 +825,9 @@
                 </m>
             </m>
             <m zoom-min="15">
-                <text dy="18" fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
+                <m k="building" v="~|no">
+                    <text dy="18" fill="#3596a4" use="piste-name" /> <!-- Darken 20% -->
+                </m>
                 <symbol merge-group="piste-symbols" merge-group-gap="50"
                     src="assets:symbols/winter/ice_skate.svg" symbol-percent="80"
                     text-overlap="false" />
@@ -893,6 +908,13 @@
         </m>
     </m>
 
+    <m cat="forest" k="natural" v="tree_row" zoom-min="15">
+        <line use="trees" />
+    </m>
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="color:trees" mesh="true" />
+    </m>
+
     <xi:include href="inc_highway_bridges.xml" />
 
     <m cat="skiing" k="bridge">
@@ -938,10 +960,6 @@
     <xi:include href="inc_railway_bridges.xml" />
 
     <xi:include href="inc_barrier_lines.xml" />
-
-    <m cat="forest" k="natural" v="tree" zoom-min="15">
-        <area fade="15" fill="#c6d7d7" mesh="true" />
-    </m>
 
     <xi:include href="inc_boundaries.xml" />
 
