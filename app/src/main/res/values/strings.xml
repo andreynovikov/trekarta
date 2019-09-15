@@ -182,8 +182,8 @@
     <string name="introHiking">Hiking activity mode emphasises paths and tracks. It visualizes path difficulty and visibility and shows hiking routes.</string>
     <string name="introSkiingTitle">Skiing and skating</string>
     <string name="introSkiing">Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.</string>
-    <string name="introPistesTitle">Pistes</string>
-    <string name="introPistes">Now piste grooming, illumination and purpose are depicted on winter map.</string>
+    <string name="introNightModeTitle">Night mode</string>
+    <string name="introNightMode">Simplified night map theme is designed to make long night journeys more comfortable.</string>
 
     <string name="advice_update_external_source">When you update imported data source only relevant data is saved, all unsupported properties will be lost</string>
     <string name="advice_sunrise_sunset">Sunrise and sunset time are local to their corresponding location</string>
@@ -203,6 +203,7 @@
     <string name="advice_text_search">Type amenity name in any supported or native language, optionally you can type raw coordinates. If search term is too broad results will be limited to 200 found objects.</string>
     <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
+    <string name="advice_night_mode">You can long press maps button to disable night mode</string>
 
     <string name="datetime" formatted="false" translatable="false">%s %s</string>
     <string name="place_name">Place #%d</string>
@@ -381,11 +382,10 @@
     <string name="legend_subway">Subway</string>
     <string name="legend_monorail">Monorail</string>
     <string name="legend_railway_platform">Railway platform</string>
-    <string name="legend_railway_platform_name">Toksovo</string>
     <string name="legend_railway_station">Railway station</string>
     <string name="legend_railway_station_name">King\'s cross</string>
     <string name="legend_railway_halt">Railway halt</string>
-    <string name="legend_railway_halt_name">Vyborg</string>
+    <string name="legend_railway_halt_name">Toksovo</string>
     <string name="legend_level_crossing">Level crossing</string>
     <string name="legend_pedestrian_crossing">Pedestrian crossing</string>
     <string name="legend_bus_stop">Bus stop</string>
@@ -564,9 +564,8 @@
     <string name="legend_shingle">Shingle</string>
     <string name="legend_mud">Mud</string>
     <string name="legend_sand">Sand</string>
-    <string name="legend_beach">Beach</string>
     <string name="legend_cemetry_name">Highgate</string>
-    <string name="legend_runway_name">10R</string>
+    <string name="legend_runway_name" translatable="false">10R</string>
     <string name="legend_runway">Runway</string>
     <string name="legend_apron">Apron</string>
     <string name="legend_dam">Dam</string>
@@ -586,11 +585,11 @@
     <string name="legend_ice_track">Ice track</string>
     <string name="legend_winter_track">Winter track</string>
     <string name="legend_bridleway">Bridleway</string>
-    <string name="legend_grade1_track">Paved or sealed track</string>
-    <string name="legend_grade2_track">Solid track</string>
-    <string name="legend_grade3_track">Mostly solid track</string>
-    <string name="legend_grade4_track">Mostly soft track</string>
-    <string name="legend_grade5_track">Soft track</string>
+    <string name="legend_good_track">Usable by normal vehicle</string>
+    <string name="legend_very_bad_track">Only for high clearance vehicle</string>
+    <string name="legend_horrible_track">Only for heavy-duty off road vehicle</string>
+    <string name="legend_very_horrible_track">Only for tractor, ATV</string>
+    <string name="legend_impassable_track">Impassable for wheeled vehicle</string>
     <string name="legend_via_ferrata">Via ferrata</string>
     <string name="legend_cycleway">Cycle way</string>
     <string name="legend_track_bridge">Track bridge</string>
@@ -598,7 +597,7 @@
     <string name="legend_city_wall">City wall</string>
     <string name="legend_retaining_wall">Retaining wall</string>
     <string name="legend_contour">Contour line</string>
-    <string name="legend_elevation">800</string>
+    <string name="legend_elevation" translatable="false">800</string>
     <string name="legend_tower">Tower</string>
     <string name="legend_power_line">High voltage power line and tower</string>
     <string name="legend_power_generator_wind">Wind power generator</string>
@@ -630,5 +629,22 @@
     <string name="legend_hiking_visibility_good">Good visibility</string>
     <string name="legend_hiking_visibility_intermediate">Intermediate visibility</string>
     <string name="legend_hiking_visibility_bad">Bad visibility</string>
+    <string name="legend_theme_park">Theme park</string>
+    <string name="legend_theme_park_name">Disneyland</string>
+    <string name="legend_boat_rental">Boat rental</string>
+    <string name="legend_beach_text">Brighton</string>
+    <string name="legend_orchard">Orchard</string>
+    <string name="legend_plant_nursery">Plant nursery</string>
+    <string name="legend_amusement_arcade">Amusement center</string>
+    <string name="legend_tree_row">Row of trees</string>
+    <string name="legend_wetland_saltmarsh">Salt marsh</string>
+    <string name="legend_wetland_reedbed">Reed bed</string>
+    <string name="legend_wetland_wet_meadow">Semi-wetland meadow</string>
+    <string name="legend_wetland_swamp">Swamp</string>
+    <string name="legend_wetland_mangrove">Mangrove</string>
+    <string name="legend_wetland_bog">Bog</string>
+    <string name="legend_wetland_fen">Fen</string>
+    <string name="legend_wetland_tidalflat">Mudflat</string>
+    <string name="legend_beach">Beach</string>
 
 </resources>

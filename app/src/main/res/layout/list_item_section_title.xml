@@ -16,7 +16,8 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
 
@@ -26,7 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:padding="@dimen/fragment_padding"
-        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/colorAccent" />
 
