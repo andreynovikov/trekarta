@@ -100,6 +100,7 @@ public class Configuration {
     public static final long ADVICE_ACTIVE_MAPS_SIZE = 0x0000000000008000L;
     public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000L;
     public static final long ADVICE_MAP_LEGEND = 0x0000000000020000L;
+    public static final long ADVICE_NIGHT_MODE = 0x0000000000040000L;
 
     private static SharedPreferences mSharedPreferences;
 
@@ -269,6 +270,11 @@ public class Configuration {
     public static void setAdviceState(long advice) {
         long state = loadLong(PREF_ADVICE_STATES, 0L);
         saveLong(PREF_ADVICE_STATES, state | advice);
+    }
+
+    public static void clearAdviceState(long advice) {
+        long state = loadLong(PREF_ADVICE_STATES, 0L);
+        saveLong(PREF_ADVICE_STATES, state ^ advice);
     }
 
     public static void resetAdviceState() {

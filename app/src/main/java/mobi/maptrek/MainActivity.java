@@ -1281,9 +1281,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Configuration.setActivity(which);
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
-                    mBackgroundHandler.post(() -> {
-                        setMapTheme();
-                    });
+                    mBackgroundHandler.post(this::setMapTheme);
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -4147,7 +4145,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case 2:
                 themeFile = Themes.WINTER;
                 Configuration.accountSkiing();
-                runOnUiThread(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false));
                 mNightMode = false;
                 break;
             case 1:
@@ -4161,6 +4158,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             default:
                 int nightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
                 mNightMode = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                // TODO Show advises on cursor hide
+                if (mNightMode) {
+                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_NIGHT_MODE, R.string.advice_night_mode, mMapsButton, false), 2000);
+                } else {
+                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false), 2000);
+                }
                 themeFile = mNightMode ? Themes.NIGHT : Themes.MAPTREK;
                 break;
         }
