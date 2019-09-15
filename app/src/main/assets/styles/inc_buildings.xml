@@ -3,11 +3,16 @@
     <!-- Buildings -->
     <m cat="buildings" e="way" zoom-min="14">
         <m k="building">
-            <area fade="14" use="building" />
+            <m zoom-max="14">
+                <area fade="14" stroke="color:transparent" use="building" />
+            </m>
+            <m zoom-min="15">
+                <area use="building" />
+            </m>
         </m>
         <m k="building:part" zoom-min="17">
             <m k="building:part" v="-|no">
-                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eadcdbd9" />
+                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#ead5d0cd" />
             </m>
         </m>
     </m>
