@@ -253,7 +253,7 @@
                             </m>
                             <line use="footway" />
                         </m>
-                        <m cat="pedestrian" v="path">
+                        <m cat="pedestrian" v="path" zoom-min="14">
                             <m zoom-min="15">
                                 <line use="footway:back" />
                             </m>
@@ -278,11 +278,14 @@
                                         <line stroke="#bed8d8" use="highway:track:back" />
                                     </m>
                                 </m>
-                                <m k="tracktype" v="grade1">
-                                    <line use="highway:track:g1" width="-0.8" />
+                                <m k="smoothness" v="excellent|good|intermediate|bad">
+                                    <line use="highway:track:good" width="-0.8" />
                                 </m>
-                                <m k="tracktype" v="~|grade2|grade3|grade4|grade5">
-                                    <line use="highway:track:g2" width="-0.8" />
+                                <m k="smoothness" v="~|very_bad|horrible|very_horrible">
+                                    <line use="highway:track:very_bad" width="-0.8" />
+                                </m>
+                                <m k="smoothness" v="impassable">
+                                    <line use="highway:track:impassable" width="-0.8" />
                                 </m>
                             </m>
                             <m zoom-min="14">
@@ -309,25 +312,25 @@
                                             width="5.2" />
                                     </m>
                                 </m>
-                                <m k="tracktype" v="grade1">
-                                    <line cat="tracks" use="highway:track:g1" />
-                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
+                                <m k="smoothness" v="excellent|good|intermediate|bad">
+                                    <line cat="tracks" use="highway:track:good" />
+                                    <line cat="hiking" use="highway:track:good" width="2.2" />
                                 </m>
-                                <m k="tracktype" v="~|grade2">
-                                    <line cat="tracks" use="highway:track:g2" />
-                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
+                                <m k="smoothness" v="~|very_bad">
+                                    <line cat="tracks" use="highway:track:very_bad" />
+                                    <line cat="hiking" use="highway:track:good" width="2.2" />
                                 </m>
-                                <m k="tracktype" v="grade3">
-                                    <line cat="tracks" use="highway:track:g3" />
-                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
+                                <m k="smoothness" v="horrible">
+                                    <line cat="tracks" use="highway:track:horrible" />
+                                    <line cat="hiking" use="highway:track:good" width="2.2" />
                                 </m>
-                                <m k="tracktype" v="grade4">
-                                    <line cat="tracks" use="highway:track:g4" />
-                                    <line cat="hiking" use="highway:track:g1" width="2.2" />
+                                <m k="smoothness" v="very_horrible">
+                                    <line cat="tracks" use="highway:track:very_horrible" />
+                                    <line cat="hiking" use="highway:track:good" width="2.2" />
                                 </m>
-                                <m k="tracktype" v="grade5">
-                                    <line cat="tracks" use="highway:track:g5" />
-                                    <line cat="hiking" use="highway:track:g5" width="2.2" />
+                                <m k="smoothness" v="impassable">
+                                    <line cat="tracks" use="highway:track:impassable" />
+                                    <line cat="hiking" use="highway:track:very_horrible" width="2.2" />
                                 </m>
                             </m>
                             <m cat="track-names">
@@ -463,7 +466,7 @@
                             <text use="major-road-name" />
                         </m>
                         <m cat="roads" v="construction">
-                            <line outline="road" use="road-construction" />
+                            <line use="road-construction" />
                             <m k="ford" v="yes">
                                 <line use="ford" width="-0.2" />
                             </m>

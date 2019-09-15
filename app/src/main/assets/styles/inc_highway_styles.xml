@@ -17,13 +17,13 @@
     <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
     <style-line id="pedestrian" stroke="color:pedestrian" use="residential" width="-0.2" />
     <style-area fill="#e0e0e0" id="pedestrian" />
-    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
-    <style-line cap="butt" fix="true" id="highway:track:g1" stroke="#99764D" width="1.8" />
-    <style-line cap="butt" fix="true" id="highway:track:g2" stipple="10" stipple-stroke="#99764D"
+    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.4" />
+    <style-line cap="butt" fix="true" id="highway:track:good" stroke="#99764D" width="1.8" />
+    <style-line cap="butt" fix="true" id="highway:track:very_bad" stipple="10" stipple-stroke="#99764D"
         stroke="#00ffffff" width="1.8" />
-    <style-line id="highway:track:g3" stipple="14" use="highway:track:g2" />
-    <style-line id="highway:track:g4" stipple="16" use="highway:track:g2" width="-0.3" />
-    <style-line id="highway:track:g5" stipple="20" stroke="#44ff8888" use="highway:track:g4" />
+    <style-line id="highway:track:horrible" stipple="16" use="highway:track:very_bad" />
+    <style-line id="highway:track:very_horrible" stroke="#44ff0000" use="highway:track:very_bad" />
+    <style-line id="highway:track:impassable" stroke="#000000" use="highway:track:very_horrible" />
     <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
     <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
         stroke="#00ffffff" width="1.2" />
