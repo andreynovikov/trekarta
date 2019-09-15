@@ -61,6 +61,8 @@
     <style-color id="text-outline" color="#000000" />
     <style-color id="text" color="#666666" />
 
+    <style-color id="trees" color="#151715" />
+
     <style-color id="motorway-overview" color="#664444" />
     <style-color id="trunk-overview" color="#884444" />
     <style-color id="primary-overview" color="#553333" />
@@ -127,7 +129,7 @@
     <style-color id="pier-fill" color="#151515" />
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
-    <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aa000000"
+    <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aa000000"
         stroke-width="2.5" />
 
     <style-area fill="#0C0C0C" id="land" mesh="true" />
@@ -144,19 +146,22 @@
     <style-text id="place_capital" symbol="assets:symbols/star_dark.svg" use="place" />
 
     <!-- Water styles -->
+    <!--suppress XmlDefaultAttributeValue -->
     <style-text style="italic" fill="#454545" id="water" size="16" stroke="#000000"
         stroke-width="2.0" />
     <style-line id="oneway-water" src="assets:symbols/oneway_river_dark.svg" />
     <style-line id="water" stroke="#1B1B1D" use="fix" />
+    <!--suppress XmlDefaultAttributeValue -->
     <style-line fix="false" id="river" stroke="#1B1B1D" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#111115"
         stroke="#00ffffff" width="3.0" />
     <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
-    <style-area fade="-1" fill="#1B1B1D" id="water" mesh="true" />
+    <style-area fill="#1B1B1D" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-line id="cliff" src="assets:symbols/natural/cliff-night.svg" />
-    <style-area blend="11" blend-fill="#151715" fade="8" fill="#101210" id="wood" />
+    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-area blend="11" blend-fill="color:trees" fade="8" fill="#101210" id="wood" />
 
     <!-- Landuse -->
     <style-area fade="6" fill="#0e0e0e" id="residential" />
@@ -177,15 +182,15 @@
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#333333" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="#151715" width="2.0" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
 
 
 
-    <m cat="water" e="way" k="natural" v="sea">
-        <area use="water" />
-    </m>
     <m cat="land" closed="yes" e="way" k="natural" v="land">
         <area use="land" />
+    </m>
+    <m cat="water" closed="yes" e="way" k="natural" v="sea">
+        <area use="water" />
     </m>
 
     <!-- Natural -->
@@ -198,7 +203,6 @@
         </m>
         <m cat="nature" v="marsh">
             <area src="assets:patterns/wetland.svg" />
-            <area src="assets:patterns/marsh.svg" /> <!-- zoomed 500% + 300% -->
             <text area-size="0.05" caption="true" use="water" />
         </m>
         <m cat="nature" v="wetland">
@@ -255,6 +259,13 @@
         </m>
     </m>
 
+    <m cat="forest" k="natural" v="tree_row" zoom-min="15">
+        <line use="trees" />
+    </m>
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="color:trees" mesh="true" />
+    </m>
+
     <xi:include href="inc_ground_objects.xml" />
 
     <xi:include href="inc_highways.xml" />
@@ -266,10 +277,6 @@
     <xi:include href="inc_railway_bridges.xml" />
 
     <xi:include href="inc_barrier_lines.xml" />
-
-    <m cat="forest" k="natural" v="tree" zoom-min="15">
-        <area fade="15" fill="#151715" mesh="true" />
-    </m>
 
     <xi:include href="inc_boundaries.xml" />
 
