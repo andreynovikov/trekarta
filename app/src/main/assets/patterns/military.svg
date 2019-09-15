@@ -1,89 +1,17 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.0"
-   width="580"
-   height="580"
-   id="svg2"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="military.svg">
-  <defs
-     id="defs15" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1536"
-     inkscape:window-height="801"
-     id="namedview13"
-     showgrid="false"
-     inkscape:zoom="1.1575153"
-     inkscape:cx="255.46675"
-     inkscape:cy="444.74555"
-     inkscape:window-x="-8"
-     inkscape:window-y="32"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
-  <metadata
-     id="metadata10">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <rect
-     style="opacity:1;fill:#d40000;fill-opacity:0.1254902;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect4191-2"
-     width="62.767113"
-     height="670.03015"
-     x="-615.26752"
-     y="-129.89955"
-     transform="matrix(-0.82887137,-0.55943923,-0.94563618,0.3252264,0,0)" />
-  <rect
-     style="opacity:1;fill:#d40000;fill-opacity:0.1254902;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect4191-2-3"
-     width="62.767113"
-     height="670.03015"
-     x="-378.28607"
-     y="-337.61957"
-     transform="matrix(-0.82887137,-0.55943923,-0.94563618,0.3252264,0,0)" />
-  <rect
-     style="opacity:1;fill:#d40000;fill-opacity:0.1254902;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect5319"
-     width="597.83228"
-     height="599.56012"
-     x="-8.9161377"
-     y="-9.7800598" />
-  <rect
-     style="opacity:1;fill:#d40000;fill-opacity:0.1254902;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect4191-2-3-2"
-     width="62.767113"
-     height="670.03015"
-     x="-140.78755"
-     y="-545.79144"
-     transform="matrix(-0.82887137,-0.55943923,-0.94563618,0.3252264,0,0)" />
-  <rect
-     style="opacity:1;fill:#d40000;fill-opacity:0.1254902;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect4191-2-1"
-     width="62.767113"
-     height="670.03015"
-     x="-850.73639"
-     y="76.494781"
-     transform="matrix(-0.82887137,-0.55943923,-0.94563618,0.3252264,0,0)" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.0" viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<rect transform="matrix(-.82887 -.55944 -.94564 .32523 0 0)" x="-615.27" y="-129.9" width="62.767" height="670.03" fill="#d40000" fill-opacity=".12549"/>
+<rect transform="matrix(-.82887 -.55944 -.94564 .32523 0 0)" x="-378.29" y="-337.62" width="62.767" height="670.03" fill="#d40000" fill-opacity=".12549"/>
+<rect x="-8.9161" y="-9.7801" width="597.83" height="599.56" fill="#d40000" fill-opacity=".12549"/>
+<rect transform="matrix(-.82887 -.55944 -.94564 .32523 0 0)" x="-140.79" y="-545.79" width="62.767" height="670.03" fill="#d40000" fill-opacity=".12549"/>
+<rect transform="matrix(-.82887 -.55944 -.94564 .32523 0 0)" x="-850.74" y="76.495" width="62.767" height="670.03" fill="#d40000" fill-opacity=".12549"/>
 </svg>
