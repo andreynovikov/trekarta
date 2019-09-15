@@ -18,23 +18,23 @@
                     </m>
                     <m cat="pedestrian" v="footway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.0" />
+                            width="2.4" />
                         <line use="footway" />
                     </m>
                     <m cat="pedestrian" v="path">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.0" />
+                            width="2.4" />
                         <line use="path" />
                     </m>
                     <m v="bridleway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.0" />
+                            width="2.4" />
                         <line use="bridleway" />
                     </m>
                     <m cat="tracks" v="track">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.4" />
-                        <line cap="butt" use="highway:track:g1" />
+                            width="2.8" />
+                        <line cap="butt" use="highway:track:good" />
                         <m cat="track-names">
                             <text use="road-name" />
                         </m>
