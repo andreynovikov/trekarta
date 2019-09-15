@@ -24,6 +24,8 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import org.oscim.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ import java.io.InputStream;
 import static android.graphics.Bitmap.Config.ARGB_8888;
 
 public class AndroidBitmap implements org.oscim.backend.canvas.Bitmap {
+    static final Logger log = LoggerFactory.getLogger(AndroidBitmap.class);
+
     final Bitmap mBitmap;
 
     public AndroidBitmap(InputStream inputStream) {
@@ -87,6 +91,10 @@ public class AndroidBitmap implements org.oscim.backend.canvas.Bitmap {
 
     @Override
     public void uploadToTexture(boolean replace) {
+        if (mBitmap.isRecycled()) {
+            log.error("Attempted to upload recycled bitmap to texture");
+            return;
+        }
         int format = GLUtils.getInternalFormat(mBitmap);
         int type = GLUtils.getType(mBitmap);
 
