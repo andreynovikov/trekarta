@@ -26,7 +26,7 @@ import com.github.paolorotolo.appintro.model.SliderPage;
 import mobi.maptrek.fragments.IntroductionFragment;
 
 public class IntroductionActivity extends AppIntro {
-    public static final int CURRENT_INTRODUCTION = 4;
+    public static final int CURRENT_INTRODUCTION = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +85,13 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setDescription(getString(R.string.introSkiing));
             sliderPage.setImageDrawable(R.mipmap.skiing);
             addSlide(IntroductionFragment.newInstance(sliderPage));
-        } else if (lastSeenIntroduction == 3) {
-            // 2017.12
-            sliderPage.setTitle(getString(R.string.introPistesTitle));
-            sliderPage.setDescription(getString(R.string.introPistes));
-            sliderPage.setImageDrawable(R.mipmap.pistes);
+        }
+
+        if (lastSeenIntroduction < 5 && BuildConfig.FULL_VERSION) {
+            // 2019.09
+            sliderPage.setTitle(getString(R.string.introNightModeTitle));
+            sliderPage.setDescription(getString(R.string.introNightMode));
+            sliderPage.setImageDrawable(R.mipmap.night);
             addSlide(IntroductionFragment.newInstance(sliderPage));
         }
 
