@@ -182,6 +182,7 @@ import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
+import mobi.maptrek.layers.AmenityLayer;
 import mobi.maptrek.layers.CrosshairLayer;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
@@ -240,6 +241,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         OnMapActionListener,
         OnFeatureActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
+        AmenityLayer.OnAmenityGestureListener,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
@@ -635,6 +637,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mMap.setBaseMap(mBaseLayer); // will go to base group
         mNativeTileSource.setOnDataMissingListener(this);
+        layers.add(new AmenityLayer(mMap, mBaseLayer, this));
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
@@ -1860,6 +1863,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return true;
     }
 
+    @Override
+    public boolean onAmenitySingleTapUp(long amenityId) {
+        onFeatureDetails(amenityId);
+        return true;
+    }
+
     private void enableLocations() {
         mIsLocationBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
         mLocationState = LocationState.SEARCHING;
@@ -1908,11 +1917,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MarkerItem mMarker;
 
     @Override
-    public void showMarker(@NonNull GeoPoint point, String name) {
+    public void showMarker(@NonNull GeoPoint point, String name, boolean amenity) {
         // There can be only one marker at a time
         removeMarker();
         mMarker = new MarkerItem(name, null, point);
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.round_marker, mColorAccent));
+        int drawable = amenity ? R.drawable.circle_marker : R.drawable.round_marker;
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
         mMarker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER));
         mMarkerLayer.addItem(mMarker);
         mMap.updateMap(true);
@@ -2183,7 +2193,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mPopupAnchor.setX(event.getX() + mFingerTipSize);
             mPopupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
-            showMarker(mSelectedPoint, null);
+            showMarker(mSelectedPoint, null, false);
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu popupMenu = popup.getMenu();

@@ -59,7 +59,7 @@ public interface MapHolder {
 
     void setMapLocation(@NonNull GeoPoint point);
 
-    void showMarker(@NonNull GeoPoint point, @Nullable String name);
+    void showMarker(@NonNull GeoPoint point, @Nullable String name, boolean amenity);
 
     void removeMarker();
 

@@ -421,6 +421,8 @@ public class GeometryBuffer {
         if (isPoint() || isLine() || getNumPoints() < 3)
             return 0f;
 
+        // BROKEN! For multi-polygon.
+
         float area = 0f;
         // use only outer ring
         int n = index[0];

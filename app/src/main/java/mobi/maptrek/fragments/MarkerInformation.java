@@ -78,7 +78,7 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
         ((TextView) getView().findViewById(R.id.name)).setText(name);
 
         final GeoPoint point = new GeoPoint(mLatitude, mLongitude);
-        mMapHolder.showMarker(point, name);
+        mMapHolder.showMarker(point, name, false);
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
         floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_pin_drop));

@@ -94,7 +94,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             mFragmentHolder.popAll();
         });
 
-        mMapHolder.showMarker(mWaypoint.coordinates, mWaypoint.name);
+        mMapHolder.showMarker(mWaypoint.coordinates, mWaypoint.name, true);
         updateAmenityInformation(latitude, longitude);
     }
 
@@ -146,7 +146,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     public void setAmenity(long id) {
         mWaypoint = MapTrekDatabaseHelper.getAmenityData(mLang, id, MapTrek.getApplication().getDetailedMapDatabase());
         if (isVisible()) {
-            mMapHolder.showMarker(mWaypoint.coordinates, mWaypoint.name);
+            mMapHolder.showMarker(mWaypoint.coordinates, mWaypoint.name, true);
             updateAmenityInformation(mLatitude, mLongitude);
         }
     }

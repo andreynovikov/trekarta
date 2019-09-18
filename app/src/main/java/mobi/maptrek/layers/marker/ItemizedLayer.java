@@ -169,6 +169,7 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
         double insideY = -Double.MAX_VALUE;
 
 		/* squared dist: 50*50 pixel ~ 2mm on 400dpi */
+        // TODO Use android tap size
         double dist = 2500;
 
         for (int i = 0; i < size; i++) {
