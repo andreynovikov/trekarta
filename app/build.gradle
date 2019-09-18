@@ -9,7 +9,7 @@ android {
         minSdkVersion 23
         //noinspection OldTargetApi
         targetSdkVersion 27
-        versionCode 71
+        versionCode 72
         versionName "2019.09"
     }
 
