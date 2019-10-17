@@ -71,12 +71,20 @@ class MapTrekTileDecoder extends PbfDecoder {
 
     private static final int TAG_ELEM_LABEL = 31;
     private static final int TAG_ELEM_KIND = 32;
+    private static final int TAG_ELEM_TYPE = 22;
     private static final int TAG_ELEM_ELEVATION = 33;
     private static final int TAG_ELEM_HEIGHT = 34;
     private static final int TAG_ELEM_MIN_HEIGHT = 35;
     private static final int TAG_ELEM_BUILDING_COLOR = 36;
     private static final int TAG_ELEM_ROOF_COLOR = 37;
     private static final int TAG_ELEM_HOUSE_NUMBER = 38;
+    /**
+     * since version 6
+     */
+    private static final int TAG_ELEM_ROOF_HEIGHT = 39;
+    private static final int TAG_ELEM_ROOF_SHAPE = 40;
+    private static final int TAG_ELEM_ROOF_DIRECTION = 41;
+    private static final int TAG_ELEM_ROOF_ACROSS = 42;
 
     private int[] mSArray = new int[100];
 
@@ -270,7 +278,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         return coordCnt;
     }
 
-    private boolean decodeTileElement(Tile tile, int type) throws IOException {
+    private boolean decodeTileElement(Tile tile, int geomType) throws IOException {
         mElem.clearData();
 
         int bytes = decodeVarint32();
@@ -283,12 +291,13 @@ class MapTrekTileDecoder extends PbfDecoder {
         boolean fail = false;
 
         int coordCnt = 0;
-        if (type == TAG_TILE_POINT) {
+        if (geomType == TAG_TILE_POINT) {
             coordCnt = 1;
             mElem.index[0] = 2;
         }
 
         int kind = -1;
+        int type = -1;
         String houseNumber = null;
 
         while (position() < end) {
@@ -323,7 +332,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_ELEM_INDEX:
-                    if (type == TAG_TILE_MESH) {
+                    if (geomType == TAG_TILE_MESH) {
                         decodeWayIndices(numIndices, false);
                     } else {
                         coordCnt = decodeWayIndices(numIndices, true);
@@ -336,7 +345,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                         log.debug("{} no coordinates", mTile);
                     }
 
-                    if (type == TAG_TILE_MESH) {
+                    if (geomType == TAG_TILE_MESH) {
                         mElem.ensurePointSize((coordCnt * 3 / 2), false);
                         int cnt = decodeInterleavedPoints3D(mElem.points, 1);
 
@@ -344,7 +353,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                             log.error("{} wrong number of coordintes {}/{}", mTile, coordCnt, cnt);
                             fail = true;
                         }
-                        mElem.pointPos = cnt;
+                        mElem.pointNextPos = cnt;
                     } else {
                         mElem.ensurePointSize(coordCnt, false);
                         int cnt = decodeInterleavedPoints(mElem, mScaleFactor);
@@ -368,6 +377,10 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_KIND:
                     kind = decodeVarint32();
+                    break;
+
+                case TAG_ELEM_TYPE:
+                    type = decodeVarint32();
                     break;
 
                 case TAG_ELEM_LAYER:
@@ -394,6 +407,24 @@ class MapTrekTileDecoder extends PbfDecoder {
                     mElem.roofColor = decodeVarint32();
                     break;
 
+                case TAG_ELEM_ROOF_HEIGHT:
+                    mElem.roofHeight = deZigZag(decodeVarint32());
+                    break;
+
+                case TAG_ELEM_ROOF_SHAPE:
+                    int v = deZigZag(decodeVarint32()) - 1;
+                    if (v < Tags.roofShapes.length)
+                        mElem.roofShape = Tags.roofShapes[v];
+                    break;
+
+                case TAG_ELEM_ROOF_DIRECTION:
+                    mElem.roofDirection = deZigZag(decodeVarint32()) * 0.1f;
+                    break;
+
+                case TAG_ELEM_ROOF_ACROSS:
+                    mElem.roofOrientationAcross = decodeBool();
+                    break;
+
                 case TAG_ELEM_HOUSE_NUMBER:
                     houseNumber = decodeString();
                     break;
@@ -412,7 +443,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             return false;
         }
 
-        switch (type) {
+        switch (geomType) {
             case TAG_TILE_LINE:
                 mElem.type = GeometryBuffer.GeometryType.LINE;
                 break;
@@ -433,20 +464,32 @@ class MapTrekTileDecoder extends PbfDecoder {
             kind = kind >> 3;
             boolean someKind = kind > 0;
             boolean hasKind = false;
+            // TODO After tag type is introduced this should be removed
             for (int i = 0; i < 16; i++) {
                 if ((kind & 0x00000001) > 0) {
                     int zoom = Tags.kindZooms[i];
                     if (zoom <= tile.zoomLevel) {
-                        mElem.tags.add(new Tag(Tags.kinds[i], "yes"));
+                        mElem.tags.add(Tags.kindTags[i]);
                         hasKind = true;
                     }
                 }
                 kind = kind >> 1;
             }
-            if (!(hasKind || place_road_building || type != TAG_TILE_POINT || mElem.tags.size() > 1))
+            if (!(hasKind || place_road_building || geomType != TAG_TILE_POINT || mElem.tags.size() > 1))
                 return true;
             if (someKind)
-                mElem.tags.add(new Tag("kind", "yes"));
+                mElem.tags.add(Tags.TAG_KIND);
+            // TODO After tag type is introduced this should be removed
+            // TODO Should remove only selectable types
+            for (Tag tag : Tags.typeTags) {
+                if (tag != null)
+                    mElem.tags.remove(tag);
+            }
+            for (Tag tag : Tags.typeAliasTags) {
+                mElem.tags.remove(tag);
+            }
+            if (hasKind)
+                mElem.tags.add(Tags.TAG_FEATURE);
         }
 
         if (houseNumber != null)

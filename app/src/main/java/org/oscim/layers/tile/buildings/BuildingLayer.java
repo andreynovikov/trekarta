@@ -1,8 +1,8 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
  * Copyright 2016 Robin Boldt
- * Copyright 2017 Gustl22
+ * Copyright 2017-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -19,71 +19,120 @@
  */
 package org.oscim.layers.tile.buildings;
 
+import org.oscim.backend.CanvasAdapter;
+import org.oscim.backend.Platform;
 import org.oscim.core.MapElement;
-import org.oscim.core.MercatorProjection;
 import org.oscim.core.Tag;
 import org.oscim.layers.Layer;
 import org.oscim.layers.tile.MapTile;
+import org.oscim.layers.tile.ZoomLimiter;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer.TileLoaderThemeHook;
 import org.oscim.map.Map;
+import org.oscim.renderer.ExtrusionRenderer;
 import org.oscim.renderer.OffscreenRenderer;
 import org.oscim.renderer.OffscreenRenderer.Mode;
-import org.oscim.renderer.bucket.ExtrusionBucket;
 import org.oscim.renderer.bucket.ExtrusionBuckets;
 import org.oscim.renderer.bucket.RenderBuckets;
+import org.oscim.renderer.light.ShadowRenderer;
 import org.oscim.theme.styles.ExtrusionStyle;
 import org.oscim.theme.styles.RenderStyle;
-import org.oscim.utils.pool.Inlist;
+import org.oscim.utils.geom.GeometryUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class BuildingLayer extends Layer implements TileLoaderThemeHook {
+import mobi.maptrek.maps.maptrek.ExtendedMapElement;
 
-    private final static int BUILDING_LEVEL_HEIGHT = 280; // cm
+public class BuildingLayer extends Layer implements TileLoaderThemeHook, ZoomLimiter.IZoomLimiter {
 
-    private final static int MIN_ZOOM = 17;
-    private final static int MAX_ZOOM = 17;
+    protected static final int BUILDING_LEVEL_HEIGHT = 280; // cm
 
-    private final static boolean POST_AA = false;
+    public static final int MIN_ZOOM = 17;
+
+    /**
+     * Use Fast Approximate Anti-Aliasing (FXAA) and Screen Space Ambient Occlusion (SSAO).
+     */
+    public static boolean POST_AA = false;
+
+    /**
+     * Use real time calculations to pre-process data.
+     */
+    public static boolean RAW_DATA = false;
+
+    /**
+     * Let vanish extrusions / meshes which are covered by others.
+     * {@link org.oscim.renderer.bucket.RenderBucket#EXTRUSION}: roofs are always translucent.
+     * <p>
+     * To better notice the difference, reduce the alpha value of extrusion colors in themes.
+     */
     public static boolean TRANSLUCENT = true;
 
     private static final Object BUILDING_DATA = BuildingLayer.class.getName();
 
-    // Can replace with Multimap in Java 8
-    private HashMap<Integer, List<BuildingElement>> mBuildings = new HashMap<>();
+    // Can be replaced with Multimap in Java 8
+    protected java.util.Map<Integer, List<BuildingElement>> mBuildings = new HashMap<>();
+
+    protected final ExtrusionRenderer mExtrusionRenderer;
+
+    private final ZoomLimiter mZoomLimiter;
+
+    protected final VectorTileLayer mTileLayer;
 
     class BuildingElement {
         MapElement element;
         ExtrusionStyle style;
-        boolean isPart;
 
-        BuildingElement(MapElement element, ExtrusionStyle style, boolean isPart) {
+        BuildingElement(MapElement element, ExtrusionStyle style) {
             this.element = element;
             this.style = style;
-            this.isPart = isPart;
         }
     }
 
     public BuildingLayer(Map map, VectorTileLayer tileLayer) {
-        this(map, tileLayer, MIN_ZOOM, MAX_ZOOM);
+        this(map, tileLayer, false, false);
     }
 
-    public BuildingLayer(Map map, VectorTileLayer tileLayer, int zoomMin, int zoomMax) {
+    public BuildingLayer(Map map, VectorTileLayer tileLayer, boolean mesh, boolean shadow) {
+        this(map, tileLayer, MIN_ZOOM, map.viewport().getMaxZoomLevel(), mesh, shadow);
+    }
 
+    /**
+     * @param map       The map data to add
+     * @param tileLayer The vector tile layer which contains the tiles and the map elements
+     * @param zoomMin   The minimum zoom at which the layer appears
+     * @param zoomMax   The maximum zoom at which the layer appears
+     * @param mesh      Declare if using mesh or polygon renderer
+     * @param shadow    Declare if using shadow renderer
+     */
+    public BuildingLayer(Map map, VectorTileLayer tileLayer, int zoomMin, int zoomMax, boolean mesh, boolean shadow) {
         super(map);
 
-        tileLayer.addHook(this);
+        mTileLayer = tileLayer;
+        mTileLayer.addHook(this);
 
-        mRenderer = new BuildingRenderer(tileLayer.tileRenderer(),
-                zoomMin, zoomMax,
-                false, TRANSLUCENT);
-        if (POST_AA)
+        // Use zoomMin as zoomLimit to render buildings only once
+        mZoomLimiter = new ZoomLimiter(tileLayer.getManager(), zoomMin, zoomMax, zoomMin);
+
+        // Buildings translucency does not work on macOS, see #61
+        if (CanvasAdapter.platform == Platform.MACOS)
+            TRANSLUCENT = false;
+
+        mRenderer = mExtrusionRenderer = new BuildingRenderer(tileLayer.tileRenderer(), mZoomLimiter, mesh, TRANSLUCENT);
+        // TODO Allow shadow and POST_AA at same time
+        if (shadow)
+            mRenderer = new ShadowRenderer(mExtrusionRenderer);
+        else if (POST_AA)
             mRenderer = new OffscreenRenderer(Mode.SSAO_FXAA, mRenderer);
+    }
+
+    @Override
+    public void addZoomLimit() {
+        mZoomLimiter.addZoomLimit();
+    }
+
+    @Override
+    public void removeZoomLimit() {
+        mZoomLimiter.removeZoomLimit();
     }
 
     /**
@@ -92,25 +141,32 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
     @Override
     public boolean process(MapTile tile, RenderBuckets buckets, MapElement element,
                            RenderStyle style, int level) {
+        // FIXME artifacts at tile borders in last extraction zoom as they're clipped
 
         if (!(style instanceof ExtrusionStyle))
+            return false;
+        if (tile.zoomLevel > mZoomLimiter.getZoomLimit())
             return false;
 
         ExtrusionStyle extrusion = (ExtrusionStyle) style.current();
 
         // Filter all building elements
         // TODO #TagFromTheme: load from theme or decode tags to generalize mapsforge tags
-        boolean isBuildingPart = element.tags.containsKey(Tag.KEY_BUILDING_PART)
-                || (element.tags.containsKey("kind") && element.tags.getValue("kind").equals("building_part")); // Mapzen
-        if (element.tags.containsKey(Tag.KEY_BUILDING) || isBuildingPart
-                || (element.tags.containsKey("kind") && element.tags.getValue("kind").equals("building"))) { // Mapzen
+        if (element.isBuilding() || element.isBuildingPart()) {
             List<BuildingElement> buildingElements = mBuildings.get(tile.hashCode());
             if (buildingElements == null) {
                 buildingElements = new ArrayList<>();
                 mBuildings.put(tile.hashCode(), buildingElements);
             }
-            element = element.clone(); // Deep copy, because element will be cleared
-            buildingElements.add(new BuildingElement(element, extrusion, isBuildingPart));
+            if (element instanceof ExtendedMapElement)
+                element = new ExtendedMapElement((ExtendedMapElement) element); // Deep copy, because element will be cleared
+            else
+                element = new MapElement(element); // Deep copy, because element will be cleared
+            if (RAW_DATA && element.isClockwise() < 0) {
+                // Buildings must be counter clockwise in VTM (mirrored to OSM)
+                element.reverse();
+            }
+            buildingElements.add(new BuildingElement(element, extrusion));
             return true;
         }
 
@@ -127,25 +183,27 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
      * @param extrusion the style of map element
      * @param tile      the tile which contains map element
      */
-    private void processElement(MapElement element, ExtrusionStyle extrusion, MapTile tile) {
+    protected void processElement(MapElement element, ExtrusionStyle extrusion, MapTile tile) {
         int height = 0; // cm
         int minHeight = 0; // cm
 
-        String v = element.tags.getValue(Tag.KEY_HEIGHT);
-        if (v != null)
-            height = (int) (Float.parseFloat(v) * 100);
+        Float f = element.getHeight(mTileLayer.getTheme());
+        if (f != null)
+            height = (int) (f * 100);
         else {
             // #TagFromTheme: generalize level/height tags
-            if ((v = element.tags.getValue(Tag.KEY_BUILDING_LEVELS)) != null)
+            String v = getValue(element, Tag.KEY_BUILDING_LEVELS);
+            if (v != null)
                 height = (int) (Float.parseFloat(v) * BUILDING_LEVEL_HEIGHT);
         }
 
-        v = element.tags.getValue(Tag.KEY_MIN_HEIGHT);
-        if (v != null)
-            minHeight = (int) (Float.parseFloat(v) * 100);
+        f = element.getMinHeight(mTileLayer.getTheme());
+        if (f != null)
+            minHeight = (int) (f * 100);
         else {
             // #TagFromTheme: level/height tags
-            if ((v = element.tags.getValue(Tag.KEY_BUILDING_MIN_LEVEL)) != null)
+            String v = getValue(element, Tag.KEY_BUILDING_MIN_LEVEL);
+            if (v != null)
                 minHeight = (int) (Float.parseFloat(v) * BUILDING_LEVEL_HEIGHT);
         }
 
@@ -153,23 +211,7 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
             height = extrusion.defaultHeight * 100;
 
         ExtrusionBuckets ebs = get(tile);
-
-        for (ExtrusionBucket b = ebs.buckets; b != null; b = b.next()) {
-            if (b.colors == extrusion.colors) {
-                b.add(element, height, minHeight);
-                return;
-            }
-        }
-
-        double lat = MercatorProjection.toLatitude(tile.y);
-        float groundScale = (float) MercatorProjection
-                .groundResolutionWithScale(lat, 1 << tile.zoomLevel);
-
-        ebs.buckets = Inlist.push(ebs.buckets,
-                new ExtrusionBucket(0, groundScale,
-                        extrusion.colors));
-
-        ebs.buckets.add(element, height, minHeight);
+        ebs.addPolyElement(element, tile.getGroundScale(), extrusion.colors, height, minHeight);
     }
 
     /**
@@ -177,25 +219,29 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
      *
      * @param tile the tile which contains stored map elements
      */
-    private void processElements(MapTile tile) {
+    protected void processElements(MapTile tile) {
         if (!mBuildings.containsKey(tile.hashCode()))
             return;
 
         List<BuildingElement> tileBuildings = mBuildings.get(tile.hashCode());
         Set<BuildingElement> rootBuildings = new HashSet<>();
         for (BuildingElement partBuilding : tileBuildings) {
-            if (!partBuilding.isPart)
+            if (!partBuilding.element.isBuildingPart())
                 continue;
 
-            String refId = partBuilding.element.tags.getValue(Tag.KEY_REF); // #TagFromTheme
-            refId = refId == null ? partBuilding.element.tags.getValue("root_id") : refId; // Mapzen
+            String refId = getValue(partBuilding.element, Tag.KEY_REF);
             if (refId == null)
                 continue;
 
             // Search buildings which inherit parts
             for (BuildingElement rootBuilding : tileBuildings) {
-                if (rootBuilding.isPart
-                        || !(refId.equals(rootBuilding.element.tags.getValue(Tag.KEY_ID))))
+                if (rootBuilding.element.isBuildingPart())
+                    continue;
+                if (RAW_DATA) {
+                    float[] center = GeometryUtils.center(partBuilding.element.points, 0, partBuilding.element.pointNextPos, null);
+                    if (!GeometryUtils.pointInPoly(center[0], center[1], rootBuilding.element.points, rootBuilding.element.index[0], 0))
+                        continue;
+                } else if (!(refId.equals(getValue(rootBuilding.element, Tag.KEY_ID))))
                     continue;
 
                 rootBuildings.add(rootBuilding);
@@ -211,13 +257,34 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
         mBuildings.remove(tile.hashCode());
     }
 
+    /**
+     * @param tile the MapTile
+     * @return ExtrusionBuckets of the tile
+     */
     public static ExtrusionBuckets get(MapTile tile) {
-        ExtrusionBuckets eb = (ExtrusionBuckets) tile.getData(BUILDING_DATA);
-        if (eb == null) {
-            eb = new ExtrusionBuckets(tile);
-            tile.addData(BUILDING_DATA, eb);
+        ExtrusionBuckets ebs = (ExtrusionBuckets) tile.getData(BUILDING_DATA);
+        if (ebs == null) {
+            ebs = new ExtrusionBuckets(tile);
+            tile.addData(BUILDING_DATA, ebs);
         }
-        return eb;
+        return ebs;
+    }
+
+    /**
+     * Get the ExtrusionRenderer for customization.
+     */
+    public ExtrusionRenderer getExtrusionRenderer() {
+        return mExtrusionRenderer;
+    }
+
+    /**
+     * Get the tile source tag value via the library tag key.
+     *
+     * @param key the library tag key
+     * @return the tile source tag value of specified library tag key
+     */
+    protected String getValue(MapElement element, String key) {
+        return element.tags.getValue(key);
     }
 
     @Override
@@ -226,7 +293,7 @@ public class BuildingLayer extends Layer implements TileLoaderThemeHook {
             processElements(tile);
             get(tile).prepare();
         } else
-            get(tile).setBuckets(null);
+            get(tile).resetBuckets(null);
     }
 
     //    private int multi;

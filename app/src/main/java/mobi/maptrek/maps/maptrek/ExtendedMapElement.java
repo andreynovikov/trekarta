@@ -17,13 +17,18 @@
 package mobi.maptrek.maps.maptrek;
 
 import org.oscim.core.MapElement;
+import org.oscim.theme.IRenderTheme;
 
 public class ExtendedMapElement extends MapElement {
     public long id = 0L;
     public int buildingHeight = 0;
     public int buildingMinHeight = 0;
     public int buildingColor = 0;
+    public int roofHeight = 0;
     public int roofColor = 0;
+    public String roofShape = null;
+    public float roofDirection = -1;
+    public boolean roofOrientationAcross = false;
     public int elevation = 0;
     boolean hasLabelPosition = true;
     public MapTrekDataSource database;
@@ -31,6 +36,72 @@ public class ExtendedMapElement extends MapElement {
     boolean isContour = false;
     boolean isBuilding = false;
     boolean isBuildingPart = false;
+
+    public ExtendedMapElement() {
+        super();
+    }
+
+    public ExtendedMapElement(int numPoints, int numIndices) {
+        super(numPoints, numIndices);
+    }
+
+    public ExtendedMapElement(ExtendedMapElement element) {
+        super(element);
+        this.id = element.id;
+        this.buildingHeight = element.buildingHeight;
+        this.buildingMinHeight = element.buildingMinHeight;
+        this.buildingColor = element.buildingColor;
+        this.roofHeight = element.roofHeight;
+        this.roofColor = element.roofColor;
+        this.roofShape = element.roofShape;
+        this.roofDirection = element.roofDirection;
+        this.roofOrientationAcross = element.roofOrientationAcross;
+        this.elevation = element.elevation;
+        this.hasLabelPosition = element.hasLabelPosition;
+        this.database = element.database;
+        this.kind = element.kind;
+        this.isContour = element.isContour;
+        this.isBuilding = element.isBuilding;
+        this.isBuildingPart = element.isBuildingPart;
+    }
+
+    /**
+     * @return height in meters, if present
+     */
+    @Override
+    public Float getHeight(IRenderTheme theme) {
+        if (isBuildingPart)
+            return (float) buildingHeight * 0.01f;
+        return null;
+    }
+
+    /**
+     * @return minimum height in meters, if present
+     */
+    public Float getMinHeight(IRenderTheme theme) {
+        if (isBuildingPart)
+            return (float) buildingMinHeight * 0.01f;
+        return null;
+    }
+
+    /**
+     * @return true if this is a building, else false.
+     */
+    public boolean isBuilding() { // TODO from themes (with overzoom ref)
+        return isBuilding;
+    }
+
+    /**
+     * @return true if this is a building part, else false.
+     */
+    public boolean isBuildingPart() { // TODO from themes (with overzoom ref)
+        return isBuildingPart && !isBuilding;
+    }
+
+    @Override
+    public String toString() {
+        return id + " (" + kind + "): " + super.toString() + '\n';
+    }
 
     void clearData() {
         id = 0L;
@@ -43,7 +114,11 @@ public class ExtendedMapElement extends MapElement {
         buildingHeight = 0;
         buildingMinHeight = 0;
         buildingColor = 0;
+        roofHeight = 0;
         roofColor = 0;
+        roofShape = null;
+        roofDirection = -1;
+        roofOrientationAcross = false;
         isContour = false;
         isBuilding = false;
         isBuildingPart = false;
