@@ -114,6 +114,7 @@ import org.oscim.layers.Layer;
 import org.oscim.layers.PathLayer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
+import org.oscim.layers.tile.buildings.S3DBLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -182,16 +183,15 @@ import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
-import mobi.maptrek.layers.AmenityLayer;
 import mobi.maptrek.layers.CrosshairLayer;
 import mobi.maptrek.layers.CurrentTrackLayer;
 import mobi.maptrek.layers.LocationOverlay;
 import mobi.maptrek.layers.MapCoverageLayer;
 import mobi.maptrek.layers.MapEventLayer;
 import mobi.maptrek.layers.MapObjectLayer;
+import mobi.maptrek.layers.MapTrekTileLayer;
 import mobi.maptrek.layers.NavigationLayer;
 import mobi.maptrek.layers.TrackLayer;
-import mobi.maptrek.layers.building.BuildingLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
 import mobi.maptrek.layers.marker.MarkerLayer;
@@ -241,11 +241,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         OnMapActionListener,
         OnFeatureActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
-        AmenityLayer.OnAmenityGestureListener,
+        MapTrekTileLayer.OnAmenityGestureListener,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
-        MapTrekTileSource.OnDataMissingListener, AmenitySetupDialog.AmenitySetupDialogCallback {
+        MapTrekTileSource.OnDataMissingListener,
+        AmenitySetupDialog.AmenitySetupDialogCallback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
@@ -361,7 +362,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MapEventLayer mMapEventLayer;
     private VectorTileLayer mBaseLayer;
     private BitmapTileLayer mHillshadeLayer;
-    private BuildingLayer mBuildingsLayer;
+    private S3DBLayer mBuildingsLayer;
     private MapScaleBarLayer mMapScaleBarLayer;
     private LabelTileLoaderHook mLabelTileLoaderHook;
     private LabelLayer mLabelsLayer;
@@ -632,12 +633,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
         mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
 
-        mBaseLayer = new OsmTileLayer(mMap);
-        mBaseLayer.setTileSource(mNativeTileSource);
+        mBaseLayer = new MapTrekTileLayer(mMap, mNativeTileSource, this);
 
         mMap.setBaseMap(mBaseLayer); // will go to base group
         mNativeTileSource.setOnDataMissingListener(this);
-        layers.add(new AmenityLayer(mMap, mBaseLayer, this));
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
@@ -658,7 +657,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
         if (mBuildingsLayerEnabled) {
-            mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
+            mBuildingsLayer = new S3DBLayer(mMap, mBaseLayer, true);
             layers.add(mBuildingsLayer, MAP_3D);
         }
 
@@ -1293,7 +1292,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.action3dBuildings: {
                 mBuildingsLayerEnabled = item.isChecked();
                 if (mBuildingsLayerEnabled) {
-                    mBuildingsLayer = new BuildingLayer(mMap, mBaseLayer);
+                    mBuildingsLayer = new S3DBLayer(mMap, mBaseLayer);
                     mMap.layers().add(mBuildingsLayer, MAP_3D);
                     // Let buildings be re-fetched from map layer
                     mMap.clearMap();
@@ -1865,7 +1864,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public boolean onAmenitySingleTapUp(long amenityId) {
-        onFeatureDetails(amenityId);
+        onFeatureDetails(amenityId, false);
         return true;
     }
 
@@ -2869,16 +2868,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onFeatureDetails(long id) {
+    public void onFeatureDetails(long id, boolean fromList) {
         Bundle args = new Bundle(3);
-        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-            Location location = mLocationService.getLocation();
-            args.putDouble(AmenityInformation.ARG_LATITUDE, location.getLatitude());
-            args.putDouble(AmenityInformation.ARG_LONGITUDE, location.getLongitude());
-        } else {
-            MapPosition position = mMap.getMapPosition();
-            args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
-            args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
+        //args.putBoolean(AmenityInformation.ARG_DETAILS, fromList);
+
+        if (fromList || mLocationState != LocationState.DISABLED) {
+            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                Location location = mLocationService.getLocation();
+                args.putDouble(AmenityInformation.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(AmenityInformation.ARG_LONGITUDE, location.getLongitude());
+            } else {
+                MapPosition position = mMap.getMapPosition();
+                args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
+            }
         }
 
         Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
@@ -2889,7 +2892,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "amenityInformation");
+            ft.replace(R.id.bottomSheetPanel, fragment, "amenityInformation");
             ft.addToBackStack("amenityInformation");
             ft.commit();
             updateMapViewArea();
@@ -4044,6 +4047,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onAmenityKindVisibilityChanged() {
         Configuration.saveKindZoomState();
+        Tags.recalculateTypeZooms();
         mMap.clearMap();
     }
 
@@ -4150,6 +4154,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void setMapTheme() {
         Configuration.loadKindZoomState();
+        Tags.recalculateTypeZooms();
         ThemeFile themeFile;
         switch (Configuration.getActivity()) {
             case 2:
@@ -4158,8 +4163,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mNightMode = false;
                 break;
             case 1:
-                if (Tags.kindZooms[13] == 18)
+                if (Tags.kindZooms[13] == 18) {
                     Tags.kindZooms[13] = 14;
+                    Tags.recalculateTypeZooms();
+                }
                 themeFile = Themes.MAPTREK;
                 Configuration.accountHiking();
                 mNightMode = false;

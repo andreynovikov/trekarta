@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,23 +18,37 @@ package mobi.maptrek.maps.maptrek;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 import org.oscim.backend.canvas.Bitmap;
+import org.oscim.core.BoundingBox;
 import org.oscim.core.GeometryBuffer;
 import org.oscim.core.MapElement;
+import org.oscim.core.MercatorProjection;
+import org.oscim.core.Point;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.OverzoomDataSink;
 import org.oscim.tiling.QueryResult;
-import org.oscim.utils.geom.TileClipper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 
+import mobi.maptrek.layers.MapTrekTileLayer;
+
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ID;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_KIND;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_LAT;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_LON;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_TYPE;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_X;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_Y;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_TILES_DATA;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.TABLE_TILES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.WHERE_TILE_ZXY;
 import static org.oscim.tiling.QueryResult.FAILED;
@@ -48,8 +62,6 @@ class MapTrekDataSource implements ITileDataSource {
     private static final String SQL_GET_TILE = "SELECT " + COLUMN_TILES_DATA + " FROM " + TABLE_TILES + " WHERE " + WHERE_TILE_ZXY;
 
     private static final int MAX_NATIVE_ZOOM = 14;
-    private static final int CLIP_BUFFER = 32;
-    private static final int BUILDING_CLIP_BUFFER = 4;
 
     private static final Tag TAG_TREE = new Tag("natural", "tree");
 
@@ -73,21 +85,83 @@ class MapTrekDataSource implements ITileDataSource {
             y = y >> dz;
             z = MAX_NATIVE_ZOOM;
         }
-        String[] args = {String.valueOf(z), String.valueOf(x), String.valueOf(y)};
+
+        String[] tileArgs = {String.valueOf(z), String.valueOf(x), String.valueOf(y)};
         QueryResult result = tile.zoomLevel > 7 ? TILE_NOT_FOUND : SUCCESS;
-        try (Cursor c = mDatabase.rawQuery(SQL_GET_TILE, args)) {
+        try (Cursor c = mDatabase.rawQuery(SQL_GET_TILE, tileArgs)) {
             if (c.moveToFirst()) {
                 byte[] bytes = c.getBlob(0);
-                NativeTileDataSink proxyDataSink = new NativeTileDataSink(sink, tile, dz, x, y);
-                boolean ok = mTileDecoder.decode(tile, proxyDataSink, new ByteArrayInputStream(bytes));
+                ITileDataSink dataSink = new NativeTileDataSink(sink, tile);
+
+                if (dz > 0) {
+                    MapTile mapTile = new MapTile(tile.node, x, y, MAX_NATIVE_ZOOM);
+                    dataSink = new OverzoomDataSink(dataSink, mapTile, tile);
+                }
+
+                boolean ok = mTileDecoder.decode(tile, dataSink, new ByteArrayInputStream(bytes));
                 result = ok ? SUCCESS : FAILED;
             }
         } catch (Exception e) {
             logger.error("Query error", e);
             result = FAILED;
-        } finally {
-            sink.completed(result);
         }
+
+        if (dz >= 0 && Tags.typeSelectors[dz].length() > 0) {
+            MapTrekTileLayer.AmenityTileData td = get(tile);
+            String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
+                    + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
+                    + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
+                    + COLUMN_FEATURES_TYPE + " IN (" + Tags.typeSelectors[dz] + ") AND "
+                    + COLUMN_FEATURES_X + " = ? AND " + COLUMN_FEATURES_Y + " = ?";
+
+            String[] featureArgs;
+            if (dz == 0) {
+                featureArgs = new String[]{String.valueOf(x), String.valueOf(y)};
+            } else {
+                sql += " AND " + COLUMN_FEATURES_LAT + " >= ? AND " + COLUMN_FEATURES_LON
+                        + " >= ? AND " + COLUMN_FEATURES_LAT + " <= ? AND " + COLUMN_FEATURES_LON
+                        + " <= ?";
+                BoundingBox bb = tile.getBoundingBox();
+                featureArgs = new String[]{String.valueOf(x), String.valueOf(y),
+                        String.valueOf(bb.getMinLatitude()), String.valueOf(bb.getMinLongitude()),
+                        String.valueOf(bb.getMaxLatitude()), String.valueOf(bb.getMaxLongitude())};
+            }
+            try (Cursor c = mDatabase.rawQuery(sql, featureArgs)) {
+                c.moveToFirst();
+                while (!c.isAfterLast()) {
+                    ExtendedMapElement element = new ExtendedMapElement(1, 1);
+                    element.id = c.getLong(0);
+                    element.kind = c.getInt(1);
+                    Tag tag = Tags.getTypeTag(c.getInt(2));
+                    element.tags.add(tag);
+                    if (tag instanceof ExtendedTag) {
+                        while ((tag = ((ExtendedTag) tag).next) != null) {
+                            element.tags.add(tag);
+                        }
+                    }
+                    element.tags.add(Tags.TAG_FEATURE);
+                    element.database = this;
+
+                    double px = MercatorProjection.longitudeToX(c.getDouble(4));
+                    double py = MercatorProjection.latitudeToY(c.getDouble(3));
+
+                    td.amenities.add(new Pair<>(new Point(px, py), element.id));
+
+                    px = (px - tile.x) * tile.mapSize;
+                    py = (py - tile.y) * tile.mapSize;
+
+                    element.startPoints();
+                    element.addPoint((float) px, (float) py);
+
+                    sink.process(element);
+                    c.moveToNext();
+                }
+            } catch (Exception e) {
+                logger.error("Query error", e);
+            }
+        }
+
+        sink.completed(result);
     }
 
     @Override
@@ -108,31 +182,14 @@ class MapTrekDataSource implements ITileDataSource {
 
     private class NativeTileDataSink implements ITileDataSink {
         private final Tile tile;
-        private int scale;
-        private int dx;
-        private int dy;
-        private TileClipper mTileClipper;
-        private TileClipper mBuildingTileClipper;
         ITileDataSink mapDataSink;
         QueryResult result;
+        float scale;
 
-        NativeTileDataSink(ITileDataSink mapDataSink, Tile tile, int dz, int x, int y) {
+        NativeTileDataSink(ITileDataSink mapDataSink, Tile tile) {
             this.mapDataSink = mapDataSink;
             this.tile = tile;
-            scale = 1;
-            if (dz > 0) {
-                scale = 1 << dz;
-                dx = (tile.tileX - (x << dz)) * Tile.SIZE;
-                dy = (tile.tileY - (y << dz)) * Tile.SIZE;
-                mTileClipper = new TileClipper((dx - CLIP_BUFFER) / scale, (dy - CLIP_BUFFER) / scale,
-                        (dx + Tile.SIZE + CLIP_BUFFER) / scale, (dy + Tile.SIZE + CLIP_BUFFER) / scale);
-                mBuildingTileClipper = new TileClipper((dx - BUILDING_CLIP_BUFFER) / scale, (dy - BUILDING_CLIP_BUFFER) / scale,
-                        (dx + Tile.SIZE + BUILDING_CLIP_BUFFER) / scale, (dy + Tile.SIZE + BUILDING_CLIP_BUFFER) / scale);
-                /*
-                mBuildingTileClipper = new TileClipper(dx / scale, dy / scale,
-                        (dx + Tile.SIZE) / scale, (dy + Tile.SIZE) / scale);
-                        */
-            }
+            this.scale = 1 << (tile.zoomLevel - MAX_NATIVE_ZOOM);
         }
 
         @Override
@@ -156,7 +213,7 @@ class MapTrekDataSource implements ITileDataSource {
             if (tile.zoomLevel > 14 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {
                 float x = element.getPointX(0);
                 float y = element.getPointY(0);
-                GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 1.1f, 10);
+                GeometryBuffer geom = GeometryBuffer.makeCircle(x, y, 0.8f * scale, 10);
                 element.ensurePointSize(geom.getNumPoints(), false);
                 element.type = GeometryBuffer.GeometryType.POLY;
                 System.arraycopy(geom.points, 0, element.points, 0, geom.points.length);
@@ -165,20 +222,6 @@ class MapTrekDataSource implements ITileDataSource {
                     element.index[1] = -1;
             }
 
-            if (scale != 1) {
-                TileClipper clipper = element.isBuildingPart && !element.isBuilding ? mBuildingTileClipper : mTileClipper;
-                if (!clipper.clip(element))
-                    return;
-                element.scale(scale, scale);
-                element.translate(-dx, -dy);
-                if (element.hasLabelPosition && element.labelPosition != null) {
-                    element.labelPosition.x = element.labelPosition.x * scale - dx;
-                    element.labelPosition.y = element.labelPosition.y * scale - dy;
-                    if (element.labelPosition.x < 0 || element.labelPosition.x > Tile.SIZE
-                            || element.labelPosition.y < 0 || element.labelPosition.y > Tile.SIZE)
-                        element.labelPosition = null;
-                }
-            }
             if (element.id != 0L) {
                 element.database = MapTrekDataSource.this;
             }
@@ -207,4 +250,12 @@ class MapTrekDataSource implements ITileDataSource {
         }
     }
 
+    private MapTrekTileLayer.AmenityTileData get(MapTile tile) {
+        MapTrekTileLayer.AmenityTileData td = (MapTrekTileLayer.AmenityTileData) tile.getData(MapTrekTileLayer.POI_DATA);
+        if (td == null) {
+            td = new MapTrekTileLayer.AmenityTileData();
+            tile.addData(MapTrekTileLayer.POI_DATA, td);
+        }
+        return td;
+    }
 }

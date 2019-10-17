@@ -2,7 +2,7 @@ package mobi.maptrek.maps.maptrek;
 
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2017 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,7 +18,16 @@ package mobi.maptrek.maps.maptrek;
 
 import android.support.annotation.NonNull;
 
+import org.oscim.core.Tag;
+
+import java.util.Arrays;
+
+import mobi.maptrek.R;
+
 public class Tags {
+    static final Tag TAG_KIND = new Tag("kind", "yes");
+    static final Tag TAG_FEATURE = new Tag("feature", "yes");
+
     public static final String[] kinds = {
             //"place",
             //"road",
@@ -42,9 +51,7 @@ public class Tags {
     };
 
     //TODO Return multiple kinds if applicable
-    static
-    @NonNull
-    String getKindName(int kind) {
+    public static @NonNull String getKindName(int kind) {
         if (Tags.isPlace(kind))
             return "kind_place";
         else if (Tags.isEmergency(kind))
@@ -57,6 +64,8 @@ public class Tags {
             return kinds[3];
         else if (Tags.isEntertainment(kind))
             return kinds[4];
+        else if (Tags.isHikeBike(kind))
+            return kinds[13];
         else if (Tags.isShopping(kind))
             return kinds[5];
         else if (Tags.isService(kind))
@@ -73,8 +82,6 @@ public class Tags {
             return kinds[11];
         else if (Tags.isTransportation(kind))
             return kinds[12];
-        else if (Tags.isHikeBike(kind))
-            return kinds[13];
         else if (Tags.isBuilding(kind))
             return "kind_building";
         else if (Tags.isUrban(kind))
@@ -163,6 +170,28 @@ public class Tags {
         return (kind & 0x00040000) > 0;
     }
 
+    static final Tag[] kindTags = {
+            //"place",
+            //"road",
+            //"building",
+            new Tag("kind_emergency", "yes"),
+            new Tag("kind_accommodation", "yes"),
+            new Tag("kind_food", "yes"),
+            new Tag("kind_attraction", "yes"),
+            new Tag("kind_entertainment", "yes"),
+            new Tag("kind_shopping", "yes"),
+            new Tag("kind_service", "yes"),
+            new Tag("kind_religion", "yes"),
+            new Tag("kind_education", "yes"),
+            new Tag("kind_kids", "yes"),
+            new Tag("kind_pets", "yes"),
+            new Tag("kind_vehicles", "yes"),
+            new Tag("kind_transportation", "yes"),
+            new Tag("kind_hikebike", "yes"),
+            new Tag("kind_urban", "yes"),
+            new Tag("kind_barrier", "yes")
+    };
+
     public static final int[] kindZooms = {
             15, // emergency
             16, // accommodation
@@ -180,6 +209,529 @@ public class Tags {
             17, // hike'n'bike
             17, // urban
             16  // barrier
+    };
+
+    final static Tag[] typeTags = {
+            null,
+            new Tag("tourism", "wilderness_hut"), // 1
+            null, null,
+            new Tag("tourism", "alpine_hut"), // 4
+            null, null,
+            new Tag("tourism", "guest_house"), // 7
+            null, null,
+            new Tag("tourism", "motel"), // 10
+            null, null,
+            new Tag("tourism", "hostel"), // 13
+            null, null,
+            new Tag("tourism", "hotel"), // 16
+            null, null,
+            new Tag("tourism", "camp_site"), // 19
+            null, null,
+            new Tag("tourism", "caravan_site"), // 22
+            null, null,
+            new Tag("shop", "ice_cream"), // 25
+            null, null,
+            new Tag("shop", "confectionery"), // 28
+            null, null,
+            new Tag("shop", "alcohol"), // 31
+            null, null,
+            new Tag("shop", "beverages"), // 34
+            null, null,
+            new Tag("shop", "bakery"), // 37
+            null, null,
+            new Tag("shop", "greengrocer"), // 40
+            null, null,
+            new Tag("shop", "supermarket"), // 43
+            null, null,
+            new Tag("amenity", "cafe"), // 46
+            null, null,
+            new Tag("amenity", "pub"), // 49
+            null, null,
+            new Tag("amenity", "bar"), // 52
+            null, null,
+            new Tag("amenity", "fast_food"), // 55
+            null, null,
+            new Tag("amenity", "restaurant"), // 58
+            null, null,
+            new Tag("amenity", "marketplace"), // 61
+            null, null,
+            null, // new Tag("barrier", "block"), // 64
+            null, null,
+            null, // new Tag("barrier", "bollard"), // 67
+            null, null,
+            null, // new Tag("barrier", "cycle_barrier"), // 70
+            null, null,
+            null, // new Tag("barrier", "lift_gate"), // 73
+            null, null,
+            null, // new Tag("barrier", "gate"), // 76
+            null, null, null, null, null,
+            new Tag("tourism", "zoo"), // 82
+            null, null,
+            new Tag("tourism", "picnic_site"), // 85
+            null, null,
+            new Tag("amenity", "theatre"), // 88
+            null, null,
+            new Tag("amenity", "cinema"), // 91
+            null, null,
+            new Tag("amenity", "library"), // 94
+            null, null,
+            new Tag("amenity", "boat_rental"), // 97
+            null, null,
+            new Tag("leisure", "water_park"), // 100
+            null, null,
+            new Tag("leisure", "beach_resort"), // 103
+            null, null,
+            new Tag("leisure", "sauna"), // 106
+            null, null,
+            new Tag("amenity", "police"), // 109
+            null, null,
+            new Tag("amenity", "fire_station"), // 112
+            null, null,
+            new Tag("amenity", "hospital"), // 115
+            null, null,
+            new Tag("amenity", "ranger_station"), // 118
+            null, null,
+            new Tag("amenity", "doctors"), // 121
+            null, null,
+            new Tag("amenity", "pharmacy"), // 124
+            null, null,
+            new Tag("amenity", "telephone"), // 127
+            null, null,
+            new Tag("emergency", "phone"), // 130
+            null, null,
+            new Tag("shop", "pet"), // 133
+            null, null,
+            new Tag("amenity", "veterinary"), // 136
+            null, null,
+            new Tag("shop", "toys"), // 139
+            null, null,
+            new Tag("leisure", "amusement_arcade"), // 142
+            null, null,
+            null, // new Tag("leisure", "playground"), // 145
+            null, null,
+            new Tag("shop", "bicycle"), // 148
+            null, null,
+            new Tag("shop", "outdoor"), // 151
+            null, null,
+            new Tag("shop", "sports"), // 154
+            null, null,
+            new Tag("shop", "gift"), // 157
+            null, null,
+            new Tag("shop", "jewelry"), // 160
+            null, null,
+            new Tag("shop", "photo"), // 163
+            null, null,
+            new Tag("shop", "books"), // 166
+            null, null,
+            new Tag("shop", "variety_store"), // 169
+            null, null,
+            new Tag("shop", "doityourself"), // 172
+            null, null,
+            new Tag("shop", "department_store"), // 175
+            null, null,
+            new Tag("waterway", "waterfall"), // 178
+            null, null,
+            new Tag("man_made", "lighthouse"), // 181
+            null, null,
+            new Tag("man_made", "windmill"), // 184
+            new Tag("memorial", "bust"), // 185
+            new Tag("memorial", "stone"), // 186
+            new Tag("memorial", "plaque"), // 187
+            new Tag("memorial", "statue"), // 188
+            new Tag("historic", "memorial"), // 189
+            new Tag("historic", "castle"), // 190
+            null, null,
+            new Tag("historic", "monument"), // 193
+            null, null,
+            new Tag("historic", "archaeological_site"), // 196
+            new Tag("historic", "wayside_shrine"), // 197
+            null,
+            new Tag("historic", "ruins"), // 199
+            null, null,
+            new Tag("tourism", "museum"), // 202
+            null, null,
+            new ExtendedTag("tourism", "information").addTag("information", "office"), // 205
+            null, null,
+            null, // new ExtendedTag("tourism", "information").addTag("information", "guidepost"), // 208
+            null, null,
+            null, // new ExtendedTag("tourism", "information").addTag("information", "map"), // 211
+            null, null,
+            null, // new Tag("tourism", "information"), // 214
+            null, null,
+            new Tag("tourism", "artwork"), // 217
+            null, null,
+            new Tag("tourism", "viewpoint"), // 220
+            null, null,
+            new Tag("tourism", "attraction"), // 223
+            null, null,
+            null, // new Tag("amenity", "fountain"), // 226
+            null, null,
+            new Tag("amenity", "car"), // 229
+            null, null,
+            new Tag("amenity", "car_repair"), // 232
+            null, null,
+            new Tag("amenity", "car_rental"), // 235
+            null, null,
+            new Tag("amenity", "fuel"), // 238
+            null, null,
+            null, // new Tag("amenity", "slipway"), // 241
+            null, null,
+            null, // new Tag("amenity", "parking"), // 244
+            null, null,
+            new Tag("amenity", "bus_station"), // 247
+            new Tag("highway", "bus_stop"), // 248
+            new Tag("railway", "tram_stop"), // 249
+            new Tag("amenity", "bicycle_rental"), // 250
+            null, null,
+            null, // new Tag("amenity", "drinking_water"), // 253
+            null, null,
+            new Tag("amenity", "shelter"), // 256
+            null, null,
+            new Tag("amenity", "toilets"), // 259
+            null, null,
+            new Tag("shop", "hairdresser"), // 262
+            null, null,
+            new Tag("shop", "copyshop"), // 265
+            null, null,
+            new Tag("shop", "laundry"), // 268
+            null, null,
+            new Tag("amenity", "bank"), // 271
+            null, null,
+            new Tag("amenity", "post_office"), // 274
+            null, null,
+            new Tag("amenity", "atm"), // 277
+            null, null,
+            new Tag("amenity", "bureau_de_change"), // 280
+            null, null,
+            null, // new Tag("amenity", "post_box"), // 283
+            null, null,
+            new Tag("amenity", "shower"), // 286
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, // -300
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "jewish"), // 401
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "muslim"), // 402
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "buddhist"), // 403
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "hindu"), // 404
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "shinto"), // 405
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "christian"), // 406
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "sikh"), // 407
+            new ExtendedTag("amenity", "place_of_worship").addTag("religion", "taoist"), // 408
+            null, null, null, null, null, null, null, null, null, null, null,
+            new Tag("amenity", "place_of_worship") // 420
+    };
+
+    final static Tag[] typeAliasTags = new Tag[] {
+            new Tag("shop", "convenience"), // 43
+    };
+
+    private final static int[] typeNames = {
+            -1,
+            R.string.legend_wilderness_hut, // 1
+            -1, -1,
+            R.string.legend_alpine_hut, // 4
+            -1, -1,
+            R.string.legend_guest_house, // 7
+            -1, -1,
+            R.string.legend_motel, // 10
+            -1, -1,
+            R.string.legend_hostel, // 13
+            -1, -1,
+            R.string.legend_hotel, // 16
+            -1, -1,
+            R.string.legend_camp_site, // 19
+            -1, -1,
+            R.string.legend_caravan_site, // 22
+            -1, -1,
+            R.string.legend_ice_cream_shop, // 25
+            -1, -1,
+            R.string.legend_confectionery_shop, // 28
+            -1, -1,
+            R.string.legend_alcohol_shop, // 31
+            -1, -1,
+            R.string.legend_beverages_shop, // 34
+            -1, -1,
+            R.string.legend_bakery, // 37
+            -1, -1,
+            R.string.legend_greengrocer, // 40
+            -1, -1,
+            R.string.legend_supermarket, // 43
+            -1, -1,
+            R.string.legend_cafe, // 46
+            -1, -1,
+            R.string.legend_pub, // 49
+            -1, -1,
+            R.string.legend_bar, // 52
+            -1, -1,
+            R.string.legend_fast_food, // 55
+            -1, -1,
+            R.string.legend_restaurant, // 58
+            -1, -1,
+            R.string.legend_marketplace, // 61
+            -1, -1,
+            R.string.legend_block, // 64
+            -1, -1,
+            R.string.legend_bollard, // 67
+            -1, -1,
+            R.string.legend_cycle_barrier, // 70
+            -1, -1,
+            R.string.legend_lift_gate, // 73
+            -1, -1,
+            R.string.legend_gate, // 76
+            -1, -1, -1, -1, -1,
+            R.string.legend_zoo, // 82
+            -1, -1,
+            R.string.legend_picnic_site, // 85
+            -1, -1,
+            R.string.legend_theatre, // 88
+            -1, -1,
+            R.string.legend_cinema, // 91
+            -1, -1,
+            R.string.legend_library, // 94
+            -1, -1,
+            R.string.legend_boat_rental, // 97
+            -1, -1,
+            R.string.legend_water_park, // 100
+            -1, -1,
+            R.string.legend_beach_resort, // 103
+            -1, -1,
+            R.string.legend_sauna, // 106
+            -1, -1,
+            R.string.legend_police_office, // 109
+            -1, -1,
+            R.string.legend_fire_station, // 112
+            -1, -1,
+            R.string.legend_hospital, // 115
+            -1, -1,
+            R.string.legend_ranger_station, // 118
+            -1, -1,
+            R.string.legend_doctors_practice, // 121
+            -1, -1,
+            R.string.legend_pharmacy, // 124
+            -1, -1,
+            R.string.legend_telephone, // 127
+            -1, -1,
+            R.string.legend_emergency_telephone, // 130
+            -1, -1,
+            R.string.legend_pet_shop, // 133
+            -1, -1,
+            R.string.legend_veterinary_clinic, // 136
+            -1, -1,
+            R.string.legend_toys_shop, // 139
+            -1, -1,
+            R.string.legend_amusement_arcade, // 142
+            -1, -1,
+            R.string.legend_playground, // 145
+            -1, -1,
+            R.string.legend_bicycle_shop, // 148
+            -1, -1,
+            R.string.legend_outdoor_shop, // 151
+            -1, -1,
+            R.string.legend_sports_shop, // 154
+            -1, -1,
+            R.string.legend_gift_shop, // 157
+            -1, -1,
+            R.string.legend_jewelry_shop, // 160
+            -1, -1,
+            R.string.legend_photo_shop, // 163
+            -1, -1,
+            R.string.legend_books_shop, // 166
+            -1, -1,
+            R.string.legend_variety_store, // 169
+            -1, -1,
+            R.string.legend_diy_store, // 172
+            -1, -1,
+            R.string.legend_department_store, // 175
+            -1, -1,
+            R.string.legend_waterfall, // 178
+            -1, -1,
+            R.string.legend_lighthouse, // 181
+            -1, -1,
+            R.string.legend_windmill, // 184
+            R.string.legend_bust, // 185
+            R.string.legend_stone, // 186
+            R.string.legend_plaque, // 187
+            R.string.legend_statue, // 188
+            R.string.legend_memorial, // 189
+            R.string.legend_castle, // 190
+            -1, -1,
+            R.string.legend_monument, // 193
+            -1, -1,
+            R.string.legend_archaeological_site, // 196
+            R.string.legend_wayside_shrine, // 197
+            -1,
+            R.string.legend_ruins, // 199
+            -1, -1,
+            R.string.legend_museum, // 202
+            -1, -1,
+            R.string.legend_information_office, // 205
+            -1, -1,
+            R.string.legend_guidepost, // 208
+            -1, -1,
+            R.string.legend_map, // 211
+            -1, -1,
+            R.string.legend_information, // 214
+            -1, -1,
+            R.string.legend_artwork, // 217
+            -1, -1,
+            R.string.legend_viewpoint, // 220
+            -1, -1,
+            R.string.legend_attraction, // 223
+            -1, -1,
+            R.string.legend_fountain, // 226
+            -1, -1,
+            R.string.legend_car_dialer, // 229
+            -1, -1,
+            R.string.legend_car_repair, // 232
+            -1, -1,
+            R.string.legend_car_rental, // 235
+            -1, -1,
+            R.string.legend_fuel_station, // 238
+            -1, -1,
+            R.string.legend_slipway, // 241
+            -1, -1,
+            R.string.legend_parking, // 244
+            -1, -1,
+            R.string.legend_bus_station, // 247
+            R.string.legend_bus_stop, // 248
+            R.string.legend_tram_stop, // 249
+            R.string.legend_bicycle_rental, // 250
+            -1, -1,
+            R.string.legend_drinking_water, // 253
+            -1, -1,
+            R.string.legend_shelter, // 256
+            -1, -1,
+            R.string.legend_toilets, // 259
+            -1, -1,
+            R.string.legend_hairdresser, // 262
+            -1, -1,
+            R.string.legend_copy_shop, // 265
+            -1, -1,
+            R.string.legend_laundry, // 268
+            -1, -1,
+            R.string.legend_bank, // 271
+            -1, -1,
+            R.string.legend_post_office, // 274
+            -1, -1,
+            R.string.legend_atm, // 277
+            -1, -1,
+            R.string.legend_currency_exchange, // 280
+            -1, -1,
+            R.string.legend_post_box, // 283
+            -1, -1,
+            R.string.legend_shower, // 286
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // -300
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            R.string.legend_jewish_place, // 401
+            R.string.legend_muslim_place, // 402
+            R.string.legend_buddhist_place, // 403
+            R.string.legend_hindu_place, // 404
+            R.string.legend_shinto_place, // 405
+            R.string.legend_christian_place, // 406
+            R.string.legend_sikh_place, // 407
+            R.string.legend_taoist_place // 408
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            R.string.legend_place_of_worship, // 420
+    };
+
+    private static final int[][] kindTypes = {
+            new int[] {109, 112, 115, 118, 121, 124, 127, 130}, // emergency
+            new int[] {1, 4, 7, 10, 13, 16, 19, 22}, // accommodation
+            new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
+            new int[] {178, 181, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 205, 208, 211, 214, 217, 220, 223}, // attraction
+            new int[] {82, 85, 88, 91, 94, 97, 100, 103, 106}, // entertainment
+            new int[] {148, 151, 154, 157, 160, 163, 166, 169, 43, 172, 175, 61}, // shopping
+            new int[] {262, 265, 268, 271, 274, 277, 280, 283, 286}, // service
+            new int[] {401, 402, 403, 404, 405, 406, 407, 408, 420}, // religion
+            new int[] {}, // education
+            new int[] {139, 142, 145}, // kids
+            new int[] {133, 136}, // pets
+            new int[] {229, 232, 235, 238, 241, 244}, // vehicles
+            new int[] {247, 248, 249}, // transportation
+            new int[] {148, 151, 118, 250, 253, 256, 259, 1, 4, 205, 208, 211, 214}, // hike'n'bike
+            new int[] {226}, // urban
+            new int[] {64, 67, 70, 73, 76}  // barrier
+    };
+
+    private final static int[] typeZooms = new int[typeTags.length];
+
+    final static String[] typeSelectors = new String[4];
+
+    static Tag getTypeTag(int type) {
+        if (type >= 0 && type < typeTags.length)
+            return typeTags[type];
+        return null;
+    }
+    public static int getTypeName(int type) {
+        if (type >= 0 && type < typeNames.length)
+            return typeNames[type];
+        return -1;
+    }
+
+    public static void recalculateTypeZooms() {
+        Arrays.fill(typeZooms, 18);
+        StringBuilder[] lists = {
+                new StringBuilder(),
+                new StringBuilder(),
+                new StringBuilder(),
+                new StringBuilder()
+        };
+        String[] delimiters = {"", "", "", ""};
+        for (int k = 0; k < kinds.length; k++) {
+            for (int t = 0; t < kindTypes[k].length; t++) {
+                typeZooms[kindTypes[k][t]] = kindZooms[k];
+                switch (typeZooms[kindTypes[k][t]]) {
+                    case 14:
+                        lists[0].append(delimiters[0]).append(kindTypes[k][t]);
+                        delimiters[0] = ",";
+                    case 15:
+                        lists[1].append(delimiters[1]).append(kindTypes[k][t]);
+                        delimiters[1] = ",";
+                    case 16:
+                        lists[2].append(delimiters[2]).append(kindTypes[k][t]);
+                        delimiters[2] = ",";
+                    case 17:
+                        lists[3].append(delimiters[3]).append(kindTypes[k][t]);
+                        delimiters[3] = ",";
+                }
+            }
+        }
+        typeSelectors[0] = lists[0].toString();
+        typeSelectors[1] = lists[1].toString();
+        typeSelectors[2] = lists[2].toString();
+        typeSelectors[3] = lists[3].toString();
+    }
+
+    final static String[] roofShapes = {
+            "flat",
+            "skillion",
+            "gabled",
+            "half-hipped",
+            "hipped",
+            "pyramidal",
+            "gambrel",
+            "mansard",
+            "dome",
+            "onion",
+            "round",
+            "saltbox"
     };
 
     final static int ATTRIB_OFFSET = 1024;
@@ -251,7 +803,8 @@ public class Tags {
             "piste:border",
             "piste:grooming",
             "piste:lit",
-            "piste:oneway"
+            "piste:oneway",
+            "memorial"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -869,7 +1422,12 @@ public class Tags {
             "string_bog",
             "tidalflat",
             "fen",
-            "via_ferrata"
+            "via_ferrata",
+            "wayside_shrine",
+            "statue",
+            "bust",
+            "stone",
+            "plaque"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

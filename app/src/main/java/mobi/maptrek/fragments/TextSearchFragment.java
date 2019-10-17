@@ -253,7 +253,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             mMapHolder.setMapLocation(mFoundPoint);
             mLocationListener.showMarkerInformation(mFoundPoint, StringFormatter.coordinates(mFoundPoint));
         } else {
-            mFeatureActionListener.onFeatureDetails(id);
+            mFeatureActionListener.onFeatureDetails(id, true);
         }
     }
 

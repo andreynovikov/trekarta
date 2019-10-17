@@ -3,43 +3,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:animateLayoutChanges="true"
     android:background="@color/panelSolidBackground"
-    android:paddingBottom="@dimen/fragment_padding"
-    android:paddingEnd="@dimen/fragment_padding"
     android:paddingStart="@dimen/fragment_with_fab_start_padding"
-    android:paddingTop="@dimen/fragment_padding"
+    android:paddingEnd="@dimen/fragment_padding"
+    android:paddingBottom="@dimen/fragment_padding"
     tools:context=".fragments.WaypointInformation">
+
+    <View
+        android:id="@+id/topLine"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:id="@+id/dragHandle"
+        android:layout_width="24dp"
+        android:layout_height="12dp"
+        android:layout_below="@id/topLine"
+        android:layout_centerHorizontal="true"
+        android:scaleType="center"
+        android:src="@drawable/drag_handle"
+        android:tint="?attr/dragHandleColor"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/destination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/extendTable"
+        android:layout_below="@id/dragHandle"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
         android:layout_marginStart="@dimen/textPadding"
-        android:layout_marginTop="@dimen/fragment_padding"
-        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/destinationTopPadding"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/colorAccent"
-        tools:ignore="RtlSymmetry" />
+        android:textColor="@color/colorAccent" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/dragHandle"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_toStartOf="@id/destination"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
+        android:id="@+id/type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
         android:layout_below="@id/name"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/destination"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TableLayout
+        android:id="@+id/extendTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/type"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:shrinkColumns="1"
         android:stretchColumns="1">
 
@@ -62,6 +87,98 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/openingHoursRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_access_time"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/openingHours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/phoneRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_phone"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="phone"
+                android:textColor="?android:textColorPrimary"
+                android:textColorLink="?android:textColorPrimary"
+                android:textIsSelectable="true" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/websiteRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_public"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/website"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:textColor="?android:textColorPrimary"
+                android:textColorLink="?android:textColorPrimary"
+                android:textIsSelectable="true" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/wikipediaRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_wikipedia"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/wikipedia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary"
+                android:textColorLink="?android:textColorPrimary"
+                android:textIsSelectable="true" />
 
         </TableRow>
 

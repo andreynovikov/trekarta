@@ -63,6 +63,7 @@ import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
+import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.LongSparseArrayIterator;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
@@ -165,6 +166,7 @@ public class MapTrek extends Application {
         StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
         StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();
         Configuration.loadKindZoomState();
+        Tags.recalculateTypeZooms();
     }
 
     public static MapTrek getApplication() {
@@ -242,7 +244,8 @@ public class MapTrek extends Application {
             mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
             try {
                 mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
-            } catch (SQLiteException ignore) {
+            } catch (SQLiteException e) {
+                logger.error("Detailed map error", e);
                 mDetailedMapHelper.close();
                 if (dbFile.delete()) {
                     copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);

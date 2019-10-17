@@ -35,6 +35,8 @@ public class ResUtils {
             return R.drawable.ic_account_balance;
         else if (Tags.isEntertainment(kind))
             return R.drawable.ic_local_see;
+        else if (Tags.isHikeBike(kind))
+            return R.drawable.ic_directions_bike;
         else if (Tags.isShopping(kind))
             return R.drawable.ic_shopping_cart;
         else if (Tags.isService(kind))
@@ -51,8 +53,6 @@ public class ResUtils {
             return R.drawable.ic_directions_car;
         else if (Tags.isTransportation(kind))
             return R.drawable.ic_directions_bus;
-        else if (Tags.isHikeBike(kind))
-            return R.drawable.ic_directions_bike;
         else if (Tags.isBuilding(kind))
             return R.drawable.ic_business;
         else if (Tags.isUrban(kind))

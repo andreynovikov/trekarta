@@ -29,6 +29,7 @@
     <xs:simpleType name="elementList">
         <xs:restriction base="xs:string">
             <xs:enumeration value="node" />
+            <xs:enumeration value="place" />
             <xs:enumeration value="way" />
             <xs:enumeration value="any" />
         </xs:restriction>

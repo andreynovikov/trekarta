@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- POI -->
-    <m select="first">
+    <m e="place" select="first">
         <m select="first">
-            <m k="kind_accommodation">
+            <m k="feature|kind_accommodation">
                 <m k="tourism">
                     <m v="wilderness_hut">
                         <symbol src="assets:symbols/accommodation/wildernesshut.svg" />
@@ -31,7 +31,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_food">
+            <m k="feature|kind_food">
                 <m k="shop">
                     <m v="ice_cream">
                         <symbol src="assets:symbols/shopping/ice_cream.svg" />
@@ -76,7 +76,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_barrier">
+            <m k="feature|kind_barrier">
                 <m v="block">
                     <symbol src="assets:symbols/barrier/blocks.svg" />
                 </m>
@@ -96,7 +96,7 @@
                     <symbol src="assets:symbols/barrier/gate.svg" />
                 </m>
             </m>
-            <m k="kind_entertainment">
+            <m k="feature|kind_entertainment">
                 <m k="tourism">
                     <m v="zoo">
                         <symbol src="assets:symbols/tourist/zoo.svg" />
@@ -131,7 +131,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_emergency">
+            <m k="feature|kind_emergency">
                 <m k="amenity">
                     <m v="police">
                         <symbol src="assets:symbols/amenity/police.svg" />
@@ -159,7 +159,7 @@
                     <symbol src="assets:symbols/amenity/emergency_phone.svg" />
                 </m>
             </m>
-            <m k="kind_pets">
+            <m k="feature|kind_pets">
                 <m k="shop">
                     <m v="pet">
                         <symbol src="assets:symbols/shopping/pet.svg" />
@@ -171,7 +171,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_kids">
+            <m k="feature|kind_kids">
                 <m k="shop">
                     <m v="toys">
                         <symbol src="assets:symbols/shopping/toys.svg" />
@@ -186,7 +186,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_shopping" select="first">
+            <m k="feature|kind_shopping" select="first">
                 <m k="shop|amenity">
                     <m v="bicycle">
                         <symbol src="assets:symbols/shopping/bicycle.svg" />
@@ -226,7 +226,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_attraction" select="first">
+            <m k="feature|kind_attraction" select="first">
                 <m k="waterway">
                     <m v="waterfall">
                         <symbol src="assets:symbols/natural/waterfall.svg" />
@@ -238,6 +238,20 @@
                     </m>
                     <m v="windmill">
                         <symbol src="assets:symbols/tourist/windmill.svg" />
+                    </m>
+                </m>
+                <m k="memorial">
+                    <m v="bust">
+                        <symbol src="assets:symbols/tourist/bust.svg" />
+                    </m>
+                    <m v="statue">
+                        <symbol src="assets:symbols/tourist/statue.svg" />
+                    </m>
+                    <m v="stone">
+                        <symbol src="assets:symbols/tourist/stone.svg" symbol-percent="80" />
+                    </m>
+                    <m v="plaque">
+                        <symbol src="assets:symbols/tourist/plaque.svg" symbol-percent="70" />
                     </m>
                 </m>
                 <m k="historic">
@@ -255,6 +269,9 @@
                     </m>
                     <m v="ruins">
                         <symbol src="assets:symbols/tourist/ruin.svg" />
+                    </m>
+                    <m v="wayside_shrine">
+                        <symbol src="assets:symbols/tourist/wayside_shrine.svg" />
                     </m>
                 </m>
                 <m k="tourism">
@@ -289,12 +306,12 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_urban">
+            <m k="feature|kind_urban">
                 <m k="amenity" v="fountain">
                     <symbol src="assets:symbols/amenity/fountain.svg" symbol-percent="70" />
                 </m>
             </m>
-            <m k="kind_vehicles">
+            <m k="feature|kind_vehicles">
                 <m k="amenity|shop|leisure">
                     <m v="car">
                         <symbol src="assets:symbols/shopping/car.svg" />
@@ -331,7 +348,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_transportation">
+            <m k="feature|kind_transportation">
                 <m k="amenity">
                     <m cat="urban" v="bus_station">
                         <symbol src="assets:symbols/transport/bus_station.svg"
@@ -339,7 +356,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_religion">
+            <m k="feature|kind_religion">
                 <m k="amenity" v="place_of_worship">
                     <m k="religion" v="jewish">
                         <symbol src="assets:symbols/place_of_worship/jewish.svg" />
@@ -370,7 +387,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_hikebike">
+            <m k="feature|kind_hikebike">
                 <m k="shop">
                     <m v="bicycle">
                         <symbol src="assets:symbols/shopping/bicycle.svg" />
@@ -422,7 +439,7 @@
                     </m>
                 </m>
             </m>
-            <m k="kind_service">
+            <m k="feature|kind_service">
                 <m k="shop">
                     <m v="hairdresser">
                         <symbol src="assets:symbols/shopping/hairdresser.svg" />
@@ -462,6 +479,9 @@
                             <text dy="15" size="12" stroke-width="1.5" use="poi" />
                         </m>
                     </m>
+                    <m k="memorial" v="plaque|stone">
+                        <text dy="13" size="12" stroke-width="1.5" use="poi" />
+                    </m>
                     <m>
                         <text use="poi" />
                     </m>
@@ -477,7 +497,12 @@
                 <m k="kind" v="~">
                     <text dy="-14" use="house-name" />
                 </m>
-                <text use="house-number" />
+                <m k="feature">
+                    <text dy="-16" use="house-number" />
+                </m>
+                <m k="feature" v="~">
+                    <text use="house-number" />
+                </m>
             </m>
             <m k="addr:housenumber" v="~">
                 <m k="kind" v="~">

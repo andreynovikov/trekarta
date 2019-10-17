@@ -28,6 +28,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,21 @@ import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES_WO_XY;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES_V1;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_MAPS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_TILES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ID;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_KIND;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_TYPE;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_LAT;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_LON;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_OPENING_HOURS;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_PHONE;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_WIKIPEDIA;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_WEBSITE;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_INFO_VALUE;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DATE;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_DOWNLOADING;
@@ -310,7 +322,7 @@ public class Index {
                     String sep = "";
                     for (Long id : ids) {
                         sql.append(sep);
-                        sql.append(String.valueOf(id));
+                        sql.append(id);
                         sep = ",";
                     }
                     sql.append(")");
@@ -386,6 +398,20 @@ public class Index {
             boolean huge = mapFile.length() > HUGE_MAP_THRESHOLD;
             SQLiteDatabase database = SQLiteDatabase.openDatabase(filePath, null, SQLiteDatabase.OPEN_READONLY);
 
+            short version = 0;
+            short date = 0;
+            Cursor cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"version"}, null, null, null);
+            if (cursor.moveToFirst()) {
+                version = Short.valueOf(cursor.getString(0));
+            }
+            cursor.close();
+            cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"timestamp"}, null, null, null);
+            if (cursor.moveToFirst()) {
+                date = Short.valueOf(cursor.getString(0));
+            }
+            cursor.close();
+            logger.error("Version: {} Date: {}", version, date);
+
             int total = 0, progress = 0, step = 0;
             if (progressListener != null) {
                 total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
@@ -405,7 +431,7 @@ public class Index {
                         + " (docid, " + COLUMN_NAMES_NAME + ") VALUES (?,?)");
             }
             mMapsDatabase.beginTransaction();
-            Cursor cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
+            cursor = database.query(TABLE_NAMES, ALL_COLUMNS_NAMES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 statement.clearBindings();
@@ -435,19 +461,76 @@ public class Index {
             logger.error("  imported names");
 
             // copy features
-            statement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " VALUES (?,?,?,?)");
+            statement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " (" +
+                    TextUtils.join(", ", ALL_COLUMNS_FEATURES) + ") VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             SQLiteStatement extraStatement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
             extraStatement.bindLong(1, x);
             extraStatement.bindLong(2, y);
             mMapsDatabase.beginTransaction();
-            cursor = database.query(TABLE_FEATURES, ALL_COLUMNS_FEATURES, null, null, null, null, null);
+            String[] COLUMNS_FEATURES = version == 1 ? ALL_COLUMNS_FEATURES_V1 : ALL_COLUMNS_FEATURES_WO_XY;
+            int[] xy = new int[] {0, 0};
+            cursor = database.query(TABLE_FEATURES, COLUMNS_FEATURES, null, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 statement.clearBindings();
-                statement.bindLong(1, cursor.getLong(0));
-                statement.bindLong(2, cursor.getInt(1));
-                statement.bindDouble(3, cursor.getDouble(2));
-                statement.bindDouble(4, cursor.getDouble(3));
+                statement.bindLong(1, cursor.getLong(cursor.getColumnIndex(COLUMN_FEATURES_ID)));
+                statement.bindLong(2, cursor.getInt(cursor.getColumnIndex(COLUMN_FEATURES_KIND)));
+                if (version == 1) {
+                    statement.bindNull(3);
+                } else {
+                    statement.bindLong(3, cursor.getInt(cursor.getColumnIndex(COLUMN_FEATURES_TYPE)));
+
+                }
+                int latColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LAT);
+                int lonColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LON);
+                boolean isPlaced = !(cursor.isNull(latColumnIndex) || cursor.isNull(lonColumnIndex));
+                if (isPlaced) {
+                    double lat = cursor.getDouble(latColumnIndex);
+                    double lon = cursor.getDouble(lonColumnIndex);
+                    statement.bindDouble(6, lat);
+                    statement.bindDouble(7, lon);
+                    if (version > 1) {
+                        MapTrekDatabaseHelper.getFourteenthTileXY(lat, lon, xy);
+                        statement.bindLong(4, xy[0]);
+                        statement.bindLong(5, xy[1]);
+                    }
+                } else {
+                    statement.bindNull(4);
+                    statement.bindNull(5);
+                    statement.bindNull(6);
+                    statement.bindNull(7);
+                }
+                if (version == 1 || !isPlaced) {
+                    statement.bindNull(8);
+                    statement.bindNull(9);
+                    statement.bindNull(10);
+                    statement.bindNull(11);
+                } else {
+                    int hoursColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_OPENING_HOURS);
+                    if (cursor.isNull(hoursColumnIndex)) {
+                        statement.bindNull(8);
+                    } else {
+                        statement.bindString(8, cursor.getString(hoursColumnIndex));
+                    }
+                    int phoneColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_PHONE);
+                    if (cursor.isNull(phoneColumnIndex)) {
+                        statement.bindNull(9);
+                    } else {
+                        statement.bindString(9, cursor.getString(phoneColumnIndex));
+                    }
+                    int wikiColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_WIKIPEDIA);
+                    if (cursor.isNull(wikiColumnIndex)) {
+                        statement.bindNull(10);
+                    } else {
+                        statement.bindString(10, cursor.getString(wikiColumnIndex));
+                    }
+                    int siteColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_WEBSITE);
+                    if (cursor.isNull(siteColumnIndex)) {
+                        statement.bindNull(11);
+                    } else {
+                        statement.bindString(11, cursor.getString(siteColumnIndex));
+                    }
+                }
                 statement.execute();
                 extraStatement.bindLong(3, cursor.getLong(0));
                 extraStatement.execute();
@@ -522,12 +605,6 @@ public class Index {
             mMapsDatabase.endTransaction();
             logger.error("  imported tiles");
 
-            short date = 0;
-            cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"timestamp"}, null, null, null);
-            if (cursor.moveToFirst()) {
-                date = Short.valueOf(cursor.getString(0));
-            }
-            cursor.close();
             database.close();
             setDownloaded(x, y, date);
         } catch (SQLiteException e) {
