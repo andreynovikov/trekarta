@@ -733,7 +733,7 @@ public class Legend extends ListFragment {
             .addTag("shop", "books").addTag("kind_shopping", "yes");
     private static LegendItem variety_store = new LegendItem(GeometryType.POINT, R.string.legend_variety_store, 17)
             .addTag("shop", "variety_store").addTag("kind_shopping", "yes");
-    private static LegendItem doityourself = new LegendItem(GeometryType.POINT, R.string.legend_dyi_store, 17)
+    private static LegendItem doityourself = new LegendItem(GeometryType.POINT, R.string.legend_diy_store, 17)
             .addTag("shop", "doityourself").addTag("kind_shopping", "yes");
     private static LegendItem department_store = new LegendItem(GeometryType.POINT, R.string.legend_department_store, 17)
             .addTag("shop", "department_store").addTag("kind_shopping", "yes");
@@ -763,22 +763,32 @@ public class Legend extends ListFragment {
             .addTag("man_made", "windmill").addTag("kind_attraction", "yes");
     private static LegendItem museum = new LegendItem(GeometryType.POINT, R.string.legend_museum, 17)
             .addTag("tourism", "museum").addTag("kind_attraction", "yes");
+    private static LegendItem castle = new LegendItem(GeometryType.POINT, R.string.legend_castle, 17)
+            .addTag("historic", "castle").addTag("kind_attraction", "yes");
     private static LegendItem attraction = new LegendItem(GeometryType.POINT, R.string.legend_attraction, 17)
             .addTag("tourism", "attraction").addTag("kind_attraction", "yes");
     private static LegendItem viewpoint = new LegendItem(GeometryType.POINT, R.string.legend_viewpoint, 17)
             .addTag("tourism", "viewpoint").addTag("kind_attraction", "yes");
     private static LegendItem artwork = new LegendItem(GeometryType.POINT, R.string.legend_artwork, 17)
             .addTag("tourism", "artwork").addTag("kind_attraction", "yes");
+    private static LegendItem bust = new LegendItem(GeometryType.POINT, R.string.legend_bust, 17)
+            .addTag("memorial", "bust").addTag("kind_attraction", "yes");
+    private static LegendItem statue = new LegendItem(GeometryType.POINT, R.string.legend_statue, 17)
+            .addTag("memorial", "statue").addTag("kind_attraction", "yes");
     private static LegendItem memorial = new LegendItem(GeometryType.POINT, R.string.legend_memorial, 17)
             .addTag("historic", "memorial").addTag("kind_attraction", "yes");
-    private static LegendItem castle = new LegendItem(GeometryType.POINT, R.string.legend_castle, 17)
-            .addTag("historic", "castle").addTag("kind_attraction", "yes");
+    private static LegendItem stone = new LegendItem(GeometryType.POINT, R.string.legend_stone, 17)
+            .addTag("memorial", "stone").addTag("kind_attraction", "yes");
+    private static LegendItem plaque = new LegendItem(GeometryType.POINT, R.string.legend_plaque, 17)
+            .addTag("memorial", "plaque").addTag("kind_attraction", "yes");
     private static LegendItem monument = new LegendItem(GeometryType.POINT, R.string.legend_monument, 17)
             .addTag("historic", "monument").addTag("kind_attraction", "yes");
     private static LegendItem archaeological_site = new LegendItem(GeometryType.POINT, R.string.legend_archaeological_site, 17)
             .addTag("historic", "archaeological_site").addTag("kind_attraction", "yes");
     private static LegendItem ruins = new LegendItem(GeometryType.POINT, R.string.legend_ruins, 17)
             .addTag("historic", "ruins").addTag("kind_attraction", "yes");
+    private static LegendItem wayside_shrine = new LegendItem(GeometryType.POINT, R.string.legend_wayside_shrine, 17)
+            .addTag("historic", "wayside_shrine").addTag("kind_attraction", "yes");
 
     private static LegendItem car = new LegendItem(GeometryType.POINT, R.string.legend_car_dialer, 17)
             .addTag("amenity", "car").addTag("kind_vehicles", "yes");
@@ -1161,13 +1171,18 @@ public class Legend extends ListFragment {
             lighthouse,
             windmill,
             museum,
-            viewpoint,
-            artwork,
-            memorial,
             castle,
             monument,
+            statue,
+            bust,
+            memorial,
             archaeological_site,
             ruins,
+            artwork,
+            stone,
+            plaque,
+            wayside_shrine,
+            viewpoint,
             attraction
     });
 

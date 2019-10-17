@@ -458,7 +458,7 @@
     <string name="legend_photo_shop">Фотомагазин</string>
     <string name="legend_books_shop">Книжный магазин</string>
     <string name="legend_variety_store">Универсальный магазин</string>
-    <string name="legend_dyi_store">Хозяйственный магазин</string>
+    <string name="legend_diy_store">Хозяйственный магазин</string>
     <string name="legend_department_store">Универмаг, торговый центр</string>
     <string name="legend_hairdresser">Парикмахерская</string>
     <string name="legend_copy_shop">Копицентр</string>
@@ -634,4 +634,9 @@
     <string name="advice_night_mode">Вы можете отключить ночной режим с помощью долгого нажатия на кнопку Карты</string>
     <string name="legend_good_track">Доступна для любых автомобилей</string>
     <string name="legend_recreation">Общественный отдых</string>
+    <string name="legend_wayside_shrine">Придорожное святилище</string>
+    <string name="legend_stone">Камень</string>
+    <string name="legend_statue">Статуя</string>
+    <string name="legend_plaque">Мемориальная доска</string>
+    <string name="legend_bust">Бюст</string>
 </resources>

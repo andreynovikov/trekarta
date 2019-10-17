@@ -472,7 +472,7 @@
     <string name="legend_photo_shop">Photo shop</string>
     <string name="legend_books_shop">Books shop</string>
     <string name="legend_variety_store">Variety store</string>
-    <string name="legend_dyi_store">DYI store</string>
+    <string name="legend_diy_store">DIY store</string>
     <string name="legend_department_store">Department store</string>
     <string name="legend_hairdresser">Hairdresser</string>
     <string name="legend_copy_shop">Copy shop</string>
@@ -646,5 +646,10 @@
     <string name="legend_wetland_fen">Fen</string>
     <string name="legend_wetland_tidalflat">Mudflat</string>
     <string name="legend_beach">Beach</string>
+    <string name="legend_bust">Bust</string>
+    <string name="legend_statue">Statue</string>
+    <string name="legend_stone">Stone</string>
+    <string name="legend_plaque">Plaque</string>
+    <string name="legend_wayside_shrine">Wayside shrine</string>
 
 </resources>
