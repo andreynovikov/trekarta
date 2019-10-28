@@ -17,6 +17,11 @@ package org.oscim.utils;
 public final class Parameters {
 
     /**
+     * Allow custom scale factor for short vertices instead of the calculated one.
+     */
+    public static boolean CUSTOM_COORD_SCALE = false;
+
+    /**
      * Allow custom tile size instead of the calculated one.
      */
     public static boolean CUSTOM_TILE_SIZE = false;

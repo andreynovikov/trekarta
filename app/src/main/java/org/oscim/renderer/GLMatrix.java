@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2019 schedul-xor
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -28,12 +29,12 @@ import static org.oscim.backend.GLAdapter.gl;
 public class GLMatrix {
 
     static final Logger log = LoggerFactory.getLogger(GLMatrix.class);
-    private final static boolean dbg = false;
+    private static final boolean dbg = false;
 
     private final long pointer;
     private final FloatBuffer buffer;
 
-    private final static String INVALID_INPUT = "Bad Array!";
+    private static final String INVALID_INPUT = "Bad Array!";
 
     public GLMatrix() {
         pointer = alloc();
@@ -253,52 +254,52 @@ public class GLMatrix {
             delete(pointer);
     }
 
-    private native static long alloc();
+    private static native long alloc();
 
-    private native static void delete(long self);
+    private static native void delete(long self);
 
-    private native static void set(long self, float[] m);
+    private static native void set(long self, float[] m);
 
-    private native static void copy(long self, long other);
+    private static native void copy(long self, long other);
 
-    private native static void identity(long self);
+    private static native void identity(long self);
 
-    private native static void get(long self, float[] m);
+    private static native void get(long self, float[] m);
 
-    private native static void mul(long self, long lhs_ptr);
+    private static native void mul(long self, long lhs_ptr);
 
-    private native static void smul(long self, long rhs_ptr, long lhs_ptr);
+    private static native void smul(long self, long rhs_ptr, long lhs_ptr);
 
-    private native static void smulrhs(long self, long rhs_ptr);
+    private static native void smulrhs(long self, long rhs_ptr);
 
-    private native static void smullhs(long self, long lhs_ptr);
+    private static native void smullhs(long self, long lhs_ptr);
 
-    private native static void strans(long self, long rhs_ptr);
+    private static native void strans(long self, long rhs_ptr);
 
-    private native static void prj(long self, float[] vec3);
+    private static native void prj(long self, float[] vec3);
 
-    private native static void prj3D(long self, float[] vec3, int start, int cnt);
+    private static native void prj3D(long self, float[] vec3, int start, int cnt);
 
-    private native static void prj2D(long self, float[] vec2, int start, int cnt);
+    private static native void prj2D(long self, float[] vec2, int start, int cnt);
 
-    private native static void prj2D2(long self, float[] vec2, int src_offset,
+    private static native void prj2D2(long self, float[] vec2, int src_offset,
                                       float[] dst_vec, int dst_offset, int length);
 
-    private native static void setRotation(long self, float a, float x, float y, float z);
+    private static native void setRotation(long self, float a, float x, float y, float z);
 
-    private native static void setScale(long self, float x, float y, float z);
+    private static native void setScale(long self, float x, float y, float z);
 
-    private native static void setTranslation(long self, float x, float y, float z);
+    private static native void setTranslation(long self, float x, float y, float z);
 
-    private native static void setTransScale(long self, float tx, float ty, float scale);
+    private static native void setTransScale(long self, float tx, float ty, float scale);
 
-    //private native static void setAsUniform(long self, int handle);
+    //private static native void setAsUniform(long self, int handle);
 
-    private native static void setValueAt(long self, int pos, float value);
+    private static native void setValueAt(long self, int pos, float value);
 
-    private native static void addDepthOffset(long self, int delta);
+    private static native void addDepthOffset(long self, int delta);
 
-    private native static ByteBuffer getBuffer(long self);
+    private static native ByteBuffer getBuffer(long self);
 
     /* Copyright (C) 2007 The Android Open Source Project
      *
@@ -496,5 +497,85 @@ public class GLMatrix {
         mInv[15 + mInvOffset] = dst15 * invdet;
 
         return true;
+    }
+
+    public static void lookAt(float[] m, int offset,
+                              float eyex, float eyey, float eyez,
+                              float centerx, float centery, float centerz,
+                              float upx, float upy, float upz) {
+        float z0 = eyex - centerx;
+        float z1 = eyey - centery;
+        float z2 = eyez - centerz;
+        double len = 1.0 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+        z0 *= len;
+        z1 *= len;
+        z2 *= len;
+
+        float x0 = upy * z2 - upz * z1;
+        float x1 = upz * z0 - upx * z2;
+        float x2 = upx * z1 - upy * z0;
+        len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+        if (len == 0) {
+            x0 = x1 = x2 = 0;
+        } else {
+            len = 1.0 / len;
+            x0 *= len;
+            x1 *= len;
+            x2 *= len;
+        }
+
+        float y0 = z1 * x2 - z2 * x1;
+        float y1 = z2 * x0 - z0 * x2;
+        float y2 = z0 * x1 - z1 * x0;
+        len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+        if (len == 0) {
+            y0 = y1 = y2 = 0;
+        } else {
+            len = 1.0 / len;
+            y0 *= len;
+            y1 *= len;
+            y2 *= len;
+        }
+
+        m[offset + 0] = x0;
+        m[offset + 1] = y0;
+        m[offset + 2] = z0;
+        m[offset + 3] = 0.0f;
+        m[offset + 4] = x1;
+        m[offset + 5] = y1;
+        m[offset + 6] = z1;
+        m[offset + 7] = 0.0f;
+        m[offset + 8] = x2;
+        m[offset + 9] = y2;
+        m[offset + 10] = z2;
+        m[offset + 11] = 0.0f;
+        m[offset + 12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+        m[offset + 13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+        m[offset + 14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+        m[offset + 15] = 1.0f;
+    }
+
+    public static void orthoM(float[] m, int offset,
+                              float left, float right, float bottom, float top,
+                              float near, float far) {
+        final float r_width = 1.0f / (left - right);
+        final float r_height = 1.0f / (bottom - top);
+        final float r_depth = 1.0f / (near - far);
+        m[offset + 0] = -2.0f * r_width;
+        m[offset + 5] = -2.0f * r_height;
+        m[offset + 10] = 2.0f * r_depth;
+        m[offset + 12] = (left + right) * r_width;
+        m[offset + 13] = (top + bottom) * r_height;
+        m[offset + 14] = (far + near) * r_depth;
+        m[offset + 1] = 0.0f;
+        m[offset + 2] = 0.0f;
+        m[offset + 3] = 0.0f;
+        m[offset + 4] = 0.0f;
+        m[offset + 6] = 0.0f;
+        m[offset + 7] = 0.0f;
+        m[offset + 8] = 0.0f;
+        m[offset + 9] = 0.0f;
+        m[offset + 11] = 0.0f;
+        m[offset + 15] = 1.0f;
     }
 }

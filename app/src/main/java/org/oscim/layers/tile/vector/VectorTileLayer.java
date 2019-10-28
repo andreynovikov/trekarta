@@ -206,8 +206,8 @@ public class VectorTileLayer extends TileLayer {
     }
 
     public void callHooksComplete(MapTile tile, boolean success) {
-        /* NB: cannot use internal iterater as this function
-         * is called concurently by TileLoaders */
+        /* NB: cannot use internal iterator as this function
+         * is called concurrently by TileLoaders */
 
         LList<TileLoaderThemeHook> th = mLoaderThemeHooks.head();
         while (th != null) {

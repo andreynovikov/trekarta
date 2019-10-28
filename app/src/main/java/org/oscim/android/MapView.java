@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
+ * Copyright 2018-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -19,37 +20,54 @@ package org.oscim.android;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Point;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.GestureDetector;
-
+import android.view.WindowManager;
 import org.oscim.android.canvas.AndroidGraphics;
 import org.oscim.android.gl.AndroidGL;
+import org.oscim.android.gl.AndroidGL30;
 import org.oscim.android.gl.GlConfigChooser;
+import org.oscim.android.gl.GlContextFactory;
 import org.oscim.android.input.AndroidMotionEvent;
 import org.oscim.android.input.GestureHandler;
 import org.oscim.backend.CanvasAdapter;
+import org.oscim.backend.DateTime;
+import org.oscim.backend.DateTimeAdapter;
 import org.oscim.backend.GLAdapter;
 import org.oscim.core.Tile;
 import org.oscim.map.Map;
+import org.oscim.renderer.MapRenderer;
 import org.oscim.utils.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The MapView,
  * <p/>
  * add it your App, have a map!
  * <p/>
- * Dont forget to call onPause / onResume!
+ * Don't forget to call onPause / onResume!
  */
 public class MapView extends GLSurfaceView {
 
     static final Logger log = LoggerFactory.getLogger(MapView.class);
+
+    private static final Pattern GL_PATTERN = Pattern.compile("OpenGL ES (\\d(\\.\\d){0,2})");
+
+    /**
+     * Target OpenGL ES version, if not available fall back to OpenGL ES 2.0
+     */
+    public static double targetGLESVersion = 3.0;
 
     private static void init() {
         System.loadLibrary("vtm-jni");
@@ -58,6 +76,8 @@ public class MapView extends GLSurfaceView {
     protected AndroidMap mMap;
     protected GestureDetector mGestureDetector;
     protected AndroidMotionEvent mMotionEvent;
+
+    private final Point mScreenSize = new Point();
 
     public MapView(Context context) {
         this(context, null);
@@ -80,19 +100,42 @@ public class MapView extends GLSurfaceView {
         /* Setup android backend */
         AndroidGraphics.init();
         AndroidAssets.init(context);
-        GLAdapter.init(new AndroidGL());
+        DateTimeAdapter.init(new DateTime());
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         CanvasAdapter.dpi = (int) (metrics.scaledDensity * CanvasAdapter.DEFAULT_DPI);
         if (!Parameters.CUSTOM_TILE_SIZE)
             Tile.SIZE = Tile.calculateTileSize();
 
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+            display.getSize(mScreenSize);
+        else {
+            mScreenSize.x = display.getWidth();
+            mScreenSize.y = display.getHeight();
+        }
+
+        if (!Parameters.CUSTOM_COORD_SCALE) {
+            if (Math.min(mScreenSize.x, mScreenSize.y) > 1080)
+                MapRenderer.COORD_SCALE = 4.0f;
+        }
+
         /* Initialize the Map */
         mMap = new AndroidMap(this);
 
         /* Initialize Renderer */
+        // OpenGL ES 3.0 is supported with Android 4.3 (API level 18) and higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            try {
+                setEGLContextFactory(new GlContextFactory());
+            } catch (Throwable t) {
+                log.error("Falling back to GLES 2", t);
+                setEGLContextClientVersion(2);
+            }
+        } else
+            setEGLContextClientVersion(2);
         setEGLConfigChooser(new GlConfigChooser());
-        setEGLContextClientVersion(2);
 
         if (GLAdapter.debug)
             setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR
@@ -117,10 +160,12 @@ public class MapView extends GLSurfaceView {
         mMap.destroy();
     }
 
+    @Override
     public void onPause() {
         mMap.pause(true);
     }
 
+    @Override
     public void onResume() {
         mMap.pause(false);
     }
@@ -149,7 +194,7 @@ public class MapView extends GLSurfaceView {
 
         if (!isInEditMode()) {
             if (width > 0 && height > 0)
-                mMap.viewport().setScreenSize(width, height);
+                mMap.viewport().setViewSize(width, height);
         }
     }
 
@@ -160,6 +205,7 @@ public class MapView extends GLSurfaceView {
     static class AndroidMap extends Map {
 
         private final MapView mMapView;
+        private final WindowManager mWindowManager;
 
         private boolean mRenderRequest;
         private boolean mRenderWait;
@@ -168,6 +214,7 @@ public class MapView extends GLSurfaceView {
         public AndroidMap(MapView mapView) {
             super();
             mMapView = mapView;
+            mWindowManager = (WindowManager) mMapView.getContext().getSystemService(Context.WINDOW_SERVICE);
         }
 
         @Override
@@ -180,6 +227,16 @@ public class MapView extends GLSurfaceView {
             return mMapView.getHeight();
         }
 
+        @Override
+        public int getScreenWidth() {
+            return mMapView.mScreenSize.x;
+        }
+
+        @Override
+        public int getScreenHeight() {
+            return mMapView.mScreenSize.y;
+        }
+
         private final Runnable mRedrawCb = new Runnable() {
             @Override
             public void run() {
@@ -187,6 +244,10 @@ public class MapView extends GLSurfaceView {
                 mMapView.requestRender();
             }
         };
+
+        public void updateMap() {
+            updateMap(true);
+        }
 
         @Override
         public void updateMap(boolean redraw) {
@@ -208,7 +269,7 @@ public class MapView extends GLSurfaceView {
             if (mPausing)
                 return;
 
-            /** TODO should not need to call prepareFrame in mRedrawCb */
+            /* TODO should not need to call prepareFrame in mRedrawCb */
             updateMap(false);
         }
 
@@ -250,8 +311,59 @@ public class MapView extends GLSurfaceView {
             super(map);
         }
 
+        /**
+         * @return GL version as [major, minor, release]
+         */
+        private int[] extractVersion(String versionString) {
+            int[] version = new int[3];
+            Matcher matcher = GL_PATTERN.matcher(versionString);
+            if (matcher.find()) {
+                String[] split = matcher.group(1).split("\\.");
+                version[0] = parseInt(split[0], 2);
+                version[1] = split.length < 2 ? 0 : parseInt(split[1], 0);
+                version[2] = split.length < 3 ? 0 : parseInt(split[2], 0);
+            } else {
+                log.error("Invalid version string: " + versionString);
+                version[0] = 2;
+                version[1] = 0;
+                version[2] = 0;
+            }
+            return version;
+        }
+
+        /**
+         * Forgiving parsing of GL major, minor and release versions as some manufacturers don't adhere to spec.
+         **/
+        private int parseInt(String value, int defaultValue) {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                log.error("Error parsing number: " + value + ", assuming: " + defaultValue);
+                return defaultValue;
+            }
+        }
+
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+            try {
+                // Create a minimum supported OpenGL ES context, then check:
+                String versionString = gl.glGetString(GL10.GL_VERSION);
+                log.info("Version: " + versionString);
+                // The version format is displayed as: "OpenGL ES <major>.<minor>"
+                // followed by optional content provided by the implementation.
+
+                // OpenGL<space>ES<space><version number><space><vendor-specific information>.
+                int[] version = extractVersion(versionString);
+                int majorVersion = version[0];
+                if (majorVersion >= 3)
+                    GLAdapter.init(new AndroidGL30());
+                else
+                    GLAdapter.init(new AndroidGL());
+            } catch (Throwable t) {
+                log.error("Falling back to GLES 2", t);
+                GLAdapter.init(new AndroidGL());
+            }
+
             super.onSurfaceCreated();
         }
 

@@ -1,8 +1,26 @@
+/*
+ * Copyright 2014 Hannes Janetzek
+ * Copyright 2019 Gustl22
+ *
+ * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.oscim.utils;
 
 import org.oscim.backend.canvas.Color;
 import org.oscim.utils.math.Vec3;
 
+import static org.oscim.backend.canvas.Color.a;
 import static org.oscim.backend.canvas.Color.b;
 import static org.oscim.backend.canvas.Color.g;
 import static org.oscim.backend.canvas.Color.r;
@@ -10,7 +28,7 @@ import static org.oscim.utils.FastMath.clamp;
 
 public class ColorUtil {
 
-    private final static Vec3 TMP_VEC = new Vec3();
+    private static final Vec3 TMP_VEC = new Vec3();
 
     public static synchronized int desaturate(int color) {
         Vec3 hsl = TMP_VEC;
@@ -45,13 +63,30 @@ public class ColorUtil {
         return hsvToRgb(hsl.x, clamp(saturation * hsl.y, 0, 1), hsl.z);
     }
 
+    /**
+     * @param hue        the hue from 0 to 1 (exclusive)
+     *                   0: no color shift
+     *                   0.5: opposite hue
+     * @param saturation the saturation
+     *                   0 to 1: desaturate
+     *                   1 to 2: saturate
+     * @param value      the lightness
+     *                   0 to 1: darken
+     *                   1 to 2: lighten
+     * @param relative   indicate if colors are modified relative to their values
+     *                   (e.g black not changes if relative)
+     */
     public static synchronized int modHsv(int color, double hue, double saturation, double value,
                                           boolean relative) {
+        if ((hue == 0 || hue == 1) && saturation == 1 && value == 1)
+            return color;
         Vec3 hsl = TMP_VEC;
         rgbToHsv(r(color), g(color), b(color), hsl);
-        return hsvToRgb(clamp(hue * hsl.x, 0, 1),
-                clamp(saturation * hsl.y, 0, 1),
-                clamp(value * hsl.z, 0, 1));
+        return Color.setA(hsvToRgb(clamp((hue + hsl.x) % 1, 0, 1),
+                clamp(relative || saturation <= 1 ? saturation * hsl.y :
+                        hsl.y + (saturation - 1) * (1 - hsl.y), 0, 1),
+                clamp(relative || value <= 1 ? value * hsl.z :
+                        hsl.z + (value - 1) * (1 - hsl.z), 0, 1)), a(color));
     }
 
     // functions ported from http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
@@ -252,5 +287,23 @@ public class ColorUtil {
 
     public static int hslToRgb(double h, double s, double l) {
         return hslToRgb(h, s, l, null);
+    }
+
+    /**
+     * Blend two colors.
+     *
+     * @param color1 the first color
+     * @param color2 the second color
+     * @param mix    the mixing proportion in range 0 to 1
+     * @return the blended color
+     */
+    public static int blend(int color1, int color2, float mix) {
+        float mix2 = 1f - mix;
+        return Color.get(
+                (int) ((((color2 >>> 24) & 0xff) * mix) + (((color1 >>> 24) & 0xff) * mix2)),
+                (int) ((((color2 >>> 16) & 0xff) * mix) + (((color1 >>> 16) & 0xff) * mix2)),
+                (int) ((((color2 >>> 8) & 0xff) * mix) + (((color1 >>> 8) & 0xff) * mix2)),
+                (int) ((((color2 >>> 0) & 0xff) * mix) + (((color1 >>> 0) & 0xff) * mix2))
+        );
     }
 }

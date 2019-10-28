@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
+ * Copyright 2018-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -26,12 +27,13 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
     public final int colorLine;
     public final int colorSide;
     public final int colorTop;
+    public final Color.HSV hsv;
     public final int defaultHeight;
     private final int level;
 
     public final float[] colors;
 
-    public ExtrusionStyle(int level, int colorSide, int colorTop, int colorLine, int defaultHeight) {
+    public ExtrusionStyle(int level, int colorSide, int colorTop, int colorLine, Color.HSV hsv, int defaultHeight) {
         this.level = level;
 
         this.colorSide = colorSide;
@@ -40,6 +42,7 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
         this.colors = new float[16];
         fillColors(colorSide, colorTop, colorLine, colors);
 
+        this.hsv = hsv;
         this.defaultHeight = defaultHeight;
     }
 
@@ -53,7 +56,22 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
         this.colors = new float[16];
         fillColors(colorSide, colorTop, colorLine, colors);
 
+        this.hsv = new Color.HSV(b.hsvHue, b.hsvSaturation, b.hsvValue);
         this.defaultHeight = b.defaultHeight;
+    }
+
+    public static int blendAlpha(int color, float alpha) {
+        if (alpha == 1.0f)
+            return color;
+        return Color.setA(color, (int) (Color.a(color) * alpha));
+    }
+
+    public static void blendAlpha(float colors[], float alpha) {
+        if (alpha == 1.0f)
+            return;
+        for (int i = 0; i < colors.length; i++) {
+            colors[i] = alpha * colors[i];
+        }
     }
 
     public static void fillColors(int side, int top, int line, float[] colors) {
@@ -97,6 +115,9 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
         public int colorSide;
         public int colorTop;
         public int colorLine;
+        public double hsvHue;
+        public double hsvSaturation;
+        public double hsvValue;
         public int defaultHeight;
 
         public ExtrusionBuilder() {
@@ -111,6 +132,9 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
             this.colorSide = themeCallback != null ? themeCallback.getColor(extrusion.colorSide) : extrusion.colorSide;
             this.colorTop = themeCallback != null ? themeCallback.getColor(extrusion.colorTop) : extrusion.colorTop;
             this.colorLine = themeCallback != null ? themeCallback.getColor(extrusion.colorLine) : extrusion.colorLine;
+            this.hsvHue = extrusion.hsv.hue;
+            this.hsvSaturation = extrusion.hsv.saturation;
+            this.hsvValue = extrusion.hsv.value;
             this.defaultHeight = extrusion.defaultHeight;
 
             return self();
@@ -146,6 +170,21 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
             return self();
         }
 
+        public T hsvHue(double hsvHue) {
+            this.hsvHue = hsvHue;
+            return self();
+        }
+
+        public T hsvSaturation(double hsvSaturation) {
+            this.hsvSaturation = hsvSaturation;
+            return self();
+        }
+
+        public T hsvValue(double hsvValue) {
+            this.hsvValue = hsvValue;
+            return self();
+        }
+
         public T defaultHeight(int defaultHeight) {
             this.defaultHeight = defaultHeight;
             return self();
@@ -157,10 +196,14 @@ public class ExtrusionStyle extends RenderStyle<ExtrusionStyle> {
             colorSide = Color.TRANSPARENT;
             colorTop = Color.TRANSPARENT;
             colorLine = Color.TRANSPARENT;
+            hsvHue = 0;
+            hsvSaturation = 1;
+            hsvValue = 1;
             defaultHeight = 12; // 12m default
             return self();
         }
 
+        @Override
         public ExtrusionStyle build() {
             return new ExtrusionStyle(this);
         }

@@ -122,7 +122,7 @@ public class BitmapBucket extends TextureBucket {
         buf[pos++] = texMax;
         buf[pos++] = texMax;
 
-        this.vertexOffset = vboData.position() * 2;
+        this.vertexOffset = vboData.position() * RenderBuckets.SHORT_BYTES;
         vboData.put(buf);
     }
 
@@ -171,8 +171,8 @@ public class BitmapBucket extends TextureBucket {
                 return;
             uMVP = getUniform("u_mvp");
             uAlpha = getUniform("u_alpha");
-            aPos = getAttrib("vertex");
-            aTexCoord = getAttrib("tex_coord");
+            aPos = getAttrib("a_pos");
+            aTexCoord = getAttrib("a_tex_coord");
         }
 
         @Override
@@ -187,9 +187,9 @@ public class BitmapBucket extends TextureBucket {
 
     public static final class Renderer {
 
-        public final static int INDICES_PER_SPRITE = 6;
-        final static int VERTICES_PER_SPRITE = 4;
-        final static int SHORTS_PER_VERTICE = 6;
+        public static final int INDICES_PER_SPRITE = 6;
+        static final int VERTICES_PER_SPRITE = 4;
+        static final int SHORTS_PER_VERTICE = 6;
         static Shader shader;
 
         static void init() {
@@ -219,10 +219,10 @@ public class BitmapBucket extends TextureBucket {
                     int off = (t.offset + i) * 8 + tb.vertexOffset;
 
                     gl.vertexAttribPointer(s.aPos, 2,
-                            GL.SHORT, false, 12, off);
+                            GL.SHORT, false, RenderBuckets.SHORT_BYTES * 6, off);
 
                     gl.vertexAttribPointer(s.aTexCoord, 2,
-                            GL.SHORT, false, 12, off + 8);
+                            GL.SHORT, false, RenderBuckets.SHORT_BYTES * 6, off + RenderBuckets.SHORT_BYTES * 4);
 
                     int numIndices = t.indices - i;
                     if (numIndices > MAX_INDICES)

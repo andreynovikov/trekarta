@@ -1,5 +1,6 @@
 /*
  * Copyright 2012, 2013 Hannes Janetzek
+ * Copyright 2017-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -18,9 +19,8 @@ package org.oscim.renderer.bucket;
 
 import org.oscim.backend.canvas.Color;
 import org.oscim.core.GeometryBuffer;
-import org.oscim.core.GeometryBuffer.GeometryType;
-import org.oscim.core.MapElement;
 import org.oscim.core.Tile;
+import org.oscim.utils.ExtrusionUtils;
 import org.oscim.utils.FastMath;
 import org.oscim.utils.KeyMap;
 import org.oscim.utils.KeyMap.HashItem;
@@ -44,30 +44,31 @@ public class ExtrusionBucket extends RenderBucket {
      * 16 floats rgba for top, even-side, odd-sides and outline
      */
     public final float[] colors;
-    public final int color;
+    private final int color;
 
     /**
-     * indices for: 0. even sides, 1. odd sides, 2. roof, 3. roof outline
+     * indices for: 0. even sides, 1. odd sides, 2. roof, 3. roof outline, 4. mesh
      */
     public int idx[] = {0, 0, 0, 0, 0};
+
     /**
      * indices offsets in bytes
      */
     public int off[] = {0, 0, 0, 0, 0};
 
-    //private final static int IND_EVEN_SIDE = 0;
-    //private final static int IND_ODD_SIDE = 1;
-    private final static int IND_ROOF = 2;
+    //private static final int IND_EVEN_SIDE = 0;
+    //private static final int IND_ODD_SIDE = 1;
+    private static final int IND_ROOF = 2;
 
     // FIXME flip OUTLINE / MESH!
-    private final static int IND_OUTLINE = 3;
-    private final static int IND_MESH = 4;
+    private static final int IND_OUTLINE = 3;
+    private static final int IND_MESH = 4;
 
     private final float mGroundResolution;
 
     private KeyMap<Vertex> mVertexMap;
 
-    //private static final int NORMAL_DIR_MASK = 0xFFFFFFFE;
+    private static final int NORMAL_DIR_MASK = 0xFFFFFFFE;
     //private int numIndexHits = 0;
 
     /**
@@ -90,7 +91,7 @@ public class ExtrusionBucket extends RenderBucket {
     }
 
     /**
-     * ExtrusionLayer for triangle geometries.
+     * ExtrusionLayer for triangle geometries / meshes.
      */
     public ExtrusionBucket(int level, float groundResolution, int color) {
         super(RenderBucket.EXTRUSION, true, false);
@@ -98,7 +99,7 @@ public class ExtrusionBucket extends RenderBucket {
         this.color = color;
 
         float a = Color.aToFloat(color);
-        colors = new float[4];
+        colors = new float[4]; // Why not 16?
         colors[0] = a * Color.rToFloat(color);
         colors[1] = a * Color.gToFloat(color);
         colors[2] = a * Color.bToFloat(color);
@@ -152,8 +153,13 @@ public class ExtrusionBucket extends RenderBucket {
         }
     }
 
-    public void add(MapElement element) {
-        if (element.type != GeometryType.TRIS)
+    /**
+     * Add MapElement which provides meshes
+     *
+     * @param element the map element to add
+     */
+    public void addMesh(GeometryBuffer element) {
+        if (!element.isTris())
             return;
 
         int[] index = element.index;
@@ -165,6 +171,7 @@ public class ExtrusionBucket extends RenderBucket {
             Vertex key = vertexPool.get();
             double scale = COORD_SCALE * Tile.SIZE / 4096;
 
+            // n is introduced if length increases while processing
             for (int k = 0, n = index.length; k < n; ) {
                 if (index[k] < 0)
                     break;
@@ -173,6 +180,7 @@ public class ExtrusionBucket extends RenderBucket {
                 if (vertexCnt >= 1 << 16)
                     break;
 
+                // Get position of points for each polygon (which always has 3 points)
                 int vtx1 = index[k++] * 3;
                 int vtx2 = index[k++] * 3;
                 int vtx3 = index[k++] * 3;
@@ -189,6 +197,7 @@ public class ExtrusionBucket extends RenderBucket {
                 float vy3 = points[vtx3 + 1];
                 float vz3 = points[vtx3 + 2];
 
+                // Calculate normal for color gradient
                 float ax = vx2 - vx1;
                 float ay = vy2 - vy1;
                 float az = vz2 - vz1;
@@ -197,6 +206,7 @@ public class ExtrusionBucket extends RenderBucket {
                 float by = vy3 - vy1;
                 float bz = vz3 - vz1;
 
+                // Vector product (c is at right angle to a and b)
                 float cx = ay * bz - az * by;
                 float cy = az * bx - ax * bz;
                 float cz = ax * by - ay * bx;
@@ -204,14 +214,9 @@ public class ExtrusionBucket extends RenderBucket {
                 double len = Math.sqrt(cx * cx + cy * cy + cz * cz);
 
                 // packing the normal in two bytes
-                //    int mx = FastMath.clamp(127 + (int) ((cx / len) * 128), 0, 0xff);
-                //    int my = FastMath.clamp(127 + (int) ((cy / len) * 128), 0, 0xff);
-                //    short normal = (short) ((my << 8) | (mx & NORMAL_DIR_MASK) | (cz > 0 ? 1 : 0));
-
-                double p = Math.sqrt((cz / len) * 8.0 + 8.0);
-                int mx = FastMath.clamp(127 + (int) ((cx / len / p) * 128), 0, 255);
-                int my = FastMath.clamp(127 + (int) ((cy / len / p) * 128), 0, 255);
-                short normal = (short) ((my << 8) | mx);
+                int mx = FastMath.clamp(127 + (int) ((cx / len) * 128), 0, 0xff);
+                int my = FastMath.clamp(127 + (int) ((cy / len) * 128), 0, 0xff);
+                short normal = (short) ((my << 8) | (mx & NORMAL_DIR_MASK) | (cz > 0 ? 1 : 0));
 
                 if (key == null)
                     key = vertexPool.get();
@@ -225,11 +230,11 @@ public class ExtrusionBucket extends RenderBucket {
 
                 if (vertex == null) {
                     key.id = vertexCnt++;
-                    addIndex(key, true);
+                    addMeshIndex(key, true);
                     key = vertexPool.get();
                 } else {
                     //numIndexHits++;
-                    addIndex(vertex, false);
+                    addMeshIndex(vertex, false);
                 }
 
                 key.set((short) (vx2 * scale),
@@ -241,11 +246,11 @@ public class ExtrusionBucket extends RenderBucket {
 
                 if (vertex == null) {
                     key.id = vertexCnt++;
-                    addIndex(key, true);
+                    addMeshIndex(key, true);
                     key = vertexPool.get();
                 } else {
                     //numIndexHits++;
-                    addIndex(vertex, false);
+                    addMeshIndex(vertex, false);
                 }
 
                 key.set((short) (vx3 * scale),
@@ -256,11 +261,11 @@ public class ExtrusionBucket extends RenderBucket {
                 vertex = mVertexMap.put(key, false);
                 if (vertex == null) {
                     key.id = vertexCnt++;
-                    addIndex(key, true);
+                    addMeshIndex(key, true);
                     key = vertexPool.get();
                 } else {
                     //numIndexHits++;
-                    addIndex(vertex, false);
+                    addMeshIndex(vertex, false);
                 }
             }
 
@@ -269,7 +274,7 @@ public class ExtrusionBucket extends RenderBucket {
         numVertices = vertexCnt;
     }
 
-    private void addIndex(Vertex v, boolean addVertex) {
+    private void addMeshIndex(Vertex v, boolean addVertex) {
         if (addVertex)
             vertexItems.add(v.x, v.y, v.z, v.n);
 
@@ -339,19 +344,22 @@ public class ExtrusionBucket extends RenderBucket {
     //    sumVertices += (vertexCnt / 3);
     //}
 
-    public void add(MapElement element, float height, float minHeight) {
+    /**
+     * Add MapElement which provides polygons
+     *
+     * @param element   the map element to add
+     * @param height    the maximum height of element
+     * @param minHeight the minimum height of element
+     */
+    public void addPoly(GeometryBuffer element, float height, float minHeight) {
 
         int[] index = element.index;
         float[] points = element.points;
 
         /* 10 cm steps */
-        float sfactor = 1 / 10f;
-        height *= sfactor;
-        minHeight *= sfactor;
-
-        /* match height with ground resultion (meter per pixel) */
-        height /= mGroundResolution;
-        minHeight /= mGroundResolution;
+        /* match height with ground resolution (meter per pixel) */
+        height = ExtrusionUtils.mapGroundScale(height, mGroundResolution);
+        minHeight = ExtrusionUtils.mapGroundScale(minHeight, mGroundResolution);
 
         boolean complexOutline = false;
         boolean simpleOutline = true;
@@ -383,7 +391,7 @@ public class ExtrusionBucket extends RenderBucket {
                 log.debug("explicit closed poly " + len);
             }
 
-            /* need at least three points */
+            /* need at least three points (x and y) */
             if (len < 6)
                 continue;
 
@@ -429,6 +437,7 @@ public class ExtrusionBucket extends RenderBucket {
         int numRings = 0;
 
         /* get sum of points in polygon */
+        // n is introduced if length increases while processing
         for (int i = ipos, n = index.length; i < n && index[i] > 0; i++) {
             numPoints += index[i];
             numRings++;
@@ -458,10 +467,13 @@ public class ExtrusionBucket extends RenderBucket {
         /* vector from previous point */
         float ux, uy;
 
+        // Normalized normal of first point (with vy direction included)
+        // Normal of vector (x|y) is (y|-x)
         float a = (float) Math.sqrt(vx * vx + vy * vy);
-        short color1 = (short) ((1 + vx / a) * 127);
+        short mx1 = (short) ((1 + (vy / a)) * 127);
+        mx1 = (short) ((mx1 & NORMAL_DIR_MASK) | (-vx > 0 ? 1 : 0));
 
-        short fcolor = color1, color2 = 0;
+        short mxStore = mx1, mx2 = 0;
 
         short h = (short) height, mh = (short) minHeight;
 
@@ -488,7 +500,7 @@ public class ExtrusionBucket extends RenderBucket {
                 nx = points[pos + 0];
                 ny = points[pos + 1];
             } else { // if (addFace)
-                short c = (short) (color1 | fcolor << 8);
+                short c = (short) (mx1 | mxStore << 8);
                 /* add bottom and top vertex for each point */
                 vertexItems.add((short) (cx * COORD_SCALE), (short) (cy * COORD_SCALE), mh, c);
                 vertexItems.add((short) (cx * COORD_SCALE), (short) (cy * COORD_SCALE), h, c);
@@ -501,20 +513,22 @@ public class ExtrusionBucket extends RenderBucket {
             vy = ny - cy;
 
             /* set lighting (by direction) */
+            // Normal of vector (x|y) is (y|-x)
             a = (float) Math.sqrt(vx * vx + vy * vy);
-            color2 = (short) ((1 + vx / a) * 127);
+            mx2 = (short) ((1 + (vy / a)) * 127);
+            mx2 = (short) ((mx2 & NORMAL_DIR_MASK) | (-vx > 0 ? 1 : 0));
 
             short c;
             if (even == 0)
-                c = (short) (color1 | color2 << 8);
+                c = (short) (mx1 | mx2 << 8);
             else
-                c = (short) (color2 | color1 << 8);
+                c = (short) (mx2 | mx1 << 8);
 
             /* add bottom and top vertex for each point */
             vertexItems.add((short) (cx * COORD_SCALE), (short) (cy * COORD_SCALE), mh, c);
             vertexItems.add((short) (cx * COORD_SCALE), (short) (cy * COORD_SCALE), h, c);
 
-            color1 = color2;
+            mx1 = mx2;
 
             /* check if polygon is convex */
             if (convex) {
@@ -542,7 +556,7 @@ public class ExtrusionBucket extends RenderBucket {
             }
 
             /* check if face is within tile */
-            if (mClipper.clipNext((int) nx, (int) ny) == 0) {
+            if (mClipper.clipNext((int) nx, (int) ny) == LineClipper.OUTSIDE) {
                 even = ++even % 2;
                 continue;
             }
@@ -592,7 +606,7 @@ public class ExtrusionBucket extends RenderBucket {
                 iOffset += idx[i];
             }
         }
-        vertexOffset = vboData.position() * 2;
+        vertexOffset = vboData.position() * RenderBuckets.SHORT_BYTES;
         vertexItems.compile(vboData);
 
         clear();
@@ -615,6 +629,20 @@ public class ExtrusionBucket extends RenderBucket {
         }
     }
 
+    /**
+     * @return the polygon colors (top, side, side, line)
+     */
+    public float[] getColors() {
+        return colors;
+    }
+
+    /**
+     * @return the mesh color
+     */
+    public int getColor() {
+        return color;
+    }
+
     @Override
     protected void prepare() {
         mClipper = null;
@@ -631,6 +659,7 @@ public class ExtrusionBucket extends RenderBucket {
         }
     }
 
+    @Override
     public ExtrusionBucket next() {
         return (ExtrusionBucket) next;
     }

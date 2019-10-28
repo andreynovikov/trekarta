@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Andrey Novikov
+ * Copyright 2017-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -16,6 +17,11 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.oscim.core;
+
+import org.oscim.utils.ArrayUtils;
+import org.oscim.utils.geom.GeometryUtils;
+
+import java.util.Arrays;
 
 /* TODO
  * - check indexPos < Short.Max
@@ -34,8 +40,8 @@ package org.oscim.core;
  */
 public class GeometryBuffer {
 
-    private final static int GROW_INDICES = 64;
-    private final static int GROW_POINTS = 512;
+    private static final int GROW_INDICES = 64;
+    private static final int GROW_POINTS = 512;
 
     /**
      * The Enum GeometryType.
@@ -56,23 +62,35 @@ public class GeometryBuffer {
 
     /**
      * The points.
+     * <p>
+     * POLY/LINE: store point in order of polygon with
+     * points[2 * n + 0] = x; points[2 * n + 1] = y; n is a N.
+     * <p>
+     * MESH: store points anywhere with
+     * points[3 * n + 0] = x; points[3 * n + 1] = y; points[3 * n + 2] = z; n ∈ ℕ0.
      */
     public float[] points;
 
     /**
      * The indexes.
+     * <p>
+     * POLY/LINE: store 2 * number of points of each polygon / line. Point is (x, y).
+     * <p>
+     * MESH: store point indices of triangle (p1, p2, p3) with
+     * index[3 * n + 0] = p1; index[3 * n + 1] = p2; index[3 * n + 2] = p3; n ∈ ℕ0.
+     * Point p is (x, y, z).
      */
     public int[] index;
 
     /**
      * The current index position.
      */
-    public int indexPos;
+    public int indexCurrentPos;
 
     /**
-     * The current position in points array.
+     * The next position to insert a point in points array (equal to array size).
      */
-    public int pointPos;
+    public int pointNextPos;
 
     /**
      * The current geometry type.
@@ -89,7 +107,7 @@ public class GeometryBuffer {
     /**
      * Instantiates a new geometry buffer.
      *
-     * @param numPoints  the num of expected points
+     * @param numPoints  the num of expected 2D points
      * @param numIndices the num of expected indices
      */
     public GeometryBuffer(int numPoints, int numIndices) {
@@ -111,13 +129,30 @@ public class GeometryBuffer {
         this.points = points;
         this.index = index;
         this.type = GeometryType.NONE;
-        this.indexPos = 0;
-        this.pointPos = 0;
+        this.indexCurrentPos = 0;
+        this.pointNextPos = 0;
         this.pointLimit = points.length - 2;
     }
 
     /**
+     * @param buffer the buffer to copy
+     */
+    public GeometryBuffer(GeometryBuffer buffer) {
+        int indexSize = 0;
+        while (indexSize < buffer.index.length && buffer.index[indexSize] != -1) {
+            indexSize++;
+        }
+        this.points = Arrays.copyOf(buffer.points, buffer.pointNextPos);
+        this.index = Arrays.copyOf(buffer.index, indexSize);
+
+        this.pointNextPos = buffer.pointNextPos;
+        this.indexCurrentPos = buffer.indexCurrentPos;
+        this.type = buffer.type;
+    }
+
+    /**
      * @param out PointF to set coordinates to.
+     * @param i   the 2D point position.
      * @return when out is null a temporary PointF is
      * returned which belongs to GeometryBuffer.
      */
@@ -126,16 +161,25 @@ public class GeometryBuffer {
         out.y = points[(i << 1) + 1];
     }
 
+    /**
+     * @param i the 2D point position.
+     * @return the x-coordinate of point.
+     */
     public float getPointX(int i) {
         return points[(i << 1)];
     }
 
+    /**
+     * @param i the 2D point position.
+     * @return the y-coordinate of point.
+     */
     public float getPointY(int i) {
         return points[(i << 1) + 1];
     }
 
     /**
-     * @return PointF belongs to GeometryBuffer.
+     * @param i the 2D point position.
+     * @return the PointF that belongs to GeometryBuffer.
      */
     public PointF getPoint(int i) {
         PointF out = mTmpPoint;
@@ -144,8 +188,23 @@ public class GeometryBuffer {
         return out;
     }
 
+    /**
+     * Get the number of 2D points.
+     *
+     * @return the number of 2D points.
+     */
     public int getNumPoints() {
-        return pointPos >> 1;
+        return pointNextPos >> 1;
+    }
+
+    /**
+     * Get the used size of points array.
+     * Equal to the next position to insert point in points array.
+     *
+     * @return the size of point array.
+     */
+    public int getPointsSize() {
+        return pointNextPos;
     }
 
     /**
@@ -153,8 +212,8 @@ public class GeometryBuffer {
      */
     public GeometryBuffer clear() {
         index[0] = 0;
-        indexPos = 0;
-        pointPos = 0;
+        indexCurrentPos = 0;
+        pointNextPos = 0;
         type = GeometryType.NONE;
         return this;
     }
@@ -166,13 +225,13 @@ public class GeometryBuffer {
      * @param y the y ordinate
      */
     public GeometryBuffer addPoint(float x, float y) {
-        if (pointPos > pointLimit)
-            ensurePointSize((pointPos >> 1) + 1, true);
+        if (pointNextPos > pointLimit)
+            ensurePointSize((pointNextPos >> 1) + 1, true);
 
-        points[pointPos++] = x;
-        points[pointPos++] = y;
+        points[pointNextPos++] = x;
+        points[pointNextPos++] = y;
 
-        index[indexPos] += 2;
+        index[indexCurrentPos] += 2;
         return this;
     }
 
@@ -188,12 +247,16 @@ public class GeometryBuffer {
         return type == GeometryType.POINT;
     }
 
+    public boolean isTris() {
+        return type == GeometryType.TRIS;
+    }
+
     /**
      * Sets the point x,y at position pos.
      *
-     * @param pos the pos
-     * @param x   the x ordinate
-     * @param y   the y ordinate
+     * @param pos the 2D point position
+     * @param x   the x coordinate (abscissa)
+     * @param y   the y coordinate (ordinate)
      */
     public void setPoint(int pos, float x, float y) {
         points[(pos << 1) + 0] = x;
@@ -214,19 +277,19 @@ public class GeometryBuffer {
         setOrCheckMode(GeometryType.LINE);
 
         /* ignore */
-        if (index[indexPos] > 0) {
+        if (index[indexCurrentPos] > 0) {
 
             /* start next */
-            if ((index[0] >= 0) && (++indexPos >= index.length))
-                ensureIndexSize(indexPos, true);
+            if ((index[0] >= 0) && (++indexCurrentPos >= index.length))
+                ensureIndexSize(indexCurrentPos, true);
 
             /* initialize with zero points */
-            index[indexPos] = 0;
+            index[indexCurrentPos] = 0;
         }
 
         /* set new end marker */
-        if (index.length > indexPos + 1)
-            index[indexPos + 1] = -1;
+        if (index.length > indexCurrentPos + 1)
+            index[indexCurrentPos + 1] = -1;
         return this;
     }
 
@@ -237,23 +300,23 @@ public class GeometryBuffer {
         boolean start = (type == GeometryType.NONE);
         setOrCheckMode(GeometryType.POLY);
 
-        if ((indexPos + 3) > index.length)
-            ensureIndexSize(indexPos + 2, true);
+        if ((indexCurrentPos + 3) > index.length)
+            ensureIndexSize(indexCurrentPos + 2, true);
 
-        if (!start && index[indexPos] != 0) {
+        if (!start && index[indexCurrentPos] != 0) {
             /* end polygon */
-            index[++indexPos] = 0;
+            index[++indexCurrentPos] = 0;
 
             /* next polygon start */
-            indexPos++;
+            indexCurrentPos++;
         }
 
         /* initialize with zero points */
-        index[indexPos] = 0;
+        index[indexCurrentPos] = 0;
 
         /* set new end marker */
-        if (index.length > indexPos + 1)
-            index[indexPos + 1] = -1;
+        if (index.length > indexCurrentPos + 1)
+            index[indexCurrentPos + 1] = -1;
 
         return this;
     }
@@ -264,27 +327,41 @@ public class GeometryBuffer {
     public void startHole() {
         checkMode(GeometryType.POLY);
 
-        if ((indexPos + 2) > index.length)
-            ensureIndexSize(indexPos + 1, true);
+        if ((indexCurrentPos + 2) > index.length)
+            ensureIndexSize(indexCurrentPos + 1, true);
 
         /* initialize with zero points */
-        index[++indexPos] = 0;
+        index[++indexCurrentPos] = 0;
 
         /* set new end marker */
-        if (index.length > indexPos + 1)
-            index[indexPos + 1] = -1;
+        if (index.length > indexCurrentPos + 1)
+            index[indexCurrentPos + 1] = -1;
     }
 
+    /**
+     * Translate.
+     *
+     * @param dx the x translation.
+     * @param dy the y translation.
+     * @return a reference to this object.
+     */
     public GeometryBuffer translate(float dx, float dy) {
-        for (int i = 0; i < pointPos; i += 2) {
+        for (int i = 0; i < pointNextPos; i += 2) {
             points[i] += dx;
             points[i + 1] += dy;
         }
         return this;
     }
 
+    /**
+     * Scale.
+     *
+     * @param scaleX the x scale.
+     * @param scaleY the y scale.
+     * @return a reference to this object.
+     */
     public GeometryBuffer scale(float scaleX, float scaleY) {
-        for (int i = 0; i < pointPos; i += 2) {
+        for (int i = 0; i < pointNextPos; i += 2) {
             points[i] *= scaleX;
             points[i + 1] *= scaleY;
         }
@@ -295,7 +372,7 @@ public class GeometryBuffer {
      * Ensure that 'points' array can hold the number of points.
      *
      * @param size the number of points to hold
-     * @param copy the the current data when array is reallocated
+     * @param copy the current data when array is reallocated
      * @return the float[] array holding current coordinates
      */
     public float[] ensurePointSize(int size, boolean copy) {
@@ -349,10 +426,20 @@ public class GeometryBuffer {
             throw new IllegalArgumentException("not cleared " + m + "<>" + type);
     }
 
+    /**
+     * Add a {@link Point}.
+     *
+     * @param p the point.
+     */
     public void addPoint(Point p) {
         addPoint((float) p.x, (float) p.y);
     }
 
+    /**
+     * Add a {@link PointF}.
+     *
+     * @param p the point.
+     */
     public void addPoint(PointF p) {
         addPoint(p.x, p.y);
     }
@@ -415,24 +502,48 @@ public class GeometryBuffer {
     /**
      * Calculates geometry area, only polygon outer ring is taken into account.
      *
-     * @return polygon area, 0 for other geometries
+     * @return unsigned polygon area, 0 for other geometries
+     * @see GeometryUtils#area(float[], int)
      */
     public float area() {
+        float area = isClockwise();
+        return area < 0 ? -area : area;
+    }
+
+    /**
+     * @see GeometryUtils#isClockwise(float[], int).
+     */
+    public float isClockwise() {
         if (isPoint() || isLine() || getNumPoints() < 3)
             return 0f;
 
-        // BROKEN! For multi-polygon.
-
-        float area = 0f;
         // use only outer ring
-        int n = index[0];
+        return GeometryUtils.isClockwise(points, index[0]);
+    }
 
-        for (int i = 0; i < n - 2; i += 2) {
-            area = area + (points[i] * points[i + 3]) - (points[i + 1] * points[i + 2]);
+    /**
+     * Remove the last point.
+     */
+    public void removeLastPoint() {
+        if (!isTris()) {
+            pointNextPos -= 2;
+            index[indexCurrentPos] -= 2;
         }
-        area = area + (points[n - 2] * points[1]) - (points[n - 1] * points[0]);
+    }
 
-        return 0.5f * area;
+    /**
+     * Reverse the order of points for lines and polygons.
+     */
+    public void reverse() {
+        if (isLine() || isPoly()) {
+            int count = 0;
+            for (int num : index) {
+                if (num < 0)
+                    break;
+                ArrayUtils.reverse(points, count, count + num, 2);
+                count += num;
+            }
+        }
     }
 
     public String toString() {
@@ -441,24 +552,43 @@ public class GeometryBuffer {
         for (int i = 0; i < index.length; i++) {
             if (index[i] < 0)
                 break;
-            if (index[i] == 0)
-                continue;
-            sb.append(":");
-            sb.append(index[i]);
-            sb.append('\n');
 
-            for (int j = 0; j < index[i]; j += 2) {
-                sb.append('[')
-                        .append(points[o + j])
-                        .append(',')
-                        .append(points[o + j + 1])
+            if (!isTris()) {
+                if (index[i] == 0)
+                    continue;
+                sb.append("POLY (")
+                        .append(i)
+                        .append(") { ");
+
+                for (int j = 0; j < index[i]; j += 2) {
+                    sb.append('[')
+                            .append(points[o + j])
+                            .append(", ")
+                            .append(points[o + j + 1])
+                            .append(']');
+
+                    if (j % 4 == 0)
+                        sb.append('\n');
+                }
+                sb.append(" } \tnumPoints:")
+                        .append(index[i])
+                        .append('\n');
+                o += index[i];
+            } else {
+                if (i % 3 == 0)
+                    sb.append("TRIS { ");
+                sb.append('\t')
+                        .append(index[i])
+                        .append('[')
+                        .append(points[3 * index[i]])
+                        .append(", ")
+                        .append(points[3 * index[i] + 1])
+                        .append(", ")
+                        .append(points[3 * index[i] + 2])
                         .append(']');
-
-                if (j % 4 == 0)
-                    sb.append('\n');
+                if (i % 3 == 2)
+                    sb.append(" }\n");
             }
-            sb.append('\n');
-            o += index[i];
         }
         return sb.toString();
     }

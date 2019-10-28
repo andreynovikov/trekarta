@@ -25,6 +25,7 @@ import org.oscim.core.TagSet;
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.PbfDecoder;
+import org.oscim.utils.FastMath;
 import org.oscim.utils.math.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,7 +230,7 @@ public class TileDecoder extends PbfDecoder {
             else if (Tag.KEY_HEIGHT.equals(key)
                     || Tag.KEY_MIN_HEIGHT.equals(key)) {
                 // Reformat values to established meters in OSM
-                tag = new Tag(key, String.valueOf(MathUtils.round2(Float.valueOf(val) / 100)), false);
+                tag = new Tag(key, String.valueOf(FastMath.round2(Float.valueOf(val) / 100)), false);
             } else
                 tag = new Tag(key, val, false, true);
 
@@ -328,7 +329,7 @@ public class TileDecoder extends PbfDecoder {
                                     Integer.valueOf(cnt));
                             fail = true;
                         }
-                        mElem.pointPos = cnt;
+                        mElem.pointNextPos = cnt;
                     } else {
                         mElem.ensurePointSize(coordCnt, false);
                         int cnt = decodeInterleavedPoints(mElem, mScaleFactor);

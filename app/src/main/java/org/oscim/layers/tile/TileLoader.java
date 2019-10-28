@@ -58,7 +58,6 @@ public abstract class TileLoader extends PausableThread implements ITileDataSink
     @Override
     protected void doWork() {
         mTile = mTileManager.getTileJob();
-
         if (mTile == null)
             return;
 

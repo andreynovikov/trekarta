@@ -1,7 +1,8 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Andrey Novikov
+ * Copyright 2019 marq24
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -39,7 +40,7 @@ import static org.oscim.layers.tile.vector.labeling.LabelLayer.LABEL_DATA;
 
 public class LabelTileLoaderHook implements TileLoaderThemeHook {
 
-    //public final static LabelTileData EMPTY = new LabelTileData();
+    //public static final LabelTileData EMPTY = new LabelTileData();
 
     private LabelTileData get(MapTile tile) {
         // FIXME could be 'this'..
@@ -129,11 +130,18 @@ public class LabelTileLoaderHook implements TileLoaderThemeHook {
                     if (length < 4)
                         break;
 
-                    WayDecorator.renderSymbol(null, element.points, symbol, offset, length, ld);
+                    WayDecorator.renderSymbol(null, element.points, symbol,
+                            offset, length, ld);
                     offset += length;
                 }
             } else if (element.type == POLY) {
                 PointF centroid = element.labelPosition;
+                if (centroid == null)
+                    centroid = element.centroidPosition;
+                //if (!Parameters.POLY_SYMBOL) {
+                //    if (centroid == null)
+                //        return false;
+               // }
                 // skip unnecessary calculations if centroid is outside of visible area
                 if (centroid != null && (centroid.x < 0 || centroid.x > Tile.SIZE || centroid.y < 0 || centroid.y > Tile.SIZE))
                     return false;

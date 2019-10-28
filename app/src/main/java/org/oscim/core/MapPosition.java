@@ -107,6 +107,26 @@ public class MapPosition {
         return scale;
     }
 
+    public MapPosition setScale(double scale) {
+        this.zoomLevel = FastMath.log2((int) scale);
+        this.scale = scale;
+        return this;
+    }
+
+    /**
+     * @return the fractional zoom.
+     */
+    public double getZoom() {
+        return Math.log(scale) / Math.log(2);
+    }
+
+    /**
+     * Sets the fractional zoom.
+     */
+    public void setZoom(double zoom) {
+        setScale(Math.pow(2, zoom));
+    }
+
     public int getZoomLevel() {
         return zoomLevel;
     }
@@ -114,12 +134,6 @@ public class MapPosition {
     public MapPosition setZoomLevel(int zoomLevel) {
         this.zoomLevel = zoomLevel;
         this.scale = 1 << zoomLevel;
-        return this;
-    }
-
-    public MapPosition setScale(double scale) {
-        this.zoomLevel = FastMath.log2((int) scale);
-        this.scale = scale;
         return this;
     }
 
@@ -201,14 +215,12 @@ public class MapPosition {
 
     @Override
     public String toString() {
-        return new StringBuilder()
-                .append("[X:").append(x)
-                .append(", Y:").append(y)
-                .append(", Z:").append(zoomLevel)
-                .append("] lat:")
-                .append(MercatorProjection.toLatitude(y))
-                .append(", lon:")
-                .append(MercatorProjection.toLongitude(x))
-                .toString();
+        return "[X:" + x +
+                ", Y:" + y +
+                ", Z:" + zoomLevel +
+                "] lat:" +
+                MercatorProjection.toLatitude(y) +
+                ", lon:" +
+                MercatorProjection.toLongitude(x);
     }
 }

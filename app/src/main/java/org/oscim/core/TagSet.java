@@ -166,6 +166,24 @@ public class TagSet {
     }
 
     /**
+     * Removes the Tag tag from TagSet.
+     *
+     * @param tag the Tag to be removed
+     */
+    public void remove(Tag tag) {
+        for (int i = 0; i < numTags; i++) {
+            Tag t = tags[i];
+            if ((t == tag) || (Utils.equals(t.key, tag.key) && Utils.equals(t.value, tag.value))) {
+                int n = numTags - 1;
+                if (i < n)
+                    System.arraycopy(tags, i + 1, tags, i, n - i);
+                numTags = n;
+                return;
+            }
+        }
+    }
+
+    /**
      * Sets the tags from 'tagArray'.
      *
      * @param tagArray the tag array

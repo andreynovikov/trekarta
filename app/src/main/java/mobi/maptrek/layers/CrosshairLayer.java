@@ -167,7 +167,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
             GLState.blend(true);
             GLState.test(false, false);
 
-            GLState.enableVertexArrays(hVertexPosition, -1);
+            GLState.enableVertexArrays(hVertexPosition, GLState.DISABLED);
             MapRenderer.bindQuadVertexVBO(hVertexPosition);
 
             if (mRunAnim) {

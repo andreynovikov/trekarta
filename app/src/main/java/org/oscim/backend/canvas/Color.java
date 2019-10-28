@@ -1,8 +1,9 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * 
+ * Copyright 2018-2019 Gustl22
+ *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later version.
@@ -17,9 +18,44 @@
 
 package org.oscim.backend.canvas;
 
+import org.oscim.utils.ColorUtil;
 import org.oscim.utils.FastMath;
+import org.oscim.utils.math.Vec3;
 
 public final class Color {
+
+    public static class HSV {
+        public double hue;
+        public double saturation;
+        public double value;
+
+        public HSV() {
+            hue = 0;
+            saturation = 1;
+            value = 1;
+        }
+
+        public HSV(double hue, double saturation, double value) {
+            this.hue = hue;
+            this.saturation = saturation;
+            this.value = value;
+        }
+
+        public HSV(Vec3 hsv) {
+            hue = hsv.x;
+            saturation = hsv.y;
+            value = hsv.z;
+        }
+
+        public int mod(int color, boolean relative) {
+            return ColorUtil.modHsv(color, hue, saturation, value, relative);
+        }
+
+        @Override
+        public String toString() {
+            return "HSV: " + hue + ", " + saturation + ", " + value;
+        }
+    }
 
     private static final int OPAQUE = 0xff000000;
 
@@ -113,6 +149,22 @@ public final class Color {
 
     public static int b(int color) {
         return ((color) & 0xff);
+    }
+
+    public static int setA(int color, int a) {
+        return ((a << 24) | (color & 0xffffff));
+    }
+
+    public static int setR(int color, int r) {
+        return ((r << 16) | (color & 0xff00ffff));
+    }
+
+    public static int setG(int color, int g) {
+        return ((g << 8) | (color & 0xffff00ff));
+    }
+
+    public static int setB(int color, int b) {
+        return (b | (color & 0xffffff00));
     }
 
     public static int parseColorComponents(String str) {
@@ -243,6 +295,10 @@ public final class Color {
 
     public static boolean isOpaque(int color) {
         return (color & OPAQUE) == OPAQUE;
+    }
+
+    public static String toString(int color) {
+        return "RGB: " + Color.r(color) + ", " + Color.g(color) + ", " + Color.b(color);
     }
 
     private Color() {

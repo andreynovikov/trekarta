@@ -100,6 +100,7 @@ public final class LineTexBucket extends LineBucket {
         this.evenSegment = true;
     }
 
+    @Override
     public void addLine(GeometryBuffer geom) {
         addLine(geom.points, geom.index, -1, false);
     }
@@ -275,7 +276,7 @@ public final class LineTexBucket extends LineBucket {
             GLState.bindVertexBuffer(mVertexFlipID);
             gl.bufferData(GL.ARRAY_BUFFER, flip.length, sbuf,
                     GL.STATIC_DRAW);
-            GLState.bindVertexBuffer(0);
+            GLState.bindVertexBuffer(GLState.UNBIND);
 
             //    mTexID = new int[10];
             //    byte[] stipple = new byte[40];
@@ -328,7 +329,7 @@ public final class LineTexBucket extends LineBucket {
             GLState.blend(true);
             shader.useProgram();
 
-            GLState.enableVertexArrays(-1, -1);
+            GLState.enableVertexArrays(GLState.DISABLED, GLState.DISABLED);
 
             int aLen0 = shader.aLen0;
             int aLen1 = shader.aLen1;
@@ -359,7 +360,7 @@ public final class LineTexBucket extends LineBucket {
                 LineTexBucket lb = (LineTexBucket) b;
                 LineStyle line = lb.line.current();
 
-                gl.uniform1f(shader.uMode, line.dashArray != null ? 2 : (line.texture != null ? 1 : 0));
+                gl.uniform1i(shader.uMode, line.dashArray != null ? 2 : (line.texture != null ? 1 : 0));
 
                 if (line.texture != null)
                     line.texture.bind();

@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -15,6 +16,9 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.oscim.utils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ArrayUtils {
 
@@ -35,6 +39,32 @@ public class ArrayUtils {
         }
     }
 
+    /**
+     * Reverse an array.
+     *
+     * @param data   the base array to be reversed
+     * @param left   the left index to be reversed
+     * @param right  the right index (excluded)
+     * @param stride the stride
+     */
+    public static <T> void reverse(T[] data, int left, int right, int stride) {
+        right -= stride;
+
+        while (left < right) {
+            for (int i = 0; i < stride; i++) {
+                T tmp = data[left + i];
+                data[left + i] = data[right + i];
+                data[right + i] = tmp;
+            }
+            left += stride;
+            right -= stride;
+        }
+    }
+
+    /**
+     * Reverse the array for primitive short.
+     * see {@link #reverse(Object[], int, int, int)}
+     */
     public static void reverse(short[] data, int left, int right, int stride) {
         right -= stride;
 
@@ -49,16 +79,39 @@ public class ArrayUtils {
         }
     }
 
-    public static void reverse(byte[] data, int left, int right) {
-        right -= 1;
+    /**
+     * Reverse the array for primitive float.
+     * see {@link #reverse(Object[], int, int, int)}
+     */
+    public static void reverse(float[] data, int left, int right, int stride) {
+        right -= stride;
 
         while (left < right) {
-            byte tmp = data[left];
-            data[left] = data[right];
-            data[right] = tmp;
+            for (int i = 0; i < stride; i++) {
+                float tmp = data[left + i];
+                data[left + i] = data[right + i];
+                data[right + i] = tmp;
+            }
+            left += stride;
+            right -= stride;
+        }
+    }
 
-            left++;
-            right--;
+    /**
+     * Reverse the array for primitive byte.
+     * see {@link #reverse(Object[], int, int, int)}
+     */
+    public static void reverse(byte[] data, int left, int right, int stride) {
+        right -= stride;
+
+        while (left < right) {
+            for (int i = 0; i < stride; i++) {
+                byte tmp = data[left + i];
+                data[left + i] = data[right + i];
+                data[right + i] = tmp;
+            }
+            left += stride;
+            right -= stride;
         }
     }
 
@@ -137,6 +190,18 @@ public class ArrayUtils {
         }
 
         return neg ? -val : val;
+    }
+
+    /**
+     * @return the Map with swapped keys and values
+     */
+    public static <K, V> Map<V, K> swap(Map<K, V> map) {
+        if (map == null)
+            return null;
+        Map<V, K> swap = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet())
+            swap.put(entry.getValue(), entry.getKey());
+        return swap;
     }
 
     public static boolean withinRange(float[] vec, float min, float max) {

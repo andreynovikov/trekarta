@@ -1,5 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 devemux86
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.oscim.layers.tile;
 
 import org.oscim.core.MapPosition;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.oscim.layers.tile.MapTile.State.CANCEL;
 import static org.oscim.layers.tile.MapTile.State.DEADBEEF;
@@ -47,14 +50,20 @@ public class TileManager {
     static final Logger log = LoggerFactory.getLogger(TileManager.class);
     static final boolean dbg = false;
 
-    public final static Event TILE_LOADED = new Event();
-    public final static Event TILE_REMOVED = new Event();
+    public static final Event TILE_LOADED = new Event();
+    public static final Event TILE_REMOVED = new Event();
 
     private final int mCacheLimit;
     private int mCacheReduce;
 
-    private int mMinZoom;
+    int mMinZoom;
     private int mMaxZoom;
+
+    /**
+     * Collection of zoom limits, useful for some layers.
+     * Use <code>List</code> as need to allow duplicates.
+     */
+    private final List<Integer> mZoomLimits = new ArrayList<>();
 
     private int[] mZoomTable;
 
@@ -153,12 +162,10 @@ public class TileManager {
         void onTileManagerEvent(Event event, MapTile tile);
     }
 
-    ;
-
     public TileManager(Map map, int cacheLimit) {
         mMap = map;
-        mMaxZoom = 20;
-        mMinZoom = 0;
+        mMaxZoom = map.viewport().getMaxZoomLevel();
+        mMinZoom = map.viewport().getMinZoomLevel();
         mCacheLimit = cacheLimit;
         mCacheReduce = 0;
 
@@ -219,8 +226,9 @@ public class TileManager {
         mTilesEnd = 0;
         mTilesCount = 0;
 
-        /* set up TileSet large enough to hold current tiles */
-        int num = Math.max(mMap.getWidth(), mMap.getHeight());
+        /* Set up TileSet large enough to hold current tiles.
+         * Use screen size as workaround for blank tiles in #520. */
+        int num = Math.max(mMap.getScreenWidth(), mMap.getScreenHeight());
         int size = Tile.SIZE >> 1;
         int numTiles = (num * num) / (size * size) * 4;
 
@@ -305,6 +313,17 @@ public class TileManager {
         /* scan visible tiles. callback function calls 'addTile'
          * which updates mNewTiles */
         mNewTiles.cnt = 0;
+
+        // Retrieve tiles needed for layers to multiple rendering
+        for (int i = 0; i < mZoomLimits.size(); i++) {
+            int zoom = mZoomLimits.get(i);
+            if (i > 0 && zoom == mZoomLimits.get(i - 1))
+                continue;
+            if (tileZoom > zoom)
+                mScanBox.scan(pos.x, pos.y, pos.scale, zoom, mMapPlane);
+        }
+
+        // Retrieve regular tiles at tile zoom
         mScanBox.scan(pos.x, pos.y, pos.scale, tileZoom, mMapPlane);
 
         MapTile[] newTiles = mNewTiles.tiles;
@@ -393,7 +412,7 @@ public class TileManager {
     }
 
     /**
-     * Retrive a TileSet of current tiles. Tiles remain locked in cache until
+     * Retrieve a TileSet of current tiles. Tiles remain locked in cache until
      * the set is unlocked by either passing it again to this function or to
      * releaseTiles.
      *
@@ -729,5 +748,23 @@ public class TileManager {
     public void setZoomLevel(int zoomLevelMin, int zoomLevelMax) {
         mMinZoom = zoomLevelMin;
         mMaxZoom = zoomLevelMax;
+    }
+
+    /**
+     * Allow loading tiles at specified zoom if higher zoom levels are requested.
+     */
+    public void addZoomLimit(int zoomLimit) {
+        if (zoomLimit > mMinZoom && zoomLimit < mMaxZoom) {
+            mZoomLimits.add(zoomLimit);
+            Collections.sort(mZoomLimits);
+        }
+    }
+
+    /**
+     * Remove zoom limit.
+     * Tiles of that zoom level won't be requested anymore on higher zoom levels.
+     */
+    public void removeZoomLimit(int zoomLimit) {
+        mZoomLimits.remove(Integer.valueOf(zoomLimit));
     }
 }

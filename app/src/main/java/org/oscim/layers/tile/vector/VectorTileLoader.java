@@ -173,14 +173,14 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
         mTileDataSource = dataSource;
     }
 
-    static class TagReplacement {
+    public static class TagReplacement {
         public TagReplacement(String key) {
             this.key = key;
             this.tag = new Tag(key, null);
         }
 
-        String key;
-        Tag tag;
+        public String key;
+        public Tag tag;
     }
 
     /**

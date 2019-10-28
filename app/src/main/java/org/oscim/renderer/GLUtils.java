@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2019 devemux86
+ * Copyright 2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -27,14 +28,28 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.oscim.backend.GLAdapter.gl;
+import static org.oscim.backend.GLAdapter.gl30;
 
 /**
  * Utility functions
  */
 public class GLUtils {
     static final Logger log = LoggerFactory.getLogger(GLUtils.class);
+
+    /**
+     * Set int color argb to uniform wxyz.
+     */
+    public static void setColor(int location, int color) {
+        gl.uniform4f(location,
+                ((color >>> 16) & 0xff) / 255f,
+                ((color >>> 8) & 0xff) / 255f,
+                ((color >>> 0) & 0xff) / 255f,
+                ((color >>> 24) & 0xff) / 255f);
+    }
 
     public static void setColor(int location, int color, float alpha) {
         if (alpha >= 1)
@@ -107,26 +122,122 @@ public class GLUtils {
         return textureIds[0];
     }
 
-    public static void checkGlError(String op) {
-        //GL = GLAdapter.get();
+    /**
+     * Check the status of current framebuffer.
+     * See: https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glCheckFramebufferStatus.xml
+     *
+     * @param op the operation which should be debugged
+     * @return the status code
+     */
+    public static int checkFramebufferStatus(String op) {
+        int status = gl.checkFramebufferStatus(GL.FRAMEBUFFER);
+        if (status != GL.FRAMEBUFFER_COMPLETE)
+            log.error(op + ": \tglFramebuffer " + getFramebufferStatusString(status) + " (" + status + ")");
+        return status;
+    }
 
-        int error;
-        while ((error = gl.getError()) != 0) { // GL20.NO_ERROR) {
-            log.error(op + ": glError " + error);
+    /**
+     * @param status the status code of a framebuffer
+     * @return the status code as string
+     */
+    public static String getFramebufferStatusString(int status) {
+        switch (status) {
+            case GL.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            case GL.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+                return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+            case GL.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            case GL.FRAMEBUFFER_UNSUPPORTED:
+                return "GL_FRAMEBUFFER_UNSUPPORTED";
+            case GL.FRAMEBUFFER_COMPLETE:
+                return "GL_FRAMEBUFFER_COMPLETE";
+            default:
+                return String.valueOf(status);
+        }
+    }
+
+    /**
+     * Check GL error.
+     * See: https://www.khronos.org/opengl/wiki/OpenGL_Error
+     *
+     * @param op the operation which should be debugged
+     */
+    public static void checkGlError(String op) {
+        int error; // GL.NO_ERROR
+        while ((error = gl.getError()) != GL.NO_ERROR) {
+            log.error(op + ": \tglError " + getGlErrorString(error) + " (" + error + ")");
             // throw new RuntimeException(op + ": glError " + error);
         }
     }
 
-    public static boolean checkGlOutOfMemory(String op) {
-        int error;
-        boolean oom = false;
-        while ((error = gl.getError()) != 0) {// GL20.NO_ERROR) {
-            log.error(op + ": glError " + error);
+    /**
+     * Check GL error.
+     * See: https://www.khronos.org/opengl/wiki/OpenGL_Error
+     *
+     * @param op the operation which should be debugged
+     * @param id the error to be found
+     * @return true if error was found
+     */
+    public static boolean checkGlError(String op, int id) {
+        boolean hasError = false;
+        int error; // GL.NO_ERROR
+        while ((error = gl.getError()) != GL.NO_ERROR) {
+            log.error(op + ": \tglError " + getGlErrorString(error) + " (" + error + ")");
             // throw new RuntimeException(op + ": glError " + error);
-            if (error == 1285)
-                oom = true;
+            if (error == id)
+                hasError = true;
         }
-        return oom;
+        return hasError;
+    }
+
+    /**
+     * Check GL errors.
+     * See: https://www.khronos.org/opengl/wiki/OpenGL_Error
+     *
+     * @param op the operation which should be debugged
+     * @return the OpenGL error codes
+     */
+    public static List<Integer> checkGlErrors(String op) {
+        List<Integer> errors = new ArrayList<>();
+        int error; // GL.NO_ERROR
+        while ((error = gl.getError()) != GL.NO_ERROR) {
+            log.error(op + ": \tglError " + getGlErrorString(error) + " (" + error + ")");
+            // throw new RuntimeException(op + ": glError " + error);
+            errors.add(error);
+        }
+        return errors;
+    }
+
+    /**
+     * @param error the error code of OpenGL
+     * @return the error code as string
+     */
+    public static String getGlErrorString(int error) {
+        switch (error) {
+            case GL.INVALID_ENUM:
+                return "GL_INVALID_ENUM";
+            case GL.INVALID_VALUE:
+                return "GL_INVALID_VALUE";
+            case GL.INVALID_OPERATION:
+                return "GL_INVALID_OPERATION";
+            case 0x0503: // GL.STACK_OVERFLOW
+                return "GL_STACK_OVERFLOW";
+            case 0x0504: // GL.STACK_UNDERFLOW
+                return "GL_STACK_UNDERFLOW";
+            case GL.OUT_OF_MEMORY:
+                return "GL_OUT_OF_MEMORY";
+            case GL.INVALID_FRAMEBUFFER_OPERATION:
+                return "GL_INVALID_FRAMEBUFFER_OPERATION";
+            case 0x0507: // GL.CONTEXT_LOST (with OpenGL 4.5)
+                return "GL_CONTEXT_LOST";
+            case 0x8031: // GL.TABLE_TOO_LARGE (deprecated in OpenGL 3.0)
+                return "GL_TABLE_TOO_LARGE";
+            case GL.NO_ERROR:
+                return "GL_NO_ERROR";
+            default:
+                return String.valueOf(error);
+        }
     }
 
     public static void setColor(int handle, float[] c, float alpha) {
@@ -184,6 +295,13 @@ public class GLUtils {
         color[2] = FastMath.clampN((float) (p + (b - p) * change));
     }
 
+    public static void glUniform3fv(int location, int count, float[] val) {
+        FloatBuffer buf = MapRenderer.getFloatBuffer(count * 3);
+        buf.put(val);
+        buf.flip();
+        gl.uniform3fv(location, count, buf);
+    }
+
     public static void glUniform4fv(int location, int count, float[] val) {
         FloatBuffer buf = MapRenderer.getFloatBuffer(count * 4);
         buf.put(val);
@@ -208,6 +326,44 @@ public class GLUtils {
         buf.put(ids, 0, num);
         buf.flip();
         gl.deleteBuffers(num, buf);
+    }
+
+    public static int[] glGenFrameBuffers(int num) {
+        IntBuffer buf = MapRenderer.getIntBuffer(num);
+        buf.position(0);
+        buf.limit(num);
+        gl.genFramebuffers(num, buf);
+        int[] ret = new int[num];
+        buf.position(0);
+        buf.limit(num);
+        buf.get(ret);
+        return ret;
+    }
+
+    public static void glDeleteFrameBuffers(int num, int[] ids) {
+        IntBuffer buf = MapRenderer.getIntBuffer(num);
+        buf.put(ids, 0, num);
+        buf.flip();
+        gl.deleteFramebuffers(num, buf);
+    }
+
+    public static int[] glGenRenderBuffers(int num) {
+        IntBuffer buf = MapRenderer.getIntBuffer(num);
+        buf.position(0);
+        buf.limit(num);
+        gl.genRenderbuffers(num, buf);
+        int[] ret = new int[num];
+        buf.position(0);
+        buf.limit(num);
+        buf.get(ret);
+        return ret;
+    }
+
+    public static void glDeleteRenderBuffers(int num, int[] ids) {
+        IntBuffer buf = MapRenderer.getIntBuffer(num);
+        buf.put(ids, 0, num);
+        buf.flip();
+        gl.deleteRenderbuffers(num, buf);
     }
 
     public static int[] glGenTextures(int num) {
@@ -243,5 +399,20 @@ public class GLUtils {
         buf.put(ids, 0, num);
         buf.flip();
         gl.deleteTextures(num, buf);
+    }
+
+    /*==========    GL30    ==========*/
+
+    /**
+     * Specifies a list of color buffers to be drawn into.
+     *
+     * @param num    Specifies the number of buffers in bufs.
+     * @param glEnum Points to an array of symbolic constants specifying the buffers into which fragment colors or data values will be written.
+     */
+    public static void glDrawBuffers(int num, int[] glEnum) {
+        IntBuffer buf = MapRenderer.getIntBuffer(num);
+        buf.put(glEnum, 0, num);
+        buf.flip();
+        gl30.drawBuffers(num, buf);
     }
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -158,9 +159,10 @@ public abstract class TileRenderer extends LayerRenderer {
 
             /* load tile that is referenced by this holder */
             MapTile proxy = tile.holder;
-            if (proxy != null && proxy.state(NEW_DATA)) {
-                uploadCnt += uploadTileData(proxy);
-                tile.state = proxy.state;
+            if (proxy != null && (proxy.state(NEW_DATA) || proxy.state(READY))) {
+                tile.state = NEW_DATA; // Change independently of proxy state, as long as it isn't READY
+                //uploadCnt += uploadTileData(proxy); // Should already been done in separate call
+                uploadCnt += uploadTileData(tile); // Actual tile must be loaded immediately
                 continue;
             }
 
@@ -168,7 +170,7 @@ public abstract class TileRenderer extends LayerRenderer {
             proxy = tile.getProxy(PROXY_PARENT, NEW_DATA);
             if (proxy != null) {
                 uploadCnt += uploadTileData(proxy);
-                /* dont load child proxies */
+                /* don't load child proxies */
                 continue;
             }
 
@@ -203,17 +205,28 @@ public abstract class TileRenderer extends LayerRenderer {
     private final Object tilelock = new Object();
 
     /**
-     * Update tileSet with currently visible tiles get a TileSet of currently
-     * visible tiles
+     * Update tileSet with currently visible tiles to get a TileSet of currently visible tiles.
      */
     public boolean getVisibleTiles(TileSet tileSet) {
+        return getVisibleTiles(tileSet, false) != null;
+    }
+
+    /**
+     * Update tileSet with currently visible tiles to get a TileSet of currently visible tiles.
+     * Replace tiles with ancestor (parent, etc.) if tiles are not loaded yet.
+     *
+     * @return original zoom level, otherwise null (if nothing can be loaded)
+     */
+    public Integer getVisibleTiles(TileSet tileSet, boolean replace) {
         if (tileSet == null)
-            return false;
+            return null;
 
         if (mDrawTiles == null) {
             releaseTiles(tileSet);
-            return false;
+            return null;
         }
+
+        Integer zoom = null;
 
         int prevSerial = tileSet.serial;
 
@@ -236,19 +249,37 @@ public abstract class TileRenderer extends LayerRenderer {
                     t.lock();
             }
 
+            // Set main zoom level, even if no tiles are ready
+            if (cnt > 0)
+                zoom = (int) newTiles[0].zoomLevel;
+
             /* unlock previous tiles */
             tileSet.releaseTiles();
 
             for (int i = 0; i < cnt; i++) {
                 MapTile t = newTiles[i];
-                if (t.isVisible && t.state(READY))
-                    tileSet.tiles[tileSet.cnt++] = t;
+                if (t.isVisible) {
+                    if (t.state(READY))
+                        tileSet.tiles[tileSet.cnt++] = t;
+                    else if (replace) {
+                        // Replace with next available ancestor
+                        for (int j = t.zoomLevel - 1; j > mTileManager.mMinZoom; j--) {
+                            int diff = t.zoomLevel - j;
+                            MapTile parent = mTileManager.getTile(t.tileX >> diff, t.tileY >> diff, j);
+                            if (parent != null && parent.state(READY)) {
+                                parent.lock();
+                                tileSet.tiles[tileSet.cnt++] = parent;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             tileSet.serial = mUploadSerial;
         }
 
-        return prevSerial != tileSet.serial;
+        return prevSerial != tileSet.serial ? zoom : null;
     }
 
     public void releaseTiles(TileSet tileSet) {

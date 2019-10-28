@@ -24,6 +24,7 @@ import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.renderer.BucketRenderer;
 import org.oscim.renderer.GLViewport;
+import org.oscim.renderer.MapRenderer;
 import org.oscim.renderer.bucket.LineBucket;
 import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.theme.styles.LineStyle;
@@ -55,7 +56,7 @@ public class TrackLayer extends Layer {
         super(map);
         mWorker = new Worker(map);
         mLineStyle = new LineStyle(track.style.color, track.style.width, Cap.BUTT);
-        mRenderer = new RenderPath();
+        mRenderer = new PathRenderer();
         mTrack = track;
         updatePoints();
     }
@@ -83,9 +84,9 @@ public class TrackLayer extends Layer {
     /***
      * everything below runs on GL- and Worker-Thread
      ***/
-    private final class RenderPath extends BucketRenderer {
+    private final class PathRenderer extends BucketRenderer {
 
-        RenderPath() {
+        PathRenderer() {
             buckets.addLineBucket(0, mLineStyle);
         }
 
@@ -112,27 +113,27 @@ public class TrackLayer extends Layer {
                 return;
 
             // keep position to render relative to current state
-            mMapPosition.copy(t.pos);
+            mMapPosition.copy(t.position);
 
             // compile new layers
-            buckets.set(t.bucket.get());
+            buckets.set(t.buckets.get());
             compile();
         }
     }
 
     final static class Task {
-        RenderBuckets bucket = new RenderBuckets();
-        MapPosition pos = new MapPosition();
+        final RenderBuckets buckets = new RenderBuckets();
+        final MapPosition position = new MapPosition();
     }
 
     private final class Worker extends SimpleWorker<Task> {
         private static final int GROW_INDICES = 32;
-        // limit coords
-        private final int max = 2048;
+        // limit coords to maximum resolution of GL.Short
+        private final int MAX_CLIP = (int) (Short.MAX_VALUE / MapRenderer.COORD_SCALE);
 
         Worker(Map map) {
             super(map, 0, new Task(), new Task());
-            mClipper = new LineClipper(-max, -max, max, max);
+            mClipper = new LineClipper(-MAX_CLIP, -MAX_CLIP, MAX_CLIP, MAX_CLIP);
             mPPoints = new float[0];
         }
 
@@ -185,27 +186,30 @@ public class TrackLayer extends Layer {
             }
 
             if (size == 0 || !isEnabled()) {
-                if (task.bucket.get() != null) {
-                    task.bucket.clear();
+                if (task.buckets.get() != null) {
+                    task.buckets.clear();
                     mMap.render();
                 }
                 return true;
             }
 
-            RenderBuckets layers = task.bucket;
+            RenderBuckets layers = task.buckets;
 
             LineBucket ll = layers.getLineBucket(0);
             ll.line = mLineStyle;
             ll.scale = ll.line.width;
 
-            mMap.getMapPosition(task.pos);
+            //if (!mLineStyle.fixed && mLineStyle.strokeIncrease > 1)
+            //    ll.scale = (float) Math.pow(mLineStyle.strokeIncrease, Math.max(task.position.getZoom() - STROKE_MIN_ZOOM, 0));
 
-            int zoomlevel = task.pos.zoomLevel;
-            task.pos.scale = 1 << zoomlevel;
+            mMap.getMapPosition(task.position);
 
-            double mx = task.pos.x;
-            double my = task.pos.y;
-            double scale = Tile.SIZE * task.pos.scale;
+            int zoomlevel = task.position.zoomLevel;
+            task.position.scale = 1 << zoomlevel;
+
+            double mx = task.position.x;
+            double my = task.position.y;
+            double scale = Tile.SIZE * task.position.scale;
 
             // flip around dateline
             int flip = 0;
@@ -269,18 +273,26 @@ public class TrackLayer extends Layer {
                 }
 
                 int clip = mClipper.clipNext(x, y);
-                if (clip < 1) {
+                if (clip != LineClipper.INSIDE) {
                     if (i > 2)
                         ll.addLine(projected, i, false);
 
-                    if (clip < 0) {
+                    if (clip == LineClipper.INTERSECTION) {
                         /* add line segment */
                         segment = mClipper.getLine(segment, 0);
                         ll.addLine(segment, 4, false);
-                        prevX = mClipper.outX2;
-                        prevY = mClipper.outY2;
+                        // the prev point is the real point not the clipped point
+                        //prevX = mClipper.outX2;
+                        //prevY = mClipper.outY2;
+                        prevX = x;
+                        prevY = y;
                     }
                     i = 0;
+                    // if the end point is inside, add it
+                    if (mClipper.getPrevOutcode() == LineClipper.INSIDE) {
+                        projected[i++] = prevX;
+                        projected[i++] = prevY;
+                    }
                     continue;
                 }
 
@@ -302,7 +314,7 @@ public class TrackLayer extends Layer {
 
         @Override
         public void cleanup(Task task) {
-            task.bucket.clear();
+            task.buckets.clear();
         }
 
         private int addPoint(float[] points, int i, int x, int y) {

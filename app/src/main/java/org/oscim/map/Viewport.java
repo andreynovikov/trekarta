@@ -1,8 +1,9 @@
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Erik Duisters
  * Copyright 2017 Luca Osten
+ * Copyright 2018 Izumi Kawashima
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -38,13 +39,15 @@ import org.oscim.utils.FastMath;
  */
 public class Viewport {
 
-    public final static int MAX_ZOOMLEVEL = 20;
-    public final static int MIN_ZOOMLEVEL = 2;
+    public final static int MAX_ZOOM_LEVEL = 20;
+    public final static int MIN_ZOOM_LEVEL = 2;
     public final static float MIN_TILT = 0;
+
+    /* Note: limited by numTiles in TileManager to ~80° */
     public final static float MAX_TILT = 65;
 
-    protected double mMaxScale = (1 << MAX_ZOOMLEVEL);
-    protected double mMinScale = (1 << MIN_ZOOMLEVEL);
+    protected double mMaxScale = (1 << MAX_ZOOM_LEVEL);
+    protected double mMinScale = (1 << MIN_ZOOM_LEVEL);
 
     protected float mMinTilt = MIN_TILT;
     protected float mMaxTilt = MAX_TILT;
@@ -88,6 +91,7 @@ public class Viewport {
         mPos.scale = mMinScale;
         mPos.x = 0.5;
         mPos.y = 0.5;
+        mPos.zoomLevel = MIN_ZOOM_LEVEL;
         mPos.bearing = 0;
         mPos.tilt = 0;
     }

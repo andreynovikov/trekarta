@@ -1,10 +1,11 @@
 /*
  * Copyright 2012 osmdroid authors: Viesturs Zarins, Martin Pearman
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Bezzu
  * Copyright 2016 Pedinel
  * Copyright 2017 Andrey Novikov
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -35,6 +36,7 @@ import org.oscim.event.MotionEvent;
 import org.oscim.map.Map;
 import org.oscim.renderer.BucketRenderer;
 import org.oscim.renderer.GLViewport;
+import org.oscim.renderer.MapRenderer;
 import org.oscim.renderer.bucket.LineBucket;
 import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.theme.styles.LineStyle;
@@ -51,6 +53,8 @@ import java.util.List;
  * This class draws a path line in given color or texture.
  */
 public class PathLayer extends Layer implements GestureListener {
+
+    private static final int STROKE_MIN_ZOOM = 12;
 
     /**
      * Stores points, converted to the map projection.
@@ -73,7 +77,7 @@ public class PathLayer extends Layer implements GestureListener {
         mLineStyle = style;
 
         mPoints = new ArrayList<>();
-        mRenderer = new RenderPath();
+        mRenderer = new PathRenderer();
         mWorker = new Worker(map);
     }
 
@@ -114,13 +118,6 @@ public class PathLayer extends Layer implements GestureListener {
         updatePoints();
     }
 
-    public void removePoint(GeoPoint pt) {
-        synchronized (mPoints) {
-            mPoints.remove(pt);
-        }
-        updatePoints();
-    }
-
     public void addPoint(int latitudeE6, int longitudeE6) {
         synchronized (mPoints) {
             mPoints.add(new GeoPoint(latitudeE6, longitudeE6));
@@ -135,7 +132,7 @@ public class PathLayer extends Layer implements GestureListener {
         updatePoints();
     }
 
-    protected void updatePoints() {
+    private void updatePoints() {
         mWorker.submit(10);
         mUpdatePoints = true;
     }
@@ -226,7 +223,7 @@ public class PathLayer extends Layer implements GestureListener {
     /***
      * everything below runs on GL- and Worker-Thread
      ***/
-    final class RenderPath extends BucketRenderer {
+    final class PathRenderer extends BucketRenderer {
 
         private int mCurX = -1;
         private int mCurY = -1;
@@ -251,27 +248,27 @@ public class PathLayer extends Layer implements GestureListener {
                 return;
 
             /* keep position to render relative to current state */
-            mMapPosition.copy(t.pos);
+            mMapPosition.copy(t.position);
 
             /* compile new layers */
-            buckets.set(t.bucket.get());
+            buckets.set(t.buckets.get());
             compile();
         }
     }
 
-    final static class Task {
-        RenderBuckets bucket = new RenderBuckets();
-        MapPosition pos = new MapPosition();
+    static final class Task {
+        final RenderBuckets buckets = new RenderBuckets();
+        final MapPosition position = new MapPosition();
     }
 
     final class Worker extends SimpleWorker<Task> {
 
-        // limit coords
-        private final int max = 2048;
+        // limit coords to maximum resolution of GL.Short
+        private final int MAX_CLIP = (int) (Short.MAX_VALUE / MapRenderer.COORD_SCALE);
 
         public Worker(Map map) {
             super(map, 0, new Task(), new Task());
-            mClipper = new LineClipper(-max, -max, max, max);
+            mClipper = new LineClipper(-MAX_CLIP, -MAX_CLIP, MAX_CLIP, MAX_CLIP);
             mPPoints = new float[0];
         }
 
@@ -327,8 +324,8 @@ public class PathLayer extends Layer implements GestureListener {
 
             }
             if (size == 0) {
-                if (task.bucket.get() != null) {
-                    task.bucket.clear();
+                if (task.buckets.get() != null) {
+                    task.buckets.clear();
                     mMap.render();
                 }
                 return true;
@@ -337,22 +334,23 @@ public class PathLayer extends Layer implements GestureListener {
             LineBucket ll;
 
             if (mLineStyle.stipple == 0 && mLineStyle.texture == null)
-                ll = task.bucket.getLineBucket(0);
+                ll = task.buckets.getLineBucket(0);
             else
-                ll = task.bucket.getLineTexBucket(0);
+                ll = task.buckets.getLineTexBucket(0);
 
             ll.line = mLineStyle;
 
-            //ll.scale = ll.line.width;
+            if (!mLineStyle.fixed && mLineStyle.strokeIncrease > 1)
+                ll.scale = (float) Math.pow(mLineStyle.strokeIncrease, Math.max(task.position.getZoom() - STROKE_MIN_ZOOM, 0));
 
-            mMap.getMapPosition(task.pos);
+            mMap.getMapPosition(task.position);
 
-            int zoomlevel = task.pos.zoomLevel;
-            task.pos.scale = 1 << zoomlevel;
+            int zoomlevel = task.position.zoomLevel;
+            task.position.scale = 1 << zoomlevel;
 
-            double mx = task.pos.x;
-            double my = task.pos.y;
-            double scale = Tile.SIZE * task.pos.scale;
+            double mx = task.position.x;
+            double my = task.position.y;
+            double scale = Tile.SIZE * task.position.scale;
 
             // flip around dateline
             int flip = 0;
@@ -403,11 +401,11 @@ public class PathLayer extends Layer implements GestureListener {
                 }
 
                 int clip = mClipper.clipNext(x, y);
-                if (clip < 1) {
+                if (clip != LineClipper.INSIDE) {
                     if (i > 2)
                         ll.addLine(projected, i, false);
 
-                    if (clip < 0) {
+                    if (clip == LineClipper.INTERSECTION) {
                         /* add line segment */
                         segment = mClipper.getLine(segment, 0);
                         ll.addLine(segment, 4, false);
@@ -419,7 +417,7 @@ public class PathLayer extends Layer implements GestureListener {
                     }
                     i = 0;
                     // if the end point is inside, add it
-                    if (mClipper.getPrevOutcode() == 0) {
+                    if (mClipper.getPrevOutcode() == LineClipper.INSIDE) {
                         projected[i++] = prevX;
                         projected[i++] = prevY;
                     }
@@ -444,7 +442,7 @@ public class PathLayer extends Layer implements GestureListener {
 
         @Override
         public void cleanup(Task task) {
-            task.bucket.clear();
+            task.buckets.clear();
         }
 
         private int addPoint(float[] points, int i, int x, int y) {

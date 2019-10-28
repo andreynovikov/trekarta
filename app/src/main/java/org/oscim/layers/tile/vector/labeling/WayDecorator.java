@@ -1,6 +1,7 @@
 /*
- * Copyright 2010, 2011, 2012 mapsforge.org
+ * Copyright 2010, 2011, 2012, 2013 mapsforge.org
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -87,7 +88,7 @@ public final class WayDecorator {
 
             int last = i;
 
-            // calculate the length of the current segment (Euclidian distance)
+            // calculate the length of the current segment (Euclidean distance)
             float vx = prevX - curX;
             float vy = prevY - curY;
             if (vx == 0 && vy == 0)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package mobi.maptrek.maps.maptrek;
 
 import android.database.sqlite.SQLiteDatabase;
 
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
@@ -144,12 +145,12 @@ public class MapTrekTileSource extends TileSource {
         TransformTileDataSink(MapTile baseTile, MapTile tile, ITileDataSink mapDataSink) {
             this.mapDataSink = mapDataSink;
             int dz = tile.zoomLevel - baseTile.zoomLevel;
-            scale = (float) Math.pow(2, dz);
+            scale = 1 << dz;
             dx = (tile.tileX - (baseTile.tileX << dz)) * Tile.SIZE;
             dy = (tile.tileY - (baseTile.tileY << dz)) * Tile.SIZE;
-            mTileClipper = new TileClipper((dx - CLIP_BUFFER) / scale, (dy - CLIP_BUFFER) / scale,
-                    (dx + Tile.SIZE + CLIP_BUFFER) / scale, (dy + Tile.SIZE + CLIP_BUFFER) / scale);
-        }
+            float buffer = CLIP_BUFFER * CanvasAdapter.getScale();
+            mTileClipper = new TileClipper((dx - buffer) / scale, (dy - buffer) / scale,
+                    (dx + Tile.SIZE + buffer) / scale, (dy + Tile.SIZE + buffer) / scale);        }
 
         @Override
         public void process(MapElement el) {

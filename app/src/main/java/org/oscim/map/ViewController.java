@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Luca Osten
+ * Copyright 2018 Izumi Kawashima
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -32,7 +33,7 @@ public class ViewController extends Viewport {
 
     private final float[] mat = new float[16];
 
-    public void setScreenSize(int width, int height) {
+    public void setViewSize(int width, int height) {
         ThreadUtils.assertMainThread();
 
         mHeight = height;
@@ -71,11 +72,11 @@ public class ViewController extends Viewport {
     }
 
     /**
-     * Set pivot height relative to screen center. E.g. 0.5 is usually preferred
-     * for navigation, moving the center to 25% of the screen height.
+     * Set pivot height relative to view center. E.g. 0.5 is usually preferred
+     * for navigation, moving the center to 25% of the view height.
      * Range is [-1, 1].
      */
-    public void setMapScreenCenter(float pivotY) {
+    public void setMapViewCenter(float pivotY) {
         mPivotY = FastMath.clamp(pivotY, -1, 1) * 0.5f;
     }
 
@@ -85,12 +86,12 @@ public class ViewController extends Viewport {
      * @param mx the amount of pixels to move the map horizontally.
      * @param my the amount of pixels to move the map vertically.
      */
-    public void moveMap(float mx, float my) {
+    public synchronized void moveMap(float mx, float my) {
         ThreadUtils.assertMainThread();
 
-        Point p = applyRotation(mx, my);
+        applyRotation(mx, my, mPos.bearing, mMovePoint);
         double tileScale = mPos.scale * Tile.SIZE;
-        moveTo(mPos.x - p.x / tileScale, mPos.y - p.y / tileScale);
+        moveTo(mPos.x - mMovePoint.x / tileScale, mPos.y - mMovePoint.y / tileScale);
     }
 
     /* used by MapAnimator */
@@ -119,23 +120,31 @@ public class ViewController extends Viewport {
             mPos.y = mMinY;
     }
 
-    private synchronized Point applyRotation(double mx, double my) {
-        if (mPos.bearing == 0) {
-            mMovePoint.x = mx;
-            mMovePoint.y = my;
+    /**
+     * @param mx      the amount of pixels to move the map horizontally.
+     * @param my      the amount of pixels to move the map vertically.
+     * @param bearing the bearing to rotate the map.
+     * @param out     the position where to move.
+     */
+    public static void applyRotation(double mx, double my, float bearing, Point out) {
+        if (out == null)
+            out = new Point();
+
+        if (bearing == 0) {
+            out.x = mx;
+            out.y = my;
         } else {
-            double rad = Math.toRadians(mPos.bearing);
+            double rad = Math.toRadians(bearing);
             double rcos = Math.cos(rad);
             double rsin = Math.sin(rad);
-            mMovePoint.x = mx * rcos + my * rsin;
-            mMovePoint.y = mx * -rsin + my * rcos;
+            out.x = mx * rcos + my * rsin;
+            out.y = mx * -rsin + my * rcos;
         }
-        return mMovePoint;
     }
 
     /**
      * Scale map by scale width center at pivot in pixel relative to
-     * screen center. Map scale is clamp to MIN_SCALE and MAX_SCALE.
+     * view center. Map scale is clamp to MIN_SCALE and MAX_SCALE.
      *
      * @return true if scale was changed
      */
@@ -169,7 +178,7 @@ public class ViewController extends Viewport {
 
     /**
      * Rotate map by radians around pivot. Pivot is in pixel relative
-     * to screen center.
+     * to view center.
      */
     public void rotateMap(double radians, float pivotX, float pivotY) {
         ThreadUtils.assertMainThread();
@@ -190,10 +199,7 @@ public class ViewController extends Viewport {
     public void setRotation(double degree) {
         ThreadUtils.assertMainThread();
 
-        while (degree > 180)
-            degree -= 360;
-        while (degree < -180)
-            degree += 360;
+        degree = FastMath.clampDegree(degree);
 
         mPos.bearing = (float) degree;
 
@@ -233,13 +239,11 @@ public class ViewController extends Viewport {
 
     private void updateMatrices() {
         /* - view matrix:
-         * 0. apply rotate
-         * 1. apply tilt */
+         * 0. apply yaw
+         * 1. apply pitch */
 
         mRotationMatrix.setRotation(mPos.bearing, 0, 0, 1);
         mTmpMatrix.setRotation(mPos.tilt, 1, 0, 0);
-
-        /* apply first rotation, then tilt */
         mRotationMatrix.multiplyLhs(mTmpMatrix);
 
         mViewMatrix.copy(mRotationMatrix);

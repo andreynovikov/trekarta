@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -34,6 +35,17 @@ public class Box {
     }
 
     /**
+     * Simple box instantiation (for adding extents).
+     *
+     * @param x the initial x value
+     * @param y the initial y value
+     */
+    public Box(double x, double y) {
+        this.xmax = this.xmin = x;
+        this.ymax = this.ymin = y;
+    }
+
+    /**
      * Instantiates a new Box.
      *
      * @param xmin the min x
@@ -50,11 +62,36 @@ public class Box {
         this.ymax = ymax;
     }
 
+    /**
+     * Copy constructor.
+     */
     public Box(Box bbox) {
         this.xmin = bbox.xmin;
         this.ymin = bbox.ymin;
         this.xmax = bbox.xmax;
         this.ymax = bbox.ymax;
+    }
+
+    public void add(double x, double y) {
+        if (x < xmin)
+            xmin = x;
+        if (y < ymin)
+            ymin = y;
+        if (x > xmax)
+            xmax = x;
+        if (y > ymax)
+            ymax = y;
+    }
+
+    public void add(Box bbox) {
+        if (bbox.xmin < xmin)
+            xmin = bbox.xmin;
+        if (bbox.ymin < ymin)
+            ymin = bbox.ymin;
+        if (bbox.xmax > xmax)
+            xmax = bbox.xmax;
+        if (bbox.ymax > ymax)
+            ymax = bbox.ymax;
     }
 
     /**
@@ -81,6 +118,21 @@ public class Box {
                 && p.y <= ymax);
     }
 
+    public static Box createSafe(double x1, double y1, double x2, double y2) {
+        return new Box(x1 < x2 ? x1 : x2,
+                y1 < y2 ? y1 : y2,
+                x1 > x2 ? x1 : x2,
+                y1 > y2 ? y1 : y2);
+    }
+
+    public double getHeight() {
+        return ymax - ymin;
+    }
+
+    public double getWidth() {
+        return xmax - xmin;
+    }
+
     /**
      * Check if this Box is inside box.
      */
@@ -91,12 +143,18 @@ public class Box {
                 && ymax <= box.ymax;
     }
 
-    public double getWidth() {
-        return xmax - xmin;
-    }
-
-    public double getHeight() {
-        return ymax - ymin;
+    /**
+     * Convert map coordinates to lat/lon.
+     */
+    public void map2mercator() {
+        double minLon = MercatorProjection.toLongitude(xmin);
+        double maxLon = MercatorProjection.toLongitude(xmax);
+        double minLat = MercatorProjection.toLatitude(ymax);
+        double maxLat = MercatorProjection.toLatitude(ymin);
+        xmin = minLon;
+        xmax = maxLon;
+        ymin = minLat;
+        ymax = maxLat;
     }
 
     public boolean overlap(Box other) {
@@ -106,24 +164,34 @@ public class Box {
                 || ymax < other.ymin);
     }
 
-    @Override
-    public String toString() {
-        return "[" + xmin + ',' + ymin + ',' + xmax + ',' + ymax + ']';
+    public void scale(double d) {
+        xmin *= d;
+        xmax *= d;
+        ymin *= d;
+        ymax *= d;
     }
 
-    public static Box createSafe(double x1, double y1, double x2, double y2) {
-        return new Box(x1 < x2 ? x1 : x2,
-                y1 < y2 ? y1 : y2,
-                x1 > x2 ? x1 : x2,
-                y1 > y2 ? y1 : y2);
-    }
-
+    /**
+     * Init or overwrite extents of box.
+     *
+     * @param points the points to extend to
+     */
     public void setExtents(float[] points) {
+        setExtents(points, points.length);
+    }
+
+    /**
+     * Init or overwrite extents of box.
+     *
+     * @param points the points to extend to
+     * @param length the number of considered points
+     */
+    public void setExtents(float[] points, int length) {
         float x1, y1, x2, y2;
         x1 = x2 = points[0];
         y1 = y2 = points[1];
 
-        for (int i = 2, n = points.length; i < n; i += 2) {
+        for (int i = 2; i < length; i += 2) {
             float x = points[i];
             if (x < x1)
                 x1 = x;
@@ -142,26 +210,9 @@ public class Box {
         this.ymax = y2;
     }
 
-    public void add(Box bbox) {
-        if (bbox.xmin < xmin)
-            xmin = bbox.xmin;
-        if (bbox.ymin < ymin)
-            ymin = bbox.ymin;
-        if (bbox.xmax > xmax)
-            xmax = bbox.xmax;
-        if (bbox.ymax > ymax)
-            ymax = bbox.ymax;
-    }
-
-    public void add(double x, double y) {
-        if (x < xmin)
-            xmin = x;
-        if (y < ymin)
-            ymin = y;
-        if (x > xmax)
-            xmax = x;
-        if (y > ymax)
-            ymax = y;
+    @Override
+    public String toString() {
+        return "[" + xmin + ',' + ymin + ',' + xmax + ',' + ymax + ']';
     }
 
     public void translate(double dx, double dy) {
@@ -169,26 +220,5 @@ public class Box {
         xmax += dx;
         ymin += dy;
         ymax += dy;
-    }
-
-    public void scale(double d) {
-        xmin *= d;
-        xmax *= d;
-        ymin *= d;
-        ymax *= d;
-    }
-
-    /**
-     * convrt map coordinates to lat/lon.
-     */
-    public void map2mercator() {
-        double minLon = MercatorProjection.toLongitude(xmin);
-        double maxLon = MercatorProjection.toLongitude(xmax);
-        double minLat = MercatorProjection.toLatitude(ymax);
-        double maxLat = MercatorProjection.toLatitude(ymin);
-        xmin = minLon;
-        xmax = maxLon;
-        ymin = minLat;
-        ymax = maxLat;
     }
 }
