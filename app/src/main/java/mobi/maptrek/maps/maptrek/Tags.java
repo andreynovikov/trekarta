@@ -866,7 +866,7 @@ public class Tags {
             "river",
             "detached",
             "very_horrible",
-            "traffic_signals",
+            "reserved",
             "cycleway",
             "hedge",
             "place_of_worship",
