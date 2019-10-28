@@ -55,10 +55,10 @@
                     <text priority="10" use="water" />
                 </m>
                 <m cat="insignificant-water" v="stream">
-                    <line fade="13" use="water" width="0.5" />
+                    <line fade="13" use="water" width="1.0" />
                 </m>
                 <m cat="insignificant-water" v="ditch|drain">
-                    <line fade="14" use="water" width="0.2" />
+                    <line fade="14" use="water" width="0.3" />
                 </m>
                 <m cat="topo" v="dam">
                     <line fade="12" stroke="color:dam-stroke" use="fix" width="0.5" />
