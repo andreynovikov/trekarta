@@ -218,7 +218,7 @@ public final class LineTexBucket extends LineBucket {
 
     static class Shader extends GLShader {
         int uMVP, uColor, uWidth, uBgColor, uMode;
-        int uPatternWidth, uPatternScale;
+        int uPatternWidth, uPatternScale, uPatternRatio;
         int aPos0, aPos1, aLen0, aLen1, aFlip;
 
         Shader(String shaderFile) {
@@ -234,6 +234,7 @@ public final class LineTexBucket extends LineBucket {
 
             uPatternWidth = getUniform("u_pwidth");
             uPatternScale = getUniform("u_pscale");
+            uPatternRatio = getUniform("u_pratio");
 
             aPos0 = getAttrib("a_pos0");
             aPos1 = getAttrib("a_pos1");
@@ -385,6 +386,8 @@ public final class LineTexBucket extends LineBucket {
                 gl.uniform1f(shader.uPatternScale, COORD_SCALE * pScale);
 
                 gl.uniform1f(shader.uPatternWidth, line.stippleWidth);
+
+                gl.uniform1f(shader.uPatternRatio, 1f - line.stippleRatio);
 
                 /* keep line width fixed */
                 gl.uniform1f(shader.uWidth, (lb.scale * line.width) / s * COORD_SCALE_BY_DIR_SCALE);

@@ -179,6 +179,8 @@
         <xs:attribute name="stipple-stroke" default="#000000" type="tns:color"  />
         <!-- stipple width relative to line width, i.e 0.0-1.0 -->
         <xs:attribute name="stipple-width" default="0" type="xs:float"  />
+        <!-- stipple ratio - 0.5 = equal phase length -->
+        <xs:attribute name="stipple-ratio" default="0.5" type="xs:float" />
 
     </xs:complexType>
 

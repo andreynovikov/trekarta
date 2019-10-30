@@ -40,6 +40,7 @@ uniform float u_pwidth;
 varying vec2 v_st;
 uniform sampler2D u_tex;
 uniform int u_mode;
+uniform float u_pratio;
 
 void main() {
     if (u_mode >= 1) {
@@ -64,7 +65,7 @@ void main() {
         /* triangle waveform in the range 0..1 for regular pattern */
         float phase = abs(mod(v_st.s, 2.0) - 1.0);
         /* interpolate between on/off phase, 0.5 = equal phase length */
-        float stipple_p = smoothstep(0.5 - fuzz_p, 0.5 + fuzz_p, phase);
+        float stipple_p = smoothstep(u_pratio - fuzz_p, u_pratio + fuzz_p, phase);
         gl_FragColor = line_w * mix(u_bgcolor, u_color, min(stipple_w, stipple_p));
     }
 }

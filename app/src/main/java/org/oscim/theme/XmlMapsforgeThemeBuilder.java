@@ -621,6 +621,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
             b.randomOffset = false;
             b.stipple = width;
             b.stippleWidth = 1;
+            b.stippleRatio = 0.5f;
             b.stippleColor = b.fillColor;
         } else {
             b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
@@ -639,6 +640,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
                 b.randomOffset = false;
                 b.stipple = width;
                 b.stippleWidth = 1;
+                b.stippleRatio = 0.5f;
                 b.strokeWidth = height * 0.5f;
                 b.stippleColor = Color.WHITE;
             }

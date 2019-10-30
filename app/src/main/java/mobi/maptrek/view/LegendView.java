@@ -234,17 +234,22 @@ public class LegendView extends View {
                 canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
                 canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
             } else if (lineStyle.stipple != 0) {
-                float stipple = lineStyle.stipple * mDensity * .5f;
+                float main = lineStyle.stipple * mDensity * (1f - lineStyle.stippleRatio);
+                float stipple = lineStyle.stipple * mDensity * lineStyle.stippleRatio;
                 Path path = new Path();
                 path.moveTo(mLeft, mCenterY);
                 path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
-                paint.setPathEffect(new DashPathEffect(new float[]{stipple, stipple}, 0));
+                paint.setPathEffect(new DashPathEffect(new float[]{main, stipple}, 0));
+                // draw major color dashes
                 canvas.drawPath(path, paint);
                 path.rewind();
-                path.moveTo(mLeft + stipple, mCenterY);
+                path.moveTo(mLeft + main, mCenterY);
                 path.quadTo(mRight / 2f, mCenterY, mRight, mCenterY);
+                paint.setPathEffect(new DashPathEffect(new float[]{stipple, main}, 0));
+                // draw stipple dash background
                 paint.setAlpha(android.graphics.Color.alpha(lineStyle.stippleColor));
                 canvas.drawPath(path, paint);
+                // draw stipple color dashes
                 paint.setStrokeWidth(paint.getStrokeWidth() * lineStyle.stippleWidth);
                 paint.setColor(lineStyle.stippleColor);
                 canvas.drawPath(path, paint);

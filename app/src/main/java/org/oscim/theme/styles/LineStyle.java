@@ -45,6 +45,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
     public final int stipple;
     public final int stippleColor;
     public final float stippleWidth;
+    public final float stippleRatio;
     public final TextureItem texture;
 
     public final float heightOffset;
@@ -59,20 +60,20 @@ public final class LineStyle extends RenderStyle<LineStyle> {
     public final float repeatGap;
 
     public LineStyle(int stroke, float width) {
-        this(0, "", stroke, width, Cap.BUTT, true, 1, 0, 0, 0, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
+        this(0, "", stroke, width, Cap.BUTT, true, 1, 0, 0, 0, 0.5f, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
     }
 
     public LineStyle(int level, int stroke, float width) {
-        this(level, "", stroke, width, Cap.BUTT, true, 1, 0, 0, 0, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
+        this(level, "", stroke, width, Cap.BUTT, true, 1, 0, 0, 0, 0.5f, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
     }
 
     public LineStyle(int stroke, float width, Cap cap) {
-        this(0, "", stroke, width, cap, true, 1, 0, 0, 0, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
+        this(0, "", stroke, width, cap, true, 1, 0, 0, 0, 0.5f, -1, 0, false, null, true, null, REPEAT_START_DEFAULT * CanvasAdapter.getScale(), REPEAT_GAP_DEFAULT * CanvasAdapter.getScale());
     }
 
     public LineStyle(int level, String style, int color, float width,
                      Cap cap, boolean fixed, double strokeIncrease,
-                     int stipple, int stippleColor, float stippleWidth,
+                     int stipple, int stippleColor, float stippleWidth, float stippleRatio,
                      int fadeScale, float blur, boolean isOutline, TextureItem texture,
                      boolean randomOffset, float[] dashArray, float repeatStart, float repeatGap) {
 
@@ -89,6 +90,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.stipple = stipple;
         this.stippleColor = stippleColor;
         this.stippleWidth = stippleWidth;
+        this.stippleRatio = stippleRatio;
         this.texture = texture;
 
         this.blur = blur;
@@ -121,6 +123,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.stipple = b.stipple;
         this.stippleColor = b.themeCallback != null ? b.themeCallback.getColor(b.stippleColor) : b.stippleColor;
         this.stippleWidth = b.stippleWidth;
+        this.stippleRatio = b.stippleRatio;
         this.texture = b.texture;
 
         this.heightOffset = b.heightOffset;
@@ -157,6 +160,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         public int stipple;
         public int stippleColor;
         public float stippleWidth;
+        public float stippleRatio;
         public TextureItem texture;
 
         public float heightOffset;
@@ -191,6 +195,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
             this.stipple = line.stipple;
             this.stippleColor = themeCallback != null ? themeCallback.getColor(line.stippleColor) : line.stippleColor;
             this.stippleWidth = line.stippleWidth;
+            this.stippleRatio = line.stippleRatio;
             this.texture = line.texture;
 
             this.heightOffset = line.heightOffset;
@@ -234,6 +239,11 @@ public final class LineStyle extends RenderStyle<LineStyle> {
 
         public T stippleWidth(float width) {
             this.stippleWidth = width;
+            return self();
+        }
+
+        public T stippleRatio(float ratio) {
+            this.stippleRatio = ratio;
             return self();
         }
 
@@ -318,6 +328,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
 
             stipple = 0;
             stippleWidth = 1;
+            stippleRatio = 0.5f;
             stippleColor = Color.BLACK;
             texture = null;
 

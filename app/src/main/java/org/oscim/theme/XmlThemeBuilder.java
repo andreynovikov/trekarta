@@ -543,6 +543,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("stipple-width".equals(name))
                 b.stippleWidth = parseFloat(value);
 
+            else if ("stipple-ratio".equals(name))
+                b.stippleRatio = parseFloat(value);
+
             else if ("fade".equals(name))
                 b.fadeScale = Integer.parseInt(value);
 
@@ -618,6 +621,7 @@ public class XmlThemeBuilder extends DefaultHandler {
             b.randomOffset = false;
             b.stipple = width;
             b.stippleWidth = 1;
+            b.stippleRatio = 0.5f;
             b.stippleColor = b.fillColor;
         } else {
             if (src != null)
@@ -637,6 +641,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.randomOffset = false;
                 b.stipple = width;
                 b.stippleWidth = 1;
+                b.stippleRatio = 0.5f;
                 b.strokeWidth = height * 0.5f;
                 b.stippleColor = Color.WHITE;
             }
