@@ -366,9 +366,9 @@ public class Tags {
             null, null,
             null, // new Tag("amenity", "fountain"), // 226
             null, null,
-            new Tag("amenity", "car"), // 229
+            new Tag("shop", "car"), // 229
             null, null,
-            new Tag("amenity", "car_repair"), // 232
+            new Tag("shop", "car_repair"), // 232
             null, null,
             new Tag("amenity", "car_rental"), // 235
             null, null,
@@ -431,6 +431,9 @@ public class Tags {
 
     final static Tag[] typeAliasTags = new Tag[] {
             new Tag("shop", "convenience"), // 43
+            new Tag("shop", "hardware"), // 172
+            new Tag("shop", "mall"), // 175
+            new Tag("shop", "dry_cleaning") // 268
     };
 
     private final static int[] typeNames = {

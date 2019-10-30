@@ -791,9 +791,9 @@ public class Legend extends ListFragment {
             .addTag("historic", "wayside_shrine").addTag("kind_attraction", "yes");
 
     private static LegendItem car = new LegendItem(GeometryType.POINT, R.string.legend_car_dialer, 17)
-            .addTag("amenity", "car").addTag("kind_vehicles", "yes");
+            .addTag("shop", "car").addTag("kind_vehicles", "yes");
     private static LegendItem car_repair = new LegendItem(GeometryType.POINT, R.string.legend_car_repair, 17)
-            .addTag("amenity", "car_repair").addTag("kind_vehicles", "yes");
+            .addTag("shop", "car_repair").addTag("kind_vehicles", "yes");
     private static LegendItem car_rental = new LegendItem(GeometryType.POINT, R.string.legend_car_rental, 17)
             .addTag("amenity", "car_rental").addTag("kind_vehicles", "yes");
     private static LegendItem fuel = new LegendItem(GeometryType.POINT, R.string.legend_fuel_station, 17)
