@@ -170,7 +170,7 @@ public class TagSet {
      *
      * @param tag the Tag to be removed
      */
-    public void remove(Tag tag) {
+    public boolean remove(Tag tag) {
         for (int i = 0; i < numTags; i++) {
             Tag t = tags[i];
             if ((t == tag) || (Utils.equals(t.key, tag.key) && Utils.equals(t.value, tag.value))) {
@@ -178,9 +178,10 @@ public class TagSet {
                 if (i < n)
                     System.arraycopy(tags, i + 1, tags, i, n - i);
                 numTags = n;
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     /**

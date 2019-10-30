@@ -483,7 +483,10 @@ class MapTrekTileDecoder extends PbfDecoder {
             // TODO Should remove only selectable types
             for (Tag tag : Tags.typeTags) {
                 if (tag != null)
-                    mElem.tags.remove(tag);
+                    if (mElem.tags.remove(tag) && tag instanceof ExtendedTag) {
+                        while ((tag = ((ExtendedTag) tag).next) != null)
+                            mElem.tags.remove(tag);
+                    }
             }
             for (Tag tag : Tags.typeAliasTags) {
                 mElem.tags.remove(tag);
