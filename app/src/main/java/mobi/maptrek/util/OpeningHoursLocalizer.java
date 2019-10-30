@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 // https://wiki.openstreetmap.org/wiki/Key:opening_hours
 public class OpeningHoursLocalizer {
-    private static Pattern fullPattern = Pattern.compile("\\b(mo|tu|we|th|fr|sa|su|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ph|sh|week|sunrise|sunset|off|open|closed)\\b", Pattern.CASE_INSENSITIVE);
+    private static Pattern fullPattern = Pattern.compile("((?:\\b(?:mo|tu|we|th|fr|sa|su|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ph|sh|week|sunrise|sunset|off|open|closed)\\b|\\[-?[12]]))", Pattern.CASE_INSENSITIVE);
 
     private static final HashMap<String, String> mTranslations;
     static {
@@ -56,6 +56,11 @@ public class OpeningHoursLocalizer {
         mTranslations.put("off", "не работает");
         mTranslations.put("open", "открыто");
         mTranslations.put("closed", "закрыто");
+
+        mTranslations.put("[1]", "(перв.)");
+        mTranslations.put("[2]", "(втор.)");
+        mTranslations.put("[-1]", "(посл.)");
+        mTranslations.put("[-2]", "(предпосл.)");
     }
 
     public static String localize(String hours, int language) {
