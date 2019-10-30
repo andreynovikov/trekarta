@@ -2449,7 +2449,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         }
 
-        Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
+        Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
+        if (fragment != null) {
+            mFragmentManager.popBackStack("amenityInformation", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+        fragment = mFragmentManager.findFragmentByTag("waypointInformation");
         if (fragment == null) {
             fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
             Slide slide = new Slide(Gravity.BOTTOM);
@@ -2884,7 +2888,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         }
 
-        Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
+        Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
+        if (fragment != null) {
+            mFragmentManager.popBackStack("waypointInformation", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+        fragment = mFragmentManager.findFragmentByTag("amenityInformation");
         if (fragment == null) {
             fragment = Fragment.instantiate(this, AmenityInformation.class.getName(), args);
             Slide slide = new Slide(Gravity.BOTTOM);
