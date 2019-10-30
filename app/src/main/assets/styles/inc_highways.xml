@@ -257,7 +257,15 @@
                             <m zoom-min="15">
                                 <line use="footway:back" />
                             </m>
-                            <line use="path" />
+                            <m k="trail_visibility" v="~|intermediate">
+                                <line use="path" />
+                            </m>
+                            <m k="trail_visibility" v="excellent|good">
+                                <line use="path" stipple="6" stipple-ratio="0.7" />
+                            </m>
+                            <m k="trail_visibility" v="bad|horrible|no">
+                                <line use="path" stipple="6" stipple-ratio="0.3" />
+                            </m>
                         </m>
                         <m v="bridleway">
                             <m zoom-min="15">
@@ -281,8 +289,11 @@
                                 <m k="smoothness" v="excellent|good|intermediate|bad">
                                     <line use="highway:track:good" width="-0.8" />
                                 </m>
-                                <m k="smoothness" v="~|very_bad|horrible|very_horrible">
-                                    <line use="highway:track:very_bad" width="-0.8" />
+                                <m k="smoothness" v="~|very_bad|horrible">
+                                    <line use="highway:track:horrible" width="-0.8" />
+                                </m>
+                                <m k="smoothness" v="very_horrible">
+                                    <line use="highway:track:very_horrible" width="-0.8" />
                                 </m>
                                 <m k="smoothness" v="impassable">
                                     <line use="highway:track:impassable" width="-0.8" />

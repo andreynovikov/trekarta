@@ -348,6 +348,10 @@ public class Legend extends ListFragment {
             .addTag("highway", "footway");
     private static LegendItem path = new LegendItem(GeometryType.LINE, R.string.legend_path, 17)
             .addTag("highway", "path");
+    private static LegendItem path_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_path_visibility_good, 17)
+            .addTag("highway", "path").addTag("trail_visibility", "good");
+    private static LegendItem path_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_path_visibility_bad, 17)
+            .addTag("highway", "path").addTag("trail_visibility", "bad");
     private static LegendItem footway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_footway_bridge, 17)
             .addTag("highway", "footway").addTag("bridge", "yes");
     private static LegendItem steps = new LegendItem(GeometryType.LINE, R.string.legend_steps, 17)
@@ -566,61 +570,89 @@ public class Legend extends ListFragment {
 
     private static LegendItem hiking_path_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path");
+    private static LegendItem hiking_path_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("trail_visibility", "no");
 
     private static LegendItem hiking_path_sac_scale_t1_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t1");
+    private static LegendItem hiking_path_sac_scale_t1_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t1").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t1_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t1").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t1_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t1").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t1_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t1").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t1_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t1").addTag("trail_visibility", "no");
     private static LegendItem hiking_path_sac_scale_t2_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t2");
+    private static LegendItem hiking_path_sac_scale_t2_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t2").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t2_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t2").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t2_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t2").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t2_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t2").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t2_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t2").addTag("trail_visibility", "no");
     private static LegendItem hiking_path_sac_scale_t3_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t3");
+    private static LegendItem hiking_path_sac_scale_t3_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t3").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t3_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t3").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t3_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t3").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t3_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t3").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t3_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t3").addTag("trail_visibility", "no");
     private static LegendItem hiking_path_sac_scale_t4_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t4");
+    private static LegendItem hiking_path_sac_scale_t4_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t4").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t4_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t4").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t4_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t4").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t4_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t4").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t4_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t4").addTag("trail_visibility", "no");
     private static LegendItem hiking_path_sac_scale_t5_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t5");
+    private static LegendItem hiking_path_sac_scale_t5_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t5").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t5_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t5").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t5_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t5").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t5_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t5").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t5_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t5").addTag("trail_visibility", "no");
     private static LegendItem hiking_path_sac_scale_t6_visibility_unknown = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_unknown, 14)
             .addTag("highway", "path").addTag("sac_scale", "t6");
+    private static LegendItem hiking_path_sac_scale_t6_visibility_excellent = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_excellent, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t6").addTag("trail_visibility", "excellent");
     private static LegendItem hiking_path_sac_scale_t6_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_good, 14)
             .addTag("highway", "path").addTag("sac_scale", "t6").addTag("trail_visibility", "good");
     private static LegendItem hiking_path_sac_scale_t6_visibility_intermediate = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_intermediate, 14)
             .addTag("highway", "path").addTag("sac_scale", "t6").addTag("trail_visibility", "intermediate");
     private static LegendItem hiking_path_sac_scale_t6_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_bad, 14)
             .addTag("highway", "path").addTag("sac_scale", "t6").addTag("trail_visibility", "bad");
+    private static LegendItem hiking_path_sac_scale_t6_visibility_no = new LegendItem(GeometryType.LINE, R.string.legend_hiking_visibility_no, 14)
+            .addTag("highway", "path").addTag("sac_scale", "t6").addTag("trail_visibility", "no");
 
     // POI
 
@@ -1049,6 +1081,8 @@ public class Legend extends ListFragment {
             pedestrian_road,
             footway,
             path,
+            path_visibility_good,
+            path_visibility_bad,
             footway_bridge,
             steps,
             via_ferrata // TODO Should go to hiking
@@ -1248,51 +1282,65 @@ public class Legend extends ListFragment {
 
     private static LegendSection hiking_path_visibility = new LegendSection(R.string.legend_hiking_visibility, new LegendItem[]{
             hiking_path_visibility_unknown,
+            hiking_path_visibility_excellent,
             hiking_path_visibility_good,
             hiking_path_visibility_intermediate,
-            hiking_path_visibility_bad
+            hiking_path_visibility_bad,
+            hiking_path_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t1 = new LegendSection(R.string.legend_hiking_sac_scale_t1, new LegendItem[]{
             hiking_path_sac_scale_t1_visibility_unknown,
+            hiking_path_sac_scale_t1_visibility_excellent,
             hiking_path_sac_scale_t1_visibility_good,
             hiking_path_sac_scale_t1_visibility_intermediate,
-            hiking_path_sac_scale_t1_visibility_bad
+            hiking_path_sac_scale_t1_visibility_bad,
+            hiking_path_sac_scale_t1_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t2 = new LegendSection(R.string.legend_hiking_sac_scale_t2, new LegendItem[]{
             hiking_path_sac_scale_t2_visibility_unknown,
+            hiking_path_sac_scale_t2_visibility_excellent,
             hiking_path_sac_scale_t2_visibility_good,
             hiking_path_sac_scale_t2_visibility_intermediate,
-            hiking_path_sac_scale_t2_visibility_bad
+            hiking_path_sac_scale_t2_visibility_bad,
+            hiking_path_sac_scale_t2_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t3 = new LegendSection(R.string.legend_hiking_sac_scale_t3, new LegendItem[]{
             hiking_path_sac_scale_t3_visibility_unknown,
+            hiking_path_sac_scale_t3_visibility_excellent,
             hiking_path_sac_scale_t3_visibility_good,
             hiking_path_sac_scale_t3_visibility_intermediate,
-            hiking_path_sac_scale_t3_visibility_bad
+            hiking_path_sac_scale_t3_visibility_bad,
+            hiking_path_sac_scale_t3_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t4 = new LegendSection(R.string.legend_hiking_sac_scale_t4, new LegendItem[]{
             hiking_path_sac_scale_t4_visibility_unknown,
+            hiking_path_sac_scale_t4_visibility_excellent,
             hiking_path_sac_scale_t4_visibility_good,
             hiking_path_sac_scale_t4_visibility_intermediate,
-            hiking_path_sac_scale_t4_visibility_bad
+            hiking_path_sac_scale_t4_visibility_bad,
+            hiking_path_sac_scale_t4_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t5 = new LegendSection(R.string.legend_hiking_sac_scale_t5, new LegendItem[]{
             hiking_path_sac_scale_t5_visibility_unknown,
+            hiking_path_sac_scale_t5_visibility_excellent,
             hiking_path_sac_scale_t5_visibility_good,
             hiking_path_sac_scale_t5_visibility_intermediate,
-            hiking_path_sac_scale_t5_visibility_bad
+            hiking_path_sac_scale_t5_visibility_bad,
+            hiking_path_sac_scale_t5_visibility_no
     });
 
     private static LegendSection hiking_sac_scale_t6 = new LegendSection(R.string.legend_hiking_sac_scale_t6, new LegendItem[]{
             hiking_path_sac_scale_t6_visibility_unknown,
+            hiking_path_sac_scale_t6_visibility_excellent,
             hiking_path_sac_scale_t6_visibility_good,
             hiking_path_sac_scale_t6_visibility_intermediate,
-            hiking_path_sac_scale_t6_visibility_bad
+            hiking_path_sac_scale_t6_visibility_bad,
+            hiking_path_sac_scale_t6_visibility_no
     });
 
     private static LegendSection[] themeTopo = new LegendSection[]{

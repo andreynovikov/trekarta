@@ -639,4 +639,8 @@
     <string name="legend_statue">Статуя</string>
     <string name="legend_plaque">Мемориальная доска</string>
     <string name="legend_bust">Бюст</string>
+    <string name="legend_path_visibility_bad">Плохо видимая тропинка</string>
+    <string name="legend_path_visibility_good">Хорошо видимая тропинка</string>
+    <string name="legend_hiking_visibility_excellent">Отличная видимость</string>
+    <string name="legend_hiking_visibility_no">Отсутствие видимости</string>
 </resources>

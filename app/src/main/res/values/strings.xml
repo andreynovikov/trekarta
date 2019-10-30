@@ -577,6 +577,8 @@
     <string name="legend_pedestrian">Pedestrian paths</string>
     <string name="legend_footway">Designated footway</string>
     <string name="legend_path">Footpath</string>
+    <string name="legend_path_visibility_good">Clearly visible footpath</string>
+    <string name="legend_path_visibility_bad">Poorly visible footpath</string>
     <string name="legend_steps">Steps</string>
     <string name="legend_pedestrian_area">Plaza</string>
     <string name="legend_tracks">Forest and field tracks</string>
@@ -626,9 +628,11 @@
     <string name="legend_hiking_path_with_route">Route along trail</string>
     <string name="legend_hiking_road_with_route">Route along road</string>
     <string name="legend_hiking_visibility_unknown">Unknown visibility</string>
+    <string name="legend_hiking_visibility_excellent">Excellent visibility</string>
     <string name="legend_hiking_visibility_good">Good visibility</string>
     <string name="legend_hiking_visibility_intermediate">Intermediate visibility</string>
     <string name="legend_hiking_visibility_bad">Bad visibility</string>
+    <string name="legend_hiking_visibility_no">No visibility</string>
     <string name="legend_theme_park">Theme park</string>
     <string name="legend_theme_park_name">Disneyland</string>
     <string name="legend_boat_rental">Boat rental</string>
