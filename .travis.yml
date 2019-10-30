@@ -12,7 +12,7 @@ os:
   - linux
 env:
   global:
-    - GRADLE_OPTS="-Xmx2048m -XX:MaxPermSize=512m -Dorg.gradle.parallel=true"
+    - GRADLE_OPTS="-Xmx2048m -Dorg.gradle.parallel=true"
 install:
   - echo y | sdkmanager "ndk-bundle"
 before_script:
