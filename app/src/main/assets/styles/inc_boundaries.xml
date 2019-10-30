@@ -5,8 +5,8 @@
         <m k="admin_level">
             <m k="admin_level" v="4">
                 <m zoom-min="8">
-                    <line fix="true" stipple="5" stipple-stroke="#88ac46ac" stroke="color:transparent"
-                        width="2.5" />
+                    <line fix="true" stipple="5" stipple-ratio="0.4" stipple-stroke="#88ac46ac"
+                        stroke="color:transparent" width="2.5" />
                 </m>
                 <m zoom-max="7" zoom-min="7">
                     <line fix="true" stroke="#88ac46ac" width="1.0" />
@@ -20,8 +20,8 @@
             </m>
             <m k="admin_level" v="3">
                 <m zoom-min="8">
-                    <line fix="true" stipple="10" stipple-stroke="#88ac46ac" stroke="color:transparent"
-                        width="3.0" />
+                    <line fix="true" stipple="10" stipple-ratio="0.4" stipple-stroke="#88ac46ac"
+                        stroke="color:transparent" width="3.0" />
                 </m>
                 <m zoom-max="7" zoom-min="7">
                     <line fix="true" stroke="#88ac46ac" width="1.2" />

@@ -19,11 +19,11 @@
     <style-area fill="#e0e0e0" id="pedestrian" />
     <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.4" />
     <style-line cap="butt" fix="true" id="highway:track:good" stroke="#99764D" width="1.8" />
-    <style-line cap="butt" fix="true" id="highway:track:very_bad" stipple="10" stipple-stroke="#99764D"
+    <style-line cap="butt" fix="true" id="highway:track:very_bad" stipple="14" stipple-ratio="0.8" stipple-stroke="#99764D"
         stroke="#00ffffff" width="1.8" />
-    <style-line id="highway:track:horrible" stipple="16" use="highway:track:very_bad" />
-    <style-line id="highway:track:very_horrible" stroke="#44ff0000" use="highway:track:very_bad" />
-    <style-line id="highway:track:impassable" stroke="#000000" use="highway:track:very_horrible" />
+    <style-line id="highway:track:horrible" stipple="10" stipple-ratio="0.6" use="highway:track:very_bad" />
+    <style-line id="highway:track:very_horrible" stipple="8" stipple-ratio="0.4" use="highway:track:very_bad" />
+    <style-line id="highway:track:impassable" stroke="#44ff0000" use="highway:track:very_horrible" />
     <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
     <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
         stroke="#00ffffff" width="1.2" />
@@ -33,7 +33,7 @@
     <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
     <style-line cap="butt" fix="true" id="bridleway" stipple="6" stipple-stroke="#007700"
         stroke="#00ffffff" width="1.5" />
-    <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#be6253"
+    <style-line cap="butt" fix="true" id="steps" stipple="4" stipple-ratio="0.35" stipple-stroke="#be6253"
         stroke="#aaffffff" width="3.5" />
 
     <style-line cap="butt" id="tunnel" stipple="20" stipple-stroke="color:tunnel" stroke="color:transparent"

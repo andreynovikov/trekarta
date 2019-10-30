@@ -7,28 +7,34 @@
             <!-- match tunnel-tag that are not 'no' -->
             <m k="tunnel" v="-|no">
                 <m cat="trams" k="railway" v="tram|miniature" zoom-min="15">
-                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="color:transparent"
-                        stroke="color:railway-tram" width="2.0" />
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-tram"
+                        width="2.0" />
                 </m>
                 <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
-                    <line cap="butt" fix="true" stipple="20" stipple-stroke="color:transparent"
-                        stroke="color:railway-stroke" width="1.5" />
+                    <line cap="butt" fix="true" stipple="20" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-stroke"
+                        width="1.5" />
                 </m>
                 <m k="railway" v="subway" zoom-min="14">
-                    <line cap="butt" fix="true" stipple="10" stipple-stroke="color:transparent"
-                        stroke="color:railway-subway" width="2.5" />
+                    <line cap="butt" fix="true" stipple="10" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-subway"
+                        width="2.5" />
                 </m>
                 <m k="railway" v="rail" zoom-max="13">
-                    <line cap="butt" fade="12" fix="true" stipple="10" stipple-stroke="color:transparent"
-                        stroke="color:railway-narrow" width="1.0" />
+                    <line cap="butt" fade="12" fix="true" stipple="10" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-narrow"
+                        width="1.0" />
                 </m>
                 <m k="railway" v="rail" zoom-min="14">
-                    <line cap="butt" fix="true" stipple="20" stipple-stroke="color:transparent"
-                        stroke="color:railway-stroke" width="3.0" />
+                    <line cap="butt" fix="true" stipple="20" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-stroke"
+                        width="3.0" />
                 </m>
                 <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
-                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-stroke="color:transparent"
-                        stroke="color:railway-abandoned" width="1.5" />
+                    <line cap="butt" fade="15" fix="true" stipple="20" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-abandoned"
+                        width="1.5" />
                 </m>
             </m>
         </m>
@@ -40,21 +46,24 @@
                 </m>
                 <m cat="trams" k="railway" v="tram|miniature" zoom-min="15">
                     <m zoom-min="16">
-                        <line cap="butt" fix="true" stipple="2" stipple-stroke="color:transparent"
-                            stroke="color:railway-tram" width="4.0" />
+                        <line cap="butt" fix="true" stipple="3" stipple-ratio="0.7"
+                            stipple-stroke="color:transparent" stroke="color:railway-tram"
+                            width="4.0" />
                     </m>
                     <line cap="butt" fade="15" fix="true" stroke="color:railway-tram" width="1.5" />
                 </m>
                 <m k="railway" v="light_rail|narrow_gauge" zoom-min="14">
-                    <line cap="butt" fix="true" stipple="2" stipple-stroke="color:transparent"
-                        stroke="color:railway-narrow" width="4.0" />
+                    <line cap="butt" fix="true" stipple="3" stipple-ratio="0.7"
+                        stipple-stroke="color:transparent" stroke="color:railway-narrow"
+                        width="4.0" />
                     <line cap="butt" fix="true" stroke="color:railway-stroke" width="1.5" />
                 </m>
                 <m k="railway" v="subway" zoom-min="14">
                     <line cap="butt" fix="true" stroke="color:railway-subway" width="2.5" />
                 </m>
                 <m k="railway" v="rail" zoom-max="13">
-                    <line cap="butt" fade="12" fix="true" stroke="color:railway-narrow" width="1.0" />
+                    <line cap="butt" fade="12" fix="true" stroke="color:railway-narrow"
+                        width="1.0" />
                 </m>
                 <m k="railway" v="rail" zoom-min="14">
                     <line cap="butt" fix="true" stipple="10" stipple-stroke="color:railway-stipple"
@@ -62,10 +71,12 @@
                 </m>
                 <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
                     <m zoom-min="16">
-                        <line cap="butt" fix="true" stipple="2" stipple-stroke="color:transparent"
-                            stroke="color:railway-abandoned" width="3.0" />
+                        <line cap="butt" fix="true" stipple="3" stipple-ratio="0.7"
+                            stipple-stroke="color:transparent" stroke="color:railway-abandoned"
+                            width="3.0" />
                     </m>
-                    <line cap="butt" fade="15" fix="true" stroke="color:railway-abandoned" width="1.5" />
+                    <line cap="butt" fade="15" fix="true" stroke="color:railway-abandoned"
+                        width="1.5" />
                 </m>
             </m>
         </m>
