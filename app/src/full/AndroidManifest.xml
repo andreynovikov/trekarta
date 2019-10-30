@@ -56,6 +56,9 @@
                 <data
                     android:mimeType="application/octet-stream"
                     android:scheme="content" />
+                <data
+                    android:mimeType="text/plain"
+                    android:scheme="content" />
             </intent-filter>
             <intent-filter android:label="@string/intentImportData">
                 <action android:name="android.intent.action.SEND" />
