@@ -20,4 +20,4 @@ before_script:
   - chmod +x gradlew
 script:
   - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - ./gradlew clean build -x lint -x lintVitalRelease --warning-mode all
+  - ./gradlew clean build -x lint --warning-mode all
