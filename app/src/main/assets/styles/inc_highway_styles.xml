@@ -17,7 +17,7 @@
     <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
     <style-line id="pedestrian" stroke="color:pedestrian" use="residential" width="-0.2" />
     <style-area fill="#e0e0e0" id="pedestrian" />
-    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.4" />
+    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#44ffffff" width="2.8" />
     <style-line cap="butt" fix="true" id="highway:track:good" stroke="#99764D" width="1.8" />
     <style-line cap="butt" fix="true" id="highway:track:very_bad" stipple="14" stipple-ratio="0.8" stipple-stroke="#99764D"
         stroke="#00ffffff" width="1.8" />
