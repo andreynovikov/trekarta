@@ -18,4 +18,6 @@ install:
 before_script:
   - export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
   - chmod +x gradlew
-script: travis_wait ./gradlew clean build -x lint --warning-mode all
+script:
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - ./gradlew clean build -x lint -x lintVitalRelease --warning-mode all
