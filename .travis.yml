@@ -18,4 +18,4 @@ install:
 before_script:
   - export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
   - chmod +x gradlew
-script: travis_wait ./gradlew clean build
+script: travis_wait ./gradlew clean build -x lint --warning-mode all
