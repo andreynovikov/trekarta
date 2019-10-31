@@ -33,5 +33,5 @@ proguard/
 
 *.iml
 
-resources/
+/resources/
 captures/
