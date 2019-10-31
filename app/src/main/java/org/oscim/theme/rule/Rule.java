@@ -30,6 +30,7 @@ public class Rule {
         public static final int LINE = 1 << 1;
         public static final int POLY = 1 << 2;
         public static final int WAY = LINE | POLY;
+        public static final int PLACE = NODE | POLY;
         public static final int ANY = NODE | WAY;
     }
 

@@ -390,6 +390,8 @@ public class XmlThemeBuilder extends DefaultHandler {
                 String val = value.toUpperCase(Locale.ENGLISH);
                 if ("WAY".equals(val))
                     element = Rule.Element.WAY;
+                else if ("PLACE".equals(val))
+                    element = Rule.Element.PLACE;
                 else if ("NODE".equals(val))
                     element = Rule.Element.NODE;
             } else if ("k".equals(name)) {
