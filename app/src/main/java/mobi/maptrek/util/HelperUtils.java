@@ -21,10 +21,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,7 +41,7 @@ public class HelperUtils {
         final Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.actionDismiss, view -> snackbar.dismiss());
-        TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
         snackbarTextView.setMaxLines(99);
         snackbar.show();
     }
@@ -56,7 +56,7 @@ public class HelperUtils {
                     //TODO Return back actionGotIt sometime
                     .make(coordinatorLayout, messageResId, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.ok, view -> Configuration.setAdviceState(advice));
-            TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+            TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
             snackbarTextView.setMaxLines(99);
             snackbar.show();
         }

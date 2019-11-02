@@ -16,7 +16,7 @@
 
 package mobi.maptrek.util;
 
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;

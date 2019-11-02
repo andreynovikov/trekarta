@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -264,7 +264,7 @@
             android:clickable="true"
             android:elevation="@dimen/fragment_elevation" />
 
-        <android.support.v7.widget.ContentFrameLayout
+        <androidx.appcompat.widget.ContentFrameLayout
             android:id="@+id/bottomSheetPanel"
             style="@style/BottomSheet"
             android:layout_width="@dimen/fragment_width"
@@ -272,9 +272,9 @@
             android:clickable="true"
             android:elevation="@dimen/bottom_sheet_elevation"
             app:behavior_hideable="true"
-            app:layout_behavior="android.support.design.widget.BottomSheetBehavior" />
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/actionButton"
             style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
@@ -286,7 +286,7 @@
             android:visibility="gone"
             app:layout_anchor="@id/contentPanel" />
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/listActionButton"
             style="@style/ListFloatingActionButton"
             android:layout_width="wrap_content"
@@ -296,5 +296,5 @@
             android:visibility="gone"
             app:layout_anchor="@id/extendPanel" />
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>

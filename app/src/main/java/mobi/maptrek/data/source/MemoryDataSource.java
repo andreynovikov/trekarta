@@ -18,7 +18,7 @@ package mobi.maptrek.data.source;
 
 import android.database.AbstractCursor;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;

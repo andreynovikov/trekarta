@@ -16,7 +16,7 @@
 
 package mobi.maptrek;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

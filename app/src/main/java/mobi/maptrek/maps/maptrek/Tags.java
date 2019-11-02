@@ -16,7 +16,7 @@ package mobi.maptrek.maps.maptrek;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.oscim.core.Tag;
 

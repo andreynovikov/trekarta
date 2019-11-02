@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.VectorDrawable;
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;

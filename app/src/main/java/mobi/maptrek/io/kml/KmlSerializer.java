@@ -16,7 +16,7 @@
 
 package mobi.maptrek.io.kml;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlSerializer;

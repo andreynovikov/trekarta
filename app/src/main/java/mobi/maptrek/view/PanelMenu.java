@@ -16,7 +16,7 @@
 
 package mobi.maptrek.view;
 
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.view.MenuItem;
 
 public interface PanelMenu {

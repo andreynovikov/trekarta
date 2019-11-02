@@ -17,8 +17,8 @@
 package mobi.maptrek.data.source;
 
 import android.database.Cursor;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 
 import org.oscim.core.GeoPoint;
 

@@ -30,7 +30,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 package mobi.maptrek.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.oscim.core.GeoPoint;
 

@@ -25,7 +25,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;

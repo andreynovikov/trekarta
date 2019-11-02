@@ -8,7 +8,7 @@
     android:padding="@dimen/fragment_padding"
     tools:context=".fragments.TrackProperties">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameWrapper"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
             android:hint="@string/name"
             android:inputType="textCapSentences|textNoSuggestions" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
         android:id="@+id/colorSwatch"

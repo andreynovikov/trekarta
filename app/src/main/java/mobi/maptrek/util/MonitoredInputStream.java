@@ -16,7 +16,7 @@
 
 package mobi.maptrek.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

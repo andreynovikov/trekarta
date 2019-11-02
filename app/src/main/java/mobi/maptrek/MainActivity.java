@@ -55,14 +55,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.transition.Fade;
@@ -1398,7 +1398,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                 Configuration.setRatingActionPerformed();
                             }
                         });
-                TextView snackbarTextView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+                TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
                 snackbarTextView.setMaxLines(99);
                 snackbar.show();
                 return true;
@@ -1779,7 +1779,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Pair<Drawable, Intent> tool = tools.get(toolName);
                     item = menu.add(PanelMenuItem.HEADER_ID_UNDEFINED, 0, toolName);
                     //item.setIcon(tool.first);
-                    item.setIntent(tool.second);
+                    if (tool != null)
+                        item.setIntent(tool.second);
                 }
             });
             showExtendPanel(PANEL_STATE.MORE, "panelMenu", fragment);
@@ -3350,6 +3351,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
 
+    @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableActionButton() {
         if (mListActionButton.getVisibility() == View.VISIBLE)
@@ -3359,6 +3361,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return mActionButton;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void disableActionButton() {
         mActionButton.setVisibility(View.GONE);
@@ -3366,6 +3369,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mListActionButton.setVisibility(View.VISIBLE);
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableListActionButton() {
         TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
@@ -3373,6 +3377,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return mListActionButton;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void disableListActionButton() {
         mListActionButton.setVisibility(View.GONE);
