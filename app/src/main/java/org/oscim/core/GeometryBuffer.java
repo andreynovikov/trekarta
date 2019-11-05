@@ -547,7 +547,7 @@ public class GeometryBuffer {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int o = 0;
         for (int i = 0; i < index.length; i++) {
             if (index[i] < 0)
@@ -556,7 +556,8 @@ public class GeometryBuffer {
             if (!isTris()) {
                 if (index[i] == 0)
                     continue;
-                sb.append("POLY (")
+                sb.append(type)
+                        .append(" (")
                         .append(i)
                         .append(") { ");
 
