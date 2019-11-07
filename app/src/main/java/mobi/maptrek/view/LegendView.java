@@ -21,12 +21,15 @@ import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -49,6 +52,10 @@ import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
 
 public class LegendView extends View {
+    private static final RectF PATH_RECT = new RectF(0f, 0f, 1f, 0.6f);
+    public static final Path PATH_BUILDING = new Path();
+    public static final Path PATH_PLATFORM = new Path();
+    public static final Path PATH_PIER = new Path();
     private LegendItem mItem;
     private int mBackground;
     private IRenderTheme mTheme;
@@ -63,7 +70,33 @@ public class LegendView extends View {
     private float mCenterY;
     private float mLastLineWidth;
     private int mSymbolCount;
+    private Matrix mViewMatrix = new Matrix();
     ArrayList<RenderStyle> mLines = new ArrayList<>();
+
+    static {
+        // Paths should fit 1x0.6 rect
+        PATH_BUILDING.moveTo(0.1f, 0.6f);
+        PATH_BUILDING.lineTo(0.1f,0.15f);
+        PATH_BUILDING.lineTo(0.9f,0.15f);
+        PATH_BUILDING.lineTo(0.9f,0.45f);
+        PATH_BUILDING.lineTo(0.4f, 0.45f);
+        PATH_BUILDING.lineTo(0.4f, 0.6f);
+        PATH_BUILDING.close();
+        PATH_PLATFORM.moveTo(0f, 0.45f);
+        PATH_PLATFORM.lineTo(1f, 0.45f);
+        PATH_PLATFORM.lineTo(1f, 0.15f);
+        PATH_PLATFORM.lineTo(0f, 0.15f);
+        PATH_PLATFORM.close();
+        PATH_PIER.moveTo(0f, 0.4f);
+        PATH_PIER.lineTo(0.8f, 0.4f);
+        PATH_PIER.lineTo(0.8f, 0.6f);
+        PATH_PIER.lineTo(1f, 0.6f);
+        PATH_PIER.lineTo(1f, 0f);
+        PATH_PIER.lineTo(0.8f, 0f);
+        PATH_PIER.lineTo(0.8f, 0.2f);
+        PATH_PIER.lineTo(0f, 0.2f);
+        PATH_PIER.close();
+    }
 
     public LegendView(Context context) {
         this(context, null, 0);
@@ -101,6 +134,8 @@ public class LegendView extends View {
 
         mRight = w - mRight;
         mBottom = h - mBottom;
+
+        mViewMatrix.setRectToRect(PATH_RECT, new RectF(mLeft, mTop, mRight, mBottom), Matrix.ScaleToFit.CENTER);
     }
 
     protected void onDraw(Canvas canvas) {
@@ -154,7 +189,13 @@ public class LegendView extends View {
                         areaStyle.texture.bitmap.getWidth(), areaStyle.texture.bitmap.getHeight(),
                         Bitmap.Config.ARGB_8888);
                 canvas.save();
-                canvas.clipRect(mLeft, mTop, mRight, mBottom);
+                if (item.path != null) {
+                    Path p = new Path();
+                    p.addPath(item.path, mViewMatrix);
+                    canvas.clipPath(p);
+                } else {
+                    canvas.clipRect(mLeft, mTop, mRight, mBottom);
+                }
                 float left = mCenterX - areaStyle.texture.width / 2f;
                 float top = mCenterY - areaStyle.texture.height / 2f;
                 canvas.drawBitmap(bmp, left, top, null);
@@ -165,13 +206,25 @@ public class LegendView extends View {
                     canvas.drawBitmap(bmp, left, top, null);
                 canvas.restore();
             } else {
-                canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+                if (item.path != null) {
+                    Path p = new Path();
+                    p.addPath(item.path, mViewMatrix);
+                    canvas.drawPath(p, paint);
+                } else {
+                    canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+                }
             }
             if (areaStyle.strokeWidth != 0f) {
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(areaStyle.strokeWidth * mDensity * .25f);
                 paint.setColor(areaStyle.strokeColor);
-                canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+                if (item.path != null) {
+                    Path p = new Path();
+                    p.addPath(item.path, mViewMatrix);
+                    canvas.drawPath(p, paint);
+                } else {
+                    canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+                }
             }
         }
     }
@@ -267,7 +320,13 @@ public class LegendView extends View {
                 mLastLineWidth = paint.getStrokeWidth();
             }
         } else if (item.type == GeometryType.POLY) {
-            canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+            if (item.path != null) {
+                Path p = new Path();
+                p.addPath(item.path, mViewMatrix);
+                canvas.drawPath(p, paint);
+            } else {
+                canvas.drawRoundRect(mLeft, mTop, mRight, mBottom, 10, 10, paint);
+            }
         }
     }
 
@@ -305,6 +364,7 @@ public class LegendView extends View {
         public int text;
         @StringRes
         public int name;
+        public Path path;
         int totalSymbols;
         LegendItem overlay;
 
@@ -316,6 +376,7 @@ public class LegendView extends View {
             this.text = 0;
             this.totalSymbols = 1;
             this.overlay = null;
+            this.path = null;
         }
 
         public LegendItem addTag(String key, String value) {
@@ -335,6 +396,11 @@ public class LegendView extends View {
 
         public LegendItem setOverlay(LegendItem overlay) {
             this.overlay = overlay;
+            return this;
+        }
+
+        public LegendItem setShape(Path path) {
+            this.path = path;
             return this;
         }
     }

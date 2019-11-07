@@ -215,13 +215,13 @@ public class Legend extends ListFragment {
     private static LegendItem retaining_wall = new LegendItem(GeometryType.LINE, R.string.legend_retaining_wall, 17)
             .addTag("barrier", "retaining_wall");
     private static LegendItem building = new LegendItem(GeometryType.POLY, R.string.legend_building, 17)
-            .addTag("building", "yes").addTag("kind", "yes").addTag("addr:housenumber", "13").setText(R.string.legend_thirteen);
+            .addTag("building", "yes").addTag("kind", "yes").addTag("addr:housenumber", "13").setText(R.string.legend_thirteen).setShape(LegendView.PATH_BUILDING);
     private static LegendItem stadium = new LegendItem(GeometryType.POLY, R.string.legend_stadium, 17)
             .addTag("leisure", "stadium");
     private static LegendItem sports_centre = new LegendItem(GeometryType.POLY, R.string.legend_sports_centre, 17)
             .addTag("leisure", "sports_centre").addTag("kind", "yes").setText(R.string.legend_sports_centre_name);
     private static LegendItem swimming_pool = new LegendItem(GeometryType.POLY, R.string.legend_swimming_pool, 17)
-            .addTag("leisure", "swimming_pool");
+            .addTag("leisure", "swimming_pool").setShape(LegendView.PATH_PLATFORM);
     private static LegendItem garden = new LegendItem(GeometryType.POLY, R.string.legend_garden, 17)
             .addTag("leisure", "garden");
     private static LegendItem camp_site_area = new LegendItem(GeometryType.POLY, R.string.legend_camp_site, 17)
@@ -241,9 +241,9 @@ public class Legend extends ListFragment {
     private static LegendItem apron = new LegendItem(GeometryType.POLY, R.string.legend_apron, 17)
             .addTag("aeroway", "apron");
     private static LegendItem pier = new LegendItem(GeometryType.POLY, R.string.legend_pier, 17)
-            .addTag("man_made", "pier");
+            .addTag("man_made", "pier").setShape(LegendView.PATH_PIER);
     private static LegendItem bridge = new LegendItem(GeometryType.POLY, R.string.legend_bridge, 17)
-            .addTag("man_made", "bridge");
+            .addTag("man_made", "bridge").setShape(LegendView.PATH_PLATFORM);
     private static LegendItem tower = new LegendItem(GeometryType.POINT, R.string.legend_tower, 17)
             .addTag("man_made", "tower");
     private static LegendItem power_line = new LegendItem(GeometryType.LINE, R.string.legend_power_line, 17)
@@ -377,7 +377,7 @@ public class Legend extends ListFragment {
     private static LegendItem monorail = new LegendItem(GeometryType.LINE, R.string.legend_monorail, 17)
             .addTag("railway", "monorail");
     private static LegendItem railway_platform = new LegendItem(GeometryType.POLY, R.string.legend_railway_platform, 17)
-            .addTag("railway", "platform");
+            .addTag("railway", "platform").setShape(LegendView.PATH_PLATFORM);
     private static LegendItem railway_station = new LegendItem(GeometryType.POINT, R.string.legend_railway_station, 17)
             .addTag("railway", "station").setText(R.string.legend_railway_station_name);
     private static LegendItem railway_halt = new LegendItem(GeometryType.POINT, R.string.legend_railway_halt, 17)
