@@ -137,8 +137,7 @@
 
         <RelativeLayout
             style="@style/PanelHolder"
-            android:elevation="@dimen/panel_elevation"
-            app:layout_behavior="mobi.maptrek.ui.BottomPanelBehavior">
+            android:elevation="@dimen/panel_elevation">
 
             <LinearLayout
                 android:id="@+id/actionPanelBackground"

@@ -302,8 +302,6 @@ public class Legend extends ListFragment {
             .addTag("barrier", "border_control");
     private static LegendItem toll_booth = new LegendItem(GeometryType.POINT, R.string.legend_toll_booth, 17)
             .addTag("barrier", "toll_booth");
-    private static LegendItem traffic_signals = new LegendItem(GeometryType.POINT, R.string.legend_traffic_signals, 17)
-            .addTag("highway", "traffic_signals").addTag("kind_vehicles", "yes");
     private static LegendItem block = new LegendItem(GeometryType.POINT, R.string.legend_block, 17)
             .addTag("barrier", "block").addTag("kind_barrier", "yes");
     private static LegendItem bollard = new LegendItem(GeometryType.POINT, R.string.legend_bollard, 17)
@@ -1053,7 +1051,6 @@ public class Legend extends ListFragment {
             parking_dirt,
             border_control,
             toll_booth,
-            traffic_signals,
             lift_gate,
             gate,
             block,

@@ -212,6 +212,7 @@ import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.provider.ExportProvider;
+import mobi.maptrek.ui.SnackbarHelper;
 import mobi.maptrek.ui.SoftInputAssist;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
@@ -884,6 +885,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
             Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
+            SnackbarHelper.configureSnackbar(snackbar);
             snackbar.show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
@@ -1400,6 +1402,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         });
                 TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
                 snackbarTextView.setMaxLines(99);
+                SnackbarHelper.configureSnackbar(snackbar);
                 snackbar.show();
                 return true;
             }
@@ -2417,6 +2420,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
                 .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint));
+        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
     }
 
@@ -2547,6 +2551,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     addWaypointMarker(waypoint);
                     mMap.updateMap(true);
                 });
+        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
     }
 
@@ -2603,6 +2608,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                     mMap.updateMap(true);
                 });
+        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
     }
 
@@ -2815,6 +2821,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.layers().add(trackLayer, MAP_DATA);
                     mMap.updateMap(true);
                 });
+        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
     }
 
@@ -3749,6 +3756,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
                                 }
                             });
+                    SnackbarHelper.configureSnackbar(snackbar);
                     snackbar.show();
                     return;
                 }
@@ -3759,6 +3767,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     Snackbar snackbar = Snackbar
                             .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionSave, view -> mLocationService.saveTrack());
+                    SnackbarHelper.configureSnackbar(snackbar);
                     snackbar.show();
                 } else {
                     Exception e = extras != null ? (Exception) extras.getSerializable("exception") : null;
