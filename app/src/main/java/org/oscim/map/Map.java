@@ -76,44 +76,89 @@ public abstract class Map implements TaskQueue {
     /**
      * UpdateListener event. Map position has changed.
      */
-    public static final Event POSITION_EVENT = new Event();
+    public static final Event POSITION_EVENT = new Event() {
+        public String toString() {
+            return "POSITION_EVENT";
+        }
+    };
 
     /**
      * UpdateListener event. Map was moved by user.
      */
-    public static final Event MOVE_EVENT = new Event();
+    public static final Event MOVE_EVENT = new Event() {
+        public String toString() {
+            return "MOVE_EVENT";
+        }
+    };
 
     /**
      * UpdateListener event. Map was scaled by user.
      */
-    public static final Event SCALE_EVENT = new Event();
+    public static final Event SCALE_EVENT = new Event() {
+        public String toString() {
+            return "SCALE_EVENT";
+        }
+    };
 
     /**
      * UpdateListener event. Map was rotated by user.
      */
-    public static final Event ROTATE_EVENT = new Event();
+    public static final Event ROTATE_EVENT = new Event() {
+        public String toString() {
+            return "ROTATE_EVENT";
+        }
+    };
 
     /**
      * UpdateListener event. Map was tilted by user.
      */
-    public static final Event TILT_EVENT = new Event();
+    public static final Event TILT_EVENT = new Event() {
+        public String toString() {
+            return "TILT_EVENT";
+        }
+    };
 
     /**
      * UpdateLister event. Delivered on main-thread when updateMap() was called
      * and no CLEAR_EVENT or POSITION_EVENT was triggered.
      */
-    public static final Event UPDATE_EVENT = new Event();
+    public static final Event UPDATE_EVENT = new Event() {
+        public String toString() {
+            return "UPDATE_EVENT";
+        }
+    };
 
     /**
      * UpdateListerner event. Map state has changed in a way that all layers
      * should clear their state e.g. the theme or the TilesSource has changed.
      * TODO should have an event-source to only clear affected layers.
      */
-    public static final Event CLEAR_EVENT = new Event();
+    public static final Event CLEAR_EVENT = new Event() {
+        public String toString() {
+            return "CLEAR_EVENT";
+        }
+    };
 
-    public static final Event ANIM_END = new Event();
+    /**
+     * UpdateListener event. Map interaction finished by user.
+     */
+    public static final Event FINISH_EVENT = new Event() {
+        public String toString() {
+            return "FINISH_EVENT";
+        }
+    };
 
-    public static final Event ANIM_START = new Event();
+    public static final Event ANIM_END = new Event() {
+        public String toString() {
+            return "ANIM_END";
+        }
+    };
+
+    public static final Event ANIM_START = new Event() {
+        public String toString() {
+            return "ANIM_START";
+        }
+    };
 
     public final EventDispatcher<InputListener, MotionEvent> input;
     public final EventDispatcher<UpdateListener, MapPosition> events;

@@ -180,8 +180,8 @@ public class MapEventLayer extends AbstractMapEventLayer implements InputListene
             if (mDoubleTap && !mDragZoom) {
                 float pivotX = 0, pivotY = 0;
                 if (!mFixOnCenter) {
-                    pivotX = mPrevX1 - mMap.getWidth() / 2;
-                    pivotY = mPrevY1 - mMap.getHeight() / 2;
+                    pivotX = mPrevX1 - (mMap.getWidth() >> 1);
+                    pivotY = mPrevY1 - (mMap.getHeight() >> 1);
                 }
 
                 /* handle double tap zoom */

@@ -2128,14 +2128,22 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onMapEvent(Event e, MapPosition mapPosition) {
+        if (e == Map.ROTATE_EVENT) {
+            mMainHandler.removeMessages(R.id.msgResetBearing);
+        }
+        if (e == Map.FINISH_EVENT) {
+            final Message m = Message.obtain(mMainHandler, () -> {
+                if (mLocationState != LocationState.TRACK && Math.abs(mapPosition.bearing) < 10f) {
+                    mMap.getMapPosition(true, mapPosition);
+                    mapPosition.setBearing(0f);
+                    mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mapPosition);
+                }
+            });
+            m.what = R.id.msgResetBearing;
+            mMainHandler.sendMessageDelayed(m, 500);
+        }
         if (e == Map.POSITION_EVENT) {
             mTrackingOffsetFactor = Math.cos(Math.toRadians(mapPosition.tilt) * 0.85);
-            if (mCompassView.getVisibility() == View.GONE && mapPosition.bearing != 0f && mLocationState != LocationState.TRACK) {
-                if (Math.abs(mapPosition.bearing) < 1.5f) {
-                    mapPosition.setBearing(0f);
-                    mMap.setMapPosition(mapPosition);
-                }
-            }
             adjustCompass(mapPosition.bearing);
             if (mAutoTiltSet) {
                 if (mAutoTilt != mapPosition.tilt) {

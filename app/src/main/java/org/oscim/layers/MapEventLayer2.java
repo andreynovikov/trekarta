@@ -234,6 +234,7 @@ public class MapEventLayer2 extends AbstractMapEventLayer implements InputListen
             if (time - mStartDown > LONG_PRESS_THRESHOLD) {
                 // this was not a tap
                 mTaps = 0;
+                mMap.events.fire(Map.FINISH_EVENT, mapPosition);
                 return true;
             }
 
@@ -256,6 +257,7 @@ public class MapEventLayer2 extends AbstractMapEventLayer implements InputListen
             if (mTaps == 3) {
                 mTaps = 0;
                 mMap.handleGesture(Gesture.TRIPLE_TAP, e);
+                mMap.events.fire(Map.FINISH_EVENT, mapPosition);
             } else if (mTaps == 2) {
                 mGestureTask = new Task() {
                     @Override
@@ -267,10 +269,11 @@ public class MapEventLayer2 extends AbstractMapEventLayer implements InputListen
                             return Task.DONE;
                         if (!mMap.handleGesture(Gesture.DOUBLE_TAP, e)) {
                             /* handle double tap zoom */
-                            final float pivotX = mFixOnCenter ? 0 : mPrevX1 - mMap.getWidth() / 2;
-                            final float pivotY = mFixOnCenter ? 0 : mPrevY1 - mMap.getHeight() / 2;
+                            final float pivotX = mFixOnCenter ? 0 : mPrevX1 - (mMap.getWidth() >> 1);
+                            final float pivotY = mFixOnCenter ? 0 : mPrevY1 - (mMap.getHeight() >> 1);
                             mMap.animator().animateZoom(300, 2, pivotX, pivotY);
                         }
+                        mMap.events.fire(Map.FINISH_EVENT, mapPosition);
                         return Task.DONE;
                     }
                 };
@@ -285,6 +288,7 @@ public class MapEventLayer2 extends AbstractMapEventLayer implements InputListen
                         if (!mTwoFingers && mStartMove == -1) {
                             mMap.handleGesture(Gesture.TAP, e);
                         }
+                        mMap.events.fire(Map.FINISH_EVENT, mapPosition);
                         return Task.DONE;
                     }
                 };
