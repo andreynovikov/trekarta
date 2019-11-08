@@ -127,6 +127,7 @@ import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
+import org.oscim.utils.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2130,14 +2131,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.ROTATE_EVENT) {
             mMainHandler.removeMessages(R.id.msgResetBearing);
+            mCompassView.setTag(e);
         }
         if (e == Map.FINISH_EVENT) {
             final Message m = Message.obtain(mMainHandler, () -> {
-                if (mLocationState != LocationState.TRACK && Math.abs(mapPosition.bearing) < 10f) {
+                if (mCompassView.getTag() == Map.ROTATE_EVENT &&
+                        mLocationState != LocationState.TRACK &&
+                        Math.abs(mapPosition.bearing) < 5f) {
                     mMap.getMapPosition(true, mapPosition);
                     mapPosition.setBearing(0f);
                     mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mapPosition);
                 }
+                mCompassView.setTag(null);
             });
             m.what = R.id.msgResetBearing;
             mMainHandler.sendMessageDelayed(m, 500);
@@ -2224,18 +2229,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mCompassView.getRotation() == bearing)
             return;
         mCompassView.setRotation(bearing);
-        if (Math.abs(bearing) < 1f && mCompassView.getAlpha() == 1f) {
-            mCompassView.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mCompassView.setVisibility(View.GONE);
-                }
-            });
+        if (bearing == 0f) {
+            if (mCompassView.getVisibility() != View.GONE)
+                mCompassView.setVisibility(View.GONE);
         } else if (mCompassView.getVisibility() == View.GONE) {
-            mCompassView.setAlpha(0f);
             mCompassView.setVisibility(View.VISIBLE);
-            mCompassView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
         }
+        // +/-5 degrees
+        mCompassView.setAlpha(FastMath.clamp(Math.abs(bearing) / 5f, 0f, 1f));
     }
 
     private void adjustNavigationArrow(float turn) {
