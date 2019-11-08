@@ -19,8 +19,11 @@ package mobi.maptrek.io;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
@@ -33,11 +36,33 @@ import mobi.maptrek.util.ProgressListener;
 
 public class KMLManager extends Manager {
     public static final String EXTENSION = ".kml";
+    public static final String ZIP_EXTENSION = ".kmz";
 
     @NonNull
     @Override
     public FileDataSource loadData(InputStream inputStream, String filePath) throws Exception {
+        if (filePath.endsWith(ZIP_EXTENSION)) {
+            ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+            ZipEntry zipEntry;
+            boolean hasDocument = false;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                logger.error(zipEntry.getName());
+                if (zipEntry.getName().endsWith(EXTENSION)) {
+                    inputStream = zipInputStream;
+                    hasDocument = true;
+                    break;
+                } else {
+                    zipInputStream.closeEntry();
+                }
+            }
+            if (!hasDocument) {
+                zipInputStream.close();
+                throw new FileNotFoundException("KMZ file does not contain KML document");
+            }
+        }
         FileDataSource dataSource = KmlParser.parse(inputStream);
+        // We do not need to close zipInputStream because it is closed by parser
+
         int hash = filePath.hashCode() * 31;
         int i = 1;
         // TODO - Generate names if they are missing

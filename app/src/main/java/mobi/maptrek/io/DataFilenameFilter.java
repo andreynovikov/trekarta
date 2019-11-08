@@ -24,7 +24,8 @@ public class DataFilenameFilter implements FilenameFilter {
     @Override
     public boolean accept(final File dir, final String filename) {
         String lc = filename.toLowerCase();
-        return lc.endsWith(TrackManager.EXTENSION) || lc.endsWith(GPXManager.EXTENSION) || lc.endsWith(KMLManager.EXTENSION);
+        return lc.endsWith(TrackManager.EXTENSION) || lc.endsWith(GPXManager.EXTENSION)
+                || lc.endsWith(KMLManager.EXTENSION) || lc.endsWith(KMLManager.ZIP_EXTENSION);
     }
 
 }

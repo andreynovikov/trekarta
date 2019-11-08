@@ -53,6 +53,9 @@ public abstract class Manager {
         if (file.toLowerCase().endsWith(KMLManager.EXTENSION)) {
             return new KMLManager();
         }
+        if (file.toLowerCase().endsWith(KMLManager.ZIP_EXTENSION)) {
+            return new KMLManager();
+        }
         return null;
     }
 

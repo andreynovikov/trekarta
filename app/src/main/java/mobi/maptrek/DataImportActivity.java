@@ -370,6 +370,7 @@ public class DataImportActivity extends Activity {
 
             if (!name.endsWith(TrackManager.EXTENSION) &&
                     !name.endsWith(KMLManager.EXTENSION) &&
+                    !name.endsWith(KMLManager.ZIP_EXTENSION) &&
                     !name.endsWith(GPXManager.EXTENSION) &&
                     !name.endsWith(".mbtiles") &&
                     !name.endsWith(".sqlitedb")) {

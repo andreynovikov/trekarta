@@ -21,6 +21,11 @@
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.kml"
                     android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.kmz"
+                    android:scheme="file" />
                 <!-- GPX from file managers -->
                 <data
                     android:host="*"
@@ -50,6 +55,9 @@
                     android:mimeType="application/vnd.google-earth.kml+xml"
                     android:scheme="content" />
                 <data
+                    android:mimeType="application/vnd.google-earth.kmz"
+                    android:scheme="content" />
+                <data
                     android:mimeType="text/xml"
                     android:scheme="content" />
                 <!-- GPX, MBTiles, SQLite from DownloadManager -->
@@ -69,6 +77,7 @@
                 <data android:mimeType="application/vnd.maptrek.mtrack" />
                 <data android:mimeType="text/xml" />
                 <data android:mimeType="application/vnd.google-earth.kml+xml" />
+                <data android:mimeType="application/vnd.google-earth.kmz" />
 
             </intent-filter>
         </activity>

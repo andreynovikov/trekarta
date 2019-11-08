@@ -170,7 +170,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                     }
                 } catch (Exception e) {
                     //TODO Notify user about a problem
-                    logger.error("File error: {}, {}", file.getAbsolutePath(), e);
+                    logger.error("File error: " + file.getAbsolutePath(), e);
                 }
                 progress += file.length();
             }
