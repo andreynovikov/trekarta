@@ -60,6 +60,7 @@ public class KmlFile {
 
     static public class Folder {
         String name;
+        List<Folder> folders;
         List<Placemark> placemarks;
     }
 

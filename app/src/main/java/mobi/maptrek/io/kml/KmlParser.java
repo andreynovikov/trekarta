@@ -59,8 +59,9 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals(KmlFile.TAG_DOCUMENT)) {
-                dataSource = readDocument(parser);
+            // Both folder and document can be root containers
+            if (name.equals(KmlFile.TAG_DOCUMENT) || name.equals(KmlFile.TAG_FOLDER)) {
+                dataSource = readDocument(parser, name);
             } else {
                 skip(parser);
             }
@@ -71,8 +72,8 @@ public class KmlParser {
     }
 
     @NonNull
-    private static FileDataSource readDocument(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, NS, KmlFile.TAG_DOCUMENT);
+    private static FileDataSource readDocument(XmlPullParser parser, String tagName) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, NS, tagName);
         FileDataSource dataSource = new FileDataSource();
         List<KmlFile.Folder> folders = new ArrayList<>();
         List<KmlFile.Placemark> placemarks = new ArrayList<>();
@@ -159,6 +160,7 @@ public class KmlParser {
     private static KmlFile.Folder readFolder(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, KmlFile.TAG_FOLDER);
         KmlFile.Folder folder = new KmlFile.Folder();
+        folder.folders = new ArrayList<>();
         folder.placemarks = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -168,6 +170,10 @@ public class KmlParser {
             switch (name) {
                 case KmlFile.TAG_NAME:
                     folder.name = readTextElement(parser, KmlFile.TAG_NAME);
+                    break;
+                case KmlFile.TAG_FOLDER:
+                    KmlFile.Folder subfolder = readFolder(parser);
+                    folder.folders.add(subfolder);
                     break;
                 case KmlFile.TAG_PLACEMARK:
                     KmlFile.Placemark placemark = readPlacemark(parser);
@@ -179,6 +185,9 @@ public class KmlParser {
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_FOLDER);
+        for (KmlFile.Folder subfolder : folder.folders) {
+            folder.placemarks.addAll(subfolder.placemarks);
+        }
         return folder;
     }
 
