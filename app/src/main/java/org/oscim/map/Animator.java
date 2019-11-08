@@ -386,6 +386,12 @@ public class Animator {
      * Note: valid only with animateTo methods.
      */
     public MapPosition getEndPosition() {
-        return mDeltaPos;
+        MapPosition mapPosition = new MapPosition();
+        mapPosition.set(mDeltaPos.x + mStartPos.x,
+                mDeltaPos.y + mStartPos.y,
+                mDeltaPos.scale + mStartPos.scale,
+                mDeltaPos.bearing + mStartPos.bearing,
+                mDeltaPos.tilt - mStartPos.tilt);
+        return mapPosition;
     }
 }
