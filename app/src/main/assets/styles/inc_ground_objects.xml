@@ -25,7 +25,13 @@
             <text use="road-name" />
         </m>
     </m>
-    <m cat="urban" closed="yes" k="railway" v="platform">
-        <area fill="color:pier-fill" />
+    <m cat="urban" k="railway" v="platform">
+        <m closed="no">
+            <line stroke="color:pier-stroke" width="0.3" />
+            <line stroke="color:pier-fill" width="0.2" />
+        </m>
+        <m closed="yes">
+            <area fill="color:pier-fill" />
+        </m>
     </m>
 </rendertheme>
