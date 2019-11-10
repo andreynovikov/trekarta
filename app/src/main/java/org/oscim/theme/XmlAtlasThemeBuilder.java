@@ -122,7 +122,7 @@ public class XmlAtlasThemeBuilder extends XmlThemeBuilder {
         // we need to hash with the width/height included as the same symbol could be required
         // in a different size and must be cached with a size-specific hash
         String absoluteName = CanvasAdapter.getAbsoluteFile(mTheme.getRelativePathPrefix(), src).getAbsolutePath();
-        int hash = new StringBuilder().append(absoluteName).append(b.symbolWidth).append(b.symbolHeight).append(b.symbolPercent).toString().hashCode();
+        int hash = (absoluteName + b.symbolWidth + b.symbolHeight + b.symbolPercent + b.symbolColor).hashCode();
         bitmapMap.put(hash, bitmap);
         return b.hash(hash).build();
     }

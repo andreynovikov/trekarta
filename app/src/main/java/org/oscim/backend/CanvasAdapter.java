@@ -122,14 +122,14 @@ public abstract class CanvasAdapter {
      * @param percent     requested scale percent (100: no change)
      * @return the bitmap
      */
-    protected abstract Bitmap decodeBitmapImpl(InputStream inputStream, int width, int height, int percent) throws IOException;
+    protected abstract Bitmap decodeBitmapImpl(InputStream inputStream, int width, int height, int percent, int color) throws IOException;
 
     public static Bitmap decodeBitmap(InputStream inputStream) throws IOException {
         return g.decodeBitmapImpl(inputStream);
     }
 
-    public static Bitmap decodeBitmap(InputStream inputStream, int width, int height, int percent) throws IOException {
-        return g.decodeBitmapImpl(inputStream, width, height, percent);
+    public static Bitmap decodeBitmap(InputStream inputStream, int width, int height, int percent, int color) throws IOException {
+        return g.decodeBitmapImpl(inputStream, width, height, percent, color);
     }
 
     /**
@@ -138,10 +138,10 @@ public abstract class CanvasAdapter {
      * @param inputStream the input stream
      * @return the SVG bitmap
      */
-    protected abstract Bitmap decodeSvgBitmapImpl(InputStream inputStream, int width, int height, int percent) throws IOException;
+    protected abstract Bitmap decodeSvgBitmapImpl(InputStream inputStream, int width, int height, int percent, int color) throws IOException;
 
-    public static Bitmap decodeSvgBitmap(InputStream inputStream, int width, int height, int percent) throws IOException {
-        return g.decodeSvgBitmapImpl(inputStream, width, height, percent);
+    public static Bitmap decodeSvgBitmap(InputStream inputStream, int width, int height, int percent, int color) throws IOException {
+        return g.decodeSvgBitmapImpl(inputStream, width, height, percent, color);
     }
 
     /**
@@ -151,17 +151,17 @@ public abstract class CanvasAdapter {
      * @param src                the resource
      * @return the bitmap
      */
-    protected abstract Bitmap loadBitmapAssetImpl(String relativePathPrefix, String src, int width, int height, int percent) throws IOException;
+    protected abstract Bitmap loadBitmapAssetImpl(String relativePathPrefix, String src, int width, int height, int percent, int color) throws IOException;
 
     public static Bitmap getBitmapAsset(String relativePathPrefix, String src) throws IOException {
-        return getBitmapAsset(relativePathPrefix, src, 0, 0, 100);
+        return getBitmapAsset(relativePathPrefix, src, 0, 0, 100, 0);
     }
 
-    public static Bitmap getBitmapAsset(String relativePathPrefix, String src, int width, int height, int percent) throws IOException {
-        return g.loadBitmapAssetImpl(relativePathPrefix, src, width, height, percent);
+    public static Bitmap getBitmapAsset(String relativePathPrefix, String src, int width, int height, int percent, int color) throws IOException {
+        return g.loadBitmapAssetImpl(relativePathPrefix, src, width, height, percent, color);
     }
 
-    protected static Bitmap createBitmap(String relativePathPrefix, String src, int width, int height, int percent) throws IOException {
+    protected static Bitmap createBitmap(String relativePathPrefix, String src, int width, int height, int percent, int color) throws IOException {
         if (src == null || src.length() == 0) {
             // no image source defined
             return null;
@@ -195,9 +195,9 @@ public abstract class CanvasAdapter {
 
         Bitmap bitmap;
         if (src.toLowerCase(Locale.ENGLISH).endsWith(".svg"))
-            bitmap = decodeSvgBitmap(inputStream, width, height, percent);
+            bitmap = decodeSvgBitmap(inputStream, width, height, percent, color);
         else
-            bitmap = decodeBitmap(inputStream, width, height, percent);
+            bitmap = decodeBitmap(inputStream, width, height, percent, color);
         inputStream.close();
         return bitmap;
     }

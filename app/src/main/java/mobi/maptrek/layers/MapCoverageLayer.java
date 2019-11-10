@@ -361,7 +361,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private static Bitmap getHillshadesBitmap(int color) {
         Bitmap bitmap;
         try {
-            bitmap = CanvasAdapter.getBitmapAsset("", "symbols/hillshades.svg", 0, 0, 70);
+            bitmap = CanvasAdapter.getBitmapAsset("", "symbols/hillshades.svg", 0, 0, 70, 0);
         } catch (IOException e) {
             log.error("Failed to read bitmap", e);
             return null;

@@ -83,6 +83,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
     public final int symbolWidth;
     public final int symbolHeight;
     public final int symbolPercent;
+    public final int symbolColor;
 
     public AreaStyle(int color) {
         this(0, color);
@@ -105,6 +106,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
         this.symbolWidth = 0;
         this.symbolHeight = 0;
         this.symbolPercent = 100;
+        this.symbolColor = 0;
     }
 
     public AreaStyle(AreaBuilder<?> b) {
@@ -125,6 +127,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
         this.symbolWidth = b.symbolWidth;
         this.symbolHeight = b.symbolHeight;
         this.symbolPercent = b.symbolPercent;
+        this.symbolColor = b.symbolColor;
     }
 
     @Override
@@ -188,6 +191,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
         public int symbolWidth;
         public int symbolHeight;
         public int symbolPercent;
+        public int symbolColor;
 
         public AreaBuilder() {
         }
@@ -213,6 +217,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
             this.symbolWidth = area.symbolWidth;
             this.symbolHeight = area.symbolHeight;
             this.symbolPercent = area.symbolPercent;
+            this.symbolColor = area.symbolColor;
 
             return self();
         }
@@ -267,6 +272,11 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
             return self();
         }
 
+        public T symbolColor(int symbolColor) {
+            this.symbolColor = symbolColor;
+            return self();
+        }
+
         public T reset() {
             cat = null;
             level = -1;
@@ -285,6 +295,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
             symbolWidth = 0;
             symbolHeight = 0;
             symbolPercent = 100;
+            symbolColor = 0;
 
             return self();
         }

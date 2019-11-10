@@ -48,6 +48,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
         public int symbolWidth;
         public int symbolHeight;
         public int symbolPercent;
+        public int symbolColor;
 
         public T reset() {
             cat = null;
@@ -69,6 +70,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             symbolWidth = 0;
             symbolHeight = 0;
             symbolPercent = 100;
+            symbolColor = 0;
 
             return self();
         }
@@ -153,6 +155,11 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             return self();
         }
 
+        public T symbolColor(int symbolPercent) {
+            this.symbolColor = symbolPercent;
+            return self();
+        }
+
         public T from(TextBuilder<?> other) {
             cat = other.cat;
             fontFamily = other.fontFamily;
@@ -173,6 +180,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             symbolWidth = other.symbolWidth;
             symbolHeight = other.symbolHeight;
             symbolPercent = other.symbolPercent;
+            symbolColor = other.symbolColor;
 
             return self();
         }
@@ -202,6 +210,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             this.symbolWidth = text.symbolWidth;
             this.symbolHeight = text.symbolHeight;
             this.symbolPercent = text.symbolPercent;
+            this.symbolColor = text.symbolColor;
 
             return self();
         }
@@ -246,6 +255,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
         this.symbolWidth = b.symbolWidth;
         this.symbolHeight = b.symbolHeight;
         this.symbolPercent = b.symbolPercent;
+        this.symbolColor = b.symbolColor;
     }
 
     public final String style;
@@ -272,6 +282,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
     public final int symbolWidth;
     public final int symbolHeight;
     public final int symbolPercent;
+    public final int symbolColor;
 
     @Override
     public void dispose() {

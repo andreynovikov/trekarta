@@ -624,7 +624,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
             b.stippleRatio = 0.5f;
             b.stippleColor = b.fillColor;
         } else {
-            b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+            b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
 
             if (hasSymbol) {
                 // Line symbol
@@ -738,7 +738,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
                 logUnknownAttribute(elementName, name, value, i);
         }
 
-        b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+        b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
 
         return b.build();
     }
@@ -1043,7 +1043,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
             String lowValue = symbol.toLowerCase(Locale.ENGLISH);
             if (lowValue.endsWith(".png") || lowValue.endsWith(".svg")) {
                 try {
-                    b.bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), symbol, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+                    b.bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), symbol, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
                 } catch (Exception e) {
                     log.error("{}: {}", symbol, e.getMessage());
                 }
@@ -1134,7 +1134,7 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
         String lowSrc = src.toLowerCase(Locale.ENGLISH);
         if (lowSrc.endsWith(".png") || lowSrc.endsWith(".svg")) {
             try {
-                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
                 if (bitmap != null)
                     return buildSymbol(b, src, bitmap);
             } catch (Exception e) {

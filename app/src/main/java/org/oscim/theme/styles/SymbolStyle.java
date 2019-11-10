@@ -35,6 +35,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
     public final int symbolWidth;
     public final int symbolHeight;
     public final int symbolPercent;
+    public final int symbolColor;
 
     public final int repeatGap;
     public final int mergeGap;
@@ -63,6 +64,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.symbolWidth = 0;
         this.symbolHeight = 0;
         this.symbolPercent = 100;
+        this.symbolColor = 0;
 
         this.repeatGap = 0;
         this.mergeGap = -1;
@@ -82,6 +84,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.symbolWidth = b.symbolWidth;
         this.symbolHeight = b.symbolHeight;
         this.symbolPercent = b.symbolPercent;
+        this.symbolColor = b.symbolColor;
 
         this.repeatGap = b.repeatGap;
         this.mergeGap = b.mergeGap;
@@ -121,6 +124,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         public int symbolWidth;
         public int symbolHeight;
         public int symbolPercent;
+        public int symbolColor;
 
         public int repeatGap;
         public int mergeGap;
@@ -145,6 +149,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             this.symbolWidth = symbol.symbolWidth;
             this.symbolHeight = symbol.symbolHeight;
             this.symbolPercent = symbol.symbolPercent;
+            this.symbolColor = symbol.symbolColor;
 
             this.repeatGap = symbol.repeatGap;
             this.mergeGap = symbol.mergeGap;
@@ -193,6 +198,11 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             return self();
         }
 
+        public T symbolColor(int symbolColor) {
+            this.symbolColor = symbolColor;
+            return self();
+        }
+
         public T repeatGap(int repeatGap) {
             this.repeatGap = repeatGap;
             return self();
@@ -233,6 +243,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             symbolWidth = 0;
             symbolHeight = 0;
             symbolPercent = 100;
+            symbolColor = 0;
 
             repeatGap = 0;
             mergeGap = -1;

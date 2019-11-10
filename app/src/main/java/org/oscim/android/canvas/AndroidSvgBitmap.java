@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.RectF;
 
+import com.caverock.androidsvg.RenderOptions;
 import com.caverock.androidsvg.SVG;
 
 import org.oscim.backend.CanvasAdapter;
@@ -35,10 +36,16 @@ public class AndroidSvgBitmap extends AndroidBitmap {
      */
     public static float DEFAULT_SIZE = 400f;
 
-    public static android.graphics.Bitmap getResourceBitmap(InputStream inputStream, float scaleFactor, float defaultSize, int width, int height, int percent) throws IOException {
+    public static android.graphics.Bitmap getResourceBitmap(InputStream inputStream, float scaleFactor, float defaultSize, int width, int height, int percent, int color) throws IOException {
         try {
             SVG svg = SVG.getFromInputStream(inputStream);
-            Picture picture = svg.renderToPicture();
+            Picture picture;
+            if (color != 0) {
+                RenderOptions renderOpts = RenderOptions.create().css("* { fill: #" + String.format("%06x", color & 0x00ffffff) + "; }");
+                picture = svg.renderToPicture(renderOpts);
+            } else {
+                picture = svg.renderToPicture();
+            }
 
             double scale = scaleFactor / Math.sqrt((picture.getHeight() * picture.getWidth()) / defaultSize);
 
@@ -55,13 +62,13 @@ public class AndroidSvgBitmap extends AndroidBitmap {
         }
     }
 
-    private static android.graphics.Bitmap getResourceBitmapImpl(InputStream inputStream, int width, int height, int percent) throws IOException {
+    private static android.graphics.Bitmap getResourceBitmapImpl(InputStream inputStream, int width, int height, int percent, int color) throws IOException {
         synchronized (SVG.getVersion()) {
-            return getResourceBitmap(inputStream, CanvasAdapter.getScale(), DEFAULT_SIZE, width, height, percent);
+            return getResourceBitmap(inputStream, CanvasAdapter.getScale(), DEFAULT_SIZE, width, height, percent, color);
         }
     }
 
-    public AndroidSvgBitmap(InputStream inputStream, int width, int height, int percent) throws IOException {
-        super(getResourceBitmapImpl(inputStream, width, height, percent));
+    public AndroidSvgBitmap(InputStream inputStream, int width, int height, int percent, int  color) throws IOException {
+        super(getResourceBitmapImpl(inputStream, width, height, percent, color));
     }
 }

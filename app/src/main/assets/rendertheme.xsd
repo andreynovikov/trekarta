@@ -129,6 +129,7 @@
         <xs:attribute name="symbol-width" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-height" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger"  />
+        <xs:attribute name="symbol-color" type="tns:color"  />
         <xs:attribute name="fill" default="#000000" type="tns:color"  />
         <xs:attribute name="stroke" default="#00000000" type="tns:color"  />
         <xs:attribute name="stroke-width" default="0" type="tns:nonNegativeFloat"  />
@@ -160,6 +161,7 @@
         <xs:attribute name="symbol-width" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-height" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger"  />
+        <xs:attribute name="symbol-color" type="tns:color"  />
         <xs:attribute name="stroke" default="#000000" type="tns:color"  />
         <xs:attribute name="width" default="0" type="xs:float"  />
         <!-- minimum scaled width to draw outline -->
@@ -208,6 +210,7 @@
         <xs:attribute name="symbol-width" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-height" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger"  />
+        <xs:attribute name="symbol-color" type="tns:color"  />
     </xs:complexType>
 
     <xs:complexType name="symbol">
@@ -216,6 +219,7 @@
         <xs:attribute name="symbol-width" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-height" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger"  />
+        <xs:attribute name="symbol-color" type="tns:color"  />
         <xs:attribute name="repeat-gap" type="xs:positiveInteger"  />
         <xs:attribute name="merge-gap" type="xs:nonNegativeInteger"  />
         <xs:attribute name="merge-group" type="xs:string"  />

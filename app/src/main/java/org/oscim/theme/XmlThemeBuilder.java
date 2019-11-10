@@ -575,6 +575,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("symbol-percent".equals(name))
                 b.symbolPercent = Integer.parseInt(value);
 
+            else if ("symbol-color".equals(name))
+                b.symbolColor = parseColor(value);
+
             else if ("symbol-scaling".equals(name))
                 ; // no-op
 
@@ -627,7 +630,7 @@ public class XmlThemeBuilder extends DefaultHandler {
             b.stippleColor = b.fillColor;
         } else {
             if (src != null)
-                b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+                b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
 
             if (hasSymbol) {
                 // Line symbol
@@ -734,6 +737,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("symbol-percent".equals(name))
                 b.symbolPercent = Integer.parseInt(value);
 
+            else if ("symbol-color".equals(name))
+                b.symbolColor = parseColor(value);
+
             else if ("symbol-scaling".equals(name))
                 ; // no-op
 
@@ -741,7 +747,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 logUnknownAttribute(elementName, name, value, i);
         }
 
-        b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+        b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
 
         return b.build();
     }
@@ -1041,6 +1047,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("symbol-percent".equals(name))
                 b.symbolPercent = Integer.parseInt(value);
 
+            else if ("symbol-color".equals(name))
+                b.symbolColor = parseColor(value);
+
             else if ("symbol-scaling".equals(name))
                 ; // no-op
 
@@ -1056,7 +1065,7 @@ public class XmlThemeBuilder extends DefaultHandler {
             String lowValue = symbol.toLowerCase(Locale.ENGLISH);
             if (lowValue.endsWith(".png") || lowValue.endsWith(".svg")) {
                 try {
-                    b.bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), symbol, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+                    b.bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), symbol, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
                 } catch (Exception e) {
                     log.error("{}: {}", symbol, e.getMessage());
                 }
@@ -1135,6 +1144,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("symbol-percent".equals(name))
                 b.symbolPercent = Integer.parseInt(value);
 
+            else if ("symbol-color".equals(name))
+                b.symbolColor = parseColor(value);
+
             else if ("repeat-gap".equals(name))
                 b.repeatGap = (int) (Integer.parseInt(value) * mScale);
 
@@ -1164,7 +1176,7 @@ public class XmlThemeBuilder extends DefaultHandler {
             return b.src(lowSrc.substring(PREFIX_GEN.length())).build();
         } else if (lowSrc.endsWith(".png") || lowSrc.endsWith(".svg")) {
             try {
-                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent);
+                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
                 if (bitmap != null)
                     return buildSymbol(b, src, bitmap);
             } catch (Exception e) {

@@ -54,6 +54,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
     public final int symbolWidth;
     public final int symbolHeight;
     public final int symbolPercent;
+    public final int symbolColor;
 
     public final float[] dashArray;
     public final float repeatStart;
@@ -102,6 +103,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.symbolWidth = 0;
         this.symbolHeight = 0;
         this.symbolPercent = 100;
+        this.symbolColor = 0;
 
         this.dashArray = dashArray;
         this.repeatStart = repeatStart;
@@ -132,6 +134,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.symbolWidth = b.symbolWidth;
         this.symbolHeight = b.symbolHeight;
         this.symbolPercent = b.symbolPercent;
+        this.symbolColor = b.symbolColor;
 
         this.dashArray = b.dashArray;
         this.repeatStart = b.repeatStart;
@@ -169,6 +172,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         public int symbolWidth;
         public int symbolHeight;
         public int symbolPercent;
+        public int symbolColor;
 
         public float[] dashArray;
         public float repeatStart;
@@ -204,6 +208,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
             this.symbolWidth = line.symbolWidth;
             this.symbolHeight = line.symbolHeight;
             this.symbolPercent = line.symbolPercent;
+            this.symbolColor = line.symbolColor;
 
             this.dashArray = line.dashArray;
             this.repeatStart = line.repeatStart;
@@ -297,6 +302,11 @@ public final class LineStyle extends RenderStyle<LineStyle> {
             return self();
         }
 
+        public T symbolColor(int symbolColor) {
+            this.symbolColor = symbolColor;
+            return self();
+        }
+
         public T dashArray(float[] dashArray) {
             this.dashArray = dashArray;
             return self();
@@ -338,6 +348,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
             symbolWidth = 0;
             symbolHeight = 0;
             symbolPercent = 100;
+            symbolColor = 0;
 
             dashArray = null;
             repeatStart = REPEAT_START_DEFAULT * CanvasAdapter.getScale();

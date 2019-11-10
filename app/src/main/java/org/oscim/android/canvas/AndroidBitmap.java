@@ -20,6 +20,10 @@ package org.oscim.android.canvas;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
@@ -49,10 +53,18 @@ public class AndroidBitmap implements org.oscim.backend.canvas.Bitmap {
         mBitmap = bitmap;
     }
 
-    public AndroidBitmap(InputStream inputStream, int width, int height, int percent) {
+    public AndroidBitmap(InputStream inputStream, int width, int height, int percent, int color) {
         this(inputStream);
         float[] newSize = GraphicUtils.imageSize(getWidth(), getHeight(), CanvasAdapter.getScale(), width, height, percent);
         scaleTo((int) newSize[0], (int) newSize[1]);
+        if (color != 0) {
+            Paint paint = new Paint();
+            paint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+            Bitmap bitmap = Bitmap.createBitmap((int) newSize[0], (int) newSize[1], ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawBitmap(mBitmap, 0, 0, paint);
+            mBitmap = bitmap;
+        }
     }
 
     @Override
@@ -142,8 +154,7 @@ public class AndroidBitmap implements org.oscim.backend.canvas.Bitmap {
             // http://stackoverflow.com/questions/2895065/what-does-the-filter-parameter-to-createscaledbitmap-do
             // passing true results in smoother edges, less pixelation.
             // If smoother corners improve the readability of map labels is perhaps debatable.
-            android.graphics.Bitmap scaledBitmap = android.graphics.Bitmap.createScaledBitmap(mBitmap, width, height, true);
-            mBitmap = scaledBitmap;
+            mBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, true);
         }
     }
 }

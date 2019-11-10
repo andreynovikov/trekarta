@@ -37,12 +37,12 @@ public final class Utils {
     /**
      * Load a texture from a specified location and optional dimensions.
      */
-    public static TextureItem loadTexture(String relativePathPrefix, String src, int width, int height, int percent) {
+    public static TextureItem loadTexture(String relativePathPrefix, String src, int width, int height, int percent, int color) {
         if (src == null || src.length() == 0)
             return null;
 
         try {
-            Bitmap bitmap = CanvasAdapter.getBitmapAsset(relativePathPrefix, src, width, height, percent);
+            Bitmap bitmap = CanvasAdapter.getBitmapAsset(relativePathPrefix, src, width, height, percent, color);
             if (bitmap != null) {
                 log.debug("loading {}", src);
                 return new TextureItem(potBitmap(bitmap), true);

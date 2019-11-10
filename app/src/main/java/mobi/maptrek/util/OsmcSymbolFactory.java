@@ -18,8 +18,6 @@ package mobi.maptrek.util;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import androidx.annotation.NonNull;
@@ -121,7 +119,7 @@ public class OsmcSymbolFactory {
 
     public @Nullable
     synchronized Bitmap getBitmap(@NonNull String osmcSymbol, int symbolPercent) {
-        String key = osmcSymbol + "%%%" + String.valueOf(symbolPercent);
+        String key = osmcSymbol + "%%%" + symbolPercent;
         Bitmap bitmap = mBitmapCache.get(key);
         if (bitmap != null)
             return bitmap;
@@ -254,10 +252,8 @@ public class OsmcSymbolFactory {
         }
         if (foregroundColor != null && symbol != null) {
             try {
-                Bitmap symbolBitmap = CanvasAdapter.getBitmapAsset("symbols/osmc", symbol + ".svg", size, size, 100);
-                Paint paint = new Paint();
-                paint.setColorFilter(new PorterDuffColorFilter(foregroundColor, PorterDuff.Mode.SRC_IN));
-                canvas.drawBitmap(AndroidGraphics.getBitmap(symbolBitmap), 0, 0, paint);
+                Bitmap symbolBitmap = CanvasAdapter.getBitmapAsset("symbols/osmc", symbol + ".svg", size, size, 100, foregroundColor);
+                canvas.drawBitmap(AndroidGraphics.getBitmap(symbolBitmap), 0, 0, null);
             } catch (IOException e) {
                 logger.error("Failed to load bitmap for " + symbol, e);
             }
