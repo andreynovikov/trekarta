@@ -760,11 +760,11 @@
     <m cat="fords" k="ford" select="first" v="yes" zoom-min="15">
         <!-- a node -->
         <m e="node">
-            <symbol src="assets:symbols/natural/ford.svg" symbol-percent="60" />
+            <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60" />
         </m>
         <!-- or not a road -->
         <m k="highway" v="~|footway|path|cycleway|bridleway">
-            <symbol src="assets:symbols/natural/ford.svg" symbol-percent="60" merge-gap="150" repeat-gap="150"/>
+            <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60" merge-gap="150" repeat-gap="150"/>
         </m>
     </m>
 </rendertheme>

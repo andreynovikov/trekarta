@@ -1,1 +1,1 @@
-mkdir out; for f in *.svg; do scour -i $f -o out/$f --enable-viewboxing --enable-id-stripping --enable-comment-stripping --shorten-ids --indent=none; done; mv out/* ./; rmdir out
+mkdir out; for f in *.svg; do scour -i $f -o out/$f --enable-viewboxing --enable-id-stripping --enable-comment-stripping --shorten-ids --indent=none --remove-descriptive-elements; done; mv out/* ./; rmdir out

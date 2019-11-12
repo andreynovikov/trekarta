@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 580 580">
- <circle stroke-linejoin="bevel" stroke-width="16" stroke-linecap="square" stroke="#fff" cy="290" cx="290" r="91.4" fill="#aaa"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.0" viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg">
+<circle cx="290" cy="290" r="91.4" fill="#aaa" stroke="#fff" stroke-linecap="square" stroke-linejoin="bevel" stroke-width="16"/>
 </svg>

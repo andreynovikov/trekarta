@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-<metadata>
-<rdf:RDF>
-<cc:Work rdf:about="">
-<dc:format>image/svg+xml</dc:format>
-<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-<dc:title/>
-</cc:Work>
-</rdf:RDF>
-</metadata>
-<rect x="8.5149e-9" y="2.3842e-7" width="16" height="16" fill="none" visibility="hidden"/>
-<path d="m4 1.1429c-0.94677 0-1.7143 0.76751-1.7143 1.7143 0 0.94677 0.76751 1.7143 1.7143 1.7143s1.7143-0.76751 1.7143-1.7143c0-0.94677-0.76751-1.7143-1.7143-1.7143zm2.8571 1.1429v2.2857h6.8571c0-1.1429-1.1842-2.2857-2.2857-2.2857zm-2.8571 5.7143c-0.94677 0-1.7143 0.76751-1.7143 1.7143 0 0.94677 0.76751 1.7143 1.7143 1.7143s1.7143-0.76751 1.7143-1.7143c0-0.94677-0.76751-1.7143-1.7143-1.7143zm2.8571 1.1429v2.2857l6.8571 0.01473c0-1.1576-1.1842-2.3004-2.2857-2.3004z" fill="#0092da" stroke-width="1.1429"/>
-<rect x="8.5149e-9" y="1.1429" width="1.1429" height="14.857" fill="#0092da" style="paint-order:markers stroke fill"/>
-<rect x="-5.9605e-8" y="2.3842e-7" width="1.1429" height="14.857" ry=".57143" fill="#0092da" style="paint-order:markers stroke fill"/>
-<rect x="14.857" y="4.5714" width="1.1429" height="11.429" fill="#0092da" style="paint-order:markers stroke fill"/>
-<rect x="14.857" y="2.2857" width="1.1429" height="13.714" ry=".57143" fill="#0092da" style="paint-order:markers stroke fill"/>
-<rect transform="rotate(90)" x="5.7143" y="-14.857" width="1.1429" height="14.857" fill="#0092da" style="paint-order:markers stroke fill"/>
-<rect transform="rotate(90)" x="12.571" y="-14.857" width="1.1429" height="14.857" fill="#0092da" style="paint-order:markers stroke fill"/>
+<svg version="1.1" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+<rect width="14" height="14" fill="none" visibility="hidden"/>
+<path d="m3.5 1c-0.82843 0-1.5 0.67157-1.5 1.5s0.67157 1.5 1.5 1.5 1.5-0.67157 1.5-1.5-0.67157-1.5-1.5-1.5zm2.5 1v2h6c0-1-1.0362-2-2-2zm-2.5 5c-0.82843 0-1.5 0.67157-1.5 1.5s0.67157 1.5 1.5 1.5 1.5-0.67157 1.5-1.5-0.67157-1.5-1.5-1.5zm2.5 1v2l6 0.01288c0-1.0129-1.0362-2.0129-2-2.0129z"/>
+<rect y="1" width="1" height="13" style="paint-order:markers stroke fill"/>
+<rect x="-5.9605e-8" width="1" height="13" ry=".5" style="paint-order:markers stroke fill"/>
+<rect x="13" y="4" width="1" height="10" style="paint-order:markers stroke fill"/>
+<rect x="13" y="2" width="1" height="12" ry=".5" style="paint-order:markers stroke fill"/>
+<rect transform="rotate(90)" x="5" y="-13" width="1" height="13" style="paint-order:markers stroke fill"/>
+<rect transform="rotate(90)" x="11" y="-13" width="1" height="13" style="paint-order:markers stroke fill"/>
 </svg>

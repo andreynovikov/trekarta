@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- POI colors -->
+    <style-color id="barrier" color="#666666" />
+    <style-color id="amenity-brown" color="#734a08" />
+    <style-color id="amenity-water" color="#3691d9" />
+    <style-color id="transportation" color="#0092da" />
+    <style-color id="accommodation" color="#0092da" />
+    <style-color id="health" color="#bf0000" />
+    <style-color id="religion" color="#444444" />
+    <style-color id="shop" color="#ac39ac" />
+    <style-color id="gastronomy" color="#C77400" />
+    <style-color id="mountains" color="#d08f55" />
+    <style-color id="air-transport" color="#8461C4" />
+    <style-color id="leisure-green" color="#0c8416" />
+    <style-color id="culture" color="#734a08" />
+    <style-color id="memorials" color="#734a08" />
+    <style-color id="public-service" color="#734a08" />
+    <style-color id="man-made" color="#555555" />
+</rendertheme>

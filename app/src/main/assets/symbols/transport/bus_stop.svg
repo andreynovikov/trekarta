@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg version="1.1" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-<metadata>
-<rdf:RDF>
-<cc:Work rdf:about="">
-<dc:format>image/svg+xml</dc:format>
-<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-<dc:title/>
-</cc:Work>
-</rdf:RDF>
-</metadata>
+<svg version="1.1" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
 <rect width="12" height="12" fill="none" visibility="hidden"/>
-<path transform="translate(1,1)" d="m2 0-1 1v8h0.65625s0.10115 1 0.81275 1c0.68913 0 0.781-1 0.781-1h3.5s0.11434 1 0.781 1c0.81647 0 0.81275-1 0.81275-1h0.65625v-8l-1-1zm1 1h4v1h-4zm-1 2h6v3h-6zm0 4h1v1h-1zm5 0h1v1h-1z" fill="#0092da"/>
+<path d="m3 1-1 1v8h0.65625s0.10115 1 0.81275 1c0.68913 0 0.781-1 0.781-1h3.5s0.11434 1 0.781 1c0.81647 0 0.81275-1 0.81275-1h0.65625v-8l-1-1zm1 1h4v1h-4zm-1 2h6v3h-6zm0 4h1v1h-1zm5 0h1v1h-1z"/>
 </svg>

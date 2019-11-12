@@ -6,342 +6,356 @@
             <m k="feature|kind_accommodation">
                 <m k="tourism">
                     <m v="wilderness_hut">
-                        <symbol src="assets:symbols/accommodation/wildernesshut.svg" />
+                        <symbol src="assets:symbols/accommodation/wilderness_hut.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="alpine_hut">
-                        <symbol src="assets:symbols/accommodation/alpinehut.svg" />
+                        <symbol src="assets:symbols/accommodation/alpinehut.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="guest_house">
-                        <symbol src="assets:symbols/accommodation/guesthouse.svg" />
+                        <symbol src="assets:symbols/accommodation/guesthouse.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="motel">
-                        <symbol src="assets:symbols/accommodation/motel.svg" />
+                        <symbol src="assets:symbols/accommodation/motel.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="hostel">
-                        <symbol src="assets:symbols/accommodation/hostel.svg" />
+                        <symbol src="assets:symbols/accommodation/hostel.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="hotel">
-                        <symbol src="assets:symbols/accommodation/hotel.svg" />
+                        <symbol src="assets:symbols/accommodation/hotel.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="camp_site">
-                        <symbol src="assets:symbols/accommodation/camping.svg" />
+                        <symbol src="assets:symbols/accommodation/camping.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="caravan_site">
-                        <symbol src="assets:symbols/accommodation/caravan.svg" />
+                        <symbol src="assets:symbols/accommodation/caravan.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_food">
                 <m k="shop">
                     <m v="ice_cream">
-                        <symbol src="assets:symbols/shopping/ice_cream.svg" />
+                        <symbol src="assets:symbols/shopping/ice_cream.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="confectionery">
-                        <symbol src="assets:symbols/shopping/confectionery.svg" />
+                        <symbol src="assets:symbols/shopping/confectionery.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="alcohol">
-                        <symbol src="assets:symbols/shopping/alcohol.svg" />
+                        <symbol src="assets:symbols/shopping/alcohol.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="beverages">
-                        <symbol src="assets:symbols/shopping/beverages.svg" />
+                        <symbol src="assets:symbols/shopping/beverages.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="bakery">
-                        <symbol src="assets:symbols/shopping/bakery.svg" />
+                        <symbol src="assets:symbols/shopping/bakery.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="greengrocer|farm">
-                        <symbol src="assets:symbols/shopping/greengrocer.svg" />
+                        <symbol src="assets:symbols/shopping/greengrocer.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="supermarket|convenience">
-                        <symbol src="assets:symbols/shopping/supermarket.svg" />
+                        <symbol src="assets:symbols/shopping/supermarket.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="amenity">
                     <m v="cafe">
-                        <symbol src="assets:symbols/food/cafe.svg" />
+                        <symbol src="assets:symbols/food/cafe.svg" symbol-color="color:gastronomy" symbol-percent="80" />
                     </m>
                     <m v="pub">
-                        <symbol src="assets:symbols/food/pub.svg" />
+                        <symbol src="assets:symbols/food/pub.svg" symbol-color="color:gastronomy" symbol-percent="80" />
                     </m>
                     <m v="bar">
-                        <symbol src="assets:symbols/food/bar.svg" />
+                        <symbol src="assets:symbols/food/bar.svg" symbol-color="color:gastronomy" symbol-percent="80" />
                     </m>
                     <m v="fast_food">
-                        <symbol src="assets:symbols/food/fastfood.svg" />
+                        <symbol src="assets:symbols/food/fastfood.svg" symbol-color="color:gastronomy" symbol-percent="80" />
                     </m>
                     <m v="restaurant">
-                        <symbol src="assets:symbols/food/restaurant.svg" />
+                        <symbol src="assets:symbols/food/restaurant.svg" symbol-color="color:gastronomy" symbol-percent="80" />
                     </m>
                     <m v="marketplace">
-                        <symbol src="assets:symbols/shopping/marketplace.svg" />
+                        <symbol src="assets:symbols/shopping/marketplace.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_barrier">
                 <m v="block">
-                    <symbol src="assets:symbols/barrier/blocks.svg" />
+                    <symbol src="assets:symbols/barrier/blocks.svg" symbol-color="color:barrier" />
                 </m>
                 <m v="bollard">
-                    <symbol src="assets:symbols/barrier/bollard.svg" />
+                    <symbol src="assets:symbols/barrier/bollard.svg" symbol-color="color:barrier" />
                 </m>
                 <m v="cycle_barrier">
-                    <symbol src="assets:symbols/barrier/cycle_barrier.svg" />
+                    <symbol src="assets:symbols/barrier/cycle_barrier.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
                 <m v="lift_gate">
-                    <symbol src="assets:symbols/barrier/lift_gate.svg" />
+                    <symbol src="assets:symbols/barrier/lift_gate.svg" symbol-color="color:barrier" symbol-percent="35" />
                 </m>
                 <m v="gate|swing_gate|chain">
-                    <symbol src="assets:symbols/barrier/gate.svg" />
+                    <symbol src="assets:symbols/barrier/gate.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
                 <m k="barrier" v="yes">
-                    <symbol src="assets:symbols/barrier/gate.svg" />
+                    <symbol src="assets:symbols/barrier/gate.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
             </m>
             <m k="feature|kind_entertainment">
                 <m k="tourism">
                     <m v="zoo">
-                        <symbol src="assets:symbols/tourist/zoo.svg" />
+                        <symbol src="assets:symbols/tourist/zoo.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="picnic_site">
-                        <symbol src="assets:symbols/tourist/picnic.svg" />
+                        <symbol src="assets:symbols/tourist/picnic.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="amenity">
                     <m v="theatre">
-                        <symbol src="assets:symbols/tourist/theatre.svg" />
+                        <symbol src="assets:symbols/tourist/theatre.svg" symbol-color="color:culture" symbol-percent="80" />
                     </m>
                     <m v="cinema">
-                        <symbol src="assets:symbols/tourist/cinema.svg" />
+                        <symbol src="assets:symbols/tourist/cinema.svg" symbol-color="color:culture" symbol-percent="80" />
                     </m>
                     <m v="library">
-                        <symbol src="assets:symbols/amenity/library.svg" />
+                        <symbol src="assets:symbols/amenity/library.svg" symbol-color="color:culture" symbol-percent="80" />
                     </m>
                     <m v="boat_rental">
-                        <symbol src="assets:symbols/amenity/boat_rental.svg" />
+                        <symbol src="assets:symbols/amenity/boat_rental.svg" symbol-color="color:transportation" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="leisure">
+                    <m v="horse_riding">
+                        <symbol src="assets:symbols/amenity/horse_riding.svg" symbol-color="color:leisure-green" symbol-percent="80" />
+                    </m>
                     <m v="water_park">
-                        <symbol src="assets:symbols/amenity/swimming.svg" />
+                        <symbol src="assets:symbols/amenity/swimming.svg" symbol-color="color:leisure-green" symbol-percent="80" />
                     </m>
                     <m v="beach_resort">
-                        <symbol src="assets:symbols/amenity/beach_resort.svg" />
+                        <symbol src="assets:symbols/amenity/beach_resort.svg" symbol-color="color:leisure-green" symbol-percent="80" />
                     </m>
                     <m v="sauna">
-                        <symbol src="assets:symbols/amenity/sauna.svg" />
+                        <symbol src="assets:symbols/amenity/sauna.svg" symbol-color="color:leisure-green" symbol-percent="80" />
+                    </m>
+                </m>
+                <m k="shop">
+                    <m v="massage">
+                        <symbol src="assets:symbols/amenity/massage.svg" symbol-color="color:leisure-green" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_emergency">
                 <m k="amenity">
+                    <m v="embassy">
+                        <symbol src="assets:symbols/amenity/embassy.svg" symbol-color="color:public-service" symbol-percent="80" />
+                    </m>
                     <m v="police">
-                        <symbol src="assets:symbols/amenity/police.svg" />
+                        <symbol src="assets:symbols/amenity/police.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="fire_station">
-                        <symbol src="assets:symbols/amenity/firestation.svg" />
+                        <symbol src="assets:symbols/amenity/firestation.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="hospital">
-                        <symbol src="assets:symbols/health/hospital.svg" />
+                        <symbol src="assets:symbols/health/hospital.svg" symbol-color="color:health" symbol-percent="80" />
                     </m>
                     <m v="ranger_station">
-                        <symbol src="assets:symbols/tourist/ranger_station.svg" />
+                        <symbol src="assets:symbols/tourist/ranger_station.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="doctors">
-                        <symbol src="assets:symbols/health/doctor.svg" />
+                        <symbol src="assets:symbols/health/doctor.svg" symbol-color="color:health" symbol-percent="80" />
+                    </m>
+                    <m v="dentist">
+                        <symbol src="assets:symbols/health/dentist.svg" symbol-color="color:health" symbol-percent="80" />
                     </m>
                     <m v="pharmacy">
-                        <symbol src="assets:symbols/health/pharmacy.svg" />
+                        <symbol src="assets:symbols/health/pharmacy.svg" symbol-color="color:health" symbol-percent="80" />
                     </m>
                     <m v="telephone">
-                        <symbol src="assets:symbols/amenity/telephone.svg" />
+                        <symbol src="assets:symbols/amenity/telephone.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                     </m>
                 </m>
+                <m k="diplomatic" v="embassy">
+                    <symbol src="assets:symbols/amenity/embassy.svg" symbol-color="color:public-service" symbol-percent="80" />
+                </m>
                 <m k="emergency" v="phone">
-                    <symbol src="assets:symbols/amenity/emergency_phone.svg" />
+                    <symbol src="assets:symbols/amenity/emergency_phone.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                 </m>
             </m>
             <m k="feature|kind_pets">
                 <m k="shop">
                     <m v="pet">
-                        <symbol src="assets:symbols/shopping/pet.svg" />
+                        <symbol src="assets:symbols/shopping/pet.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="amenity">
                     <m v="veterinary">
-                        <symbol src="assets:symbols/health/veterinary.svg" />
+                        <symbol src="assets:symbols/health/veterinary.svg" symbol-color="color:health" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_kids">
                 <m k="shop">
                     <m v="toys">
-                        <symbol src="assets:symbols/shopping/toys.svg" />
+                        <symbol src="assets:symbols/shopping/toys.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="leisure">
                     <m v="amusement_arcade">
-                        <symbol src="assets:symbols/amenity/amusement_arcade.svg" />
+                        <symbol src="assets:symbols/amenity/amusement_arcade.svg" symbol-color="color:leisure-green" symbol-percent="80" />
                     </m>
                     <m v="playground">
-                        <symbol src="assets:symbols/amenity/playground.svg" symbol-percent="70" />
+                        <symbol src="assets:symbols/amenity/playground.svg" symbol-color="color:leisure-green" symbol-percent="70" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_shopping" select="first">
                 <m k="shop|amenity">
                     <m v="bicycle">
-                        <symbol src="assets:symbols/shopping/bicycle.svg" />
+                        <symbol src="assets:symbols/shopping/bicycle.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="outdoor">
-                        <symbol src="assets:symbols/shopping/outdoor.svg" />
+                        <symbol src="assets:symbols/shopping/outdoor.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="sports">
-                        <symbol src="assets:symbols/shopping/sports.svg" />
+                        <symbol src="assets:symbols/shopping/sports.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="gift">
-                        <symbol src="assets:symbols/shopping/gift.svg" />
+                        <symbol src="assets:symbols/shopping/gift.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="jewelry">
-                        <symbol src="assets:symbols/shopping/jewelry.svg" />
+                        <symbol src="assets:symbols/shopping/jewelry.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="photo">
-                        <symbol src="assets:symbols/shopping/photo.svg" />
+                        <symbol src="assets:symbols/shopping/photo.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="books">
-                        <symbol src="assets:symbols/shopping/books.svg" />
+                        <symbol src="assets:symbols/shopping/books.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="variety_store">
-                        <symbol src="assets:symbols/shopping/variety_store.svg" />
+                        <symbol src="assets:symbols/shopping/variety_store.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="supermarket|convenience">
-                        <symbol src="assets:symbols/shopping/supermarket.svg" />
+                        <symbol src="assets:symbols/shopping/supermarket.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="doityourself|hardware">
-                        <symbol src="assets:symbols/shopping/diy.svg" />
+                        <symbol src="assets:symbols/shopping/diy.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="mall|department_store">
-                        <symbol src="assets:symbols/shopping/department_store.svg" />
+                        <symbol src="assets:symbols/shopping/department_store.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="marketplace">
-                        <symbol src="assets:symbols/shopping/marketplace.svg" />
+                        <symbol src="assets:symbols/shopping/marketplace.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_attraction" select="first">
                 <m k="waterway">
                     <m v="waterfall">
-                        <symbol src="assets:symbols/natural/waterfall.svg" />
+                        <symbol src="assets:symbols/natural/waterfall.svg" symbol-color="color:amenity-water" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="man_made">
                     <m v="lighthouse">
-                        <symbol src="assets:symbols/tourist/lighthouse.svg" />
+                        <symbol src="assets:symbols/tourist/lighthouse.svg" symbol-color="color:man-made" symbol-percent="80" />
                     </m>
                     <m v="windmill">
-                        <symbol src="assets:symbols/tourist/windmill.svg" />
+                        <symbol src="assets:symbols/tourist/windmill.svg" symbol-color="color:man-made" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="memorial">
                     <m v="bust">
-                        <symbol src="assets:symbols/tourist/bust.svg" />
+                        <symbol src="assets:symbols/tourist/bust.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="statue">
-                        <symbol src="assets:symbols/tourist/statue.svg" />
+                        <symbol src="assets:symbols/tourist/statue.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="stone">
-                        <symbol src="assets:symbols/tourist/stone.svg" symbol-percent="80" />
+                        <symbol src="assets:symbols/tourist/stone.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="plaque">
-                        <symbol src="assets:symbols/tourist/plaque.svg" symbol-percent="70" />
+                        <symbol src="assets:symbols/tourist/plaque.svg" symbol-color="color:memorials" symbol-percent="70" />
                     </m>
                 </m>
                 <m k="historic">
                     <m v="memorial">
-                        <symbol src="assets:symbols/tourist/memorial.svg" />
+                        <symbol src="assets:symbols/tourist/memorial.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="castle">
-                        <symbol src="assets:symbols/tourist/castle.svg" />
+                        <symbol src="assets:symbols/tourist/castle.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="monument">
-                        <symbol src="assets:symbols/tourist/monument.svg" />
+                        <symbol src="assets:symbols/tourist/monument.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="archaeological_site">
-                        <symbol src="assets:symbols/tourist/archaeological_site.svg" />
+                        <symbol src="assets:symbols/tourist/archaeological_site.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="ruins">
-                        <symbol src="assets:symbols/tourist/ruin.svg" />
+                        <symbol src="assets:symbols/tourist/ruin.svg" symbol-color="color:memorials" />
                     </m>
                     <m v="wayside_shrine">
-                        <symbol src="assets:symbols/tourist/wayside_shrine.svg" />
+                        <symbol src="assets:symbols/tourist/shrine.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="tourism">
                     <m v="museum">
-                        <symbol src="assets:symbols/tourist/museum.svg" />
+                        <symbol src="assets:symbols/tourist/museum.svg" symbol-color="color:culture" symbol-percent="80" />
                     </m>
                     <m select="first" v="information">
                         <m k="information" v="office">
-                            <symbol src="assets:symbols/tourist/information_office.svg" />
+                            <symbol src="assets:symbols/tourist/information_office.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                         </m>
                         <m k="information" v="guidepost">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                         <m k="information" v="map">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                         <m>
-                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                     </m>
                     <m v="artwork">
-                        <symbol src="assets:symbols/tourist/artwork.svg" />
+                        <symbol src="assets:symbols/tourist/artwork.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="viewpoint">
-                        <symbol src="assets:symbols/tourist/view_point.svg" />
+                        <symbol src="assets:symbols/tourist/viewpoint.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="attraction">
-                        <symbol src="assets:symbols/tourist/attraction.svg" />
+                        <symbol src="assets:symbols/tourist/attraction.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_urban">
                 <m k="amenity" v="fountain">
-                    <symbol src="assets:symbols/amenity/fountain.svg" symbol-percent="70" />
+                    <symbol src="assets:symbols/amenity/fountain.svg" symbol-color="color:amenity-water" symbol-percent="70" />
                 </m>
             </m>
             <m k="feature|kind_vehicles">
                 <m k="amenity|shop|leisure">
                     <m v="car">
-                        <symbol src="assets:symbols/shopping/car.svg" />
+                        <symbol src="assets:symbols/shopping/car.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="car_repair">
-                        <symbol src="assets:symbols/shopping/car_repair.svg" />
+                        <symbol src="assets:symbols/shopping/car_repair.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="car_rental">
-                        <symbol src="assets:symbols/transport/rental_car.svg" />
+                        <symbol src="assets:symbols/transport/rental_car.svg" symbol-color="color:transportation" symbol-percent="80" />
                     </m>
                     <m v="fuel">
-                        <symbol src="assets:symbols/transport/fuel.svg" />
+                        <symbol src="assets:symbols/transport/fuel.svg" symbol-color="color:transportation" symbol-percent="80" />
                     </m>
                     <m v="slipway">
-                        <symbol src="assets:symbols/amenity/slipway.svg" />
+                        <symbol src="assets:symbols/amenity/slipway.svg" symbol-color="color:transportation" symbol-percent="80" />
                     </m>
                     <m v="parking">
                         <m select="first">
                             <m k="fee">
                                 <m k="fee" v="-|no">
-                                    <symbol src="assets:symbols/transport/parking_car_paid.svg"
+                                    <symbol src="assets:symbols/transport/parking_car_paid.svg" symbol-color="color:transportation"
                                         symbol-percent="70" />
                                 </m>
                             </m>
                             <m k="access" v="private">
-                                <symbol src="assets:symbols/transport/parking_private.svg"
+                                <symbol src="assets:symbols/transport/parking_private.svg" symbol-color="color:transportation"
                                     symbol-percent="50" />
                             </m>
                             <m>
-                                <symbol src="assets:symbols/transport/parking.svg"
+                                <symbol src="assets:symbols/transport/parking.svg" symbol-color="color:transportation"
                                     symbol-percent="50" />
                             </m>
                         </m>
@@ -351,90 +365,86 @@
             <m k="feature|kind_transportation">
                 <m k="amenity">
                     <m cat="urban" v="bus_station">
-                        <symbol src="assets:symbols/transport/bus_station.svg"
-                            symbol-percent="70" />
+                        <symbol src="assets:symbols/transport/bus_station.svg" symbol-color="color:air-transport" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_religion">
                 <m k="amenity" v="place_of_worship">
                     <m k="religion" v="jewish">
-                        <symbol src="assets:symbols/place_of_worship/jewish.svg" />
+                        <symbol src="assets:symbols/place_of_worship/jewish.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="muslim|moslem">
-                        <symbol src="assets:symbols/place_of_worship/muslim.svg" />
+                        <symbol src="assets:symbols/place_of_worship/muslim.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="buddhist">
-                        <symbol src="assets:symbols/place_of_worship/buddhist.svg" />
+                        <symbol src="assets:symbols/place_of_worship/buddhist.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="hindu">
-                        <symbol src="assets:symbols/place_of_worship/hindu.svg" />
+                        <symbol src="assets:symbols/place_of_worship/hinduist.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="shinto">
-                        <symbol src="assets:symbols/place_of_worship/shinto.svg" />
+                        <symbol src="assets:symbols/place_of_worship/shintoist.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="christian">
-                        <symbol src="assets:symbols/place_of_worship/christian.svg" />
+                        <symbol src="assets:symbols/place_of_worship/christian.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="sikh">
-                        <symbol src="assets:symbols/place_of_worship/sikhist.svg" />
+                        <symbol src="assets:symbols/place_of_worship/sikhist.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="taoist">
-                        <symbol src="assets:symbols/place_of_worship/taoist.svg" />
+                        <symbol src="assets:symbols/place_of_worship/taoist.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                     <m k="religion" v="~|other">
-                        <symbol src="assets:symbols/place_of_worship/unknown.svg" />
+                        <symbol src="assets:symbols/place_of_worship/unknown.svg" symbol-color="color:religion" symbol-percent="80" />
                     </m>
                 </m>
             </m>
             <m k="feature|kind_hikebike">
                 <m k="shop">
                     <m v="bicycle">
-                        <symbol src="assets:symbols/shopping/bicycle.svg" />
+                        <symbol src="assets:symbols/shopping/bicycle.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="outdoor">
-                        <symbol src="assets:symbols/shopping/outdoor.svg" />
+                        <symbol src="assets:symbols/shopping/outdoor.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="amenity">
                     <m v="ranger_station">
-                        <symbol src="assets:symbols/tourist/ranger_station.svg" />
+                        <symbol src="assets:symbols/tourist/ranger_station.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="bicycle_rental">
-                        <symbol src="assets:symbols/transport/rental_bicycle.svg" />
+                        <symbol src="assets:symbols/transport/rental_bicycle.svg" symbol-color="color:transportation" symbol-percent="80" />
                     </m>
                     <m v="drinking_water">
-                        <symbol merge-gap="0" src="assets:symbols/food/drinkingtap.svg" />
+                        <symbol merge-gap="0" src="assets:symbols/food/drinking_water.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="shelter">
-                        <symbol merge-gap="0" src="assets:symbols/accommodation/shelter.svg" />
+                        <symbol merge-gap="0" src="assets:symbols/accommodation/shelter.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="toilets">
-                        <symbol merge-gap="0" src="assets:symbols/amenity/toilets.svg" />
+                        <symbol merge-gap="0" src="assets:symbols/amenity/toilets.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                     </m>
                 </m>
                 <m k="tourism">
                     <m v="wilderness_hut">
-                        <symbol src="assets:symbols/accommodation/wildernesshut.svg" />
+                        <symbol src="assets:symbols/accommodation/wilderness_hut.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m v="alpine_hut">
-                        <symbol src="assets:symbols/accommodation/alpinehut.svg" />
+                        <symbol src="assets:symbols/accommodation/alpinehut.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
                     <m select="first" v="information">
                         <m k="information" v="office">
-                            <symbol src="assets:symbols/tourist/information_office.svg" />
+                            <symbol src="assets:symbols/tourist/information_office.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                         </m>
                         <m k="information" v="guidepost">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/guidepost.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                         <m k="information" v="map">
-                            <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                         <m>
-                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg"
-                                symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                     </m>
                 </m>
@@ -442,33 +452,33 @@
             <m k="feature|kind_service">
                 <m k="shop">
                     <m v="hairdresser">
-                        <symbol src="assets:symbols/shopping/hairdresser.svg" />
+                        <symbol src="assets:symbols/shopping/hairdresser.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="copyshop">
-                        <symbol src="assets:symbols/shopping/copyshop.svg" />
+                        <symbol src="assets:symbols/shopping/copyshop.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                     <m v="laundry|dry_cleaning">
-                        <symbol src="assets:symbols/shopping/laundry.svg" />
+                        <symbol src="assets:symbols/shopping/laundry.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>
                 </m>
                 <m k="amenity">
                     <m v="bank">
-                        <symbol src="assets:symbols/money/bank.svg" />
+                        <symbol src="assets:symbols/money/bank.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="post_office">
-                        <symbol src="assets:symbols/amenity/post_office.svg" />
+                        <symbol src="assets:symbols/amenity/post_office.svg" symbol-color="color:public-service" symbol-percent="80" />
                     </m>
                     <m v="atm">
-                        <symbol src="assets:symbols/money/atm.svg" />
+                        <symbol src="assets:symbols/money/atm.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="bureau_de_change">
-                        <symbol src="assets:symbols/money/exchange.svg" />
+                        <symbol src="assets:symbols/money/exchange.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="post_box">
-                        <symbol src="assets:symbols/amenity/post_box.svg" symbol-percent="70" />
+                        <symbol src="assets:symbols/amenity/post_box.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                     </m>
                     <m v="shower">
-                        <symbol src="assets:symbols/amenity/shower.svg" />
+                        <symbol src="assets:symbols/amenity/shower.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                 </m>
             </m>

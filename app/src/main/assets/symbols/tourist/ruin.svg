@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg version="1.0" viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg">
-<path d="m73 144-3 36 20 2v197h-18v18h255l3 4 6-4h109v-18h-87l-98-142-3 2-4-44 71 5 2-36-253-20zm53 41 37 3v191h-36l-1-194zm73 5 18 2 17 187h-35v-189zm64 115 51 74h-44l-7-74z" color="#000000" color-rendering="auto" fill="#734a08" fill-rule="evenodd" image-rendering="auto" shape-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
-<path d="m53.6 433h449.4v-18h-449.4z" color="#000000" color-rendering="auto" fill="#734a08" fill-rule="evenodd" image-rendering="auto" shape-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
-<path d="m35.8 469h505.2v-18h-505.1z" color="#000000" color-rendering="auto" fill="#734a08" fill-rule="evenodd" image-rendering="auto" shape-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
+<g fill-rule="evenodd" shape-rendering="auto">
+<path d="m73 144-3 36 20 2v197h-18v18h255l3 4 6-4h109v-18h-87l-98-142-3 2-4-44 71 5 2-36-253-20zm53 41 37 3v191h-36l-1-194zm73 5 18 2 17 187h-35v-189zm64 115 51 74h-44l-7-74z" color="#000000" color-rendering="auto" image-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
+<path d="m53.6 433h449.4v-18h-449.4z" color="#000000" color-rendering="auto" image-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
+<path d="m35.8 469h505.2v-18h-505.1z" color="#000000" color-rendering="auto" image-rendering="auto" solid-color="#000000" isolation="auto" mix-blend-mode="normal" white-space="normal"/>
+</g>
 </svg>

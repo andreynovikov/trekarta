@@ -4,34 +4,27 @@
     <m e="node" select="first">
         <m cat="roads" k="barrier">
             <m v="border_control">
-                <symbol src="assets:symbols/barrier/border_control.svg" merge-gap="0" />
+                <symbol src="assets:symbols/barrier/border_control.svg" symbol-color="color:transportation" merge-gap="0" />
             </m>
             <m v="toll_booth">
-                <symbol src="assets:symbols/barrier/toll_booth.svg" merge-gap="0" />
+                <symbol src="assets:symbols/barrier/toll_booth.svg" symbol-color="color:transportation" symbol-percent="70" merge-gap="0" />
             </m>
         </m>
     </m>
 
     <m select="first">
-        <m k="kind_vehicles">
-            <m k="highway">
-                <m v="traffic_signals">
-                    <symbol src="assets:symbols/transport/traffic_signal.svg" />
-                </m>
-            </m>
-        </m>
         <m k="feature|kind_transportation">
             <m k="highway">
                 <m v="bus_stop">
-                    <symbol src="assets:symbols/transport/bus_stop.svg" symbol-percent="70" />
+                    <symbol src="assets:symbols/transport/bus_stop.svg" symbol-color="color:transportation" symbol-percent="70" />
                 </m>
             </m>
             <m k="railway">
                 <m v="tram_stop">
-                    <symbol src="assets:symbols/transport/tram_stop.svg" symbol-percent="70" />
+                    <symbol src="assets:symbols/transport/tram_stop.svg" symbol-color="color:transportation" symbol-percent="70" />
                 </m>
                 <m cat="urban" v="subway_entrance" zoom-min="17">
-                    <symbol src="assets:symbols/transport/entrance.svg" symbol-percent="50" />
+                    <symbol src="assets:symbols/transport/entrance.svg" symbol-color="color:transportation" symbol-percent="50" />
                     <text caption="true" style="bold" dy="-15" fill="#1f69a4" size="14"
                         stroke="color:text-outline" stroke-width="2.0" />
                 </m>
@@ -66,36 +59,36 @@
         <!-- ferry -->
         <m k="amenity">
             <m cat="roads" v="ferry_terminal" zoom-min="14">
-                <symbol src="assets:symbols/transport/ferry_terminal.svg" merge-gap="0" />
+                <symbol src="assets:symbols/transport/ferry_terminal.svg" symbol-color="color:air-transport" symbol-percent="80" merge-gap="0" />
                 <text use="poi" />
             </m>
         </m>
         <!-- aeroway -->
         <m k="aeroway">
             <m cat="urban" k="aeroway" v="helipad" zoom-min="15">
-                <symbol src="assets:symbols/transport/helicopter.svg" merge-gap="0" />
+                <symbol src="assets:symbols/transport/helicopter.svg" symbol-color="color:air-transport" symbol-percent="80" merge-gap="0" />
                 <text use="poi" />
             </m>
             <m cat="urban" k="aeroway" v="heliport">
-                <symbol src="assets:symbols/transport/helicopter.svg" merge-gap="0" />
+                <symbol src="assets:symbols/transport/helicopter.svg" symbol-color="color:air-transport" symbol-percent="80" merge-gap="0" />
                 <text use="poi" />
             </m>
             <m cat="urban" k="aeroway" v="aerodrome">
                 <m zoom-min="11">
-                    <symbol src="assets:symbols/transport/airport.svg" />
+                    <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
                     <text caption="true" dy="18" priority="5" use="poi" />
                 </m>
                 <m select="first" zoom-max="11">
                     <m k="icao" zoom-min="9">
-                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
                         <text caption="true" dy="18" k="icao" priority="6" use="poi" />
                     </m>
                     <m k="ref" zoom-min="9">
-                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
                         <text caption="true" dy="18" k="ref" priority="6" use="poi" />
                     </m>
                     <m k="iata">
-                        <symbol src="assets:symbols/transport/airport.svg" />
+                        <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
                         <text caption="true" dy="18" k="iata" priority="6" use="poi" />
                     </m>
                 </m>

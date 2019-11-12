@@ -9,7 +9,6 @@
 
     TODO:
     lock_gate as a point
-    https://wiki.openstreetmap.org/wiki/Key:memorial
     https://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     https://wiki.openstreetmap.org/wiki/Tag:craft=winery
     https://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
@@ -23,7 +22,6 @@
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmini_roundabout
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dservices
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Drest_area
-    protect_class:1
     https://wiki.openstreetmap.org/wiki/Key:depth - for fords and waterways
     -->
 
@@ -154,6 +152,8 @@
 
     <style-color id="pier-stroke" color="#d0d0d0" />
     <style-color id="pier-fill" color="#e4e4e4" />
+
+    <xi:include href="inc_poi_colors.xml" />
 
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aaffffff"
@@ -609,7 +609,7 @@
         <m cat="urban" v="generator" zoom-min="14">
             <m k="generator:source" select="first">
                 <m v="wind">
-                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" />
+                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" symbol-color="color:man-made" symbol-percent="80" />
                 </m>
             </m>
         </m>

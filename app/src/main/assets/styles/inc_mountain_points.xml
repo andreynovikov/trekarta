@@ -3,18 +3,18 @@
     <m cat="mountains" k="natural">
         <m select="first" zoom-min="13">
             <m v="volcano">
-                <symbol src="assets:symbols/natural/volcano.svg" />
+                <symbol src="assets:symbols/natural/peak.svg" symbol-color="#d40000" symbol-percent="60" />
                 <text caption="true" style="bold" dy="-12" fill="color:text" k="ele" size="14" stroke="color:text-outline"
                     stroke-width="2.0" />
             </m>
             <m v="peak">
-                <symbol src="assets:symbols/natural/peak.svg" />
+                <symbol src="assets:symbols/natural/peak.svg" symbol-color="color:mountains" symbol-percent="60" />
                 <text caption="true" style="bold" dy="-12" fill="color:text" k="ele" size="14" stroke="color:text-outline"
                     stroke-width="2.0" />
             </m>
             <m v="saddle">
                 <m k="mountain_pass" v="~|no">
-                    <symbol src="assets:symbols/natural/saddle.svg" />
+                    <symbol src="assets:symbols/natural/saddle.svg" symbol-color="color:mountains" symbol-percent="60" />
                     <text caption="true" style="bold" dy="-12" fill="color:text" k="ele" size="14" stroke="color:text-outline"
                         stroke-width="2.0" />
                 </m>
@@ -26,7 +26,7 @@
         </m>
     </m>
     <m cat="roads" k="mountain_pass" v="yes">
-        <symbol src="assets:symbols/natural/mountain_pass.svg" symbol-percent="70" />
+        <symbol src="assets:symbols/natural/mountain_pass.svg" symbol-color="color:mountains" symbol-percent="60" />
         <text caption="true" style="bold" dy="16" fill="color:natural-text" size="13" stroke="color:text-outline"
             stroke-width="2.0" />
         <text caption="true" style="bold" dy="-16" fill="color:text" k="ele" size="14" stroke="color:text-outline"

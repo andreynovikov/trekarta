@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-<metadata>
-<rdf:RDF>
-<cc:Work rdf:about="">
-<dc:format>image/svg+xml</dc:format>
-<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-<dc:title/>
-</cc:Work>
-</rdf:RDF>
-</metadata>
-<rect width="16" height="16" fill="none" visibility="hidden"/>
-<path transform="translate(1,1)" d="m2 8c-0.98818 0.98818-1.44 2.5736-0.45127 3.553l0.45127 0.44703 3-3v-1.5l2.5-2.5h1.5l3-3-0.51059-0.48729c-0.97553-0.93101-2.5086-0.49348-3.4894 0.48729zm0.54515 4.5376 0.33879 0.35289s0.85017 0.07591 1.2889-0.35617l1.3937-1.3725c0.38187-0.40198 0.30732-1.3046 0.30732-1.3046l-0.33879-0.35289zm7.0079-7.0172 0.33879 0.35289s0.86974 0.15754 1.2644-0.23107l1.3937-1.3725c0.39488-0.38888 0.32215-1.4084 0.32215-1.4084l-0.33879-0.35289z" color="#000000" fill="#734a08"/>
+<svg version="1.1" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+<rect width="14" height="14" fill="none" visibility="hidden"/>
+<path d="m2 8c-0.98818 0.98818-1.44 2.5736-0.45127 3.553l0.45127 0.44703 3-3v-1.5l2.5-2.5h1.5l3-3-0.51059-0.48729c-0.97553-0.93101-2.5086-0.49348-3.4894 0.48729zm0.54515 4.5376 0.33879 0.35289s0.85017 0.07591 1.2889-0.35617l1.3937-1.3725c0.38187-0.40198 0.30732-1.3046 0.30732-1.3046l-0.33879-0.35289zm7.0079-7.0172 0.33879 0.35289s0.86974 0.15754 1.2644-0.23107l1.3937-1.3725c0.39488-0.38888 0.32215-1.4084 0.32215-1.4084l-0.33879-0.35289z"/>
 </svg>

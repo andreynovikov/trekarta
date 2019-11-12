@@ -128,6 +128,8 @@
     <style-color id="pier-stroke" color="#151515" />
     <style-color id="pier-fill" color="#151515" />
 
+    <xi:include href="inc_poi_colors.xml" />
+
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aa000000"
         stroke-width="2.5" />
