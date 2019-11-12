@@ -655,5 +655,10 @@
     <string name="legend_stone">Stone</string>
     <string name="legend_plaque">Plaque</string>
     <string name="legend_wayside_shrine">Wayside shrine</string>
+    <string name="legend_massage">Massage</string>
+    <string name="legend_dentist">Dentist practice</string>
+    <string name="legend_embassy">Embassy</string>
+    <string name="legend_horse_riding">Equestrian centre</string>
+    <string name="legend_spring">Spring</string>
 
 </resources>

@@ -278,11 +278,13 @@ public class Tags {
             new Tag("amenity", "boat_rental"), // 97
             null, null,
             new Tag("leisure", "water_park"), // 100
-            null, null,
+            new Tag("leisure", "horse_riding"), // 101
+            null,
             new Tag("leisure", "beach_resort"), // 103
             null, null,
             new Tag("leisure", "sauna"), // 106
-            null, null,
+            new Tag("shop", "massage"), // 107
+            new Tag("diplomatic", "embassy"), // 108
             new Tag("amenity", "police"), // 109
             null, null,
             new Tag("amenity", "fire_station"), // 112
@@ -292,7 +294,8 @@ public class Tags {
             new Tag("amenity", "ranger_station"), // 118
             null, null,
             new Tag("amenity", "doctors"), // 121
-            null, null,
+            new Tag("amenity", "dentist"), // 122
+            null,
             new Tag("amenity", "pharmacy"), // 124
             null, null,
             new Tag("amenity", "telephone"), // 127
@@ -503,11 +506,13 @@ public class Tags {
             R.string.legend_boat_rental, // 97
             -1, -1,
             R.string.legend_water_park, // 100
-            -1, -1,
+            R.string.legend_horse_riding,
+            -1,
             R.string.legend_beach_resort, // 103
             -1, -1,
             R.string.legend_sauna, // 106
-            -1, -1,
+            R.string.legend_massage, // 107
+            R.string.legend_embassy, // 108
             R.string.legend_police_office, // 109
             -1, -1,
             R.string.legend_fire_station, // 112
@@ -517,7 +522,8 @@ public class Tags {
             R.string.legend_ranger_station, // 118
             -1, -1,
             R.string.legend_doctors_practice, // 121
-            -1, -1,
+            R.string.legend_dentist, // 122
+            -1,
             R.string.legend_pharmacy, // 124
             -1, -1,
             R.string.legend_telephone, // 127
@@ -655,11 +661,11 @@ public class Tags {
     };
 
     private static final int[][] kindTypes = {
-            new int[] {109, 112, 115, 118, 121, 124, 127, 130}, // emergency
+            new int[] {108, 109, 112, 115, 118, 121, 122, 124, 127, 130}, // emergency
             new int[] {1, 4, 7, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
             new int[] {178, 181, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 205, 208, 211, 214, 217, 220, 223}, // attraction
-            new int[] {82, 85, 88, 91, 94, 97, 100, 103, 106}, // entertainment
+            new int[] {82, 85, 88, 91, 94, 97, 100, 101, 103, 106, 107}, // entertainment
             new int[] {148, 151, 154, 157, 160, 163, 166, 169, 43, 172, 175, 61}, // shopping
             new int[] {262, 265, 268, 271, 274, 277, 280, 283, 286}, // service
             new int[] {401, 402, 403, 404, 405, 406, 407, 408, 420}, // religion
@@ -807,7 +813,8 @@ public class Tags {
             "piste:grooming",
             "piste:lit",
             "piste:oneway",
-            "memorial"
+            "memorial",
+            "diplomatic"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1430,7 +1437,11 @@ public class Tags {
             "statue",
             "bust",
             "stone",
-            "plaque"
+            "plaque",
+            "massage",
+            "dentist",
+            "embassy",
+            "horse_riding"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

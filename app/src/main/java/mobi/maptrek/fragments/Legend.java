@@ -164,6 +164,8 @@ public class Legend extends ListFragment {
             .addTag("natural", "cliff");
     private static LegendItem cave_entrance = new LegendItem(GeometryType.POINT, R.string.legend_cave_entrance, 17)
             .addTag("natural", "cave_entrance");
+    private static LegendItem spring = new LegendItem(GeometryType.POINT, R.string.legend_spring, 17)
+            .addTag("natural", "spring");
     private static LegendItem contour = new LegendItem(GeometryType.LINE, R.string.legend_contour, 14)
             .addTag("contour", "elevation_major").setText(R.string.legend_elevation);
 
@@ -715,9 +717,15 @@ public class Legend extends ListFragment {
             .addTag("leisure", "beach_resort").addTag("kind_entertainment", "yes");
     private static LegendItem sauna = new LegendItem(GeometryType.POINT, R.string.legend_sauna, 17)
             .addTag("leisure", "sauna").addTag("kind_entertainment", "yes");
+    private static LegendItem massage = new LegendItem(GeometryType.POINT, R.string.legend_massage, 17)
+            .addTag("shop", "massage").addTag("kind_entertainment", "yes");
     private static LegendItem boat_rental = new LegendItem(GeometryType.POINT, R.string.legend_boat_rental, 17)
             .addTag("amenity", "boat_rental").addTag("kind_entertainment", "yes");
+    private static LegendItem horse_riding = new LegendItem(GeometryType.POINT, R.string.legend_horse_riding, 17)
+            .addTag("leisure", "horse_riding").addTag("kind_entertainment", "yes");
 
+    private static LegendItem embassy = new LegendItem(GeometryType.POINT, R.string.legend_embassy, 17)
+            .addTag("diplomatic", "embassy").addTag("kind_emergency", "yes");
     private static LegendItem police = new LegendItem(GeometryType.POINT, R.string.legend_police_office, 17)
             .addTag("amenity", "police").addTag("kind_emergency", "yes");
     private static LegendItem fire_station = new LegendItem(GeometryType.POINT, R.string.legend_fire_station, 17)
@@ -728,6 +736,8 @@ public class Legend extends ListFragment {
             .addTag("amenity", "ranger_station").addTag("kind_emergency", "yes");
     private static LegendItem doctors = new LegendItem(GeometryType.POINT, R.string.legend_doctors_practice, 17)
             .addTag("amenity", "doctors").addTag("kind_emergency", "yes");
+    private static LegendItem dentist = new LegendItem(GeometryType.POINT, R.string.legend_dentist, 17)
+            .addTag("amenity", "dentist").addTag("kind_emergency", "yes");
     private static LegendItem pharmacy = new LegendItem(GeometryType.POINT, R.string.legend_pharmacy, 17)
             .addTag("amenity", "pharmacy").addTag("kind_emergency", "yes");
     private static LegendItem telephone = new LegendItem(GeometryType.POINT, R.string.legend_telephone, 17)
@@ -987,6 +997,7 @@ public class Legend extends ListFragment {
             saddle,
             mountain_pass,
             cave_entrance,
+            spring,
             contour
     });
 
@@ -1157,15 +1168,19 @@ public class Legend extends ListFragment {
             library,
             picnic_site,
             boat_rental,
+            horse_riding,
             water_park,
             beach_resort,
-            sauna
+            sauna,
+            massage
     });
 
     private static LegendSection amenities_emergency = new LegendSection(R.string.kind_emergency, new LegendItem[]{
             hospital,
             doctors,
+            dentist,
             pharmacy,
+            embassy,
             police,
             fire_station,
             ranger_station,
