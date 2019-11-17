@@ -145,7 +145,7 @@
     <style-text style="italic" caption="true" fill="#505050" id="place_suburb" use="place" />
     <style-text id="place_town" symbol="assets:symbols/dot_grey.svg" use="place" />
     <style-text id="place_city" symbol="assets:symbols/dot_dark.svg" use="place" />
-    <style-text id="place_capital" symbol="assets:symbols/star_dark.svg" use="place" />
+    <style-text id="place_capital" symbol="assets:symbols/star.svg" symbol-color="#666666" use="place" />
 
     <!-- Water styles -->
     <!--suppress XmlDefaultAttributeValue -->
@@ -161,7 +161,7 @@
     <style-area fill="#1B1B1D" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="cliff" src="assets:symbols/natural/cliff-night.svg" />
+    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#101210" id="wood" />
 
@@ -293,7 +293,7 @@
         <m cat="urban" v="generator" zoom-min="14">
             <m k="generator:source" select="first">
                 <m v="wind">
-                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" />
+                    <symbol merge-gap="0" src="assets:symbols/power/wind.svg" symbol-color="color:man-made" />
                 </m>
             </m>
         </m>
