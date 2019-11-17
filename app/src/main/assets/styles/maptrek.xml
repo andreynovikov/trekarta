@@ -174,7 +174,7 @@
     <style-area fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
+    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
@@ -338,7 +338,7 @@
         </m>
         <m cat="urban" k="tourism" v="zoo|theme_park" zoom-min="15">
             <line use="tourism" />
-            <m v="theme_park">
+            <m k="kind_entertainment" v="~">
                 <text use="theme_park" />
             </m>
         </m>

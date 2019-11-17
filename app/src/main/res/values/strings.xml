@@ -634,7 +634,6 @@
     <string name="legend_hiking_visibility_bad">Bad visibility</string>
     <string name="legend_hiking_visibility_no">No visibility</string>
     <string name="legend_theme_park">Theme park</string>
-    <string name="legend_theme_park_name">Disneyland</string>
     <string name="legend_boat_rental">Boat rental</string>
     <string name="legend_beach_text">Brighton</string>
     <string name="legend_orchard">Orchard</string>
@@ -660,5 +659,7 @@
     <string name="legend_embassy">Embassy</string>
     <string name="legend_horse_riding">Equestrian centre</string>
     <string name="legend_spring">Spring</string>
+    <string name="legend_gallery">Art gallery</string>
+    <string name="legend_chalet">Holiday cottage</string>
 
 </resources>

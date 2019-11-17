@@ -14,6 +14,9 @@
                     <m v="guest_house">
                         <symbol src="assets:symbols/accommodation/guesthouse.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
+                    <m v="chalet">
+                        <symbol src="assets:symbols/accommodation/chalet.svg" symbol-color="color:accommodation" symbol-percent="80" />
+                    </m>
                     <m v="motel">
                         <symbol src="assets:symbols/accommodation/motel.svg" symbol-color="color:accommodation" symbol-percent="80" />
                     </m>
@@ -99,7 +102,10 @@
             <m k="feature|kind_entertainment">
                 <m k="tourism">
                     <m v="zoo">
-                        <symbol src="assets:symbols/tourist/zoo.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
+                        <symbol src="assets:symbols/tourist/zoo.svg" symbol-color="color:amenity-brown" />
+                    </m>
+                    <m v="theme_park">
+                        <symbol src="assets:symbols/tourist/theme_park.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                     </m>
                     <m v="picnic_site">
                         <symbol src="assets:symbols/tourist/picnic.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
@@ -294,6 +300,9 @@
                 <m k="tourism">
                     <m v="museum">
                         <symbol src="assets:symbols/tourist/museum.svg" symbol-color="color:culture" symbol-percent="80" />
+                    </m>
+                    <m v="gallery">
+                        <symbol src="assets:symbols/tourist/gallery.svg" symbol-color="color:culture" symbol-percent="80" />
                     </m>
                     <m select="first" v="information">
                         <m k="information" v="office">

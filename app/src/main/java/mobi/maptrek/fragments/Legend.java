@@ -111,8 +111,8 @@ public class Legend extends ListFragment {
             .addTag("landuse", "military").setText(R.string.legend_military_name);
     private static LegendItem zoo_area = new LegendItem(GeometryType.POLY, R.string.legend_zoo, 17)
             .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
-    private static LegendItem theme_park = new LegendItem(GeometryType.POLY, R.string.legend_theme_park, 17)
-            .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes").setText(R.string.legend_theme_park_name);
+    private static LegendItem theme_park_area = new LegendItem(GeometryType.POLY, R.string.legend_theme_park, 17)
+            .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes");
 
     // Water
     private static LegendItem glacier = new LegendItem(GeometryType.POLY, R.string.legend_glacier, 17)
@@ -663,6 +663,8 @@ public class Legend extends ListFragment {
             .addTag("tourism", "alpine_hut").addTag("kind_accommodation", "yes");
     private static LegendItem guest_house = new LegendItem(GeometryType.POINT, R.string.legend_guest_house, 17)
             .addTag("tourism", "guest_house").addTag("kind_accommodation", "yes");
+    private static LegendItem chalet = new LegendItem(GeometryType.POINT, R.string.legend_chalet, 17)
+            .addTag("tourism", "chalet").addTag("kind_accommodation", "yes");
     private static LegendItem motel = new LegendItem(GeometryType.POINT, R.string.legend_motel, 17)
             .addTag("tourism", "motel").addTag("kind_accommodation", "yes");
     private static LegendItem hostel = new LegendItem(GeometryType.POINT, R.string.legend_hostel, 17)
@@ -703,6 +705,8 @@ public class Legend extends ListFragment {
 
     private static LegendItem zoo = new LegendItem(GeometryType.POINT, R.string.legend_zoo, 17)
             .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
+    private static LegendItem theme_park = new LegendItem(GeometryType.POINT, R.string.legend_theme_park, 17)
+            .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes");
     private static LegendItem picnic_site = new LegendItem(GeometryType.POINT, R.string.legend_picnic_site, 17)
             .addTag("tourism", "picnic_site").addTag("kind_entertainment", "yes");
     private static LegendItem theatre = new LegendItem(GeometryType.POINT, R.string.legend_theatre, 17)
@@ -803,6 +807,8 @@ public class Legend extends ListFragment {
             .addTag("man_made", "windmill").addTag("kind_attraction", "yes");
     private static LegendItem museum = new LegendItem(GeometryType.POINT, R.string.legend_museum, 17)
             .addTag("tourism", "museum").addTag("kind_attraction", "yes");
+    private static LegendItem gallery = new LegendItem(GeometryType.POINT, R.string.legend_gallery, 17)
+            .addTag("tourism", "gallery").addTag("kind_attraction", "yes");
     private static LegendItem castle = new LegendItem(GeometryType.POINT, R.string.legend_castle, 17)
             .addTag("historic", "castle").addTag("kind_attraction", "yes");
     private static LegendItem attraction = new LegendItem(GeometryType.POINT, R.string.legend_attraction, 17)
@@ -896,9 +902,9 @@ public class Legend extends ListFragment {
             educational, recreation, construction, hospital_area, military, stream, ditch, grass,
             forest, tree_row, tree, beach, wall, retaining_wall, fence, hedge, power_generator_wind,
             runway, apron, railway_platform, bridge, pier, pitch, sports_centre, stadium, garden,
-            camp_site_area, zoo_area, theme_park, dog_park, cemetery, cycleway, railway_crossing,
-            bus_station, subway_entrance, subway_station, railway_station, railway_halt,
-            aeroway_aerodrome, aeroway_heliport
+            camp_site_area, zoo_area, theme_park_area, dog_park, cemetery, cycleway,
+            railway_crossing, bus_station, subway_entrance, subway_station, railway_station,
+            railway_halt, aeroway_aerodrome, aeroway_heliport
     ));
 
     private static HashSet<LegendItem> notUrbanItems = new HashSet<>(Arrays.asList(
@@ -912,9 +918,9 @@ public class Legend extends ListFragment {
             recreation, construction, farmland, orchard, plant_nursery, farmyard, quarry,
             underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp, mangrove,
             bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach, glacier,
-            contour, pitch, sports_centre, stadium, building, garden, theme_park, camp_site_area,
-            zoo_area, runway, apron, dog_park, cemetery, cycleway, railway_tunnel, tram,
-            railway_crossing, ferry
+            contour, pitch, sports_centre, stadium, building, garden, theme_park_area,
+            camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway, railway_tunnel,
+            tram, railway_crossing, ferry
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
@@ -1027,7 +1033,7 @@ public class Legend extends ListFragment {
             beach,
             camp_site_area,
             playground_area,
-            theme_park,
+            theme_park_area,
             zoo_area,
             dog_park,
             cemetery
@@ -1137,6 +1143,7 @@ public class Legend extends ListFragment {
             wilderness_hut,
             alpine_hut,
             guest_house,
+            chalet,
             motel,
             hostel,
             hotel,
@@ -1163,6 +1170,7 @@ public class Legend extends ListFragment {
 
     private static LegendSection amenities_entertainment = new LegendSection(R.string.kind_entertainment, new LegendItem[]{
             zoo,
+            theme_park,
             theatre,
             cinema,
             library,
@@ -1217,6 +1225,7 @@ public class Legend extends ListFragment {
             lighthouse,
             windmill,
             museum,
+            gallery,
             castle,
             monument,
             statue,
