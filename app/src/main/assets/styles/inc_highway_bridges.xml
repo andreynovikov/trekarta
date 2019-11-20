@@ -19,7 +19,7 @@
                     <m cat="pedestrian" v="footway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
-                        <line use="footway" />
+                        <line use="footway:z16" />
                     </m>
                     <m cat="pedestrian" v="path">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"

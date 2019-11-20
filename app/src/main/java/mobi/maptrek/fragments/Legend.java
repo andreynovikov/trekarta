@@ -352,6 +352,8 @@ public class Legend extends ListFragment {
             .addTag("highway", "path").addTag("trail_visibility", "good");
     private static LegendItem path_visibility_bad = new LegendItem(GeometryType.LINE, R.string.legend_path_visibility_bad, 17)
             .addTag("highway", "path").addTag("trail_visibility", "bad");
+    private static LegendItem no_access_path = new LegendItem(GeometryType.LINE, R.string.legend_noaccess_path, 17)
+            .addTag("highway", "path").addTag("access", "no");
     private static LegendItem footway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_footway_bridge, 17)
             .addTag("highway", "footway").addTag("bridge", "yes");
     private static LegendItem steps = new LegendItem(GeometryType.LINE, R.string.legend_steps, 17)
@@ -1097,6 +1099,7 @@ public class Legend extends ListFragment {
             path,
             path_visibility_good,
             path_visibility_bad,
+            no_access_path,
             footway_bridge,
             steps,
             via_ferrata // TODO Should go to hiking
@@ -1477,7 +1480,7 @@ public class Legend extends ListFragment {
                     piste_ski_jump_landing,
                     piste_ski_tour,
                     sports_centre,
-                    theme_park
+                    theme_park_area
             }),
             aerial_ways,
             administrative,
@@ -1505,6 +1508,7 @@ public class Legend extends ListFragment {
             }),
             transportation,
             roads,
+            pedestrian,
             railways,
             amenities_emergency,
             amenities_accommodation,

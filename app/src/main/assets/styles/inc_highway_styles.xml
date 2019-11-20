@@ -27,9 +27,9 @@
     <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
     <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
         stroke="#00ffffff" width="1.2" />
-    <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
+    <style-line id="footway:z16" stipple="6" stipple-ratio="0.7" use="footway" />
 
-    <style-line fix="true" id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.2" />
+    <style-line id="cycleway" stipple-stroke="#4040ee" use="footway" width="0.2" />
     <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
     <style-line cap="butt" fix="true" id="bridleway" stipple="6" stipple-stroke="#007700"
         stroke="#00ffffff" width="1.5" />

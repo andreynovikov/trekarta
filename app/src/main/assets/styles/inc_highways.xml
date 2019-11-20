@@ -241,30 +241,47 @@
                                 <line use="steps" />
                             </m>
                             <m zoom-max="15" zoom-min="14">
-                                <m zoom-min="15">
-                                    <line use="footway:back" />
-                                </m>
                                 <line use="footway" />
                             </m>
                         </m>
                         <m cat="pedestrian" v="footway">
-                            <m zoom-min="15">
-                                <line use="footway:back" />
+                            <m zoom-max="15">
+                                <line use="footway" />
                             </m>
-                            <line use="footway" />
+                            <m zoom-min="16">
+                                <line use="footway:back" />
+                                <line use="footway:z16" />
+                            </m>
                         </m>
                         <m cat="pedestrian" v="path" zoom-min="14">
-                            <m zoom-min="15">
+                            <m zoom-min="16">
                                 <line use="footway:back" />
                             </m>
                             <m k="trail_visibility" v="~|intermediate">
-                                <line use="path" />
+                                <m k="access" v="no|private">
+                                    <line use="path" stipple-stroke="color:path-access-no" />
+                                </m>
+                                <m k="access" v="~|yes">
+                                    <line use="path" />
+                                </m>
                             </m>
                             <m k="trail_visibility" v="excellent|good">
-                                <line use="path" stipple="6" stipple-ratio="0.7" />
+                                <m k="access" v="no|private">
+                                    <line stipple="6" stipple-ratio="0.7"
+                                        stipple-stroke="color:path-access-no" use="path" />
+                                </m>
+                                <m k="access" v="~|yes">
+                                    <line stipple="6" stipple-ratio="0.7" use="path" />
+                                </m>
                             </m>
                             <m k="trail_visibility" v="bad|horrible|no">
-                                <line use="path" stipple="6" stipple-ratio="0.3" />
+                                <m k="access" v="no|private">
+                                    <line stipple="6" stipple-ratio="0.3"
+                                        stipple-stroke="color:path-access-no" use="path" />
+                                </m>
+                                <m k="access" v="~|yes">
+                                    <line stipple="6" stipple-ratio="0.3" use="path" />
+                                </m>
                             </m>
                         </m>
                         <m v="bridleway">

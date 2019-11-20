@@ -59,6 +59,7 @@
     <style-color id="highway-service" color="#eeeeee" />
     <style-color id="pedestrian" color="#e0e0e0" />
 
+    <style-color id="path-access-no" color="#dddddd" />
     <style-color id="service-tunnel" color="#e5e5e5" />
 
     <style-color id="road-text" color="#101010" />
@@ -103,7 +104,7 @@
     <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" />
+    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#e4ecec" id="wood" />
 
@@ -156,12 +157,12 @@
     <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
     <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#999999"
         stroke="#00ffffff" width="1.5" />
-    <style-line cap="butt" id="footway:bridge" stroke="#fefefe" use="footway" />
+    <style-line id="footway:z16" stipple="6" stipple-ratio="0.7" use="footway" />
 
     <style-line id="path" stipple="4" use="footway" width="0.1" />
     <style-line id="bridleway" use="footway" width="0.2" />
-    <style-line cap="butt" fix="true" id="steps" stipple="3" stipple-stroke="#999999"
-        stroke="#aaffffff" width="3.5" />
+    <style-line cap="butt" fix="true" id="steps" stipple="4" stipple-ratio="0.35"
+        stipple-stroke="#999999" stroke="#aaffffff" width="3.5" />
 
     <style-line cap="butt" id="tunnel" stipple="20" stipple-stroke="#f0f0f0" stroke="#00ffffff"
         width="1.3" />

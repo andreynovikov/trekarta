@@ -661,5 +661,6 @@
     <string name="legend_spring">Spring</string>
     <string name="legend_gallery">Art gallery</string>
     <string name="legend_chalet">Holiday cottage</string>
+    <string name="legend_noaccess_path">Path without access</string>
 
 </resources>
