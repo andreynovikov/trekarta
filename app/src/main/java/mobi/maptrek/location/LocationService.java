@@ -74,7 +74,7 @@ import mobi.maptrek.io.Manager;
 import mobi.maptrek.util.ProgressListener;
 import mobi.maptrek.util.StringFormatter;
 
-public class LocationService extends BaseLocationService implements LocationListener, NmeaListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
+public class LocationService extends BaseLocationService implements LocationListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
     private static final int SKIP_INITIAL_LOCATIONS = 2;
@@ -237,7 +237,7 @@ public class LocationService extends BaseLocationService implements LocationList
                 mLocationManager.addGpsStatusListener(this);
                 try {
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_DELAY, 0, this);
-                    mLocationManager.addNmeaListener(this);
+                    //mLocationManager.addNmeaListener(this);
                     mLocationsEnabled = true;
                     logger.debug("Gps provider set");
                 } catch (IllegalArgumentException e) {
@@ -258,7 +258,7 @@ public class LocationService extends BaseLocationService implements LocationList
         logger.debug("disconnect()");
         if (mLocationManager != null) {
             mLocationsEnabled = false;
-            mLocationManager.removeNmeaListener(this);
+            //mLocationManager.removeNmeaListener(this);
             try {
                 mLocationManager.removeUpdates(this);
             } catch (SecurityException e) {
@@ -334,7 +334,6 @@ public class LocationService extends BaseLocationService implements LocationList
         builder.setPriority(Notification.PRIORITY_LOW);
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setColor(getResources().getColor(R.color.colorAccent, getTheme()));
-        //noinspection PointlessBooleanExpression,ConstantConditions
         if (mErrorTime > 0 && DEBUG_ERRORS)
             builder.setContentText(mErrorMsg);
         else
@@ -357,7 +356,6 @@ public class LocationService extends BaseLocationService implements LocationList
         File path = new File(MapTrek.getApplication().getExternalDir("databases"), "track.sqlitedb");
         try {
             mTrackDB = SQLiteDatabase.openDatabase(path.getAbsolutePath(), null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-            //noinspection SpellCheckingInspection
             Cursor cursor = mTrackDB.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = 'track'", null);
             if (cursor.getCount() == 0) {
                 mTrackDB.execSQL("CREATE TABLE track (_id INTEGER PRIMARY KEY, latitude INTEGER, longitude INTEGER, code INTEGER, elevation REAL, speed REAL, track REAL, accuracy REAL, datetime INTEGER)");
@@ -630,7 +628,6 @@ public class LocationService extends BaseLocationService implements LocationList
     private void updateLocation() {
         final Location location = mLastKnownLocation;
         final boolean continuous = mContinuous;
-        //final boolean geoId = !Float.isNaN(mNmeaGeoidHeight);
 
         final Handler handler = new Handler();
 
@@ -697,9 +694,8 @@ public class LocationService extends BaseLocationService implements LocationList
 
         mLastLocationMillis = time;
 
-        if (!Float.isNaN(mNmeaGeoidHeight)) {
-            mLastKnownLocation.setAltitude(mLastKnownLocation.getAltitude() + mNmeaGeoidHeight);
-        }
+        //if (!Float.isNaN(mNmeaGeoidHeight))
+        //    mLastKnownLocation.setAltitude(mLastKnownLocation.getAltitude() + mNmeaGeoidHeight);
 
         if (mJustStarted) {
             mJustStarted = prevSpeed == 0;
@@ -715,6 +711,7 @@ public class LocationService extends BaseLocationService implements LocationList
         mContinuous = true;
     }
 
+    /*
     @Override
     public void onNmeaReceived(long timestamp, String nmea) {
         if (nmea.indexOf('\n') == 0)
@@ -767,6 +764,7 @@ public class LocationService extends BaseLocationService implements LocationList
             logger.error("AIOOBE", e);
         }
     }
+    */
 
     @Override
     public void onProviderDisabled(String provider) {
