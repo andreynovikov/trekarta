@@ -85,6 +85,15 @@ class MapTrekTileDecoder extends PbfDecoder {
     private static final int TAG_ELEM_ROOF_SHAPE = 40;
     private static final int TAG_ELEM_ROOF_DIRECTION = 41;
     private static final int TAG_ELEM_ROOF_ACROSS = 42;
+    /**
+     * since version 7
+     */
+    private static final int TAG_ELEM_RESERVED5 = 5;
+    private static final int TAG_ELEM_RESERVED6 = 6;
+    private static final int TAG_ELEM_RESERVED7 = 7;
+    private static final int TAG_ELEM_RESERVED8 = 8;
+    private static final int TAG_ELEM_RESERVED9 = 9;
+    private static final int TAG_ELEM_AREA = 23;
 
     private int[] mSArray = new int[100];
 
@@ -314,6 +323,27 @@ class MapTrekTileDecoder extends PbfDecoder {
                     mElem.id = decodeVarint64();
                     break;
 
+                case TAG_ELEM_RESERVED5:
+                    decodeVarint64();
+                    break;
+
+                case TAG_ELEM_RESERVED6:
+                    decodeVarint32();
+                    break;
+
+                case TAG_ELEM_RESERVED7:
+                    //noinspection ResultOfMethodCallIgnored
+                    deZigZag(decodeVarint32());
+                    break;
+
+                case TAG_ELEM_RESERVED8:
+                    decodeBool();
+                    break;
+
+                case TAG_ELEM_RESERVED9:
+                    decodeString();
+                    break;
+
                 case TAG_ELEM_TAGS:
                     if (!decodeElementTags(numTags))
                         return false;
@@ -385,6 +415,10 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_LAYER:
                     mElem.layer = decodeVarint32();
+                    break;
+
+                case TAG_ELEM_AREA:
+                    mElem.featureArea = decodeVarint64();
                     break;
 
                 case TAG_ELEM_ELEVATION:
