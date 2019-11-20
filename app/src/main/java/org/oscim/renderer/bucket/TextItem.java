@@ -62,9 +62,10 @@ public class TextItem extends Inlist<TextItem> {
         return ti;
     }
 
-    public TextItem set(float x, float y, String label, TextStyle text) {
+    public TextItem set(float x, float y, float ratio, String label, TextStyle text) {
         this.x = x;
         this.y = y;
+        this.ratio = ratio;
         this.label = label;
         this.text = text;
         this.x1 = 0;
@@ -116,6 +117,9 @@ public class TextItem extends Inlist<TextItem> {
 
     // center
     public float x, y;
+
+    // ratio
+    public float ratio;
 
     // label text
     public String label;

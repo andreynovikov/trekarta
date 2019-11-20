@@ -37,6 +37,7 @@ final class Label extends TextItem {
     public Label clone(TextItem ti) {
         this.label = ti.label;
         this.text = ti.text;
+        this.ratio = ti.ratio;
         this.width = ti.width;
         this.height = ti.height;
         this.length = ti.length;
@@ -46,8 +47,11 @@ final class Label extends TextItem {
     }
 
     static int comparePriority(Label l1, Label l2) {
-
-        return 0;
+        int compare = Integer.compare(l1.text.priority, l2.text.priority);
+        if (compare == 0)
+            return Float.compare(l2.ratio, l1.ratio);
+        else
+            return compare;
     }
 
     public static boolean shareText(Label l, Label ll) {

@@ -79,6 +79,20 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             LabelTileData ld = get(tile);
 
             TextStyle text = (TextStyle) style.current();
+
+            float ratio = 1f;
+            /*
+            if (element instanceof ExtendedMapElement) {
+                if (((ExtendedMapElement) element).featureArea > 0) {
+                    String value = getTextValue(element, text.textKey);
+                    float scale = 1f / (float) Math.pow(2, (17 - tile.zoomLevel));
+                    long area = (((ExtendedMapElement) element).featureArea);
+                    ratio = area * scale * scale / Tile.SQUARE_TILE_SIZE;
+                    //logger.error("{} {} {} {} {}", tile.zoomLevel, value, area, ratio, scale);
+                }
+            }
+            */
+
             if (element.type == LINE) {
                 String value = getTextValue(element, text.textKey);
                 if (value == null)
@@ -109,7 +123,7 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                 if (text.areaSize > 0f) {
                     float area = element.area();
-                    float ratio = area / (Tile.SIZE * Tile.SIZE); // we can't use static as it's recalculated based on dpi
+                    ratio = area / (Tile.SIZE * Tile.SIZE); // we can't use static as it's recalculated based on dpi
                     if (ratio < text.areaSize)
                         return false;
                 }
@@ -121,7 +135,7 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                 if (label == null)
                     label = PolyLabel.get(element);
 
-                ld.labels.push(TextItem.pool.get().set(label.x, label.y, value, text));
+                ld.labels.push(TextItem.pool.get().set(label.x, label.y, ratio, value, text));
             } else if (element.type == POINT) {
                 String value = getTextValue(element, text.textKey);
                 if (value == null)
@@ -129,7 +143,7 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
 
                 for (int i = 0, n = element.getNumPoints(); i < n; i++) {
                     PointF p = element.getPoint(i);
-                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, value, text));
+                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, ratio, value, text));
                 }
             }
         } else if (style instanceof SymbolStyle) {

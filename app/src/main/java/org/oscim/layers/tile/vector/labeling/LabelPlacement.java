@@ -139,10 +139,7 @@ public class LabelPlacement {
                 if (o.active <= l.active)
                     return 1;
 
-                if (!o.text.caption
-                        && (o.text.priority > l.text.priority
-                        || o.length < l.length)) {
-
+                if (!o.text.caption && (Label.comparePriority(l, o) > 0 || o.length < l.length)) {
                     o = removeLabel(o);
                     continue;
                 }
@@ -393,7 +390,7 @@ public class LabelPlacement {
 
             for (Label o = mLabels; o != null; ) {
                 if (l.bbox.overlaps(o.bbox)) {
-                    if (l.text.priority < o.text.priority) {
+                    if (Label.comparePriority(l, o) < 0) {
                         o = removeLabel(o);
                         continue;
                     }

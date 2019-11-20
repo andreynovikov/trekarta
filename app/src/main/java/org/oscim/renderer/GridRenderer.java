@@ -111,7 +111,7 @@ public class GridRenderer extends BucketRenderer {
                         .append(y + yy);
 
                 TextItem ti = TextItem.pool.get();
-                ti.set(s * xx + s / 2, s * yy + s / 2, sb.toString(), mText);
+                ti.set(s * xx + s / 2, s * yy + s / 2, 1, sb.toString(), mText);
                 tl.addText(ti);
             }
         }

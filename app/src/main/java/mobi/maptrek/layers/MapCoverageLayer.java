@@ -238,7 +238,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                         TextItem ti;
                         if (BuildConfig.DEBUG) {
                             ti = TextItem.pool.get();
-                            ti.set(tx, ty - mTextStyle.fontHeight / 5, tileXX + "-" + tileY, mTextStyle);
+                            ti.set(tx, ty - mTextStyle.fontHeight / 5, 1, tileXX + "-" + tileY, mTextStyle);
                             text.addText(ti);
                         }
                         ti = TextItem.pool.get();
@@ -246,14 +246,14 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
                             long size = mapStatus.downloadSize;
                             if (mAccountHillshades)
                                 size += mapStatus.hillshadeDownloadSize;
-                            ti.set(tx, ty, Formatter.formatShortFileSize(mContext, size), mTextStyle);
+                            ti.set(tx, ty, 1, Formatter.formatShortFileSize(mContext, size), mTextStyle);
                             text.addText(ti);
                             ty += mTextStyle.fontHeight / 5; // why 5?
                         }
                         if (validSizes || mapStatus.created > 0) {
                             int date = mapStatus.created > 0 ? mapStatus.created : mapStatus.downloadCreated;
                             ti = TextItem.pool.get();
-                            ti.set(tx, ty, mDateFormat.format(date * 24 * 3600000L), mSmallTextStyle);
+                            ti.set(tx, ty, 1, mDateFormat.format(date * 24 * 3600000L), mSmallTextStyle);
                             text.addText(ti);
                         }
                     }

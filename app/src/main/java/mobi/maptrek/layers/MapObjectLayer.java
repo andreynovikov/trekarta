@@ -220,7 +220,7 @@ public class MapObjectLayer extends Layer {
                             .build();
                 }
                 TextItem t = TextItem.pool.get();
-                t.set(it.x, it.y - bitmap.getHeight() / 2, it.item.name, textStyle);
+                t.set(it.x, it.y - bitmap.getHeight() / 2, 1, it.item.name, textStyle);
                 mTextBucket.addText(t);
             }
             buckets.set(mSymbolBucket);

@@ -109,11 +109,11 @@ public class LabelTileLoaderHook implements TileLoaderThemeHook {
                     y = label.y;
                 }
 
-                ld.labels.push(TextItem.pool.get().set(x, y, value, text));
+                ld.labels.push(TextItem.pool.get().set(x, y, 1, value, text));
             } else if (element.type == POINT) {
                 for (int i = 0, n = element.getNumPoints(); i < n; i++) {
                     PointF p = element.getPoint(i);
-                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, value, text));
+                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, 1, value, text));
                 }
             }
         } else if (style instanceof SymbolStyle) {

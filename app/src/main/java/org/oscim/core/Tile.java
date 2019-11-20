@@ -30,7 +30,8 @@ public class Tile {
     /**
      * Default tile size in pixels.
      */
-    private static final int DEFAULT_TILE_SIZE = 256;
+    public static final int DEFAULT_TILE_SIZE = 256;
+    public static final int SQUARE_TILE_SIZE = 256 * 256;
 
     /**
      * Width and height of a map tile in pixels.
