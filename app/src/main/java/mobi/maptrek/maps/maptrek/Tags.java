@@ -40,7 +40,7 @@ public class Tags {
             "kind_shopping",
             "kind_service",
             "kind_religion",
-            "kind_education",
+            "kind_healthbeauty",
             "kind_kids",
             "kind_pets",
             "kind_vehicles",
@@ -62,6 +62,8 @@ public class Tags {
             return kinds[2];
         else if (Tags.isAttraction(kind))
             return kinds[3];
+        else if (Tags.isHealthBeauty(kind))
+            return kinds[8];
         else if (Tags.isEntertainment(kind))
             return kinds[4];
         else if (Tags.isHikeBike(kind))
@@ -72,8 +74,6 @@ public class Tags {
             return kinds[6];
         else if (Tags.isReligion(kind))
             return kinds[7];
-        else if (Tags.isEducation(kind))
-            return kinds[8];
         else if (Tags.isKids(kind))
             return kinds[9];
         else if (Tags.isPets(kind))
@@ -138,7 +138,7 @@ public class Tags {
         return (kind & 0x00000400) > 0;
     }
 
-    public static boolean isEducation(int kind) {
+    public static boolean isHealthBeauty(int kind) {
         return (kind & 0x00000800) > 0;
     }
 
@@ -182,7 +182,7 @@ public class Tags {
             new Tag("kind_shopping", "yes"),
             new Tag("kind_service", "yes"),
             new Tag("kind_religion", "yes"),
-            new Tag("kind_education", "yes"),
+            new Tag("kind_healthbeauty", "yes"),
             new Tag("kind_kids", "yes"),
             new Tag("kind_pets", "yes"),
             new Tag("kind_vehicles", "yes"),
@@ -201,7 +201,7 @@ public class Tags {
             17, // shopping
             17, // service
             16, // religion
-            18, // education
+            17, // health'n'beauty
             18, // kids
             18, // pets
             16, // vehicles
@@ -671,11 +671,11 @@ public class Tags {
             new int[] {1, 4, 7, 8, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
             new int[] {178, 181, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 203, 205, 208, 211, 214, 217, 220, 223}, // attraction
-            new int[] {82, 83, 85, 88, 91, 94, 97, 100, 101, 103, 106, 107}, // entertainment
+            new int[] {82, 83, 85, 88, 91, 94, 97, 100, 101, 103}, // entertainment
             new int[] {148, 151, 154, 157, 160, 163, 166, 169, 43, 172, 175, 61}, // shopping
-            new int[] {262, 265, 268, 271, 274, 277, 280, 283, 286}, // service
+            new int[] {265, 268, 271, 274, 277, 280, 283, 286}, // service
             new int[] {401, 402, 403, 404, 405, 406, 407, 408, 420}, // religion
-            new int[] {}, // education
+            new int[] {106, 107, 262}, // health'n'beauty
             new int[] {139, 142, 145}, // kids
             new int[] {133, 136}, // pets
             new int[] {229, 232, 235, 238, 241, 244}, // vehicles

@@ -99,6 +99,21 @@
                     <symbol src="assets:symbols/barrier/gate.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
             </m>
+            <m k="feature|kind_healthbeauty">
+                <m k="leisure">
+                    <m v="sauna">
+                        <symbol src="assets:symbols/amenity/sauna.svg" symbol-color="color:leisure-green" symbol-percent="80" />
+                    </m>
+                </m>
+                <m k="shop">
+                    <m v="massage">
+                        <symbol src="assets:symbols/amenity/massage.svg" symbol-color="color:leisure-green" symbol-percent="80" />
+                    </m>
+                    <m v="hairdresser">
+                        <symbol src="assets:symbols/shopping/hairdresser.svg" symbol-color="color:shop" symbol-percent="80" />
+                    </m>
+                </m>
+            </m>
             <m k="feature|kind_entertainment">
                 <m k="tourism">
                     <m v="zoo">
@@ -134,14 +149,6 @@
                     </m>
                     <m v="beach_resort">
                         <symbol src="assets:symbols/amenity/beach_resort.svg" symbol-color="color:leisure-green" symbol-percent="80" />
-                    </m>
-                    <m v="sauna">
-                        <symbol src="assets:symbols/amenity/sauna.svg" symbol-color="color:leisure-green" symbol-percent="80" />
-                    </m>
-                </m>
-                <m k="shop">
-                    <m v="massage">
-                        <symbol src="assets:symbols/amenity/massage.svg" symbol-color="color:leisure-green" symbol-percent="80" />
                     </m>
                 </m>
             </m>
@@ -460,9 +467,6 @@
             </m>
             <m k="feature|kind_service">
                 <m k="shop">
-                    <m v="hairdresser">
-                        <symbol src="assets:symbols/shopping/hairdresser.svg" symbol-color="color:shop" symbol-percent="80" />
-                    </m>
                     <m v="copyshop">
                         <symbol src="assets:symbols/shopping/copyshop.svg" symbol-color="color:shop" symbol-percent="80" />
                     </m>

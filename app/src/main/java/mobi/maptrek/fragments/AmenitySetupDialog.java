@@ -126,8 +126,6 @@ public class AmenitySetupDialog extends DialogFragment {
         @Override
         public Pair<String, Integer> getItem(int position) {
             Resources resources = mContext.getResources();
-            if (position > 7) // skip unused education kind
-                position = position + 1;
             int id = resources.getIdentifier(Tags.kinds[position], "string", getActivity().getPackageName());
             String name = id != 0 ? resources.getString(id) : Tags.kinds[position];
             return new Pair<>(name, Tags.kindZooms[position]);
@@ -140,7 +138,7 @@ public class AmenitySetupDialog extends DialogFragment {
 
         @Override
         public int getCount() {
-            return Tags.kinds.length - 1;
+            return Tags.kinds.length;
         }
 
         @Override
@@ -162,11 +160,8 @@ public class AmenitySetupDialog extends DialogFragment {
 
             itemHolder.zoom.setPosition(18 - group.second);
             itemHolder.zoom.setOnDiscreteSliderChangeListener(pos -> {
-                int p = position;
-                if (p > 7) // skip unused education kind
-                    p = p + 1;
-                boolean changed = Tags.kindZooms[p] != 18 - pos;
-                Tags.kindZooms[p] = 18 - pos;
+                boolean changed = Tags.kindZooms[position] != 18 - pos;
+                Tags.kindZooms[position] = 18 - pos;
                 if (changed && mCallback != null) {
                     mCallback.onAmenityKindVisibilityChanged();
                 }

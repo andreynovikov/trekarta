@@ -33,6 +33,8 @@ public class ResUtils {
             return R.drawable.ic_local_dining;
         else if (Tags.isAttraction(kind))
             return R.drawable.ic_account_balance;
+        else if (Tags.isHealthBeauty(kind))
+            return R.drawable.ic_spa;
         else if (Tags.isEntertainment(kind))
             return R.drawable.ic_local_see;
         else if (Tags.isHikeBike(kind))
@@ -43,8 +45,6 @@ public class ResUtils {
             return R.drawable.ic_local_laundry_service;
         else if (Tags.isReligion(kind))
             return R.drawable.ic_change_history;
-        else if (Tags.isEducation(kind))
-            return R.drawable.ic_school;
         else if (Tags.isKids(kind))
             return R.drawable.ic_child_care;
         else if (Tags.isPets(kind))

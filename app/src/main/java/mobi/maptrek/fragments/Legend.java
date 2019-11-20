@@ -721,10 +721,6 @@ public class Legend extends ListFragment {
             .addTag("leisure", "water_park").addTag("kind_entertainment", "yes");
     private static LegendItem beach_resort = new LegendItem(GeometryType.POINT, R.string.legend_beach_resort, 17)
             .addTag("leisure", "beach_resort").addTag("kind_entertainment", "yes");
-    private static LegendItem sauna = new LegendItem(GeometryType.POINT, R.string.legend_sauna, 17)
-            .addTag("leisure", "sauna").addTag("kind_entertainment", "yes");
-    private static LegendItem massage = new LegendItem(GeometryType.POINT, R.string.legend_massage, 17)
-            .addTag("shop", "massage").addTag("kind_entertainment", "yes");
     private static LegendItem boat_rental = new LegendItem(GeometryType.POINT, R.string.legend_boat_rental, 17)
             .addTag("amenity", "boat_rental").addTag("kind_entertainment", "yes");
     private static LegendItem horse_riding = new LegendItem(GeometryType.POINT, R.string.legend_horse_riding, 17)
@@ -750,6 +746,13 @@ public class Legend extends ListFragment {
             .addTag("amenity", "telephone").addTag("kind_emergency", "yes");
     private static LegendItem emergency_telephone = new LegendItem(GeometryType.POINT, R.string.legend_emergency_telephone, 17)
             .addTag("emergency", "phone").addTag("kind_emergency", "yes");
+
+    private static LegendItem sauna = new LegendItem(GeometryType.POINT, R.string.legend_sauna, 17)
+            .addTag("leisure", "sauna").addTag("kind_healthbeauty", "yes");
+    private static LegendItem massage = new LegendItem(GeometryType.POINT, R.string.legend_massage, 17)
+            .addTag("shop", "massage").addTag("kind_healthbeauty", "yes");
+    private static LegendItem hairdresser = new LegendItem(GeometryType.POINT, R.string.legend_hairdresser, 17)
+            .addTag("shop", "hairdresser").addTag("kind_healthbeauty", "yes");
 
     private static LegendItem pet_shop = new LegendItem(GeometryType.POINT, R.string.legend_pet_shop, 17)
             .addTag("shop", "pet").addTag("kind_pets", "yes");
@@ -784,8 +787,6 @@ public class Legend extends ListFragment {
     private static LegendItem department_store = new LegendItem(GeometryType.POINT, R.string.legend_department_store, 17)
             .addTag("shop", "department_store").addTag("kind_shopping", "yes");
 
-    private static LegendItem hairdresser = new LegendItem(GeometryType.POINT, R.string.legend_hairdresser, 17)
-            .addTag("shop", "hairdresser").addTag("kind_service", "yes");
     private static LegendItem copyshop = new LegendItem(GeometryType.POINT, R.string.legend_copy_shop, 17)
             .addTag("shop", "copyshop").addTag("kind_service", "yes");
     private static LegendItem laundry = new LegendItem(GeometryType.POINT, R.string.legend_laundry, 17)
@@ -1181,9 +1182,7 @@ public class Legend extends ListFragment {
             boat_rental,
             horse_riding,
             water_park,
-            beach_resort,
-            sauna,
-            massage
+            beach_resort
     });
 
     private static LegendSection amenities_emergency = new LegendSection(R.string.kind_emergency, new LegendItem[]{
@@ -1197,6 +1196,12 @@ public class Legend extends ListFragment {
             ranger_station,
             telephone,
             emergency_telephone
+    });
+
+    private static LegendSection amenities_healthbeauty = new LegendSection(R.string.kind_healthbeauty, new LegendItem[]{
+            hairdresser,
+            sauna,
+            massage
     });
 
     private static LegendSection amenities_pets = new LegendSection(R.string.kind_pets, new LegendItem[]{
@@ -1285,7 +1290,6 @@ public class Legend extends ListFragment {
     private static LegendSection amenities_service = new LegendSection(R.string.kind_service, new LegendItem[]{
             copyshop,
             laundry,
-            hairdresser,
             shower,
             post_office,
             post_box,
@@ -1385,6 +1389,7 @@ public class Legend extends ListFragment {
             amenities_food,
             amenities_attraction,
             amenities_entertainment,
+            amenities_healthbeauty,
             amenities_shopping,
             amenities_service,
             amenities_religion,
@@ -1410,6 +1415,7 @@ public class Legend extends ListFragment {
             amenities_food,
             amenities_attraction,
             amenities_entertainment,
+            amenities_healthbeauty,
             amenities_shopping,
             amenities_service,
             amenities_religion,
@@ -1515,6 +1521,7 @@ public class Legend extends ListFragment {
             amenities_food,
             amenities_attraction,
             amenities_entertainment,
+            amenities_healthbeauty,
             amenities_shopping,
             amenities_service,
             amenities_religion,
