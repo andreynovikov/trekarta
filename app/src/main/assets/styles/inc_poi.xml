@@ -89,8 +89,14 @@
                 <m v="cycle_barrier">
                     <symbol src="assets:symbols/barrier/cycle_barrier.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
+                <m v="kissing_gate">
+                    <symbol src="assets:symbols/barrier/kissing_gate.svg" symbol-color="color:barrier" symbol-percent="50" />
+                </m>
                 <m v="lift_gate">
                     <symbol src="assets:symbols/barrier/lift_gate.svg" symbol-color="color:barrier" symbol-percent="35" />
+                </m>
+                <m v="stile">
+                    <symbol src="assets:symbols/barrier/stile.svg" symbol-color="color:barrier" symbol-percent="70" />
                 </m>
                 <m v="gate|swing_gate|chain">
                     <symbol src="assets:symbols/barrier/gate.svg" symbol-color="color:barrier" symbol-percent="70" />
@@ -460,8 +466,13 @@
                             <symbol merge-gap="0" src="assets:symbols/tourist/mappost.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                         </m>
                         <m>
-                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
+                            <symbol merge-gap="0" src="assets:symbols/tourist/information.svg" symbol-color="color:amenity-brown" symbol-percent="60" />
                         </m>
+                    </m>
+                </m>
+                <m k="leisure">
+                    <m v="firepit">
+                        <symbol merge-gap="0" src="assets:symbols/tourist/firepit.svg" symbol-color="color:amenity-brown" symbol-percent="70" />
                     </m>
                 </m>
             </m>

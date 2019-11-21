@@ -310,8 +310,12 @@ public class Legend extends ListFragment {
             .addTag("barrier", "bollard").addTag("kind_barrier", "yes");
     private static LegendItem cycle_barrier = new LegendItem(GeometryType.POINT, R.string.legend_cycle_barrier, 17)
             .addTag("barrier", "cycle_barrier").addTag("kind_barrier", "yes");
+    private static LegendItem kissing_gate = new LegendItem(GeometryType.POINT, R.string.legend_kissing_gate, 17)
+            .addTag("barrier", "kissing_gate").addTag("kind_barrier", "yes");
     private static LegendItem lift_gate = new LegendItem(GeometryType.POINT, R.string.legend_lift_gate, 17)
             .addTag("barrier", "lift_gate").addTag("kind_barrier", "yes");
+    private static LegendItem stile = new LegendItem(GeometryType.POINT, R.string.legend_stile, 17)
+            .addTag("barrier", "stile").addTag("kind_barrier", "yes");
     private static LegendItem gate = new LegendItem(GeometryType.POINT, R.string.legend_gate, 17)
             .addTag("barrier", "gate").addTag("kind_barrier", "yes");
 
@@ -889,6 +893,8 @@ public class Legend extends ListFragment {
             .addTag("amenity", "shelter").addTag("kind_hikebike", "yes");
     private static LegendItem toilets = new LegendItem(GeometryType.POINT, R.string.legend_toilets, 17)
             .addTag("amenity", "toilets").addTag("kind_hikebike", "yes");
+    private static LegendItem firepit = new LegendItem(GeometryType.POINT, R.string.legend_firepit, 17)
+            .addTag("leisure", "firepit").addTag("kind_hikebike", "yes");
     private static LegendItem information_office = new LegendItem(GeometryType.POINT, R.string.legend_information_office, 17)
             .addTag("tourism", "information").addTag("information", "office").addTag("kind_hikebike", "yes");
     private static LegendItem information_guidepost = new LegendItem(GeometryType.POINT, R.string.legend_guidepost, 17)
@@ -1072,7 +1078,9 @@ public class Legend extends ListFragment {
             border_control,
             toll_booth,
             lift_gate,
+            kissing_gate,
             gate,
+            stile,
             block,
             bollard,
             cycleway,
@@ -1281,6 +1289,7 @@ public class Legend extends ListFragment {
             drinking_water,
             shelter,
             toilets,
+            firepit,
             information_office,
             information_guidepost,
             information_map,

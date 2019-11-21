@@ -259,18 +259,21 @@ public class Tags {
             null, // new Tag("barrier", "block"), // 64
             null, null,
             null, // new Tag("barrier", "bollard"), // 67
-            null, null,
+            null, // new Tag("barrier", "stile"), // 68
+            null,
             null, // new Tag("barrier", "cycle_barrier"), // 70
             null, null,
             null, // new Tag("barrier", "lift_gate"), // 73
-            null, null,
+            null, // new Tag("barrier", "kissing_gate"), // 74
+            null,
             null, // new Tag("barrier", "gate"), // 76
             null, null, null, null, null,
             new Tag("tourism", "zoo"), // 82
             new Tag("tourism", "theme_park"), // 83
             null,
             new Tag("tourism", "picnic_site"), // 85
-            null, null,
+            null, // new Tag("leisure", "firepit"), // 86
+            null,
             new Tag("amenity", "theatre"), // 88
             null, null,
             new Tag("amenity", "cinema"), // 91
@@ -490,18 +493,21 @@ public class Tags {
             R.string.legend_block, // 64
             -1, -1,
             R.string.legend_bollard, // 67
-            -1, -1,
+            R.string.legend_stile, // 68
+            -1,
             R.string.legend_cycle_barrier, // 70
             -1, -1,
             R.string.legend_lift_gate, // 73
-            -1, -1,
+            R.string.legend_kissing_gate, // 74
+            -1,
             R.string.legend_gate, // 76
             -1, -1, -1, -1, -1,
             R.string.legend_zoo, // 82
             R.string.legend_theme_park, // 83
             -1,
             R.string.legend_picnic_site, // 85
-            -1, -1,
+            R.string.legend_firepit, // 86
+            -1,
             R.string.legend_theatre, // 88
             -1, -1,
             R.string.legend_cinema, // 91
@@ -680,9 +686,9 @@ public class Tags {
             new int[] {133, 136}, // pets
             new int[] {229, 232, 235, 238, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
-            new int[] {148, 151, 118, 250, 253, 256, 259, 1, 4, 205, 208, 211, 214}, // hike'n'bike
+            new int[] {148, 151, 118, 250, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
-            new int[] {64, 67, 70, 73, 76}  // barrier
+            new int[] {64, 67, 68, 70, 73, 74, 76}  // barrier
     };
 
     private final static int[] typeZooms = new int[typeTags.length];
@@ -1449,7 +1455,9 @@ public class Tags {
             "embassy",
             "horse_riding",
             "gallery",
-            "chalet"
+            "kissing_gate",
+            "stile",
+            "firepit"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

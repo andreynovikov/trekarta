@@ -662,5 +662,8 @@
     <string name="legend_gallery">Art gallery</string>
     <string name="legend_chalet">Holiday cottage</string>
     <string name="legend_noaccess_path">Path without access</string>
+    <string name="legend_kissing_gate">Kissing gate</string>
+    <string name="legend_stile">Stile</string>
+    <string name="legend_firepit">Fire pit</string>
 
 </resources>
