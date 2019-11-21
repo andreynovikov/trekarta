@@ -122,7 +122,7 @@ public class GpxSerializer {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_TRKPT);
             serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(tp.latitudeE6 / 1E6));
             serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(tp.longitudeE6 / 1E6));
-            if (tp.elevation != Float.NaN) {
+            if (!Float.isNaN(tp.elevation)) {
                 serializer.startTag(GpxFile.NS, GpxFile.TAG_ELE);
                 serializer.text(String.valueOf(tp.elevation));
                 serializer.endTag(GpxFile.NS, GpxFile.TAG_ELE);

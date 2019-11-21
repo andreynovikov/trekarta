@@ -39,7 +39,7 @@ import mobi.maptrek.util.ProgressListener;
 
 // TODO Localize strings
 public class KmlSerializer {
-    static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
 
     public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws IOException {
 
@@ -164,7 +164,7 @@ public class KmlSerializer {
             serializer.text(String.valueOf(point.longitudeE6 / 1E6));
             serializer.text(",");
             serializer.text(String.valueOf(point.latitudeE6 / 1E6));
-            if (point.elevation != Float.NaN) {
+            if (!Float.isNaN(point.elevation)) {
                 serializer.text(",");
                 serializer.text(String.valueOf(point.elevation));
             }
