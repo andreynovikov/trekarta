@@ -16,6 +16,10 @@
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="one">%d track deleted</item>
+        <item quantity="other">%d tracks deleted</item>
+    </plurals>
     <plurals name="numberOfPoints">
         <item quantity="one">%d point</item>
         <item quantity="other">%d points</item>

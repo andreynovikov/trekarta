@@ -24,6 +24,12 @@
         <item quantity="many">%d треков</item>
         <item quantity="other">%d треков</item>
     </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="one">%d трек удален</item>
+        <item quantity="few">%d трека удалены</item>
+        <item quantity="many">%d треков удалено</item>
+        <item quantity="other">%d треков удалено</item>
+    </plurals>
     <plurals name="numberOfPoints">
         <item quantity="one">%d точка</item>
         <item quantity="few">%d точки</item>

@@ -390,7 +390,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
+    private Set<Waypoint> mDeletedWaypoints;
     private Track mEditedTrack;
+    private Set<Track> mDeletedTracks;
     private int mTotalDataItems = 0;
     private boolean mFirstMove = true;
     private boolean mBaseMapWarningShown = false;
@@ -1110,6 +1112,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
+
+        if (mDeletedWaypoints != null) {
+            deleteWaypoints(mDeletedWaypoints);
+            mDeletedWaypoints = null;
+        }
+        if (mDeletedTracks != null) {
+            deleteTracks(mDeletedTracks);
+            mDeletedTracks = null;
+        }
 
         if (mSoftwareInputAssist != null)
             mSoftwareInputAssist.onDestroy();
@@ -2524,6 +2535,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         // Remove marker to indicate action to user
         removeWaypointMarker(waypoint);
         mMap.updateMap(true);
+        mDeletedWaypoints = new HashSet<>();
+        mDeletedWaypoints.add(waypoint);
 
         // Show undo snackbar
         //noinspection deprecation
@@ -2535,30 +2548,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
+                        if (mDeletedWaypoints == null) // removed on application exit
+                            return;
                         // If dismissed, actually remove waypoint
-                        if (waypoint.source instanceof WaypointDbDataSource) {
-                            mWaypointDbDataSource.deleteWaypoint(waypoint);
-                        } else {
-                            ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
-                            Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
-                                @Override
-                                public void onSaved(FileDataSource source) {
-                                    mMainHandler.post(() -> waypoint.source.notifyListeners());
-                                }
-
-                                @Override
-                                public void onError(FileDataSource source, Exception e) {
-                                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
-                                }
-                            }, mProgressHandler);
-                        }
-                        mTotalDataItems--;
+                        deleteWaypoints(mDeletedWaypoints);
+                        mDeletedWaypoints = null;
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
                     // If undo pressed, restore the marker
                     addWaypointMarker(waypoint);
                     mMap.updateMap(true);
+                    mDeletedWaypoints = null;
                 });
         SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
@@ -2571,6 +2572,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             removeWaypointMarker(waypoint);
         }
         mMap.updateMap(true);
+        mDeletedWaypoints = waypoints;
 
         // Show undo snackbar
         int count = waypoints.size();
@@ -2584,30 +2586,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
+                        if (mDeletedWaypoints == null) // removed on application exit
+                            return;
                         // If dismissed, actually remove waypoints
-                        HashSet<FileDataSource> sources = new HashSet<>();
-                        for (Waypoint waypoint : waypoints) {
-                            if (waypoint.source instanceof WaypointDbDataSource) {
-                                mWaypointDbDataSource.deleteWaypoint(waypoint);
-                            } else {
-                                ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
-                                sources.add((FileDataSource) waypoint.source);
-                            }
-                            mTotalDataItems--;
-                        }
-                        for (FileDataSource source : sources) {
-                            Manager.save(source, new Manager.OnSaveListener() {
-                                @Override
-                                public void onSaved(final FileDataSource source) {
-                                    mMainHandler.post(source::notifyListeners);
-                                }
-
-                                @Override
-                                public void onError(FileDataSource source, Exception e) {
-                                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
-                                }
-                            }, mProgressHandler);
-                        }
+                        deleteWaypoints(mDeletedWaypoints);
+                        mDeletedWaypoints = null;
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
@@ -2616,6 +2599,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         addWaypointMarker(waypoint);
                     }
                     mMap.updateMap(true);
+                    mDeletedWaypoints = null;
                 });
         SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
@@ -2796,6 +2780,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         }
         mMap.updateMap(true);
+        mDeletedTracks = new HashSet<>();
+        mDeletedTracks.add(track);
 
         // Show undo snackbar
         //noinspection deprecation
@@ -2807,21 +2793,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
+                        if (mDeletedTracks == null) // removed on application exit
+                            return;
                         // If dismissed, actually remove track
                         // Native tracks can not be deleted through this procedure
-                        ((FileDataSource) track.source).tracks.remove(track);
-                        Manager.save((FileDataSource) track.source, new Manager.OnSaveListener() {
-                            @Override
-                            public void onSaved(FileDataSource source) {
-                                mMainHandler.post(() -> track.source.notifyListeners());
-                            }
-
-                            @Override
-                            public void onError(FileDataSource source, Exception e) {
-                                HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
-                            }
-                        }, mProgressHandler);
-                        mTotalDataItems--;
+                        deleteTracks(mDeletedTracks);
+                        mDeletedTracks = null;
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
@@ -2829,6 +2806,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     TrackLayer trackLayer = new TrackLayer(mMap, track);
                     mMap.layers().add(trackLayer, MAP_DATA);
                     mMap.updateMap(true);
+                    mDeletedTracks = null;
                 });
         SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
@@ -2836,19 +2814,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onTracksDelete(final Set<Track> tracks) {
-        // Remove markers to indicate action to user
-        /*
-        for (Waypoint waypoint : waypoints) {
-            MarkerItem marker = mMarkerLayer.getByUid(waypoint);
-            mMarkerLayer.removeItem(marker);
+        // Remove track layers to indicate action to user
+        for (Track track : tracks) {
+            for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
+                Layer layer = i.next();
+                if (layer instanceof TrackLayer && ((TrackLayer) layer).getTrack().equals(track)) {
+                    i.remove();
+                    layer.onDetach();
+                    break;
+                }
+            }
         }
         mMap.updateMap(true);
-        */
+        mDeletedTracks = tracks;
 
         // Show undo snackbar
-        /*
-        int count = waypoints.size();
-        String msg = getResources().getQuantityString(R.plurals.waypointsDeleted, count, count);
+        int count = tracks.size();
+        String msg = getResources().getQuantityString(R.plurals.tracksDeleted, count, count);
+        //noinspection deprecation
         Snackbar snackbar = Snackbar
                 .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
@@ -2857,35 +2840,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
-                        // If dismissed, actually remove waypoint
-                        if (mWaypointDbDataSource.isOpen()) {
-                            for (Waypoint waypoint : waypoints) {
-                                mWaypointDbDataSource.deleteWaypoint(waypoint);
-                            }
-                        } else {
-                            // We need this when screen is rotated but snackbar is still shown
-                            mWaypointDbDataSource.open();
-                            for (Waypoint waypoint : waypoints) {
-                                mWaypointDbDataSource.deleteWaypoint(waypoint);
-                            }
-                            mWaypointDbDataSource.close();
-                        }
+                        if (mDeletedTracks == null) // removed on application exit
+                            return;
+                        // If dismissed, actually remove tracks
+                        // Native tracks can not be deleted through this procedure
+                        deleteTracks(mDeletedTracks);
+                        mDeletedTracks = null;
                     }
                 })
-                .setAction(R.string.action_undo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // If undo pressed, restore the marker
-                        for (Waypoint waypoint : waypoints) {
-                            GeoPoint point = new GeoPoint(waypoint.latitude, waypoint.longitude);
-                            MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, point);
-                            mMarkerLayer.addItem(marker);
-                        }
-                        mMap.updateMap(true);
+                .setAction(R.string.actionUndo, view -> {
+                    // If undo pressed, restore tracks on map
+                    for (Track track : tracks) {
+                        TrackLayer trackLayer = new TrackLayer(mMap, track);
+                        mMap.layers().add(trackLayer, MAP_DATA);
                     }
+                    mMap.updateMap(true);
+                    mDeletedTracks = null;
                 });
+        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
-        */
     }
 
     @Override
@@ -3066,6 +3039,56 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onManageNativeMaps(boolean hillshadesEnabled) {
         mNativeMapIndex.manageNativeMaps(hillshadesEnabled);
+    }
+
+    private void deleteWaypoints(@NonNull Set<Waypoint> waypoints) {
+        HashSet<FileDataSource> sources = new HashSet<>();
+        for (Waypoint waypoint : waypoints) {
+            if (waypoint.source instanceof WaypointDbDataSource) {
+                mWaypointDbDataSource.deleteWaypoint(waypoint);
+            } else {
+                ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
+                sources.add((FileDataSource) waypoint.source);
+            }
+            mTotalDataItems--;
+        }
+        for (FileDataSource source : sources) {
+            Manager.save(source, new Manager.OnSaveListener() {
+                @Override
+                public void onSaved(final FileDataSource source) {
+                    if (mMainHandler != null) // can be null on application exit
+                        mMainHandler.post(source::notifyListeners);
+                }
+
+                @Override
+                public void onError(FileDataSource source, Exception e) {
+                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                }
+            }, mProgressHandler);
+        }
+    }
+
+    private void deleteTracks(Set<Track> tracks) {
+        HashSet<FileDataSource> sources = new HashSet<>();
+        for (Track track : tracks) {
+            ((FileDataSource) track.source).tracks.remove(track);
+            sources.add((FileDataSource) track.source);
+            mTotalDataItems--;
+        }
+        for (FileDataSource source : sources) {
+            Manager.save(source, new Manager.OnSaveListener() {
+                @Override
+                public void onSaved(FileDataSource source) {
+                    if (mMainHandler != null) // can be null on application exit
+                        mMainHandler.post(source::notifyListeners);
+                }
+
+                @Override
+                public void onError(FileDataSource source, Exception e) {
+                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                }
+            }, mProgressHandler);
+        }
     }
 
     private void showHillShade() {
