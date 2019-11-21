@@ -3,11 +3,11 @@
     <!-- Water -->
     <m cat="water" closed="yes" e="way" k="natural" v="water">
         <area use="water" />
-        <text area-size="0.1" caption="true" priority="3" use="water" />
+        <text area-size="0.1" caption="true" priority="5" use="water" />
     </m>
     <m cat="water" closed="yes" k="landuse" v="reservoir|basin">
         <area use="water" />
-        <text area-size="0.1" caption="true" priority="3" use="water" />
+        <text area-size="0.1" caption="true" priority="6" use="water" />
     </m>
     <m closed="yes" k="waterway">
         <m cat="water" v="riverbank|dock">
