@@ -65,6 +65,10 @@ public class LocationOverlay extends Layer {
         return mLocation.y;
     }
 
+    public boolean isVisible() {
+        return ((LocationIndicator) mRenderer).isVisible();
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         if (enabled == isEnabled())
@@ -105,6 +109,10 @@ public class LocationOverlay extends Layer {
         LocationIndicator(float scale) {
             super();
             mScale = scale;
+        }
+
+        public boolean isVisible() {
+            return mLocationIsVisible;
         }
 
         private void animate(boolean enable) {

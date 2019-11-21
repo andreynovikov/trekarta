@@ -1817,17 +1817,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     public void onZoomInClicked(View view) {
-        zoomMap(2.0);
+        zoomMap(2.0, 0, 0);
     }
 
     public void onZoomOutClicked(View view) {
-        if (mLocationOverlay.isEnabled()) {
-            Point out = new Point();
-            mMap.viewport().toScreenPoint(mLocationOverlay.getX(), mLocationOverlay.getY(), true, out);
-            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION >> 2, 0.5, (float) out.x, (float) out.y);
-        } else {
-            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION, 0.5, 0.0f, 0.0f);
-        }
+        zoomMap(0.5, 0, 0);
     }
 
     public void onCompassClicked(View view) {
@@ -2204,15 +2198,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.getMapPosition(mMapPosition);
         // override default behavior to adjust pivot point
         if (gesture == Gesture.DOUBLE_TAP) {
-            zoomMap(2.0);
+            zoomMap(2.0, event.getX() - (mMap.getScreenWidth() >> 1), event.getY() - (mMap.getScreenHeight() >> 1));
             return true;
         } else if (gesture == Gesture.TWO_FINGER_TAP) {
-            zoomMap(0.5);
+            zoomMap(0.5, 0f, 0f);
             return true;
         } else if (gesture == Gesture.TRIPLE_TAP) {
             float scale = Configuration.getRememberedScale();
             double scaleBy = scale / mMapPosition.getScale();
-            zoomMap(scaleBy);
+            float x = scaleBy > 1 ? event.getX() - (mMap.getScreenWidth() >> 1) : 0f;
+            float y = scaleBy > 1 ? event.getY() - (mMap.getScreenHeight() >> 1) : 0f;
+            zoomMap(scaleBy, x, y);
             return true;
         } else if (gesture == Gesture.LONG_PRESS) {
             if (!mMap.getEventLayer().moveEnabled() || !mObjectInteractionEnabled)
@@ -4196,13 +4192,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    private void zoomMap(double scaleBy) {
-        if (mLocationOverlay.isEnabled()) {
+    private void zoomMap(double scaleBy, float x, float y) {
+        if (mLocationOverlay.isEnabled() && mLocationOverlay.isVisible()) {
             Point out = new Point();
             mMap.viewport().toScreenPoint(mLocationOverlay.getX(), mLocationOverlay.getY(), true, out);
             mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION >> 2, scaleBy, (float) out.x, (float) out.y);
         } else {
-            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION, scaleBy, 0.0f, 0.0f);
+            mMap.animator().animateZoom(MAP_ZOOM_ANIMATION_DURATION, scaleBy, x, y);
         }
     }
 
