@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,11 +28,13 @@ import android.widget.ProgressBar;
  * ProgressBar.
  */
 public class ProgressHandler extends Handler implements ProgressListener {
-    public final static int BEGIN_PROGRESS = 1;
-    public final static int UPDATE_PROGRESS = 2;
-    public final static int STOP_PROGRESS = 3;
+    private final static int BEGIN_PROGRESS = 1;
+    private final static int UPDATE_PROGRESS = 2;
+    protected final static int STOP_PROGRESS = 3;
 
-    ProgressBar mProgressBar;
+    private ProgressBar mProgressBar;
+    private int mStep;
+    private int mProgress;
 
     public ProgressHandler(ProgressBar progressBar) {
         super();
@@ -44,11 +46,17 @@ public class ProgressHandler extends Handler implements ProgressListener {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BEGIN_PROGRESS:
+                mStep = msg.arg1 > 255 ? msg.arg1 >> 8 : 1;
+                mProgress = 0;
                 mProgressBar.setVisibility(View.VISIBLE);
-                mProgressBar.setMax(msg.arg1);
+                mProgressBar.setMax(mStep > 1 ? 256 : msg.arg1);
                 break;
             case UPDATE_PROGRESS:
-                mProgressBar.setProgress(msg.arg1);
+                int progress = mStep > 1 ? msg.arg1 / mStep : msg.arg1;
+                if (progress > mProgress) {
+                    mProgress = progress;
+                    mProgressBar.setProgress(mProgress);
+                }
                 break;
             case STOP_PROGRESS:
                 mProgressBar.setVisibility(View.GONE);
