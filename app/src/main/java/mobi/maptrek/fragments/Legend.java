@@ -113,6 +113,8 @@ public class Legend extends ListFragment {
             .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
     private static LegendItem theme_park_area = new LegendItem(GeometryType.POLY, R.string.legend_theme_park, 17)
             .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes");
+    private static LegendItem marina = new LegendItem(GeometryType.POLY, R.string.legend_marina, 17)
+            .addTag("leisure", "marina").setText(R.string.legend_marina_name);
 
     // Water
     private static LegendItem glacier = new LegendItem(GeometryType.POLY, R.string.legend_glacier, 17)
@@ -121,10 +123,10 @@ public class Legend extends ListFragment {
             .addTag("natural", "water").setText(R.string.legend_pond_name);
     private static LegendItem river = new LegendItem(GeometryType.LINE, R.string.legend_river, 17)
             .addTag("waterway", "river");
+    private static LegendItem intermittent_river = new LegendItem(GeometryType.LINE, R.string.legend_intermittent_river, 17)
+            .addTag("waterway", "river").addTag("intermittent", "yes");
     private static LegendItem underground_river = new LegendItem(GeometryType.LINE, R.string.legend_underground_river, 17)
             .addTag("waterway", "river").addTag("tunnel", "yes");
-    private static LegendItem canal = new LegendItem(GeometryType.LINE, R.string.legend_canal, 17)
-            .addTag("waterway", "canal");
     private static LegendItem stream = new LegendItem(GeometryType.LINE, R.string.legend_stream, 17)
             .addTag("waterway", "stream");
     private static LegendItem ditch = new LegendItem(GeometryType.LINE, R.string.legend_ditch, 17)
@@ -133,10 +135,21 @@ public class Legend extends ListFragment {
             .addTag("waterway", "waterfall").addTag("kind_attraction", "yes");
     private static LegendItem dam = new LegendItem(GeometryType.LINE, R.string.legend_dam, 17)
             .addTag("waterway", "dam");
-    private static LegendItem lock_gate = new LegendItem(GeometryType.LINE, R.string.legend_lock_gate, 17)
+    private static LegendItem lock_gate = new LegendItem(GeometryType.POLY, R.string.legend_lock_gate, 17)
+            .addTag("natural", "water").setOverlay(
+                    new LegendItem(GeometryType.LINE, 0, 17)
             .addTag("waterway", "lock_gate").setOverlay(
                     new LegendItem(GeometryType.POINT, 0, 17)
-                            .addTag("waterway", "lock_gate"));
+                            .addTag("waterway", "lock_gate")));
+    private static LegendItem weir = new LegendItem(GeometryType.POLY, R.string.legend_weir, 17)
+            .addTag("natural", "water").setOverlay(
+                    new LegendItem(GeometryType.LINE, 0, 17)
+            .addTag("waterway", "weir").setOverlay(
+                    new LegendItem(GeometryType.POINT, 0, 17)
+                            .addTag("waterway", "weir")));
+    private static LegendItem ford_point = new LegendItem(GeometryType.LINE, R.string.legend_ford, 17)
+            .addTag("waterway", "stream").setOverlay(
+                    new LegendItem(GeometryType.POINT, 0, 17).addTag("ford", "yes"));
 
     // Land
     private static LegendItem bare_rock = new LegendItem(GeometryType.POLY, R.string.legend_bare_rock, 17)
@@ -216,6 +229,8 @@ public class Legend extends ListFragment {
             .addTag("barrier", "city_wall");
     private static LegendItem retaining_wall = new LegendItem(GeometryType.LINE, R.string.legend_retaining_wall, 17)
             .addTag("barrier", "retaining_wall");
+    private static LegendItem embankment = new LegendItem(GeometryType.LINE, R.string.legend_embankment, 17)
+            .addTag("man_made", "embankment");
     private static LegendItem building = new LegendItem(GeometryType.POLY, R.string.legend_building, 17)
             .addTag("building", "yes").addTag("kind", "yes").addTag("addr:housenumber", "13").setText(R.string.legend_thirteen).setShape(LegendView.PATH_BUILDING);
     private static LegendItem stadium = new LegendItem(GeometryType.POLY, R.string.legend_stadium, 17)
@@ -298,8 +313,6 @@ public class Legend extends ListFragment {
             .addTag("highway", "construction");
     private static LegendItem ford = new LegendItem(GeometryType.LINE, R.string.legend_ford, 16)
             .addTag("highway", "unclassified").addTag("ford", "yes");
-    private static LegendItem ford_point = new LegendItem(GeometryType.POINT, R.string.legend_ford, 17)
-            .addTag("ford", "yes");
     private static LegendItem border_control = new LegendItem(GeometryType.POINT, R.string.legend_border_control, 17)
             .addTag("barrier", "border_control");
     private static LegendItem toll_booth = new LegendItem(GeometryType.POINT, R.string.legend_toll_booth, 17)
@@ -318,6 +331,10 @@ public class Legend extends ListFragment {
             .addTag("barrier", "stile").addTag("kind_barrier", "yes");
     private static LegendItem gate = new LegendItem(GeometryType.POINT, R.string.legend_gate, 17)
             .addTag("barrier", "gate").addTag("kind_barrier", "yes");
+    private static LegendItem highway_services = new LegendItem(GeometryType.POLY, R.string.legend_highway_services, 17)
+            .addTag("highway", "services");
+    private static LegendItem rest_area = new LegendItem(GeometryType.POLY, R.string.legend_rest_area, 17)
+            .addTag("amenity", "rest_area");
 
     // Tracks
     private static LegendItem track = new LegendItem(GeometryType.LINE, R.string.legend_track, 17)
@@ -913,23 +930,24 @@ public class Legend extends ListFragment {
             runway, apron, railway_platform, bridge, pier, pitch, sports_centre, stadium, garden,
             camp_site_area, zoo_area, theme_park_area, dog_park, cemetery, cycleway,
             railway_crossing, bus_station, subway_entrance, subway_station, railway_station,
-            railway_halt, aeroway_aerodrome, aeroway_heliport
+            railway_halt, aeroway_aerodrome, aeroway_heliport, embankment
     ));
 
     private static HashSet<LegendItem> notUrbanItems = new HashSet<>(Arrays.asList(
             farmland, orchard, plant_nursery, farmyard, quarry, nature_reserve, underground_river,
-            dam, lock_gate, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow, swamp,
-            mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud, sand,
-            glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower
+            dam, lock_gate, weir, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow,
+            swamp, mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud,
+            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower,
+            highway_services
     ));
 
     private static HashSet<LegendItem> notNightItems = new HashSet<>(Arrays.asList(
             recreation, construction, farmland, orchard, plant_nursery, farmyard, quarry,
             underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp, mangrove,
             bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach, glacier,
-            contour, pitch, sports_centre, stadium, building, garden, theme_park_area,
+            contour, pitch, sports_centre, stadium, building, garden, marina, theme_park_area,
             camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway, railway_tunnel,
-            tram, railway_crossing, ferry
+            tram, railway_crossing, ferry, highway_services
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
@@ -967,18 +985,20 @@ public class Legend extends ListFragment {
             orchard,
             plant_nursery,
             nature_reserve,
-            military
+            military,
+            marina
     });
 
     private static LegendSection water_features = new LegendSection(R.string.legend_water, new LegendItem[]{
             water,
             river,
+            intermittent_river,
             underground_river,
-            canal,
             stream,
             ditch,
             dam,
             lock_gate,
+            weir,
             ford_point
     });
 
@@ -1019,6 +1039,7 @@ public class Legend extends ListFragment {
     private static LegendSection manmade_features = new LegendSection(R.string.legend_manmade_features, new LegendItem[]{
             city_wall,
             wall,
+            embankment,
             retaining_wall,
             fence,
             hedge,
@@ -1074,6 +1095,8 @@ public class Legend extends ListFragment {
             parking_car_paid,
             parking_private,
             parking_unpaved,
+            highway_services,
+            rest_area,
             parking_dirt,
             border_control,
             toll_booth,
