@@ -30,6 +30,7 @@ public class ExtendedMapElement extends MapElement {
     public float roofDirection = -1;
     public boolean roofOrientationAcross = false;
     public int elevation = 0;
+    public int depth = 0;
     public long featureArea = 0;
     boolean hasLabelPosition = true;
     public MapTrekDataSource database;
@@ -58,6 +59,7 @@ public class ExtendedMapElement extends MapElement {
         this.roofDirection = element.roofDirection;
         this.roofOrientationAcross = element.roofOrientationAcross;
         this.elevation = element.elevation;
+        this.depth = element.depth;
         this.featureArea = element.featureArea;
         this.hasLabelPosition = element.hasLabelPosition;
         this.database = element.database;
@@ -113,6 +115,7 @@ public class ExtendedMapElement extends MapElement {
         labelPosition = null;
         database = null;
         elevation = 0;
+        depth = 0;
         featureArea = 0;
         buildingHeight = 0;
         buildingMinHeight = 0;

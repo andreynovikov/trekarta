@@ -94,6 +94,7 @@ class MapTrekTileDecoder extends PbfDecoder {
     private static final int TAG_ELEM_RESERVED8 = 8;
     private static final int TAG_ELEM_RESERVED9 = 9;
     private static final int TAG_ELEM_AREA = 23;
+    private static final int TAG_ELEM_DEPTH = 24;
 
     private int[] mSArray = new int[100];
 
@@ -423,6 +424,10 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_ELEVATION:
                     mElem.elevation = deZigZag(decodeVarint32());
+                    break;
+
+                case TAG_ELEM_DEPTH:
+                    mElem.depth = deZigZag(decodeVarint32());
                     break;
 
                 case TAG_ELEM_HEIGHT:
