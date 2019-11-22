@@ -323,8 +323,7 @@
     <string name="legend_glacier">Glacier</string>
     <string name="legend_pond">Pond</string>
     <string name="legend_pond_name">Vselug</string>
-    <string name="legend_river">River</string>
-    <string name="legend_canal">Canal</string>
+    <string name="legend_river">River, canal</string>
     <string name="legend_stream">Stream</string>
     <string name="legend_waterfall">Waterfall</string>
     <string name="legend_bare_rock">Bare rock</string>
@@ -665,5 +664,12 @@
     <string name="legend_kissing_gate">Kissing gate</string>
     <string name="legend_stile">Stile</string>
     <string name="legend_firepit">Fire pit</string>
+    <string name="legend_intermittent_river">Intermittent river</string>
+    <string name="legend_marina">Marina</string>
+    <string name="legend_marina_name">Woolwich</string>
+    <string name="legend_weir">Weir</string>
+    <string name="legend_rest_area">Rest area</string>
+    <string name="legend_highway_services">Travel plaza</string>
+    <string name="legend_embankment">Embankment</string>
 
 </resources>

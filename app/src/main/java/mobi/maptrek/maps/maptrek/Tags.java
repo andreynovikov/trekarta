@@ -1457,7 +1457,12 @@ public class Tags {
             "gallery",
             "kissing_gate",
             "stile",
-            "firepit"
+            "firepit",
+            "marina",
+            "weir",
+            "services",
+            "rest_area",
+            "embankment"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

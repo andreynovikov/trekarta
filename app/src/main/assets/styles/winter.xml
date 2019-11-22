@@ -45,6 +45,7 @@
     <style-color id="text-outline" color="#ffffff" />
     <style-color id="text" color="#000000" />
 
+    <style-color id="water" color="#a4bbcc" />
     <style-color id="trees" color="#c6d7d7" />
 
     <style-color id="motorway-overview" color="#deb683" />
@@ -96,15 +97,16 @@
     <style-line id="water" stroke="#d0d0d0" use="fix" />
     <style-line fix="false" id="river" stroke="#d0d0d0" use="water" />
     -->
-    <style-text style="italic" fill="#486780" id="water" k="name" size="16" stroke="#cae1ff"
+    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
     <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
-    <style-line id="water" stroke="#a4bbcc" use="fix" />
-    <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
-    <style-area fade="-1" fill="#a4bbcc" id="water" mesh="true" />
+    <style-line id="water" stroke="color:water" use="fix" />
+    <style-line fix="false" id="river" stroke="color:water" use="water" />
+    <style-area fade="-1" fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
+    <style-line id="embankment" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#e4ecec" id="wood" />
 
@@ -211,9 +213,12 @@
     </m>
 
     <!-- Land usages -->
-    <m closed="yes" e="way" k="landuse|amenity|leisure|tourism">
+    <m closed="yes" e="way" k="landuse|amenity|leisure|tourism|highway">
         <m v="residential|commercial|retail|industrial|allotments">
             <area use="residential" />
+        </m>
+        <m v="rest_area">
+            <area fill="#fefefe" />
         </m>
         <m v="parking" zoom-min="16">
             <area fill="#fefefe" />

@@ -8,11 +8,8 @@
     http://scg.ar-ch.org/
 
     TODO:
-    lock_gate as a point
-    https://wiki.openstreetmap.org/wiki/Tag:waterway%3Dweir
     https://wiki.openstreetmap.org/wiki/Tag:craft=winery
     https://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
-    https://wiki.openstreetmap.org/wiki/Key:intermittent - draw with condensed stipple
     railway:subway
     https://wiki.openstreetmap.org/wiki/Key:service - insignificant rails
     https://wiki.openstreetmap.org/wiki/Tag:aerialway=goods
@@ -20,8 +17,6 @@
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmini_roundabout
-    https://wiki.openstreetmap.org/wiki/Tag:highway%3Dservices
-    https://wiki.openstreetmap.org/wiki/Tag:highway%3Drest_area
     https://wiki.openstreetmap.org/wiki/Key:depth - for fords and waterways
     -->
 
@@ -88,6 +83,7 @@
     <style-color id="text-outline" color="#ffffff" />
     <style-color id="text" color="#000000" />
 
+    <style-color id="water" color="#a4bbcc" />
     <style-color id="trees" color="#90b36c" />
 
     <style-color id="motorway-overview" color="#deb683" />
@@ -110,6 +106,7 @@
     <style-color id="residential" color="#ffffff" />
     <style-color id="pedestrian" color="#e0e0e0" />
     <style-color id="highway-service" color="#f5f5f5" />
+    <style-color id="highway-services" color="#fee4be" />
 
     <style-color id="tunnel" color="#ffffff" />
     <style-color id="highway-tunnel" color="#fdcf8c" />
@@ -166,16 +163,17 @@
     <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
     <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
-    <style-line id="water" stroke="#a4bbcc" use="fix" />
+    <style-line id="water" stroke="color:water" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
-    <style-line fix="false" id="river" stroke="#a4bbcc" use="water" />
+    <style-line fix="false" id="river" use="water" />
     <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
         stroke="#00ffffff" width="2.0" />
     <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
-    <style-area fill="#a4bbcc" id="water" mesh="true" />
+    <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
+    <style-line id="embankment" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
@@ -189,6 +187,7 @@
 
     <!-- Landuse -->
     <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="2.5" />
+    <style-line cap="butt" fix="true" id="marina" stroke="#60576ddf" width="2.5" />
     <style-line cap="butt" fix="true" id="park" stroke="#d9e9c9" width="1.0" />
     <style-area fade="11" fill="#d9e9c9" id="park" mesh="true" />
     <style-area fade="12" fill="#c9dc91" id="garden" />
@@ -202,13 +201,14 @@
         priority="4" size="16" stroke="#cce2b7" stroke-width="2.0" />
     <style-text style="bold_italic" caption="true" fill="#660033" id="theme_park"
         priority="4" size="16" stroke="#f9ebf2" stroke-width="2.0" />
+    <style-text style="bold_italic" caption="true" fill="#2138af" id="marina"
+        priority="4" size="16" stroke="#d8ddf7" stroke-width="2.0" />
     <style-text caption="true" fill="#368167" id="sports_centre" priority="8" size="16"
         stroke="#cdeae0" stroke-width="2.0" />
     <style-text caption="true" fill="#787434" id="education" priority="9" size="16" stroke="#f5f5e8"
         stroke-width="2.0" />
     <style-text style="bold_italic" area-size="0.01" caption="true" fill="#7b7712" id="beach"
         priority="6" size="14" stroke="#f1efce" stroke-width="2.0" />
-
 
     <!-- Place styles -->
     <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
@@ -262,7 +262,7 @@
     </m>
 
     <!-- Land usages -->
-    <m closed="yes" e="way" k="landuse|leisure|amenity|tourism">
+    <m closed="yes" e="way" k="landuse|leisure|amenity|tourism|highway">
         <m cat="landclasses" v="residential|commercial|retail">
             <area use="residential" />
         </m>
@@ -296,6 +296,12 @@
         </m>
         <m cat="agriculture" v="farmyard">
             <area use="farmyard" />
+        </m>
+        <m v="services">
+            <area fill="color:highway-services" />
+        </m>
+        <m v="rest_area">
+            <area fill="#f0f0f0" />
         </m>
         <m v="parking" zoom-min="16">
             <m select="first">
@@ -622,6 +628,11 @@
                 <symbol src="assets:symbols/tower.svg" />
             </m>
         </m>
+    </m>
+
+    <m cat="urban" k="leisure" v="marina" zoom-min="15">
+        <line use="marina" />
+        <text use="marina" area-size="0.1" />
     </m>
 
     <xi:include href="inc_natural_points.xml" />

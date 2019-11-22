@@ -11,6 +11,10 @@
         </m>
     </m>
     <m k="man_made">
+        <m cat="urban" v="embankment">
+            <line cap="butt" fix="true" stroke="color:cliff" width="1.5" />
+            <lineSymbol use="embankment" repeat-gap="0" repeat-start="0" />
+        </m>
         <m cat="urban" v="pier" zoom-min="15">
             <m closed="no">
                 <line cap="butt" stroke="color:pier-stroke" width="0.4" />
