@@ -1462,7 +1462,8 @@ public class Tags {
             "weir",
             "services",
             "rest_area",
-            "embankment"
+            "embankment",
+            "turntable"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

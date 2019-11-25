@@ -387,6 +387,8 @@ public class Legend extends ListFragment {
     // Railways
     private static LegendItem railway = new LegendItem(GeometryType.LINE, R.string.legend_railway, 17)
             .addTag("railway", "rail");
+    private static LegendItem railway_service = new LegendItem(GeometryType.LINE, R.string.legend_railway_service, 17)
+            .addTag("railway", "rail").addTag("service", "yes");
     private static LegendItem railway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_bridge, 17)
             .addTag("railway", "rail").addTag("bridge", "yes");
     private static LegendItem railway_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_tunnel, 17)
@@ -937,8 +939,8 @@ public class Legend extends ListFragment {
             farmland, orchard, plant_nursery, farmyard, quarry, nature_reserve, underground_river,
             dam, lock_gate, weir, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow,
             swamp, mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud,
-            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower,
-            highway_services
+            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower
+
     ));
 
     private static HashSet<LegendItem> notNightItems = new HashSet<>(Arrays.asList(
@@ -951,7 +953,7 @@ public class Legend extends ListFragment {
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
-            ferry, unpaved_road, dirt_road, parking_unpaved, parking_dirt, cycleway
+            ferry, unpaved_road, dirt_road, parking_unpaved, parking_dirt, cycleway, highway_services
     ));
 
     private static LegendSection administrative = new LegendSection(R.string.legend_administrative, new LegendItem[]{
@@ -1095,9 +1097,9 @@ public class Legend extends ListFragment {
             parking_car_paid,
             parking_private,
             parking_unpaved,
+            parking_dirt,
             highway_services,
             rest_area,
-            parking_dirt,
             border_control,
             toll_booth,
             lift_gate,
@@ -1141,6 +1143,7 @@ public class Legend extends ListFragment {
             railway,
             railway_bridge,
             railway_tunnel,
+            railway_service,
             abandoned_railway,
             light_railway,
             tram,
@@ -1540,9 +1543,10 @@ public class Legend extends ListFragment {
             new LegendSection(R.string.legend_manmade_features, new LegendItem[]{
                     building,
                     wall,
+                    embankment,
                     fence,
                     hedge,
-                    railway_platform,
+                    railway_platform
             }),
             transportation,
             roads,

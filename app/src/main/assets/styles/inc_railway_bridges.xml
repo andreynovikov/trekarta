@@ -49,11 +49,26 @@
                         <line cap="butt" fix="true" stroke="color:railway-subway" width="2.5" />
                     </m>
                     <m k="railway" v="rail" zoom-max="13">
-                        <line cap="butt" fade="12" fix="true" stroke="color:railway-narrow" width="1.0" />
+                        <m k="service" v="yes">
+                            <line cap="butt" fade="12" fix="true" stroke="color:railway-narrow-service"
+                                width="1.0" />
+                        </m>
+                        <m k="service" v="~|no">
+                            <line cap="butt" fade="12" fix="true" stroke="color:railway-narrow"
+                                width="1.0" />
+                        </m>
                     </m>
                     <m k="railway" v="rail" zoom-min="14">
-                        <line cap="butt" fix="true" stipple="10" stipple-stroke="color:railway-stipple"
-                            stipple-width="0.8" stroke="color:railway-stroke" width="3.0" />
+                        <m k="service" v="yes">
+                            <line cap="butt" fix="true" stipple="10"
+                                stipple-stroke="color:railway-stipple" stipple-width="0.8"
+                                stroke="color:railway-stroke-service" width="3.0" />
+                        </m>
+                        <m k="service" v="~|no">
+                            <line cap="butt" fix="true" stipple="10"
+                                stipple-stroke="color:railway-stipple" stipple-width="0.8"
+                                stroke="color:railway-stroke" width="3.0" />
+                        </m>
                     </m>
                     <m k="railway" v="disused|abandoned|preserved" zoom-min="15">
                         <m zoom-min="16">
