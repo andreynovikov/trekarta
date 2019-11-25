@@ -217,6 +217,14 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
             }
 
         }
+        if ("depth".equals(key) && element instanceof ExtendedMapElement) {
+            ExtendedMapElement extendedElement = (ExtendedMapElement) element;
+            if (extendedElement.depth != 0) {
+                float depth = extendedElement.depth * 0.001f;
+                return StringFormatter.elevationH(depth, depth < 1f ? "%.1f" : StringFormatter.elevationFormat);
+            }
+
+        }
         String value = element.tags.getValue(key);
         if (value != null && value.length() > 0)
             return value;

@@ -141,12 +141,22 @@ public class StringFormatter
 
 	public static String elevationH(final float elevation)
 	{
-		return elevationC(elevation) + " " + elevationAbbr;
+		return elevationH(elevation, elevationFormat);
+	}
+
+	public static String elevationH(final float elevation, final String format)
+	{
+		return elevationC(elevation, format) + " " + elevationAbbr;
 	}
 
 	public static String elevationC(final float elevation)
 	{
-		return String.format(elevationFormat, elevation * elevationFactor);
+		return elevationC(elevation, elevationFormat);
+	}
+
+	public static String elevationC(final float elevation, final String format)
+	{
+		return String.format(format, elevation * elevationFactor);
 	}
 
 	public static String angleH(final double angle)

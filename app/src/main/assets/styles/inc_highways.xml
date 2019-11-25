@@ -778,6 +778,8 @@
         <!-- a node -->
         <m e="node">
             <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60" />
+            <text caption="true" style="bold" dy="-14" fill="color:amenity-water" k="depth" size="14" stroke="color:text-outline"
+                stroke-width="2.0" />
         </m>
         <!-- or not a road -->
         <m k="highway" v="~|footway|path|cycleway|bridleway">
