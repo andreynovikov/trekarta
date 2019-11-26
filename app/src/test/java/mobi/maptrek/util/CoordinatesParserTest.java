@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Andrey Novikov
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package mobi.maptrek.util;
 
 import org.junit.Test;
@@ -13,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CoordinatesParserTest {
     @Test
-    public void testNumericLexer() throws Exception {
+    public void testNumericLexer() {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39.095973 -94.573414");
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973", 0, 9),
@@ -24,7 +40,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testDegreesLexer() throws Exception {
+    public void testDegreesLexer() {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39.095973\u00B0 -94.573414\u00B0");
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39.095973", 0, 10),
@@ -35,7 +51,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testMinutesLexer() throws Exception {
+    public void testMinutesLexer() {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39\u00B0 05.7584' -94\u00B0 34.4048'");
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39", 0, 3),
@@ -48,7 +64,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testSecondsLexer() throws Exception {
+    public void testSecondsLexer() {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("39\u00B0 05' 45.503\" -94\u00B0 34' 24.290\"");
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.DEG, "39", 0, 0),
@@ -63,7 +79,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testUtmLexer() throws Exception {
+    public void testUtmLexer() {
         List<CoordinatesParser.Token> actual = CoordinatesParser.lex("15N 363936 4328605");
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.UTM_ZONE, "15N", 0, 3),
@@ -74,7 +90,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testMgrsLexer() throws Exception {
+    public void testMgrsLexer() {
         //noinspection ArraysAsListWithZeroOrOneArgument
         List<CoordinatesParser.Token> expected = Arrays.asList(
                 new CoordinatesParser.Token(CoordinatesParser.Type.MGRS, "15SUD6393628605", 0, 17)
@@ -88,7 +104,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testNumericParser() throws Exception {
+    public void testNumericParser() {
         GeoPoint actual = CoordinatesParser.parse("39.095973 -94.573414");
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
@@ -97,7 +113,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testDegreesParser() throws Exception {
+    public void testDegreesParser() {
         GeoPoint actual = CoordinatesParser.parse("39.095973\u00B0 -94.573414\u00B0");
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
@@ -106,7 +122,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testMinutesParser() throws Exception {
+    public void testMinutesParser() {
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
         GeoPoint actual = CoordinatesParser.parse("39\u00B0 05.7584' -94\u00B0 34.4048'");
@@ -115,7 +131,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testSecondsParser() throws Exception {
+    public void testSecondsParser() {
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
         GeoPoint actual = CoordinatesParser.parse("39\u00B0 05' 45.503\" -94\u00B0 34' 24.290\"");
@@ -130,7 +146,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testUtmParser() throws Exception {
+    public void testUtmParser() {
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
         GeoPoint actual = CoordinatesParser.parse("15N 363936 4328605");
@@ -139,7 +155,7 @@ public class CoordinatesParserTest {
     }
 
     @Test
-    public void testMgrsParser() throws Exception {
+    public void testMgrsParser() {
         double testLatitude = 39.095973;
         double testLongitude = -94.573414;
         GeoPoint actual = CoordinatesParser.parse("15SUD 63936 28605");

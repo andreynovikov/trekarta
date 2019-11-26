@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class StringFormatterTest {
     @Test
-    public void testDistanceFormatter() throws Exception {
+    public void testDistanceFormatter() {
         String actual = StringFormatter.distanceH(321d);
         assertEquals("Failed to format distance 321", "321 m", actual);
         actual = StringFormatter.distanceH(2321d);
