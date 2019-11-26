@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 
+import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.ui.SnackbarHelper;
@@ -129,6 +130,8 @@ public class HelperUtils {
     }
 
     private static void showTargetedAdvice(Activity activity, final long advice, TapTarget target) {
+        if (BuildConfig.IS_TESTING.get())
+            return;
         isShowingTargetedAdvice = true;
         target.tintTarget(false);
         TapTargetView.showFor(activity, target,
@@ -147,6 +150,8 @@ public class HelperUtils {
     }
 
     private static void showTargetedAdvice(Dialog dialog, final long advice, TapTarget target) {
+        if (BuildConfig.IS_TESTING.get())
+            return;
         isShowingTargetedAdvice = true;
         target.tintTarget(false);
         TapTargetView.showFor(dialog, target,
