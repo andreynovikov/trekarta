@@ -514,14 +514,14 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.context_menu_waypoint_list, menu);
             if (mFloatingButton != null)
-                mFloatingButton.setVisibility(View.GONE);
+                ((View)mFloatingButton).setVisibility(View.GONE);
             return true;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             if (mFloatingButton != null)
-                mFloatingButton.setVisibility(View.VISIBLE);
+                ((View)mFloatingButton).setVisibility(View.VISIBLE);
         }
 
         @Override

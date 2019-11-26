@@ -247,16 +247,16 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         if (mFloatingButton != null) {
             if (mDownloadBasemap.isChecked() || stats.download > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
-                mFloatingButton.setVisibility(View.VISIBLE);
+                ((View)mFloatingButton).setVisibility(View.VISIBLE);
                 mHelpButton.setVisibility(View.INVISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
-                mFloatingButton.setVisibility(View.VISIBLE);
+                ((View)mFloatingButton).setVisibility(View.VISIBLE);
                 mHelpButton.setVisibility(View.INVISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.GONE);
             } else {
-                mFloatingButton.setVisibility(View.GONE);
+                ((View)mFloatingButton).setVisibility(View.GONE);
                 mHelpButton.setVisibility(View.VISIBLE);
                 mHillshadesCheckboxHolder.setVisibility(View.GONE);
             }

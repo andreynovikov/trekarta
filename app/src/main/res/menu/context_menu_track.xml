@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_view"
         android:icon="@drawable/ic_play_arrow_black"
-        android:showAsAction="always"
-        android:title="@string/actionView" />
+        android:title="@string/actionView"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_mode_edit"
-        android:showAsAction="always"
-        android:title="@string/actionEdit" />
+        android:title="@string/actionEdit"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
-        android:showAsAction="always"
-        android:title="@string/actionShare" />
+        android:title="@string/actionShare"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_delete"
-        android:showAsAction="always"
-        android:title="@string/actionDelete" />
+        android:title="@string/actionDelete"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
 </menu>
