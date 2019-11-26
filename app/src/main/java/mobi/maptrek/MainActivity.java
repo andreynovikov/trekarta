@@ -4228,7 +4228,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 // TODO Show advises on cursor hide
                 if (mNightMode) {
                     mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_NIGHT_MODE, R.string.advice_night_mode, mMapsButton, false), 2000);
-                } else {
+                } else if (Configuration.getRunningTime() > 10) {
                     mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false), 2000);
                 }
                 themeFile = mNightMode ? Themes.NIGHT : Themes.MAPTREK;
