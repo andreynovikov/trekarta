@@ -8,7 +8,7 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         //noinspection OldTargetApi
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 74
         versionName "2019.10"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
@@ -22,7 +22,7 @@ android {
 
     lintOptions {
         checkReleaseBuilds true
-        abortOnError false
+        abortOnError true
     }
 
     buildTypes {
@@ -105,7 +105,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.2.2'
     implementation 'org.openstreetmap.osmosis:osmosis-osm-binary:0.47'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.10'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.10.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v2.2.5'
     implementation 'com.github.jakob-grabner:Circle-Progress-View:v1.2.9'
     implementation 'com.getkeepsafe.taptargetview:taptargetview:1.10.0'
