@@ -67,11 +67,13 @@
     <style-color id="road-text-outline" color="#eeeeee" />
 
     <style-color id="railway-stroke" color="#777777" />
+    <style-color id="railway-stroke-service" color="#afafaf" />
     <style-color id="railway-stipple" color="#ffffff" />
     <style-color id="railway-subway" color="#888888" />
     <style-color id="railway-funicular" color="#663322" />
     <style-color id="railway-tram" color="#aa9988" />
     <style-color id="railway-narrow" color="#999999" />
+    <style-color id="railway-narrow-service" color="#cccccc" />
     <style-color id="railway-abandoned" color="#cccccc" />
     <style-color id="railway-bridge" color="#ffffff" />
     <style-color id="railway-bridge-outline" color="#aa202020" />
@@ -105,8 +107,6 @@
     <style-area fade="-1" fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
-    <style-line id="embankment" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#e4ecec" id="wood" />
 

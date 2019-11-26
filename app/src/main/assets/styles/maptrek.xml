@@ -11,13 +11,11 @@
     https://wiki.openstreetmap.org/wiki/Tag:craft=winery
     https://wiki.openstreetmap.org/wiki/Tag:tower:type%3Dcommunication
     railway:subway
-    https://wiki.openstreetmap.org/wiki/Key:service - insignificant rails
     https://wiki.openstreetmap.org/wiki/Tag:aerialway=goods
     https://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstation
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dbus_guideway
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Draceway
     https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmini_roundabout
-    https://wiki.openstreetmap.org/wiki/Key:depth - for fords and waterways
     -->
 
     <!--
@@ -133,11 +131,13 @@
     <style-color id="military-text-outline" color="#ffcccc" />
 
     <style-color id="railway-stroke" color="#777777" />
+    <style-color id="railway-stroke-service" color="#afafaf" />
     <style-color id="railway-stipple" color="#ffffff" />
     <style-color id="railway-subway" color="#888888" />
     <style-color id="railway-funicular" color="#663322" />
     <style-color id="railway-tram" color="#aa9988" />
     <style-color id="railway-narrow" color="#999999" />
+    <style-color id="railway-narrow-service" color="#cccccc" />
     <style-color id="railway-abandoned" color="#cccccc" />
     <style-color id="railway-bridge" color="#ffffff" />
     <style-color id="railway-bridge-outline" color="#aa202020" />
@@ -172,8 +172,6 @@
     <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="cliff" src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" />
-    <style-line id="embankment" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
