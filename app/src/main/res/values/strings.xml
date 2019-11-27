@@ -90,7 +90,7 @@
     <string name="notifTrackingFailure">Track writing error</string>
     <string name="notifLocationWaiting">Waiting for location</string>
 
-    <string name="msgNavigationProgress">%s left, proceed on a course of %s</string>
+    <string name="msgNavigationProgress">%1$s left, proceed on a course of %2$s</string>
     <string name="msgNavigating">Navigating to %s</string>
     <string name="msgNavigationActions">You can stop navigation completely or pause it until next application start</string>
     <string name="msgBackQuit">Press Back once more to quit</string>
@@ -98,7 +98,7 @@
     <string name="msgPlaceSaved">Place saved</string>
     <string name="msgEmptyPlaceList">Your places will appear here. You can create place by entering its coordinates or by long pressing Places button.</string>
     <string name="msgTrackDeleted">Track deleted</string>
-    <string name="msgTracked">%s tracked since %s</string>
+    <string name="msgTracked">%1$s tracked since %2$s</string>
     <string name="msgTracking">Trekarta is recording your movement</string>
     <string name="msgTrackingActions">You can stop recording to save the track or pause it to resume on next application start</string>
     <string name="msgTrackSaved">Track saved</string>
@@ -115,7 +115,7 @@
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
     <string name="msgIndexDownloadFailed">Download size not available</string>
     <string name="msgEstimateDownloadSize">Estimating download size</string>
-    <string name="msgEstimateDownloadSizePlaceholder" translatable="false">%s (%d%%)</string>
+    <string name="msgEstimateDownloadSizePlaceholder" translatable="false">%1$s (%2$d%%)</string>
     <string name="msgDownloadSize">Download size: %s</string>
     <string name="msgAdvicesReset">Advices will be shown from the very beginning</string>
     <string name="msgParseCoordinatesFailed">Failed to get coordinates from string</string>
@@ -205,7 +205,7 @@
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
     <string name="advice_night_mode">You can long press maps button to disable night mode</string>
 
-    <string name="datetime" translatable="false">%s %s</string>
+    <string name="datetime" translatable="false">%1$s %2$s</string>
     <string name="place_name">Place #%d</string>
     <string name="remove_gauge">Remove %s</string>
     <string name="add_gauge">Add %s</string>
@@ -228,8 +228,8 @@
     <string name="intentImportData">Trekarta import</string>
     <string name="intentMoveData">Trekarta data move</string>
     <string name="mapDownloadText">Download missing map</string>
-    <string name="mapTitle">Area %d-%d map</string>
-    <string name="hillshadeTitle">Area %d-%d hillshade</string>
+    <string name="mapTitle">Area %1$d-%2$d map</string>
+    <string name="hillshadeTitle">Area %1$d-%2$d hillshade</string>
     <string name="startApplication">Open Trekarta</string>
     <string name="utc_offset">UTC Offset</string>
     <string name="coordinates">Coordinates</string>
@@ -653,7 +653,7 @@
     <string name="legend_stone">Stone</string>
     <string name="legend_plaque">Plaque</string>
     <string name="legend_wayside_shrine">Wayside shrine</string>
-    <string name="legend_massage">Massage</string>
+    <string name="legend_massage">Massage shop</string>
     <string name="legend_dentist">Dentist practice</string>
     <string name="legend_embassy">Embassy</string>
     <string name="legend_horse_riding">Equestrian centre</string>
