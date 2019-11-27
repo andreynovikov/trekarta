@@ -55,14 +55,14 @@
     <string name="notifTrackingFailure">Ошибка записи трека</string>
     <string name="notifLocationWaiting">Ожидание местоположения</string>
 
-    <string name="msgNavigationProgress">Осталось %s, продолжайте двигаться курсом %s</string>
+    <string name="msgNavigationProgress">Осталось %1$s, продолжайте двигаться курсом %2$s</string>
     <string name="msgNavigating">Движение на точку %s</string>
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
     <string name="msgPlaceDeleted">Точка удалена</string>
     <string name="msgPlaceSaved">Точка сохранена</string>
     <string name="msgEmptyPlaceList">Здесь будут отображаться ваши точки. Вы можете создать точку с помощью долгого нажатия на кнопку Точки или ввести её координаты, нажав на кнопку добавления точек.</string>
     <string name="msgTrackDeleted">Трек удалён</string>
-    <string name="msgTracked">%s пройдено с %s</string>
+    <string name="msgTracked">%1$s пройдено с %2$s</string>
     <string name="msgTracking">Трекарта записывает ваше перемещение</string>
     <string name="msgTrackingActions">Вы можете прекратить запись, чтобы сохранить трек, или остановить запись, чтобы продолжить её при следующем старте приложения</string>
     <string name="msgTrackSaved">Трек сохранён</string>
@@ -111,7 +111,7 @@
     <string name="never_sets">Солнце никогда не садится</string>
     <string name="currentTrack">Текущий трек</string>
     <string name="finish_point">Конечная точка</string>
-    <string name="mapTitle">Карта области %d-%d</string>
+    <string name="mapTitle">Карта области %1$d-%2$d</string>
     <string name="mapDownloadText">Загрузить недостающую карту</string>
     <string name="gauge_speed">Скорость</string>
     <string name="max_speed">Максимальная скорость</string>
@@ -257,7 +257,7 @@
     <string name="nameOrCoordinates">Название или координаты</string>
     <string name="downloadHillshades">Загрузить сопутствующие затенения рельефа</string>
     <string name="msgHillshadeDatabaseError">Произошла ошибка при чтении затенений рельефа, база была обнулена</string>
-    <string name="hillshadeTitle">Затенение рельефа области %d-%d</string>
+    <string name="hillshadeTitle">Затенение рельефа области %1$d-%2$d</string>
     <string name="pref_hillshades_transparency">Прозрачность затенения рельефа</string>
     <string name="advice_active_maps_size">Вы можете загружать столько областей, сколько хотите, но слишком большое количество активных областей заметно ухудшает производительность отрисовки карт и полнотекстового поиска. Пожалуйста, подумайте об удалении ненужных областей.</string>
     <string name="msgMapSelectionExplanation">Серые квадраты обозначают области, доступные для загрузки. После загрузки индекса карт в каждом квадрате содержится информация о размере области карты и возрасте данных. Если вы пометите флажком загрузку затемнений рельефа, добавится отображение информации о их доступности для данной области, а размеры скорректируются с учетом затемнений. Яркие зеленые зоны обозначают активные (загруженные) области, загружающиеся в настоящее время зоны темно-зеленые. Если доступно обновление для определенной области, квадрат будет желтым. Если будет доступно обновление для карты мира, появится специальный флажок. Отметить активную область для удаления можно длинным нажатием. Если область удалена, пространство освобождается не сразу, а постепенно в течение времени. Индекс карт обновляется не более одного раза в день.</string>
@@ -640,4 +640,24 @@
     <string name="legend_path_visibility_good">Хорошо видимая тропинка</string>
     <string name="legend_hiking_visibility_excellent">Отличная видимость</string>
     <string name="legend_hiking_visibility_no">Отсутствие видимости</string>
+    <string name="legend_massage">Массажный салон</string>
+    <string name="legend_dentist">Стоматология</string>
+    <string name="legend_spring">Родник</string>
+    <string name="legend_embankment">Насыпь</string>
+    <string name="legend_embassy">Иностранное посольство</string>
+    <string name="legend_firepit">Место разведения костра</string>
+    <string name="legend_gallery">Художественная галерея</string>
+    <string name="legend_highway_services">Зона отдыха и обслуживания</string>
+    <string name="legend_horse_riding">Конный центр</string>
+    <string name="legend_intermittent_river">Пересыхающая река</string>
+    <string name="legend_kissing_gate">V-образная калитка</string>
+    <string name="legend_marina">Марина</string>
+    <string name="legend_marina_name">Альбатрос</string>
+    <string name="legend_noaccess_path">Недоступная тропа</string>
+    <string name="legend_rest_area">Зона отдыха</string>
+    <string name="legend_stile">Перелаз</string>
+    <string name="legend_weir">Перекатная плотина</string>
+    <string name="kind_healthbeauty">Красота и здоровье</string>
+    <string name="legend_chalet">Коттедж</string>
+    <string name="legend_railway_service">Второстепенный путь</string>
 </resources>
