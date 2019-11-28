@@ -43,6 +43,7 @@ Places can be easily imported from GPX and KML files or can be created within ap
 ![](https://trekarta.info/images/places.png)
 
 __Tracks__
+
 Trekarta is designed to record tracks of your journey. Simply press a button when you start and press it once more when you finish. You can quit the application if you do not need to look at the map, the track will be recorded in the background.
 
 ![](https://trekarta.info/images/tracking.png)
