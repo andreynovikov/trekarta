@@ -46,6 +46,10 @@ jobs:
 
     runs-on: macOS-latest
 
+    strategy:
+      matrix:
+        api-level: [23, 28]
+        target: [default, google_apis]
     steps:
     - uses: actions/checkout@v1
     - name: Make gradlew executable
@@ -53,5 +57,7 @@ jobs:
     - name: Execute instrumentation tests
       uses: reactivecircus/android-emulator-runner@v1
       with:
-        api-level: 28
+        api-level: ${{ matrix.api-level }}
+        target: ${{ matrix.target }}
+        arch: x86_64
         script: ./gradlew connectedCheck
