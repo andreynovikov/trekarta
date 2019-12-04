@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,12 +20,12 @@ import android.database.Cursor;
 
 import java.util.List;
 
-import mobi.maptrek.data.Track;
+import mobi.maptrek.data.Route;
 
-public interface TrackDataSource {
-    List<Track> getTracks();
+public interface RouteDataSource {
+    List<Route> getRoutes();
 
-    int getTracksCount();
+    int getRoutesCount();
 
-    Track cursorToTrack(Cursor cursor);
+    Route cursorToRoute(Cursor cursor);
 }

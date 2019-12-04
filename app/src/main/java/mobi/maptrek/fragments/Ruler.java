@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -29,6 +29,7 @@ import android.widget.TextView;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Color;
+import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.layers.RouteLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
@@ -55,8 +55,8 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
 
     private MapPosition mMapPosition;
     private RouteLayer mRouteLayer;
-    private ItemizedLayer<MarkerItem> mWaypointLayer;
-    private Stack<Waypoint> mWaypointHistory;
+    private ItemizedLayer<MarkerItem> mPointLayer;
+    private Stack<GeoPoint> mPointHistory;
     private Route mRoute;
 
     @Override
@@ -65,7 +65,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         setRetainInstance(true);
         mRoute = new Route();
         mMapPosition = new MapPosition();
-        mWaypointHistory = new Stack<>();
+        mPointHistory = new Stack<>();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,11 +78,11 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         ImageButton addButton = rootView.findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
-                Waypoint waypoint = new Waypoint(mMapPosition.getGeoPoint());
-                mRouteLayer.addWaypoint(waypoint);
-                MarkerItem marker = new MarkerItem(waypoint, null, null, waypoint.coordinates);
-                mWaypointLayer.addItem(marker);
-                mWaypointHistory.push(waypoint);
+                GeoPoint point = mMapPosition.getGeoPoint();
+                mRoute.addInstruction(point);
+                MarkerItem marker = new MarkerItem(point, null, null, point);
+                mPointLayer.addItem(marker);
+                mPointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
             }
@@ -91,11 +91,11 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         ImageButton insertButton = rootView.findViewById(R.id.insertButton);
         insertButton.setOnClickListener(v -> {
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
-                Waypoint waypoint = new Waypoint(mMapPosition.getGeoPoint());
-                mRouteLayer.insertWaypoint(waypoint);
-                MarkerItem marker = new MarkerItem(waypoint, null, null, waypoint.coordinates);
-                mWaypointLayer.addItem(marker);
-                mWaypointHistory.push(waypoint);
+                GeoPoint point = mMapPosition.getGeoPoint();
+                mRoute.insertInstruction(point);
+                MarkerItem marker = new MarkerItem(point, null, null, point);
+                mPointLayer.addItem(marker);
+                mPointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
             }
@@ -105,10 +105,11 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         removeButton.setOnClickListener(v -> {
             if (mRoute.length() > 0) {
                 mMapHolder.getMap().getMapPosition(mMapPosition);
-                Waypoint waypoint = mRoute.getNearestWaypoint(mMapPosition.getGeoPoint());
-                mRouteLayer.removeWaypoint(waypoint);
-                MarkerItem marker = mWaypointLayer.getByUid(waypoint);
-                mWaypointLayer.removeItem(marker);
+                Route.Instruction instruction = mRoute.getNearestInstruction(mMapPosition.getGeoPoint());
+                mRoute.removeInstruction(instruction);
+                MarkerItem marker = mPointLayer.getByUid(instruction);
+                mPointLayer.removeItem(marker);
+                mPointHistory.remove(instruction);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
                 updateTrackMeasurements();
@@ -117,11 +118,16 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
 
         ImageButton undoButton = rootView.findViewById(R.id.undoButton);
         undoButton.setOnClickListener(v -> {
-            if (!mWaypointHistory.isEmpty()) {
-                Waypoint waypoint = mWaypointHistory.pop();
-                mRouteLayer.removeWaypoint(waypoint);
-                MarkerItem marker = mWaypointLayer.getByUid(waypoint);
-                mWaypointLayer.removeItem(marker);
+            if (!mPointHistory.isEmpty()) {
+                GeoPoint point = mPointHistory.pop();
+                Route.Instruction instruction = mRoute.getNearestInstruction(point);
+                if (instruction == null) {
+                    mPointHistory.clear();
+                    return;
+                }
+                mRoute.removeInstruction(instruction);
+                MarkerItem marker = mPointLayer.getByUid(instruction);
+                mPointLayer.removeItem(marker);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
                 updateTrackMeasurements();
@@ -145,16 +151,16 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     @Override
     public void onStart() {
         super.onStart();
-        mRouteLayer = new RouteLayer(mMapHolder.getMap(), mRoute);
+        mRouteLayer = new RouteLayer(mMapHolder.getMap(), Color.RED, 5, mRoute);
         mMapHolder.getMap().layers().add(mRouteLayer);
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(getContext(), R.drawable.dot_black, Color.RED));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
         ArrayList<MarkerItem> items = new ArrayList<>(mRoute.length());
-        for (Waypoint waypoint : mRoute.getWaypoints()) {
-            items.add(new MarkerItem(waypoint, null, null, waypoint.coordinates));
+        for (GeoPoint point : mRoute.getCoordinates()) {
+            items.add(new MarkerItem(point, null, null, point));
         }
-        mWaypointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, this);
-        mMapHolder.getMap().layers().add(mWaypointLayer);
+        mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, this);
+        mMapHolder.getMap().layers().add(mPointLayer);
     }
 
     @Override
@@ -176,9 +182,9 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         mMapHolder.getMap().layers().remove(mRouteLayer);
         mRouteLayer.onDetach();
         mRouteLayer = null;
-        mMapHolder.getMap().layers().remove(mWaypointLayer);
-        mWaypointLayer.onDetach();
-        mWaypointLayer = null;
+        mMapHolder.getMap().layers().remove(mPointLayer);
+        mPointLayer.onDetach();
+        mPointLayer = null;
         mMapHolder.getMap().updateMap(true);
     }
 
@@ -193,7 +199,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     public void onDestroy() {
         super.onDestroy();
         mMapPosition = null;
-        mWaypointHistory = null;
+        mPointHistory = null;
         mRoute = null;
     }
 

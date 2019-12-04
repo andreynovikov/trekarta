@@ -71,7 +71,7 @@ public class Track {
     }
 
     public Track() {
-        this("", false);
+        this(null, false);
     }
 
     public Track(String name, boolean show) {

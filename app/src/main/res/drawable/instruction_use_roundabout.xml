@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright 2019 Andrey Novikov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU Lesser General Public License as published by the Free Software
+  ~ Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License along with
+  ~ this program. If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:pathData="m45.019,20v10.59c-7.2,1.705 -12.649,7.119 -14.4,14.439 -3.525,0.001 -7.119,-0.003 -10.62,0.002v10.027c3.681,0 7.42,0 10.571,0 1.7,7.17 7.05,12.584 14.2,14.389 0.05,0 0.148,0.051 0.248,0.051L45.019,80L55.02,80L55.02,69.547c5,-1.153 9.152,-4.162 11.802,-8.273 1.2,-1.855 2.098,-3.959 2.648,-6.215L80,55.059L80,45.029L69.421,45.029C67.671,37.759 62.22,32.246 55.02,30.541L55.02,20ZM50.021,39.965c5.7,0 10,4.314 10,10.23 0,5.616 -4.3,9.928 -10,9.928 -5.7,0 -10,-4.262 -10,-9.928 0,-5.967 4.3,-10.23 10,-10.23z"
+      android:fillColor="#000000"/>
+</vector>

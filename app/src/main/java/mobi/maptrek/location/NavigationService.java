@@ -368,8 +368,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navDirection = direction;
         navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.length() - 2;
 
-        navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
-        prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
+        //navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
+        //prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
         navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
@@ -380,11 +380,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public void setRouteWaypoint(int waypoint) {
         navCurrentRoutePoint = waypoint;
-        navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
+        //navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
         int prev = navCurrentRoutePoint - navDirection;
-        if (prev >= 0 && prev < navRoute.length())
-            prevWaypoint = navRoute.getWaypoint(prev);
-        else
+        //if (prev >= 0 && prev < navRoute.length())
+        //    prevWaypoint = navRoute.getWaypoint(prev);
+        //else
             prevWaypoint = null;
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
@@ -394,7 +394,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public MapObject getNextRouteWaypoint() {
         try {
-            return navRoute.getWaypoint(navCurrentRoutePoint + navDirection);
+            //return navRoute.getWaypoint(navCurrentRoutePoint + navDirection);
+            return null;
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
@@ -402,8 +403,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public void nextRouteWaypoint() throws IndexOutOfBoundsException {
         navCurrentRoutePoint += navDirection;
-        navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
-        prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
+        //navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
+        //prevWaypoint = navRoute.getWaypoint(navCurrentRoutePoint - navDirection);
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
         navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
@@ -412,11 +413,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public void prevRouteWaypoint() throws IndexOutOfBoundsException {
         navCurrentRoutePoint -= navDirection;
-        navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
+        //navWaypoint = navRoute.getWaypoint(navCurrentRoutePoint);
         int prev = navCurrentRoutePoint - navDirection;
-        if (prev >= 0 && prev < navRoute.length())
-            prevWaypoint = navRoute.getWaypoint(prev);
-        else
+        //if (prev >= 0 && prev < navRoute.length())
+        //    prevWaypoint = navRoute.getWaypoint(prev);
+        //else
             prevWaypoint = null;
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : mRouteProximity;
         navRouteDistance = -1;
@@ -492,10 +493,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avvmg > 0) {
             int i = navDirection == DIRECTION_FORWARD ? index : navRoute.length() - index - 1;
             int j = i - navDirection;
-            MapObject w1 = navRoute.getWaypoint(i);
-            MapObject w2 = navRoute.getWaypoint(j);
-            double distance = w1.coordinates.vincentyDistance(w2.coordinates);
-            ete = (int) Math.round(distance / avvmg / 60);
+            //MapObject w1 = navRoute.getWaypoint(i);
+            //MapObject w2 = navRoute.getWaypoint(j);
+            //double distance = w1.coordinates.vincentyDistance(w2.coordinates);
+            //ete = (int) Math.round(distance / avvmg / 60);
         }
         return ete;
     }

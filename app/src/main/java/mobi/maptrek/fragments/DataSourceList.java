@@ -172,9 +172,8 @@ public class DataSourceList extends ListFragment {
 
         DataSourceListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            Activity activity = getActivity();
-            mAccentColor = activity.getColor(R.color.colorAccentLight);
-            mDisabledColor = activity.getColor(R.color.colorPrimary);
+            mAccentColor = context.getColor(R.color.colorAccentLight);
+            mDisabledColor = context.getColor(R.color.colorPrimary);
         }
 
         @Override
@@ -240,14 +239,20 @@ public class DataSourceList extends ListFragment {
                     } else {
                         int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
                         int tracksCount = ((FileDataSource) dataSource).tracks.size();
+                        int routesCount = ((FileDataSource) dataSource).routes.size();
                         StringBuilder sb = new StringBuilder();
                         if (waypointsCount > 0) {
                             sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
-                            if (tracksCount > 0)
+                            if (tracksCount > 0 || routesCount > 0)
                                 sb.append(", ");
                         }
                         if (tracksCount > 0) {
                             sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
+                            if (routesCount > 0)
+                                sb.append(", ");
+                        }
+                        if (routesCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.routesCount, routesCount, routesCount));
                         }
                         itemHolder.description.setText(sb);
                         if (waypointsCount > 0 && tracksCount > 0)

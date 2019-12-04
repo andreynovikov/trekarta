@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
@@ -68,6 +69,10 @@ public class GpxParser {
                 case GpxFile.TAG_TRK:
                     Track track = readTrack(parser);
                     dataSource.tracks.add(track);
+                    break;
+                case GpxFile.TAG_RTE:
+                    Route route = readRoute(parser);
+                    dataSource.routes.add(route);
                     break;
                 default:
                     skip(parser);
@@ -138,6 +143,7 @@ public class GpxParser {
     private static Track readTrack(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_TRK);
         Track track = new Track();
+        int number = Integer.MIN_VALUE;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -146,6 +152,9 @@ public class GpxParser {
             switch (name) {
                 case GpxFile.TAG_NAME:
                     track.name = readTextElement(parser, GpxFile.TAG_NAME);
+                    break;
+                case GpxFile.TAG_NUMBER:
+                    number = readIntegerElement(parser, GpxFile.TAG_NUMBER);
                     break;
                 case GpxFile.TAG_DESC:
                     track.description = readTextElement(parser, GpxFile.TAG_DESC);
@@ -158,6 +167,8 @@ public class GpxParser {
                     break;
             }
         }
+        if (track.name == null && number != Integer.MIN_VALUE)
+            track.name = "#" + number;
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_TRK);
         return track;
     }
@@ -210,6 +221,59 @@ public class GpxParser {
         track.addPointFast(continuous, (int) (lat * 1E6), (int) (lon * 1E6), altitude, Float.NaN, Float.NaN, Float.NaN, time);
     }
 
+    @NonNull
+    private static Route readRoute(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_RTE);
+        Route route = new Route();
+        int number = Integer.MIN_VALUE;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            switch (name) {
+                case GpxFile.TAG_NAME:
+                    route.name = readTextElement(parser, GpxFile.TAG_NAME);
+                    break;
+                case GpxFile.TAG_NUMBER:
+                    number = readIntegerElement(parser, GpxFile.TAG_NUMBER);
+                    break;
+                case GpxFile.TAG_DESC:
+                    route.description = readTextElement(parser, GpxFile.TAG_DESC);
+                    break;
+                case GpxFile.TAG_RTEPT:
+                    readRoutePoint(parser, route);
+                    break;
+                default:
+                    skip(parser);
+                    break;
+            }
+        }
+        if (route.name == null && number != Integer.MIN_VALUE)
+            route.name = "#" + number;
+        parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_RTE);
+        return route;
+    }
+
+    private static void readRoutePoint(XmlPullParser parser, Route route) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_RTEPT);
+        float lat = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
+        float lon = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            switch (name) {
+                default:
+                    skip(parser);
+                    break;
+            }
+        }
+        parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_RTEPT);
+        route.addInstruction((int) (lat * 1E6), (int) (lon * 1E6));
+    }
+
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG) {
             throw new IllegalStateException();
@@ -253,6 +317,13 @@ public class GpxParser {
         return result;
     }
 
+    private static int readIntegerElement(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, NS, name);
+        int result = readInteger(parser);
+        parser.require(XmlPullParser.END_TAG, NS, name);
+        return result;
+    }
+
     @NonNull
     private static String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
@@ -274,6 +345,21 @@ public class GpxParser {
             result = Float.parseFloat(text.trim());
         } catch (NumberFormatException e) {
             throw new XmlPullParserException("Expected float", parser, e);
+        }
+        return result;
+    }
+
+    private static int readInteger(XmlPullParser parser) throws IOException, XmlPullParserException {
+        String text = "";
+        if (parser.next() == XmlPullParser.TEXT) {
+            text = parser.getText();
+            parser.nextTag();
+        }
+        int result;
+        try {
+            result = Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            throw new XmlPullParserException("Expected integer", parser, e);
         }
         return result;
     }

@@ -65,15 +65,21 @@ public class KMLManager extends Manager {
 
         int hash = filePath.hashCode() * 31;
         int i = 1;
-        // TODO - Generate names if they are missing
+        int j = 1;
         for (Waypoint waypoint : dataSource.waypoints) {
+            if (waypoint.name == null)
+                waypoint.name = "Place " + j;
             waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
             waypoint.source = dataSource;
             if (waypoint.style.color == 0)
                 waypoint.style.color = MarkerStyle.DEFAULT_COLOR;
             i++;
+            j++;
         }
+        j = 1;
         for (Track track : dataSource.tracks) {
+            if (track.name == null)
+                track.name = "Track " + j;
             track.id = 31 * (hash + track.name.hashCode()) + i;
             track.source = dataSource;
             if (track.style.color == 0)
@@ -81,6 +87,7 @@ public class KMLManager extends Manager {
             if (track.style.width == 0f)
                 track.style.width = TrackStyle.DEFAULT_WIDTH;
             i++;
+            j++;
         }
         return dataSource;
     }

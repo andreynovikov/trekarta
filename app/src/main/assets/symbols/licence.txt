@@ -16,3 +16,5 @@ playground.svg - skis by Bakunetsu Kaito from the Noun Project, newborn by H Alb
 zipline.svg - by Luis Prado from the Noun Project
 guidepost.svg - by ProSymbols from the Noun Project
 information_office.svg - by Ralf Schmitzer from the Noun Project
+
+All navigation directions icons by Thomas Helbig from the Noun Project (located in res folder)

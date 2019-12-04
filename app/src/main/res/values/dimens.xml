@@ -35,4 +35,5 @@
     <dimen name="destinationTopPadding">16dp</dimen>
     <dimen name="legend_item_width">100dp</dimen>
     <dimen name="legendWidth">300dp</dimen>
+    <dimen name="route_sign_size">80dp</dimen>
 </resources>

@@ -20,6 +20,14 @@
         <item quantity="one">%d track deleted</item>
         <item quantity="other">%d tracks deleted</item>
     </plurals>
+    <plurals name="routesCount">
+        <item quantity="one">%d route</item>
+        <item quantity="other">%d routes</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="one">%d route deleted</item>
+        <item quantity="other">%d routes deleted</item>
+    </plurals>
     <plurals name="numberOfPoints">
         <item quantity="one">%d point</item>
         <item quantity="other">%d points</item>

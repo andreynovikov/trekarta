@@ -23,14 +23,17 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 
-public class MemoryDataSource extends DataSource implements WaypointDataSource, TrackDataSource {
+public class MemoryDataSource extends DataSource implements WaypointDataSource, TrackDataSource, RouteDataSource {
     @NonNull
     public List<Waypoint> waypoints = new ArrayList<>();
     @NonNull
     public List<Track> tracks = new ArrayList<>();
+    @NonNull
+    public List<Route> routes = new ArrayList<>();
 
     @Override
     public boolean isNativeTrack() {
@@ -62,6 +65,8 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
             return TYPE_WAYPOINT;
         if (position < waypoints.size() + tracks.size())
             return TYPE_TRACK;
+        if (position < waypoints.size() + tracks.size() + routes.size())
+            return TYPE_ROUTE;
         throw new IndexOutOfBoundsException("Wrong index: " + position);
     }
 
@@ -75,6 +80,11 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
         return tracks.get(cursor.getInt(1));
     }
 
+    @Override
+    public Route cursorToRoute(Cursor cursor) {
+        return routes.get(cursor.getInt(1));
+    }
+
     @NonNull
     @Override
     public List<Track> getTracks() {
@@ -86,6 +96,17 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
         return tracks.size();
     }
 
+    @NonNull
+    @Override
+    public List<Route> getRoutes() {
+        return routes;
+    }
+
+    @Override
+    public int getRoutesCount() {
+        return routes.size();
+    }
+
     /**
      * Helper cursor that does not hold data but only a reference (index) to actual data lists.
      */
@@ -93,7 +114,7 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
 
         @Override
         public int getCount() {
-            return waypoints.size() + tracks.size();
+            return waypoints.size() + tracks.size() + routes.size();
         }
 
         @Override
@@ -119,7 +140,9 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
             int position = getPosition();
             if (position < waypoints.size())
                 return position;
-            return position - waypoints.size();
+            if (position < waypoints.size() + tracks.size())
+                return position - waypoints.size();
+            return position - waypoints.size() - tracks.size();
         }
 
         @Override
@@ -130,7 +153,9 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
             int position = getPosition();
             if (position < waypoints.size())
                 return waypoints.get(position)._id;
-            return tracks.get(position - waypoints.size()).id;
+            if (position < waypoints.size() + tracks.size())
+                return tracks.get(position - waypoints.size()).id;
+            return routes.get(position - waypoints.size() - tracks.size()).id;
         }
 
         @Override

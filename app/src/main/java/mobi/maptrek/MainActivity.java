@@ -145,6 +145,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import mobi.maptrek.data.MapObject;
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
@@ -171,10 +172,12 @@ import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnFeatureActionListener;
 import mobi.maptrek.fragments.OnLocationListener;
 import mobi.maptrek.fragments.OnMapActionListener;
+import mobi.maptrek.fragments.OnRouteActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.RouteInformation;
 import mobi.maptrek.fragments.Ruler;
 import mobi.maptrek.fragments.Settings;
 import mobi.maptrek.fragments.TextSearchFragment;
@@ -192,6 +195,7 @@ import mobi.maptrek.layers.MapEventLayer;
 import mobi.maptrek.layers.MapObjectLayer;
 import mobi.maptrek.layers.MapTrekTileLayer;
 import mobi.maptrek.layers.NavigationLayer;
+import mobi.maptrek.layers.RouteLayer;
 import mobi.maptrek.layers.TrackLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
@@ -240,6 +244,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         OnLocationListener,
         OnWaypointActionListener,
         OnTrackActionListener,
+        OnRouteActionListener,
         OnMapActionListener,
         OnFeatureActionListener,
         ItemizedLayer.OnItemGestureListener<MarkerItem>,
@@ -2858,6 +2863,60 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
+    public void onRouteView(Route route) {
+        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+            mLocationState = LocationState.ENABLED;
+            updateLocationDrawable();
+        }
+        BoundingBox box = route.getBoundingBox();
+        box.extendBy(0.05);
+        mMap.animator().animateTo(box);
+    }
+
+    @Override
+    public void onRouteDetails(Route route) {
+        Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, RouteInformation.class.getName());
+            Slide slide = new Slide(mSlideGravity);
+            // Required to sync with FloatingActionButton
+            slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            fragment.setEnterTransition(slide);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "routeInformation");
+            ft.addToBackStack("routeInformation");
+            ft.commit();
+            updateMapViewArea();
+        }
+        ((RouteInformation) fragment).setRoute(route);
+        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
+        mExtendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
+    }
+
+    @Override
+    public void onRouteShare(Route route) {
+
+    }
+
+    @Override
+    public void onRouteSave(Route route) {
+
+    }
+
+    @Override
+    public void onRouteDelete(Route route) {
+
+    }
+
+    @Override
+    public void onRoutesDelete(Set<Route> route) {
+
+    }
+
+    @Override
     public void onFeatureDetails(long id, boolean fromList) {
         Bundle args = new Bundle(3);
         //args.putBoolean(AmenityInformation.ARG_DETAILS, fromList);
@@ -3856,6 +3915,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mMap.layers().add(trackLayer, MAP_DATA);
             mTotalDataItems++;
         }
+        for (Route route : source.routes) {
+            RouteLayer routeLayer = new RouteLayer(mMap, route);
+            mMap.layers().add(routeLayer, MAP_DATA);
+            mTotalDataItems++;
+        }
     }
 
     private void removeSourceFromMap(FileDataSource source) {
@@ -3865,12 +3929,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
             Layer layer = i.next();
-            if (!(layer instanceof TrackLayer))
-                continue;
-            if (source.tracks.contains(((TrackLayer) layer).getTrack())) {
-                i.remove();
-                layer.onDetach();
-                mTotalDataItems--;
+            if (layer instanceof TrackLayer) {
+                if (source.tracks.contains(((TrackLayer) layer).getTrack())) {
+                    i.remove();
+                    layer.onDetach();
+                    mTotalDataItems--;
+                }
+            } else if (layer instanceof RouteLayer) {
+                if (source.routes.contains(((RouteLayer) layer).getRoute())) {
+                    i.remove();
+                    layer.onDetach();
+                    mTotalDataItems--;
+                }
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,18 +14,24 @@
  *
  */
 
-package mobi.maptrek.data.source;
+package mobi.maptrek.data.style;
 
-import android.database.Cursor;
+public class RouteStyle extends Style<RouteStyle> {
+    public static int DEFAULT_COLOR = android.graphics.Color.DKGRAY;
+    public static float DEFAULT_WIDTH = 8;
 
-import java.util.List;
+    public int color = DEFAULT_COLOR;
+    public float width = DEFAULT_WIDTH;
 
-import mobi.maptrek.data.Track;
 
-public interface TrackDataSource {
-    List<Track> getTracks();
+    @Override
+    public boolean isDefault() {
+        return color == DEFAULT_COLOR && width == DEFAULT_WIDTH;
+    }
 
-    int getTracksCount();
-
-    Track cursorToTrack(Cursor cursor);
+    @Override
+    public void copy(RouteStyle style) {
+        style.color = color;
+        style.width = width;
+    }
 }

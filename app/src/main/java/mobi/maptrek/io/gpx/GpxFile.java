@@ -27,6 +27,7 @@ public class GpxFile {
     public static final String TAG_GPX = "gpx";
     public static final String TAG_METADATA = "metadata";
     public static final String TAG_NAME = "name";
+    public static final String TAG_NUMBER = "number";
     public static final String TAG_DESC = "desc";
     public static final String TAG_ELE = "ele";
     public static final String TAG_TIME = "time";
@@ -34,6 +35,8 @@ public class GpxFile {
     public static final String TAG_TRK = "trk";
     public static final String TAG_TRKSEG = "trkseg";
     public static final String TAG_TRKPT = "trkpt";
+    public static final String TAG_RTE = "rte";
+    public static final String TAG_RTEPT = "rtept";
     public static final String ATTRIBUTE_LAT = "lat";
     public static final String ATTRIBUTE_LON = "lon";
     public static final String ATTRIBUTE_CREATOR = "creator";

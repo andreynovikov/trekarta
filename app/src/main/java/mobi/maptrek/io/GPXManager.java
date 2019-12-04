@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
@@ -38,16 +39,32 @@ public class GPXManager extends Manager {
         FileDataSource dataSource = GpxParser.parse(inputStream);
         int hash = filePath.hashCode() * 31;
         int i = 1;
-        // TODO - Generate names if they are missing
+        int j = 1;
         for (Waypoint waypoint : dataSource.waypoints) {
+            if (waypoint.name == null)
+                waypoint.name = "Waypoint " + j;
             waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
             waypoint.source = dataSource;
             i++;
+            j++;
         }
+        j = 1;
         for (Track track : dataSource.tracks) {
+            if (track.name == null)
+                track.name = "Track " + j;
             track.id = 31 * (hash + track.name.hashCode()) + i;
             track.source = dataSource;
             i++;
+            j++;
+        }
+        j = 1;
+        for (Route route : dataSource.routes) {
+            if (route.name == null)
+                route.name = "Route " + j;
+            route.id = 31 * (hash + route.name.hashCode()) + i;
+            route.source = dataSource;
+            i++;
+            j++;
         }
         return dataSource;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2019 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,44 +17,38 @@
 package mobi.maptrek.layers;
 
 import org.oscim.backend.canvas.Color;
-import org.oscim.core.GeoPoint;
+import org.oscim.backend.canvas.Paint;
 import org.oscim.layers.PathLayer;
 import org.oscim.map.Map;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.oscim.theme.styles.LineStyle;
 
 import mobi.maptrek.data.Route;
-import mobi.maptrek.data.Waypoint;
 
-public class RouteLayer extends PathLayer {
+public class RouteLayer extends PathLayer implements Route.UpdateListener {
     private final Route mRoute;
 
     public RouteLayer(Map map, Route route) {
-        super(map, Color.RED, 5);
+        this(map, Color.fade(Color.DKGRAY, 0.5), 12f, route);
+    }
+
+    public RouteLayer(Map map, int lineColor, float lineWidth, Route route) {
+        super(map, new LineStyle(lineColor, lineWidth, Paint.Cap.ROUND));
         mRoute = route;
-        setRoutePoints();
+        mRoute.setUpdateListener(this);
+        onRouteChanged();
     }
 
-    public void addWaypoint(Waypoint waypoint) {
-        mRoute.addWaypoint(waypoint);
-        addPoint(waypoint.coordinates);
+    @Override
+    public void onDetach() {
+        mRoute.removeUpdateListener();
     }
 
-    public void insertWaypoint(Waypoint waypoint) {
-        mRoute.insertWaypoint(waypoint);
-        setRoutePoints();
+    @Override
+    public void onRouteChanged() {
+        setPoints(mRoute.getCoordinates());
     }
 
-    public void removeWaypoint(Waypoint waypoint) {
-        mRoute.removeWaypoint(waypoint);
-        setRoutePoints();
-    }
-
-    private void setRoutePoints() {
-        List<GeoPoint> points = new ArrayList<>(mRoute.length());
-        for (Waypoint waypoint : mRoute.getWaypoints())
-            points.add(waypoint.coordinates);
-        setPoints(points);
+    public Route getRoute() {
+        return mRoute;
     }
 }

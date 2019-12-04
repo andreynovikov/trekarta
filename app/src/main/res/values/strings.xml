@@ -24,6 +24,7 @@
     <string name="description">Description</string>
     <string name="places">Places</string>
     <string name="tracks">Tracks</string>
+    <string name="routes">Routes</string>
     <string name="explain">Explain</string>
     <string name="copyright">Copyright</string>
     <string name="yes">Yes</string>
