@@ -13,6 +13,10 @@
         android:icon="@drawable/ic_navigate"
         android:title="@string/actionNavigateHere" />
     <item
+        android:id="@+id/actionFindRouteHere"
+        android:icon="@drawable/ic_route"
+        android:title="@string/actionFindRouteHere" />
+    <item
         android:id="@+id/actionRememberScale"
         android:title="@string/actionRememberScale" />
     <item

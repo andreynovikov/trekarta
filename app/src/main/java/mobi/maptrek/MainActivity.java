@@ -46,6 +46,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,6 +65,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatDelegate;
+
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.transition.Fade;
@@ -203,11 +206,13 @@ import mobi.maptrek.layers.marker.MarkerLayer;
 import mobi.maptrek.layers.marker.MarkerSymbol;
 import mobi.maptrek.location.BaseLocationService;
 import mobi.maptrek.location.BaseNavigationService;
+import mobi.maptrek.location.GraphHopperService;
 import mobi.maptrek.location.ILocationListener;
 import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapService;
@@ -253,7 +258,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
         MapTrekTileSource.OnDataMissingListener,
-        AmenitySetupDialog.AmenitySetupDialogCallback {
+        AmenitySetupDialog.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
@@ -408,10 +413,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private Handler mMainHandler;
+    private WeakReference<SafeResultReceiver> mResultReceiver;
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
 
-    @SuppressLint("ShowToast")
+    @SuppressLint({"ShowToast", "RestrictedApi"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -975,6 +981,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
         registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
 
+        MapTrek application = MapTrek.getApplication();
+        SafeResultReceiver resultReceiver = application.getResultReceiver();
+        if (resultReceiver == null) {
+            resultReceiver = new SafeResultReceiver();
+            application.setResultReceiver(resultReceiver);
+        }
+        resultReceiver.setCallback(this);
+        mResultReceiver = new WeakReference<>(resultReceiver);
+
         MapTrek.isMainActivityRunning = true;
     }
 
@@ -1102,6 +1117,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         MapTrek.isMainActivityRunning = false;
 
+        mResultReceiver.get().setCallback(null);
+
         unregisterReceiver(mBroadcastReceiver);
 
         Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
@@ -1157,13 +1174,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMainHandler = null;
 
         if (isFinishing()) {
-            if (mMapIndex != null)
-                mMapIndex.clear();
             sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
             if (mShieldFactory != null)
                 mShieldFactory.dispose();
             if (mOsmcSymbolFactory != null)
                 mOsmcSymbolFactory.dispose();
+            MapTrek.getApplication().onMainActivityFinishing();
         }
 
         //mFragmentManager = null;
@@ -1484,6 +1500,22 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
                 mapObject.name = getString(R.string.selectedLocation);
                 startNavigation(mapObject);
+                return true;
+            }
+            case R.id.actionFindRouteHere: {
+                removeMarker();
+                Intent routeIntent = new Intent(Intent.ACTION_PICK, null, this, GraphHopperService.class);
+                double[] points = new double[] {0.0, 0.0, 0.0, 0.0};
+                if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                    Location location = mLocationService.getLocation();
+                    points[0] = location.getLatitude();
+                    points[1] = location.getLongitude();
+                }
+                points[2] = mSelectedPoint.getLatitude();
+                points[3] = mSelectedPoint.getLongitude();
+                routeIntent.putExtra(GraphHopperService.EXTRA_POINTS, points);
+                routeIntent.putExtra(Intent.EXTRA_RESULT_RECEIVER, mResultReceiver.get());
+                startService(routeIntent);
                 return true;
             }
             case R.id.actionRememberScale: {
@@ -2225,6 +2257,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             PopupMenu popup = new PopupMenu(this, mPopupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu popupMenu = popup.getMenu();
+            if (mLocationState == LocationState.DISABLED || mLocationState == LocationState.SEARCHING || mLocationService == null || !isOnline())
+                popupMenu.removeItem(R.id.actionFindRouteHere);
             if ((int) Configuration.getRememberedScale() == (int) mMapPosition.getScale())
                 popupMenu.removeItem(R.id.actionRememberScale);
             if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
@@ -4171,6 +4205,26 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.clearMap();
     }
 
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        if (resultCode == 0) {
+            String message = resultData.getString("message", "Failed to find route");
+            HelperUtils.showError(message, mCoordinatorLayout);
+            return;
+        }
+        double distance = resultData.getDouble("distance");
+        long time = resultData.getLong("time");
+        String poly = resultData.getString("points");
+        HelperUtils.showError(distance + " " + time, mCoordinatorLayout);
+        if (poly != null) {
+            Track track = new Track();
+            ArrayList<GeoPoint> points = GraphHopperService.decodePolyline(poly, 0, false);
+            for (GeoPoint point : points)
+                track.addPointFast(true, point.latitudeE6, point.longitudeE6, 0f, 0f, 0f, 0f, 0L);
+            mMap.layers().add(new TrackLayer(mMap, track));
+        }
+    }
+
     @Subscribe
     public void onConfigurationChanged(Configuration.ChangedEvent event) {
         switch (event.key) {
@@ -4348,6 +4402,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return getResources().getDimensionPixelSize(resourceId);
         else
             return 0;
+    }
+
+    public boolean isOnline() {
+        // FIXME temporary
+        return false;
+        /*
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null)
+            return false;
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
+        */
     }
 
     @Override

@@ -61,6 +61,7 @@
     <string name="actionManageMaps">Manage maps</string>
     <string name="actionAddPlaceHere">Add place</string>
     <string name="actionNavigateHere">Navigate here</string>
+    <string name="actionFindRouteHere">Find route here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
     <string name="actionAutoTilt">Tilt on track up</string>

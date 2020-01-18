@@ -35,6 +35,7 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
@@ -66,6 +67,7 @@ import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.LongSparseArrayIterator;
 import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 
@@ -93,6 +95,7 @@ public class MapTrek extends Application {
     private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
     private File mSDCardDirectory;
+    private SafeResultReceiver mResultReceiver;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -141,7 +144,6 @@ public class MapTrek extends Application {
 
         mapObjects.clear();
 
-        //noinspection SimplifiableConditionalExpression
         int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
         AppCompatDelegate.setDefaultNightMode(nightMode);
     }
@@ -367,6 +369,30 @@ public class MapTrek extends Application {
         return notification;
     }
 
+    public void onMainActivityFinishing() {
+        // close databases
+        if (mHillshadeHelper != null) {
+            mHillshadeHelper.close();
+            mHillshadeHelper = null;
+            mHillshadeDatabase = null;
+        }
+        if (mDetailedMapHelper != null) {
+            mDetailedMapHelper.close();
+            mDetailedMapHelper = null;
+            mDetailedMapDatabase = null;
+        }
+        if (mWaypointDbDataSource != null) {
+            mWaypointDbDataSource.close();
+            mWaypointDbDataSource = null;
+        }
+        // free indexes
+        if (mExtraMapIndex != null) {
+            mExtraMapIndex.clear();
+            mExtraMapIndex = null;
+        }
+        mIndex = null;
+    }
+
     /****************************
      * Map objects management
      */
@@ -405,8 +431,16 @@ public class MapTrek extends Application {
 
     @NonNull
     public static Iterator<MapObject> getMapObjects() {
-        //noinspection unchecked
         return LongSparseArrayIterator.iterate(mapObjects);
+    }
+
+    @Nullable
+    public SafeResultReceiver getResultReceiver() {
+        return mResultReceiver;
+    }
+
+    public void setResultReceiver(@NonNull SafeResultReceiver resultReceiver) {
+        mResultReceiver = resultReceiver;
     }
 
     /****************************
