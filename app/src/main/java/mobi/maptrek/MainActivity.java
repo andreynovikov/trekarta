@@ -388,7 +388,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MarkerItem mActiveMarker;
 
     private FragmentManager mFragmentManager;
-    private DataFragment mDataFragment;
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
@@ -465,7 +464,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         // find the retained fragment on activity restarts
         mFragmentManager = getFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
-        mDataFragment = (DataFragment) mFragmentManager.findFragmentByTag("data");
 
         // Provide application context so that maps can be cached on rotation
         mNativeMapIndex = application.getMapIndex();
@@ -474,16 +472,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mShieldFactory = application.getShieldFactory();
         mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
-        mBitmapLayerMaps = application.getBitmapLayerMaps();
-        if (mBitmapLayerMaps == null)
-            mBitmapLayerMaps = mMapIndex.getMaps(Configuration.getBitmapMaps());
-
-        if (mDataFragment == null) {
-            // add the fragment
-            mDataFragment = new DataFragment();
-            mFragmentManager.beginTransaction().add(mDataFragment, "data").commit();
-
-            // Provide application context so that maps can be cached on rotation
+        if (savedInstanceState == null) {
             if (BuildConfig.FULL_VERSION) {
                 initializePlugins();
                 mMapIndex.initializeOnlineMapProviders();
@@ -500,9 +489,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 Configuration.setLanguage(language);
             }
-        } else {
-            mEditedWaypoint = mDataFragment.getEditedWaypoint();
         }
+
+        mEditedWaypoint = application.getEditedWaypoint();
+
+        mBitmapLayerMaps = application.getBitmapLayerMaps();
+        if (mBitmapLayerMaps == null)
+            mBitmapLayerMaps = mMapIndex.getMaps(Configuration.getBitmapMaps());
 
         mLocationState = LocationState.DISABLED;
         mSavedLocationState = LocationState.DISABLED;
@@ -1196,12 +1189,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onSaveInstanceState(Bundle savedInstanceState) {
         logger.debug("onSaveInstanceState()");
 
+        MapTrek application = MapTrek.getApplication();
+        application.setEditedWaypoint(mEditedWaypoint);
+        application.setBitmapLayerMaps(mBitmapLayerMaps);
+
         if (mLocationService != null)
             startService(new Intent(getApplicationContext(), LocationService.class));
         if (mNavigationService != null)
             startService(new Intent(getApplicationContext(), NavigationService.class));
-
-        mDataFragment.setEditedWaypoint(mEditedWaypoint);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
