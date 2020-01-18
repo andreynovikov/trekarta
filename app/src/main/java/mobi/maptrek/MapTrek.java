@@ -57,9 +57,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
@@ -96,6 +98,7 @@ public class MapTrek extends Application {
     private String mUserNotification;
     private File mSDCardDirectory;
     private SafeResultReceiver mResultReceiver;
+    private List<MapFile> mBitmapLayerMaps;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -332,6 +335,26 @@ public class MapTrek extends Application {
         return mOsmcSymbolFactory;
     }
 
+
+    @Nullable
+    public SafeResultReceiver getResultReceiver() {
+        return mResultReceiver;
+    }
+
+    public void setResultReceiver(@NonNull SafeResultReceiver resultReceiver) {
+        mResultReceiver = resultReceiver;
+    }
+
+
+    @Nullable
+    public List<MapFile> getBitmapLayerMaps() {
+        return mBitmapLayerMaps;
+    }
+
+    public void setBitmapLayerMaps(@NonNull List<MapFile> bitmapLayerMaps) {
+        mBitmapLayerMaps = bitmapLayerMaps;
+    }
+
     private void copyAsset(String asset, File outFile) {
         try {
             InputStream in = getAssets().open(asset);
@@ -390,6 +413,7 @@ public class MapTrek extends Application {
             mExtraMapIndex.clear();
             mExtraMapIndex = null;
         }
+        mBitmapLayerMaps = null;
         mIndex = null;
     }
 
@@ -432,15 +456,6 @@ public class MapTrek extends Application {
     @NonNull
     public static Iterator<MapObject> getMapObjects() {
         return LongSparseArrayIterator.iterate(mapObjects);
-    }
-
-    @Nullable
-    public SafeResultReceiver getResultReceiver() {
-        return mResultReceiver;
-    }
-
-    public void setResultReceiver(@NonNull SafeResultReceiver resultReceiver) {
-        mResultReceiver = resultReceiver;
     }
 
     /****************************

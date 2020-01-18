@@ -17,6 +17,8 @@
 package mobi.maptrek;
 
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -24,9 +26,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
+import java.util.Collection;
+import java.util.StringJoiner;
+
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.util.StringUtils;
 import mobi.maptrek.view.GaugePanel;
 
 @SuppressWarnings("WeakerAccess")
@@ -101,6 +107,7 @@ public class Configuration {
     public static final long ADVICE_AMENITY_SETUP = 0x0000000000010000L;
     public static final long ADVICE_MAP_LEGEND = 0x0000000000020000L;
     public static final long ADVICE_NIGHT_MODE = 0x0000000000040000L;
+    public static final long ADVICE_SELECT_MULTIPLE_MAPS = 0x0000000000080000L;
 
     private static SharedPreferences mSharedPreferences;
 
@@ -252,15 +259,25 @@ public class Configuration {
     }
 
     @Nullable
-    public static String getBitmapMap() {
-        return loadString(PREF_BITMAP_MAP, null);
+    public static String[] getBitmapMaps() {
+        String filenames = loadString(PREF_BITMAP_MAP, null);
+        if (filenames == null)
+            return null;
+        return filenames.split(";");
     }
 
-    public static void setBitmapMap(@Nullable MapFile mapFile) {
-        if (mapFile != null)
-            saveString(PREF_BITMAP_MAP, mapFile.tileSource.getOption("path"));
-        else
+    public static void setBitmapMaps(@NonNull Collection<MapFile> mapFiles) {
+        if (mapFiles.isEmpty()) {
             saveString(PREF_BITMAP_MAP, null);
+        } else {
+            String[] filenames = new String[mapFiles.size()];
+            int i = 0;
+            for (MapFile mapFile : mapFiles) {
+                filenames[i] = mapFile.tileSource.getOption("path");
+                i++;
+            }
+            saveString(PREF_BITMAP_MAP, TextUtils.join(";", filenames));
+        }
     }
 
     public static boolean getAdviceState(long advice) {

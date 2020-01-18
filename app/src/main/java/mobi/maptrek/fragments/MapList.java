@@ -19,16 +19,17 @@ package mobi.maptrek.fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -39,9 +40,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
+import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
-import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
+import mobi.maptrek.ui.DoubleClickListener;
+import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.view.BitmapTileMapPreviewView;
 
 public class MapList extends Fragment {
@@ -57,7 +60,7 @@ public class MapList extends Fragment {
     private SeekBar mTransparencySeekBar;
     private LinearLayout mMapList;
     private ArrayList<MapFile> mMaps = new ArrayList<>();
-    private MapFile mActiveMap;
+    private Collection<MapFile> mActiveMaps;
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
     private LayoutInflater mInflater;
@@ -99,6 +102,22 @@ public class MapList extends Fragment {
 
             }
         });
+
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SELECT_MULTIPLE_MAPS)) {
+            ViewTreeObserver vto = rootView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    if (mMaps.size() > 1) {
+                        View view = mMapList.getChildAt(0).findViewById(R.id.name);
+                        Rect r = new Rect();
+                        view.getGlobalVisibleRect(r);
+                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SELECT_MULTIPLE_MAPS, R.string.advice_select_multiple_maps, r);
+                    }
+                }
+            });
+        }
 
         return rootView;
     }
@@ -161,10 +180,10 @@ public class MapList extends Fragment {
         mMaps.clear();
     }
 
-    public void setMaps(Collection<MapFile> maps, MapFile active) {
+    public void setMaps(Collection<MapFile> maps, Collection<MapFile> active) {
         mMaps.clear();
         mMaps.addAll(maps);
-        mActiveMap = active;
+        mActiveMaps = active;
         Collections.sort(mMaps, new MapComparator());
     }
 
@@ -174,8 +193,9 @@ public class MapList extends Fragment {
         final BitmapTileMapPreviewView map = mapView.findViewById(R.id.map);
         View indicator = mapView.findViewById(R.id.indicator);
         name.setText(mapFile.name);
-        map.setTileSource(mapFile.tileSource, mActiveMap == mapFile);
+        map.setTileSource(mapFile.tileSource, mActiveMaps.contains(mapFile));
         boolean isFileBasedMap = mapFile.tileSource.getOption("path") != null;
+
         if (mapFile.boundingBox.contains(mLocation)) {
             int zoomLevel = mapFile.tileSource.getZoomLevelMax();
             int minZoomLevel = mapFile.tileSource.getZoomLevelMin();
@@ -188,16 +208,32 @@ public class MapList extends Fragment {
         } else {
             map.setLocation(mapFile.boundingBox.getCenterPoint(), mapFile.tileSource.getZoomLevelMax());
         }
-        if (mapFile == mActiveMap) {
+        if (mActiveMaps.contains(mapFile)) {
             indicator.setBackgroundColor(getResources().getColor(R.color.colorAccent, getContext().getTheme()));
         } else {
             indicator.setBackgroundColor(Color.TRANSPARENT);
         }
-        mapView.setOnClickListener(v -> {
-            map.setShouldNotCloseDataSource();
-            mListener.onMapSelected(mapFile);
-            mFragmentHolder.popCurrent();
+
+        mapView.setOnClickListener(new DoubleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                if (mActiveMaps.size() > 1) {
+                    HelperUtils.showError(getString(R.string.msgMultipleMapsMode), mFragmentHolder.getCoordinatorLayout());
+                } else {
+                    map.setShouldNotCloseDataSource();
+                    mListener.onMapSelected(mapFile);
+                    mFragmentHolder.popCurrent();
+                }
+            }
+
+            @Override
+            public void onDoubleClick(View v) {
+                map.setShouldNotCloseDataSource();
+                mListener.onExtraMapSelected(mapFile);
+                mFragmentHolder.popCurrent();
+            }
         });
+
         mapView.setOnLongClickListener(view -> {
             if (isFileBasedMap) {
                 PopupMenu popup = new PopupMenu(getContext(), view);
@@ -223,6 +259,7 @@ public class MapList extends Fragment {
             }
             return true;
         });
+
         mMapList.addView(mapView);
     }
 

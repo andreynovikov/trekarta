@@ -396,7 +396,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private MapIndex mMapIndex;
     private Index mNativeMapIndex;
     private MapTrekTileSource mNativeTileSource;
-    private MapFile mBitmapLayerMap;
+    private List<MapFile> mBitmapLayerMaps;
     private WaypointDbDataSource mWaypointDbDataSource;
     private List<FileDataSource> mData = new ArrayList<>();
     private Waypoint mEditedWaypoint;
@@ -474,6 +474,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mShieldFactory = application.getShieldFactory();
         mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
+        mBitmapLayerMaps = application.getBitmapLayerMaps();
+        if (mBitmapLayerMaps == null)
+            mBitmapLayerMaps = mMapIndex.getMaps(Configuration.getBitmapMaps());
+
         if (mDataFragment == null) {
             // add the fragment
             mDataFragment = new DataFragment();
@@ -484,8 +488,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 initializePlugins();
                 mMapIndex.initializeOnlineMapProviders();
             }
-
-            mBitmapLayerMap = mMapIndex.getMap(Configuration.getBitmapMap());
 
             String language = Configuration.getLanguage();
             if (language == null) {
@@ -500,7 +502,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         } else {
             mEditedWaypoint = mDataFragment.getEditedWaypoint();
-            mBitmapLayerMap = mDataFragment.getBitmapLayerMap();
         }
 
         mLocationState = LocationState.DISABLED;
@@ -716,8 +717,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
-        if (mBitmapLayerMap != null)
-            showBitmapMap(mBitmapLayerMap, false);
+        for (MapFile bitmapLayerMap : mBitmapLayerMaps)
+            showBitmapMap(bitmapLayerMap, false);
 
         setMapTheme();
 
@@ -1085,7 +1086,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // save the map position and state
         Configuration.setPosition(mMap.getMapPosition());
-        Configuration.setBitmapMap(mBitmapLayerMap);
+        Configuration.setBitmapMaps(mBitmapLayerMaps);
         Configuration.setLocationState(mSavedLocationState.ordinal());
         Configuration.setPreviousLocationState(mPreviousLocationState.ordinal());
         Configuration.setTrackingState(mTrackingState.ordinal());
@@ -1175,6 +1176,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (isFinishing()) {
             sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
+            for (MapFile bitmapLayerMap : mBitmapLayerMaps)
+                bitmapLayerMap.tileSource.close();
+            mBitmapLayerMaps.clear();
             if (mShieldFactory != null)
                 mShieldFactory.dispose();
             if (mOsmcSymbolFactory != null)
@@ -1198,7 +1202,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             startService(new Intent(getApplicationContext(), NavigationService.class));
 
         mDataFragment.setEditedWaypoint(mEditedWaypoint);
-        mDataFragment.setBitmapLayerMap(mBitmapLayerMap);
 
         savedInstanceState.putSerializable("savedLocationState", mSavedLocationState);
         savedInstanceState.putSerializable("previousLocationState", mPreviousLocationState);
@@ -1774,7 +1777,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         args.putBoolean(MapList.ARG_HIDE_OBJECTS, mHideMapObjects);
         args.putInt(MapList.ARG_TRANSPARENCY, mBitmapMapTransparency);
         MapList fragment = (MapList) Fragment.instantiate(this, MapList.class.getName(), args);
-        fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMap);
+        fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMaps);
         showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
     }
 
@@ -3043,17 +3046,39 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onMapSelected(MapFile mapFile) {
-        if (mBitmapLayerMap != null) {
-            mMap.layers().remove(mBitmapLayerMap.tileLayer);
-            mBitmapLayerMap.tileSource.close();
-            if (mapFile == mBitmapLayerMap) {
+        if (!mBitmapLayerMaps.isEmpty()) {
+            boolean current = false;
+            for (MapFile bitmapLayerMap : mBitmapLayerMaps) {
+                mMap.layers().remove(bitmapLayerMap.tileLayer);
+                bitmapLayerMap.tileSource.close();
+                current = current || mapFile == bitmapLayerMap;
+            }
+            mBitmapLayerMaps.clear();
+            if (current) {
                 showHideMapObjects(false);
                 mMap.updateMap(true);
-                mBitmapLayerMap = null;
                 return;
             }
         }
         showBitmapMap(mapFile, true);
+        mBitmapLayerMaps.add(mapFile);
+    }
+
+    @Override
+    public void onExtraMapSelected(MapFile mapFile) {
+        if (mBitmapLayerMaps.contains(mapFile)) { // map is shown
+            mMap.layers().remove(mapFile.tileLayer);
+            mapFile.tileSource.close();
+            mBitmapLayerMaps.remove(mapFile);
+            if (mBitmapLayerMaps.isEmpty())
+                showHideMapObjects(false);
+            mMap.updateMap(true);
+        } else {
+            showBitmapMap(mapFile, mBitmapLayerMaps.isEmpty());
+            mBitmapLayerMaps.add(mapFile);
+            //TODO Bitmap layer should respond to update map (see TileLayer)
+            mMap.clearMap();
+        }
     }
 
     @Override
@@ -3070,12 +3095,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onMapDelete(MapFile mapFile) {
-        if (mBitmapLayerMap != null && mapFile == mBitmapLayerMap) {
-            mMap.layers().remove(mBitmapLayerMap.tileLayer);
-            mBitmapLayerMap.tileSource.close();
+        if (mBitmapLayerMaps.contains(mapFile)) {
+            mMap.layers().remove(mapFile.tileLayer);
+            mapFile.tileSource.close();
+            mBitmapLayerMaps.remove(mapFile);
             showHideMapObjects(false);
             mMap.updateMap(true);
-            mBitmapLayerMap = null;
         }
         mMapIndex.removeMap(mapFile);
         String filename = mapFile.tileSource.getOption("path");
@@ -3087,7 +3112,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onHideMapObjects(boolean hide) {
         mHideMapObjects = hide;
-        showHideMapObjects(mBitmapLayerMap != null);
+        showHideMapObjects(mBitmapLayerMaps.size() > 0);
         mMap.updateMap(true);
         Configuration.setHideMapObjects(hide);
     }
@@ -3095,8 +3120,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onTransparencyChanged(int transparency) {
         mBitmapMapTransparency = transparency;
-        if (mBitmapLayerMap != null && mBitmapLayerMap.tileLayer instanceof BitmapTileLayer)
-            ((BitmapTileLayer) mBitmapLayerMap.tileLayer).setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+        for (MapFile bitmapLayerMap : mBitmapLayerMaps)
+            if (bitmapLayerMap.tileLayer instanceof BitmapTileLayer)
+                ((BitmapTileLayer) bitmapLayerMap.tileLayer).setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
         Configuration.setBitmapMapTransparency(transparency);
     }
 
@@ -3210,7 +3236,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, 1 - mBitmapMapTransparency * 0.01f);
         }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
-        mBitmapLayerMap = mapFile;
         if (!reposition)
             return;
 
@@ -3667,8 +3692,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Do not show button if custom map is shown
         mMap.getMapPosition(mMapPosition);
-        if (mBitmapLayerMap != null && mBitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
-            return;
+        for (MapFile bitmapLayerMap : mBitmapLayerMaps)
+            if (bitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
+                return;
 
         runOnUiThread(() -> {
             if (mMapDownloadButton.getVisibility() == View.GONE) {

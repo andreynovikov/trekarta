@@ -168,6 +168,7 @@
     <string name="msgCannotAccessSourceFolder">cannot access source folder</string>
     <string name="msgNotEnoughSpaceOnDestinationStorage">not enough space on destination storage</string>
     <string name="msgFileMoveError">file move error</string>
+    <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
@@ -206,6 +207,7 @@
     <string name="advice_active_maps_size">You can load as many areas as you wish but having too many active areas significantly degrades performance of map rendering and full text search. Please consider removing unnecessary areas.</string>
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
     <string name="advice_night_mode">You can long press maps button to disable night mode</string>
+    <string name="advice_select_multiple_maps">Use double tap to show multiple maps</string>
 
     <string name="datetime" translatable="false">%1$s %2$s</string>
     <string name="place_name">Place #%d</string>

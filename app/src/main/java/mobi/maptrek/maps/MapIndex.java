@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -140,15 +141,18 @@ public class MapIndex implements Serializable {
         }
     }
 
-    @Nullable
-    public MapFile getMap(@Nullable String filename) {
-        if (filename == null)
-            return null;
-        for (MapFile map : mMaps) {
-            if (filename.equals(map.tileSource.getOption("path")))
-                return map;
+    @NonNull
+    public ArrayList<MapFile> getMaps(@Nullable String[] filenames) {
+        ArrayList<MapFile> maps = new ArrayList<>();
+        if (filenames == null)
+            return maps;
+        for (String filename : filenames) {
+            for (MapFile map : mMaps) {
+                if (filename.equals(map.tileSource.getOption("path")))
+                    maps.add(map);
+            }
         }
-        return null;
+        return maps;
     }
 
     @NonNull

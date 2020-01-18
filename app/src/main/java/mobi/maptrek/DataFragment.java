@@ -25,7 +25,6 @@ import mobi.maptrek.maps.MapFile;
 public class DataFragment extends Fragment {
 
     private Waypoint mEditedWaypoint;
-    private MapFile mBitmapLayerMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,13 +39,5 @@ public class DataFragment extends Fragment {
 
     public void setEditedWaypoint(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
-    }
-
-    public MapFile getBitmapLayerMap() {
-        return mBitmapLayerMap;
-    }
-
-    public void setBitmapLayerMap(MapFile bitmapLayerMap) {
-        mBitmapLayerMap = bitmapLayerMap;
     }
 }
