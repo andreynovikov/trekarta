@@ -1,5 +1,5 @@
-<!--
-  ~ Copyright 2019 Andrey Novikov
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Andrey Novikov
   ~
   ~ This program is free software: you can redistribute it and/or modify it under the
   ~ terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,8 +14,17 @@
   ~
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#323232" />
-    <corners android:radius="4dp" />
-</shape>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/button"
+        android:layout_width="@dimen/image_button_size_medium"
+        android:layout_height="@dimen/image_button_size_medium"
+        android:background="@drawable/circle_light"
+        android:scaleType="center"
+        android:layout_margin="@dimen/image_button_padding"/>
+
+</LinearLayout>

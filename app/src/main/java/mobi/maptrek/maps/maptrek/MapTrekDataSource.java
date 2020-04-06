@@ -106,8 +106,27 @@ class MapTrekDataSource implements ITileDataSource {
             result = FAILED;
         }
 
-        if (dz >= 0 && Tags.typeSelectors[dz].length() > 0) {
-            MapTrekTileLayer.AmenityTileData td = get(tile);
+        if (Tags.highlightedType >= 0 && z > 7) {
+            int mz = 1 << MAX_NATIVE_ZOOM - z;
+            int min_x = x * mz;
+            int min_y = y * mz;
+            int max_x = (x + 1) * mz;
+            int max_y = (y + 1) * mz;
+            String[] featureArgs = new String[]{String.valueOf(Tags.highlightedType), null, null};
+
+            for (int tx = min_x; tx < max_x; tx++) {
+                for (int ty = min_y; ty < max_y; ty++) {
+                    String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
+                            + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
+                            + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
+                            + COLUMN_FEATURES_TYPE + " = ? AND "
+                            + COLUMN_FEATURES_X + " = ? AND " + COLUMN_FEATURES_Y + " = ?";
+                    featureArgs[1] = String.valueOf(tx);
+                    featureArgs[2] = String.valueOf(ty);
+                    addFeaturesToTile(tile, sink, sql, featureArgs);
+                }
+            }
+        } else if (dz >= 0 && Tags.typeSelectors[dz].length() > 0) {
             String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
                     + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
                     + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
@@ -126,39 +145,7 @@ class MapTrekDataSource implements ITileDataSource {
                         String.valueOf(bb.getMinLatitude()), String.valueOf(bb.getMinLongitude()),
                         String.valueOf(bb.getMaxLatitude()), String.valueOf(bb.getMaxLongitude())};
             }
-            try (Cursor c = mDatabase.rawQuery(sql, featureArgs)) {
-                c.moveToFirst();
-                while (!c.isAfterLast()) {
-                    ExtendedMapElement element = new ExtendedMapElement(1, 1);
-                    element.id = c.getLong(0);
-                    element.kind = c.getInt(1);
-                    Tag tag = Tags.getTypeTag(c.getInt(2));
-                    element.tags.add(tag);
-                    if (tag instanceof ExtendedTag) {
-                        while ((tag = ((ExtendedTag) tag).next) != null) {
-                            element.tags.add(tag);
-                        }
-                    }
-                    element.tags.add(Tags.TAG_FEATURE);
-                    element.database = this;
-
-                    double px = MercatorProjection.longitudeToX(c.getDouble(4));
-                    double py = MercatorProjection.latitudeToY(c.getDouble(3));
-
-                    td.amenities.add(new Pair<>(new Point(px, py), element.id));
-
-                    px = (px - tile.x) * tile.mapSize;
-                    py = (py - tile.y) * tile.mapSize;
-
-                    element.startPoints();
-                    element.addPoint((float) px, (float) py);
-
-                    sink.process(element);
-                    c.moveToNext();
-                }
-            } catch (Exception e) {
-                logger.error("Query error", e);
-            }
+            addFeaturesToTile(tile, sink, sql, featureArgs);
         }
 
         sink.completed(result);
@@ -178,6 +165,37 @@ class MapTrekDataSource implements ITileDataSource {
 
     void setContoursEnabled(boolean enabled) {
         mContoursEnabled = enabled;
+    }
+
+    private void addFeaturesToTile(MapTile tile, ITileDataSink sink, String sql, String[] args) {
+        MapTrekTileLayer.AmenityTileData td = get(tile);
+
+        try (Cursor c = mDatabase.rawQuery(sql, args)) {
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                ExtendedMapElement element = new ExtendedMapElement(1, 1);
+                element.id = c.getLong(0);
+                element.kind = c.getInt(1);
+                Tags.setTypeTag(c.getInt(2), element.tags);
+                element.database = this;
+
+                double px = MercatorProjection.longitudeToX(c.getDouble(4));
+                double py = MercatorProjection.latitudeToY(c.getDouble(3));
+
+                td.amenities.add(new Pair<>(new Point(px, py), element.id));
+
+                px = (px - tile.x) * tile.mapSize;
+                py = (py - tile.y) * tile.mapSize;
+
+                element.startPoints();
+                element.addPoint((float) px, (float) py);
+
+                sink.process(element);
+                c.moveToNext();
+            }
+        } catch (Exception e) {
+            logger.error("Query error", e);
+        }
     }
 
     private class NativeTileDataSink implements ITileDataSink {

@@ -10,6 +10,9 @@
     <dimen name="image_button_padding">8dp</dimen>
     <dimen name="image_button_size">48dp</dimen>
     <dimen name="image_button_size_with_gap">52dp</dimen>
+    <dimen name="image_button_size_medium">32dp</dimen>
+    <dimen name="image_button_size_small">24dp</dimen>
+    <dimen name="image_button_size_margin">52dp</dimen>
     <dimen name="panel_width">-1px</dimen> <!-- match_parent -->
     <dimen name="panel_elevation">2dp</dimen>
     <dimen name="panel_padding">16dp</dimen>
@@ -23,11 +26,9 @@
     <dimen name="waypoint_table_padding">16dp</dimen>
     <dimen name="list_item_padding">4dp</dimen>
     <dimen name="panelTopMargin">160dp</dimen>
-    <dimen name="image_button_size_margin">52dp</dimen>
     <dimen name="menuListWidth">240dp</dimen>
     <dimen name="mapListItemHeight">128dp</dimen>
     <dimen name="textPadding">8dp</dimen>
-    <dimen name="image_button_size_small">24dp</dimen>
     <dimen name="circle_progress">200dp</dimen>
     <dimen name="fragment_with_fab_top_padding">32dp</dimen>
     <dimen name="fragment_with_fab_start_padding">16dp</dimen>

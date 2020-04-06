@@ -46,6 +46,8 @@ public interface MapHolder {
 
     void stopNavigation();
 
+    void setHighlightedType(int type);
+
     /**
      * Adds location state change listener and then calls listener with current state.
      */

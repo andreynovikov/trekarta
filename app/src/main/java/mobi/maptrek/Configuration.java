@@ -87,6 +87,7 @@ public class Configuration {
     private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
     private static final String PREF_HIKING_TIMES = "hiking_times";
     private static final String PREF_SKIING_TIMES = "skiing_times";
+    private static final String PREF_HIGHLIGHTED_TYPE = "highlighted_type";
 
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
@@ -448,6 +449,14 @@ public class Configuration {
 
     public static void setNewExternalStorage(String storage) {
         saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
+    }
+
+    public static int getHighlightedType() {
+        return loadInt(PREF_HIGHLIGHTED_TYPE, -1);
+    }
+
+    public static void setHighlightedType(int type) {
+        saveInt(PREF_HIGHLIGHTED_TYPE, type);
     }
 
     public static long getRunningTime() {

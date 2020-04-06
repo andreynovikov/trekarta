@@ -76,10 +76,22 @@
             android:layout_marginEnd="@dimen/gauge_padding">
 
             <ImageButton
+                android:id="@+id/highlightedType"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:background="@drawable/circle_accent"
+                android:elevation="@dimen/panel_elevation"
+                android:onClick="onHighlightedTypeClicked"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="centerInside"
+                android:tint="@color/colorPrimaryLight"
+                android:visibility="gone" />
+
+            <ImageButton
                 android:id="@+id/compass"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:elevation="@dimen/panel_elevation"
                 android:onClick="onCompassClicked"
                 android:padding="@dimen/gauge_padding"
@@ -91,7 +103,7 @@
                 android:id="@+id/navigationArrow"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:elevation="@dimen/panel_elevation"
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
@@ -113,7 +125,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:alpha="0.2"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:elevation="@dimen/panel_elevation"
                 android:onClick="onZoomInClicked"
                 android:padding="@dimen/gauge_padding"
@@ -126,7 +138,7 @@
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:alpha="0.2"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:elevation="@dimen/panel_elevation"
                 android:onClick="onZoomOutClicked"
                 android:padding="@dimen/gauge_padding"

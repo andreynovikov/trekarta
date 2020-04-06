@@ -2,7 +2,7 @@ package mobi.maptrek.maps.maptrek;
 
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2019 Andrey Novikov
+ * Copyright 2020 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,9 +16,19 @@ package mobi.maptrek.maps.maptrek;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 
+import org.oscim.android.canvas.AndroidGraphics;
+import org.oscim.core.GeometryBuffer;
 import org.oscim.core.Tag;
+import org.oscim.core.TagSet;
+import org.oscim.theme.IRenderTheme;
+import org.oscim.theme.styles.RenderStyle;
+import org.oscim.theme.styles.SymbolStyle;
 
 import java.util.Arrays;
 
@@ -211,7 +221,7 @@ public class Tags {
             16  // barrier
     };
 
-    final static Tag[] typeTags = {
+    public final static Tag[] typeTags = {
             null,
             new Tag("tourism", "wilderness_hut"), // 1
             null, null,
@@ -695,15 +705,58 @@ public class Tags {
 
     final static String[] typeSelectors = new String[4];
 
-    static Tag getTypeTag(int type) {
-        if (type >= 0 && type < typeTags.length)
-            return typeTags[type];
-        return null;
+    static int highlightedType = -1;
+
+    static void setTypeTag(int type, TagSet tags) {
+        if (type < 0 || type > typeTags.length || typeTags[type] == null)
+            return;
+        tags.add(typeTags[type]);
+        if (typeTags[type] instanceof ExtendedTag) {
+            Tag tag = typeTags[type];
+            while ((tag = ((ExtendedTag) tag).next) != null) {
+                tags.add(tag);
+            }
+        }
+        tags.add(Tags.TAG_FEATURE);
     }
+
     public static int getTypeName(int type) {
         if (type >= 0 && type < typeNames.length)
             return typeNames[type];
         return -1;
+    }
+
+    public static Drawable getTypeDrawable(Context context, IRenderTheme theme, int type) {
+        TagSet tags = new TagSet();
+        setTypeTag(type, tags);
+        if (tags.size() == 0)
+            return null;
+
+        RenderStyle[] styles = theme.matchElement(GeometryBuffer.GeometryType.POINT, tags, 17);
+        if (styles != null) {
+            for (RenderStyle style : styles) {
+                if (style instanceof SymbolStyle) {
+                    try {
+                        org.oscim.backend.canvas.Bitmap bitmap;
+                        bitmap = ((SymbolStyle) style).bitmap;
+                        return new BitmapDrawable(context.getResources(), AndroidGraphics.getBitmap(bitmap));
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void setHighlightedType(int type) {
+        if (type >= 0 && type < typeNames.length) {
+            highlightedType = type;
+        }
+    }
+
+    public static void resetHighlightedType() {
+        highlightedType = -1;
     }
 
     public static void recalculateTypeZooms() {

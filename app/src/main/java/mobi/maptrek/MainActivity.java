@@ -343,6 +343,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private ImageButton mMapsButton;
     private ImageButton mMoreButton;
     private Button mMapDownloadButton;
+    private ImageButton mHighlightedTypeView;
     private View mCompassView;
     private View mNavigationArrowView;
     private ViewGroup mExtendPanel;
@@ -522,6 +523,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mSatellitesText = findViewById(R.id.satellites);
         mMapButtonHolder = findViewById(R.id.mapButtonHolder);
+        mHighlightedTypeView = findViewById(R.id.highlightedType);
         mCompassView = findViewById(R.id.compass);
         mNavigationArrowView = findViewById(R.id.navigationArrow);
         mNavigationArrowView.setOnClickListener(v -> {
@@ -831,6 +833,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         String action = intent.getAction();
         logger.debug("New intent: {}", action);
         String scheme = intent.getScheme();
@@ -1055,6 +1058,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (Configuration.getHideSystemUI())
             hideSystemUI();
+
+        int type = Configuration.getHighlightedType();
+        if (type >= 0 && mHighlightedTypeView.getVisibility() != View.VISIBLE)
+            setHighlightedType(type);
 
         updateMapViewArea();
 
@@ -1859,6 +1866,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         zoomMap(0.5, 0, 0);
     }
 
+    public void onHighlightedTypeClicked(View view) {
+        Tags.resetHighlightedType();
+        Configuration.setHighlightedType(-1);
+        mMap.clearMap();
+        mHighlightedTypeView.setVisibility(View.GONE);
+    }
+
     public void onCompassClicked(View view) {
         if (mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.NORTH;
@@ -2057,6 +2071,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void stopNavigation() {
         startService(new Intent(this, NavigationService.class).setAction(NavigationService.STOP_NAVIGATION));
+    }
+
+    @Override
+    public void setHighlightedType(int type) {
+        Tags.setHighlightedType(type);
+        Configuration.setHighlightedType(type);
+        mMap.clearMap();
+        Drawable icon = Tags.getTypeDrawable(this, mMap.getTheme(), type);
+        if (icon != null)
+            mHighlightedTypeView.setImageDrawable(icon);
+        mHighlightedTypeView.setVisibility(View.VISIBLE);
     }
 
     private void enableTracking() {

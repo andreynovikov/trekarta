@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -33,6 +34,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -50,8 +55,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
+import org.oscim.theme.IRenderTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import at.grabner.circleprogress.CircleProgressView;
 import mobi.maptrek.Configuration;
@@ -76,20 +86,23 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
+    private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnFeatureActionListener mFeatureActionListener;
     private OnLocationListener mLocationListener;
 
-    private static final String[] columns = new String[]{"_id", "name", "kind", "lat", "lon"};
+    private static final String[] mColumns = new String[]{"_id", "name", "kind", "type", "lat", "lon"};
 
     private boolean mUpdating;
     private SQLiteDatabase mDatabase;
+    private IRenderTheme mTheme;
     private CancellationSignal mCancellationSignal;
     private DataListAdapter mAdapter;
-    private MatrixCursor mEmptyCursor = new MatrixCursor(columns);
+    private MatrixCursor mEmptyCursor = new MatrixCursor(mColumns);
     private GeoPoint mCoordinates;
     private CharSequence[] mKinds;
     private int mSelectedKind;
+    private HashMap<Integer, Drawable> mTypeIconCache = new HashMap<>();
 
     private CircleProgressView mFtsWait;
     private TextView mMessage;
@@ -97,6 +110,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private View mSearchFooter;
     private String mText;
     private GeoPoint mFoundPoint;
+    private RecyclerView mQuickFiltersList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,6 +131,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mFilterButton = rootView.findViewById(R.id.filterButton);
         mFilterButton.setOnClickListener(this);
         mSearchFooter = rootView.findViewById(R.id.searchFooter);
+
+        mQuickFiltersList = rootView.findViewById(R.id.quickFilters);
+
         final EditText textEdit = rootView.findViewById(R.id.textEdit);
         textEdit.requestFocus();
 
@@ -167,6 +184,13 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mAdapter = new DataListAdapter(activity, mEmptyCursor, 0);
         setListAdapter(mAdapter);
 
+        QuickFilterAdapter adapter = new QuickFilterAdapter(activity);
+        mQuickFiltersList.setAdapter(adapter);
+
+        LinearLayoutManager horizontalLayoutManager
+                = new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
+        mQuickFiltersList.setLayoutManager(horizontalLayoutManager);
+
         Resources resources = activity.getResources();
         String packageName = activity.getPackageName();
         mKinds = new CharSequence[Tags.kinds.length + 2];
@@ -216,14 +240,17 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         }
         try {
             mMapHolder = (MapHolder) context;
+            mTheme = mMapHolder.getMap().getTheme();
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement MapHolder");
         }
+        mFragmentHolder = (FragmentHolder) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mFragmentHolder = null;
         mFeatureActionListener = null;
         mLocationListener = null;
         mMapHolder = null;
@@ -238,6 +265,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.quit();
         mBackgroundThread = null;
+        for (int i = 0; i < mTypeIconCache.size(); i++) {
+            Drawable drawable = mTypeIconCache.get(i);
+            if (drawable instanceof BitmapDrawable)
+                ((BitmapDrawable)drawable).getBitmap().recycle();
+        }
+        mTypeIconCache.clear();
     }
 
     @Override
@@ -303,12 +336,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         }
 
         double cos2 = Math.pow(Math.cos(Math.toRadians(mCoordinates.getLatitude())), 2d);
-        final String orderBy = " ORDER BY ((lat-(" + Double.toString(mCoordinates.getLatitude()) +
-                "))*(lat-(" + Double.toString(mCoordinates.getLatitude()) + "))+(" + Double.toString(cos2) +
-                ")*(lon-(" + Double.toString(mCoordinates.getLongitude())+ "))*(lon-(" +
-                Double.toString(mCoordinates.getLongitude())+ "))) ASC";
+        final String orderBy = " ORDER BY ((lat-(" + mCoordinates.getLatitude() +
+                "))*(lat-(" + mCoordinates.getLatitude() + "))+(" + cos2 +
+                ")*(lon-(" + mCoordinates.getLongitude()+ "))*(lon-(" +
+                mCoordinates.getLongitude()+ "))) ASC";
 
-        final String sql = "SELECT DISTINCT features.id AS _id, kind, lat, lon, names.name AS name FROM names_fts" +
+        final String sql = "SELECT DISTINCT features.id AS _id, kind, type, lat, lon, names.name AS name FROM names_fts" +
                 " INNER JOIN names ON (names_fts.docid = names.ref)" +
                 " INNER JOIN feature_names ON (names.ref = feature_names.name)" +
                 " INNER JOIN features ON (feature_names.id = features.id)" +
@@ -336,8 +369,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 if (cursor.getCount() == 0) {
                     try {
                         mFoundPoint = JosmCoordinatesParser.parse(mText);
-                        String[] columns = new String[] {"_id", "kind", "lat", "lon", "name"};
-                        MatrixCursor pointCursor = new MatrixCursor(columns);
+                        MatrixCursor pointCursor = new MatrixCursor(mColumns);
                         pointCursor.addRow(new Object[] {0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude(), StringFormatter.coordinates(mFoundPoint)});
                         resultCursor = pointCursor;
                     } catch (IllegalArgumentException ignore) {
@@ -371,6 +403,16 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         return TypedValue.complexToDimension(value.data, getResources().getDisplayMetrics());
     }
 
+    private Drawable getTypeDrawable(int type) {
+        Drawable icon = mTypeIconCache.get(type);
+        if (icon == null) {
+            icon = Tags.getTypeDrawable(getContext(), mTheme, Math.abs(type));
+            if (icon != null)
+                mTypeIconCache.put(type, icon);
+        }
+        return icon;
+    }
+
     private class DataListAdapter extends CursorAdapter {
         private final int mAccentColor;
         private LayoutInflater mInflater;
@@ -402,6 +444,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             //long id = cursor.getLong(cursor.getColumnIndex("_id"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
             int kind = cursor.getInt(cursor.getColumnIndex("kind"));
+            int type = cursor.getInt(cursor.getColumnIndex("type"));
             float lat = cursor.getFloat(cursor.getColumnIndex("lat"));
             float lon = cursor.getFloat(cursor.getColumnIndex("lon"));
 
@@ -417,11 +460,16 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             });
 
             int color = mAccentColor;
-            @DrawableRes int icon = ResUtils.getKindIcon(kind);
-            if (icon == 0)
-                icon = R.drawable.ic_place;
             //color = waypoint.style.color;
-            holder.icon.setImageResource(icon);
+            Drawable drawable = getTypeDrawable(type);
+            if (drawable != null) {
+                holder.icon.setImageDrawable(drawable);
+            } else {
+                @DrawableRes int icon = ResUtils.getKindIcon(kind);
+                if (icon == 0)
+                    icon = R.drawable.ic_place;
+                holder.icon.setImageResource(icon);
+            }
             Drawable background = holder.icon.getBackground().mutate();
             if (background instanceof ShapeDrawable) {
                 ((ShapeDrawable) background).getPaint().setColor(color);
@@ -436,5 +484,76 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         TextView distance;
         ImageView icon;
         ImageView viewButton;
+    }
+
+    public class QuickFilterAdapter extends RecyclerView.Adapter<QuickFilterAdapter.SimpleViewHolder> {
+        private Context context;
+        private List<Integer> elements;
+
+        QuickFilterAdapter(Context context) {
+            this.context = context;
+            this.elements = new ArrayList<>();
+            this.elements.add(259); // toilets
+            this.elements.add(130); // emergency phone
+            this.elements.add(256); // shelter
+            this.elements.add(1); // wilderness hut
+            this.elements.add(4); // alpine hut
+            this.elements.add(277); // atm
+            this.elements.add(280); // bureau de change
+            this.elements.add(109); // police
+            this.elements.add(124); // pharmacy
+            this.elements.add(136); // veterinary
+            this.elements.add(238); // fuel
+            this.elements.add(-1); // more...
+        }
+
+        @NonNull
+        @Override
+        public SimpleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            final View view = LayoutInflater.from(context).inflate(R.layout.list_item_quick_filter, parent, false);
+            return new SimpleViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull SimpleViewHolder holder, final int position) {
+            int type = elements.get(position);
+            if (type >= 0)
+                holder.button.setImageDrawable(getTypeDrawable(-type)); // we need to separate caches because search result icons are tinted
+            else
+                holder.button.setImageDrawable(context.getDrawable(R.drawable.ic_more_horiz));
+
+            holder.button.setOnClickListener(view -> {
+                if (type >= 0) {
+                    mMapHolder.setHighlightedType(type);
+                    mFragmentHolder.popCurrent();
+                } else {
+                    elements.clear();
+                    for (int i = 0; i < Tags.typeTags.length; i++)
+                        if (Tags.typeTags[i] != null)
+                            elements.add(i);
+                    notifyDataSetChanged();
+                    mQuickFiltersList.smoothScrollToPosition(0);
+                }
+            });
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public int getItemCount() {
+            return this.elements.size();
+        }
+
+        class SimpleViewHolder extends RecyclerView.ViewHolder {
+            final ImageButton button;
+
+            SimpleViewHolder(View view) {
+                super(view);
+                button = view.findViewById(R.id.button);
+            }
+        }
     }
 }
