@@ -87,17 +87,13 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.Subscribe;
-import org.oscim.android.MapView;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
@@ -154,6 +150,7 @@ import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
+import mobi.maptrek.databinding.ActivityMainBinding;
 import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.fragments.AmenitySetupDialog;
@@ -232,7 +229,6 @@ import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
-import mobi.maptrek.view.GaugePanel;
 
 public class MainActivity extends BasePluginActivity implements ILocationListener,
         DataHolder,
@@ -329,29 +325,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private boolean mHideMapObjects = true;
     private int mBitmapMapTransparency = 0;
 
-    protected Map mMap;
-    protected MapView mMapView;
-    private GaugePanel mGaugePanel;
-    private TextView mSatellitesText;
-    private View mMapButtonHolder;
-    private View mActionPanel;
-    private ImageButton mLocationButton;
-    private ImageButton mRecordButton;
-    private ImageButton mPlacesButton;
-    private ImageButton mMapsButton;
-    private ImageButton mMoreButton;
-    private Button mMapDownloadButton;
-    private ImageButton mHighlightedTypeView;
-    private View mCompassView;
-    private View mNavigationArrowView;
-    private ViewGroup mExtendPanel;
-    private TextView mLicense;
-    private ProgressBar mProgressBar;
-    private ViewGroup mBottomSheetPanel;
-    private FloatingActionButton mActionButton;
-    private FloatingActionButton mListActionButton;
-    private CoordinatorLayout mCoordinatorLayout;
-    private View mPopupAnchor;
+    private Map mMap;
+    private ActivityMainBinding mViews;
     private SoftInputAssist mSoftwareInputAssist;
     private boolean mVerticalOrientation;
     private int mSlideGravity;
@@ -432,7 +407,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        setContentView(R.layout.activity_main);
+        mViews = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(mViews.getRoot());
 
         MapTrek application = MapTrek.getApplication();
 
@@ -501,43 +477,22 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mPanelState = PANEL_STATE.NONE;
 
-        mCoordinatorLayout = findViewById(R.id.coordinatorLayout);
-        mActionButton = findViewById(R.id.actionButton);
-        mListActionButton = findViewById(R.id.listActionButton);
-        mLocationButton = findViewById(R.id.locationButton);
-        mRecordButton = findViewById(R.id.recordButton);
-        mPlacesButton = findViewById(R.id.placesButton);
-        mMapsButton = findViewById(R.id.mapsButton);
-        mMoreButton = findViewById(R.id.moreButton);
-        mMapDownloadButton = findViewById(R.id.mapDownloadButton);
-        mLicense = findViewById(R.id.license);
-        mLicense.setClickable(true);
-        mLicense.setMovementMethod(LinkMovementMethod.getInstance());
-        mPopupAnchor = findViewById(R.id.popupAnchor);
+        mViews.license.setClickable(true);
+        mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
-        mGaugePanel = findViewById(R.id.gaugePanel);
-        mGaugePanel.setTag(Boolean.TRUE);
-        mGaugePanel.setMapHolder(this);
+        mViews.gaugePanel.setTag(Boolean.TRUE);
+        mViews.gaugePanel.setMapHolder(this);
 
-        mSatellitesText = findViewById(R.id.satellites);
-        mActionPanel = findViewById(R.id.actionPanel);
-        mMapButtonHolder = findViewById(R.id.mapButtonHolder);
-        mHighlightedTypeView = findViewById(R.id.highlightedType);
-        mCompassView = findViewById(R.id.compass);
-        mNavigationArrowView = findViewById(R.id.navigationArrow);
-        mNavigationArrowView.setOnClickListener(v -> {
+        mViews.navigationArrow.setOnClickListener(v -> {
             MapObject mapObject = mNavigationService.getWaypoint();
             setMapLocation(mapObject.coordinates);
         });
-        mNavigationArrowView.setOnLongClickListener(v -> {
+        mViews.navigationArrow.setOnLongClickListener(v -> {
             showNavigationMenu();
             return true;
         });
-        mExtendPanel = findViewById(R.id.extendPanel);
-        mBottomSheetPanel = findViewById(R.id.bottomSheetPanel);
-        mProgressBar = findViewById(R.id.progressBar);
 
-        mExtendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+        mViews.extendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             int width = v.getWidth();
             int height = v.getHeight();
             logger.debug("onLayoutChange({}, {})", width, height);
@@ -546,28 +501,28 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 v.setTranslationY(0f);
                 return;
             }
-            int rootWidth = mCoordinatorLayout.getWidth();
-            int rootHeight = mCoordinatorLayout.getHeight();
+            int rootWidth = mViews.coordinatorLayout.getWidth();
+            int rootHeight = mViews.coordinatorLayout.getHeight();
             switch (mPanelState) {
                 case RECORD:
                     if (mVerticalOrientation) {
-                        int cWidth = (int) (mRecordButton.getWidth() + mRecordButton.getX());
+                        int cWidth = (int) (mViews.recordButton.getWidth() + mViews.recordButton.getX());
                         if (width < cWidth)
                             v.setTranslationX(cWidth - width);
                     }
                     break;
                 case PLACES:
                     if (mVerticalOrientation) {
-                        int cWidth = (int) (mPlacesButton.getWidth() + mPlacesButton.getX());
+                        int cWidth = (int) (mViews.placesButton.getWidth() + mViews.placesButton.getX());
                         if (width < cWidth)
                             v.setTranslationX(cWidth - width);
                     }
                     break;
                 case MAPS:
                     if (mVerticalOrientation) {
-                        int cWidth = (int) (rootWidth - mMapsButton.getX());
+                        int cWidth = (int) (rootWidth - mViews.mapsButton.getX());
                         if (width < cWidth)
-                            v.setTranslationX(mMapsButton.getX());
+                            v.setTranslationX(mViews.mapsButton.getX());
                         else
                             v.setTranslationX(rootWidth - width);
                     } else {
@@ -583,20 +538,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         });
 
-        mExtendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+        mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
                 if (mVerticalOrientation)
                     return;
                 switch (mPanelState) {
                     case RECORD:
-                        child.setMinimumHeight((int) (mRecordButton.getHeight() + mRecordButton.getY()));
+                        child.setMinimumHeight((int) (mViews.recordButton.getHeight() + mViews.recordButton.getY()));
                         break;
                     case PLACES:
-                        child.setMinimumHeight((int) (mPlacesButton.getHeight() + mPlacesButton.getY()));
+                        child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
                         break;
                     case MAPS:
-                        child.setMinimumHeight((int) (mCoordinatorLayout.getHeight() - mMapsButton.getY()));
+                        child.setMinimumHeight((int) (mViews.coordinatorLayout.getHeight() - mViews.mapsButton.getY()));
                         break;
                 }
             }
@@ -608,8 +563,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         int lastIntroduction = Configuration.getLastSeenIntroduction();
 
-        mMapView = findViewById(R.id.mapView);
-        mMap = mMapView.map();
+        mMap = mViews.mapView.map();
         if (lastIntroduction == 0) {
             if (BuildConfig.RUSSIAN_EDITION) {
                 mMap.setMapPosition(56.4, 39, 1 << 5);
@@ -720,41 +674,41 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
         mBackToast = Toast.makeText(this, R.string.msgBackQuit, Toast.LENGTH_SHORT);
-        mProgressHandler = new ProgressHandler(mProgressBar);
+        mProgressHandler = new ProgressHandler(mViews.progressBar);
 
         // Initialize UI event handlers
-        mLocationButton.setOnClickListener(v -> onLocationClicked());
-        mLocationButton.setOnLongClickListener(v -> {
+        mViews.locationButton.setOnClickListener(v -> onLocationClicked());
+        mViews.locationButton.setOnLongClickListener(v -> {
             onLocationLongClicked();
             return true;
         });
-        mRecordButton.setOnClickListener(v -> onRecordClicked());
-        mRecordButton.setOnLongClickListener(v -> {
+        mViews.recordButton.setOnClickListener(v -> onRecordClicked());
+        mViews.recordButton.setOnLongClickListener(v -> {
             onRecordLongClicked();
             return true;
         });
-        mPlacesButton.setOnClickListener(v -> onPlacesClicked());
-        mPlacesButton.setOnLongClickListener(v -> {
+        mViews.placesButton.setOnClickListener(v -> onPlacesClicked());
+        mViews.placesButton.setOnLongClickListener(v -> {
             onPlacesLongClicked();
             return true;
         });
-        mMapsButton.setOnClickListener(v -> {
+        mViews.mapsButton.setOnClickListener(v -> {
             if (BuildConfig.FULL_VERSION) {
                 onMapsClicked();
             } else {
                 onMapsLongClicked();
             }
         });
-        mMapsButton.setOnLongClickListener(v -> {
+        mViews.mapsButton.setOnLongClickListener(v -> {
             onMapsLongClicked();
             return true;
         });
-        mMoreButton.setOnClickListener(v -> onMoreClicked());
-        mMoreButton.setOnLongClickListener(v -> {
+        mViews.moreButton.setOnClickListener(v -> onMoreClicked());
+        mViews.moreButton.setOnLongClickListener(v -> {
             onMoreLongClicked();
             return true;
         });
-        mMapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
+        mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
 
         // Resume state
         int state = Configuration.getLocationState();
@@ -765,11 +719,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         state = Configuration.getTrackingState();
         mTrackingState = TRACKING_STATE.values()[state];
 
-        mGaugePanel.initializeGauges(Configuration.getGauges());
+        mViews.gaugePanel.initializeGauges(Configuration.getGauges());
         showActionPanel(Configuration.getActionPanelState(), false);
 
         boolean visible = Configuration.getZoomButtonsVisible();
-        mCoordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+        mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
 
         // Resume navigation
         MapObject mapObject = Configuration.getNavigationPoint();
@@ -806,7 +760,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         */
 
         /*
-        mCoordinatorLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+        mViews.coordinatorLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @Override
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                 final int statusBar = insets.getSystemWindowInsetTop();
@@ -894,8 +848,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
-            Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
-                    .setAnchorView(mActionPanel)
+            Snackbar.make(mViews.coordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
+                    .setAnchorView(mViews.actionPanel)
                     .show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
@@ -1016,18 +970,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.layers().add(mMapEventLayer, MAP_EVENTS);
         mMap.events.bind(this);
         mMap.input.bind(this);
-        mMapView.onResume();
+        mViews.mapView.onResume();
         updateLocationDrawable();
         adjustCompass(mMap.getMapPosition().bearing);
 
-        mLicense.setText(Html.fromHtml(getString(R.string.osmLicense)));
-        mLicense.setVisibility(View.VISIBLE);
+        mViews.license.setText(Html.fromHtml(getString(R.string.osmLicense)));
+        mViews.license.setVisibility(View.VISIBLE);
         final Message m = Message.obtain(mMainHandler,
-                () -> mLicense.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+                () -> mViews.license.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mLicense.setVisibility(View.GONE);
-                        mLicense.animate().setListener(null);
+                        mViews.license.setVisibility(View.GONE);
+                        mViews.license.animate().setListener(null);
                     }
                 }));
         m.what = R.id.msgRemoveLicense;
@@ -1035,7 +989,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         String userNotification = MapTrek.getApplication().getUserNotification();
         if (userNotification != null)
-            HelperUtils.showError(userNotification, mCoordinatorLayout);
+            HelperUtils.showError(userNotification, mViews.coordinatorLayout);
 
         if (MapTrek.getApplication().hasPreviousRunsExceptions()) {
             Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
@@ -1059,7 +1013,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             hideSystemUI();
 
         int type = Configuration.getHighlightedType();
-        if (type >= 0 && mHighlightedTypeView.getVisibility() != View.VISIBLE)
+        if (type >= 0 && mViews.highlightedType.getVisibility() != View.VISIBLE)
             setHighlightedType(type);
 
         updateMapViewArea();
@@ -1077,11 +1031,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
 
-        mMapView.onPause();
+        mViews.mapView.onPause();
         mMap.events.unbind(this);
         mMap.layers().remove(mMapEventLayer);
         mMapEventLayer = null;
-        mGaugePanel.onVisibilityChanged(false);
+        mViews.gaugePanel.onVisibilityChanged(false);
 
         // save the map position and state
         Configuration.setPosition(mMap.getMapPosition());
@@ -1089,7 +1043,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Configuration.setLocationState(mSavedLocationState.ordinal());
         Configuration.setPreviousLocationState(mPreviousLocationState.ordinal());
         Configuration.setTrackingState(mTrackingState.ordinal());
-        Configuration.setGauges(mGaugePanel.getGaugeSettings());
+        Configuration.setGauges(mViews.gaugePanel.getGaugeSettings());
 
         if (!isChangingConfigurations()) {
             Intent intent = new Intent(getApplicationContext(), LocationService.class);
@@ -1192,7 +1146,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         logger.debug("onSaveInstanceState()");
 
         MapTrek application = MapTrek.getApplication();
@@ -1210,8 +1164,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         savedInstanceState.putFloat("averagedBearing", mAveragedBearing);
         savedInstanceState.putInt("movementAnimationDuration", mMovementAnimationDuration);
         savedInstanceState.putBoolean("savedNavigationState", mNavigationService != null);
-        if (mProgressBar.getVisibility() == View.VISIBLE)
-            savedInstanceState.putInt("progressBar", mProgressBar.getMax());
+        if (mViews.progressBar.getVisibility() == View.VISIBLE)
+            savedInstanceState.putInt("progressBar", mViews.progressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
         super.onSaveInstanceState(savedInstanceState);
@@ -1229,8 +1183,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (savedInstanceState.getBoolean("savedNavigationState", false))
             enableNavigation();
         if (savedInstanceState.containsKey("progressBar")) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setMax(savedInstanceState.getInt("progressBar"));
+            mViews.progressBar.setVisibility(View.VISIBLE);
+            mViews.progressBar.setMax(savedInstanceState.getInt("progressBar"));
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
@@ -1418,12 +1372,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return true;
             }
             case R.id.actionAddGauge: {
-                mGaugePanel.onLongClick(mGaugePanel);
+                mViews.gaugePanel.onLongClick(mViews.gaugePanel);
                 return true;
             }
             case R.id.actionRate: {
                 Snackbar snackbar = Snackbar
-                        .make(mCoordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
+                        .make(mViews.coordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.iamin, view -> {
                             String packageName = getPackageName();
                             try {
@@ -1522,7 +1476,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return true;
             }
             case R.id.actionRememberScale: {
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mPopupAnchor, true);
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mViews.popupAnchor, true);
                 removeMarker();
                 mMap.getMapPosition(mMapPosition);
                 Configuration.setRememberedScale((float) mMapPosition.getScale());
@@ -1629,7 +1583,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onGpsStatusChanged()");
         if (mLocationService.getStatus() == LocationService.GPS_SEARCHING) {
             int satellites = mLocationService.getSatellites();
-            mSatellitesText.setText(String.format(Locale.getDefault(), "%d / %s", satellites >> 7, satellites & 0x7f));
+            mViews.satellites.setText(String.format(Locale.getDefault(), "%d / %s", satellites >> 7, satellites & 0x7f));
             if (mLocationState != LocationState.SEARCHING) {
                 mSavedLocationState = mLocationState;
                 mLocationState = LocationState.SEARCHING;
@@ -1695,7 +1649,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void onRecordClicked() {
-        if (HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mRecordButton, false))
+        if (HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.recordButton, false))
             return;
 
         if (mLocationState == LocationState.DISABLED) {
@@ -1804,7 +1758,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void onMoreClicked() {
-        if (mLocationButton.getVisibility() == View.VISIBLE) {
+        if (mViews.locationButton.getVisibility() == View.VISIBLE) {
             PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
             fragment.setMenu(R.menu.menu_main, menu -> {
                 Resources resources = getResources();
@@ -1825,7 +1779,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                 mMapIndex.getMaps().size() == 0)) {
                     menu.removeItem(R.id.actionRate);
                 }
-                if (mGaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
+                if (mViews.gaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                     menu.removeItem(R.id.actionAddGauge);
                 java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
                 String[] toolNames = tools.keySet().toArray(new String[0]);
@@ -1845,14 +1799,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void onMoreLongClicked() {
-        boolean show = mLocationButton.getVisibility() == View.INVISIBLE;
+        boolean show = mViews.locationButton.getVisibility() == View.INVISIBLE;
         showActionPanel(show, true);
         if (BuildConfig.FULL_VERSION && !show && !Configuration.getHideSystemUI())
             hideSystemUI();
     }
 
     private void onMapDownloadClicked() {
-        mMapDownloadButton.setVisibility(View.GONE);
+        mViews.mapDownloadButton.setVisibility(View.GONE);
         startMapSelection(false);
     }
 
@@ -1868,7 +1822,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Tags.resetHighlightedType();
         Configuration.setHighlightedType(-1);
         mMap.clearMap();
-        mHighlightedTypeView.setVisibility(View.GONE);
+        mViews.highlightedType.setVisibility(View.GONE);
     }
 
     public void onCompassClicked(View view) {
@@ -2078,8 +2032,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.clearMap();
         Drawable icon = Tags.getTypeDrawable(this, mMap.getTheme(), type);
         if (icon != null)
-            mHighlightedTypeView.setImageDrawable(icon);
-        mHighlightedTypeView.setVisibility(View.VISIBLE);
+            mViews.highlightedType.setImageDrawable(icon);
+        mViews.highlightedType.setVisibility(View.VISIBLE);
     }
 
     private void enableTracking() {
@@ -2194,18 +2148,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onMapEvent(Event e, MapPosition mapPosition) {
         if (e == Map.ROTATE_EVENT) {
             mMainHandler.removeMessages(R.id.msgResetBearing);
-            mCompassView.setTag(e);
+            mViews.compass.setTag(e);
         }
         if (e == Map.FINISH_EVENT) {
             final Message m = Message.obtain(mMainHandler, () -> {
-                if (mCompassView.getTag() == Map.ROTATE_EVENT &&
+                if (mViews.compass.getTag() == Map.ROTATE_EVENT &&
                         mLocationState != LocationState.TRACK &&
                         Math.abs(mapPosition.bearing) < 5f) {
                     mMap.getMapPosition(true, mapPosition);
                     mapPosition.setBearing(0f);
                     mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mapPosition);
                 }
-                mCompassView.setTag(null);
+                mViews.compass.setTag(null);
             });
             m.what = R.id.msgResetBearing;
             mMainHandler.sendMessageDelayed(m, 500);
@@ -2231,19 +2185,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
             if (mFirstMove) {
                 mFirstMove = false;
-                mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mPopupAnchor, R.drawable.ic_volume_down);
+                mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mViews.popupAnchor, R.drawable.ic_volume_down);
             }
         }
-        if (mMapDownloadButton.getVisibility() != View.GONE) {
+        if (mViews.mapDownloadButton.getVisibility() != View.GONE) {
             if (mapPosition.zoomLevel < 8) {
-                mMapDownloadButton.setVisibility(View.GONE);
-                mMapDownloadButton.setTag(null);
+                mViews.mapDownloadButton.setVisibility(View.GONE);
+                mViews.mapDownloadButton.setTag(null);
             } else if (e == Map.MOVE_EVENT) {
                 final Message m = Message.obtain(mMainHandler, () -> {
-                    mMapDownloadButton.setVisibility(View.GONE);
-                    mMapDownloadButton.setTag(null);
+                    mViews.mapDownloadButton.setVisibility(View.GONE);
+                    mViews.mapDownloadButton.setTag(null);
                 });
                 m.what = R.id.msgRemoveMapDownloadButton;
                 mMainHandler.sendMessageDelayed(m, 1000);
@@ -2271,11 +2225,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if (gesture == Gesture.LONG_PRESS) {
             if (!mMap.getEventLayer().moveEnabled() || !mObjectInteractionEnabled)
                 return true;
-            mPopupAnchor.setX(event.getX() + mFingerTipSize);
-            mPopupAnchor.setY(event.getY() - mFingerTipSize);
+            mViews.popupAnchor.setX(event.getX() + mFingerTipSize);
+            mViews.popupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
             showMarker(mSelectedPoint, null, false);
-            PopupMenu popup = new PopupMenu(this, mPopupAnchor);
+            PopupMenu popup = new PopupMenu(this, mViews.popupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu popupMenu = popup.getMenu();
             if (mLocationState == LocationState.DISABLED || mLocationState == LocationState.SEARCHING || mLocationService == null || !isOnline())
@@ -2293,27 +2247,27 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void adjustCompass(float bearing) {
-        if (mCompassView.getRotation() == bearing)
+        if (mViews.compass.getRotation() == bearing)
             return;
-        mCompassView.setRotation(bearing);
+        mViews.compass.setRotation(bearing);
         if (bearing == 0f) {
-            if (mCompassView.getVisibility() != View.GONE)
-                mCompassView.setVisibility(View.GONE);
-        } else if (mCompassView.getVisibility() == View.GONE) {
-            mCompassView.setVisibility(View.VISIBLE);
+            if (mViews.compass.getVisibility() != View.GONE)
+                mViews.compass.setVisibility(View.GONE);
+        } else if (mViews.compass.getVisibility() == View.GONE) {
+            mViews.compass.setVisibility(View.VISIBLE);
         }
         // +/-5 degrees
-        mCompassView.setAlpha(FastMath.clamp(Math.abs(bearing) / 5f, 0f, 1f));
+        mViews.compass.setAlpha(FastMath.clamp(Math.abs(bearing) / 5f, 0f, 1f));
     }
 
     private void adjustNavigationArrow(float turn) {
-        if (mNavigationArrowView.getRotation() == turn)
+        if (mViews.navigationArrow.getRotation() == turn)
             return;
-        mNavigationArrowView.setRotation(turn);
+        mViews.navigationArrow.setRotation(turn);
     }
 
     private void showNavigationMenu() {
-        PopupMenu popup = new PopupMenu(this, mMapButtonHolder);
+        PopupMenu popup = new PopupMenu(this, mViews.mapButtonHolder);
         popup.inflate(R.menu.context_menu_navigation);
         popup.setOnMenuItemClickListener(this);
         popup.show();
@@ -2321,26 +2275,26 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void updateLocationDrawable() {
         logger.debug("updateLocationDrawable()");
-        if (mRecordButton.getTag() != mTrackingState) {
+        if (mViews.recordButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
-            mRecordButton.getDrawable().setTint(recordColor);
-            mRecordButton.setTag(mTrackingState);
+            mViews.recordButton.getDrawable().setTint(recordColor);
+            mViews.recordButton.setTag(mTrackingState);
         }
-        if (mLocationButton.getTag() == mLocationState)
+        if (mViews.locationButton.getTag() == mLocationState)
             return;
-        if (mLocationButton.getTag() == LocationState.SEARCHING) {
-            mLocationButton.clearAnimation();
-            mSatellitesText.animate().translationY(-200);
+        if (mViews.locationButton.getTag() == LocationState.SEARCHING) {
+            mViews.locationButton.clearAnimation();
+            mViews.satellites.animate().translationY(-200);
         }
-        final ViewPropertyAnimator gaugePanelAnimator = mGaugePanel.animate();
+        final ViewPropertyAnimator gaugePanelAnimator = mViews.gaugePanel.animate();
         gaugePanelAnimator.setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (mLocationState == LocationState.NORTH)
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mGaugePanel, true);
-                //HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mCoordinatorLayout);
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.gaugePanel, true);
+                //HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.coordinatorLayout);
                 if (mLocationState == LocationState.SEARCHING)
-                    mSatellitesText.animate().translationY(8);
+                    mViews.satellites.animate().translationY(8);
                 gaugePanelAnimator.setListener(null);
                 updateMapViewArea();
             }
@@ -2348,50 +2302,50 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         switch (mLocationState) {
             case DISABLED:
                 mNavigationNorthDrawable.setTint(mColorActionIcon);
-                mLocationButton.setImageDrawable(mNavigationNorthDrawable);
+                mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
-                if (mGaugePanel.getWidth() > 0) {
-                    gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
-                    mGaugePanel.onVisibilityChanged(false);
+                if (mViews.gaugePanel.getWidth() > 0) {
+                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
+                    mViews.gaugePanel.onVisibilityChanged(false);
                 }
                 break;
             case SEARCHING:
                 mLocationSearchingDrawable.setTint(mColorAccent);
-                mLocationButton.setImageDrawable(mLocationSearchingDrawable);
+                mViews.locationButton.setImageDrawable(mLocationSearchingDrawable);
                 Animation rotation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotation.setInterpolator(new LinearInterpolator());
                 rotation.setRepeatCount(Animation.INFINITE);
                 rotation.setDuration(1000);
-                mLocationButton.startAnimation(rotation);
-                if (mGaugePanel.getVisibility() == View.INVISIBLE) {
-                    mSatellitesText.animate().translationY(8);
+                mViews.locationButton.startAnimation(rotation);
+                if (mViews.gaugePanel.getVisibility() == View.INVISIBLE) {
+                    mViews.satellites.animate().translationY(8);
                 } else {
-                    gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
-                    mGaugePanel.onVisibilityChanged(false);
+                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
+                    mViews.gaugePanel.onVisibilityChanged(false);
                 }
                 break;
             case ENABLED:
                 mMyLocationDrawable.setTint(mColorActionIcon);
-                mLocationButton.setImageDrawable(mMyLocationDrawable);
+                mViews.locationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
-                gaugePanelAnimator.translationX(-mGaugePanel.getWidth());
-                mGaugePanel.onVisibilityChanged(false);
+                gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
+                mViews.gaugePanel.onVisibilityChanged(false);
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
-                mLocationButton.setImageDrawable(mNavigationNorthDrawable);
+                mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
-                mGaugePanel.onVisibilityChanged(true);
+                mViews.gaugePanel.onVisibilityChanged(true);
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
-                mLocationButton.setImageDrawable(mNavigationTrackDrawable);
+                mViews.locationButton.setImageDrawable(mNavigationTrackDrawable);
                 mCrosshairLayer.setEnabled(false);
                 gaugePanelAnimator.translationX(0);
-                mGaugePanel.onVisibilityChanged(true);
+                mViews.gaugePanel.onVisibilityChanged(true);
         }
-        mLocationButton.setTag(mLocationState);
+        mViews.locationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
             LocationStateChangeListener locationStateChangeListener = weakRef.get();
             if (locationStateChangeListener != null) {
@@ -2402,9 +2356,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void updateGauges() {
         Location location = mLocationService.getLocation();
-        mGaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
-        mGaugePanel.setValue(Gauge.TYPE_TRACK, location.getBearing());
-        mGaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
+        mViews.gaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
+        mViews.gaugePanel.setValue(Gauge.TYPE_TRACK, location.getBearing());
+        mViews.gaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
     }
 
     //TODO Logic of calling this is a total mess! Think out proper event mechanism
@@ -2412,12 +2366,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
-        boolean changed = mGaugePanel.setNavigationMode(enabled);
+        boolean changed = mViews.gaugePanel.setNavigationMode(enabled);
         if (enabled) {
-            if (mNavigationArrowView.getVisibility() == View.GONE) {
-                mNavigationArrowView.setAlpha(0f);
-                mNavigationArrowView.setVisibility(View.VISIBLE);
-                mNavigationArrowView.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
+            if (mViews.navigationArrow.getVisibility() == View.GONE) {
+                mViews.navigationArrow.setAlpha(0f);
+                mViews.navigationArrow.setVisibility(View.VISIBLE);
+                mViews.navigationArrow.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
             }
             GeoPoint destination = mNavigationService.getWaypoint().coordinates;
             if (mNavigationLayer == null) {
@@ -2433,11 +2387,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             }
         } else {
-            if (mNavigationArrowView.getAlpha() == 1f) {
-                mNavigationArrowView.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+            if (mViews.navigationArrow.getAlpha() == 1f) {
+                mViews.navigationArrow.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mNavigationArrowView.setVisibility(View.GONE);
+                        mViews.navigationArrow.setVisibility(View.GONE);
                     }
                 });
             }
@@ -2493,9 +2447,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.updateMap(true);
         if (!customize)
             return;
-        Snackbar.make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
+        Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
                 .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint))
-                .setAnchorView(mActionPanel)
+                .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
@@ -2545,9 +2499,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.commit();
         }
         ((WaypointInformation) fragment).setWaypoint(waypoint);
-        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
-        mExtendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -2575,7 +2529,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
                 @Override
                 public void onError(FileDataSource source, Exception e) {
-                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                    HelperUtils.showSaveError(MainActivity.this, mViews.coordinatorLayout, e);
                 }
             }, mProgressHandler);
         }
@@ -2595,7 +2549,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Show undo snackbar
         //noinspection deprecation
-        Snackbar.make(mCoordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
+        Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2615,7 +2569,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.updateMap(true);
                     mDeletedWaypoints = null;
                 })
-                .setAnchorView(mActionPanel)
+                .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
@@ -2632,7 +2586,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = waypoints.size();
         String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
         //noinspection deprecation
-        Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+        Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2654,7 +2608,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.updateMap(true);
                     mDeletedWaypoints = null;
                 })
-                .setAnchorView(mActionPanel)
+                .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
@@ -2739,9 +2693,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             updateMapViewArea();
         }
         ((TrackInformation) fragment).setTrack(track, current);
-        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
-        mExtendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -2795,7 +2749,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                 }
             } catch (Exception e) {
-                HelperUtils.showSaveError(this, mCoordinatorLayout, e);
+                HelperUtils.showSaveError(this, mViews.coordinatorLayout, e);
                 e.printStackTrace();
             }
         } else {
@@ -2808,7 +2762,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
                 @Override
                 public void onError(FileDataSource source, Exception e) {
-                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                    HelperUtils.showSaveError(MainActivity.this, mViews.coordinatorLayout, e);
                 }
             }, mProgressHandler);
         }
@@ -2838,7 +2792,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Show undo snackbar
         //noinspection deprecation
-        Snackbar.make(mCoordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
+        Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2860,7 +2814,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.updateMap(true);
                     mDeletedTracks = null;
                 })
-                .setAnchorView(mActionPanel)
+                .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
@@ -2884,7 +2838,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = tracks.size();
         String msg = getResources().getQuantityString(R.plurals.tracksDeleted, count, count);
         //noinspection deprecation
-        Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+        Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2908,7 +2862,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.updateMap(true);
                     mDeletedTracks = null;
                 })
-                .setAnchorView(mActionPanel)
+                .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
@@ -2939,9 +2893,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             updateMapViewArea();
         }
         ((RouteInformation) fragment).setRoute(route);
-        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
-        mExtendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -3002,9 +2956,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         ((AmenityInformation) fragment).setPreferredLanguage(Configuration.getLanguage());
         ((AmenityInformation) fragment).setAmenity(id);
-        mExtendPanel.setForeground(getDrawable(R.drawable.dim));
-        mExtendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mExtendPanel.getForeground(), "alpha", 0, 255);
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
         anim.setDuration(500);
         anim.start();
     }
@@ -3119,7 +3073,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         String filename = mapFile.tileSource.getOption("path");
         File file = new File(filename);
         if (!file.delete())
-            HelperUtils.showError(getString(R.string.msgMapDeleteFailed), mCoordinatorLayout);
+            HelperUtils.showError(getString(R.string.msgMapDeleteFailed), mViews.coordinatorLayout);
     }
 
     @Override
@@ -3150,7 +3104,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else {
             mMap.updateMap(true);
         }
-        int[] xy = (int[]) mMapDownloadButton.getTag();
+        int[] xy = (int[]) mViews.mapDownloadButton.getTag();
         if (xy != null)
             mNativeMapIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
     }
@@ -3190,7 +3144,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
                 @Override
                 public void onError(FileDataSource source, Exception e) {
-                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                    HelperUtils.showSaveError(MainActivity.this, mViews.coordinatorLayout, e);
                 }
             }, mProgressHandler);
         }
@@ -3213,7 +3167,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
                 @Override
                 public void onError(FileDataSource source, Exception e) {
-                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                    HelperUtils.showSaveError(MainActivity.this, mViews.coordinatorLayout, e);
                 }
             }, mProgressHandler);
         }
@@ -3289,10 +3243,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
 
         if (animate)
-            mMoreButton.animate().rotationBy(180).setDuration(duration * 5).setListener(new AnimatorListenerAdapter() {
+            mViews.moreButton.animate().rotationBy(180).setDuration(duration * 5).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mMoreButton.setRotation(0f);
+                    mViews.moreButton.setRotation(0f);
                 }
             });
         if (show) {
@@ -3301,24 +3255,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mAPB.animate().setDuration(duration * 5).alpha(1f);
             else
                 mAPB.setAlpha(1f);
-            mMapsButton.setVisibility(View.VISIBLE);
+            mViews.mapsButton.setVisibility(View.VISIBLE);
             if (animate) {
-                mMapsButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                mViews.mapsButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mPlacesButton.setVisibility(View.VISIBLE);
-                        mPlacesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                        mViews.placesButton.setVisibility(View.VISIBLE);
+                        mViews.placesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
-                                mRecordButton.setVisibility(View.VISIBLE);
-                                mRecordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                mViews.recordButton.setVisibility(View.VISIBLE);
+                                mViews.recordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
-                                        mLocationButton.setVisibility(View.VISIBLE);
-                                        mLocationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                        mViews.locationButton.setVisibility(View.VISIBLE);
+                                        mViews.locationButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
-                                                mExtendPanel.requestLayout();
+                                                mViews.extendPanel.requestLayout();
                                             }
                                         });
                                     }
@@ -3328,34 +3282,34 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                 });
             } else {
-                mMapsButton.setAlpha(1f);
-                mPlacesButton.setVisibility(View.VISIBLE);
-                mPlacesButton.setAlpha(1f);
-                mRecordButton.setVisibility(View.VISIBLE);
-                mRecordButton.setAlpha(1f);
-                mLocationButton.setVisibility(View.VISIBLE);
-                mLocationButton.setAlpha(1f);
-                mExtendPanel.requestLayout();
+                mViews.mapsButton.setAlpha(1f);
+                mViews.placesButton.setVisibility(View.VISIBLE);
+                mViews.placesButton.setAlpha(1f);
+                mViews.recordButton.setVisibility(View.VISIBLE);
+                mViews.recordButton.setAlpha(1f);
+                mViews.locationButton.setVisibility(View.VISIBLE);
+                mViews.locationButton.setAlpha(1f);
+                mViews.extendPanel.requestLayout();
             }
         } else {
             if (animate) {
                 mAPB.animate().alpha(0f).setDuration(duration * 5);
-                mLocationButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                mViews.locationButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mLocationButton.setVisibility(View.INVISIBLE);
-                        mRecordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                        mViews.locationButton.setVisibility(View.INVISIBLE);
+                        mViews.recordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
-                                mRecordButton.setVisibility(View.INVISIBLE);
-                                mPlacesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                mViews.recordButton.setVisibility(View.INVISIBLE);
+                                mViews.placesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
-                                        mPlacesButton.setVisibility(View.INVISIBLE);
-                                        mMapsButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                        mViews.placesButton.setVisibility(View.INVISIBLE);
+                                        mViews.mapsButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
-                                                mMapsButton.setVisibility(View.INVISIBLE);
+                                                mViews.mapsButton.setVisibility(View.INVISIBLE);
                                                 mAPB.setVisibility(View.INVISIBLE);
                                             }
                                         });
@@ -3367,14 +3321,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 });
             } else {
                 mAPB.setAlpha(0f);
-                mLocationButton.setAlpha(0f);
-                mLocationButton.setVisibility(View.INVISIBLE);
-                mRecordButton.setAlpha(0f);
-                mRecordButton.setVisibility(View.INVISIBLE);
-                mPlacesButton.setAlpha(0f);
-                mPlacesButton.setVisibility(View.INVISIBLE);
-                mMapsButton.setAlpha(0f);
-                mMapsButton.setVisibility(View.INVISIBLE);
+                mViews.locationButton.setAlpha(0f);
+                mViews.locationButton.setVisibility(View.INVISIBLE);
+                mViews.recordButton.setAlpha(0f);
+                mViews.recordButton.setVisibility(View.INVISIBLE);
+                mViews.placesButton.setAlpha(0f);
+                mViews.placesButton.setVisibility(View.INVISIBLE);
+                mViews.mapsButton.setAlpha(0f);
+                mViews.mapsButton.setVisibility(View.INVISIBLE);
                 mAPB.setVisibility(View.INVISIBLE);
             }
         }
@@ -3390,7 +3344,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return;
             }
         }
-        mExtendPanel.setForeground(null);
+        mViews.extendPanel.setForeground(null);
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
@@ -3412,7 +3366,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         setPanelState(panel);
 
         if ("dataList".equals(name) || "dataSourceList".equals(name))
-            HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_ADDING_PLACE, R.string.advice_adding_place, mPlacesButton, false);
+            HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_ADDING_PLACE, R.string.advice_adding_place, mViews.placesButton, false);
     }
 
     private void setPanelState(PANEL_STATE state) {
@@ -3520,33 +3474,33 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableActionButton() {
-        if (mListActionButton.getVisibility() == View.VISIBLE)
-            mListActionButton.setVisibility(View.INVISIBLE);
-        TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
-        mActionButton.setVisibility(View.VISIBLE);
-        return mActionButton;
+        if (mViews.listActionButton.getVisibility() == View.VISIBLE)
+            mViews.listActionButton.setVisibility(View.INVISIBLE);
+        TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
+        mViews.actionButton.setVisibility(View.VISIBLE);
+        return mViews.actionButton;
     }
 
     @SuppressLint("RestrictedApi")
     @Override
     public void disableActionButton() {
-        mActionButton.setVisibility(View.GONE);
-        if (mListActionButton.getVisibility() == View.INVISIBLE)
-            mListActionButton.setVisibility(View.VISIBLE);
+        mViews.actionButton.setVisibility(View.GONE);
+        if (mViews.listActionButton.getVisibility() == View.INVISIBLE)
+            mViews.listActionButton.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableListActionButton() {
-        TransitionManager.beginDelayedTransition(mCoordinatorLayout, new Fade());
-        mListActionButton.setVisibility(View.VISIBLE);
-        return mListActionButton;
+        TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
+        mViews.listActionButton.setVisibility(View.VISIBLE);
+        return mViews.listActionButton;
     }
 
     @SuppressLint("RestrictedApi")
     @Override
     public void disableListActionButton() {
-        mListActionButton.setVisibility(View.GONE);
+        mViews.listActionButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -3574,10 +3528,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String fragmentName = bse.getName();
             if ("baseMapDownload".equals(fragmentName)) {
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
                 }
             } else if ("trackProperties".equals(fragmentName)) {
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
             }
         }
         mFragmentManager.popBackStack();
@@ -3592,7 +3546,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public CoordinatorLayout getCoordinatorLayout() {
-        return mCoordinatorLayout;
+        return mViews.coordinatorLayout;
     }
 
     private boolean backKeyIntercepted() {
@@ -3620,9 +3574,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (count > 0) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
             if (BuildConfig.FULL_VERSION && "settings".equals(bse.getName()))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mMapsButton, false);
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mViews.mapsButton, false);
             if ("trackProperties".equals(bse.getName()))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
+                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
             super.onBackPressed();
             if (count == 1 && mPanelState != PANEL_STATE.NONE)
                 setPanelState(PANEL_STATE.NONE);
@@ -3710,11 +3664,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return;
 
         runOnUiThread(() -> {
-            if (mMapDownloadButton.getVisibility() == View.GONE) {
-                mMapDownloadButton.setText(R.string.mapDownloadText);
-                mMapDownloadButton.setVisibility(View.VISIBLE);
+            if (mViews.mapDownloadButton.getVisibility() == View.GONE) {
+                mViews.mapDownloadButton.setText(R.string.mapDownloadText);
+                mViews.mapDownloadButton.setVisibility(View.VISIBLE);
             }
-            mMapDownloadButton.setTag(new int[]{x, y});
+            mViews.mapDownloadButton.setTag(new int[]{x, y});
             mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
         });
     }
@@ -3729,61 +3683,60 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (isFinishing())
                         return;
 
-                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mCoordinatorLayout.getLayoutParams();
+                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
                 p.topMargin = mStatusBarHeight;
 
-                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetPanel);
+                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
 
                 if (mFragmentManager != null) {
                     if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
                         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mLocationButton, false);
+                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
                         } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                            mPopupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                            mPopupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mPopupAnchor, R.drawable.ic_volume_up);
+                            mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                            mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
                         }
                     }
 
-                    if (Boolean.TRUE.equals(mGaugePanel.getTag())) {
-                        mGaugePanel.setTranslationX(-mGaugePanel.getWidth());
-                        mGaugePanel.setVisibility(View.VISIBLE);
-                        mGaugePanel.setTag(null);
+                    if (Boolean.TRUE.equals(mViews.gaugePanel.getTag())) {
+                        mViews.gaugePanel.setTranslationX(-mViews.gaugePanel.getWidth());
+                        mViews.gaugePanel.setVisibility(View.VISIBLE);
+                        mViews.gaugePanel.setTag(null);
                     }
 
                     Rect area = new Rect();
-                    mMapView.getLocalVisibleRect(area);
+                    mViews.mapView.getLocalVisibleRect(area);
                     int mapWidth = area.width();
                     int mapHeight = area.height();
                     int pointerOffset = (int) (50 * MapTrek.density);
 
                     int scaleBarOffset = 0;
                     area.top = mStatusBarHeight;
-                    if (mGaugePanel.getTranslationX() >= 0f) {
-                        scaleBarOffset = (int) (mGaugePanel.getRight() + mGaugePanel.getTranslationX());
-                        int h = mGaugePanel.getHeight();
+                    if (mViews.gaugePanel.getTranslationX() >= 0f) {
+                        scaleBarOffset = (int) (mViews.gaugePanel.getRight() + mViews.gaugePanel.getTranslationX());
+                        int h = mViews.gaugePanel.getHeight();
                         if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
                             area.left = scaleBarOffset;
                     }
 
-                    if (mActionPanel != null) {
-                        if (mVerticalOrientation)
-                            area.bottom = mActionPanel.getTop();
-                        else
-                            area.right = mActionPanel.getLeft();
-                    }
+                    if (mVerticalOrientation)
+                        area.bottom = mViews.actionPanel.getTop();
+                    else
+                        area.right = mViews.actionPanel.getLeft();
+
                     if (mPanelState != PANEL_STATE.NONE) {
                         if (mVerticalOrientation)
-                            area.bottom = mExtendPanel.getTop();
+                            area.bottom = mViews.extendPanel.getTop();
                         else
-                            area.right = mExtendPanel.getLeft();
+                            area.right = mViews.extendPanel.getLeft();
                     }
 
                     // This part does not currently make sense as map center is not adjusted yet
                     int count = mFragmentManager.getBackStackEntryCount();
                     if (count > 0) {
                         FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-                        View contentPanel = mCoordinatorLayout.findViewById(R.id.contentPanel);
+                        View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
                         if ("search".equals(bse.getName()))
                             if (mVerticalOrientation)
                                 area.bottom = contentPanel.getTop();
@@ -3794,7 +3747,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     if (mVerticalOrientation) {
                         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
                                 || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                            area.bottom = mBottomSheetPanel.getTop();
+                            area.bottom = mViews.bottomSheetPanel.getTop();
                     }
 
                     if (!area.isEmpty()) {
@@ -3905,16 +3858,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
                     //noinspection deprecation
-                    Snackbar.make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
+                    Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionCustomize, view -> onTrackProperties(extras.getString("path")))
                             .setCallback(new Snackbar.Callback() {
                                 @Override
                                 public void onDismissed(Snackbar transientBottomBar, int event) {
                                     if (event != DISMISS_EVENT_ACTION)
-                                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
+                                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
                                 }
                             })
-                            .setAnchorView(mActionPanel)
+                            .setAnchorView(mViews.actionPanel)
                             .show();
                     return;
                 }
@@ -3922,15 +3875,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 logger.warn("Track not saved: {}", reason);
                 if ("period".equals(reason) || "distance".equals(reason)) {
                     int msg = "period".equals(reason) ? R.string.msgTrackNotSavedPeriod : R.string.msgTrackNotSavedDistance;
-                    Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+                    Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionSave, view -> mLocationService.saveTrack())
-                            .setAnchorView(mActionPanel)
+                            .setAnchorView(mViews.actionPanel)
                             .show();
                 } else {
                     Exception e = extras != null ? (Exception) extras.getSerializable("exception") : null;
                     if (e == null)
                         e = new RuntimeException("Unknown error");
-                    HelperUtils.showSaveError(MainActivity.this, mCoordinatorLayout, e);
+                    HelperUtils.showSaveError(MainActivity.this, mViews.coordinatorLayout, e);
                 }
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
@@ -3938,12 +3891,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 updateNavigationUI();
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action) && mNavigationService != null) {
-                mGaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
-                mGaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
-                mGaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
-                mGaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
-                mGaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
-                mGaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
+                mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
+                mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
+                mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
+                mViews.gaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
+                mViews.gaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
+                mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
                 adjustNavigationArrow(mNavigationService.getTurn());
                 updateNavigationUI();
             }
@@ -4136,7 +4089,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
             args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
         }
-        args.putInt(DataList.ARG_HEIGHT, mExtendPanel.getHeight());
+        args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
         DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
         fragment.setDataSource(source);
         FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -4213,7 +4166,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @Override
     public void onDataSourceDelete(@NonNull final DataSource source) {
         if (!(source instanceof FileDataSource)) {
-            HelperUtils.showError(getString(R.string.msgCannotDeleteNativeSource), mCoordinatorLayout);
+            HelperUtils.showError(getString(R.string.msgCannotDeleteNativeSource), mViews.coordinatorLayout);
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -4225,7 +4178,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (sourceFile.delete()) {
                     removeSourceFromMap((FileDataSource) source);
                 } else {
-                    HelperUtils.showError(getString(R.string.msgDeleteFailed), mCoordinatorLayout);
+                    HelperUtils.showError(getString(R.string.msgDeleteFailed), mViews.coordinatorLayout);
                 }
             }
         });
@@ -4245,13 +4198,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onReceiveResult(int resultCode, Bundle resultData) {
         if (resultCode == 0) {
             String message = resultData.getString("message", "Failed to find route");
-            HelperUtils.showError(message, mCoordinatorLayout);
+            HelperUtils.showError(message, mViews.coordinatorLayout);
             return;
         }
         double distance = resultData.getDouble("distance");
         long time = resultData.getLong("time");
         String poly = resultData.getString("points");
-        HelperUtils.showError(distance + " " + time, mCoordinatorLayout);
+        HelperUtils.showError(distance + " " + time, mViews.coordinatorLayout);
         if (poly != null) {
             Track track = new Track();
             ArrayList<GeoPoint> points = GraphHopperService.decodePolyline(poly, 0, false);
@@ -4269,7 +4222,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 Resources resources = getResources();
                 StringFormatter.speedFactor = Float.parseFloat(resources.getStringArray(R.array.speed_factors)[unit]);
                 StringFormatter.speedAbbr = resources.getStringArray(R.array.speed_abbreviations)[unit];
-                mGaugePanel.refreshGauges();
+                mViews.gaugePanel.refreshGauges();
                 break;
             }
             case Configuration.PREF_DISTANCE_UNIT: {
@@ -4279,7 +4232,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 StringFormatter.distanceAbbr = resources.getStringArray(R.array.distance_abbreviations)[unit];
                 StringFormatter.distanceShortFactor = Double.parseDouble(resources.getStringArray(R.array.distance_factors_short)[unit]);
                 StringFormatter.distanceShortAbbr = resources.getStringArray(R.array.distance_abbreviations_short)[unit];
-                mGaugePanel.refreshGauges();
+                mViews.gaugePanel.refreshGauges();
                 break;
             }
             case Configuration.PREF_ELEVATION_UNIT: {
@@ -4287,7 +4240,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 Resources resources = getResources();
                 StringFormatter.elevationFactor = Float.parseFloat(resources.getStringArray(R.array.elevation_factors)[unit]);
                 StringFormatter.elevationAbbr = resources.getStringArray(R.array.elevation_abbreviations)[unit];
-                mGaugePanel.refreshGauges();
+                mViews.gaugePanel.refreshGauges();
                 mMap.clearMap();
                 break;
             }
@@ -4296,18 +4249,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 Resources resources = getResources();
                 StringFormatter.angleFactor = Double.parseDouble(resources.getStringArray(R.array.angle_factors)[unit]);
                 StringFormatter.angleAbbr = resources.getStringArray(R.array.angle_abbreviations)[unit];
-                mGaugePanel.refreshGauges();
+                mViews.gaugePanel.refreshGauges();
                 break;
             }
             case Configuration.PREF_UNIT_PRECISION: {
                 boolean precision = Configuration.getUnitPrecision();
                 StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
-                mGaugePanel.refreshGauges();
+                mViews.gaugePanel.refreshGauges();
                 break;
             }
             case Configuration.PREF_ZOOM_BUTTONS_VISIBLE: {
                 boolean visible = Configuration.getZoomButtonsVisible();
-                mCoordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+                mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
             }
             case Configuration.PREF_MAP_HILLSHADES: {
                 boolean enabled = Configuration.getHillshadesEnabled();
@@ -4387,9 +4340,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mNightMode = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
                 // TODO Show advises on cursor hide
                 if (mNightMode) {
-                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_NIGHT_MODE, R.string.advice_night_mode, mMapsButton, false), 2000);
+                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_NIGHT_MODE, R.string.advice_night_mode, mViews.mapsButton, false), 2000);
                 } else if (Configuration.getRunningTime() > 10) {
-                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mMapsButton, false), 2000);
+                    mMainHandler.postDelayed(() -> HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MAP_LEGEND, R.string.advice_map_legend, mViews.mapsButton, false), 2000);
                 }
                 themeFile = mNightMode ? Themes.NIGHT : Themes.MAPTREK;
                 break;

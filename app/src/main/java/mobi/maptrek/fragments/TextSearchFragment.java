@@ -47,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -63,11 +62,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import at.grabner.circleprogress.CircleProgressView;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
+import mobi.maptrek.databinding.FragmentSearchListBinding;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.HelperUtils;
@@ -104,13 +103,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private int mSelectedKind;
     private HashMap<Integer, Drawable> mTypeIconCache = new HashMap<>();
 
-    private CircleProgressView mFtsWait;
-    private TextView mMessage;
-    private ImageButton mFilterButton;
-    private View mSearchFooter;
+    private FragmentSearchListBinding mViews;
     private String mText;
     private GeoPoint mFoundPoint;
-    private RecyclerView mQuickFiltersList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,20 +119,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_search_list, container, false);
+        mViews = FragmentSearchListBinding.inflate(inflater, container, false);
 
-        mFtsWait = rootView.findViewById(R.id.ftsWait);
-        mMessage = rootView.findViewById(R.id.message);
-        mFilterButton = rootView.findViewById(R.id.filterButton);
-        mFilterButton.setOnClickListener(this);
-        mSearchFooter = rootView.findViewById(R.id.searchFooter);
+        mViews.filterButton.setOnClickListener(this);
 
-        mQuickFiltersList = rootView.findViewById(R.id.quickFilters);
-
-        final EditText textEdit = rootView.findViewById(R.id.textEdit);
-        textEdit.requestFocus();
-
-        textEdit.addTextChangedListener(new TextWatcher() {
+        mViews.textEdit.requestFocus();
+        mViews.textEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -159,7 +146,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             }
         });
 
-        return rootView;
+        return mViews.getRoot();
     }
 
     @Override
@@ -185,28 +172,28 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         setListAdapter(mAdapter);
 
         QuickFilterAdapter adapter = new QuickFilterAdapter(activity);
-        mQuickFiltersList.setAdapter(adapter);
+        mViews.quickFilters.setAdapter(adapter);
 
         LinearLayoutManager horizontalLayoutManager
                 = new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
-        mQuickFiltersList.setLayoutManager(horizontalLayoutManager);
+        mViews.quickFilters.setLayoutManager(horizontalLayoutManager);
 
         Resources resources = activity.getResources();
         String packageName = activity.getPackageName();
-        mKinds = new CharSequence[Tags.kinds.length + 2];
+        mKinds = new CharSequence[Tags.kinds.length]; // we add two kinds but skip two last
         mKinds[0] = activity.getString(R.string.any);
         mKinds[1] = resources.getString(R.string.kind_place);
-        for (int i = 0; i < Tags.kinds.length; i++) {
+        for (int i = 0; i < Tags.kinds.length - 2; i++) { // skip urban and barrier kinds
             int id = resources.getIdentifier(Tags.kinds[i], "string", packageName);
             mKinds[i + 2] = id != 0 ? resources.getString(id) : Tags.kinds[i];
         }
 
         if (mUpdating || !MapTrekDatabaseHelper.hasFullTextIndex(mDatabase)) {
-            mSearchFooter.setVisibility(View.GONE);
-            mFtsWait.spin();
-            mFtsWait.setVisibility(View.VISIBLE);
-            mMessage.setText(R.string.msgWaitForFtsTable);
-            mMessage.setVisibility(View.VISIBLE);
+            mViews.searchFooter.setVisibility(View.GONE);
+            mViews.ftsWait.spin();
+            mViews.ftsWait.setVisibility(View.VISIBLE);
+            mViews.message.setText(R.string.msgWaitForFtsTable);
+            mViews.message.setVisibility(View.VISIBLE);
 
             if (!mUpdating) {
                 mUpdating = true;
@@ -221,7 +208,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 mBackgroundHandler.post(this::hideProgress);
             }
         } else {
-            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
+            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mViews.searchFooter, false);
         }
     }
 
@@ -254,6 +241,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mFeatureActionListener = null;
         mLocationListener = null;
         mMapHolder = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViews = null;
     }
 
     @Override
@@ -295,24 +288,24 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         if (activity == null)
             return;
         activity.runOnUiThread(() -> {
-            mFtsWait.setVisibility(View.GONE);
-            mFtsWait.stopSpinning();
-            mMessage.setVisibility(View.GONE);
-            mSearchFooter.setVisibility(View.VISIBLE);
-            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mSearchFooter, false);
+            mViews.ftsWait.setVisibility(View.GONE);
+            mViews.ftsWait.stopSpinning();
+            mViews.message.setVisibility(View.GONE);
+            mViews.searchFooter.setVisibility(View.VISIBLE);
+            HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_TEXT_SEARCH, R.string.advice_text_search, mViews.searchFooter, false);
         });
     }
 
     @Override
     public void onClick(View view) {
-        if (view != mFilterButton)
+        if (view != mViews.filterButton)
             return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setSingleChoiceItems(mKinds, mSelectedKind, (dialog, which) -> {
             dialog.dismiss();
             boolean changed = which != mSelectedKind;
             mSelectedKind = which;
-            mFilterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+            mViews.filterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
             if (changed && mText != null)
                 search();
         });
@@ -347,9 +340,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 " INNER JOIN features ON (feature_names.id = features.id)" +
                 " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter + orderBy +
                 " LIMIT 200";
-        mFilterButton.setImageResource(R.drawable.ic_hourglass_empty);
-        mFilterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
-        mFilterButton.setOnClickListener(null);
+        mViews.filterButton.setImageResource(R.drawable.ic_hourglass_empty);
+        mViews.filterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
+        mViews.filterButton.setOnClickListener(null);
         final Message m = Message.obtain(mBackgroundHandler, () -> {
             if (mCancellationSignal != null)
                 mCancellationSignal.cancel();
@@ -376,9 +369,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                     }
                 }
                 mAdapter.changeCursor(resultCursor);
-                mFilterButton.setImageResource(R.drawable.ic_filter);
-                mFilterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
-                mFilterButton.setOnClickListener(TextSearchFragment.this);
+                mViews.filterButton.setImageResource(R.drawable.ic_filter);
+                mViews.filterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+                mViews.filterButton.setOnClickListener(TextSearchFragment.this);
                 updateListHeight();
             });
         });
@@ -532,7 +525,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                         if (Tags.typeTags[i] != null)
                             elements.add(i);
                     notifyDataSetChanged();
-                    mQuickFiltersList.smoothScrollToPosition(0);
+                    mViews.quickFilters.smoothScrollToPosition(0);
                 }
             });
         }

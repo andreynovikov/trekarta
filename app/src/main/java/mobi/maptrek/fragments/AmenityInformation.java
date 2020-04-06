@@ -16,6 +16,7 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -24,11 +25,16 @@ import android.graphics.Rect;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import android.telephony.PhoneNumberUtils;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -38,7 +44,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
@@ -51,6 +56,7 @@ import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Amenity;
+import mobi.maptrek.databinding.FragmentAmenityInformationBinding;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.ResUtils;
@@ -68,6 +74,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     private double mLongitude;
     private int mLang;
 
+    private FragmentAmenityInformationBinding mViews;
     private BottomSheetBehavior mBottomSheetBehavior;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
@@ -79,8 +86,8 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_amenity_information, container, false);
-
+        mViews = FragmentAmenityInformationBinding.inflate(inflater, container, false);
+        final ViewGroup rootView = (ViewGroup) mViews.getRoot();
         rootView.post(() -> {
             updatePeekHeight(rootView, false);
             int panelState = BottomSheetBehavior.STATE_COLLAPSED;
@@ -199,6 +206,12 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViews = null;
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
@@ -218,184 +231,135 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void updateAmenityInformation(double latitude, double longitude) {
-        final View rootView = getView();
-        assert rootView != null;
         final Activity activity = getActivity();
         boolean hasName = mAmenity.name != null;
         String type = mAmenity.type != -1 ? getString(mAmenity.type) : "";
 
-        TextView nameView = rootView.findViewById(R.id.name);
-        if (nameView != null) {
-            nameView.setText(hasName ? mAmenity.name : type);
+        mViews.name.setText(hasName ? mAmenity.name : type);
+
+        if (!hasName || mAmenity.type == -1) {
+            mViews.type.setVisibility(View.GONE);
+        } else {
+            mViews.type.setVisibility(View.VISIBLE);
+            mViews.type.setText(type);
         }
 
-        TextView typeView = rootView.findViewById(R.id.type);
-        if (typeView != null) {
-            if (!hasName || mAmenity.type == -1) {
-                typeView.setVisibility(View.GONE);
-            } else {
-                typeView.setVisibility(View.VISIBLE);
-                typeView.setText(type);
-            }
-        }
-
-        View kindRow = rootView.findViewById(R.id.kindRow);
         if ("".equals(mAmenity.kind)) {
-            if (kindRow != null)
-                kindRow.setVisibility(View.GONE);
+            mViews.kindRow.setVisibility(View.GONE);
         } else {
-            if (kindRow != null)
-                kindRow.setVisibility(View.VISIBLE);
-            TextView kindView = rootView.findViewById(R.id.kind);
-            if (kindView != null) {
-                Resources resources = activity.getResources();
-                int id = resources.getIdentifier(mAmenity.kind, "string", activity.getPackageName());
-                kindView.setText(resources.getString(id));
-            }
+            mViews.kindRow.setVisibility(View.VISIBLE);
+            Resources resources = activity.getResources();
+            int id = resources.getIdentifier(mAmenity.kind, "string", activity.getPackageName());
+            mViews.kind.setText(resources.getString(id));
         }
-        ImageView iconView = rootView.findViewById(R.id.icon);
-        if (iconView != null) {
-            @DrawableRes int icon = ResUtils.getKindIcon(mAmenity.kindNumber);
-            if (icon == 0)
-                icon = R.drawable.ic_place;
-            iconView.setImageResource(icon);
-        }
+        @DrawableRes int icon = ResUtils.getKindIcon(mAmenity.kindNumber);
+        if (icon == 0)
+            icon = R.drawable.ic_place;
+        mViews.icon.setImageResource(icon);
 
-        View openingHoursRow = rootView.findViewById(R.id.openingHoursRow);
         if (mAmenity.openingHours == null) {
-            if (openingHoursRow != null)
-                openingHoursRow.setVisibility(View.GONE);
+            mViews.openingHoursRow.setVisibility(View.GONE);
         } else {
-            if (openingHoursRow != null)
-                openingHoursRow.setVisibility(View.VISIBLE);
-            TextView openingHoursView = rootView.findViewById(R.id.openingHours);
-            if (openingHoursView != null) {
-                openingHoursView.setText(mAmenity.openingHours);
-            }
+            mViews.openingHoursRow.setVisibility(View.VISIBLE);
+            mViews.openingHours.setText(mAmenity.openingHours);
         }
 
-        View phoneRow = rootView.findViewById(R.id.phoneRow);
         if (mAmenity.phone == null) {
-            if (phoneRow != null)
-                phoneRow.setVisibility(View.GONE);
+            mViews.phoneRow.setVisibility(View.GONE);
         } else {
-            if (phoneRow != null)
-                phoneRow.setVisibility(View.VISIBLE);
-            TextView phoneView = rootView.findViewById(R.id.phone);
-            if (phoneView != null) {
-                phoneView.setText(PhoneNumberUtils.formatNumber(mAmenity.phone, Locale.getDefault().getCountry()));
-            }
+            mViews.phoneRow.setVisibility(View.VISIBLE);
+            mViews.phone.setText(PhoneNumberUtils.formatNumber(mAmenity.phone, Locale.getDefault().getCountry()));
         }
 
-        View websiteRow = rootView.findViewById(R.id.websiteRow);
         if (mAmenity.website == null) {
-            if (websiteRow != null)
-                websiteRow.setVisibility(View.GONE);
+            mViews.websiteRow.setVisibility(View.GONE);
         } else {
-            if (websiteRow != null)
-                websiteRow.setVisibility(View.VISIBLE);
-            TextView websiteView = rootView.findViewById(R.id.website);
-            if (websiteView != null) {
-                String website = mAmenity.website;
-                if (!website.startsWith("http"))
-                    website = "http://" + website;
-                String url = website;
-                website = website.replaceFirst("https?://", "");
-                url = "<a href=\"" + url + "\">" + website + "</a>";
-                websiteView.setMovementMethod(LinkMovementMethod.getInstance());
-                websiteView.setText(Html.fromHtml(url));
-            }
+            mViews.websiteRow.setVisibility(View.VISIBLE);
+            String website = mAmenity.website;
+            if (!website.startsWith("http"))
+                website = "http://" + website;
+            String url = website;
+            website = website.replaceFirst("https?://", "");
+            url = "<a href=\"" + url + "\">" + website + "</a>";
+            mViews.website.setMovementMethod(LinkMovementMethod.getInstance());
+            mViews.website.setText(Html.fromHtml(url));
         }
 
-        View wikipediaRow = rootView.findViewById(R.id.wikipediaRow);
         if (mAmenity.wikipedia == null) {
-            if (wikipediaRow != null)
-                wikipediaRow.setVisibility(View.GONE);
+            mViews.wikipediaRow.setVisibility(View.GONE);
         } else {
-            if (wikipediaRow != null)
-                wikipediaRow.setVisibility(View.VISIBLE);
-            TextView wikipediaView = rootView.findViewById(R.id.wikipedia);
-            if (wikipediaView != null) {
-                int i = mAmenity.wikipedia.indexOf(':');
-                String prefix, text;
-                if (i > 0) {
-                    prefix = mAmenity.wikipedia.substring(0, i) + ".";
-                    text = mAmenity.wikipedia.substring(i + 1);
-                } else {
-                    prefix = "";
-                    text = mAmenity.wikipedia;
-                }
-                String url = "<a href=\"https://" + prefix + "m.wikipedia.org/wiki/" +
-                            Uri.encode(text, ALLOWED_URI_CHARS) + "\">" + text + "</a>";
-                wikipediaView.setMovementMethod(LinkMovementMethod.getInstance());
-                wikipediaView.setText(Html.fromHtml(url));
+            mViews.wikipediaRow.setVisibility(View.VISIBLE);
+            int i = mAmenity.wikipedia.indexOf(':');
+            String prefix, text;
+            if (i > 0) {
+                prefix = mAmenity.wikipedia.substring(0, i) + ".";
+                text = mAmenity.wikipedia.substring(i + 1);
+            } else {
+                prefix = "";
+                text = mAmenity.wikipedia;
             }
+            String url = "<a href=\"https://" + prefix + "m.wikipedia.org/wiki/" +
+                    Uri.encode(text, ALLOWED_URI_CHARS) + "\">" + text + "</a>";
+            mViews.wikipedia.setMovementMethod(LinkMovementMethod.getInstance());
+            mViews.wikipedia.setText(Html.fromHtml(url));
         }
 
-        TextView destinationView = rootView.findViewById(R.id.destination);
         if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-            if (destinationView != null)
-                destinationView.setVisibility(View.GONE);
+            mViews.destination.setVisibility(View.GONE);
         } else {
             GeoPoint point = new GeoPoint(latitude, longitude);
             double dist = point.vincentyDistance(mAmenity.coordinates);
             double bearing = point.bearingTo(mAmenity.coordinates);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            if (destinationView != null) {
-                destinationView.setVisibility(View.VISIBLE);
-                destinationView.setTag(true);
-                destinationView.setText(distance);
-            }
+            mViews.destination.setVisibility(View.VISIBLE);
+            mViews.destination.setTag(true);
+            mViews.destination.setText(distance);
         }
 
-        final TextView coordsView = rootView.findViewById(R.id.coordinates);
-        if (coordsView != null) {
-            coordsView.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
+        mViews.coordinates.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
 
-            if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)) {
-                // We need this very bulky code to wait until layout is settled and keyboard is completely hidden
-                // otherwise we get wrong position for advice
-                ViewTreeObserver vto = rootView.getViewTreeObserver();
-                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        rootView.postDelayed(() -> {
-                            if (isVisible()) {
-                                Rect r = new Rect();
-                                coordsView.getGlobalVisibleRect(r);
-                                HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
-                            }
-                        }, 1000);
-                    }
-                });
-            }
-
-            coordsView.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
-                        mMapHolder.shareLocation(mAmenity.coordinates, mAmenity.name);
-                    } else {
-                        StringFormatter.coordinateFormat++;
-                        if (StringFormatter.coordinateFormat == 5)
-                            StringFormatter.coordinateFormat = 0;
-                        coordsView.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
-                        Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
-                    }
+        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)) {
+            // We need this very bulky code to wait until layout is settled and keyboard is completely hidden
+            // otherwise we get wrong position for advice
+            final View rootView = mViews.getRoot();
+            ViewTreeObserver vto = rootView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    rootView.postDelayed(() -> {
+                        if (isVisible()) {
+                            Rect r = new Rect();
+                            mViews.coordinates.getGlobalVisibleRect(r);
+                            HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
+                        }
+                    }, 1000);
                 }
-                return true;
             });
         }
 
-        TextView elevationView = rootView.findViewById(R.id.elevation);
-        if (elevationView != null) {
-            if (mAmenity.altitude != Integer.MIN_VALUE) {
-                elevationView.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mAmenity.altitude)));
-                elevationView.setVisibility(View.VISIBLE);
-            } else {
-                elevationView.setVisibility(View.GONE);
+        mViews.coordinates.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getX() >= mViews.coordinates.getRight() - mViews.coordinates.getTotalPaddingRight()) {
+                    mMapHolder.shareLocation(mAmenity.coordinates, mAmenity.name);
+                } else {
+                    StringFormatter.coordinateFormat++;
+                    if (StringFormatter.coordinateFormat == 5)
+                        StringFormatter.coordinateFormat = 0;
+                    mViews.coordinates.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
+                    Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
+                }
             }
+            return true;
+        });
+
+        if (mAmenity.altitude != Integer.MIN_VALUE) {
+            mViews.elevation.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mAmenity.altitude)));
+            mViews.elevation.setVisibility(View.VISIBLE);
+        } else {
+            mViews.elevation.setVisibility(View.GONE);
         }
 
         mLatitude = latitude;
