@@ -34,7 +34,6 @@ import com.getkeepsafe.taptargetview.TapTargetView;
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
-import mobi.maptrek.ui.SnackbarHelper;
 
 public class HelperUtils {
     private static boolean isShowingTargetedAdvice = false;
@@ -45,7 +44,6 @@ public class HelperUtils {
         snackbar.setAction(R.string.actionDismiss, view -> snackbar.dismiss());
         TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
         snackbarTextView.setMaxLines(99);
-        SnackbarHelper.configureSnackbar(snackbar);
         snackbar.show();
     }
 
@@ -61,7 +59,6 @@ public class HelperUtils {
                     .setAction(R.string.ok, view -> Configuration.setAdviceState(advice));
             TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
             snackbarTextView.setMaxLines(99);
-            SnackbarHelper.configureSnackbar(snackbar);
             snackbar.show();
         }
     }

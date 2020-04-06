@@ -46,8 +46,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -222,7 +220,6 @@ import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.provider.ExportProvider;
-import mobi.maptrek.ui.SnackbarHelper;
 import mobi.maptrek.ui.SoftInputAssist;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
@@ -337,6 +334,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private GaugePanel mGaugePanel;
     private TextView mSatellitesText;
     private View mMapButtonHolder;
+    private View mActionPanel;
     private ImageButton mLocationButton;
     private ImageButton mRecordButton;
     private ImageButton mPlacesButton;
@@ -522,6 +520,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mGaugePanel.setMapHolder(this);
 
         mSatellitesText = findViewById(R.id.satellites);
+        mActionPanel = findViewById(R.id.actionPanel);
         mMapButtonHolder = findViewById(R.id.mapButtonHolder);
         mHighlightedTypeView = findViewById(R.id.highlightedType);
         mCompassView = findViewById(R.id.compass);
@@ -895,9 +894,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
-            Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG);
-            SnackbarHelper.configureSnackbar(snackbar);
-            snackbar.show();
+            Snackbar.make(mCoordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
+                    .setAnchorView(mActionPanel)
+                    .show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
             if (uri == null)
@@ -1440,7 +1439,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         });
                 TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
                 snackbarTextView.setMaxLines(99);
-                SnackbarHelper.configureSnackbar(snackbar);
                 snackbar.show();
                 return true;
             }
@@ -2495,11 +2493,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.updateMap(true);
         if (!customize)
             return;
-        Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
-                .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint));
-        SnackbarHelper.configureSnackbar(snackbar);
-        snackbar.show();
+        Snackbar.make(mCoordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
+                .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint))
+                .setAnchorView(mActionPanel)
+                .show();
     }
 
     @Override
@@ -2598,8 +2595,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Show undo snackbar
         //noinspection deprecation
-        Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
+        Snackbar.make(mCoordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2618,9 +2614,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     addWaypointMarker(waypoint);
                     mMap.updateMap(true);
                     mDeletedWaypoints = null;
-                });
-        SnackbarHelper.configureSnackbar(snackbar);
-        snackbar.show();
+                })
+                .setAnchorView(mActionPanel)
+                .show();
     }
 
     @Override
@@ -2636,8 +2632,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = waypoints.size();
         String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
         //noinspection deprecation
-        Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+        Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2658,9 +2653,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                     mMap.updateMap(true);
                     mDeletedWaypoints = null;
-                });
-        SnackbarHelper.configureSnackbar(snackbar);
-        snackbar.show();
+                })
+                .setAnchorView(mActionPanel)
+                .show();
     }
 
     @Override
@@ -2843,8 +2838,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Show undo snackbar
         //noinspection deprecation
-        Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
+        Snackbar.make(mCoordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2865,9 +2859,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     mMap.layers().add(trackLayer, MAP_DATA);
                     mMap.updateMap(true);
                     mDeletedTracks = null;
-                });
-        SnackbarHelper.configureSnackbar(snackbar);
-        snackbar.show();
+                })
+                .setAnchorView(mActionPanel)
+                .show();
     }
 
     @Override
@@ -2890,8 +2884,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = tracks.size();
         String msg = getResources().getQuantityString(R.plurals.tracksDeleted, count, count);
         //noinspection deprecation
-        Snackbar snackbar = Snackbar
-                .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+        Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -2914,9 +2907,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
                     mMap.updateMap(true);
                     mDeletedTracks = null;
-                });
-        SnackbarHelper.configureSnackbar(snackbar);
-        snackbar.show();
+                })
+                .setAnchorView(mActionPanel)
+                .show();
     }
 
     @Override
@@ -3773,12 +3766,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             area.left = scaleBarOffset;
                     }
 
-                    View v = findViewById(R.id.actionPanel);
-                    if (v != null) {
+                    if (mActionPanel != null) {
                         if (mVerticalOrientation)
-                            area.bottom = v.getTop();
+                            area.bottom = mActionPanel.getTop();
                         else
-                            area.right = v.getLeft();
+                            area.right = mActionPanel.getLeft();
                     }
                     if (mPanelState != PANEL_STATE.NONE) {
                         if (mVerticalOrientation)
@@ -3913,8 +3905,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
                     //noinspection deprecation
-                    Snackbar snackbar = Snackbar
-                            .make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
+                    Snackbar.make(mCoordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionCustomize, view -> onTrackProperties(extras.getString("path")))
                             .setCallback(new Snackbar.Callback() {
                                 @Override
@@ -3922,20 +3913,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                                     if (event != DISMISS_EVENT_ACTION)
                                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mRecordButton, false);
                                 }
-                            });
-                    SnackbarHelper.configureSnackbar(snackbar);
-                    snackbar.show();
+                            })
+                            .setAnchorView(mActionPanel)
+                            .show();
                     return;
                 }
                 String reason = extras != null ? extras.getString("reason") : null;
                 logger.warn("Track not saved: {}", reason);
                 if ("period".equals(reason) || "distance".equals(reason)) {
                     int msg = "period".equals(reason) ? R.string.msgTrackNotSavedPeriod : R.string.msgTrackNotSavedDistance;
-                    Snackbar snackbar = Snackbar
-                            .make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.actionSave, view -> mLocationService.saveTrack());
-                    SnackbarHelper.configureSnackbar(snackbar);
-                    snackbar.show();
+                    Snackbar.make(mCoordinatorLayout, msg, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.actionSave, view -> mLocationService.saveTrack())
+                            .setAnchorView(mActionPanel)
+                            .show();
                 } else {
                     Exception e = extras != null ? (Exception) extras.getSerializable("exception") : null;
                     if (e == null)

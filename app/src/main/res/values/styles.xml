@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorSurface">@color/colorBackground</item>
+        <item name="colorOnSurface">@color/textColorPrimary</item>
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="android:textColorPrimary">@color/primary_text_color_selector</item>
         <item name="android:textColorSecondary">@color/secondary_text_color_selector</item>
@@ -15,6 +17,12 @@
         <item name="dragHandleColor">@color/dragHandle</item>
         <item name="informationIconColor">@color/informationIconColor</item>
         <item name="actionIconColor">@color/actionIconColor</item>
+        <item name="snackbarStyle">@style/AppSnackbar</item>
+    </style>
+
+    <style name="AppSnackbar" parent="@style/Widget.MaterialComponents.Snackbar">
+        <item name="android:layout_margin">16dp</item>
+        <item name="android:elevation">8dp</item>
     </style>
 
     <style name="DialogContent">
