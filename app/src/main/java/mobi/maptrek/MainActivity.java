@@ -1884,6 +1884,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void enableLocations() {
+        if (!LocationService.isGpsProviderEnabled(this)) {
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.msgEnableGps)
+                    .setPositiveButton(getString(R.string.actionSettings), (dialog, which) -> {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    })
+                    .setNegativeButton(getString(R.string.cancel), (dialog, which) -> {})
+                    .show();
+            return;
+        }
+
         mIsLocationBound = bindService(new Intent(getApplicationContext(), LocationService.class), mLocationConnection, BIND_AUTO_CREATE);
         mLocationState = LocationState.SEARCHING;
         if (mSavedLocationState == LocationState.DISABLED) {

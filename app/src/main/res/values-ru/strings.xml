@@ -660,4 +660,10 @@
     <string name="kind_healthbeauty">Красота и здоровье</string>
     <string name="legend_chalet">Коттедж</string>
     <string name="legend_railway_service">Второстепенный путь</string>
+    <string name="routes">Маршруты</string>
+    <string name="actionFindRouteHere">Найти маршрут сюда</string>
+    <string name="msgMultipleMapsMode">Активирован режим нескольких карт. Используйте двойное нажатие, чтобы отобразить или спрятать карту.</string>
+    <string name="advice_select_multiple_maps">Используйте двойное нажатие, чтобы отобразить несколько карт</string>
+    <string name="whatsNewTitle">Что нового</string>
+    <string name="msgEnableGps">Вам необходимо включить точное местоположение (GPS) в настройках Android, чтобы использовать определение местоположения в реальном времени</string>
 </resources>

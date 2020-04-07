@@ -226,6 +226,14 @@ public class LocationService extends BaseLocationService implements LocationList
         }
     }
 
+    public static boolean isGpsProviderEnabled(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        }
+        return false;
+    }
+
     private void connect() {
         logger.debug("connect()");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

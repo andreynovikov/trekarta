@@ -169,6 +169,7 @@
     <string name="msgNotEnoughSpaceOnDestinationStorage">not enough space on destination storage</string>
     <string name="msgFileMoveError">file move error</string>
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
+    <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
@@ -676,5 +677,6 @@
     <string name="legend_highway_services">Travel plaza</string>
     <string name="legend_embankment">Embankment</string>
     <string name="legend_railway_service">Service railway</string>
+    <string name="whatsNewTitle">What\'s New</string>
 
 </resources>
