@@ -183,6 +183,7 @@ import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
+import mobi.maptrek.fragments.WhatsNewDialog;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.layers.CrosshairLayer;
@@ -1007,6 +1008,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
+        } else {
+            WhatsNewDialog dialogFragment = new WhatsNewDialog();
+            dialogFragment.show(mFragmentManager, "whatsNew");
         }
 
         if (Configuration.getHideSystemUI())
@@ -1253,7 +1257,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case R.id.actionAmenityZooms: {
                 AmenitySetupDialog.Builder builder = new AmenitySetupDialog.Builder();
                 AmenitySetupDialog dialog = builder.setCallback(this).create();
-                dialog.show(getFragmentManager(), "amenitySetup");
+                dialog.show(mFragmentManager, "amenitySetup");
                 return true;
             }
             case R.id.actionOtherFeatures: {

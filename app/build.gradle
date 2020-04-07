@@ -24,6 +24,10 @@ android {
         enabled = true
     }
 
+    aaptOptions {
+        additionalParameters "--keep-raw-values"
+    }
+
     lintOptions {
         checkReleaseBuilds true
         abortOnError true

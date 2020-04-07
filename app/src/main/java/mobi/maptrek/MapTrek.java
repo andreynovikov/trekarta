@@ -26,6 +26,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -84,6 +85,7 @@ public class MapTrek extends Application {
 
     public static float density = 1f;
     public static float ydpi = 160f;
+    public static int versionCode = 0;
 
     public static boolean isMainActivityRunning = false;
 
@@ -116,6 +118,13 @@ public class MapTrek extends Application {
     public void onCreate() {
         super.onCreate();
         mSelf = this;
+
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            logger.error("Failed to get version", e);
+        }
+
         File cacheDir = getExternalCacheDir();
         File exportDir = new File(cacheDir, "export");
         if (!exportDir.exists())

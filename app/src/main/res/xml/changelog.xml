@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog>
+    <release version="2020.04" versioncode="76" date="08.04.2020">
+        <change>Search for unnamed and specific amenities</change>
+        <change variant="full">Ability to show multiple user maps</change>
+        <change variant="full">Fixed disappearing of user maps</change>
+    </release>
+    <release version="2019.11" versioncode="75" date="27.11.2019">
+        <change>Health and beauty amenity group</change>
+        <change>New amenities: art gallery, holiday cottage, embassy, dentist office, massage shop, horse riding</change>
+        <change>New map objects: marina, highway services, rest area, embankment, kissing gate, stile, fire pit, weir, intermittent rivers and streams, insignificant railways</change>
+        <change>Added the most basic support for KMZ files</change>
+        <change>Fixed failure to open some KML files</change>
+        <change>Adaptive application icon</change>
+        <change>Various fixes and performance improvements</change>
+    </release>
+    <release version="2019.10" versioncode="74" date="31.10.2019">
+        <change>Amenities can be tapped for extended information, requires maps update</change>
+        <change>Statue, bust, plague, stone, wayside shrine amenities</change>
+        <change>Reworked hiking path SAC scale and visibility style</change>
+        <change>Fixed inability to import tracks and maps on some devices</change>
+    </release>
+    <release version="2019.09" versioncode="71" date="15.09.2019">
+        <change variant="full">Simplified night map theme designed to make long night journeys more comfortable</change>
+        <change>Map legend that adjusts to selected activity and map kind</change>
+        <change>Forest and field roads are now classified by smoothness</change>
+        <change>New amenities: boat rental, amusement center, archaeological site, beach resort, sauna, shower, ferry terminal</change>
+        <change>Many amendments to map style</change>
+    </release>
+    <release version="2019.07" versioncode="68" date="26.07.2019">
+        <change>Multi-line labels</change>
+        <change>Fixed various UI issues and crashes</change>
+    </release>
+</changelog>

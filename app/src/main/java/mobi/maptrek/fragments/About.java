@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2020 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,50 +25,56 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 import mobi.maptrek.BuildConfig;
+import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
+import mobi.maptrek.databinding.FragmentAboutBinding;
 
 public class About extends Fragment {
+    private FragmentAboutBinding mViews;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_about, container, false);
-        updateAboutInfo(view);
-        return view;
+        mViews = FragmentAboutBinding.inflate(inflater, container, false);
+        updateAboutInfo();
+        return mViews.getRoot();
     }
 
-    private void updateAboutInfo(final View view) {
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViews = null;
+    }
+
+    private void updateAboutInfo() {
         // version
         String versionName;
-        int versionBuild = 0;
         try {
             versionName = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName;
-            versionBuild = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionCode;
-        } catch (PackageManager.NameNotFoundException ex) {
+        } catch (PackageManager.NameNotFoundException e) {
             versionName = "unknown";
         }
-        final TextView version = view.findViewById(R.id.version);
         if (BuildConfig.DEBUG) {
-            version.setText(getString(R.string.version, Integer.toString(versionBuild)));
+            mViews.version.setText(getString(R.string.version, Integer.toString(MapTrek.versionCode)));
         } else {
-            version.setText(getString(R.string.version, versionName));
+            mViews.version.setText(getString(R.string.version, versionName));
         }
 
         // Links
-        final TextView homeLinks = view.findViewById(R.id.links);
         String links = "<a href=\"" +
                 "https://trekarta.info/" +
                 "\">" +
                 "https://trekarta.info/" +
                 "</a>";
-        homeLinks.setText(Html.fromHtml(links));
-        homeLinks.setMovementMethod(LinkMovementMethod.getInstance());
+        mViews.links.setText(Html.fromHtml(links));
+        mViews.links.setMovementMethod(LinkMovementMethod.getInstance());
 
         /*
         // Donations
@@ -93,7 +99,7 @@ public class About extends Fragment {
         InputStream is = resources.openRawResource(R.raw.license);
         final char[] buffer = new char[100];
         StringBuilder out = new StringBuilder();
-        try (Reader in = new InputStreamReader(is, "UTF-8")) {
+        try (Reader in = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             for (; ; ) {
                 int rsz = in.read(buffer, 0, buffer.length);
                 if (rsz < 0)
@@ -104,14 +110,13 @@ public class About extends Fragment {
             e.printStackTrace();
         }
 
-        final TextView license = view.findViewById(R.id.license);
-        license.setText(Html.fromHtml(out.toString()));
-        license.setMovementMethod(LinkMovementMethod.getInstance());
+        mViews.license.setText(Html.fromHtml(out.toString()));
+        mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
         // Credits
         is = resources.openRawResource(R.raw.credits);
         out = new StringBuilder();
-        try (Reader in = new InputStreamReader(is, "UTF-8")) {
+        try (Reader in = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             for (; ; ) {
                 int rsz = in.read(buffer, 0, buffer.length);
                 if (rsz < 0)
@@ -122,8 +127,7 @@ public class About extends Fragment {
             e.printStackTrace();
         }
 
-        final TextView credits = view.findViewById(R.id.credits);
-        credits.setText(Html.fromHtml(out.toString()));
-        credits.setMovementMethod(LinkMovementMethod.getInstance());
+        mViews.credits.setText(Html.fromHtml(out.toString()));
+        mViews.credits.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }
