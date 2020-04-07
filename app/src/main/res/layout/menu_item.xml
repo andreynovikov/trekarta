@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/icon"
@@ -12,8 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:includeFontPadding="true"
-        android:paddingEnd="4dip"
-        android:paddingStart="4dip" />
+        android:paddingStart="4dip"
+        android:paddingEnd="4dip" />
 
     <TextView
         android:id="@+id/title"
@@ -29,15 +31,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingEnd="3dip"
-        android:paddingStart="3dip" />
+        android:paddingStart="3dip"
+        android:paddingEnd="3dip" />
 
     <FrameLayout
         android:id="@+id/actionViewContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingEnd="12dip"
-        android:paddingStart="8dip" />
+        android:paddingStart="8dip"
+        android:paddingEnd="12dip" />
 
 </LinearLayout>

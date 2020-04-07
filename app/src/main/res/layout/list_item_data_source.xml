@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="@dimen/list_item_padding"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:paddingStart="?android:attr/listPreferredItemPaddingStart">
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/icon"
@@ -33,21 +34,21 @@
         android:id="@+id/filename"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_toEndOf="@id/description"
         android:ellipsize="marquee"
         android:gravity="end"
         android:singleLine="true"
-        android:textStyle="italic"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="italic" />
 
     <ImageView
         android:id="@+id/action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_above="@id/filename"
+        android:layout_alignParentEnd="true"
         android:paddingStart="@dimen/textPadding"
         android:paddingBottom="4dp"
         android:src="@drawable/ic_visibility"
@@ -60,8 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/description"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@id/icon"
         android:layout_toStartOf="@id/action"
+        android:layout_toEndOf="@id/icon"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:singleLine="true"

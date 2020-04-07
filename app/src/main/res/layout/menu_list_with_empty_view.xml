@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/menuListWidth"
     android:layout_height="wrap_content"
-    android:background="@color/panelSolidBackground">
+    android:background="@color/panelSolidBackground"
+    tools:viewBindingIgnore="true">
 
     <ListView
-        style="@style/Scrollbar"
         android:id="@android:id/list"
+        style="@style/Scrollbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="@null"
@@ -16,8 +18,8 @@
         android:id="@android:id/empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="48dp"
         android:layout_gravity="center"
+        android:padding="48dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 

@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/menuListWidth"
     android:layout_height="@dimen/mapListItemHeight"
-    android:paddingEnd="4dp"
     android:paddingStart="4dp"
-    android:paddingTop="4dp">
+    android:paddingTop="4dp"
+    android:paddingEnd="4dp"
+    tools:viewBindingIgnore="true">
 
     <mobi.maptrek.view.BitmapTileMapPreviewView
         android:id="@+id/map"

@@ -15,16 +15,18 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <ImageButton
         android:id="@+id/button"
         android:layout_width="@dimen/image_button_size_medium"
         android:layout_height="@dimen/image_button_size_medium"
+        android:layout_margin="@dimen/image_button_padding"
         android:background="@drawable/circle_light"
-        android:scaleType="center"
-        android:layout_margin="@dimen/image_button_padding"/>
+        android:scaleType="center" />
 
 </LinearLayout>
