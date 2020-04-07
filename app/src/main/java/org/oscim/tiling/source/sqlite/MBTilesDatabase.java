@@ -110,7 +110,7 @@ public class MBTilesDatabase extends SQLiteTileDatabase {
             boolean tmsSchema = schema == null || !("xyz".equals(schema) || "osm".equals(schema));
             tileSource.setOption("schema", tmsSchema ? "tms" : "xyz");
         } catch (SQLException e) {
-            return new TileSource.OpenResult(e.getMessage());
+            return new TileSource.OpenResult(e.toString());
         }
         return TileSource.OpenResult.SUCCESS;
     }

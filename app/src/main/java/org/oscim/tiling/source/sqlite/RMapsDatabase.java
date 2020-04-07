@@ -73,7 +73,7 @@ public class RMapsDatabase extends SQLiteTileDatabase {
 
             //TODO Try to fill zoom table and see what happens
         } catch (SQLException e) {
-            return new TileSource.OpenResult(e.getMessage());
+            return new TileSource.OpenResult(e.toString());
         }
         return TileSource.OpenResult.SUCCESS;
     }
