@@ -355,10 +355,12 @@ public class DataMoveActivity extends Activity {
                 if (mStopped)
                     return;
                 activity.setFinished();
-                Bundle data = new Bundle(2);
-                data.putString("source", mSource.getAbsolutePath());
-                data.putString("destination", mDestination.getAbsolutePath());
-                mProgressListener.onProgressFinished(data);
+                if (mProgressListener != null) {
+                    Bundle data = new Bundle(2);
+                    data.putString("source", mSource.getAbsolutePath());
+                    data.putString("destination", mDestination.getAbsolutePath());
+                    mProgressListener.onProgressFinished(data);
+                }
             }
         }
 

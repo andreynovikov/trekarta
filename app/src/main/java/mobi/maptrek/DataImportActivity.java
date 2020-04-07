@@ -211,10 +211,12 @@ public class DataImportActivity extends Activity {
     }
 
     private void showError(String message) {
-        mFileNameView.setText(message);
-        mProgressBar.setVisibility(View.GONE);
-        mActionButton.setText(R.string.close);
-        mActionButton.setTag(false);
+        runOnUiThread(() -> {
+            mFileNameView.setText(message);
+            mProgressBar.setVisibility(View.GONE);
+            mActionButton.setText(R.string.close);
+            mActionButton.setTag(false);
+        });
     }
 
     public static class DataImportFragment extends Fragment {
