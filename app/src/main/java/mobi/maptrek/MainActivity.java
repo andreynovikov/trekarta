@@ -1133,9 +1133,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (isFinishing()) {
             sendBroadcast(new Intent("mobi.maptrek.plugins.action.FINALIZE"));
-            for (MapFile bitmapLayerMap : mBitmapLayerMaps)
-                bitmapLayerMap.tileSource.close();
-            mBitmapLayerMaps.clear();
+            if (mBitmapLayerMaps != null) {
+                for (MapFile bitmapLayerMap : mBitmapLayerMaps)
+                    bitmapLayerMap.tileSource.close();
+                mBitmapLayerMaps.clear();
+            }
             if (mShieldFactory != null)
                 mShieldFactory.dispose();
             if (mOsmcSymbolFactory != null)

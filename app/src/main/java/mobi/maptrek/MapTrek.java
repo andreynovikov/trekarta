@@ -147,10 +147,16 @@ public class MapTrek extends Application {
 
         File[] dirs = getExternalFilesDirs(null);
         for (File dir : dirs) {
-            if (mSDCardDirectory == null && Environment.isExternalStorageRemovable(dir) &&
-                    Environment.getExternalStorageState(dir).equals(Environment.MEDIA_MOUNTED)) {
-                mSDCardDirectory = dir;
-                break;
+            if (mSDCardDirectory == null && dir != null) {
+                try {
+                    if (Environment.isExternalStorageRemovable(dir) &&
+                            Environment.getExternalStorageState(dir).equals(Environment.MEDIA_MOUNTED)) {
+                        mSDCardDirectory = dir;
+                        break;
+                    }
+                } catch (IllegalArgumentException ignore) {
+                    // directory is inaccessible
+                }
             }
         }
         // find removable external storage
