@@ -44,7 +44,7 @@ jobs:
   test-instrumentation:
     name: Run Instrumentation Tests
 
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -54,6 +54,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Make gradlew executable
       run: chmod +x ./gradlew
+    - name: Install NDK
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669"
     - name: Execute instrumentation tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
