@@ -44,7 +44,7 @@ jobs:
   test-instrumentation:
     name: Run Instrumentation Tests
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     strategy:
       matrix:
