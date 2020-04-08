@@ -87,7 +87,7 @@ public class WhatsNewDialog extends DialogFragment {
     public void show(FragmentManager manager, String tag) {
         MapTrek application = MapTrek.getApplication();
         int lastCode = Configuration.getLastSeenChangelog();
-        if (lastCode < MapTrek.versionCode) {
+        if (lastCode > 0 && lastCode < MapTrek.versionCode) {
             getChangelog(application, lastCode);
             if (mChangelog.size() > 0)
                 super.show(manager, tag);
