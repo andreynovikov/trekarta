@@ -22,10 +22,8 @@ jobs:
         java-version: 1.8
     - name: Make gradlew executable
       run: chmod +x ./gradlew
-    - name: Install NDK
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;20.0.5594570"
     - name: Build with Gradle
-      run: ./gradlew build --debug --warning-mode all
+      run: ./gradlew build --warning-mode all
 
   test-unit:
     name: Run Unit Tests
@@ -40,8 +38,6 @@ jobs:
         java-version: 1.8
     - name: Make gradlew executable
       run: chmod +x ./gradlew
-    - name: Install NDK
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;20.0.5594570"
     - name: Execute unit tests
       run: ./gradlew test --stacktrace
   
