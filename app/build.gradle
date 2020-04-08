@@ -9,8 +9,8 @@ android {
         minSdkVersion 23
         //noinspection OldTargetApi
         targetSdkVersion 28
-        versionCode 75
-        versionName "2019.11"
+        versionCode 77
+        versionName "2020.04"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }
