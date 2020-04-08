@@ -1508,6 +1508,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return false;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public void onLocationChanged() {
         if (mLocationState == LocationState.SEARCHING) {
@@ -1573,6 +1574,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
 
+        // TODO: Fix lint error
         if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO)
             checkNightMode(location);
 

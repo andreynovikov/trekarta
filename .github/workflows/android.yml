@@ -48,14 +48,14 @@ jobs:
 
     strategy:
       matrix:
-        api-level: [23, 28]
+        api-level: [23, 28, 29]
         target: [default, google_apis]
     steps:
     - uses: actions/checkout@v1
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Execute instrumentation tests
-      uses: reactivecircus/android-emulator-runner@v2.4.0
+      uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: ${{ matrix.api-level }}
         target: ${{ matrix.target }}
