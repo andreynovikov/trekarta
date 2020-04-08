@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2020.04" versioncode="76" date="08.04.2020">
+    <release version="2020.04" versioncode="77" date="08.04.2020">
         <change>Search for unnamed and specific amenities</change>
         <change variant="full">Ability to show multiple user maps</change>
         <change variant="full">Fixed disappearing of user maps</change>

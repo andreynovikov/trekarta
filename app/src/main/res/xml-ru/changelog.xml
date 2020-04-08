@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2020.04" versioncode="76" date="08.04.2020">
+    <release version="2020.04" versioncode="77" date="08.04.2020">
         <change>Поиск безымянных и конкретных объектов</change>
         <change variant="full">Возможность отображать несколько пользовательских карт</change>
         <change variant="full">Исправлено пропадание пользовательских карт</change>
