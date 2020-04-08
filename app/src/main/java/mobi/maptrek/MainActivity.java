@@ -1889,9 +1889,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (!LocationService.isGpsProviderEnabled(this)) {
             new AlertDialog.Builder(this)
                     .setMessage(R.string.msgEnableGps)
-                    .setPositiveButton(getString(R.string.actionSettings), (dialog, which) -> {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    })
+                    .setPositiveButton(getString(R.string.actionSettings), (dialog, which) -> startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
                     .setNegativeButton(getString(R.string.cancel), (dialog, which) -> {})
                     .show();
             return;

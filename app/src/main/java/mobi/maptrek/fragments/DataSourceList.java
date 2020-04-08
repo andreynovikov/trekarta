@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Activity;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.res.Resources;
