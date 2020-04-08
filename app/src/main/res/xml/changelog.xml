@@ -4,6 +4,7 @@
         <change>Search for unnamed and specific amenities</change>
         <change variant="full">Ability to show multiple user maps</change>
         <change variant="full">Fixed disappearing of user maps</change>
+        <change variant="full">Fixed some problems with SD card management</change>
     </release>
     <release version="2019.11" versioncode="75" date="27.11.2019">
         <change>Health and beauty amenity group</change>
@@ -12,7 +13,6 @@
         <change>Added the most basic support for KMZ files</change>
         <change>Fixed failure to open some KML files</change>
         <change>Adaptive application icon</change>
-        <change>Various fixes and performance improvements</change>
     </release>
     <release version="2019.10" versioncode="74" date="31.10.2019">
         <change>Amenities can be tapped for extended information, requires maps update</change>
@@ -29,6 +29,5 @@
     </release>
     <release version="2019.07" versioncode="68" date="26.07.2019">
         <change>Multi-line labels</change>
-        <change>Fixed various UI issues and crashes</change>
     </release>
 </changelog>

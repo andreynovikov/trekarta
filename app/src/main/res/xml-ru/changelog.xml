@@ -4,6 +4,7 @@
         <change>Поиск безымянных и конкретных объектов</change>
         <change variant="full">Возможность отображать несколько пользовательских карт</change>
         <change variant="full">Исправлено пропадание пользовательских карт</change>
+        <change variant="full">Исправлены некоторые проблемы при работе с SD-картами</change>
     </release>
     <release version="2019.11" versioncode="75" date="27.11.2019">
         <change>Новая категория - Красота и здоровье</change>
@@ -12,7 +13,6 @@
         <change>Добавлена базовая поддержка файлов KMZ</change>
         <change>Исправлена ошибка чтения некоторых файлов KML</change>
         <change>Адаптивная иконка приложения</change>
-        <change>Различные исправления и улучшения производительности</change>
     </release>
     <release version="2019.10" versioncode="74" date="31.10.2019">
         <change>Расширенная информация об объектах на карте, требует обновления карт</change>
@@ -29,6 +29,5 @@
     </release>
     <release version="2019.07" versioncode="68" date="26.07.2019">
         <change>Многострочные названия</change>
-        <change>Исправлены некоторые проблемы в интерфейсе и критические ошибки</change>
     </release>
 </changelog>
