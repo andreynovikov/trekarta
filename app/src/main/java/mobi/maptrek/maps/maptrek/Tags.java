@@ -402,7 +402,7 @@ public class Tags {
             new Tag("railway", "tram_stop"), // 249
             new Tag("amenity", "bicycle_rental"), // 250
             null, null,
-            null, // new Tag("amenity", "drinking_water"), // 253
+            new Tag("amenity", "drinking_water"), // 253
             null, null,
             new Tag("amenity", "shelter"), // 256
             null, null,

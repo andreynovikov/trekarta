@@ -486,6 +486,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         QuickFilterAdapter(Context context) {
             this.context = context;
             this.elements = new ArrayList<>();
+            this.elements.add(253); // drinking water
             this.elements.add(259); // toilets
             this.elements.add(130); // emergency phone
             this.elements.add(256); // shelter
