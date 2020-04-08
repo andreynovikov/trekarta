@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -258,12 +259,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.quit();
         mBackgroundThread = null;
-        for (int i = 0; i < mTypeIconCache.size(); i++) {
-            Drawable drawable = mTypeIconCache.get(i);
+        Collection<Drawable> drawables = mTypeIconCache.values();
+        mTypeIconCache.clear();
+        for (Drawable drawable : drawables) {
             if (drawable instanceof BitmapDrawable)
                 ((BitmapDrawable)drawable).getBitmap().recycle();
         }
-        mTypeIconCache.clear();
     }
 
     @Override
