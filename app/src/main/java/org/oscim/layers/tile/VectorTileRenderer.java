@@ -210,7 +210,7 @@ public class VectorTileRenderer extends TileRenderer {
                     b = LineBucket.Renderer.draw(b, v, scale, buckets);
                     break;
                 case TEXLINE:
-                    b = LineTexBucket.Renderer.draw(b, v, zoomDiv, buckets);
+                    b = LineTexBucket.Renderer.draw(b, v, scale, zoomDiv, buckets);
                     break;
                 case MESH:
                     b = MeshBucket.Renderer.draw(b, v);

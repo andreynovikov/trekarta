@@ -124,6 +124,7 @@ public class BucketRenderer extends LayerRenderer {
                 case TEXLINE:
                     b = LineTexBucket.Renderer.draw(b,
                             v,
+                            div,
                             FastMath.pow(layerPos.zoomLevel - v.pos.zoomLevel) * (float) layerPos.getZoomScale(),
                             buckets);
                     break;

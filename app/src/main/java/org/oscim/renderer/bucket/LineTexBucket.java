@@ -325,7 +325,7 @@ public final class LineTexBucket extends LineBucket {
         private final static int LEN_OFFSET = 8;
 
         public static RenderBucket draw(RenderBucket b, GLViewport v,
-                                        float div, RenderBuckets buckets) {
+                                        float scale, float div, RenderBuckets buckets) {
 
             GLState.blend(true);
             shader.useProgram();
@@ -354,14 +354,14 @@ public final class LineTexBucket extends LineBucket {
 
             buckets.vbo.bind();
 
-            float scale = (float) v.pos.getZoomScale();
-            float s = scale / div;
+            float s = (float) v.pos.getZoomScale() / div;
 
             for (; b != null && b.type == TEXLINE; b = b.next) {
                 LineTexBucket lb = (LineTexBucket) b;
                 LineStyle line = lb.line.current();
 
-                gl.uniform1i(shader.uMode, line.dashArray != null ? 2 : (line.texture != null ? 1 : 0));
+                int mode = line.dashArray != null ? 2 : (line.texture != null ? 1 : 0);
+                gl.uniform1i(shader.uMode, mode);
 
                 if (line.texture != null)
                     line.texture.bind();
@@ -381,16 +381,19 @@ public final class LineTexBucket extends LineBucket {
                     pScale = line.stipple * cnt;
                 }
 
-                //log.debug("pScale {} {}", pScale, s);
-
                 gl.uniform1f(shader.uPatternScale, COORD_SCALE * pScale);
 
                 gl.uniform1f(shader.uPatternWidth, line.stippleWidth);
 
                 gl.uniform1f(shader.uPatternRatio, 1f - line.stippleRatio);
 
-                /* keep line width fixed */
-                gl.uniform1f(shader.uWidth, (lb.scale * line.width) / s * COORD_SCALE_BY_DIR_SCALE);
+                if (mode > 0 || line.fixed) {
+                    /* keep line width fixed */
+                    gl.uniform1f(shader.uWidth, (lb.scale * line.width) / s * COORD_SCALE_BY_DIR_SCALE);
+                } else {
+                    double variableScale = Math.sqrt(scale);
+                    gl.uniform1f(shader.uWidth, (float) (lb.scale * line.width / variableScale * COORD_SCALE_BY_DIR_SCALE));
+                }
 
                 /* add offset vertex */
                 int vOffset = -STRIDE;
