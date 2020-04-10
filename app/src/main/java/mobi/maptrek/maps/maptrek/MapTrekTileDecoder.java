@@ -557,7 +557,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             int idx = tagIds[i];
 
             if (idx < 0 || idx > max) {
-                log.error("{} invalid tag: {}", mTile, idx, i);
+                log.error("{} invalid tag: {} {}", mTile, idx, i);
                 return false;
             }
             Tag tag = mTileTags.get(idx);

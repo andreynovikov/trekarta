@@ -16,6 +16,8 @@
 
 package mobi.maptrek.maps.maptrek;
 
+import androidx.annotation.NonNull;
+
 import org.oscim.core.MapElement;
 import org.oscim.theme.IRenderTheme;
 
@@ -102,6 +104,7 @@ public class ExtendedMapElement extends MapElement {
         return isBuildingPart && !isBuilding;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return id + " (" + kind + "): " + super.toString() + '\n';
