@@ -222,9 +222,6 @@ class MapTrekDataSource implements ITileDataSource {
                 //TODO Find a better solution to hide subway platforms
                 if ("platform".equals(element.tags.getValue("railway")))
                     return;
-                //TODO Properly process tunnels (requires changes to VTM)
-                if (element.tags.containsKey("tunnel"))
-                    element.layer = 5;
             }
 
             // Convert tree points to polygons

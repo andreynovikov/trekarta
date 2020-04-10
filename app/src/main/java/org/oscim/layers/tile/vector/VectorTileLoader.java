@@ -210,7 +210,8 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
         if (element.type == GeometryType.POINT) {
             renderNode(renderTheme.matchElement(element.type, tags, mTile.zoomLevel));
         } else {
-            mCurBucket = getValidLayer(element.layer) * renderTheme.getLevels();
+            int shift = element.type == GeometryType.LINE ? 10 : 0; // Draw lines above areas
+            mCurBucket = (getValidLayer(element.layer) + shift) * renderTheme.getLevels();
             renderWay(renderTheme.matchElement(element.type, tags, mTile.zoomLevel));
         }
         clearState();
