@@ -28,46 +28,61 @@
                         <!-- highway tunnels -->
                         <m k="highway">
                             <m cat="pedestrian" v="footway">
-                                <!--TODO Add stipple outline -->
-                                <line use="footway" />
+                                <line stipple="6" use="footway" width="2.0" />
+                                <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m cat="pedestrian" v="path">
-                                <!--TODO Add stipple outline -->
-                                <line use="path" />
+                                <line stipple="6" use="path" width="2.0" />
+                                <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m v="bridleway">
-                                <!--TODO Add stipple outline -->
-                                <line use="bridleway" />
+                                <line stipple="6" use="bridleway" width="2.0" />
+                                <line fix="true" stroke="color:land" width="1.6" />
+                            </m>
+                            <m cat="cycling" v="cycleway">
+                                <line stipple="6" use="cycleway" width="2.0" />
+                                <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m cat="tracks" v="track">
-                                <m zoom-max="13" zoom-min="13">
-                                    <line use="highway:track:g2" width="-0.8" />
-                                </m>
-                                <m zoom-min="14">
-                                    <!--TODO Add stipple outline -->
-                                    <line use="highway:track:g2" />
-                                </m>
+                                <line stipple="6" stipple-stroke="color:land"
+                                    use="highway:track:good" width="0.8" />
+                                <line stroke="color:land" use="highway:track:good" />
                                 <m cat="track-names">
                                     <text use="road-name" />
                                 </m>
                             </m>
                             <m cat="roads" v="service">
-                                <line use="service-tunnel" width="-0.4" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:service-road-outline"
+                                    use="highway-service-tunnel" />
+                                <line use="highway-service-tunnel" width="-0.1" />
                             </m>
                             <m cat="roads" v="tertiary_link">
-                                <line use="tertiary-tunnel" width="-0.1" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:road-outline"
+                                    use="tertiary-tunnel" />
+                                <line use="tertiary-tunnel" width="-0.2" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="secondary_link">
-                                <line use="secondary-tunnel" width="-0.1" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:road-outline"
+                                    use="secondary-tunnel" />
+                                <line use="secondary-tunnel" width="-0.2" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="primary_link">
-                                <line use="primary-tunnel" width="-0.1" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:primary-road-outline"
+                                    use="primary-tunnel" />
+                                <line use="primary-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                             </m>
                             <m cat="roads" v="trunk_link|motorway_link">
-                                <line use="trunk-tunnel" width="-0.2" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:motorway-road-outline"
+                                    use="trunk-link-tunnel" />
+                                <line use="trunk-link-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                             </m>
                             <m cat="roads" v="construction">
@@ -81,15 +96,21 @@
                                 </m>
                             </m>
                             <m cat="pedestrian" v="pedestrian">
-                                <line use="pedestrian-tunnel" />
+                                <line stipple="8" stipple-stroke="color:service-road-outline"
+                                    use="pedestrian-tunnel" />
+                                <line use="pedestrian-tunnel" width="-0.1" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="road">
-                                <line use="pedestrian-tunnel" />
+                                <line stipple="8" stipple-stroke="color:service-road-outline"
+                                    use="pedestrian-tunnel" />
+                                <line use="pedestrian-tunnel" width="-0.1" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="residential|living_street">
-                                <line use="residential-tunnel" />
+                                <line stipple="8" stipple-stroke="color:road-outline"
+                                    use="residential-tunnel" />
+                                <line use="residential-tunnel" width="-0.2" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols"
@@ -99,15 +120,18 @@
                                 </m>
                             </m>
                             <m cat="roads" v="unclassified">
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:road-outline"
+                                    use="unclassified-tunnel" />
                                 <m select="first">
                                     <m cat="roads-surface" k="surface" v="dirt">
-                                        <line stipple-stroke="color:surface-dirt" use="unclassified-tunnel" />
+                                        <line stroke="color:surface-dirt" use="unclassified-tunnel" width="-0.2" />
                                     </m>
                                     <m cat="roads-surface" k="surface" v="unpaved">
-                                        <line stipple-stroke="color:surface-unpaved" use="unclassified-tunnel" />
+                                        <line stroke="color:surface-unpaved" use="unclassified-tunnel" width="-0.2" />
                                     </m>
                                     <m>
-                                        <line use="unclassified-tunnel" />
+                                        <line use="unclassified-tunnel" width="-0.2" />
                                     </m>
                                 </m>
                                 <text use="road-name" />
@@ -119,7 +143,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="tertiary">
-                                <line use="tertiary-tunnel" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:road-outline"
+                                    use="tertiary-tunnel" />
+                                <line use="tertiary-tunnel" width="-0.2" />
                                 <text use="road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="14">
                                     <symbol merge-gap="150" merge-group="road-symbols"
@@ -134,7 +161,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="secondary">
-                                <line use="secondary-tunnel" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:primary-road-outline"
+                                    use="secondary-tunnel" />
+                                <line use="secondary-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="13">
                                     <symbol merge-gap="150" merge-group="road-symbols"
@@ -149,7 +179,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="primary">
-                                <line use="primary-tunnel" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:primary-road-outline"
+                                    use="primary-tunnel" />
+                                <line use="primary-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="12">
                                     <symbol merge-gap="150" merge-group="road-symbols"
@@ -164,7 +197,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="trunk">
-                                <line use="trunk-tunnel" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:motorway-road-outline"
+                                    use="trunk-tunnel" />
+                                <line use="trunk-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="11">
                                     <symbol merge-gap="150" merge-group="road-symbols"
@@ -179,7 +215,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="motorway">
-                                <line use="highway-tunnel" />
+                                <line stipple="8" stipple-ratio="0.4"
+                                    stipple-stroke="color:motorway-road-outline"
+                                    use="highway-tunnel" />
+                                <line use="highway-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="10">
                                     <symbol merge-gap="150" merge-group="road-symbols"
@@ -234,6 +273,7 @@
                 <m k="bridge" v="~|no">
                     <m closed="no">
                         <m cat="pedestrian" v="via_ferrata">
+                            <!--suppress XmlDefaultAttributeValue -->
                             <line use="steps" stipple-stroke="#000000" />
                         </m>
                         <m cat="pedestrian" v="steps">
@@ -394,15 +434,15 @@
                                             <line use="ford" width="-0.2" />
                                         </m>
                                         <m k="4wd_only" v="yes">
-                                            <line use="4wd_only" width="-0.2" />
+                                            <line use="4wd_only" width="-0.3" />
                                         </m>
                                         <m k="access" v="private">
                                             <line fade="14" stipple="15" stipple-stroke="color:service-access-private"
-                                                stroke="color:transparent" use="highway-service" />
+                                                stroke="color:transparent" use="highway-service" width="-0.2" />
                                         </m>
                                         <m k="access" v="no">
                                             <line fade="14" stipple="15" stipple-stroke="color:access-no"
-                                                stroke="color:transparent" use="highway-service" />
+                                                stroke="color:transparent" use="highway-service" width="-0.2" />
                                         </m>
                                     </m>
                                 </m>
@@ -411,11 +451,11 @@
                                 <line outline="service-road" use="highway-service" width="-0.2" />
                                 <m k="access" v="private">
                                     <line stipple="15" stipple-stroke="color:service-access-private" stroke="color:transparent"
-                                        use="highway-service" width="-0.2" />
+                                        use="highway-service" width="-0.3" />
                                 </m>
                                 <m k="access" v="no">
                                     <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                        use="highway-service" width="-0.2" />
+                                        use="highway-service" width="-0.3" />
                                 </m>
                             </m>
                         </m>
@@ -482,13 +522,13 @@
                         <m cat="roads" v="trunk_link|motorway_link">
                             <m select="first">
                                 <m k="ice_road" v="yes">
-                                    <line outline="motorway" stroke="color:road-ice" use="trunk_link" />
+                                    <line outline="motorway" stroke="color:road-ice" use="trunk-link" />
                                 </m>
                                 <m k="winter_road" v="yes">
-                                    <line outline="motorway" stroke="color:road-winter" use="trunk_link" />
+                                    <line outline="motorway" stroke="color:road-winter" use="trunk-link" />
                                 </m>
                                 <m>
-                                    <line outline="motorway" use="trunk_link" />
+                                    <line outline="motorway" use="trunk-link" />
                                 </m>
                             </m>
                             <text use="major-road-name" />
@@ -535,15 +575,15 @@
                                 <line use="ford" width="-0.2" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" width="-0.2" />
+                                <line use="4wd_only" width="-0.3" />
                             </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
-                                    use="residential" />
+                                    use="residential" width="-0.2" />
                             </m>
                             <m k="access" v="no">
                                 <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                    use="residential" />
+                                    use="residential" width="-0.2" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -574,15 +614,15 @@
                                 <line use="ford" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" />
+                                <line use="4wd_only" width="-0.1" />
                             </m>
                             <m k="access" v="private">
                                 <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
-                                    use="unclassified" />
+                                    use="unclassified" width="-0.2" />
                             </m>
                             <m k="access" v="no">
                                 <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                    use="unclassified" />
+                                    use="unclassified" width="-0.2" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -648,7 +688,7 @@
                                 <line use="ford" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" width="0.1" />
+                                <line use="4wd_only" />
                             </m>
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="13">
@@ -683,7 +723,7 @@
                                 <line use="ford" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" width="0.2" />
+                                <line use="4wd_only" />
                             </m>
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="12">

@@ -86,10 +86,11 @@
     <style-color id="highway-service" color="#222222" />
 
     <style-color id="tunnel" color="#333333" />
-    <style-color id="highway-tunnel" color="#664444" />
-    <style-color id="trunk-tunnel" color="#884444" />
+    <style-color id="highway-tunnel" color="#554444" />
+    <style-color id="trunk-tunnel" color="#664444" />
     <style-color id="primary-tunnel" color="#443333" />
-    <style-color id="service-tunnel" color="#222222" />
+    <style-color id="secondary-tunnel" color="#3a3333" />
+    <style-color id="highway-service-tunnel" color="#222222" />
     <style-color id="pedestrian-tunnel" color="#111111" />
 
     <style-color id="access-no" color="#331111" />

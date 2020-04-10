@@ -81,6 +81,7 @@
     <style-color id="text-outline" color="#ffffff" />
     <style-color id="text" color="#000000" />
 
+    <style-color id="land" color="#faf7f1" />
     <style-color id="water" color="#a4bbcc" />
     <style-color id="trees" color="#90b36c" />
 
@@ -106,12 +107,13 @@
     <style-color id="highway-service" color="#f5f5f5" />
     <style-color id="highway-services" color="#fee4be" />
 
-    <style-color id="tunnel" color="#ffffff" />
+    <style-color id="tunnel" color="#f3f3f3" />
     <style-color id="highway-tunnel" color="#fdcf8c" />
-    <style-color id="trunk-tunnel" color="#fee685" />
+    <style-color id="trunk-tunnel" color="#feeb9e" />
     <style-color id="primary-tunnel" color="#f8e19d" />
-    <style-color id="service-tunnel" color="#e5e5e5" />
-    <style-color id="pedestrian-tunnel" color="#e0e0e0" />
+    <style-color id="secondary-tunnel" color="#f7f6c4" />
+    <style-color id="highway-service-tunnel" color="#e5e5e5" />
+    <style-color id="pedestrian-tunnel" color="#d8d8d8" />
 
     <style-color id="path-access-no" color="#c8c3ac" />
     <style-color id="access-no" color="#ffdddd" />
@@ -157,7 +159,7 @@
     <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
 
-    <style-area fill="#faf7f1" id="land" mesh="true" />
+    <style-area fill="color:land" id="land" mesh="true" />
 
     <!-- Water -->
     <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"

@@ -29,12 +29,18 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <m cat="underground-water" v="river|canal">
-                        <line fade="10" stipple="20" stipple-ratio="0.6"
-                            stipple-stroke="color:transparent" use="river" width="0.3" />
+                        <line fade="10" stipple="8" stipple-ratio="0.4"
+                            stipple-stroke="color:land" use="river" width="0.3" />
+                        <line fade="10" stroke="color:land" use="river" width="0.2" />
                     </m>
                     <m cat="underground-water" v="stream">
-                        <line fade="13" stipple="10" stipple-ratio="0.7"
-                            stipple-stroke="color:transparent" use="river" width="-0.5" />
+                        <line fade="13" stipple="8" stipple-ratio="0.4"
+                            stipple-stroke="color:land" use="river" width="-0.7" />
+                        <line fade="13" stroke="color:land" use="river" width="-0.8" />
+                    </m>
+                    <m cat="underground-water" v="ditch|drain">
+                        <line stipple="6" use="water" stipple-stroke="color:land" width="1.8" />
+                        <line use="water" stroke="color:land" width="1.2" />
                     </m>
                 </m>
             </m>
@@ -55,7 +61,7 @@
                 <m cat="insignificant-water" v="stream">
                     <m k="intermittent" v="yes">
                         <line fade="13" stipple="10" stipple-ratio="0.3"
-                            stipple-stroke="color:transparent" use="river" width="-0.5" />
+                            stipple-stroke="color:transparent" use="river" width="-0.7" />
                     </m>
                     <m k="intermittent" v="~|no">
                         <line fade="13" use="river" width="-0.7" />
