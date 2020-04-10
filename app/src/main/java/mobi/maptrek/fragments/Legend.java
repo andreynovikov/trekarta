@@ -341,6 +341,8 @@ public class Legend extends ListFragment {
             .addTag("highway", "track");
     private static LegendItem track_bridge = new LegendItem(GeometryType.LINE, R.string.legend_track_bridge, 17)
             .addTag("highway", "track").addTag("bridge", "yes");
+    private static LegendItem track_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_track_tunnel, 17)
+            .addTag("highway", "track").addTag("tunnel", "yes");
     private static LegendItem good_track = new LegendItem(GeometryType.LINE, R.string.legend_good_track, 17)
             .addTag("highway", "track").addTag("smoothness", "good");
     private static LegendItem very_bad_track = new LegendItem(GeometryType.LINE, R.string.legend_very_bad_track, 17)
@@ -377,6 +379,8 @@ public class Legend extends ListFragment {
             .addTag("highway", "path").addTag("access", "no");
     private static LegendItem footway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_footway_bridge, 17)
             .addTag("highway", "footway").addTag("bridge", "yes");
+    private static LegendItem footway_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_footway_tunnel, 17)
+            .addTag("highway", "footway").addTag("tunnel", "yes");
     private static LegendItem steps = new LegendItem(GeometryType.LINE, R.string.legend_steps, 17)
             .addTag("highway", "steps");
     private static LegendItem via_ferrata = new LegendItem(GeometryType.LINE, R.string.legend_via_ferrata, 17)
@@ -1115,6 +1119,7 @@ public class Legend extends ListFragment {
     private static LegendSection tracks = new LegendSection(R.string.legend_tracks, new LegendItem[]{
             track,
             track_bridge,
+            track_tunnel,
             winter_track,
             ice_track,
             ford_track,
@@ -1135,6 +1140,7 @@ public class Legend extends ListFragment {
             path_visibility_bad,
             no_access_path,
             footway_bridge,
+            footway_tunnel,
             steps,
             via_ferrata // TODO Should go to hiking
     });

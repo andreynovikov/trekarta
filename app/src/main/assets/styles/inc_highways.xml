@@ -123,17 +123,7 @@
                                 <line stipple="8" stipple-ratio="0.4"
                                     stipple-stroke="color:road-outline"
                                     use="unclassified-tunnel" />
-                                <m select="first">
-                                    <m cat="roads-surface" k="surface" v="dirt">
-                                        <line stroke="color:surface-dirt" use="unclassified-tunnel" width="-0.2" />
-                                    </m>
-                                    <m cat="roads-surface" k="surface" v="unpaved">
-                                        <line stroke="color:surface-unpaved" use="unclassified-tunnel" width="-0.2" />
-                                    </m>
-                                    <m>
-                                        <line use="unclassified-tunnel" width="-0.2" />
-                                    </m>
-                                </m>
+                                <line use="unclassified-tunnel" width="-0.2" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols"

@@ -599,7 +599,9 @@
     <string name="legend_via_ferrata">Via ferrata</string>
     <string name="legend_cycleway">Cycle way</string>
     <string name="legend_track_bridge">Track bridge</string>
+    <string name="legend_track_tunnel">Track tunnel</string>
     <string name="legend_footway_bridge">Pedestrian bridge</string>
+    <string name="legend_footway_tunnel">Pedestrian tunnel</string>
     <string name="legend_city_wall">City wall</string>
     <string name="legend_retaining_wall">Retaining wall</string>
     <string name="legend_contour">Contour line</string>
