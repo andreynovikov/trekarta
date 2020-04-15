@@ -428,6 +428,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_DEPTH:
                     mElem.depth = deZigZag(decodeVarint32());
+                    mElem.tags.add(Tags.TAG_DEPTH); // required for style filtering
                     break;
 
                 case TAG_ELEM_HEIGHT:

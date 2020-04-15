@@ -287,6 +287,10 @@
                             <m zoom-min="16">
                                 <line use="footway:back" />
                             </m>
+                            <m k="ford" v="yes">
+                                <line fix="true" use="ford" width="4.0" />
+                                <line cat="hiking" fix="true" use="ford" width="6.0" />
+                            </m>
                             <m k="trail_visibility" v="~|intermediate">
                                 <m k="access" v="no|private">
                                     <line use="path" stipple-stroke="color:path-access-no" />
@@ -319,6 +323,10 @@
                                 <line cat="tracks" use="footway:back" width="0.3" />
                                 <line cat="hiking" stroke="#ffffffff" use="footway:back"
                                     width="4.0" />
+                            </m>
+                            <m k="ford" v="yes">
+                                <line cat="tracks" fix="true" use="ford" width="4.0" />
+                                <line cat="hiking" fix="true" use="ford" width="6.0" />
                             </m>
                             <line cat="tracks" use="bridleway" />
                             <line cat="hiking" use="bridleway" width="2.2" />
@@ -422,6 +430,9 @@
                                     <m select="when-matched">
                                         <m k="ford" v="yes">
                                             <line use="ford" width="-0.2" />
+                                            <text style="bold" caption="true"
+                                                fill="color:amenity-water" k="depth" size="14"
+                                                stroke="color:text-outline" stroke-width="2.0" />
                                         </m>
                                         <m k="4wd_only" v="yes">
                                             <line use="4wd_only" width="-0.3" />
@@ -527,6 +538,9 @@
                             <line use="road-construction" />
                             <m k="ford" v="yes">
                                 <line use="ford" width="-0.2" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -563,6 +577,9 @@
                             </m>
                             <m k="ford" v="yes">
                                 <line use="ford" width="-0.2" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" width="-0.3" />
@@ -602,6 +619,9 @@
                             </m>
                             <m k="ford" v="yes">
                                 <line use="ford" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" width="-0.1" />
@@ -641,6 +661,9 @@
                             </m>
                             <m k="ford" v="yes">
                                 <line use="ford" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
@@ -676,6 +699,9 @@
                             </m>
                             <m k="ford" v="yes">
                                 <line use="ford" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
@@ -711,6 +737,9 @@
                             </m>
                             <m k="ford" v="yes">
                                 <line use="ford" />
+                                <text style="bold" caption="true"
+                                    fill="color:amenity-water" k="depth" size="14"
+                                    stroke="color:text-outline" stroke-width="2.0" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
@@ -769,12 +798,13 @@
                             </m>
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="10">
-                                <symbol merge-gap="150" merge-group="road-symbols" repeat-gap="150"
-                                    src="gen:/shield/13/#fee4be/#c35817" text-overlap="false" />
+                                <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                                    repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
+                                    text-overlap="false" />
                             </m>
                             <m k="toll" v="yes">
-                                <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
-                                    src="assets:symbols/transport/toll_road.svg"
+                                <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                                    repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
                                     text-overlap="false" />
                             </m>
                         </m>
@@ -804,16 +834,26 @@
         </m>
     </m>
     <!-- ford symbol -->
-    <m cat="fords" k="ford" select="first" v="yes" zoom-min="15">
+    <m cat="fords" k="ford" v="yes" zoom-min="14">
         <!-- a node -->
         <m e="node">
-            <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60" />
-            <text caption="true" style="bold" dy="-14" fill="color:amenity-water" k="depth" size="14" stroke="color:text-outline"
-                stroke-width="2.0" />
+            <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60"
+            merge-group="fords" merge-group-gap="2" />
+            <text caption="true" style="bold" dy="-14" fill="color:amenity-water" k="depth"
+                size="14" stroke="color:text-outline" stroke-width="2.0" />
         </m>
         <!-- or not a road -->
-        <m k="highway" v="~|footway|path|cycleway|bridleway">
-            <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60" merge-gap="150" repeat-gap="150"/>
+        <m e="way" k="highway" v="~|footway|path|cycleway|bridleway|track" select="first">
+            <m k="depth">
+                <text caption="true" style="bold" dy="-14" fill="color:amenity-water" k="depth"
+                    size="14" stroke="color:text-outline" stroke-width="2.0"
+                    symbol="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60"
+                    mandatory="true" priority="1" />
+            </m>
+            <m>
+                <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation" symbol-percent="60"
+                    mandatory="true" merge-group="fords" merge-group-gap="2" />
+            </m>
         </m>
     </m>
 </rendertheme>
