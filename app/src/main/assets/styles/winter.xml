@@ -251,11 +251,11 @@
         <m cat="winter-topo" v="glacier">
             <area fill="#d9f0f0" />
         </m>
-        <m cat="winter-topo" v="bare_rock">
-            <area src="assets:patterns/rock_overlay.png" />
-        </m>
         <m cat="forest" v="forest|wood">
             <area use="wood" />
+        </m>
+        <m cat="winter-topo" v="bare_rock">
+            <area src="assets:patterns/rock_overlay.png" />
         </m>
         <m cat="winter-topo" v="marsh">
             <area src="assets:patterns/wetland.svg" />

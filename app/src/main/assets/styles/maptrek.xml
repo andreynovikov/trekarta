@@ -391,6 +391,14 @@
         <m cat="nature" v="glacier">
             <area fill="#ddecec" />
         </m>
+        <m cat="forest" v="forest|wood">
+            <m zoom-max="9">
+                <area use="wood" /> <!-- there is a problem with meshing on low zooms -->
+            </m>
+            <m zoom-min="10">
+                <area use="wood" mesh="true" />
+            </m>
+        </m>
         <m cat="urban" v="beach">
             <area fill="#f7f5c8" />
             <text use="beach" />
@@ -428,14 +436,6 @@
         <m cat="nature" v="bare_rock">
             <area use="scree" />
             <area src="assets:patterns/rock_overlay.png" />
-        </m>
-        <m cat="forest" v="forest|wood">
-            <m zoom-max="9">
-                <area use="wood" /> <!-- there is a problem with meshing on low zooms -->
-            </m>
-            <m zoom-min="10">
-                <area use="wood" mesh="true" />
-            </m>
         </m>
         <m cat="nature" v="marsh">
             <m zoom-max="13">

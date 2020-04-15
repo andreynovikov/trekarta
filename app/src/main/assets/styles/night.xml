@@ -200,11 +200,11 @@
 
     <!-- Natural -->
     <m closed="yes" e="way" k="natural">
-        <m cat="nature" v="mud">
-            <area fill="#211e13" />
-        </m>
         <m cat="forest" v="forest|wood">
             <area use="wood" />
+        </m>
+        <m cat="nature" v="mud">
+            <area fill="#211e13" />
         </m>
         <m cat="nature" v="marsh">
             <area src="assets:patterns/wetland.svg" />
