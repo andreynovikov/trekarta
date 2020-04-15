@@ -136,6 +136,7 @@ public class XmlThemeBuilder extends DefaultHandler {
     private final Stack<RuleBuilder> mRuleStack = new Stack<>();
     private final HashMap<String, RenderStyle> mStyles = new HashMap<>(10);
     private final HashMap<String, TextStyle.TextBuilder<?>> mTextStyles = new HashMap<>(10);
+    private final HashMap<String, SymbolStyle.SymbolBuilder<?>> mSymbolStyles = new HashMap<>(10);
     private final HashMap<String, Integer> mColors = new HashMap<>(10);
     private final AreaBuilder<?> mAreaBuilder = AreaStyle.builder();
     private final CircleBuilder<?> mCircleBuilder = CircleStyle.builder();
@@ -252,6 +253,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 checkState(localName, Element.STYLE);
                 handleTextElement(localName, attributes, true, false);
 
+            } else if ("style-symbol".equals(localName)) {
+                checkState(localName, Element.STYLE);
+                handleSymbolElement(localName, attributes, true);
+
             } else if ("style-area".equals(localName)) {
                 checkState(localName, Element.STYLE);
                 handleAreaElement(localName, attributes, true);
@@ -289,9 +294,7 @@ public class XmlThemeBuilder extends DefaultHandler {
 
             } else if ("symbol".equals(localName)) {
                 checkState(localName, Element.RENDERING_INSTRUCTION);
-                SymbolStyle symbol = createSymbol(localName, attributes);
-                if (symbol != null && isVisible(symbol))
-                    mCurrentRule.addStyle(symbol);
+                handleSymbolElement(localName, attributes, false);
 
             } else if ("outline".equals(localName)) {
                 checkState(localName, Element.RENDERING_INSTRUCTION);
@@ -1124,19 +1127,50 @@ public class XmlThemeBuilder extends DefaultHandler {
         return b.build();
     }
 
+    private void handleSymbolElement(String localName, Attributes attributes, boolean isStyle) throws SAXException {
+
+        String style = attributes.getValue("use");
+        SymbolBuilder<?> ps = null;
+
+        if (style != null) {
+            ps = mSymbolStyles.get(style);
+            if (ps == null) {
+                log.debug("missing symbol style: " + style);
+                return;
+            }
+        }
+
+        SymbolBuilder<?> b = createSymbol(localName, attributes, ps);
+        if (isStyle) {
+            log.debug("put style {}", b.style);
+            mSymbolStyles.put(b.style, SymbolStyle.builder().from(b));
+        } else {
+            SymbolStyle symbol = buildSymbol(b);
+            if (symbol != null && isVisible(symbol))
+                mCurrentRule.addStyle(symbol);
+        }
+    }
+
     /**
      * @return a new Symbol with the given rendering attributes.
      */
-    private SymbolStyle createSymbol(String elementName, Attributes attributes) {
-        SymbolBuilder<?> b = mSymbolBuilder.reset();
-        String src = null;
+    private SymbolBuilder<?> createSymbol(String elementName, Attributes attributes, SymbolBuilder<?> style) {
+        SymbolBuilder<?> b;
+        if (style == null)
+            b = mSymbolBuilder.reset();
+        else
+            b = mSymbolBuilder.from(style);
+        b.themeCallback(mThemeCallback);
 
         for (int i = 0; i < attributes.getLength(); i++) {
             String name = attributes.getLocalName(i);
             String value = attributes.getValue(i);
 
-            if ("src".equals(name))
-                src = value;
+            if ("id".equals(name))
+                b.style = value;
+
+            else if ("src".equals(name))
+                b.src(value);
 
             else if ("cat".equals(name))
                 b.cat(value);
@@ -1193,22 +1227,31 @@ public class XmlThemeBuilder extends DefaultHandler {
                 logUnknownAttribute(elementName, name, value, i);
         }
 
-        validateExists("src", src, elementName);
+        validateExists("src", b.src, elementName);
 
-        String lowSrc = src.toLowerCase(Locale.ENGLISH);
-        if (src.startsWith(PREFIX_GEN)) {
+        return b;
+    }
+
+    private SymbolStyle buildSymbol(SymbolBuilder<?> b) {
+        String lowSrc = b.src.toLowerCase(Locale.ENGLISH);
+        if (lowSrc.startsWith(PREFIX_GEN)) {
             return b.src(lowSrc.substring(PREFIX_GEN.length())).build();
         } else if (lowSrc.endsWith(".png") || lowSrc.endsWith(".svg")) {
             try {
-                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
+                Bitmap bitmap = CanvasAdapter.getBitmapAsset(mTheme.getRelativePathPrefix(), b.src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
                 if (bitmap != null)
-                    return buildSymbol(b, src, bitmap);
+                    return buildSymbol(b, b.src, bitmap);
             } catch (Exception e) {
-                log.error("{}: {}", src, e.getMessage());
+                log.error("{}: {}", b.src, e.getMessage());
             }
             return null;
         }
-        return b.texture(getAtlasRegion(src)).build();
+        TextureRegion region = getAtlasRegion(b.src);
+        if (region != null)
+            return b.texture(region).build();
+        else
+            log.error("{}: failed to get atlas region", b.src);
+        return null;
     }
 
     SymbolStyle buildSymbol(SymbolBuilder<?> b, String src, Bitmap bitmap) {

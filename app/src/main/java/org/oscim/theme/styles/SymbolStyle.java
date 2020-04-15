@@ -140,7 +140,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         public Bitmap bitmap;
         public TextureRegion texture;
         public int hash;
-        private String src; // used by custom symbol generators
+        public String src;
 
         public int symbolWidth;
         public int symbolHeight;
@@ -161,6 +161,35 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         public boolean textOverlap = true;
 
         public SymbolBuilder() {
+        }
+
+        public T from(SymbolBuilder<?> other) {
+            this.cat = other.cat;
+
+            this.bitmap = other.bitmap;
+            this.texture = other.texture;
+            this.hash = other.hash;
+            this.src = other.src;
+
+            this.symbolWidth = other.symbolWidth;
+            this.symbolHeight = other.symbolHeight;
+            this.symbolPercent = other.symbolPercent;
+            this.symbolColor = other.symbolColor;
+
+            this.billboard = other.billboard;
+            this.rotate = other.rotate;
+            this.inverse = other.inverse;
+            this.mandatory = other.mandatory;
+
+            this.repeat = other.repeat;
+            this.repeatStart = other.repeatStart;
+            this.repeatGap = other.repeatGap;
+            this.mergeGap = other.mergeGap;
+            this.mergeGroup = other.mergeGroup;
+            this.mergeGroupGap = other.mergeGroupGap;
+            this.textOverlap = other.textOverlap;
+
+            return self();
         }
 
         public T set(SymbolStyle symbol) {
