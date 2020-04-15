@@ -172,8 +172,9 @@
         <xs:attribute name="fade" default="-1" type="xs:integer"  />
         <xs:attribute name="blur" default="-1" type="xs:float"  />
         <xs:attribute name="fix" default="false" type="xs:boolean"  />
-        <xs:attribute name="repeat-gap" default="200" type="xs:float"  />
-        <xs:attribute name="repeat-start" default="30" type="xs:float"  />
+        <xs:attribute name="repeat" default="false" type="xs:boolean"  />
+        <xs:attribute name="repeat-gap" default="0" type="xs:positiveInteger"  />
+        <xs:attribute name="repeat-start" default="0" type="xs:positiveInteger"  />
 
         <!-- stipple repeat in 'pixel' -->
         <xs:attribute name="stipple" default="0" type="xs:integer"  />
@@ -205,6 +206,8 @@
         <xs:attribute name="area-size" default="0" type="tns:nonNegativeFloat"  />
         <!-- priority for label placement, 0 = highest priority -->
         <xs:attribute name="priority" default="0" type="xs:integer"  />
+        <!-- if set to true text is placed even if the line is too short for it -->
+        <xs:attribute name="mandatory" default="false" type="xs:boolean" />
         <!-- symbol src name -->
         <xs:attribute name="symbol" type="tns:src"  />
         <xs:attribute name="symbol-width" type="xs:positiveInteger"  />
@@ -220,6 +223,14 @@
         <xs:attribute name="symbol-height" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger"  />
         <xs:attribute name="symbol-color" type="tns:color"  />
+        <xs:attribute name="billboard" default="false" type="xs:boolean" />
+        <!-- if set to true symbol is rotated along the line -->
+        <xs:attribute name="rotate" default="false" type="xs:boolean" />
+        <!-- if set to true symbol is drawn even if the line is too short for it -->
+        <xs:attribute name="mandatory" default="false" type="xs:boolean" />
+        <!-- if set to true symbol is repeated along line -->
+        <xs:attribute name="repeat" default="false" type="xs:boolean"  />
+        <xs:attribute name="repeat-start" type="xs:positiveInteger"  />
         <xs:attribute name="repeat-gap" type="xs:positiveInteger"  />
         <xs:attribute name="merge-gap" type="xs:nonNegativeInteger"  />
         <xs:attribute name="merge-group" type="xs:string"  />

@@ -581,6 +581,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("symbol-scaling".equals(name))
                 ; // no-op
 
+            else if ("repeat".equals(name))
+                b.repeat(Boolean.parseBoolean(value));
+
             else if ("repeat-start".equals(name))
                 b.repeatStart = Float.parseFloat(value) * mScale;
 
@@ -1032,6 +1035,9 @@ public class XmlThemeBuilder extends DefaultHandler {
                 // NB: minus..
                 b.dy = -Float.parseFloat(value) * mScale;
 
+            else if ("mandatory".equals(name))
+                b.mandatory = Boolean.parseBoolean(value);
+
             else if ("symbol".equals(name))
                 symbol = value;
 
@@ -1146,6 +1152,21 @@ public class XmlThemeBuilder extends DefaultHandler {
 
             else if ("symbol-color".equals(name))
                 b.symbolColor = parseColor(value);
+
+            else if ("billboard".equals(name))
+                b.billboard(Boolean.parseBoolean(value));
+
+            else if ("rotate".equals(name))
+                b.rotate(Boolean.parseBoolean(value));
+
+            else if ("mandatory".equals(name))
+                b.mandatory(Boolean.parseBoolean(value));
+
+            else if ("repeat".equals(name))
+                b.repeat(Boolean.parseBoolean(value));
+
+            else if ("repeat-start".equals(name))
+                b.repeatStart = (int) (Integer.parseInt(value) * mScale);
 
             else if ("repeat-gap".equals(name))
                 b.repeatGap = (int) (Integer.parseInt(value) * mScale);

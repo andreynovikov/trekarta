@@ -57,6 +57,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
     public final int symbolColor;
 
     public final float[] dashArray;
+    public final boolean repeat;
     public final float repeatStart;
     public final float repeatGap;
 
@@ -106,6 +107,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.symbolColor = 0;
 
         this.dashArray = dashArray;
+        this.repeat = false;
         this.repeatStart = repeatStart;
         this.repeatGap = repeatGap;
     }
@@ -137,6 +139,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         this.symbolColor = b.symbolColor;
 
         this.dashArray = b.dashArray;
+        this.repeat = b.repeat;
         this.repeatStart = b.repeatStart;
         this.repeatGap = b.repeatGap;
     }
@@ -175,6 +178,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         public int symbolColor;
 
         public float[] dashArray;
+        public boolean repeat;
         public float repeatStart;
         public float repeatGap;
 
@@ -211,6 +215,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
             this.symbolColor = line.symbolColor;
 
             this.dashArray = line.dashArray;
+            this.repeat = line.repeat;
             this.repeatStart = line.repeatStart;
             this.repeatGap = line.repeatGap;
 
@@ -309,6 +314,11 @@ public final class LineStyle extends RenderStyle<LineStyle> {
 
         public T dashArray(float[] dashArray) {
             this.dashArray = dashArray;
+            return self();
+        }
+
+        public T repeat(boolean repeat) {
+            this.repeat = repeat;
             return self();
         }
 

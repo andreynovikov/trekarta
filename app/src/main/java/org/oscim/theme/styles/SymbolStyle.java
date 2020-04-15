@@ -37,6 +37,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
     public final int symbolPercent;
     public final int symbolColor;
 
+    public final boolean billboard;
+    public final boolean rotate;
+    public final boolean mandatory;
+
+    public final boolean repeat;
+    public final int repeatStart;
     public final int repeatGap;
     public final int mergeGap;
     public final String mergeGroup;
@@ -66,6 +72,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.symbolPercent = 100;
         this.symbolColor = 0;
 
+        this.billboard = false;
+        this.rotate = false;
+        this.mandatory = false;
+
+        this.repeat = false;
+        this.repeatStart = 0;
         this.repeatGap = 0;
         this.mergeGap = -1;
         this.mergeGroup = null;
@@ -86,6 +98,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.symbolPercent = b.symbolPercent;
         this.symbolColor = b.symbolColor;
 
+        this.billboard = b.billboard;
+        this.rotate = b.rotate;
+        this.mandatory = b.mandatory;
+
+        this.repeat = b.repeat;
+        this.repeatStart = b.repeatStart;
         this.repeatGap = b.repeatGap;
         this.mergeGap = b.mergeGap;
         this.mergeGroup = b.mergeGroup;
@@ -126,6 +144,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         public int symbolPercent;
         public int symbolColor;
 
+        public boolean billboard;
+        public boolean rotate;
+        public boolean mandatory;
+
+        public boolean repeat;
+        public int repeatStart;
         public int repeatGap;
         public int mergeGap;
         public String mergeGroup;
@@ -151,6 +175,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             this.symbolPercent = symbol.symbolPercent;
             this.symbolColor = symbol.symbolColor;
 
+            this.billboard = symbol.billboard;
+            this.rotate = symbol.rotate;
+            this.mandatory = symbol.mandatory;
+
+            this.repeat = symbol.repeat;
+            this.repeatStart = symbol.repeatStart;
             this.repeatGap = symbol.repeatGap;
             this.mergeGap = symbol.mergeGap;
             this.mergeGroup = symbol.mergeGroup;
@@ -203,6 +233,31 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             return self();
         }
 
+        public T billboard(boolean billboard) {
+            this.billboard = billboard;
+            return self();
+        }
+
+        public T rotate(boolean rotate) {
+            this.rotate = rotate;
+            return self();
+        }
+
+        public T mandatory(boolean mandatory) {
+            this.mandatory = mandatory;
+            return self();
+        }
+
+        public T repeat(boolean repeat) {
+            this.repeat = repeat;
+            return self();
+        }
+
+        public T repeatStart(int repeatStart) {
+            this.repeatStart = repeatStart;
+            return self();
+        }
+
         public T repeatGap(int repeatGap) {
             this.repeatGap = repeatGap;
             return self();
@@ -245,6 +300,12 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             symbolPercent = 100;
             symbolColor = 0;
 
+            billboard = false;
+            rotate = false;
+            mandatory = false;
+
+            repeat = false;
+            repeatStart = 0;
             repeatGap = 0;
             mergeGap = -1;
             mergeGroup = null;

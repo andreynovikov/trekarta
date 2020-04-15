@@ -45,6 +45,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
         public FontFamily fontFamily;
         public FontStyle fontStyle;
 
+        public boolean mandatory;
+
         public int symbolWidth;
         public int symbolHeight;
         public int symbolPercent;
@@ -66,6 +68,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             strokeColor = Color.BLACK;
             strokeWidth = 0;
             dy = 0;
+
+            mandatory = false;
 
             symbolWidth = 0;
             symbolHeight = 0;
@@ -140,6 +144,11 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             return self();
         }
 
+        public T mandatory(boolean mandatory) {
+            this.mandatory = mandatory;
+            return self();
+        }
+
         public T symbolWidth(int symbolWidth) {
             this.symbolWidth = symbolWidth;
             return self();
@@ -177,6 +186,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             strokeWidth = other.strokeWidth;
             dy = other.dy;
 
+            mandatory = other.mandatory;
+
             symbolWidth = other.symbolWidth;
             symbolHeight = other.symbolHeight;
             symbolPercent = other.symbolPercent;
@@ -206,6 +217,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
                 this.strokeWidth = text.stroke.getStrokeWidth();
             }
             this.fontSize = text.fontSize;
+
+            this.mandatory = text.mandatory;
 
             this.symbolWidth = text.symbolWidth;
             this.symbolHeight = text.symbolHeight;
@@ -252,6 +265,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
         this.fontStyle = b.fontStyle;
         this.fontSize = b.fontSize;
 
+        this.mandatory = b.mandatory;
+
         this.symbolWidth = b.symbolWidth;
         this.symbolHeight = b.symbolHeight;
         this.symbolPercent = b.symbolPercent;
@@ -278,6 +293,8 @@ public final class TextStyle extends RenderStyle<TextStyle> {
 
     public final Bitmap bitmap;
     public final TextureRegion texture;
+
+    public final boolean mandatory;
 
     public final int symbolWidth;
     public final int symbolHeight;
