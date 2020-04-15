@@ -1159,6 +1159,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("rotate".equals(name))
                 b.rotate(Boolean.parseBoolean(value));
 
+            else if ("inverse".equals(name))
+                b.inverse(Boolean.parseBoolean(value));
+
             else if ("mandatory".equals(name))
                 b.mandatory(Boolean.parseBoolean(value));
 

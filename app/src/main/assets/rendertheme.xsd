@@ -226,6 +226,8 @@
         <xs:attribute name="billboard" default="false" type="xs:boolean" />
         <!-- if set to true symbol is rotated along the line -->
         <xs:attribute name="rotate" default="false" type="xs:boolean" />
+        <!-- if set to true symbol is inverted for 180 degrees after rotation -->
+        <xs:attribute name="inverse" default="false" type="xs:boolean" />
         <!-- if set to true symbol is drawn even if the line is too short for it -->
         <xs:attribute name="mandatory" default="false" type="xs:boolean" />
         <!-- if set to true symbol is repeated along line -->

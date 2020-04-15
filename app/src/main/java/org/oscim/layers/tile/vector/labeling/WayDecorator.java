@@ -24,6 +24,7 @@ import org.oscim.renderer.bucket.SymbolItem;
 import org.oscim.renderer.bucket.TextItem;
 import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
+import org.oscim.utils.FastMath;
 import org.oscim.utils.geom.GeometryUtils;
 import org.oscim.utils.geom.LineClipper;
 import org.slf4j.Logger;
@@ -235,7 +236,6 @@ public final class WayDecorator {
         if (skipPixels < symbolWidth)
             skipPixels = symbolWidth;
 
-        log.error("I: {} {} {} {}", skipPixels, coordinates.length, pos, len);
         // get the first way point coordinates
         float previousX = coordinates[pos + 0];
         float previousY = coordinates[pos + 1];
@@ -259,7 +259,6 @@ public final class WayDecorator {
 
             // draw non-repeated symbols in the middle of the line, so only calculate line length on the first pass
             if (symbol.repeat) {
-                log.error("S: {} {}", segmentLengthRemaining, skipPixels);
                 while (segmentLengthRemaining - skipPixels >= symbolWidth) {
                     // calculate the percentage of the current segment to skip
                     segmentSkipPercentage = skipPixels > 0f ? skipPixels / segmentLengthRemaining : 0f;
@@ -267,18 +266,18 @@ public final class WayDecorator {
                     // move the previous point forward towards the current point
                     previousX += diffX * segmentSkipPercentage;
                     previousY += diffY * segmentSkipPercentage;
-                    log.error("{} {} {}", skipPixels, segmentLengthRemaining, segmentSkipPercentage);
 
                     if (symbol.rotate) {
                         // if we do not rotate theta will be 0, which is correct
                         theta = (float) Math.toDegrees(Math.atan2(currentY - previousY, currentX - previousX));
+                        if (symbol.inverse)
+                            theta = (float) FastMath.clampDegree(theta + 180);
                     }
 
                     float x = previousX;
                     float y = previousY;
 
                     if (x >= 0 && x <= Tile.SIZE && y >= 0 && y <= Tile.SIZE) {
-                        log.error("P: {} {}", x, y);
                         SymbolItem s = SymbolItem.pool.get();
                         if (symbol.bitmap != null)
                             s.set(x, y, symbol.bitmap, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
@@ -300,7 +299,6 @@ public final class WayDecorator {
                     skipPixels = symbol.repeatGap + symbolWidth;
                 }
 
-                log.error("R {} {}", skipPixels, segmentLengthRemaining);
                 skipPixels -= segmentLengthRemaining;
             }
             // set the previous way point coordinates for the next loop
@@ -311,7 +309,6 @@ public final class WayDecorator {
         if (placed || (!symbol.mandatory && lineLength < skipPixels) || lineLength < 1)
             return;
 
-        log.error("L: {}", lineLength);
         //if (!placed && symbol.mandatory && lineLength > 0) {
             // put symbol int the center of a line
             float half = lineLength / 2;
@@ -341,12 +338,12 @@ public final class WayDecorator {
                     if (symbol.rotate) {
                         // if we do not rotate theta will be 0, which is correct
                         theta = (float) Math.toDegrees(Math.atan2(currentY - previousY, currentX - previousX));
+                        if (symbol.inverse)
+                            theta = (float) FastMath.clampDegree(theta + 180);
                     }
 
                     float x = previousX;
                     float y = previousY;
-
-                    log.error("M: {} {}", x, y);
 
                     if (x >= 0 && x <= Tile.SIZE && y >= 0 && y <= Tile.SIZE) {
                         SymbolItem s = SymbolItem.pool.get();

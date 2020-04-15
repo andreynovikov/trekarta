@@ -39,6 +39,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
     public final boolean billboard;
     public final boolean rotate;
+    public final boolean inverse;
     public final boolean mandatory;
 
     public final boolean repeat;
@@ -74,6 +75,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
         this.billboard = false;
         this.rotate = false;
+        this.inverse = false;
         this.mandatory = false;
 
         this.repeat = false;
@@ -100,6 +102,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
         this.billboard = b.billboard;
         this.rotate = b.rotate;
+        this.inverse = b.inverse;
         this.mandatory = b.mandatory;
 
         this.repeat = b.repeat;
@@ -146,6 +149,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
         public boolean billboard;
         public boolean rotate;
+        public boolean inverse;
         public boolean mandatory;
 
         public boolean repeat;
@@ -177,6 +181,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
             this.billboard = symbol.billboard;
             this.rotate = symbol.rotate;
+            this.inverse = symbol.inverse;
             this.mandatory = symbol.mandatory;
 
             this.repeat = symbol.repeat;
@@ -243,6 +248,11 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             return self();
         }
 
+        public T inverse(boolean inverse) {
+            this.inverse = inverse;
+            return self();
+        }
+
         public T mandatory(boolean mandatory) {
             this.mandatory = mandatory;
             return self();
@@ -302,6 +312,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
             billboard = false;
             rotate = false;
+            inverse = false;
             mandatory = false;
 
             repeat = false;

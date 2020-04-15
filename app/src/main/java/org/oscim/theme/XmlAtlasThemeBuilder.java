@@ -85,6 +85,7 @@ public class XmlAtlasThemeBuilder extends XmlThemeBuilder {
                     SymbolBuilder<?> b = symbolBuilder.reset();
                     rule.styles[i] = b.texture(region)
                             .repeat(((SymbolStyle) style).repeat)
+                            .inverse(((SymbolStyle) style).inverse)
                             .repeatStart(((SymbolStyle) style).repeatStart)
                             .repeatGap(((SymbolStyle) style).repeatGap)
                             .mergeGap(((SymbolStyle) style).mergeGap)
