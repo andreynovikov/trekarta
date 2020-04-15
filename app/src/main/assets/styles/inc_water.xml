@@ -53,8 +53,8 @@
                     <m k="intermittent" v="~|no">
                         <line fade="10" use="river" width="0.3" />
                     </m>
-                    <m zoom-min="17">
-                        <lineSymbol use="oneway-water" />
+                    <m zoom-min="15">
+                        <symbol use="oneway-water" />
                     </m>
                     <text priority="4" use="water" />
                 </m>
@@ -65,6 +65,9 @@
                     </m>
                     <m k="intermittent" v="~|no">
                         <line fade="13" use="river" width="-0.7" />
+                    </m>
+                    <m zoom-min="17">
+                        <symbol use="oneway-water" symbol-percent="30" />
                     </m>
                 </m>
                 <m cat="insignificant-water" v="ditch|drain">

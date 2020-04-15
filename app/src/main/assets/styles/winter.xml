@@ -114,7 +114,8 @@
     -->
     <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
-    <style-line id="oneway-water" src="assets:symbols/oneway_river.svg" />
+    <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="40"
+        rotate="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
     <style-line fix="false" id="river" stroke="color:water" use="water" />
     <style-area fade="-1" fill="color:water" id="water" mesh="true" />
