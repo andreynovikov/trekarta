@@ -224,8 +224,10 @@
     <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
 
     <!-- Road styles -->
-    <style-line id="oneway" src="assets:symbols/oneway.svg" />
-    <style-line id="oneway-reverse" src="assets:symbols/oneway_reverse.svg" />
+    <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
+        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="50" />
+    <style-symbol id="oneway-bicycle" repeat="true" repeat-gap="80" repeat-start="20"
+        rotate="true" src="assets:symbols/oneway_bicycle.svg" symbol-percent="50" />
     <xi:include href="inc_highway_styles.xml" />
 
     <!-- Protected areas -->

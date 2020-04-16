@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme" xmlns:xi="http://www.w3.org/2001/XInclude">
     <m e="way" k="highway">
         <outline-layer id="bridge" stroke="#aa202020" width="0.3" />
         <outline-layer id="service-bridge" stroke="#aa202020" width="0.15" />
@@ -38,6 +38,15 @@
                         <line cap="butt" use="highway:track:good" />
                         <m cat="track-names">
                             <text use="road-name" />
+                        </m>
+                    </m>
+                    <m cat="roads" v="construction">
+                        <line cap="butt" outline="bridge" use="highway-service" />
+                        <line use="road-construction" />
+                        <text use="road-name" />
+                        <m k="toll" v="yes">
+                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
+                                src="assets:symbols/transport/toll_road.svg" text-overlap="false" />
                         </m>
                     </m>
                     <m cat="roads" v="service">
@@ -80,15 +89,6 @@
                     <m cat="roads" v="trunk_link|motorway_link">
                         <line cap="butt" outline="bridge" use="trunk-link" />
                         <text use="major-road-name" />
-                    </m>
-                    <m cat="roads" v="construction">
-                        <line cap="butt" outline="bridge" use="highway-service" />
-                        <line use="road-construction" />
-                        <text use="road-name" />
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat-gap="120"
-                                src="assets:symbols/transport/toll_road.svg" text-overlap="false" />
-                        </m>
                     </m>
                     <m cat="pedestrian" v="pedestrian">
                         <line cap="butt" outline="bridge" use="pedestrian" />
@@ -199,16 +199,7 @@
                             width="2.2" />
                         <line use="cycleway" />
                     </m>
-                    <m cat="roads" k="oneway" v="1" zoom-min="16">
-                        <m k="highway" v="-|track|path|footway">
-                            <lineSymbol use="oneway" />
-                        </m>
-                    </m>
-                    <m cat="roads" k="oneway" v="-1" zoom-min="16">
-                        <m k="highway" v="-|track|path|footway">
-                            <lineSymbol use="oneway-reverse" />
-                        </m>
-                    </m>
+                    <xi:include href="inc_highway_oneways.xml" />
                 </m> <!-- end area=no -->
             </m>
         </m> <!-- end bridge=yes -->

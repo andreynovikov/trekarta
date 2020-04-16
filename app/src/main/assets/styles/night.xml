@@ -175,8 +175,8 @@
     <style-area fade="12" fill="#0e0e0e" id="allotments" />
 
     <!-- Road styles -->
-    <style-line id="oneway" src="assets:symbols/oneway_dark.svg" />
-    <style-line id="oneway-reverse" src="assets:symbols/oneway_reverse_dark.svg" />
+    <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
+        rotate="true" src="assets:symbols/oneway_dark.svg" symbol-percent="50" />
     <xi:include href="inc_highway_styles.xml" />
 
     <!-- Protected areas -->

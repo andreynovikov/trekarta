@@ -30,6 +30,7 @@ import org.oscim.utils.geom.LineClipper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("PointlessArithmeticExpression")
 public final class WayDecorator {
     private static final Logger log = LoggerFactory.getLogger(WayDecorator.class);
 

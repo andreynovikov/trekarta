@@ -130,7 +130,7 @@ public enum Themes implements ThemeFile {
                 int e = line.indexOf("\"", b + 6);
                 if (b > 0) {
                     String src = dir + line.substring(b + 6, e);
-                    logger.error("include: {}", src);
+                    logger.debug("include: {}", src);
                     final InputStream iis = assets.open(src);
                     final BufferedReader ibr = new BufferedReader(new InputStreamReader(iis));
                     String il = ibr.readLine(); // skip <?xml>  in included file

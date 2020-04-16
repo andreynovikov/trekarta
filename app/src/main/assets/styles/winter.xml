@@ -195,8 +195,8 @@
         stroke-width="2.0" />
     <style-text id="major-road-name" priority="5" size="16" use="road-name" />
 
-    <style-line id="oneway" src="assets:symbols/oneway.svg" />
-    <style-line id="oneway-reverse" src="assets:symbols/oneway_reverse.svg" />
+    <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
+        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="50" />
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
@@ -375,7 +375,7 @@
                         src="assets:symbols/winter/lit.svg" symbol-percent="70"
                         text-overlap="false" />
                 </m>
-                <lineSymbol src="assets:symbols/oneway.svg" />
+                <symbol use="oneway" />
                 <m select="first">
                     <m k="ref">
                         <text use="piste-ref" />
@@ -414,7 +414,7 @@
                         src="assets:symbols/winter/lit.svg" symbol-percent="70"
                         text-overlap="false" />
                 </m>
-                <lineSymbol src="assets:symbols/oneway.svg" />
+                <symbol use="oneway" />
                 <m select="first">
                     <m k="ref">
                         <text use="piste-ref" />
@@ -457,7 +457,7 @@
                         src="assets:symbols/winter/lit.svg" symbol-percent="70"
                         text-overlap="false" />
                 </m>
-                <lineSymbol src="assets:symbols/oneway.svg" />
+                <symbol use="oneway" />
                 <m select="first">
                     <m k="ref">
                         <text use="piste-ref" />
@@ -589,13 +589,13 @@
                 <text use="piste-ref" />
                 <m select="first">
                     <m k="piste:oneway" v="yes">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="-1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                        <symbol use="oneway" inverse="true" />
                     </m>
                 </m>
                 <m k="piste:lit" v="yes">
@@ -662,13 +662,13 @@
                 <text use="piste-ref" />
                 <m select="first">
                     <m k="piste:oneway" v="yes">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="-1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                        <symbol use="oneway" inverse="true" />
                     </m>
                 </m>
                 <m k="piste:lit" v="yes">
@@ -788,13 +788,13 @@
                 <text use="piste-ref" />
                 <m select="first">
                     <m k="piste:oneway" v="yes">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <symbol use="oneway" />
                     </m>
                     <m k="oneway" v="-1" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway_reverse.svg" />
+                        <symbol use="oneway" inverse="true" />
                     </m>
                 </m>
                 <m k="piste:lit" v="yes">

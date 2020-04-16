@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme" xmlns:xi="http://www.w3.org/2001/XInclude">
     <!-- Roads -->
     <m e="way" k="highway">
         <outline-layer fade="14" id="service-road" stroke="color:service-road-outline" width="0.05" />
@@ -27,6 +27,16 @@
                     <m closed="no">
                         <!-- highway tunnels -->
                         <m k="highway">
+                            <m cat="roads" v="construction">
+                                <line stroke="color:transparent" use="road-construction" />
+                                <text use="road-name" />
+                                <m k="toll" v="yes">
+                                    <symbol merge-gap="100" merge-group="road-symbols"
+                                        repeat-gap="120"
+                                        src="assets:symbols/transport/toll_road.svg"
+                                        text-overlap="false" />
+                                </m>
+                            </m>
                             <m cat="pedestrian" v="footway">
                                 <line stipple="6" use="footway" width="2.0" />
                                 <line fix="true" stroke="color:land" width="1.6" />
@@ -84,16 +94,6 @@
                                     use="trunk-link-tunnel" />
                                 <line use="trunk-link-tunnel" width="-0.2" />
                                 <text use="major-road-name" />
-                            </m>
-                            <m cat="roads" v="construction">
-                                <line stroke="color:transparent" use="road-construction" />
-                                <text use="road-name" />
-                                <m k="toll" v="yes">
-                                    <symbol merge-gap="100" merge-group="road-symbols"
-                                        repeat-gap="120"
-                                        src="assets:symbols/transport/toll_road.svg"
-                                        text-overlap="false" />
-                                </m>
                             </m>
                             <m cat="pedestrian" v="pedestrian">
                                 <line stipple="8" stipple-stroke="color:service-road-outline"
@@ -223,22 +223,7 @@
                                 </m>
                             </m>
                         </m>
-                        <m k="oneway" v="1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol use="oneway" />
-                            </m>
-                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
-                                <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
-                            </m>
-                        </m>
-                        <m k="oneway" v="-1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol use="oneway-reverse" />
-                            </m>
-                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
-                                <lineSymbol src="assets:symbols/oneway_bicycle_reverse.svg" />
-                            </m>
-                        </m>
+                        <xi:include href="inc_highway_oneways.xml" />
                     </m>
                 </m>
             </m>
@@ -812,22 +797,7 @@
                             <line use="footway:back" width="0.2" />
                             <line use="cycleway" />
                         </m>
-                        <m k="oneway" v="1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol use="oneway" />
-                            </m>
-                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
-                                <lineSymbol src="assets:symbols/oneway_bicycle.svg" />
-                            </m>
-                        </m>
-                        <m k="oneway" v="-1" zoom-min="16">
-                            <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-                                <lineSymbol use="oneway-reverse" />
-                            </m>
-                            <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
-                                <lineSymbol src="assets:symbols/oneway_bicycle_reverse.svg" />
-                            </m>
-                        </m>
+                        <xi:include href="inc_highway_oneways.xml" />
                     </m> <!-- area: no -->
                 </m> <!-- bridge: no -->
             </m> <!-- tunnel: no -->

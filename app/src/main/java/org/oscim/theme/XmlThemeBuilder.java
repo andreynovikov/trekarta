@@ -1175,6 +1175,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("cat".equals(name))
                 b.cat(value);
 
+            else if ("use".equals(name))
+                ;// ignore
+
             else if ("symbol-width".equals(name))
                 b.symbolWidth = (int) (Integer.parseInt(value) * mScale);
 
