@@ -79,10 +79,11 @@ class MapTrekDataSource implements ITileDataSource {
         int x = tile.tileX;
         int y = tile.tileY;
         int z = tile.zoomLevel;
-        int dz = z - MAX_NATIVE_ZOOM;
+        int zoomDiff = z - MAX_NATIVE_ZOOM;
+        int limitedZoomDiff = Math.min(zoomDiff, 17 - MAX_NATIVE_ZOOM);
         if (z > MAX_NATIVE_ZOOM) {
-            x = x >> dz;
-            y = y >> dz;
+            x = x >> zoomDiff;
+            y = y >> zoomDiff;
             z = MAX_NATIVE_ZOOM;
         }
 
@@ -93,7 +94,7 @@ class MapTrekDataSource implements ITileDataSource {
                 byte[] bytes = c.getBlob(0);
                 ITileDataSink dataSink = new NativeTileDataSink(sink, tile);
 
-                if (dz > 0) {
+                if (zoomDiff > 0) {
                     MapTile mapTile = new MapTile(tile.node, x, y, MAX_NATIVE_ZOOM);
                     dataSink = new OverzoomDataSink(dataSink, mapTile, tile);
                 }
@@ -126,15 +127,15 @@ class MapTrekDataSource implements ITileDataSource {
                     addFeaturesToTile(tile, sink, sql, featureArgs);
                 }
             }
-        } else if (dz >= 0 && Tags.typeSelectors[dz].length() > 0) {
+        } else if (limitedZoomDiff >= 0 && Tags.typeSelectors[limitedZoomDiff].length() > 0) {
             String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
                     + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
                     + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
-                    + COLUMN_FEATURES_TYPE + " IN (" + Tags.typeSelectors[dz] + ") AND "
+                    + COLUMN_FEATURES_TYPE + " IN (" + Tags.typeSelectors[limitedZoomDiff] + ") AND "
                     + COLUMN_FEATURES_X + " = ? AND " + COLUMN_FEATURES_Y + " = ?";
 
             String[] featureArgs;
-            if (dz == 0) {
+            if (limitedZoomDiff == 0) {
                 featureArgs = new String[]{String.valueOf(x), String.valueOf(y)};
             } else {
                 sql += " AND " + COLUMN_FEATURES_LAT + " >= ? AND " + COLUMN_FEATURES_LON

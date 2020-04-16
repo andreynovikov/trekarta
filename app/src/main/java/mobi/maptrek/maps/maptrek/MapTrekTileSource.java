@@ -24,6 +24,7 @@ import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
+import org.oscim.map.Viewport;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.QueryResult;
@@ -52,7 +53,7 @@ public class MapTrekTileSource extends TileSource {
     private boolean mContoursEnabled = true;
 
     public MapTrekTileSource(SQLiteDatabase nativeMapDatabase) {
-        super(2, 17);
+        super(2, 19); // if zoomMax is set to 20, weird 3D building artifacts occur on map rotation
         mNativeMapDatabase = nativeMapDatabase;
         mMapTrekDataSources = new HashSet<>();
     }
@@ -135,7 +136,7 @@ public class MapTrekTileSource extends TileSource {
         }
     }
 
-    private class TransformTileDataSink implements ITileDataSink {
+    private static class TransformTileDataSink implements ITileDataSink {
         private final float scale;
         private final float dx;
         private final float dy;
@@ -179,7 +180,7 @@ public class MapTrekTileSource extends TileSource {
         }
     }
 
-    private class ProxyTileDataSink implements ITileDataSink {
+    private static class ProxyTileDataSink implements ITileDataSink {
         ITileDataSink mapDataSink;
         QueryResult result;
         boolean hasElements;
