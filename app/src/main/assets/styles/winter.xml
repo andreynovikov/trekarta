@@ -798,12 +798,13 @@
                     </m>
                 </m>
                 <m k="piste:lit" v="yes">
-                    <symbol merge-gap="50" merge-group="piste-symbols" repeat-gap="70"
+                    <symbol merge-gap="50" merge-group="piste-symbols" repeat="true" repeat-gap="70"
                         src="assets:symbols/winter/lit.svg" symbol-percent="70"
                         text-overlap="false" />
                 </m>
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
-                    repeat-gap="120" src="assets:symbols/winter/sleigh.svg" text-overlap="false" />
+                    repeat="true" repeat-gap="120" src="assets:symbols/winter/sleigh.svg"
+                    text-overlap="false" />
             </m>
         </m>
         <m k="piste:type" v="skitour">
@@ -817,8 +818,8 @@
                 <text fill="#d53900" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"
-                    repeat-gap="120" src="assets:symbols/winter/skitour.svg" symbol-percent="80"
-                    text-overlap="false" />
+                    repeat="true" repeat-gap="120" src="assets:symbols/winter/skitour.svg"
+                    symbol-percent="80" text-overlap="false" />
             </m>
         </m>
         <m k="piste:type" v="ice_skate">
@@ -989,46 +990,46 @@
     <m cat="aerialways" e="way" k="aerialway">
         <m k="aerialway" v="cable_car">
             <m zoom-max="13">
-                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                     src="assets:symbols/transport/cable_car.svg" symbol-percent="70"
                     text-overlap="false" />
             </m>
             <m zoom-min="14">
-                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                     src="assets:symbols/transport/cable_car.svg" text-overlap="false" />
             </m>
         </m>
         <m k="aerialway" v="gondola">
             <m zoom-max="13">
-                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                     src="assets:symbols/transport/gondola.svg" symbol-percent="70"
                     text-overlap="false" />
             </m>
             <m zoom-min="14">
-                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+                <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                     src="assets:symbols/transport/gondola.svg" text-overlap="false" />
             </m>
         </m>
         <m k="aerialway" v="chair_lift" zoom-min="15">
-            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                 src="assets:symbols/transport/chair_lift.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m k="aerialway" v="drag_lift" zoom-min="15">
-            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                 src="assets:symbols/transport/drag_lift.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m k="aerialway" v="zip_line" zoom-min="15">
-            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                 src="assets:symbols/transport/zipline.svg" text-overlap="false" />
             <text style="bold" fill="#606060" k="name" size="14" stroke="#ffffff"
                 stroke-width="2.0" />
         </m>
         <m k="aerialway" v="magic_carpet" zoom-min="15">
-            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
+            <symbol merge-gap="50" merge-group="aerialway-symbols" repeat="true" repeat-gap="50"
                 src="assets:symbols/transport/magic_carpet.svg" text-overlap="false" />
         </m>
     </m>

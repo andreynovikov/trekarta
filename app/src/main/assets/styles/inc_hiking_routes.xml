@@ -17,11 +17,11 @@
             </m>
             <m k="osmc:symbol">
                 <m zoom-max="11">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
+                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
                         src="gen:/osmc-symbol" symbol-percent="50" />
                 </m>
                 <m zoom-min="12">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
+                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
                         src="gen:/osmc-symbol" symbol-percent="70" />
                 </m>
             </m>
@@ -41,11 +41,11 @@
             </m>
             <m k="osmc:symbol">
                 <m zoom-max="15">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat-gap="100"
+                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
                         src="gen:/osmc-symbol" />
                 </m>
                 <m zoom-max="16" zoom-min="16">
-                    <symbol merge-gap="80" merge-group="osmc-symbols" repeat-gap="80"
+                    <symbol merge-gap="80" merge-group="osmc-symbols" repeat="true" repeat-gap="80"
                         src="gen:/osmc-symbol" symbol-percent="130" />
                 </m>
             </m>

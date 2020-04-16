@@ -156,7 +156,7 @@
     <style-text style="italic" fill="#454545" id="water" size="16" stroke="#000000"
         stroke-width="2.0" />
     <style-symbol id="oneway-water" src="assets:symbols/oneway_river_dark.svg" symbol-percent="40"
-        rotate="true" repeat-gap="100" />
+        rotate="true" repeat="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-line fix="false" id="river" stroke="color:water" use="water" />

@@ -16,8 +16,8 @@
                     width="12" />
             </m>
             <m v="zip_line" zoom-min="15">
-                <symbol cat="hiking" merge-gap="50" merge-group="aerialway-symbols" repeat-gap="50"
-                    src="assets:symbols/transport/zipline.svg" text-overlap="false" />
+                <symbol cat="hiking" merge-gap="50" merge-group="aerialway-symbols" repeat="true"
+                    repeat-gap="50" src="assets:symbols/transport/zipline.svg" text-overlap="false" />
             </m>
         </m>
         <m e="node" v="station">
