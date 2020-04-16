@@ -61,10 +61,18 @@
                                 </m>
                             </m>
                             <m cat="roads" v="service">
-                                <line stipple="8" stipple-ratio="0.4"
-                                    stipple-stroke="color:service-road-outline"
-                                    use="highway-service-tunnel" />
-                                <line use="highway-service-tunnel" width="-0.1" />
+                                <m k="service" v="-|parking_aisle">
+                                    <line stipple="8" stipple-ratio="0.4"
+                                        stipple-stroke="color:service-road-outline"
+                                        use="highway-service-tunnel" />
+                                    <line use="highway-service-tunnel" width="-0.1" />
+                                </m>
+                                <m k="service" v="parking_aisle">
+                                    <line stipple="8" stipple-ratio="0.4"
+                                        stipple-stroke="color:service-road-outline"
+                                        use="highway-service-tunnel" width="-0.2" />
+                                    <line use="highway-service-tunnel" width="-0.3" />
+                                </m>
                             </m>
                             <m cat="roads" v="tertiary_link">
                                 <line stipple="8" stipple-ratio="0.4"
