@@ -109,39 +109,7 @@ public enum Themes implements ThemeFile {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             final ByteArrayInOutStream ois = new ByteArrayInOutStream(1024);
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ois));
-            String line = reader.readLine();
-            while (line != null) {
-                line = line.trim();
-                // <xi:include href="included.xml"
-                if (line.startsWith("<xi:include")) {
-                    int b = line.indexOf("href=");
-                    int e = line.indexOf("\"", b + 6);
-                    if (b > 0) {
-                        String src = dir + line.substring(b + 6, e);
-                        logger.debug("include: {}", src);
-                        final InputStream iis = assets.open(src);
-                        final BufferedReader ibr = new BufferedReader(new InputStreamReader(iis));
-                        String il = ibr.readLine(); // skip <?xml>
-                        if (il != null)
-                            ibr.readLine(); // skip <rendertheme> IT MUST BE ON ONE LINE
-                        if (il != null) // avoid IOE
-                            il = ibr.readLine();
-                        while (il != null) {
-                            String nl = ibr.readLine(); // skip </rendertheme> IT MUST BE LAST LINE
-                            if (nl != null) {
-                                writer.write(il);
-                                writer.newLine();
-                            }
-                            il = nl;
-                        }
-                        ibr.close();
-                    }
-                } else {
-                    writer.write(line);
-                    writer.newLine();
-                }
-                line = reader.readLine();
-            }
+            readThemeAsset(assets, dir, reader, writer, false);
             reader.close();
             writer.close();
             return ois.getInputStream();
@@ -149,6 +117,36 @@ public enum Themes implements ThemeFile {
             logger.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    private void readThemeAsset(AssetManager assets, String dir, BufferedReader reader, BufferedWriter writer, boolean included) throws IOException {
+        String line = reader.readLine();
+        while (line != null) {
+            String nextLine = reader.readLine();
+            line = line.trim();
+            // <xi:include href="included.xml"
+            if (line.startsWith("<xi:include")) {
+                int b = line.indexOf("href=");
+                int e = line.indexOf("\"", b + 6);
+                if (b > 0) {
+                    String src = dir + line.substring(b + 6, e);
+                    logger.error("include: {}", src);
+                    final InputStream iis = assets.open(src);
+                    final BufferedReader ibr = new BufferedReader(new InputStreamReader(iis));
+                    String il = ibr.readLine(); // skip <?xml>  in included file
+                    if (il != null)
+                        il = ibr.readLine(); // skip <rendertheme> in included file - IT MUST BE ON ONE LINE
+                    if (il != null) // avoid IOE
+                        readThemeAsset(assets, dir, ibr, writer, true);
+                    ibr.close();
+                }
+            } else {
+                if (nextLine != null || !included) // skip </rendertheme> in included file - IT MUST BE LAST LINE
+                writer.write(line);
+                writer.newLine();
+            }
+            line = nextLine;
+        }
     }
 
     @Override
