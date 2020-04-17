@@ -60,7 +60,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             textKey = K;
             fontSize = 0;
             caption = false;
-            priority = Integer.MAX_VALUE;
+            priority = 0;
             areaSize = 0f;
             bitmap = null;
             texture = null;

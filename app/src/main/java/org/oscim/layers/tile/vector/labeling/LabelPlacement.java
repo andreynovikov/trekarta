@@ -140,7 +140,7 @@ public class LabelPlacement {
                     return 1;
 
                 if (!o.text.caption
-                        && (o.text.priority > l.text.priority
+                        && (o.text.priority < l.text.priority
                         || o.length < l.length)) {
 
                     o = removeLabel(o);
@@ -215,13 +215,13 @@ public class LabelPlacement {
 
                 // TODO Add priorities?
                 /*
-                if (l.text.priority < o.text.priority) {
+                if (l.text.priority > o.text.priority) {
                     o = removeLabel(o);
                     continue;
                 }
                 */
                 /*
-                if (!o.text.caption && (o.text.priority > l.text.priority || o.length < l.length)) {
+                if (!o.text.caption && (o.text.priority < l.text.priority || o.length < l.length)) {
                     o = removeLabel(o);
                     continue;
                 }
@@ -393,7 +393,7 @@ public class LabelPlacement {
 
             for (Label o = mLabels; o != null; ) {
                 if (l.bbox.overlaps(o.bbox)) {
-                    if (l.text.priority < o.text.priority) {
+                    if (l.text.priority > o.text.priority) {
                         o = removeLabel(o);
                         continue;
                     }
