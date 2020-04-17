@@ -184,6 +184,8 @@ public class XmlThemeBuilder extends DefaultHandler {
 
         mRulesList.clear();
         mStyles.clear();
+        mSymbolStyles.clear();
+        mTextStyles.clear();
         mRuleStack.clear();
         mElementStack.clear();
 
