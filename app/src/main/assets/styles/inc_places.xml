@@ -3,95 +3,108 @@
     <!-- places -->
     <m cat="places" k="place">
         <m v="neighbourhood|allotments">
-            <text style="italic" priority="12" size="14" stroke-width="1.6"
+            <text style="italic" priority="800" size="14" stroke-width="1.6"
                 use="place_village" />
         </m>
         <m v="hamlet|isolated_dwelling">
-            <text priority="10" use="place_village" />
+            <text priority="2600" use="place_village" />
         </m>
         <m v="suburb" zoom-max="14">
-            <text priority="10" use="place_suburb" />
+            <text priority="2800" use="place_suburb" />
         </m>
         <m v="village">
-            <text priority="9" use="place_village" />
+            <text priority="3000" use="place_village" />
         </m>
         <m select="first" v="town">
             <m k="admin_level" v="2">
-                <text dy="14" priority="2" size="18" use="place_capital" />
+                <text dy="14" priority="10000" size="18" use="place_capital" />
             </m>
             <m k="admin_level">
-                <text dy="12" priority="5" size="17" use="place_town" />
+                <text dy="12" priority="8500" size="17" use="place_town" />
             </m>
             <m k="admin_level" v="~">
-                <text dy="12" priority="8" size="17" use="place_town" />
+                <text dy="12" priority="5100" size="17" use="place_town" />
             </m>
         </m>
         <m select="first" v="city">
             <m k="admin_level" v="2">
                 <m zoom-min="7">
-                    <text style="bold" dy="14" priority="2" size="18" use="place_capital" />
+                    <text style="bold" dy="14" priority="10000" size="18" use="place_capital" />
                 </m>
                 <m zoom-max="6">
-                    <text dy="14" priority="2" size="18" use="place_capital" />
+                    <text dy="14" priority="10000" size="18" use="place_capital" />
                 </m>
             </m>
             <m k="admin_level">
                 <m zoom-min="7">
-                    <text style="bold" dy="14" priority="3" size="17" use="place_city" />
+                    <text style="bold" dy="14" priority="9000" size="17" use="place_city" />
                 </m>
                 <m zoom-max="6">
-                    <text dy="14" priority="3" size="17" use="place_city" />
+                    <text dy="14" priority="9000" size="17" use="place_city" />
                 </m>
             </m>
             <m k="admin_level" v="~">
                 <m zoom-min="7">
-                    <text style="bold" dy="14" priority="7" size="17" use="place_city" />
+                    <text style="bold" dy="14" priority="5500" size="17" use="place_city" />
                 </m>
                 <m zoom-max="6">
-                    <text dy="14" priority="4" size="17" use="place_city" />
+                    <text dy="14" priority="8000" size="17" use="place_city" />
                 </m>
             </m>
         </m>
         <m v="state">
             <m zoom-max="7" zoom-min="7">
-                <text priority="6" size="16" stroke-width="2.0" use="place_country" />
+                <text priority="3000" size="16" stroke-width="2.0" use="place_country" />
             </m>
             <m zoom-max="6">
-                <text priority="5" size="14" stroke-width="1.8" use="place_country" />
+                <text priority="8500" size="14" stroke-width="1.8" use="place_country" />
             </m>
         </m>
         <m v="country">
             <m zoom-max="10" zoom-min="6">
-                <text priority="5" size="22" stroke-width="2.6" use="place_country" />
+                <text priority="5000" size="22" stroke-width="2.6" use="place_country" />
             </m>
             <m zoom-max="5" zoom-min="4">
-                <text priority="1" size="18" stroke-width="2.2" use="place_country" />
+                <text priority="20000" size="18" stroke-width="2.2" use="place_country" />
             </m>
             <m zoom-max="3">
-                <text priority="1" size="14" stroke-width="1.8" use="place_country" />
+                <text priority="20000" size="14" stroke-width="1.8" use="place_country" />
             </m>
         </m>
         <m v="locality" zoom-max="17">
-            <text style="italic" priority="7" size="18" use="place" />
+            <text style="italic" priority="700" size="18" use="place" />
         </m>
-        <m v="island" zoom-max="14">
-            <text style="italic" priority="4" size="20" use="place" />
+        <m v="island" zoom-max="17">
+            <text style="italic" priority="4000" size="20" use="place" area-size="0.01" />
         </m>
         <m v="sea" zoom-min="5">
-            <text caption="true" priority="6" size="18" use="water" />
+            <text caption="true" priority="50000" size="18" use="water" />
         </m>
         <m v="ocean">
             <m zoom-max="4" zoom-min="3">
-                <!--suppress XmlDefaultAttributeValue -->
-                <text style="bold_italic" caption="true" priority="0" size="18" use="water" />
+                <text style="bold_italic" caption="true" priority="100000" size="18" use="water" />
             </m>
             <m zoom-max="2">
-                <!--suppress XmlDefaultAttributeValue -->
-                <text caption="true" priority="0" size="18" use="water" />
+                <text caption="true" priority="100000" size="18" use="water" />
             </m>
         </m>
     </m>
-    <m cat="places" k="natural" v="bay|strait" zoom-min="8">
-        <text caption="true" priority="9" size="16" use="water" />
+    <m cat="places" k="natural">
+        <m v="bay" select="first">
+            <m k="has_area">
+                <text caption="true" priority="2900" size="16" use="water" area-size="0.01" />
+            </m>
+            <m zoom-min="14">
+                <text caption="true" priority="2900" size="16" use="water" />
+            </m>
+        </m>
+        <m v="strait">
+            <m e="node">
+                <text caption="true" priority="2840" size="16" use="water" />
+            </m>
+            <m e="way">
+                <text priority="2850" size="16" use="water" />
+            </m>
+        </m>
     </m>
 </rendertheme>

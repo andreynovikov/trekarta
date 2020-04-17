@@ -822,7 +822,7 @@
                 <text caption="true" style="bold" dy="-14" fill="color:amenity-water" k="depth"
                     size="14" stroke="color:text-outline" stroke-width="2.0"
                     symbol="assets:symbols/natural/ford.svg" symbol-color="color:transportation"
-                    symbol-percent="60" mandatory="true" priority="1" />
+                    symbol-percent="60" mandatory="true" priority="10000" />
             </m>
             <m>
                 <symbol src="assets:symbols/natural/ford.svg" symbol-color="color:transportation"

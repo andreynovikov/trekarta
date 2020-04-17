@@ -199,17 +199,17 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <style-text style="bold_italic" area-size="0.1" caption="true" fill="#597f34" id="park"
-        priority="4" size="16" stroke="#cce2b7" stroke-width="2.0" />
+        priority="800" size="16" stroke="#cce2b7" stroke-width="2.0" />
     <style-text style="bold_italic" caption="true" fill="#660033" id="theme_park"
-        priority="4" size="16" stroke="#f9ebf2" stroke-width="2.0" />
+        priority="800" size="16" stroke="#f9ebf2" stroke-width="2.0" />
     <style-text style="bold_italic" caption="true" fill="#2138af" id="marina"
-        priority="4" size="16" stroke="#d8ddf7" stroke-width="2.0" />
-    <style-text caption="true" fill="#368167" id="sports_centre" priority="8" size="16"
+        priority="700" size="16" stroke="#d8ddf7" stroke-width="2.0" />
+    <style-text caption="true" fill="#368167" id="sports_centre" priority="700" size="16"
         stroke="#cdeae0" stroke-width="2.0" />
-    <style-text caption="true" fill="#787434" id="education" priority="9" size="16" stroke="#f5f5e8"
+    <style-text caption="true" fill="#787434" id="education" priority="500" size="16" stroke="#f5f5e8"
         stroke-width="2.0" />
     <style-text style="bold_italic" area-size="0.01" caption="true" fill="#7b7712" id="beach"
-        priority="6" size="14" stroke="#f1efce" stroke-width="2.0" />
+        priority="600" size="14" stroke="#f1efce" stroke-width="2.0" />
 
     <!-- Place styles -->
     <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
@@ -244,7 +244,7 @@
     <!-- Buildings -->
     <style-line id="building" stroke="#eeb2a9a3" use="fix" />
     <style-area fill="#d5d0cd" id="building" stroke="#b2a9a3" stroke-width="1.0" />
-    <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="9"
+    <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="100"
         size="12" stroke="#ffffff" stroke-width="2.0" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-text style="bold" fill="#383868" id="house-name" k="name" size="10" use="house-number" />
@@ -543,7 +543,7 @@
             <m zoom-min="14">
                 <line use="park" />
                 <text style="bold_italic" area-size="0.1" caption="true" fill="#777777"
-                    priority="4" size="16" stroke="#f6f6f6" stroke-width="2.0" />
+                    priority="800" size="16" stroke="#f6f6f6" stroke-width="2.0" />
             </m>
         </m>
     </m>

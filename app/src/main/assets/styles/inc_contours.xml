@@ -10,7 +10,7 @@
                 <line fix="true" stroke="#808E8072" width="0.8" />
             </m>
             <m zoom-min="14">
-                <text style="bold" fill="#6E5A46" k="ele" priority="20" size="10" stroke="#E5FFFFFF"
+                <text style="bold" fill="#6E5A46" k="ele" priority="-100" size="10" stroke="#E5FFFFFF"
                     stroke-width="1.0" />
             </m>
         </m>
@@ -22,7 +22,7 @@
                 <line fix="true" stroke="#8E8072" width="0.3" />
             </m>
             <m zoom-min="16">
-                <text fill="#6E5A46" k="ele" priority="30" size="9" stroke="#E5FFFFFF"
+                <text fill="#6E5A46" k="ele" priority="-200" size="9" stroke="#E5FFFFFF"
                     stroke-width="1.0" />
             </m>
         </m>

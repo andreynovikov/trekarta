@@ -36,12 +36,12 @@
                 <m k="station" v="subway" zoom-max="16" zoom-min="15">
                     <symbol src="assets:symbols/transport/station.svg" />
                     <text caption="true" style="bold" dy="-10" fill="#1f69a4" size="14"
-                        stroke="color:text-outline" stroke-width="2.0" priority="4" />
+                        stroke="color:text-outline" stroke-width="2.0" priority="800" />
                 </m>
                 <m k="station" v="-|subway">
                     <symbol src="assets:symbols/transport/station.svg" />
                     <text caption="true" style="bold" dy="-10" fill="#7981b0" size="14"
-                        stroke="color:text-outline" stroke-width="2.0" priority="4" />
+                        stroke="color:text-outline" stroke-width="2.0" priority="800" />
                 </m>
             </m>
             <m cat="urban" v="halt">
@@ -76,20 +76,20 @@
             <m cat="urban" k="aeroway" v="aerodrome">
                 <m zoom-min="11">
                     <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
-                    <text caption="true" dy="18" priority="5" use="poi" />
+                    <text caption="true" dy="18" priority="600" use="poi" />
                 </m>
                 <m select="first" zoom-max="11">
                     <m k="icao" zoom-min="9">
                         <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
-                        <text caption="true" dy="18" k="icao" priority="6" use="poi" />
+                        <text caption="true" dy="18" k="icao" priority="700" use="poi" />
                     </m>
                     <m k="ref" zoom-min="9">
                         <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
-                        <text caption="true" dy="18" k="ref" priority="6" use="poi" />
+                        <text caption="true" dy="18" k="ref" priority="700" use="poi" />
                     </m>
                     <m k="iata">
                         <symbol src="assets:symbols/transport/airport.svg" symbol-color="color:air-transport" symbol-percent="80" />
-                        <text caption="true" dy="18" k="iata" priority="6" use="poi" />
+                        <text caption="true" dy="18" k="iata" priority="700" use="poi" />
                     </m>
                 </m>
             </m>

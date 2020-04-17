@@ -3,11 +3,11 @@
     <!-- Water -->
     <m cat="water" closed="yes" e="way" k="natural" v="water">
         <area use="water" />
-        <text area-size="0.1" caption="true" priority="5" use="water" />
+        <text area-size="0.1" caption="true" priority="600" use="water" />
     </m>
     <m cat="water" closed="yes" k="landuse" v="reservoir|basin">
         <area use="water" />
-        <text area-size="0.1" caption="true" priority="6" use="water" />
+        <text area-size="0.1" caption="true" priority="500" use="water" />
     </m>
     <m closed="yes" k="waterway">
         <m cat="water" v="riverbank|dock">
@@ -56,7 +56,7 @@
                     <m zoom-min="15">
                         <symbol use="oneway-water" />
                     </m>
-                    <text priority="4" use="water" />
+                    <text priority="700" use="water" />
                 </m>
                 <m cat="insignificant-water" v="stream">
                     <m k="intermittent" v="yes">
@@ -69,6 +69,7 @@
                     <m zoom-min="17">
                         <symbol use="oneway-water" symbol-percent="30" />
                     </m>
+                    <text priority="400" use="water" size="14" />
                 </m>
                 <m cat="insignificant-water" v="ditch|drain">
                     <m k="intermittent" v="yes">

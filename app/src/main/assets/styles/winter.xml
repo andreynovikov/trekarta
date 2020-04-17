@@ -129,9 +129,9 @@
 
     <style-area fade="6" fill="#efefef" id="residential" />
 
-    <style-text caption="true" fill="#660033" id="theme_park" priority="8" size="18"
+    <style-text caption="true" fill="#660033" id="theme_park" priority="800" size="18"
         stroke="#f9ebf2" stroke-width="2.0" />
-    <style-text caption="true" fill="#415d5d" id="sports_centre" priority="8" size="18"
+    <style-text caption="true" fill="#415d5d" id="sports_centre" priority="700" size="18"
         stroke="#e4ecec" stroke-width="2.0" />
 
     <!-- Place styles -->
@@ -191,9 +191,9 @@
     <style-line id="highway-service-tunnel" stroke="color:highway-service-tunnel" use="highway-service" />
     <style-line id="pedestrian-tunnel" stroke="color:pedestrian-tunnel" use="pedestrian" />
 
-    <style-text fill="#666666" id="road-name" priority="7" size="14" stroke="#eeeeee"
+    <style-text fill="#666666" id="road-name" priority="720" size="14" stroke="#eeeeee"
         stroke-width="2.0" />
-    <style-text id="major-road-name" priority="5" size="16" use="road-name" />
+    <style-text id="major-road-name" priority="750" size="16" use="road-name" />
 
     <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
         rotate="true" src="assets:symbols/oneway.svg" symbol-percent="50" />
@@ -205,15 +205,15 @@
     <!-- Buildings -->
     <style-line id="building" stroke="#aaaaaa" use="fix" />
     <style-area fill="#dddddd" id="building" stroke="#aaaaaa" stroke-width="1.0" />
-    <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="9"
+    <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="100"
         size="12" stroke="#ffffff" stroke-width="2.0" />
     <style-text style="bold" fill="#808080" id="house-name" k="name" size="10" use="house-number" />
 
 
     <!-- Pistes -->
-    <style-text fill="#666666" id="piste-name" k="name" priority="2" size="14" stroke="#eeeeee"
+    <style-text fill="#666666" id="piste-name" k="name" priority="30000" size="14" stroke="#eeeeee"
         stroke-width="2.0" />
-    <style-text style="bold" fill="#7f462c" id="piste-ref" k="ref" priority="5" size="12"
+    <style-text style="bold" fill="#7f462c" id="piste-ref" k="ref" priority="25000" size="12"
         stroke="#eeeeee" stroke-width="2.0" />
 
 
