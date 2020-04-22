@@ -37,6 +37,7 @@ public class TextItem extends Inlist<TextItem> {
             // drop references
             ti.label = null;
             ti.text = null;
+            ti.ratio = 0;
             ti.lineSplits = null;
             //ti.n1 = null;
             //ti.n2 = null;
@@ -56,6 +57,7 @@ public class TextItem extends Inlist<TextItem> {
         ti.x2 = orig.x2;
         ti.y2 = orig.y2;
 
+        ti.ratio = orig.ratio;
         ti.lines = orig.lines;
         ti.lineSplits = orig.lineSplits;
 
@@ -63,8 +65,13 @@ public class TextItem extends Inlist<TextItem> {
     }
 
     public TextItem set(float x, float y, String label, TextStyle text) {
+        return set(x, y, 0, label, text);
+    }
+
+    public TextItem set(float x, float y, float ratio, String label, TextStyle text) {
         this.x = x;
         this.y = y;
+        this.ratio = ratio;
         this.label = label;
         this.text = text;
         this.x1 = 0;
@@ -119,6 +126,9 @@ public class TextItem extends Inlist<TextItem> {
 
     // label text
     public String label;
+
+    // element area ratio
+    public float ratio = 0;
 
     // text style
     public TextStyle text;

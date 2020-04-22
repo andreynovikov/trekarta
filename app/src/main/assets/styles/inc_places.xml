@@ -74,8 +74,13 @@
         <m v="locality" zoom-max="17">
             <text style="italic" priority="700" size="18" use="place" />
         </m>
-        <m v="island" zoom-max="17">
-            <text style="italic" priority="4000" size="20" use="place" area-size="0.01" />
+        <m v="island" zoom-max="17" select="first">
+            <m k="measured">
+                <text style="italic" priority="4000" size="20" use="place" area-size="0.05" />
+            </m>
+            <m zoom-min="14">
+                <text style="italic" priority="4000" size="20" use="place" />
+            </m>
         </m>
         <m v="sea" zoom-min="5">
             <text caption="true" priority="50000" size="18" use="water" />
@@ -91,8 +96,8 @@
     </m>
     <m cat="places" k="natural">
         <m v="bay" select="first">
-            <m k="has_area">
-                <text caption="true" priority="2900" size="16" use="water" area-size="0.01" />
+            <m k="measured">
+                <text caption="true" priority="2900" size="16" use="water" area-size="0.05" />
             </m>
             <m zoom-min="14">
                 <text caption="true" priority="2900" size="16" use="water" />

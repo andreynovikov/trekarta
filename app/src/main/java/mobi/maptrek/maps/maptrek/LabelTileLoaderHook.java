@@ -55,10 +55,12 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
     private final SymbolStyle.SymbolBuilder<?> mSymbolBuilder = SymbolStyle.builder();
 
     private int mLang = 0;
+    private float mSquareTile;
 
     public LabelTileLoaderHook(ShieldFactory shieldFactory, OsmcSymbolFactory osmcSymbolFactory) {
         mShieldFactory = shieldFactory;
         mOsmcSymbolFactory = osmcSymbolFactory;
+        mSquareTile = Tile.SIZE * Tile.SIZE; // we can't use static as it's recalculated based on dpi
     }
 
     //public final static LabelTileData EMPTY = new LabelTileData();
@@ -107,12 +109,16 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                 if (label != null && (label.x < 0 || label.x > Tile.SIZE || label.y < 0 || label.y > Tile.SIZE))
                     return false;
 
-                if (text.areaSize > 0f) {
-                    float area = element.area();
-                    float ratio = area / (Tile.SIZE * Tile.SIZE); // we can't use static as it's recalculated based on dpi
-                    if (ratio < text.areaSize)
-                        return false;
+                float pixelArea;
+                if (element instanceof ExtendedMapElement && ((ExtendedMapElement) element).featureArea > 0) {
+                    double resolution = tile.getGroundScale();
+                    pixelArea = (float) (((ExtendedMapElement) element).featureArea / Math.pow(resolution, 2));
+                } else {
+                    pixelArea = element.area();
                 }
+                float ratio = pixelArea / mSquareTile;
+                if (ratio < text.areaSize)
+                    return false;
 
                 String value = getTextValue(element, text.textKey);
                 if (value == null)
@@ -121,15 +127,28 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
                 if (label == null)
                     label = PolyLabel.get(element);
 
-                ld.labels.push(TextItem.pool.get().set(label.x, label.y, value, text));
+                ld.labels.push(TextItem.pool.get().set(label.x, label.y, ratio, value, text));
             } else if (element.type == POINT) {
                 String value = getTextValue(element, text.textKey);
                 if (value == null)
                     return false;
 
+                float ratio = 0f;
+                if (element instanceof ExtendedMapElement && ((ExtendedMapElement) element).featureArea > 0) {
+                    /* Reference: how to get element latitude
+                     * double latitude = MercatorProjection.toLatitude(tile.y + y / tile.mapSize);
+                     */
+                    double resolution = tile.getGroundScale();
+                    float pixelArea = (float) (((ExtendedMapElement) element).featureArea / Math.pow(resolution, 2));
+                    ratio = pixelArea / mSquareTile;
+                }
+
+                if (ratio < text.areaSize)
+                    return false;
+
                 for (int i = 0, n = element.getNumPoints(); i < n; i++) {
                     PointF p = element.getPoint(i);
-                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, value, text));
+                    ld.labels.push(TextItem.pool.get().set(p.x, p.y, ratio, value, text));
                 }
             }
         } else if (style instanceof SymbolStyle) {

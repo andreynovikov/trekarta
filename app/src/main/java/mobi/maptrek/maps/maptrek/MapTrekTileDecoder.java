@@ -420,6 +420,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_AREA:
                     mElem.featureArea = decodeVarint64();
+                    mElem.tags.add(Tags.TAG_MEASURED); // required for style filtering
                     break;
 
                 case TAG_ELEM_ELEVATION:

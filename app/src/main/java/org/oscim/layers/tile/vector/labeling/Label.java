@@ -40,14 +40,17 @@ final class Label extends TextItem {
         this.width = ti.width;
         this.height = ti.height;
         this.length = ti.length;
+        this.ratio = ti.ratio;
         this.lines = ti.lines;
         this.lineSplits = ti.lineSplits;
         return this;
     }
 
     static int comparePriority(Label l1, Label l2) {
-
-        return 0;
+        int res = Integer.compare(l1.text.priority, l2.text.priority);
+        if (res == 0)
+            res = Float.compare(l1.ratio, l2.ratio);
+        return res;
     }
 
     public static boolean shareText(Label l, Label ll) {

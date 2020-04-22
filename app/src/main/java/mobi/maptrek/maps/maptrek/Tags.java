@@ -38,6 +38,7 @@ public class Tags {
     static final Tag TAG_KIND = new Tag("kind", "yes");
     static final Tag TAG_FEATURE = new Tag("feature", "yes");
     static final Tag TAG_DEPTH = new Tag("depth", "yes");
+    static final Tag TAG_MEASURED = new Tag("measured", "yes");
 
     public static final String[] kinds = {
             //"place",
