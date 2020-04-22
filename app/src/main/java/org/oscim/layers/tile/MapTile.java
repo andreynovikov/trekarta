@@ -44,6 +44,7 @@ import static org.oscim.layers.tile.MapTile.State.READY;
 public class MapTile extends Tile {
 
     static final Logger log = LoggerFactory.getLogger(MapTile.class);
+    private float groundScale = 0f;
 
     public static class TileNode extends TreeNode<TileNode, MapTile> {
     }
@@ -353,9 +354,12 @@ public class MapTile extends Tile {
      * @return the corresponding ground scale
      */
     public float getGroundScale() {
-        double lat = MercatorProjection.toLatitude(this.y);
-        return (float) MercatorProjection
-                .groundResolutionWithScale(lat, 1 << this.zoomLevel);
+        if (groundScale == 0f) {
+            double lat = MercatorProjection.toLatitude(this.y);
+            groundScale = (float) MercatorProjection
+                    .groundResolutionWithScale(lat, 1 << this.zoomLevel);
+        }
+        return groundScale;
     }
 
     public MapTile getProxyChild(int id, byte state) {
