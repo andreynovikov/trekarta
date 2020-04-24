@@ -38,6 +38,7 @@ import org.oscim.core.GeometryBuffer.GeometryType;
 import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
 import org.oscim.theme.IRenderTheme;
+import org.oscim.theme.XmlThemeBuilder;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.CircleStyle;
 import org.oscim.theme.styles.LineStyle;
@@ -46,8 +47,10 @@ import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import mobi.maptrek.MapTrek;
+import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
 
@@ -238,12 +241,13 @@ public class LegendView extends View {
         float x = item.totalSymbols > 1 ? mLeft + (mRight - mLeft) / (item.totalSymbols + 1) * mSymbolCount : mCenterX;
         mSymbolCount++;
         org.oscim.backend.canvas.Bitmap bitmap = null;
-        if (symbolStyle.src != null) {
-            if (symbolStyle.src.equals("/osmc-symbol")) {
+        if (symbolStyle.bitmap == null) {
+            String src = symbolStyle.src.toLowerCase(Locale.ENGLISH).substring(XmlThemeBuilder.PREFIX_GEN.length());
+            if (src.equals("/osmc-symbol")) {
                 String osmcSymbol = item.tags.getValue("osmc:symbol");
                 bitmap = mOsmcSymbolFactory.getBitmap(osmcSymbol, symbolStyle.symbolPercent);
-            } else if (symbolStyle.src.startsWith("/shield/")) {
-                bitmap = mShieldFactory.getBitmap(item.tags, symbolStyle.src, symbolStyle.symbolPercent);
+            } else if (src.startsWith("/shield/")) {
+                bitmap = mShieldFactory.getBitmap(item.tags, src, symbolStyle.symbolPercent);
             }
         } else {
             bitmap = symbolStyle.bitmap;
@@ -360,6 +364,7 @@ public class LegendView extends View {
         public GeometryType type;
         public int zoomLevel;
         public TagSet tags;
+        public int kind;
         @StringRes
         public int text;
         @StringRes
@@ -373,6 +378,7 @@ public class LegendView extends View {
             this.name = name;
             this.zoomLevel = zoomLevel;
             this.tags = new TagSet();
+            this.kind = 0;
             this.text = 0;
             this.totalSymbols = 1;
             this.overlay = null;
@@ -381,6 +387,11 @@ public class LegendView extends View {
 
         public LegendItem addTag(String key, String value) {
             tags.add(new Tag(key, value));
+            return this;
+        }
+
+        public LegendItem setKind(int kind) {
+            this.kind = kind;
             return this;
         }
 
@@ -402,6 +413,16 @@ public class LegendView extends View {
         public LegendItem setShape(Path path) {
             this.path = path;
             return this;
+        }
+    }
+
+    public static class LegendAmenityItem extends LegendItem {
+        public int type;
+
+        public LegendAmenityItem(int type) {
+            super(GeometryType.POINT, Tags.getTypeName(type), 17);
+            this.type = type;
+            Tags.setTypeTag(type, tags);
         }
     }
 }

@@ -13,7 +13,7 @@
     </m>
 
     <m select="first">
-        <m k="feature|kind_transportation">
+        <m k="feature">
             <m k="highway">
                 <m v="bus_stop">
                     <symbol src="assets:symbols/transport/bus_stop.svg" symbol-color="color:transportation" symbol-percent="70" />

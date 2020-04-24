@@ -74,7 +74,7 @@ public class XmlThemeBuilder extends DefaultHandler {
     private static final Logger log = LoggerFactory.getLogger(XmlThemeBuilder.class);
 
     private static final int RENDER_THEME_VERSION = 1;
-    private static final String PREFIX_GEN = "gen:";
+    public static final String PREFIX_GEN = "gen:";
 
     private enum Element {
         RENDER_THEME, RENDERING_INSTRUCTION, RULE, STYLE, ATLAS, RENDERING_STYLE

@@ -524,7 +524,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 } else {
                     elements.clear();
                     for (int i = 0; i < Tags.typeTags.length; i++)
-                        if (Tags.typeTags[i] != null)
+                        if (Tags.typeTags[i] != null && Tags.typeSelectable[i])
                             elements.add(i);
                     notifyDataSetChanged();
                     mViews.quickFilters.smoothScrollToPosition(0);

@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import org.oscim.android.canvas.AndroidGraphics;
 import org.oscim.core.GeometryBuffer;
@@ -182,28 +183,6 @@ public class Tags {
         return (kind & 0x00040000) > 0;
     }
 
-    static final Tag[] kindTags = {
-            //"place",
-            //"road",
-            //"building",
-            new Tag("kind_emergency", "yes"),
-            new Tag("kind_accommodation", "yes"),
-            new Tag("kind_food", "yes"),
-            new Tag("kind_attraction", "yes"),
-            new Tag("kind_entertainment", "yes"),
-            new Tag("kind_shopping", "yes"),
-            new Tag("kind_service", "yes"),
-            new Tag("kind_religion", "yes"),
-            new Tag("kind_healthbeauty", "yes"),
-            new Tag("kind_kids", "yes"),
-            new Tag("kind_pets", "yes"),
-            new Tag("kind_vehicles", "yes"),
-            new Tag("kind_transportation", "yes"),
-            new Tag("kind_hikebike", "yes"),
-            new Tag("kind_urban", "yes"),
-            new Tag("kind_barrier", "yes")
-    };
-
     public static final int[] kindZooms = {
             15, // emergency
             16, // accommodation
@@ -268,23 +247,23 @@ public class Tags {
             null, null,
             new Tag("amenity", "marketplace"), // 61
             null, null,
-            null, // new Tag("barrier", "block"), // 64
+            new Tag("barrier", "block"), // 64
             null, null,
-            null, // new Tag("barrier", "bollard"), // 67
-            null, // new Tag("barrier", "stile"), // 68
+            new Tag("barrier", "bollard"), // 67
+            new Tag("barrier", "stile"), // 68
             null,
-            null, // new Tag("barrier", "cycle_barrier"), // 70
+            new Tag("barrier", "cycle_barrier"), // 70
             null, null,
-            null, // new Tag("barrier", "lift_gate"), // 73
-            null, // new Tag("barrier", "kissing_gate"), // 74
+            new Tag("barrier", "lift_gate"), // 73
+            new Tag("barrier", "kissing_gate"), // 74
             null,
-            null, // new Tag("barrier", "gate"), // 76
+            new Tag("barrier", "gate"), // 76
             null, null, null, null, null,
             new Tag("tourism", "zoo"), // 82
             new Tag("tourism", "theme_park"), // 83
             null,
             new Tag("tourism", "picnic_site"), // 85
-            null, // new Tag("leisure", "firepit"), // 86
+            new Tag("leisure", "firepit"), // 86
             null,
             new Tag("amenity", "theatre"), // 88
             null, null,
@@ -327,7 +306,7 @@ public class Tags {
             null, null,
             new Tag("leisure", "amusement_arcade"), // 142
             null, null,
-            null, // new Tag("leisure", "playground"), // 145
+            new Tag("leisure", "playground"), // 145
             null, null,
             new Tag("shop", "bicycle"), // 148
             null, null,
@@ -354,10 +333,10 @@ public class Tags {
             new Tag("man_made", "lighthouse"), // 181
             null, null,
             new Tag("man_made", "windmill"), // 184
-            new Tag("memorial", "bust"), // 185
-            new Tag("memorial", "stone"), // 186
-            new Tag("memorial", "plaque"), // 187
-            new Tag("memorial", "statue"), // 188
+            new ExtendedTag("historic", "memorial").addTag("memorial", "bust"), // 185
+            new ExtendedTag("historic", "memorial").addTag("memorial", "stone"), // 186
+            new ExtendedTag("historic", "memorial").addTag("memorial", "plaque"), // 187
+            new ExtendedTag("historic", "memorial").addTag("memorial", "statue"), // 188
             new Tag("historic", "memorial"), // 189
             new Tag("historic", "castle"), // 190
             null, null,
@@ -373,11 +352,11 @@ public class Tags {
             null,
             new ExtendedTag("tourism", "information").addTag("information", "office"), // 205
             null, null,
-            null, // new ExtendedTag("tourism", "information").addTag("information", "guidepost"), // 208
+            new ExtendedTag("tourism", "information").addTag("information", "guidepost"), // 208
             null, null,
-            null, // new ExtendedTag("tourism", "information").addTag("information", "map"), // 211
+            new ExtendedTag("tourism", "information").addTag("information", "map"), // 211
             null, null,
-            null, // new Tag("tourism", "information"), // 214
+            new Tag("tourism", "information"), // 214
             null, null,
             new Tag("tourism", "artwork"), // 217
             null, null,
@@ -385,7 +364,7 @@ public class Tags {
             null, null,
             new Tag("tourism", "attraction"), // 223
             null, null,
-            null, // new Tag("amenity", "fountain"), // 226
+            new Tag("amenity", "fountain"), // 226
             null, null,
             new Tag("shop", "car"), // 229
             null, null,
@@ -395,9 +374,9 @@ public class Tags {
             null, null,
             new Tag("amenity", "fuel"), // 238
             null, null,
-            null, // new Tag("amenity", "slipway"), // 241
+            new Tag("leisure", "slipway"), // 241
             null, null,
-            null, // new Tag("amenity", "parking"), // 244
+            new Tag("amenity", "parking"), // 244
             null, null,
             new Tag("amenity", "bus_station"), // 247
             new Tag("highway", "bus_stop"), // 248
@@ -424,7 +403,7 @@ public class Tags {
             null, null,
             new Tag("amenity", "bureau_de_change"), // 280
             null, null,
-            null, // new Tag("amenity", "post_box"), // 283
+            new Tag("amenity", "post_box"), // 283
             null, null,
             new Tag("amenity", "shower"), // 286
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, // -300
@@ -457,7 +436,7 @@ public class Tags {
             new Tag("shop", "dry_cleaning") // 268
     };
 
-    private final static int[] typeNames = {
+    public final static int[] typeNames = {
             -1,
             R.string.legend_wilderness_hut, // 1
             -1, -1,
@@ -529,7 +508,7 @@ public class Tags {
             R.string.legend_boat_rental, // 97
             -1, -1,
             R.string.legend_water_park, // 100
-            R.string.legend_horse_riding,
+            R.string.legend_horse_riding, // 101
             -1,
             R.string.legend_beach_resort, // 103
             -1, -1,
@@ -603,7 +582,7 @@ public class Tags {
             R.string.legend_ruins, // 199
             -1, -1,
             R.string.legend_museum, // 202
-            R.string.legend_gallery,
+            R.string.legend_gallery, // 203
             -1,
             R.string.legend_information_office, // 205
             -1, -1,
@@ -679,12 +658,239 @@ public class Tags {
             R.string.legend_shinto_place, // 405
             R.string.legend_christian_place, // 406
             R.string.legend_sikh_place, // 407
-            R.string.legend_taoist_place // 408
+            R.string.legend_taoist_place, // 408
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            R.string.legend_place_of_worship, // 420
+            R.string.legend_place_of_worship // 420
     };
 
-    private static final int[][] kindTypes = {
+    public final static boolean[] typeSelectable = {
+            false,
+            true, // 1
+            false, false,
+            true, // 4
+            false, false,
+            true, // 7
+            true, // 8
+            false,
+            true, // 10
+            false, false,
+            true, // 13
+            false, false,
+            true, // 16
+            false, false,
+            true, // 19
+            false, false,
+            true, // 22
+            false, false,
+            true, // 25
+            false, false,
+            true, // 28
+            false, false,
+            true, // 31
+            false, false,
+            true, // 34
+            false, false,
+            true, // 37
+            false, false,
+            true, // 40
+            false, false,
+            true, // 43
+            false, false,
+            true, // 46
+            false, false,
+            true, // 49
+            false, false,
+            true, // 52
+            false, false,
+            true, // 55
+            false, false,
+            true, // 58
+            false, false,
+            true, // 61
+            false, false,
+            false, // 64 - block
+            false, false,
+            false, // 67 - bollard
+            false, // 68 - stile
+            false,
+            false, // 70 - cycle barrier
+            false, false,
+            false, // 73 - lift gate
+            false, // 74 - kissing gate
+            false,
+            false, // 76 - gate
+            false, false, false, false, false,
+            true, // 82
+            true, // 83
+            false,
+            true, // 85
+            false, // 86 - fire pit
+            false,
+            true, // 88
+            false, false,
+            true, // 91
+            false, false,
+            true, // 94
+            false, false,
+            true, // 97
+            false, false,
+            true, // 100
+            true, // 101
+            false,
+            true, // 103
+            false, false,
+            true, // 106
+            true, // 107
+            true, // 108
+            true, // 109
+            false, false,
+            true, // 112
+            false, false,
+            true, // 115
+            false, false,
+            true, // 118
+            false, false,
+            true, // 121
+            true, // 122
+            false,
+            true, // 124
+            false, false,
+            true, // 127
+            false, false,
+            true, // 130
+            false, false,
+            true, // 133
+            false, false,
+            true, // 136
+            false, false,
+            true, // 139
+            false, false,
+            true, // 142
+            false, false,
+            false, // 145 - playground
+            false, false,
+            true, // 148
+            false, false,
+            true, // 151
+            false, false,
+            true, // 154
+            false, false,
+            true, // 157
+            false, false,
+            true, // 160
+            false, false,
+            true, // 163
+            false, false,
+            true, // 166
+            false, false,
+            true, // 169
+            false, false,
+            true, // 172
+            false, false,
+            true, // 175
+            false, false,
+            true, // 178
+            false, false,
+            true, // 181
+            false, false,
+            true, // 184
+            true, // 185
+            true, // 186
+            true, // 187
+            true, // 188
+            true, // 189
+            true, // 190
+            false, false,
+            true, // 193
+            false, false,
+            true, // 196
+            true, // 197
+            false,
+            true, // 199
+            false, false,
+            true, // 202
+            true, // 203
+            false,
+            true, // 205
+            false, false,
+            false, // 208 - guidepost
+            false, false,
+            false, // 211 - map
+            false, false,
+            false, // 214 - information
+            false, false,
+            true, // 217
+            false, false,
+            true, // 220
+            false, false,
+            true, // 223
+            false, false,
+            false, // 226 - fountain
+            false, false,
+            true, // 229
+            false, false,
+            true, // 232
+            false, false,
+            true, // 235
+            false, false,
+            true, // 238
+            false, false,
+            false, // 241 - slipway
+            false, false,
+            false, // 244 - parking
+            false, false,
+            true, // 247
+            true, // 248
+            true, // 249
+            true, // 250
+            false, false,
+            true, // 253
+            false, false,
+            true, // 256
+            false, false,
+            true, // 259
+            false, false,
+            true, // 262
+            false, false,
+            true, // 265
+            false, false,
+            true, // 268
+            false, false,
+            true, // 271
+            false, false,
+            true, // 274
+            false, false,
+            true, // 277
+            false, false,
+            true, // 280
+            false, false,
+            false, // 283 - post box
+            false, false,
+            true, // 286
+            false, false, false, false, false, false, false, false, false, false, false, false, false, false, // -300
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            false, false, false, false, false, false, false, false, false, false,
+            true, // 401
+            true, // 402
+            true, // 403
+            true, // 404
+            true, // 405
+            true, // 406
+            true, // 407
+            true, // 408
+            false, false, false, false, false, false, false, false, false, false, false,
+            true // 420
+    };
+
+    static final int[][] kindTypes = {
             new int[] {108, 109, 112, 115, 118, 121, 122, 124, 127, 130}, // emergency
             new int[] {1, 4, 7, 8, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
@@ -709,7 +915,7 @@ public class Tags {
 
     static int highlightedType = -1;
 
-    static void setTypeTag(int type, TagSet tags) {
+    public static void setTypeTag(int type, TagSet tags) {
         if (type < 0 || type > typeTags.length || typeTags[type] == null)
             return;
         tags.add(typeTags[type]);
@@ -722,6 +928,7 @@ public class Tags {
         tags.add(Tags.TAG_FEATURE);
     }
 
+    @StringRes
     public static int getTypeName(int type) {
         if (type >= 0 && type < typeNames.length)
             return typeNames[type];
@@ -759,6 +966,11 @@ public class Tags {
 
     public static void resetHighlightedType() {
         highlightedType = -1;
+    }
+
+
+    public static boolean isVisible(int type) {
+        return typeZooms[type] < 18;
     }
 
     public static void recalculateTypeZooms() {

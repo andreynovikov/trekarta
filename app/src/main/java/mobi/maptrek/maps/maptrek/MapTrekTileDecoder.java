@@ -27,6 +27,7 @@ import org.oscim.core.TagSet;
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.PbfDecoder;
+import org.oscim.utils.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -308,6 +309,8 @@ class MapTrekTileDecoder extends PbfDecoder {
 
         int kind = -1;
         int type = -1;
+        long area = -1;
+        int depth = -1;
         String houseNumber = null;
 
         while (position() < end) {
@@ -419,8 +422,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_ELEM_AREA:
-                    mElem.featureArea = decodeVarint64();
-                    mElem.tags.add(Tags.TAG_MEASURED); // required for style filtering
+                    area = decodeVarint64();
                     break;
 
                 case TAG_ELEM_ELEVATION:
@@ -428,8 +430,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_ELEM_DEPTH:
-                    mElem.depth = deZigZag(decodeVarint32());
-                    mElem.tags.add(Tags.TAG_DEPTH); // required for style filtering
+                    depth = deZigZag(decodeVarint32());
                     break;
 
                 case TAG_ELEM_HEIGHT:
@@ -499,45 +500,73 @@ class MapTrekTileDecoder extends PbfDecoder {
                 break;
         }
 
-        if (kind >= 0) {
+        if (kind > 0) {
             mElem.kind = kind;
             boolean place_road_building = (kind & 0x00000007) > 0;
             kind = kind >> 3;
             boolean someKind = kind > 0;
             boolean hasKind = false;
-            // TODO After tag type is introduced this should be removed
-            for (int i = 0; i < 16; i++) {
-                if ((kind & 0x00000001) > 0) {
-                    int zoom = Tags.kindZooms[i];
-                    if (zoom <= tile.zoomLevel) {
-                        mElem.tags.add(Tags.kindTags[i]);
-                        hasKind = true;
+            if (kind > 0) {
+                int tileZoom = FastMath.clamp(tile.zoomLevel, 0, 17);
+                for (int i = 0; i < 16; i++) {
+                    if ((kind & 0x00000001) > 0) {
+                        int zoom = Tags.kindZooms[i];
+                        if (zoom <= tileZoom) {
+                            hasKind = true;
+                        } else {
+                            for (int t = 0; t < Tags.kindTypes[i].length; t++) {
+                                Tag tag = Tags.typeTags[Tags.kindTypes[i][t]];
+                                if (tag.value.equals("theme_park") || tag.value.equals("zoo"))
+                                    continue;
+                                if (mElem.tags.remove(tag) && tag instanceof ExtendedTag) {
+                                    while ((tag = ((ExtendedTag) tag).next) != null)
+                                        mElem.tags.remove(tag);
+                                }
+                            }
+                        }
                     }
+                    kind = kind >> 1;
                 }
-                kind = kind >> 1;
             }
-            if (!(hasKind || place_road_building || geomType != TAG_TILE_POINT || mElem.tags.size() > 1))
-                return true;
-            if (someKind)
-                mElem.tags.add(Tags.TAG_KIND);
-            // TODO After tag type is introduced this should be removed
-            // TODO Should remove only selectable types
-            for (Tag tag : Tags.typeTags) {
-                if (tag != null && !tag.value.equals("theme_park") && !tag.value.equals("zoo"))
-                    if (mElem.tags.remove(tag) && tag instanceof ExtendedTag) {
-                        while ((tag = ((ExtendedTag) tag).next) != null)
-                            mElem.tags.remove(tag);
-                    }
-            }
-            for (Tag tag : Tags.typeAliasTags) {
+            for (Tag tag : Tags.typeAliasTags)
                 mElem.tags.remove(tag);
-            }
-            if (hasKind)
+
+            if (mElem.tags.size() == 0 || !(hasKind || place_road_building || geomType != TAG_TILE_POINT))
+                return true;
+
+            if (someKind) // required for building names
+                mElem.tags.add(Tags.TAG_KIND);
+            if (hasKind) // required for building numbers
                 mElem.tags.add(Tags.TAG_FEATURE);
+        }
+
+        if (type > 0) {
+            for (Tag tag : Tags.typeAliasTags)
+                mElem.tags.remove(tag);
+            if (Tags.typeSelectable[type] || !Tags.isVisible(type)) {
+                Tag tag = Tags.typeTags[type];
+                if (tag.value.equals("theme_park") || tag.value.equals("zoo")) {
+                    if (Tags.isVisible(type))
+                        mElem.tags.add(Tags.TAG_FEATURE);
+                } else if (mElem.tags.remove(tag) && tag instanceof ExtendedTag) {
+                    while ((tag = ((ExtendedTag) tag).next) != null)
+                        mElem.tags.remove(tag);
+                }
+            }
         }
 
         if (houseNumber != null)
             mElem.tags.add(new Tag(Tag.KEY_HOUSE_NUMBER, houseNumber, false));
+
+        if (area > 0) { // we set it here because extra tags should be added after filtering
+            mElem.featureArea = area;
+            mElem.tags.add(Tags.TAG_MEASURED); // required for style filtering
+        }
+
+        if (depth > 0) { // we set it here because extra tags should be added after filtering
+            mElem.depth = deZigZag(decodeVarint32());
+            mElem.tags.add(Tags.TAG_DEPTH); // required for style filtering
+        }
 
         mMapDataSink.process(mElem);
 

@@ -20,6 +20,7 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.StringRes;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,10 +41,12 @@ import java.util.List;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
+import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.view.LegendView;
 import mobi.maptrek.view.LegendView.LegendItem;
+import mobi.maptrek.view.LegendView.LegendAmenityItem;
 
 // http://www.compassdude.com/map-symbols.php
 // https://support.viewranger.com/index.php?pg=kb.page&id=143
@@ -110,9 +113,9 @@ public class Legend extends ListFragment {
     private static LegendItem military = new LegendItem(GeometryType.POLY, R.string.legend_military, 13)
             .addTag("landuse", "military").setText(R.string.legend_military_name);
     private static LegendItem zoo_area = new LegendItem(GeometryType.POLY, R.string.legend_zoo, 17)
-            .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
+            .addTag("tourism", "zoo");
     private static LegendItem theme_park_area = new LegendItem(GeometryType.POLY, R.string.legend_theme_park, 17)
-            .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes");
+            .addTag("tourism", "theme_park");
     private static LegendItem marina = new LegendItem(GeometryType.POLY, R.string.legend_marina, 17)
             .addTag("leisure", "marina").setText(R.string.legend_marina_name);
 
@@ -131,8 +134,6 @@ public class Legend extends ListFragment {
             .addTag("waterway", "stream");
     private static LegendItem ditch = new LegendItem(GeometryType.LINE, R.string.legend_ditch, 17)
             .addTag("waterway", "ditch");
-    private static LegendItem waterfall = new LegendItem(GeometryType.POINT, R.string.legend_waterfall, 17)
-            .addTag("waterway", "waterfall").addTag("kind_attraction", "yes");
     private static LegendItem dam = new LegendItem(GeometryType.LINE, R.string.legend_dam, 17)
             .addTag("waterway", "dam");
     private static LegendItem lock_gate = new LegendItem(GeometryType.POLY, R.string.legend_lock_gate, 17)
@@ -244,15 +245,13 @@ public class Legend extends ListFragment {
     private static LegendItem camp_site_area = new LegendItem(GeometryType.POLY, R.string.legend_camp_site, 17)
             .addTag("leisure", "camp_site");
     private static LegendItem playground_area = new LegendItem(GeometryType.POLY, R.string.legend_playground, 17)
-            .addTag("leisure", "playground").addTag("kind_kids", "yes");
+            .addTag("leisure", "playground");
     private static LegendItem pitch = new LegendItem(GeometryType.POLY, R.string.legend_pitch, 17)
             .addTag("leisure", "pitch");
     private static LegendItem dog_park = new LegendItem(GeometryType.POLY, R.string.legend_dog_park, 17)
             .addTag("leisure", "dog_park");
     private static LegendItem cemetery = new LegendItem(GeometryType.POLY, R.string.legend_cemetery, 17)
             .addTag("landuse", "cemetery");
-    private static LegendItem fountain = new LegendItem(GeometryType.POINT, R.string.legend_fountain, 17)
-            .addTag("amenity", "fountain").addTag("kind_urban", "yes");
     private static LegendItem runway = new LegendItem(GeometryType.LINE, R.string.legend_runway, 17)
             .addTag("aeroway", "runway").setText(R.string.legend_runway_name);
     private static LegendItem apron = new LegendItem(GeometryType.POLY, R.string.legend_apron, 17)
@@ -317,20 +316,13 @@ public class Legend extends ListFragment {
             .addTag("barrier", "border_control");
     private static LegendItem toll_booth = new LegendItem(GeometryType.POINT, R.string.legend_toll_booth, 17)
             .addTag("barrier", "toll_booth");
-    private static LegendItem block = new LegendItem(GeometryType.POINT, R.string.legend_block, 17)
-            .addTag("barrier", "block").addTag("kind_barrier", "yes");
-    private static LegendItem bollard = new LegendItem(GeometryType.POINT, R.string.legend_bollard, 17)
-            .addTag("barrier", "bollard").addTag("kind_barrier", "yes");
-    private static LegendItem cycle_barrier = new LegendItem(GeometryType.POINT, R.string.legend_cycle_barrier, 17)
-            .addTag("barrier", "cycle_barrier").addTag("kind_barrier", "yes");
-    private static LegendItem kissing_gate = new LegendItem(GeometryType.POINT, R.string.legend_kissing_gate, 17)
-            .addTag("barrier", "kissing_gate").addTag("kind_barrier", "yes");
-    private static LegendItem lift_gate = new LegendItem(GeometryType.POINT, R.string.legend_lift_gate, 17)
-            .addTag("barrier", "lift_gate").addTag("kind_barrier", "yes");
-    private static LegendItem stile = new LegendItem(GeometryType.POINT, R.string.legend_stile, 17)
-            .addTag("barrier", "stile").addTag("kind_barrier", "yes");
-    private static LegendItem gate = new LegendItem(GeometryType.POINT, R.string.legend_gate, 17)
-            .addTag("barrier", "gate").addTag("kind_barrier", "yes");
+    private static LegendItem block = new LegendAmenityItem(64);
+    private static LegendItem bollard = new LegendAmenityItem(67);
+    private static LegendItem cycle_barrier = new LegendAmenityItem(70);
+    private static LegendItem kissing_gate = new LegendAmenityItem(74);
+    private static LegendItem lift_gate = new LegendAmenityItem(73);
+    private static LegendItem stile = new LegendAmenityItem(68);
+    private static LegendItem gate = new LegendAmenityItem(76);
     private static LegendItem highway_services = new LegendItem(GeometryType.POLY, R.string.legend_highway_services, 17)
             .addTag("highway", "services");
     private static LegendItem rest_area = new LegendItem(GeometryType.POLY, R.string.legend_rest_area, 17)
@@ -419,14 +411,11 @@ public class Legend extends ListFragment {
             .addTag("railway", "crossing");
 
     // Transportation
-    private static LegendItem bus_station = new LegendItem(GeometryType.POINT, R.string.legend_bus_station, 17)
-            .addTag("amenity", "bus_station").addTag("kind_transportation", "yes");
-    private static LegendItem bus_stop = new LegendItem(GeometryType.POINT, R.string.legend_bus_stop, 17)
-            .addTag("highway", "bus_stop").addTag("kind_transportation", "yes").setText(R.string.legend_bus_stop_name);
-    private static LegendItem tram_stop = new LegendItem(GeometryType.POINT, R.string.legend_tram_stop, 17)
-            .addTag("railway", "tram_stop").addTag("kind_transportation", "yes").setText(R.string.legend_tram_stop_name);
+    private static LegendItem bus_station = new LegendAmenityItem(247);
+    private static LegendItem bus_stop = new LegendAmenityItem(248);
+    private static LegendItem tram_stop = new LegendAmenityItem(249);
     private static LegendItem subway_entrance = new LegendItem(GeometryType.POINT, R.string.legend_subway_entrance, 17)
-            .addTag("railway", "subway_entrance").addTag("kind_transportation", "yes");
+            .addTag("railway", "subway_entrance").addTag("feature", "yes").setKind(12);
     private static LegendItem subway_station = new LegendItem(GeometryType.POINT, R.string.legend_subway_station, 15)
             .addTag("railway", "station").addTag("station", "subway").setText(R.string.legend_subway_station_name);
     private static LegendItem aeroway_aerodrome = new LegendItem(GeometryType.POINT, R.string.legend_aerodrome, 17)
@@ -685,247 +674,141 @@ public class Legend extends ListFragment {
 
     // POI
 
-    // Accommodation
-    private static LegendItem wilderness_hut = new LegendItem(GeometryType.POINT, R.string.legend_wilderness_hut, 17)
-            .addTag("tourism", "wilderness_hut").addTag("kind_accommodation", "yes");
-    private static LegendItem alpine_hut = new LegendItem(GeometryType.POINT, R.string.legend_alpine_hut, 17)
-            .addTag("tourism", "alpine_hut").addTag("kind_accommodation", "yes");
-    private static LegendItem guest_house = new LegendItem(GeometryType.POINT, R.string.legend_guest_house, 17)
-            .addTag("tourism", "guest_house").addTag("kind_accommodation", "yes");
-    private static LegendItem chalet = new LegendItem(GeometryType.POINT, R.string.legend_chalet, 17)
-            .addTag("tourism", "chalet").addTag("kind_accommodation", "yes");
-    private static LegendItem motel = new LegendItem(GeometryType.POINT, R.string.legend_motel, 17)
-            .addTag("tourism", "motel").addTag("kind_accommodation", "yes");
-    private static LegendItem hostel = new LegendItem(GeometryType.POINT, R.string.legend_hostel, 17)
-            .addTag("tourism", "hostel").addTag("kind_accommodation", "yes");
-    private static LegendItem hotel = new LegendItem(GeometryType.POINT, R.string.legend_hotel, 17)
-            .addTag("tourism", "hotel").addTag("kind_accommodation", "yes");
-    private static LegendItem camp_site = new LegendItem(GeometryType.POINT, R.string.legend_camp_site, 17)
-            .addTag("tourism", "camp_site").addTag("kind_accommodation", "yes");
-    private static LegendItem caravan_site = new LegendItem(GeometryType.POINT, R.string.legend_caravan_site, 17)
-            .addTag("tourism", "caravan_site").addTag("kind_accommodation", "yes");
+    private static LegendItem wilderness_hut = new LegendAmenityItem(1);
+    private static LegendItem alpine_hut = new LegendAmenityItem(4);
+    private static LegendItem guest_house = new LegendAmenityItem(7);
+    private static LegendItem chalet = new LegendAmenityItem(8);
+    private static LegendItem motel = new LegendAmenityItem(10);
+    private static LegendItem hostel = new LegendAmenityItem(13);
+    private static LegendItem hotel = new LegendAmenityItem(16);
+    private static LegendItem camp_site = new LegendAmenityItem(19);
+    private static LegendItem caravan_site = new LegendAmenityItem(22);
 
-    private static LegendItem ice_cream = new LegendItem(GeometryType.POINT, R.string.legend_ice_cream_shop, 17)
-            .addTag("shop", "ice_cream").addTag("kind_food", "yes");
-    private static LegendItem confectionery = new LegendItem(GeometryType.POINT, R.string.legend_confectionery_shop, 17)
-            .addTag("shop", "confectionery").addTag("kind_food", "yes");
-    private static LegendItem alcohol = new LegendItem(GeometryType.POINT, R.string.legend_alcohol_shop, 17)
-            .addTag("shop", "alcohol").addTag("kind_food", "yes");
-    private static LegendItem beverages = new LegendItem(GeometryType.POINT, R.string.legend_beverages_shop, 17)
-            .addTag("shop", "beverages").addTag("kind_food", "yes");
-    private static LegendItem bakery = new LegendItem(GeometryType.POINT, R.string.legend_bakery, 17)
-            .addTag("shop", "bakery").addTag("kind_food", "yes");
-    private static LegendItem greengrocer = new LegendItem(GeometryType.POINT, R.string.legend_greengrocer, 17)
-            .addTag("shop", "greengrocer").addTag("kind_food", "yes");
-    private static LegendItem supermarket = new LegendItem(GeometryType.POINT, R.string.legend_supermarket, 17)
-            .addTag("shop", "supermarket").addTag("kind_food", "yes");
-    private static LegendItem marketplace = new LegendItem(GeometryType.POINT, R.string.legend_marketplace, 17)
-            .addTag("amenity", "marketplace").addTag("kind_food", "yes");
-    private static LegendItem cafe = new LegendItem(GeometryType.POINT, R.string.legend_cafe, 17)
-            .addTag("amenity", "cafe").addTag("kind_food", "yes");
-    private static LegendItem pub = new LegendItem(GeometryType.POINT, R.string.legend_pub, 17)
-            .addTag("amenity", "pub").addTag("kind_food", "yes");
-    private static LegendItem bar = new LegendItem(GeometryType.POINT, R.string.legend_bar, 17)
-            .addTag("amenity", "bar").addTag("kind_food", "yes");
-    private static LegendItem fast_food = new LegendItem(GeometryType.POINT, R.string.legend_fast_food, 17)
-            .addTag("amenity", "fast_food").addTag("kind_food", "yes");
-    private static LegendItem restaurant = new LegendItem(GeometryType.POINT, R.string.legend_restaurant, 17)
-            .addTag("amenity", "restaurant").addTag("kind_food", "yes");
+    private static LegendItem ice_cream = new LegendAmenityItem(25);
+    private static LegendItem confectionery = new LegendAmenityItem(28);
+    private static LegendItem alcohol = new LegendAmenityItem(31);
+    private static LegendItem beverages = new LegendAmenityItem(34);
+    private static LegendItem bakery = new LegendAmenityItem(37);
+    private static LegendItem greengrocer = new LegendAmenityItem(40);
+    private static LegendItem supermarket = new LegendAmenityItem(43);
+    private static LegendItem marketplace = new LegendAmenityItem(61);
+    private static LegendItem cafe = new LegendAmenityItem(46);
+    private static LegendItem pub = new LegendAmenityItem(49);
+    private static LegendItem bar = new LegendAmenityItem(52);
+    private static LegendItem fast_food = new LegendAmenityItem(55);
+    private static LegendItem restaurant = new LegendAmenityItem(58);
 
-    private static LegendItem zoo = new LegendItem(GeometryType.POINT, R.string.legend_zoo, 17)
-            .addTag("tourism", "zoo").addTag("kind_entertainment", "yes");
-    private static LegendItem theme_park = new LegendItem(GeometryType.POINT, R.string.legend_theme_park, 17)
-            .addTag("tourism", "theme_park").addTag("kind_entertainment", "yes");
-    private static LegendItem picnic_site = new LegendItem(GeometryType.POINT, R.string.legend_picnic_site, 17)
-            .addTag("tourism", "picnic_site").addTag("kind_entertainment", "yes");
-    private static LegendItem theatre = new LegendItem(GeometryType.POINT, R.string.legend_theatre, 17)
-            .addTag("amenity", "theatre").addTag("kind_entertainment", "yes");
-    private static LegendItem cinema = new LegendItem(GeometryType.POINT, R.string.legend_cinema, 17)
-            .addTag("amenity", "cinema").addTag("kind_entertainment", "yes");
-    private static LegendItem library = new LegendItem(GeometryType.POINT, R.string.legend_library, 17)
-            .addTag("amenity", "library").addTag("kind_entertainment", "yes");
-    private static LegendItem water_park = new LegendItem(GeometryType.POINT, R.string.legend_water_park, 17)
-            .addTag("leisure", "water_park").addTag("kind_entertainment", "yes");
-    private static LegendItem beach_resort = new LegendItem(GeometryType.POINT, R.string.legend_beach_resort, 17)
-            .addTag("leisure", "beach_resort").addTag("kind_entertainment", "yes");
-    private static LegendItem boat_rental = new LegendItem(GeometryType.POINT, R.string.legend_boat_rental, 17)
-            .addTag("amenity", "boat_rental").addTag("kind_entertainment", "yes");
-    private static LegendItem horse_riding = new LegendItem(GeometryType.POINT, R.string.legend_horse_riding, 17)
-            .addTag("leisure", "horse_riding").addTag("kind_entertainment", "yes");
+    private static LegendItem zoo = new LegendAmenityItem(82);
+    private static LegendItem theme_park = new LegendAmenityItem(83);
+    private static LegendItem picnic_site = new LegendAmenityItem(85);
+    private static LegendItem theatre = new LegendAmenityItem(88);
+    private static LegendItem cinema = new LegendAmenityItem(91);
+    private static LegendItem library = new LegendAmenityItem(94);
+    private static LegendItem water_park = new LegendAmenityItem(100);
+    private static LegendItem beach_resort = new LegendAmenityItem(103);
+    private static LegendItem boat_rental = new LegendAmenityItem(97);
+    private static LegendItem horse_riding = new LegendAmenityItem(101);
 
-    private static LegendItem embassy = new LegendItem(GeometryType.POINT, R.string.legend_embassy, 17)
-            .addTag("diplomatic", "embassy").addTag("kind_emergency", "yes");
-    private static LegendItem police = new LegendItem(GeometryType.POINT, R.string.legend_police_office, 17)
-            .addTag("amenity", "police").addTag("kind_emergency", "yes");
-    private static LegendItem fire_station = new LegendItem(GeometryType.POINT, R.string.legend_fire_station, 17)
-            .addTag("amenity", "fire_station").addTag("kind_emergency", "yes");
-    private static LegendItem hospital = new LegendItem(GeometryType.POINT, R.string.legend_hospital, 17)
-            .addTag("amenity", "hospital").addTag("kind_emergency", "yes");
-    private static LegendItem ranger_station = new LegendItem(GeometryType.POINT, R.string.legend_ranger_station, 17)
-            .addTag("amenity", "ranger_station").addTag("kind_emergency", "yes");
-    private static LegendItem doctors = new LegendItem(GeometryType.POINT, R.string.legend_doctors_practice, 17)
-            .addTag("amenity", "doctors").addTag("kind_emergency", "yes");
-    private static LegendItem dentist = new LegendItem(GeometryType.POINT, R.string.legend_dentist, 17)
-            .addTag("amenity", "dentist").addTag("kind_emergency", "yes");
-    private static LegendItem pharmacy = new LegendItem(GeometryType.POINT, R.string.legend_pharmacy, 17)
-            .addTag("amenity", "pharmacy").addTag("kind_emergency", "yes");
-    private static LegendItem telephone = new LegendItem(GeometryType.POINT, R.string.legend_telephone, 17)
-            .addTag("amenity", "telephone").addTag("kind_emergency", "yes");
-    private static LegendItem emergency_telephone = new LegendItem(GeometryType.POINT, R.string.legend_emergency_telephone, 17)
-            .addTag("emergency", "phone").addTag("kind_emergency", "yes");
+    private static LegendItem embassy = new LegendAmenityItem(108);
+    private static LegendItem police = new LegendAmenityItem(109);
+    private static LegendItem fire_station = new LegendAmenityItem(112);
+    private static LegendItem hospital = new LegendAmenityItem(115);
+    private static LegendItem ranger_station = new LegendAmenityItem(118);
+    private static LegendItem doctors = new LegendAmenityItem(121);
+    private static LegendItem dentist = new LegendAmenityItem(122);
+    private static LegendItem pharmacy = new LegendAmenityItem(124);
+    private static LegendItem telephone = new LegendAmenityItem(127);
+    private static LegendItem emergency_telephone = new LegendAmenityItem(130);
 
-    private static LegendItem sauna = new LegendItem(GeometryType.POINT, R.string.legend_sauna, 17)
-            .addTag("leisure", "sauna").addTag("kind_healthbeauty", "yes");
-    private static LegendItem massage = new LegendItem(GeometryType.POINT, R.string.legend_massage, 17)
-            .addTag("shop", "massage").addTag("kind_healthbeauty", "yes");
-    private static LegendItem hairdresser = new LegendItem(GeometryType.POINT, R.string.legend_hairdresser, 17)
-            .addTag("shop", "hairdresser").addTag("kind_healthbeauty", "yes");
+    private static LegendItem sauna = new LegendAmenityItem(106);
+    private static LegendItem massage = new LegendAmenityItem(107);
+    private static LegendItem hairdresser = new LegendAmenityItem(262);
 
-    private static LegendItem pet_shop = new LegendItem(GeometryType.POINT, R.string.legend_pet_shop, 17)
-            .addTag("shop", "pet").addTag("kind_pets", "yes");
-    private static LegendItem veterinary = new LegendItem(GeometryType.POINT, R.string.legend_veterinary_clinic, 17)
-            .addTag("amenity", "veterinary").addTag("kind_pets", "yes");
+    private static LegendItem pet_shop = new LegendAmenityItem(133);
+    private static LegendItem veterinary = new LegendAmenityItem(136);
 
-    private static LegendItem toys = new LegendItem(GeometryType.POINT, R.string.legend_toys_shop, 17)
-            .addTag("shop", "toys").addTag("kind_kids", "yes");
-    private static LegendItem amusement_arcade = new LegendItem(GeometryType.POINT, R.string.legend_amusement_arcade, 17)
-            .addTag("leisure", "amusement_arcade").addTag("kind_kids", "yes");
-    private static LegendItem playground = new LegendItem(GeometryType.POINT, R.string.legend_playground, 17)
-            .addTag("leisure", "playground").addTag("kind_kids", "yes");
+    private static LegendItem toys = new LegendAmenityItem(139);
+    private static LegendItem amusement_arcade = new LegendAmenityItem(142);
+    private static LegendItem playground = new LegendAmenityItem(145);
 
-    private static LegendItem bicycle = new LegendItem(GeometryType.POINT, R.string.legend_bicycle_shop, 17)
-            .addTag("shop", "bicycle").addTag("kind_shopping", "yes");
-    private static LegendItem outdoor = new LegendItem(GeometryType.POINT, R.string.legend_outdoor_shop, 17)
-            .addTag("shop", "outdoor").addTag("kind_shopping", "yes");
-    private static LegendItem sports = new LegendItem(GeometryType.POINT, R.string.legend_sports_shop, 17)
-            .addTag("shop", "sports").addTag("kind_shopping", "yes");
-    private static LegendItem gift = new LegendItem(GeometryType.POINT, R.string.legend_gift_shop, 17)
-            .addTag("shop", "gift").addTag("kind_shopping", "yes");
-    private static LegendItem jewelry = new LegendItem(GeometryType.POINT, R.string.legend_jewelry_shop, 17)
-            .addTag("shop", "jewelry").addTag("kind_shopping", "yes");
-    private static LegendItem photo = new LegendItem(GeometryType.POINT, R.string.legend_photo_shop, 17)
-            .addTag("shop", "photo").addTag("kind_shopping", "yes");
-    private static LegendItem books = new LegendItem(GeometryType.POINT, R.string.legend_books_shop, 17)
-            .addTag("shop", "books").addTag("kind_shopping", "yes");
-    private static LegendItem variety_store = new LegendItem(GeometryType.POINT, R.string.legend_variety_store, 17)
-            .addTag("shop", "variety_store").addTag("kind_shopping", "yes");
-    private static LegendItem doityourself = new LegendItem(GeometryType.POINT, R.string.legend_diy_store, 17)
-            .addTag("shop", "doityourself").addTag("kind_shopping", "yes");
-    private static LegendItem department_store = new LegendItem(GeometryType.POINT, R.string.legend_department_store, 17)
-            .addTag("shop", "department_store").addTag("kind_shopping", "yes");
+    private static LegendItem bicycle = new LegendAmenityItem(148);
+    private static LegendItem outdoor = new LegendAmenityItem(151);
+    private static LegendItem sports = new LegendAmenityItem(154);
+    private static LegendItem gift = new LegendAmenityItem(157);
+    private static LegendItem jewelry = new LegendAmenityItem(160);
+    private static LegendItem photo = new LegendAmenityItem(163);
+    private static LegendItem books = new LegendAmenityItem(166);
+    private static LegendItem variety_store = new LegendAmenityItem(169);
+    private static LegendItem doityourself = new LegendAmenityItem(172);
+    private static LegendItem department_store = new LegendAmenityItem(175);
 
-    private static LegendItem copyshop = new LegendItem(GeometryType.POINT, R.string.legend_copy_shop, 17)
-            .addTag("shop", "copyshop").addTag("kind_service", "yes");
-    private static LegendItem laundry = new LegendItem(GeometryType.POINT, R.string.legend_laundry, 17)
-            .addTag("shop", "laundry").addTag("kind_service", "yes");
-    private static LegendItem bank = new LegendItem(GeometryType.POINT, R.string.legend_bank, 17)
-            .addTag("amenity", "bank").addTag("kind_service", "yes");
-    private static LegendItem post_office = new LegendItem(GeometryType.POINT, R.string.legend_post_office, 17)
-            .addTag("amenity", "post_office").addTag("kind_service", "yes");
-    private static LegendItem atm = new LegendItem(GeometryType.POINT, R.string.legend_atm, 17)
-            .addTag("amenity", "atm").addTag("kind_service", "yes");
-    private static LegendItem bureau_de_change = new LegendItem(GeometryType.POINT, R.string.legend_currency_exchange, 17)
-            .addTag("amenity", "bureau_de_change").addTag("kind_service", "yes");
-    private static LegendItem post_box = new LegendItem(GeometryType.POINT, R.string.legend_post_box, 17)
-            .addTag("amenity", "post_box").addTag("kind_service", "yes");
-    private static LegendItem shower = new LegendItem(GeometryType.POINT, R.string.legend_shower, 17)
-            .addTag("amenity", "shower").addTag("kind_service", "yes");
+    private static LegendItem copyshop = new LegendAmenityItem(265);
+    private static LegendItem laundry = new LegendAmenityItem(268);
+    private static LegendItem bank = new LegendAmenityItem(271);
+    private static LegendItem post_office = new LegendAmenityItem(274);
+    private static LegendItem atm = new LegendAmenityItem(277);
+    private static LegendItem bureau_de_change = new LegendAmenityItem(280);
+    private static LegendItem post_box = new LegendAmenityItem(283);
+    private static LegendItem shower = new LegendAmenityItem(286);
 
-    private static LegendItem lighthouse = new LegendItem(GeometryType.POINT, R.string.legend_lighthouse, 17)
-            .addTag("man_made", "lighthouse").addTag("kind_attraction", "yes");
-    private static LegendItem windmill = new LegendItem(GeometryType.POINT, R.string.legend_windmill, 17)
-            .addTag("man_made", "windmill").addTag("kind_attraction", "yes");
-    private static LegendItem museum = new LegendItem(GeometryType.POINT, R.string.legend_museum, 17)
-            .addTag("tourism", "museum").addTag("kind_attraction", "yes");
-    private static LegendItem gallery = new LegendItem(GeometryType.POINT, R.string.legend_gallery, 17)
-            .addTag("tourism", "gallery").addTag("kind_attraction", "yes");
-    private static LegendItem castle = new LegendItem(GeometryType.POINT, R.string.legend_castle, 17)
-            .addTag("historic", "castle").addTag("kind_attraction", "yes");
-    private static LegendItem attraction = new LegendItem(GeometryType.POINT, R.string.legend_attraction, 17)
-            .addTag("tourism", "attraction").addTag("kind_attraction", "yes");
-    private static LegendItem viewpoint = new LegendItem(GeometryType.POINT, R.string.legend_viewpoint, 17)
-            .addTag("tourism", "viewpoint").addTag("kind_attraction", "yes");
-    private static LegendItem artwork = new LegendItem(GeometryType.POINT, R.string.legend_artwork, 17)
-            .addTag("tourism", "artwork").addTag("kind_attraction", "yes");
-    private static LegendItem bust = new LegendItem(GeometryType.POINT, R.string.legend_bust, 17)
-            .addTag("memorial", "bust").addTag("kind_attraction", "yes");
-    private static LegendItem statue = new LegendItem(GeometryType.POINT, R.string.legend_statue, 17)
-            .addTag("memorial", "statue").addTag("kind_attraction", "yes");
-    private static LegendItem memorial = new LegendItem(GeometryType.POINT, R.string.legend_memorial, 17)
-            .addTag("historic", "memorial").addTag("kind_attraction", "yes");
-    private static LegendItem stone = new LegendItem(GeometryType.POINT, R.string.legend_stone, 17)
-            .addTag("memorial", "stone").addTag("kind_attraction", "yes");
-    private static LegendItem plaque = new LegendItem(GeometryType.POINT, R.string.legend_plaque, 17)
-            .addTag("memorial", "plaque").addTag("kind_attraction", "yes");
-    private static LegendItem monument = new LegendItem(GeometryType.POINT, R.string.legend_monument, 17)
-            .addTag("historic", "monument").addTag("kind_attraction", "yes");
-    private static LegendItem archaeological_site = new LegendItem(GeometryType.POINT, R.string.legend_archaeological_site, 17)
-            .addTag("historic", "archaeological_site").addTag("kind_attraction", "yes");
-    private static LegendItem ruins = new LegendItem(GeometryType.POINT, R.string.legend_ruins, 17)
-            .addTag("historic", "ruins").addTag("kind_attraction", "yes");
-    private static LegendItem wayside_shrine = new LegendItem(GeometryType.POINT, R.string.legend_wayside_shrine, 17)
-            .addTag("historic", "wayside_shrine").addTag("kind_attraction", "yes");
+    private static LegendItem lighthouse = new LegendAmenityItem(181);
+    private static LegendItem windmill = new LegendAmenityItem(184);
+    private static LegendItem museum = new LegendAmenityItem(202);
+    private static LegendItem gallery = new LegendAmenityItem(203);
+    private static LegendItem castle = new LegendAmenityItem(190);
+    private static LegendItem attraction = new LegendAmenityItem(223);
+    private static LegendItem viewpoint = new LegendAmenityItem(220);
+    private static LegendItem artwork = new LegendAmenityItem(217);
+    private static LegendItem bust = new LegendAmenityItem(185);
+    private static LegendItem statue = new LegendAmenityItem(188);
+    private static LegendItem memorial = new LegendAmenityItem(189);
+    private static LegendItem stone = new LegendAmenityItem(186);
+    private static LegendItem plaque = new LegendAmenityItem(187);
+    private static LegendItem monument = new LegendAmenityItem(193);
+    private static LegendItem archaeological_site = new LegendAmenityItem(196);
+    private static LegendItem ruins = new LegendAmenityItem(199);
+    private static LegendItem wayside_shrine = new LegendAmenityItem(197);
+    private static LegendItem waterfall = new LegendAmenityItem(178);
 
-    private static LegendItem car = new LegendItem(GeometryType.POINT, R.string.legend_car_dialer, 17)
-            .addTag("shop", "car").addTag("kind_vehicles", "yes");
-    private static LegendItem car_repair = new LegendItem(GeometryType.POINT, R.string.legend_car_repair, 17)
-            .addTag("shop", "car_repair").addTag("kind_vehicles", "yes");
-    private static LegendItem car_rental = new LegendItem(GeometryType.POINT, R.string.legend_car_rental, 17)
-            .addTag("amenity", "car_rental").addTag("kind_vehicles", "yes");
-    private static LegendItem fuel = new LegendItem(GeometryType.POINT, R.string.legend_fuel_station, 17)
-            .addTag("amenity", "fuel").addTag("kind_vehicles", "yes");
-    private static LegendItem slipway = new LegendItem(GeometryType.POINT, R.string.legend_slipway, 17)
-            .addTag("amenity", "slipway").addTag("kind_vehicles", "yes");
+    private static LegendItem car = new LegendAmenityItem(229);
+    private static LegendItem car_repair = new LegendAmenityItem(232);
+    private static LegendItem car_rental = new LegendAmenityItem(235);
+    private static LegendItem fuel = new LegendAmenityItem(238);
+    private static LegendItem slipway = new LegendAmenityItem(241);
     private static LegendItem parking_point = new LegendItem(GeometryType.POINT, R.string.legend_parking, 17)
-            .addTag("amenity", "parking").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").setKind(11);
     private static LegendItem parking = new LegendItem(GeometryType.POLY, R.string.legend_parking, 17)
-            .addTag("amenity", "parking").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").setKind(11);
     private static LegendItem parking_unpaved = new LegendItem(GeometryType.POLY, R.string.legend_unpaved_parking, 17)
-            .addTag("amenity", "parking").addTag("surface", "unpaved").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").addTag("surface", "unpaved").setKind(11);
     private static LegendItem parking_dirt = new LegendItem(GeometryType.POLY, R.string.legend_dirt_parking, 17)
-            .addTag("amenity", "parking").addTag("surface", "dirt").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").addTag("surface", "dirt").setKind(11);
     private static LegendItem parking_car_paid = new LegendItem(GeometryType.POLY, R.string.legend_paid_parking, 17)
-            .addTag("amenity", "parking").addTag("fee", "yes").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").addTag("fee", "yes").setKind(11);
     private static LegendItem parking_private = new LegendItem(GeometryType.POLY, R.string.legend_private_parking, 17)
-            .addTag("amenity", "parking").addTag("access", "private").addTag("kind_vehicles", "yes");
+            .addTag("amenity", "parking").addTag("access", "private").setKind(11);
 
-    private static LegendItem place_of_worship = new LegendItem(GeometryType.POINT, R.string.legend_place_of_worship, 17)
-            .addTag("amenity", "place_of_worship").addTag("kind_religion", "yes");
-    private static LegendItem jewish = new LegendItem(GeometryType.POINT, R.string.legend_jewish_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "jewish").addTag("kind_religion", "yes");
-    private static LegendItem muslim = new LegendItem(GeometryType.POINT, R.string.legend_muslim_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "muslim").addTag("kind_religion", "yes");
-    private static LegendItem buddhist = new LegendItem(GeometryType.POINT, R.string.legend_buddhist_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "buddhist").addTag("kind_religion", "yes");
-    private static LegendItem hindu = new LegendItem(GeometryType.POINT, R.string.legend_hindu_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "hindu").addTag("kind_religion", "yes");
-    private static LegendItem shinto = new LegendItem(GeometryType.POINT, R.string.legend_shinto_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "shinto").addTag("kind_religion", "yes");
-    private static LegendItem christian = new LegendItem(GeometryType.POINT, R.string.legend_christian_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "christian").addTag("kind_religion", "yes");
-    private static LegendItem sikh = new LegendItem(GeometryType.POINT, R.string.legend_sikh_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "sikh").addTag("kind_religion", "yes");
-    private static LegendItem taoist = new LegendItem(GeometryType.POINT, R.string.legend_taoist_place, 17)
-            .addTag("amenity", "place_of_worship").addTag("religion", "taoist").addTag("kind_religion", "yes");
+    private static LegendItem place_of_worship = new LegendAmenityItem(420);
+    private static LegendItem jewish = new LegendAmenityItem(401);
+    private static LegendItem muslim = new LegendAmenityItem(402);
+    private static LegendItem buddhist = new LegendAmenityItem(403);
+    private static LegendItem hindu = new LegendAmenityItem(404);
+    private static LegendItem shinto = new LegendAmenityItem(405);
+    private static LegendItem christian = new LegendAmenityItem(406);
+    private static LegendItem sikh = new LegendAmenityItem(407);
+    private static LegendItem taoist = new LegendAmenityItem(408);
 
-    private static LegendItem bicycle_rental = new LegendItem(GeometryType.POINT, R.string.legend_bicycle_rental, 17)
-            .addTag("amenity", "bicycle_rental").addTag("kind_hikebike", "yes");
-    private static LegendItem drinking_water = new LegendItem(GeometryType.POINT, R.string.legend_drinking_water, 17)
-            .addTag("amenity", "drinking_water").addTag("kind_hikebike", "yes");
-    private static LegendItem shelter = new LegendItem(GeometryType.POINT, R.string.legend_shelter, 17)
-            .addTag("amenity", "shelter").addTag("kind_hikebike", "yes");
-    private static LegendItem toilets = new LegendItem(GeometryType.POINT, R.string.legend_toilets, 17)
-            .addTag("amenity", "toilets").addTag("kind_hikebike", "yes");
-    private static LegendItem firepit = new LegendItem(GeometryType.POINT, R.string.legend_firepit, 17)
-            .addTag("leisure", "firepit").addTag("kind_hikebike", "yes");
-    private static LegendItem information_office = new LegendItem(GeometryType.POINT, R.string.legend_information_office, 17)
-            .addTag("tourism", "information").addTag("information", "office").addTag("kind_hikebike", "yes");
-    private static LegendItem information_guidepost = new LegendItem(GeometryType.POINT, R.string.legend_guidepost, 17)
-            .addTag("tourism", "information").addTag("information", "guidepost").addTag("kind_hikebike", "yes");
-    private static LegendItem information_map = new LegendItem(GeometryType.POINT, R.string.legend_map, 17)
-            .addTag("tourism", "information").addTag("information", "map").addTag("kind_hikebike", "yes");
-    private static LegendItem information = new LegendItem(GeometryType.POINT, R.string.legend_information, 17)
-            .addTag("tourism", "information").addTag("kind_hikebike", "yes");
+    private static LegendItem bicycle_rental = new LegendAmenityItem(250);
+    private static LegendItem drinking_water = new LegendAmenityItem(253);
+    private static LegendItem shelter = new LegendAmenityItem(256);
+    private static LegendItem toilets = new LegendAmenityItem(259);
+    private static LegendItem firepit = new LegendAmenityItem(86);
+    private static LegendItem information_office = new LegendAmenityItem(205);
+    private static LegendItem information_guidepost = new LegendAmenityItem(208);
+    private static LegendItem information_map = new LegendAmenityItem(211);
+    private static LegendItem information = new LegendAmenityItem(214);
+
+    private static LegendItem fountain = new LegendAmenityItem(226);
 
     private static LegendItem land = new LegendItem(GeometryType.POLY, R.string.legend_land, 14)
             .addTag("natural", "land");
@@ -1671,6 +1554,7 @@ public class Legend extends ListFragment {
                         continue;
             }
             mData.add(new LegendItem(GeometryType.NONE, section.title, 0));
+            boolean hasItems = false;
             for (LegendItem item : section.items) {
                 switch (activity) {
                     case 2: // Winter
@@ -1692,8 +1576,15 @@ public class Legend extends ListFragment {
                         if (notUrbanItems.contains(item))
                             continue;
                 }
+                if (item.kind > 0 && Tags.kindZooms[item.kind] > 17)
+                    continue;
+                if (item instanceof LegendView.LegendAmenityItem && !Tags.isVisible(((LegendView.LegendAmenityItem)item).type))
+                    continue;
                 mData.add(item);
+                hasItems = true;
             }
+            if (!hasItems) // remove section header if all items were skipped
+                mData.remove(mData.size() - 1);
         }
 
         for (RenderStyle style : mTheme.matchElement(land.type, land.tags, land.zoomLevel)) {
