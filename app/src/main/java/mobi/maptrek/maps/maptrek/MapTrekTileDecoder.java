@@ -564,7 +564,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         }
 
         if (depth > 0) { // we set it here because extra tags should be added after filtering
-            mElem.depth = deZigZag(decodeVarint32());
+            mElem.depth = depth;
             mElem.tags.add(Tags.TAG_DEPTH); // required for style filtering
         }
 
