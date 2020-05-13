@@ -1656,10 +1656,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
 
-    private void onRecordClicked() {
-        if (HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.recordButton, false))
-            return;
-
+    private void onRecordLongClicked() {
         if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission();
@@ -1676,7 +1673,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    private void onRecordLongClicked() {
+    private void onRecordClicked() {
+        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.recordButton, false);
         Bundle args = new Bundle(1);
         args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, true);
         Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), args);

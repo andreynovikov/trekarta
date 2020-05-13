@@ -197,8 +197,8 @@
     <string name="advice_map_settings">You can long press maps button to access extra map settings</string>
     <string name="advice_map_legend">You can long press maps button to see map legend</string>
     <string name="advice_adding_place">You can quickly create place in current map position by long pressing Places button</string>
-    <string name="advice_record_track">Press Record button to start track recording, during recording press it to see current track statistics or to stop recording. You can close application during recording, the track will be recorded in background.</string>
-    <string name="advice_recorded_tracks">Long press Record button to access your recorded tracks</string>
+    <string name="advice_record_track">Long press Record button to start track recording, during recording long press it to see current track statistics or to stop recording. You can close application during recording, the track will be recorded in background.</string>
+    <string name="advice_recorded_tracks">Press Record button to access your recorded tracks</string>
     <string name="advice_view_data_item">Press right arrow button to position map on corresponding item</string>
     <string name="advice_switch_coordinates_format">Press coordinates to cycle through different formats</string>
     <string name="advice_locked_coordinates">You can lock place coordinates to prevent accidental dragging of it\'s marker. All places that come from external sources are considered precisely positioned and are locked by default while places that you create on map are treated as approximate and are initially unlocked.</string>
