@@ -91,13 +91,10 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
-            switch (name) {
-                case GpxFile.TAG_NAME:
-                    metadata.name = readTextElement(parser, GpxFile.TAG_NAME);
-                    break;
-                default:
-                    skip(parser);
-                    break;
+            if (GpxFile.TAG_NAME.equals(name)) {
+                metadata.name = readTextElement(parser, GpxFile.TAG_NAME);
+            } else {
+                skip(parser);
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_METADATA);
@@ -107,7 +104,9 @@ public class GpxParser {
     @NonNull
     private static Waypoint readWaypoint(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_WPT);
-        Waypoint waypoint = new Waypoint(Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
+        Waypoint waypoint = new Waypoint(
+                Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)),
+                Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
         waypoint.locked = true;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -181,14 +180,11 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
-            switch (name) {
-                case GpxFile.TAG_TRKPT:
-                    readTrackPoint(parser, track, continuous);
-                    continuous = true;
-                    break;
-                default:
-                    skip(parser);
-                    break;
+            if (GpxFile.TAG_TRKPT.equals(name)) {
+                readTrackPoint(parser, track, continuous);
+                continuous = true;
+            } else {
+                skip(parser);
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_TRKSEG);
@@ -196,8 +192,8 @@ public class GpxParser {
 
     private static void readTrackPoint(XmlPullParser parser, Track track, boolean continuous) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_TRKPT);
-        float lat = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
-        float lon = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        float lat = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
+        float lon = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
         float altitude = Float.NaN;
         long time = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -257,18 +253,14 @@ public class GpxParser {
 
     private static void readRoutePoint(XmlPullParser parser, Route route) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_RTEPT);
-        float lat = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
-        float lon = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        float lat = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
+        float lon = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            String name = parser.getName();
-            switch (name) {
-                default:
-                    skip(parser);
-                    break;
-            }
+            parser.getName();
+            skip(parser);
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_RTEPT);
         route.addInstruction((int) (lat * 1E6), (int) (lon * 1E6));

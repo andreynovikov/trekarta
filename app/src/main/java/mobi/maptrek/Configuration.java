@@ -27,12 +27,10 @@ import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
 import java.util.Collection;
-import java.util.StringJoiner;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.maptrek.Tags;
-import mobi.maptrek.util.StringUtils;
 import mobi.maptrek.view.GaugePanel;
 
 @SuppressWarnings("WeakerAccess")
@@ -173,7 +171,7 @@ public class Configuration {
         MapObject waypoint = null;
         String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
         if (navWpt != null) {
-            waypoint = new MapObject((double) mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
+            waypoint = new MapObject(mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
             waypoint.name = navWpt;
             waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
             saveString(PREF_NAVIGATION_WAYPOINT, null);
@@ -573,10 +571,10 @@ public class Configuration {
         EventBus.getDefault().post(new ChangedEvent(key));
     }
 
-    public static boolean commit() {
+    public static void commit() {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        return editor.commit();
+        editor.commit();
     }
 
     public static void loadKindZoomState() {

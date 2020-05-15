@@ -289,7 +289,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         return coordCnt;
     }
 
-    private boolean decodeTileElement(Tile tile, int geomType) throws IOException {
+    private void decodeTileElement(Tile tile, int geomType) throws IOException {
         mElem.clearData();
 
         int bytes = decodeVarint32();
@@ -350,7 +350,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_ELEM_TAGS:
                     if (!decodeElementTags(numTags))
-                        return false;
+                        return;
                     break;
 
                 case TAG_ELEM_NUM_INDICES:
@@ -482,7 +482,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     mElem.tags,
                     numIndices,
                     coordCnt);
-            return false;
+            return;
         }
 
         switch (geomType) {
@@ -532,7 +532,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                 mElem.tags.remove(tag);
 
             if (mElem.tags.size() == 0 || !(hasKind || place_road_building || geomType != TAG_TILE_POINT))
-                return true;
+                return;
 
             if (someKind) // required for building names
                 mElem.tags.add(Tags.TAG_KIND);
@@ -570,7 +570,6 @@ class MapTrekTileDecoder extends PbfDecoder {
 
         mMapDataSink.process(mElem);
 
-        return true;
     }
 
     private boolean decodeElementTags(int numTags) throws IOException {

@@ -102,8 +102,6 @@ public class LocationService extends BaseLocationService implements LocationList
     private boolean mContinuous = false;
     private boolean mJustStarted = true;
     private float mNmeaGeoidHeight = Float.NaN;
-    private float mHDOP = Float.NaN;
-    private float mVDOP = Float.NaN;
 
     // Tracking
     private SQLiteDatabase mTrackDB = null;
@@ -946,12 +944,12 @@ public class LocationService extends BaseLocationService implements LocationList
 
         @Override
         public float getHDOP() {
-            return mHDOP;
+            return Float.NaN;
         }
 
         @Override
         public float getVDOP() {
-            return mVDOP;
+            return Float.NaN;
         }
 
         @Override

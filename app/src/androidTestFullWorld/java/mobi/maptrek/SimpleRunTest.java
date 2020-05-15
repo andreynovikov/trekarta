@@ -103,7 +103,7 @@ public class SimpleRunTest {
                 allOf(withId(R.id.title), withText("Trekarta"),
                         childAtPosition(
                                 childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 1),
                         isDisplayed()));

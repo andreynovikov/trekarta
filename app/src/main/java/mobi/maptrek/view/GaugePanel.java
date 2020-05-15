@@ -251,7 +251,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         String[] gauges = settings.split(",");
         for (String gaugeStr : gauges) {
-            int type = Integer.valueOf(gaugeStr);
+            int type = Integer.parseInt(gaugeStr);
             addGauge(type);
         }
         setNavigationMode(false);

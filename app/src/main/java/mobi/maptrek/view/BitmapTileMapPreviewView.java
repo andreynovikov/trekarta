@@ -395,14 +395,12 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             THREAD_NAME = "BitmapTileLoader";
         }
 
-        boolean loadTile(MapTile tile) {
+        void loadTile(MapTile tile) {
             try {
                 mTileSource.getDataSource().query(tile, this);
             } catch (Exception e) {
                 logger.error("{}: {}", tile, e.getMessage());
-                return false;
             }
-            return true;
         }
 
         void go() {

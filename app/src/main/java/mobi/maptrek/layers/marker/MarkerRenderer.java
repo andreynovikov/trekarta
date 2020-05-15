@@ -268,30 +268,27 @@ class MarkerRenderer extends BucketRenderer {
         ZSORT.doSort(a, zComparator, lo, hi);
     }
 
-    private final static Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
-        @Override
-        public int compare(InternalItem a, InternalItem b) {
-            if (a.visible && b.visible) {
-                if (a.dy > b.dy) {
-                    return -1;
-                }
-                if (a.dy < b.dy) {
-                    return 1;
-                }
-            } else if (a.visible) {
+    private final static Comparator<InternalItem> zComparator = (a, b) -> {
+        if (a.visible && b.visible) {
+            if (a.dy > b.dy) {
                 return -1;
-            } else if (b.visible) {
+            }
+            if (a.dy < b.dy) {
                 return 1;
             }
-
-            return 0;
+        } else if (a.visible) {
+            return -1;
+        } else if (b.visible) {
+            return 1;
         }
+
+        return 0;
     };
 
-    private boolean init() {
+    private void init() {
         int shader = GLShader.createProgram(vShaderStr, fShaderStr);
         if (shader == 0)
-            return false;
+            return;
 
         mShaderProgram = shader;
         hVertexPosition = gl.getAttribLocation(shader, "a_pos");
@@ -299,7 +296,6 @@ class MarkerRenderer extends BucketRenderer {
         hScale = gl.getUniformLocation(shader, "u_scale");
         hColor = gl.getUniformLocation(shader, "u_color");
 
-        return true;
     }
 
     private final static String vShaderStr = ""

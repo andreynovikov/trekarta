@@ -338,7 +338,7 @@ public class StringFormatter
 		if (seconds <= 59)
 		{
 			if (t)
-				return new String[] {"> " + String.valueOf(timeout), secondAbbr};
+				return new String[] {"> " + timeout, secondAbbr};
 			else
 				return new String[] {String.valueOf(seconds), secondAbbr};
 		}
@@ -346,7 +346,7 @@ public class StringFormatter
 		if (t)
 		{
 			min = (int) Math.floor(timeout / 60);
-			return new String[] {"> " + String.valueOf(min), minuteAbbr};
+			return new String[] {"> " + min, minuteAbbr};
 		}
 		else
 			return new String[] {String.valueOf(min), minuteAbbr};

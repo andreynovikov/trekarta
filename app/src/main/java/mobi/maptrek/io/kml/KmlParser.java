@@ -249,13 +249,10 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
-            switch (name) {
-                case KmlFile.TAG_COORDINATES:
-                    coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
-                    break;
-                default:
-                    skip(parser);
-                    break;
+            if (KmlFile.TAG_COORDINATES.equals(name)) {
+                coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
+            } else {
+                skip(parser);
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_POINT);
@@ -287,13 +284,10 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
-            switch (name) {
-                case KmlFile.TAG_COORDINATES:
-                    coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
-                    break;
-                default:
-                    skip(parser);
-                    break;
+            if (KmlFile.TAG_COORDINATES.equals(name)) {
+                coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
+            } else {
+                skip(parser);
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_LINE_STRING);
@@ -400,14 +394,11 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
-            switch (name) {
-                case KmlFile.TAG_PAIR:
-                    Pair<String, String> pair = readPair(parser);
-                    styleMap.map.put(pair.first, pair.second);
-                    break;
-                default:
-                    skip(parser);
-                    break;
+            if (KmlFile.TAG_PAIR.equals(name)) {
+                Pair<String, String> pair = readPair(parser);
+                styleMap.map.put(pair.first, pair.second);
+            } else {
+                skip(parser);
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_STYLE_MAP);

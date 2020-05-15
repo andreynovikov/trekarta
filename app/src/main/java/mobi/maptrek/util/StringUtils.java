@@ -32,11 +32,11 @@ public class StringUtils {
     public static String capitalize(String line)
     {
         StringTokenizer token =new StringTokenizer(line);
-        String CapLine="";
+        StringBuilder CapLine= new StringBuilder();
         while(token.hasMoreTokens())
         {
             String tok = token.nextToken();
-            CapLine += Character.toUpperCase(tok.charAt(0))+ tok.substring(1)+" ";
+            CapLine.append(Character.toUpperCase(tok.charAt(0))).append(tok.substring(1)).append(" ");
         }
         return CapLine.substring(0,CapLine.length()-1);
     }

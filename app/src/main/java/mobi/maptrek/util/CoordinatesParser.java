@@ -224,41 +224,42 @@ public class CoordinatesParser {
         }
         double lat = Double.NaN, lon = Double.NaN, latSign = 1, lonSign = 1;
         for (Token token : result.tokens) {
+            int sign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
             if (token.t == Type.H_PREFIX) {
                 if (Double.isNaN(lat))
-                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                    latSign = sign;
                 else if (Double.isNaN(lon))
-                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                    lonSign = sign;
                 else
                     throw new IllegalArgumentException("Wrong coordinates format");
             }
             if (token.t == Type.H_SUFFIX) {
                 if (!Double.isNaN(lon))
-                    lonSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                    lonSign = sign;
                 else if (!Double.isNaN(lat))
-                    latSign = ("-".equals(token.c) || "S".equals(token.c) || "W".equals(token.c)) ? -1 : 1;
+                    latSign = sign;
                 else
                     throw new IllegalArgumentException("Wrong coordinates format");
             }
             if (token.t == Type.DEG) {
                 if (Double.isNaN(lat))
-                    lat = Double.valueOf(token.c);
+                    lat = Double.parseDouble(token.c);
                 else
-                    lon = Double.valueOf(token.c);
+                    lon = Double.parseDouble(token.c);
             }
             if (token.t == Type.MIN) {
                 if (!Double.isNaN(lon))
-                    lon += Math.signum(lon) * Double.valueOf(token.c) / 60;
+                    lon += Math.signum(lon) * Double.parseDouble(token.c) / 60;
                 else if (!Double.isNaN(lat))
-                    lat += Math.signum(lat) * Double.valueOf(token.c) / 60;
+                    lat += Math.signum(lat) * Double.parseDouble(token.c) / 60;
                 else
                     throw new IllegalArgumentException("Wrong coordinates format");
             }
             if (token.t == Type.SEC) {
                 if (!Double.isNaN(lon))
-                    lon += Math.signum(lon) * Double.valueOf(token.c) / 3600;
+                    lon += Math.signum(lon) * Double.parseDouble(token.c) / 3600;
                 else if (!Double.isNaN(lat))
-                    lat += Math.signum(lat) * Double.valueOf(token.c) / 3600;
+                    lat += Math.signum(lat) * Double.parseDouble(token.c) / 3600;
                 else
                     throw new IllegalArgumentException("Wrong coordinates format");
             }
@@ -283,18 +284,18 @@ public class CoordinatesParser {
         double northing = Double.NaN;
         for (Token token : tokens) {
             if (token.t == Type.UTM_ZONE) {
-                zone = Integer.valueOf(token.c.substring(0, token.c.length() - 1));
-                hemisphere = token.c.substring(token.c.length() - 1, token.c.length());
+                zone = Integer.parseInt(token.c.substring(0, token.c.length() - 1));
+                hemisphere = token.c.substring(token.c.length() - 1);
                 if ("N".equals(hemisphere))
                     hemisphere = AVKey.NORTH;
                 if ("S".equals(hemisphere))
                     hemisphere = AVKey.SOUTH;
             }
             if (token.t == Type.UTM_EASTING) {
-                easting = Double.valueOf(token.c);
+                easting = Double.parseDouble(token.c);
             }
             if (token.t == Type.UTM_NORTHING) {
-                northing = Double.valueOf(token.c);
+                northing = Double.parseDouble(token.c);
             }
         }
         if (zone == 0 || Double.isNaN(easting) || Double.isNaN(northing))

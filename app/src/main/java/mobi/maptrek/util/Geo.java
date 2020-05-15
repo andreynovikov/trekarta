@@ -39,7 +39,8 @@ public class Geo
 		{
 			double sinLambda = Math.sin(lambda);
 			double cosLambda = Math.cos(lambda);
-			sinSigma = Math.sqrt((cosU2*sinLambda) * (cosU2*sinLambda) + (cosU1*sinU2-sinU1*cosU2*cosLambda) * (cosU1*sinU2-sinU1*cosU2*cosLambda));
+			double var = cosU1 * sinU2 - sinU1 * cosU2 * cosLambda;
+			sinSigma = Math.sqrt((cosU2*sinLambda) * (cosU2*sinLambda) + var * var);
 			if (sinSigma==0) return 0;  // co-incident points
 			cosSigma = sinU1*sinU2 + cosU1*cosU2*cosLambda;
 			sigma = Math.atan2(sinSigma, cosSigma);
@@ -65,9 +66,8 @@ public class Geo
 		double A = 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
 		double B = uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)));
 		double deltaSigma = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
-		double s = b*A*(sigma-deltaSigma);
-  
-		return s;
+
+		return b*A*(sigma-deltaSigma);
 	}
 	
 	public static double bearing(double lat1, double lon1, double lat2, double lon2)
@@ -88,9 +88,8 @@ public class Geo
 		// WGS-84 ellipsoid
 		double a = 6378137;
 		double b = 6356752.3142;
-		double f = 1/298.257223563;  
-		
-		double s = distance;
+		double f = 1/298.257223563;
+
 		double alpha1 = Math.toRadians(bearing);
 		double sinAlpha1 = Math.sin(alpha1);
 		double cosAlpha1 = Math.cos(alpha1);
@@ -104,7 +103,7 @@ public class Geo
 		double A = 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
 		double B = uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)));
 		  
-		double sigma = s / (b*A), sigmaP = 2*Math.PI;
+		double sigma = distance / (b*A), sigmaP;
 
 		double sinSigma, cosSigma, cos2SigmaM, iterLimit = 100;
 		
@@ -116,7 +115,7 @@ public class Geo
 			double deltaSigma = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-
 		      B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
 		    sigmaP = sigma;
-		    sigma = s / (b*A) + deltaSigma;
+		    sigma = distance / (b*A) + deltaSigma;
 		}
 		while (Math.abs(sigma-sigmaP) > 1e-12 && --iterLimit>0);
 
@@ -128,8 +127,7 @@ public class Geo
 		double L = lambda - (1-C) * f * sinAlpha *
 				(sigma + C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)));
 
-		double[] result = {Math.toDegrees(lat2), lon+Math.toDegrees(L)};
-		return result;
+		return new double[]{Math.toDegrees(lat2), lon+Math.toDegrees(L)};
 	}
 
 

@@ -112,8 +112,8 @@ public class MapService extends IntentService {
                 try {
                     if (parts.length != 3)
                         throw new NumberFormatException("unexpected name");
-                    x = Integer.valueOf(parts[0]);
-                    y = Integer.valueOf(parts[1]);
+                    x = Integer.parseInt(parts[0]);
+                    y = Integer.parseInt(parts[1]);
                     hillshade = "mbtiles".equals(parts[2]);
                     if (x > 127 || y > 127)
                         throw new NumberFormatException("out of range");

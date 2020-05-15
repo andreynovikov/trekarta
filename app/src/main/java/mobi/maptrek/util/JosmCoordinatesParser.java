@@ -137,7 +137,7 @@ public final class JosmCoordinatesParser {
                 result.coordinates = new GeoPoint(mgrs.getLatitude().degrees, mgrs.getLongitude().degrees);
                 return result;
             } else {
-                int zone = Integer.valueOf(mUtm.group(1));
+                int zone = Integer.parseInt(mUtm.group(1));
                 String hemisphere = mUtm.group(2);
                 double easting, northing;
                 if ("N".equals(hemisphere))
@@ -145,13 +145,13 @@ public final class JosmCoordinatesParser {
                 if ("S".equals(hemisphere))
                     hemisphere = AVKey.SOUTH;
                 if (mUtm.group(6) != null) {
-                    easting = Double.valueOf(mUtm.group(5));
-                    northing = Double.valueOf(mUtm.group(6));
+                    easting = Double.parseDouble(mUtm.group(5));
+                    northing = Double.parseDouble(mUtm.group(6));
                 } else {
                     String en = mUtm.group(4);
                     int l = en.length() >> 1;
-                    easting = Double.valueOf(en.substring(0, l));
-                    northing = Double.valueOf(en.substring(l, en.length()));
+                    easting = Double.parseDouble(en.substring(0, l));
+                    northing = Double.parseDouble(en.substring(l));
                 }
                 UTMCoord utm = UTMCoord.fromUTM(zone, hemisphere, easting, northing);
                 result.coordinates = new GeoPoint(utm.getLatitude().degrees, utm.getLongitude().degrees);

@@ -37,7 +37,6 @@ import mobi.maptrek.util.StringFormatter;
 public class RouteInformation extends ListFragment {
     private Route mRoute;
 
-    private InstructionListAdapter mAdapter;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnRouteActionListener mListener;
@@ -57,7 +56,7 @@ public class RouteInformation extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mAdapter = new InstructionListAdapter(getActivity());
+        InstructionListAdapter mAdapter = new InstructionListAdapter(getActivity());
         setListAdapter(mAdapter);
 
     }

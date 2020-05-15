@@ -34,8 +34,6 @@ public class DiscreteSeekBar extends AppCompatSeekBar {
     private static int MULTIPLIER = 100;
     // endregion
 
-    // region Member Variables
-    private int tickMarkCount = 0;
     private float stepSize = 0.0f;
     private int superOldProgress = 0;
     // This counter detects if the user clicked the SeekBar or dragged the SeekBar
@@ -113,9 +111,10 @@ public class DiscreteSeekBar extends AppCompatSeekBar {
     }
 
     public void setTickMarkCount(int tickMarkCount) {
-        this.tickMarkCount = tickMarkCount < 2 ? 2 : tickMarkCount;
-        setMax((this.tickMarkCount-1) * MULTIPLIER);
-        this.stepSize = getMax()/(this.tickMarkCount-1);
+        // region Member Variables
+        int tickMarkCount1 = Math.max(tickMarkCount, 2);
+        setMax((tickMarkCount1 -1) * MULTIPLIER);
+        this.stepSize = getMax()/(tickMarkCount1 -1);
     }
 
     public void setOnDiscreteSeekBarChangeListener(OnDiscreteSeekBarChangeListener onDiscreteSeekBarChangeListener){

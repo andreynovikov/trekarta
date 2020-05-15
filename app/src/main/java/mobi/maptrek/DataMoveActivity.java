@@ -145,16 +145,13 @@ public class DataMoveActivity extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mDataMoveFragment.startDataMove();
-                } else {
-                    Configuration.setNewExternalStorage(null);
-                    finish();
-                }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mDataMoveFragment.startDataMove();
+            } else {
+                Configuration.setNewExternalStorage(null);
+                finish();
             }
         }
     }
@@ -222,7 +219,6 @@ public class DataMoveActivity extends Activity {
         private ProgressListener mProgressListener;
         private int mProgress;
         private int mDivider = 1;
-        private File mSource;
         private File mDestination;
         private final Object lock = new Object();
         private boolean mStopped;
@@ -274,6 +270,7 @@ public class DataMoveActivity extends Activity {
             mStopped = false;
 
             String currentStorage = Configuration.getExternalStorage();
+            File mSource;
             if (currentStorage != null)
                 mSource = new File(currentStorage);
             else

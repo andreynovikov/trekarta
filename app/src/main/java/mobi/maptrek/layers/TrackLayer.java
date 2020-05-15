@@ -128,11 +128,11 @@ public class TrackLayer extends Layer {
 
     private final class Worker extends SimpleWorker<Task> {
         private static final int GROW_INDICES = 32;
-        // limit coords to maximum resolution of GL.Short
-        private final int MAX_CLIP = (int) (Short.MAX_VALUE / MapRenderer.COORD_SCALE);
 
         Worker(Map map) {
             super(map, 0, new Task(), new Task());
+            // limit coords to maximum resolution of GL.Short
+            int MAX_CLIP = (int) (Short.MAX_VALUE / MapRenderer.COORD_SCALE);
             mClipper = new LineClipper(-MAX_CLIP, -MAX_CLIP, MAX_CLIP, MAX_CLIP);
             mPPoints = new float[0];
         }
@@ -175,7 +175,7 @@ public class TrackLayer extends Layer {
 
                         if (!point.continuous && i > 0) {
                             if (indexPos + 1 >= index.length)
-                                ensureIndexSize(indexPos + 1, true);
+                                ensureIndexSize(indexPos + 1);
                             index[indexPos] = i;
                             indexPos++;
                             if (index.length > indexPos + 1)
@@ -325,22 +325,18 @@ public class TrackLayer extends Layer {
 
         /**
          * Ensure index size.
+         *  @param size the size
          *
-         * @param size the size
-         * @param copy the copy
-         * @return the short[] array holding current index
          */
-        int[] ensureIndexSize(int size, boolean copy) {
+        void ensureIndexSize(int size) {
             if (size < index.length)
-                return index;
+                return;
 
             int[] newIndex = new int[size + GROW_INDICES];
-            if (copy)
-                System.arraycopy(index, 0, newIndex, 0, index.length);
+            System.arraycopy(index, 0, newIndex, 0, index.length);
 
             index = newIndex;
 
-            return index;
         }
     }
 }

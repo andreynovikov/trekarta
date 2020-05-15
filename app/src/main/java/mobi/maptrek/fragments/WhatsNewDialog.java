@@ -75,9 +75,7 @@ public class WhatsNewDialog extends DialogFragment {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(R.string.whatsNewTitle);
-        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> {
-            Configuration.setLastSeenChangelog(MapTrek.versionCode);
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> Configuration.setLastSeenChangelog(MapTrek.versionCode));
         dialogBuilder.setView(dialogView);
 
         return dialogBuilder.create();

@@ -35,10 +35,9 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
     private final List<Item> mItemList;
     private final Point mTmpPoint = new Point();
     private OnItemGestureListener<Item> mOnItemGestureListener;
-    private int mDrawnItemsLimit = Integer.MAX_VALUE;
 
     public ItemizedLayer(Map map, MarkerSymbol defaultMarker, float scale) {
-        this(map, new ArrayList<Item>(), defaultMarker, scale, null);
+        this(map, new ArrayList<>(), defaultMarker, scale, null);
     }
 
     public ItemizedLayer(Map map, List<Item> list,
@@ -63,13 +62,13 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
 
     @Override
     public int size() {
+        int mDrawnItemsLimit = Integer.MAX_VALUE;
         return Math.min(mItemList.size(), mDrawnItemsLimit);
     }
 
-    public boolean addItem(Item item) {
-        final boolean result = mItemList.add(item);
+    public void addItem(Item item) {
+        mItemList.add(item);
         populate();
-        return result;
     }
 
     public void addItem(int location, Item item) {
@@ -136,12 +135,9 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
         return this.mOnItemGestureListener.onItemLongPress(index, item);
     }
 
-    private final ActiveItem mActiveItemLongPress = new ActiveItem() {
-        @Override
-        public boolean run(final int index) {
-            final ItemizedLayer<Item> that = ItemizedLayer.this;
-            return that.mOnItemGestureListener != null && onLongPressHelper(index, that.mItemList.get(index));
-        }
+    private final ActiveItem mActiveItemLongPress = index -> {
+        final ItemizedLayer<Item> that = ItemizedLayer.this;
+        return that.mOnItemGestureListener != null && onLongPressHelper(index, that.mItemList.get(index));
     };
 
     /**

@@ -142,11 +142,11 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
         String orderBy;
         if (mLatitudeE6 != 0 || mLongitudeE6 != 0) {
             double cos2 = Math.pow(Math.cos(Math.toRadians(GeoPoint.e6ToDegree(mLatitudeE6))), 2d);
-            orderBy = "((" + WaypointDbHelper.COLUMN_LATE6 + "-(" + Integer.toString(mLatitudeE6) +
-                    "))*(" + WaypointDbHelper.COLUMN_LATE6 + "-(" + Integer.toString(mLatitudeE6) +
-                    "))+(" +Double.toString(cos2) + ")*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
-                    Integer.toString(mLongitudeE6)+ "))*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
-                    Integer.toString(mLongitudeE6) + "))) ASC";
+            orderBy = "((" + WaypointDbHelper.COLUMN_LATE6 + "-(" + mLatitudeE6 +
+                    "))*(" + WaypointDbHelper.COLUMN_LATE6 + "-(" + mLatitudeE6 +
+                    "))+(" + cos2 + ")*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
+                    mLongitudeE6 + "))*(" + WaypointDbHelper.COLUMN_LONE6 + "-(" +
+                    mLongitudeE6 + "))) ASC";
         } else {
             orderBy = WaypointDbHelper.COLUMN_NAME;
         }

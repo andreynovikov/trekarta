@@ -109,15 +109,15 @@ public class DiscreteSliderBackdrop extends FrameLayout {
     }
 
     public void setTickMarkCount(int tickMarkCount) {
-        this.tickMarkCount = tickMarkCount < 2 ? 2 : tickMarkCount;
+        this.tickMarkCount = Math.max(tickMarkCount, 2);
     }
 
     public void setTickMarkRadius(float tickMarkRadius) {
-        this.tickMarkRadius = tickMarkRadius < 2.0F ? 2.0F : tickMarkRadius;
+        this.tickMarkRadius = Math.max(tickMarkRadius, 2.0F);
     }
 
     public void setHorizontalBarThickness(float horizontalBarThickness) {
-        this.horizontalBarThickness = horizontalBarThickness < 2.0F ? 2.0F : horizontalBarThickness;
+        this.horizontalBarThickness = Math.max(horizontalBarThickness, 2.0F);
     }
 
     public void setBackdropFillColor(int backdropFillColor) {
@@ -129,7 +129,7 @@ public class DiscreteSliderBackdrop extends FrameLayout {
     }
 
     public void setBackdropStrokeWidth(float backdropStrokeWidth) {
-        this.backdropStrokeWidth = backdropStrokeWidth < 1.0F ? 1.0F : backdropStrokeWidth;
+        this.backdropStrokeWidth = Math.max(backdropStrokeWidth, 1.0F);
     }
 
     public void setPadding(float padding) {

@@ -281,7 +281,7 @@ public class OsmcSymbolFactory {
         paint.getTextBounds(text, 0, text.length(), bounds);
 
         // Do not oversize too short text
-        float width = bounds.width() > bounds.height() ? bounds.width() : bounds.height();
+        float width = Math.max(bounds.width(), bounds.height());
 
         // Calculate the desired size as a proportion of our testTextSize.
         float desiredTextSize = testTextSize * desiredWidth / width;

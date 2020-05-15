@@ -123,11 +123,7 @@ public class DiscreteSlider extends FrameLayout {
     public void setPosition(int position) {
         if (position < 0) {
             this.position = 0;
-        } else if (position > tickMarkCount - 1) {
-            this.position = tickMarkCount - 1;
-        } else {
-            this.position = position;
-        }
+        } else this.position = Math.min(position, tickMarkCount - 1);
         discreteSeekBar.setPosition(this.position);
         int color = getContext().getColor(position == 0 ? R.color.textColorSecondary : R.color.colorAccent);
         discreteSeekBar.getThumb().setTint(color);

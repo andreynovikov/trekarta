@@ -218,10 +218,10 @@ public class LocationOverlay extends Layer {
             gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
         }
 
-        private boolean init() {
+        private void init() {
             int shader = GLShader.loadShader("location_pointer");
             if (shader == 0)
-                return false;
+                return;
 
             mShaderProgram = shader;
             hVertexPosition = gl.getAttribLocation(shader, "a_pos");
@@ -231,7 +231,6 @@ public class LocationOverlay extends Layer {
             hDirection = gl.getUniformLocation(shader, "u_dir");
             hType = gl.getUniformLocation(shader, "u_type");
 
-            return true;
         }
     }
 }

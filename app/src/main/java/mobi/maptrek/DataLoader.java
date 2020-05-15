@@ -216,7 +216,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         logger.debug("onStartLoading()");
         if (mData != null) {
             // Deliver any previously loaded data immediately.
-            deliverResult(new ArrayList<FileDataSource>());
+            deliverResult(new ArrayList<>());
         }
 
         // Begin monitoring the underlying data source.

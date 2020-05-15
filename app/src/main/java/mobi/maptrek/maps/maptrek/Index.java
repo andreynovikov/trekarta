@@ -402,12 +402,12 @@ public class Index {
             short date = 0;
             Cursor cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"version"}, null, null, null);
             if (cursor.moveToFirst()) {
-                version = Short.valueOf(cursor.getString(0));
+                version = Short.parseShort(cursor.getString(0));
             }
             cursor.close();
             cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"timestamp"}, null, null, null);
             if (cursor.moveToFirst()) {
-                date = Short.valueOf(cursor.getString(0));
+                date = Short.parseShort(cursor.getString(0));
             }
             cursor.close();
             logger.error("Version: {} Date: {}", version, date);

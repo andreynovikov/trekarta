@@ -79,10 +79,8 @@ public enum Themes implements ThemeFile {
                     categories.addAll(overlay.getCategories());
             }
 
-            switch (Configuration.getActivity()) {
-                case 1:
-                    categories.add("hiking");
-                    break;
+            if (Configuration.getActivity() == 1) {
+                categories.add("hiking");
             }
 
             // This is the whole categories set to be enabled
