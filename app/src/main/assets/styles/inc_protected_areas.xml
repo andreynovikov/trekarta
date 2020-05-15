@@ -18,7 +18,25 @@
                 <line use="nature_reserve" />
             </m>
             <text style="bold_italic" area-size="0.1" caption="true" fill="color:nature-reserve-text"
-                priority="2000" size="18" stroke="color:nature-reserve-text-outline" stroke-width="2.0" />
+                priority="2000" size="18" stroke="color:nature-reserve-text-outline" stroke-width="1.4" />
+        </m>
+    </m>
+    <m cat="urban" closed="yes" k="boundary" zoom-min="6">
+        <m v="aboriginal_lands">
+            <m zoom-max="13">
+                <area mesh="true" use="aboriginal_lands" />
+            </m>
+            <m zoom-max="14" zoom-min="14">
+                <area mesh="true" use="aboriginal_lands_light" />
+            </m>
+            <m zoom-max="7">
+                <line fade="6" use="aboriginal_lands" width="-1.0" />
+            </m>
+            <m zoom-min="8">
+                <line use="aboriginal_lands" />
+            </m>
+            <text style="bold_italic" area-size="0.1" caption="true" fill="color:aboriginal-lands-text"
+                priority="1900" size="18" stroke="color:aboriginal-lands-text-outline" stroke-width="1.4" />
         </m>
     </m>
     <m cat="urban" closed="yes" k="landuse" zoom-min="7">
@@ -31,7 +49,7 @@
                 <line use="military" />
             </m>
             <text style="bold_italic" area-size="0.3" caption="true" fill="color:military-text"
-                priority="1800" size="18" stroke="color:military-text-outline" stroke-width="2.0" />
+                priority="1800" size="18" stroke="color:military-text-outline" stroke-width="1.4" />
         </m>
     </m>
 </rendertheme>

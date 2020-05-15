@@ -559,9 +559,11 @@
     <string name="legend_dog_park">Dog park</string>
     <string name="legend_cemetery">Cemetery</string>
     <string name="legend_nature_reserve">Nature reserve</string>
+    <string name="legend_nature_reserve_name">Yosemite</string>
+    <string name="legend_aboriginal_lands">Aboriginal lands</string>
+    <string name="legend_aboriginal_lands_name">Navajo</string>
     <string name="legend_military">Military</string>
     <string name="legend_military_name">Area 51</string>
-    <string name="legend_nature_reserve_name">Yosemite</string>
     <string name="legend_scrub">Scrub</string>
     <string name="legend_heath">Heath</string>
     <string name="legend_scree">Scree</string>

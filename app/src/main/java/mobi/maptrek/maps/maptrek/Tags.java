@@ -1730,7 +1730,8 @@ public class Tags {
             "services",
             "rest_area",
             "embankment",
-            "turntable"
+            "turntable",
+            "aboriginal_lands"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

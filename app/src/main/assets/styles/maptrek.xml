@@ -127,10 +127,12 @@
     <style-color id="road-text" color="#101010" />
     <style-color id="road-text-outline" color="#eeeeee" />
 
-    <style-color id="nature-reserve-text" color="#0a5c0a" />
-    <style-color id="nature-reserve-text-outline" color="#d1fad1" />
-    <style-color id="military-text" color="#990000" />
-    <style-color id="military-text-outline" color="#ffcccc" />
+    <style-color id="nature-reserve-text" color="#0c8416" />
+    <style-color id="nature-reserve-text-outline" color="#d1f1d4" /><!-- lighten 60%, desaturate 30% -->
+    <style-color id="aboriginal-lands-text" color="#82643a" />
+    <style-color id="aboriginal-lands-text-outline" color="#faf8f4" /><!-- lighten 60% -->
+    <style-color id="military-text" color="#a81313" />
+    <style-color id="military-text-outline" color="#fbd9d9" />
 
     <style-color id="railway-stroke" color="#777777" />
     <style-color id="railway-stroke-service" color="#afafaf" />
@@ -162,8 +164,8 @@
     <style-area fill="color:land" id="land" mesh="true" />
 
     <!-- Water -->
-    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
-        stroke-width="2.0" />
+    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#dce4eb"
+        stroke-width="1.4" />
     <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="40"
         rotate="true" repeat="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
@@ -199,17 +201,17 @@
     <style-area fade="12" fill="#efeae0" id="allotments" />
 
     <style-text style="bold_italic" area-size="0.1" caption="true" fill="#597f34" id="park"
-        priority="800" size="16" stroke="#cce2b7" stroke-width="2.0" />
+        priority="800" size="16" stroke="#d9e9c9" stroke-width="1.4" />
     <style-text style="bold_italic" caption="true" fill="#660033" id="theme_park"
-        priority="800" size="16" stroke="#f9ebf2" stroke-width="2.0" />
+        priority="800" size="16" stroke="#f9ebf2" stroke-width="1.4" />
     <style-text style="bold_italic" caption="true" fill="#2138af" id="marina"
-        priority="700" size="16" stroke="#d8ddf7" stroke-width="2.0" />
+        priority="700" size="16" stroke="#d8ddf7" stroke-width="1.4" />
     <style-text caption="true" fill="#368167" id="sports_centre" priority="700" size="16"
-        stroke="#cdeae0" stroke-width="2.0" />
+        stroke="#cdeae0" stroke-width="1.4" />
     <style-text caption="true" fill="#787434" id="education" priority="500" size="16" stroke="#f5f5e8"
-        stroke-width="2.0" />
+        stroke-width="1.4" />
     <style-text style="bold_italic" area-size="0.01" caption="true" fill="#7b7712" id="beach"
-        priority="600" size="14" stroke="#f1efce" stroke-width="2.0" />
+        priority="600" size="14" stroke="#f1efce" stroke-width="1.4" />
 
     <!-- Place styles -->
     <style-text caption="true" fill="#893889" id="place_country" size="16" stroke="#ffffff"
@@ -231,11 +233,14 @@
     <xi:include href="inc_highway_styles.xml" />
 
     <!-- Protected areas -->
-    <style-area fade="6" fill="#2000a000" id="nature_reserve" />
-    <style-area fill="#1000a000" id="nature_reserve_light" />
-    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#4000a000" width="2.5" />
-    <style-area fill="#20d40000" id="military" />
-    <style-line cap="butt" fix="true" id="military" stroke="#40d40000" width="2.5" />
+    <style-area fade="6" fill="#200c8416" id="nature_reserve" />
+    <style-area fill="#100c8416" id="nature_reserve_light" />
+    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#400c8416" width="2.5" />
+    <style-area fade="6" fill="#2082643a" id="aboriginal_lands" />
+    <style-area fill="#1082643a" id="aboriginal_lands_light" />
+    <style-line cap="butt" fix="true" id="aboriginal_lands" stroke="#4082643a" width="2.5" />
+    <style-area fill="#20ff2222" id="military" />
+    <style-line cap="butt" fix="true" id="military" stroke="#40ff2222" width="2.5" />
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />

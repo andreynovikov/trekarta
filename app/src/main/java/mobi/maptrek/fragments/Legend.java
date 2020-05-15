@@ -110,6 +110,8 @@ public class Legend extends ListFragment {
             .addTag("landuse", "farmyard");
     private static LegendItem nature_reserve = new LegendItem(GeometryType.POLY, R.string.legend_nature_reserve, 13)
             .addTag("boundary", "nature_reserve").setText(R.string.legend_nature_reserve_name);
+    private static LegendItem aboriginal_lands = new LegendItem(GeometryType.POLY, R.string.legend_aboriginal_lands, 13)
+            .addTag("boundary", "aboriginal_lands").setText(R.string.legend_aboriginal_lands_name);
     private static LegendItem military = new LegendItem(GeometryType.POLY, R.string.legend_military, 13)
             .addTag("landuse", "military").setText(R.string.legend_military_name);
     private static LegendItem zoo_area = new LegendItem(GeometryType.POLY, R.string.legend_zoo, 17)
@@ -814,12 +816,12 @@ public class Legend extends ListFragment {
             .addTag("natural", "land");
 
     private static HashSet<LegendItem> notRoadItems = new HashSet<>(Arrays.asList(
-            educational, recreation, construction, hospital_area, military, stream, ditch, grass,
-            forest, tree_row, tree, beach, wall, retaining_wall, fence, hedge, power_generator_wind,
-            runway, apron, railway_platform, bridge, pier, pitch, sports_centre, stadium, garden,
-            camp_site_area, zoo_area, theme_park_area, dog_park, cemetery, cycleway,
-            railway_crossing, bus_station, subway_entrance, subway_station, railway_station,
-            railway_halt, aeroway_aerodrome, aeroway_heliport, embankment
+            educational, recreation, construction, hospital_area, aboriginal_lands, military,
+            stream, ditch, grass, forest, tree_row, tree, beach, wall, retaining_wall, fence, hedge,
+            power_generator_wind, runway, apron, railway_platform, bridge, pier, pitch,
+            sports_centre, stadium, garden, camp_site_area, zoo_area, theme_park_area, dog_park,
+            cemetery, cycleway, railway_crossing, bus_station, subway_entrance, subway_station,
+            railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment
     ));
 
     private static HashSet<LegendItem> notUrbanItems = new HashSet<>(Arrays.asList(
@@ -874,6 +876,7 @@ public class Legend extends ListFragment {
             orchard,
             plant_nursery,
             nature_reserve,
+            aboriginal_lands,
             military,
             marina
     });
