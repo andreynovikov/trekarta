@@ -233,7 +233,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
         return false;
     }
-
+    
     private void connect() {
         logger.debug("connect()");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -244,7 +244,7 @@ public class LocationService extends BaseLocationService implements LocationList
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationManager.addGpsStatusListener(this);
                 try {
-                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_DELAY, 0, this);
+                    mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, LOCATION_DELAY, 0, this);
                     //mLocationManager.addNmeaListener(this);
                     mLocationsEnabled = true;
                     logger.debug("Gps provider set");
