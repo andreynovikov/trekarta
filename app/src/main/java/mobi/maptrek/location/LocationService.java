@@ -233,7 +233,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
         return false;
     }
-    
+
     private void connect() {
         logger.debug("connect()");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
