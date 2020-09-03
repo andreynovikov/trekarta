@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Andrey Novikov
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2020 Andrey Novikov
   ~
   ~ This program is free software: you can redistribute it and/or modify it under the
   ~ terms of the GNU Lesser General Public License as published by the Free Software
@@ -13,9 +14,9 @@
   ~ this program. If not, see <http://www.gnu.org/licenses/>.
   ~
   -->
+
 <resources>
-
-    <style name="Base.Theme.App" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="android:windowLightNavigationBar">@bool/isNotNightMode</item>
     </style>
-
 </resources>
