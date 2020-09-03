@@ -546,7 +546,8 @@ class MapTrekTileDecoder extends PbfDecoder {
             if (Tags.typeSelectable[type] || !Tags.isVisible(type)) {
                 Tag tag = Tags.typeTags[type];
                 if (tag.value.equals("theme_park") || tag.value.equals("zoo")) {
-                    if (Tags.isVisible(type))
+                    int tileZoom = FastMath.clamp(tile.zoomLevel, 0, 17);
+                    if (Tags.isVisible(type, tileZoom))
                         mElem.tags.add(Tags.TAG_FEATURE);
                 } else if (mElem.tags.remove(tag) && tag instanceof ExtendedTag) {
                     while ((tag = ((ExtendedTag) tag).next) != null)
