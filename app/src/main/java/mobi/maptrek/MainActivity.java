@@ -451,6 +451,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (savedInstanceState == null) {
             if (BuildConfig.FULL_VERSION) {
                 initializePlugins();
+                mMapIndex.initializeOfflineMapProviders();
                 mMapIndex.initializeOnlineMapProviders();
             }
 

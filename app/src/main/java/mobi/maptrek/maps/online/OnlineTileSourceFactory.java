@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TileSourceFactory {
+public class OnlineTileSourceFactory {
     @NonNull
     public static List<OnlineTileSource> fromPlugin(Context context, PackageManager packageManager, ResolveInfo provider) {
         List<OnlineTileSource> sources = new ArrayList<>();
