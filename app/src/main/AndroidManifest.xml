@@ -103,6 +103,7 @@
 
         <service
             android:name=".location.LocationService"
+            android:foregroundServiceType="location"
             android:permission="${applicationId}.permission.RECEIVE_LOCATION">
             <intent-filter>
                 <action android:name="${applicationId}.location" />
