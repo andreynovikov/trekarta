@@ -209,6 +209,7 @@
         size="12" stroke="#ffffff" stroke-width="2.0" />
     <style-text style="bold" fill="#808080" id="house-name" k="name" size="10" use="house-number" />
 
+    <style-line id="interpolation" stipple="8" stipple-stroke="#aaaaaa" stroke="color:transparent" use="fix" />
 
     <!-- Pistes -->
     <style-text fill="#666666" id="piste-name" k="name" priority="30000" size="14" stroke="#eeeeee"
@@ -1036,6 +1037,10 @@
 
     <m zoom-min="14">
         <xi:include href="inc_mountain_points.xml" />
+    </m>
+
+    <m cat="buildings" k="addr:interpolation" zoom-min="17">
+        <line use="interpolation" />
     </m>
 
     <!-- POI symbols, names and house numbers -->

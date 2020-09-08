@@ -258,7 +258,10 @@ class MapTrekTileDecoder extends PbfDecoder {
             if (Tag.KEY_NAME.equals(key)
                     || Tag.KEY_HOUSE_NUMBER.equals(key)
                     || Tag.KEY_REF.equals(key)
-                    || Tag.KEY_ELE.equals(key))
+                    || Tag.KEY_ELE.equals(key)
+                    || Tag.KEY_HEIGHT.equals(key)
+                    || Tag.KEY_MIN_HEIGHT.equals(key)
+                    || Tag.KEY_DEPTH.equals(key))
                 tag = new Tag(key, val, false);
             else
                 tag = new Tag(key, val, false, true);
@@ -291,6 +294,7 @@ class MapTrekTileDecoder extends PbfDecoder {
 
     private boolean decodeTileElement(Tile tile, int geomType) throws IOException {
         mElem.clearData();
+        mElem.tags.clear();
 
         int bytes = decodeVarint32();
 
@@ -476,8 +480,8 @@ class MapTrekTileDecoder extends PbfDecoder {
             }
         }
 
-        if (fail || numTags == 0 || numIndices == 0) {
-            log.debug("{} failed: bytes:{} tags:{} ({},{})",
+        if (fail || (numTags == 0 && houseNumber == null) || numIndices == 0) {
+            log.error("{} failed: bytes:{} tags:{} ({},{})",
                     mTile, bytes,
                     mElem.tags,
                     numIndices,
@@ -531,7 +535,7 @@ class MapTrekTileDecoder extends PbfDecoder {
             for (Tag tag : Tags.typeAliasTags)
                 mElem.tags.remove(tag);
 
-            if (mElem.tags.size() == 0 || !(hasKind || place_road_building || geomType != TAG_TILE_POINT))
+            if ((mElem.tags.size() == 0 && houseNumber == null) || !(hasKind || place_road_building || geomType != TAG_TILE_POINT))
                 return true;
 
             if (someKind) // required for building names
@@ -580,8 +584,6 @@ class MapTrekTileDecoder extends PbfDecoder {
         int[] tagIds = mSArray;
 
         decodeVarintArray(numTags, tagIds);
-
-        mElem.tags.clear();
 
         int max = mTileTags.size() - 1;
 

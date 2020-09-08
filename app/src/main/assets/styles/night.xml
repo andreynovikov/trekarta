@@ -41,7 +41,6 @@
             <cat id="roads-surface" />
             <cat id="roads-shield" />
             <cat id="railways" />
-            <cat id="buildings" />
         </layer>
 
         <layer enabled="true" id="urban" parent="roads">

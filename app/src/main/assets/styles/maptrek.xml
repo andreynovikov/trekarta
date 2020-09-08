@@ -251,6 +251,7 @@
     <style-area fill="#d5d0cd" id="building" stroke="#b2a9a3" stroke-width="1.0" />
     <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="100"
         size="12" stroke="#ffffff" stroke-width="2.0" />
+    <style-line id="interpolation" stipple="8" stipple-stroke="#c3a889" stroke="color:transparent" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-text style="bold" fill="#383868" id="house-name" k="name" size="10" use="house-number" />
 
@@ -648,6 +649,10 @@
     <xi:include href="inc_mountain_points.xml" />
 
     <xi:include href="inc_protected_areas.xml" />
+
+    <m cat="buildings" k="addr:interpolation" zoom-min="17">
+        <line use="interpolation" />
+    </m>
 
     <!-- POI symbols, names and house numbers -->
 

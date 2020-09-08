@@ -236,6 +236,12 @@ public class Legend extends ListFragment {
             .addTag("man_made", "embankment");
     private static LegendItem building = new LegendItem(GeometryType.POLY, R.string.legend_building, 17)
             .addTag("building", "yes").addTag("kind", "yes").addTag("addr:housenumber", "13").setText(R.string.legend_thirteen).setShape(LegendView.PATH_BUILDING);
+    private static LegendItem addresses = new LegendItem(GeometryType.LINE, R.string.legend_house_numbers, 17)
+            .addTag("addr:interpolation", "yes").setOverlay(
+                    new LegendItem(GeometryType.POINT, R.string.legend_house_numbers, 17)
+                            .addTag("addr:housenumber", "13").setText(R.string.legend_thirteen).setTextAlign(LegendItem.ALIGN_LEFT).setOverlay(
+                            new LegendItem(GeometryType.POINT, R.string.legend_house_numbers, 17)
+                                    .addTag("addr:housenumber", "19").setText(R.string.legend_nineteen).setTextAlign(LegendItem.ALIGN_RIGHT)));
     private static LegendItem stadium = new LegendItem(GeometryType.POLY, R.string.legend_stadium, 17)
             .addTag("leisure", "stadium");
     private static LegendItem sports_centre = new LegendItem(GeometryType.POLY, R.string.legend_sports_centre, 17)
@@ -836,9 +842,9 @@ public class Legend extends ListFragment {
             recreation, construction, farmland, orchard, plant_nursery, farmyard, quarry,
             underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp, mangrove,
             bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach, glacier,
-            contour, pitch, sports_centre, stadium, building, garden, marina, theme_park_area,
-            camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway, railway_tunnel,
-            tram, railway_crossing, ferry, highway_services
+            contour, pitch, sports_centre, stadium, building, addresses, garden, marina,
+            theme_park_area, camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway,
+            railway_tunnel, tram, railway_crossing, ferry, highway_services
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
@@ -943,7 +949,8 @@ public class Legend extends ListFragment {
             apron,
             railway_platform,
             bridge,
-            pier
+            pier,
+            addresses
     });
 
     private static LegendSection urban_features = new LegendSection(R.string.legend_urban, new LegendItem[]{
@@ -1438,7 +1445,8 @@ public class Legend extends ListFragment {
                     embankment,
                     fence,
                     hedge,
-                    railway_platform
+                    railway_platform,
+                    addresses
             }),
             transportation,
             roads,

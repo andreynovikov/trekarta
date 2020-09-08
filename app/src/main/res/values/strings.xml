@@ -540,6 +540,7 @@
     <string name="legend_manmade_features">Man-made features</string>
     <string name="legend_transportation">Transportation</string>
     <string name="legend_thirteen" translatable="false">13</string>
+    <string name="legend_nineteen" translatable="false">19</string>
     <string name="legend_land_use">Land use</string>
     <string name="legend_residental">Residential</string>
     <string name="legend_industrial">Industrial</string>
@@ -682,5 +683,6 @@
     <string name="legend_embankment">Embankment</string>
     <string name="legend_railway_service">Service railway</string>
     <string name="whatsNewTitle">What\'s New</string>
+    <string name="legend_house_numbers">House numbers</string>
 
 </resources>

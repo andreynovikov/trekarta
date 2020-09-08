@@ -343,24 +343,40 @@ public class LegendView extends View {
             h = h * Math.signum(textStyle.dy);
         else
             h = h / -2f;
+        float gap = textStyle.bitmap != null ? textStyle.bitmap.getWidth() / 2f : 0f;
+        float x = 0f;
+        switch (item.align) {
+            case LegendItem.ALIGN_LEFT:
+                x = mLeft + textStyle.paint.getTextWidth(text) + gap;
+                break;
+            case LegendItem.ALIGN_RIGHT:
+                x = mRight - textStyle.paint.getTextWidth(text) - gap;
+                break;
+            case LegendItem.ALIGN_CENTER:
+            default:
+                x = mCenterX;
+        }
         if (item.type == GeometryType.POINT) {
             if (textStyle.bitmap != null)
                 canvas.drawBitmap(textStyle.bitmap.getPixels(), 0, textStyle.bitmap.getWidth(),
-                        mCenterX - textStyle.bitmap.getWidth() / 2f,
-                        mCenterY - textStyle.bitmap.getHeight() / 2f - h,
+                        x - gap, mCenterY - textStyle.bitmap.getHeight() / 2f - h,
                         textStyle.bitmap.getWidth(), textStyle.bitmap.getHeight(),
                         true, null);
         }
 
         if (textStyle.stroke != null) {
-            canvas.drawText(text, mCenterX, mCenterY + textStyle.dy * .8f - h,
+            canvas.drawText(text, x, mCenterY + textStyle.dy * .8f - h,
                     ((AndroidPaint) textStyle.stroke).getPaint());
         }
-        canvas.drawText(text, mCenterX, mCenterY + textStyle.dy * .8f - h,
+        canvas.drawText(text, x, mCenterY + textStyle.dy * .8f - h,
                 ((AndroidPaint) textStyle.paint).getPaint());
     }
 
     public static class LegendItem {
+        public static final int ALIGN_LEFT = -1;
+        public static final int ALIGN_CENTER = 0;
+        public static final int ALIGN_RIGHT = 1;
+
         public GeometryType type;
         public int zoomLevel;
         public TagSet tags;
@@ -370,6 +386,7 @@ public class LegendView extends View {
         @StringRes
         public int name;
         public Path path;
+        int align;
         int totalSymbols;
         LegendItem overlay;
 
@@ -380,6 +397,7 @@ public class LegendView extends View {
             this.tags = new TagSet();
             this.kind = 0;
             this.text = 0;
+            this.align = ALIGN_CENTER;
             this.totalSymbols = 1;
             this.overlay = null;
             this.path = null;
@@ -412,6 +430,11 @@ public class LegendView extends View {
 
         public LegendItem setShape(Path path) {
             this.path = path;
+            return this;
+        }
+
+        public LegendItem setTextAlign(int align) {
+            this.align = align;
             return this;
         }
     }

@@ -517,8 +517,8 @@
                 </m>
             </m>
         </m>
-        <!-- house numbers -->
-        <m k="addr:housenumber" zoom-min="17">
+        <!-- lonely house numbers -->
+        <m cat="buildings" k="addr:housenumber" zoom-min="17">
             <text use="house-number" />
         </m>
     </m>
