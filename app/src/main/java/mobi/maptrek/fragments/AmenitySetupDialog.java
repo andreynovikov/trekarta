@@ -73,7 +73,7 @@ public class AmenitySetupDialog extends DialogFragment {
                 @Override
                 public void onGlobalLayout() {
                     dialogView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    View view = listView.getChildAt(3).findViewById(R.id.zoom);
+                    View view = listView.getChildAt(10).findViewById(R.id.zoom);
                     Rect r = new Rect();
                     view.getGlobalVisibleRect(r);
                     HelperUtils.showTargetedAdvice(dialog, Configuration.ADVICE_AMENITY_SETUP, R.string.advice_amenity_setup, r);

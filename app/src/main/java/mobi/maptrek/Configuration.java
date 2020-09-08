@@ -27,12 +27,10 @@ import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
 import java.util.Collection;
-import java.util.StringJoiner;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.maptrek.Tags;
-import mobi.maptrek.util.StringUtils;
 import mobi.maptrek.view.GaugePanel;
 
 @SuppressWarnings("WeakerAccess")
@@ -90,6 +88,7 @@ public class Configuration {
     private static final String PREF_SKIING_TIMES = "skiing_times";
     private static final String PREF_HIGHLIGHTED_TYPE = "highlighted_type";
 
+    public static final long ADVICE_IMPORTANCE_MASK = 0x0000000000003400L;
     public static final long ADVICE_UPDATE_EXTERNAL_SOURCE = 0x0000000000000001L;
     public static final long ADVICE_SUNRISE_SUNSET = 0x0000000000000002L;
     public static final long ADVICE_MORE_GAUGES = 0x0000000000000004L;
@@ -111,9 +110,11 @@ public class Configuration {
     public static final long ADVICE_NIGHT_MODE = 0x0000000000040000L;
     public static final long ADVICE_SELECT_MULTIPLE_MAPS = 0x0000000000080000L;
 
+    private static long mAdviceMask;
     private static SharedPreferences mSharedPreferences;
 
     public static void initialize(SharedPreferences sharedPreferences) {
+        mAdviceMask = 0L;
         mSharedPreferences = sharedPreferences;
     }
 
@@ -173,7 +174,7 @@ public class Configuration {
         MapObject waypoint = null;
         String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
         if (navWpt != null) {
-            waypoint = new MapObject((double) mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), (double) mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
+            waypoint = new MapObject(mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
             waypoint.name = navWpt;
             waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
             saveString(PREF_NAVIGATION_WAYPOINT, null);
@@ -283,12 +284,13 @@ public class Configuration {
     }
 
     public static boolean getAdviceState(long advice) {
-        return (loadLong(PREF_ADVICE_STATES, 0L) & advice) == 0L;
+        return ((loadLong(PREF_ADVICE_STATES, 0L) & advice) | (advice & mAdviceMask)) == 0L;
     }
 
     public static void setAdviceState(long advice) {
         long state = loadLong(PREF_ADVICE_STATES, 0L);
         saveLong(PREF_ADVICE_STATES, state | advice);
+        mAdviceMask = ADVICE_IMPORTANCE_MASK;
     }
 
     public static void clearAdviceState(long advice) {
@@ -298,6 +300,7 @@ public class Configuration {
 
     public static void resetAdviceState() {
         saveLong(PREF_ADVICE_STATES, 0L);
+        mAdviceMask = 0L;
     }
 
     public static int getNightModeState() {
