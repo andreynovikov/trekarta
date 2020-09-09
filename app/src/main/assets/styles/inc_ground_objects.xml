@@ -33,7 +33,7 @@
             <text use="road-name" />
         </m>
     </m>
-    <m cat="urban" k="railway" v="platform">
+    <m cat="urban" k="railway|highway" v="platform">
         <m closed="no">
             <line stroke="color:pier-stroke" width="0.3" />
             <line stroke="color:pier-fill" width="0.2" />
