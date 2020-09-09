@@ -112,7 +112,7 @@ public class MapView extends GLSurfaceView {
         DateTimeAdapter.init(new DateTime());
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        CanvasAdapter.dpi = (int) (metrics.scaledDensity * CanvasAdapter.DEFAULT_DPI);
+        CanvasAdapter.dpi = (int) (metrics.density * CanvasAdapter.DEFAULT_DPI);
         if (!Parameters.CUSTOM_TILE_SIZE)
             Tile.SIZE = Tile.calculateTileSize();
 

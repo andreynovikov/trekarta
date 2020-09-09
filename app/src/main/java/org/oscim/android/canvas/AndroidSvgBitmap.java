@@ -36,7 +36,7 @@ public class AndroidSvgBitmap extends AndroidBitmap {
      */
     public static float DEFAULT_SIZE = 400f;
 
-    public static android.graphics.Bitmap getResourceBitmap(InputStream inputStream, float scaleFactor, float defaultSize, int width, int height, int percent, int color) throws IOException {
+    public static android.graphics.Bitmap getResourceBitmap(InputStream inputStream, float scaleFactor, float defaultSize, int width, int height, int percent, int color, boolean texture) throws IOException {
         try {
             SVG svg = SVG.getFromInputStream(inputStream);
             Picture picture;
@@ -47,7 +47,11 @@ public class AndroidSvgBitmap extends AndroidBitmap {
                 picture = svg.renderToPicture();
             }
 
-            double scale = scaleFactor / Math.sqrt((picture.getHeight() * picture.getWidth()) / defaultSize);
+            double scale;
+            if (texture) // this is a weird solution for over-zoomed and under-zoomed texture bitmaps on low and high dpi screens
+                scale = scaleFactor / Math.sqrt((picture.getHeight() * picture.getWidth()) / (defaultSize * 3));
+            else
+                scale = scaleFactor / Math.sqrt((picture.getHeight() * picture.getWidth()) / defaultSize);
 
             float[] bmpSize = GraphicUtils.imageSize(picture.getWidth(), picture.getHeight(), (float) scale, width, height, percent);
 
@@ -62,13 +66,13 @@ public class AndroidSvgBitmap extends AndroidBitmap {
         }
     }
 
-    private static android.graphics.Bitmap getResourceBitmapImpl(InputStream inputStream, int width, int height, int percent, int color) throws IOException {
+    private static android.graphics.Bitmap getResourceBitmapImpl(InputStream inputStream, int width, int height, int percent, int color, boolean texture) throws IOException {
         synchronized (SVG.getVersion()) {
-            return getResourceBitmap(inputStream, CanvasAdapter.getScale(), DEFAULT_SIZE, width, height, percent, color);
+            return getResourceBitmap(inputStream, CanvasAdapter.getScale(), DEFAULT_SIZE, width, height, percent, color, texture);
         }
     }
 
-    public AndroidSvgBitmap(InputStream inputStream, int width, int height, int percent, int  color) throws IOException {
-        super(getResourceBitmapImpl(inputStream, width, height, percent, color));
+    public AndroidSvgBitmap(InputStream inputStream, int width, int height, int percent, int  color, boolean texture) throws IOException {
+        super(getResourceBitmapImpl(inputStream, width, height, percent, color, texture));
     }
 }

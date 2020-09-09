@@ -64,13 +64,13 @@ public final class AndroidGraphics extends CanvasAdapter {
     }
 
     @Override
-    public Bitmap decodeSvgBitmapImpl(InputStream inputStream, int width, int height, int percent, int color) throws IOException {
-        return new AndroidSvgBitmap(inputStream, width, height, percent, color);
+    public Bitmap decodeSvgBitmapImpl(InputStream inputStream, int width, int height, int percent, int color, boolean texture) throws IOException {
+        return new AndroidSvgBitmap(inputStream, width, height, percent, color, texture);
     }
 
     @Override
-    public Bitmap loadBitmapAssetImpl(String relativePathPrefix, String src, int width, int height, int percent, int color) throws IOException {
-        return createBitmap(relativePathPrefix, src, width, height, percent, color);
+    public Bitmap loadBitmapAssetImpl(String relativePathPrefix, String src, int width, int height, int percent, int color, boolean texture) throws IOException {
+        return createBitmap(relativePathPrefix, src, width, height, percent, color, texture);
     }
 
     @Override

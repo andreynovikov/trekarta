@@ -42,7 +42,7 @@ public final class Utils {
             return null;
 
         try {
-            Bitmap bitmap = CanvasAdapter.getBitmapAsset(relativePathPrefix, src, width, height, percent, color);
+            Bitmap bitmap = CanvasAdapter.getBitmapAsset(relativePathPrefix, src, width, height, percent, color, true);
             if (bitmap != null) {
                 log.debug("loading {}", src);
                 return new TextureItem(potBitmap(bitmap), true);
