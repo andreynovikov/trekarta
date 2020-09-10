@@ -19,6 +19,8 @@ package mobi.maptrek.fragments;
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import android.view.LayoutInflater;
@@ -182,7 +184,7 @@ public class Legend extends ListFragment {
             .addTag("natural", "cave_entrance");
     private static LegendItem spring = new LegendItem(GeometryType.POINT, R.string.legend_spring, 17)
             .addTag("natural", "spring");
-    private static LegendItem contour = new LegendItem(GeometryType.LINE, R.string.legend_contour, 14)
+    private static LegendItem contour = new LegendItem(GeometryType.LINE, R.string.legend_contour, 17)
             .addTag("contour", "elevation_major").setText(R.string.legend_elevation);
 
     // Vegetation
@@ -276,6 +278,16 @@ public class Legend extends ListFragment {
             .addTag("power", "tower");
     private static LegendItem power_generator_wind = new LegendItem(GeometryType.POINT, R.string.legend_power_generator_wind, 17)
             .addTag("power", "generator").addTag("generator:source", "wind");
+    private static LegendItem water_pipeline = new LegendItem(GeometryType.LINE, R.string.legend_water_pipeline, 17)
+            .addTag("man_made", "pipeline").addTag("substance", "water");
+    private static LegendItem steam_pipeline = new LegendItem(GeometryType.LINE, R.string.legend_steam_pipeline, 17)
+            .addTag("man_made", "pipeline").addTag("substance", "hot_water");
+    private static LegendItem gas_pipeline = new LegendItem(GeometryType.LINE, R.string.legend_gas_pipeline, 17)
+            .addTag("man_made", "pipeline").addTag("substance", "gas");
+    private static LegendItem oil_pipeline = new LegendItem(GeometryType.LINE, R.string.legend_oil_pipeline, 17)
+            .addTag("man_made", "pipeline").addTag("substance", "oil");
+    private static LegendItem general_pipeline = new LegendItem(GeometryType.LINE, R.string.legend_general_pipeline, 17)
+            .addTag("man_made", "pipeline");
 
     // Roads
     private static LegendItem motorway = new LegendItem(GeometryType.LINE, R.string.legend_motorway, 16)
@@ -824,7 +836,8 @@ public class Legend extends ListFragment {
     private static HashSet<LegendItem> notRoadItems = new HashSet<>(Arrays.asList(
             educational, recreation, construction, hospital_area, aboriginal_lands, military,
             stream, ditch, grass, forest, tree_row, tree, beach, wall, retaining_wall, fence, hedge,
-            power_generator_wind, runway, apron, railway_platform, bridge, pier, pitch,
+            power_generator_wind, water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline,
+            general_pipeline, runway, apron, railway_platform, bridge, pier, pitch,
             sports_centre, stadium, garden, camp_site_area, zoo_area, theme_park_area, dog_park,
             cemetery, cycleway, railway_crossing, bus_station, subway_entrance, subway_station,
             railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment
@@ -834,8 +847,8 @@ public class Legend extends ListFragment {
             farmland, orchard, plant_nursery, farmyard, quarry, nature_reserve, underground_river,
             dam, lock_gate, weir, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow,
             swamp, mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud,
-            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower
-
+            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower,
+            water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline
     ));
 
     private static HashSet<LegendItem> notNightItems = new HashSet<>(Arrays.asList(
@@ -944,6 +957,11 @@ public class Legend extends ListFragment {
             power_line.setOverlay(power_tower),
             power_generator_wind,
             tower,
+            water_pipeline,
+            steam_pipeline,
+            gas_pipeline,
+            oil_pipeline,
+            general_pipeline,
             building,
             runway,
             apron,
@@ -1501,7 +1519,7 @@ public class Legend extends ListFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mMapHolder = (MapHolder) context;
@@ -1643,12 +1661,11 @@ public class Legend extends ListFragment {
                 itemHolder = new Legend.LegendListItemHolder();
                 if (legendItem.type == GeometryType.NONE) {
                     convertView = mInflater.inflate(R.layout.list_item_section_title, parent, false);
-                    itemHolder.name = convertView.findViewById(R.id.name);
                 } else {
                     convertView = mInflater.inflate(R.layout.list_item_legend, parent, false);
                     itemHolder.item = convertView.findViewById(R.id.item);
-                    itemHolder.name = convertView.findViewById(R.id.name);
                 }
+                itemHolder.name = convertView.findViewById(R.id.name);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (Legend.LegendListItemHolder) convertView.getTag();

@@ -601,6 +601,62 @@
 
     <xi:include href="inc_railways.xml" />
 
+    <!-- Topological (orientational) objects on ground -->
+    <m cat="topo" k="man_made">
+        <m v="pipeline">
+            <m zoom-min="14" zoom-max="16">
+                <line stroke="#909090" fix="true" width="1.5" />
+                <line stipple="25" fix="true" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="4.0" />
+            </m>
+            <m zoom-min="17" zoom-max="17">
+                <m><!-- Required for line style ordering error in legend view -->
+                    <line stipple="30" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.3" />
+                </m>
+                <m select="first">
+                    <m k="substance" v="water">
+                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="oil">
+                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="gas">
+                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="hot_water">
+                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="~">
+                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.15" />
+                    </m>
+                </m>
+                <m><!-- Required for line style ordering error in legend view -->
+                    <line stipple="30" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.55" />
+                </m>
+            </m>
+            <m zoom-min="18">
+                <line stipple="50" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.25" />
+                <m select="first">
+                    <m k="substance" v="water">
+                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="oil">
+                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="gas">
+                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="hot_water">
+                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.15" />
+                    </m>
+                    <m k="substance" v="~">
+                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.15" />
+                    </m>
+                </m>
+                <line stipple="50" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.5" />
+            </m>
+        </m>
+    </m>
+
     <xi:include href="inc_highway_bridges.xml" />
 
     <xi:include href="inc_railway_bridges.xml" />

@@ -684,5 +684,10 @@
     <string name="legend_railway_service">Service railway</string>
     <string name="whatsNewTitle">What\'s New</string>
     <string name="legend_house_numbers">House numbers</string>
+    <string name="legend_water_pipeline">Water pipeline</string>
+    <string name="legend_steam_pipeline">Steam pipeline</string>
+    <string name="legend_gas_pipeline">Gas pipeline</string>
+    <string name="legend_oil_pipeline">Oil pipeline</string>
+    <string name="legend_general_pipeline">General pipeline</string>
 
 </resources>

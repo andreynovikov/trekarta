@@ -973,6 +973,10 @@ public class Tags {
         return typeZooms[type] < 18;
     }
 
+    public static boolean isVisible(int type, int zoom) {
+        return typeZooms[type] <= zoom;
+    }
+
     public static void recalculateTypeZooms() {
         Arrays.fill(typeZooms, 18);
         StringBuilder[] lists = {
@@ -1093,7 +1097,9 @@ public class Tags {
             "piste:lit",
             "piste:oneway",
             "memorial",
-            "diplomatic"
+            "diplomatic",
+            "addr:interpolation",
+            "substance"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1731,7 +1737,9 @@ public class Tags {
             "rest_area",
             "embankment",
             "turntable",
-            "aboriginal_lands"
+            "aboriginal_lands",
+            "pipeline",
+            "hot_water"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
