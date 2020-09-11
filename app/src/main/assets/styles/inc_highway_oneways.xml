@@ -3,17 +3,17 @@
     <m k="oneway" v="1" zoom-min="16">
         <m cat="roads" k="highway" select="first" v="-|cycleway|track|path|footway">
             <m v="motorway|trunk">
-                <symbol symbol-percent="50" use="oneway" />
+                <symbol symbol-percent="60" use="oneway" />
             </m>
             <m k="highway" v="-|service">
-                <symbol symbol-percent="40" use="oneway" />
+                <symbol symbol-percent="50" use="oneway" />
             </m>
             <m zoom-min="17">
                 <m k="service" v="parking_aisle">
-                    <symbol repeat-start="20" symbol-percent="30" use="oneway" />
+                    <symbol repeat-start="20" symbol-percent="40" use="oneway" />
                 </m>
                 <m k="service" v="-|parking_aisle">
-                    <symbol repeat-start="20" symbol-percent="35" use="oneway" />
+                    <symbol repeat-start="20" symbol-percent="45" use="oneway" />
                 </m>
             </m>
         </m>
@@ -24,17 +24,17 @@
     <m k="oneway" v="-1" zoom-min="16">
         <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
             <m v="motorway|trunk">
-                <symbol inverse="true" symbol-percent="50" use="oneway" />
+                <symbol inverse="true" symbol-percent="60" use="oneway" />
             </m>
             <m k="highway" v="-|service">
-                <symbol inverse="true" symbol-percent="40" use="oneway" />
+                <symbol inverse="true" symbol-percent="50" use="oneway" />
             </m>
             <m zoom-min="17">
                 <m k="service" v="parking_aisle">
-                    <symbol inverse="true" repeat-start="20" symbol-percent="30" use="oneway" />
+                    <symbol inverse="true" repeat-start="20" symbol-percent="40" use="oneway" />
                 </m>
                 <m k="service" v="-|parking_aisle">
-                    <symbol inverse="true" repeat-start="20" symbol-percent="35" use="oneway" />
+                    <symbol inverse="true" repeat-start="20" symbol-percent="45" use="oneway" />
                 </m>
             </m>
         </m>

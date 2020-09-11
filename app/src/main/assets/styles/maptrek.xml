@@ -166,7 +166,7 @@
     <!-- Water -->
     <style-text style="italic" fill="#486780" id="water" size="16" stroke="#dce4eb"
         stroke-width="1.4" />
-    <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="40"
+    <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="50"
         rotate="true" repeat="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
@@ -227,9 +227,9 @@
 
     <!-- Road styles -->
     <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
-        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="50" />
+        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="60" />
     <style-symbol id="oneway-bicycle" repeat="true" repeat-gap="80" repeat-start="20"
-        rotate="true" src="assets:symbols/oneway_bicycle.svg" symbol-percent="50" />
+        rotate="true" src="assets:symbols/oneway_bicycle.svg" symbol-percent="60" />
     <xi:include href="inc_highway_styles.xml" />
 
     <!-- Protected areas -->

@@ -67,7 +67,7 @@
                         <line fade="13" use="river" width="-0.7" />
                     </m>
                     <m zoom-min="17">
-                        <symbol use="oneway-water" symbol-percent="30" />
+                        <symbol use="oneway-water" symbol-percent="40" />
                     </m>
                     <text priority="400" use="water" size="14" />
                 </m>

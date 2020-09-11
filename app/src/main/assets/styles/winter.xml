@@ -114,7 +114,7 @@
     -->
     <style-text style="italic" fill="#486780" id="water" size="16" stroke="#cae1ff"
         stroke-width="2.0" />
-    <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="40"
+    <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="50"
         rotate="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
     <style-line fix="false" id="river" stroke="color:water" use="water" />
@@ -196,7 +196,7 @@
     <style-text id="major-road-name" priority="750" size="16" use="road-name" />
 
     <style-symbol id="oneway" repeat="true" repeat-gap="100" repeat-start="30"
-        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="50" />
+        rotate="true" src="assets:symbols/oneway.svg" symbol-percent="60" />
 
     <!-- Barriers -->
     <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
