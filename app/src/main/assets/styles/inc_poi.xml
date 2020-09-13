@@ -260,6 +260,9 @@
                     <m v="lighthouse">
                         <symbol src="assets:symbols/tourist/lighthouse.svg" symbol-color="color:man-made" symbol-percent="80" />
                     </m>
+                    <m v="watermill">
+                        <symbol src="assets:symbols/tourist/watermill.svg" symbol-color="color:man-made" symbol-percent="80" />
+                    </m>
                     <m v="windmill">
                         <symbol src="assets:symbols/tourist/windmill.svg" symbol-color="color:man-made" symbol-percent="80" />
                     </m>

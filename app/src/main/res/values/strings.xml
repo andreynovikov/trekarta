@@ -689,5 +689,6 @@
     <string name="legend_gas_pipeline">Gas pipeline</string>
     <string name="legend_oil_pipeline">Oil pipeline</string>
     <string name="legend_general_pipeline">General pipeline</string>
+    <string name="legend_watermill">Watermill</string>
 
 </resources>

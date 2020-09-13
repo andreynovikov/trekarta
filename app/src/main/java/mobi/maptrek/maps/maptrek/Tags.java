@@ -331,7 +331,8 @@ public class Tags {
             new Tag("waterway", "waterfall"), // 178
             null, null,
             new Tag("man_made", "lighthouse"), // 181
-            null, null,
+            null,
+            new Tag("man_made", "watermill"), // 183
             new Tag("man_made", "windmill"), // 184
             new ExtendedTag("historic", "memorial").addTag("memorial", "bust"), // 185
             new ExtendedTag("historic", "memorial").addTag("memorial", "stone"), // 186
@@ -565,7 +566,8 @@ public class Tags {
             R.string.legend_waterfall, // 178
             -1, -1,
             R.string.legend_lighthouse, // 181
-            -1, -1,
+            -1,
+            R.string.legend_watermill, // 183
             R.string.legend_windmill, // 184
             R.string.legend_bust, // 185
             R.string.legend_stone, // 186
@@ -792,7 +794,8 @@ public class Tags {
             true, // 178
             false, false,
             true, // 181
-            false, false,
+            false,
+            true, // 183
             true, // 184
             true, // 185
             true, // 186
@@ -894,7 +897,7 @@ public class Tags {
             new int[] {108, 109, 112, 115, 118, 121, 122, 124, 127, 130}, // emergency
             new int[] {1, 4, 7, 8, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
-            new int[] {178, 181, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 203, 205, 208, 211, 214, 217, 220, 223}, // attraction
+            new int[] {178, 181, 183, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 203, 205, 208, 211, 214, 217, 220, 223}, // attraction
             new int[] {82, 83, 85, 88, 91, 94, 97, 100, 101, 103}, // entertainment
             new int[] {148, 151, 154, 157, 160, 163, 166, 169, 43, 172, 175, 61}, // shopping
             new int[] {265, 268, 271, 274, 277, 280, 283, 286}, // service
@@ -1739,7 +1742,8 @@ public class Tags {
             "turntable",
             "aboriginal_lands",
             "pipeline",
-            "hot_water"
+            "hot_water",
+            "watermill"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

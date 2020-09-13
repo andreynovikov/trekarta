@@ -772,6 +772,7 @@ public class Legend extends ListFragment {
     private static LegendItem shower = new LegendAmenityItem(286);
 
     private static LegendItem lighthouse = new LegendAmenityItem(181);
+    private static LegendItem watermill = new LegendAmenityItem(183);
     private static LegendItem windmill = new LegendAmenityItem(184);
     private static LegendItem museum = new LegendAmenityItem(202);
     private static LegendItem gallery = new LegendAmenityItem(203);
@@ -1182,6 +1183,7 @@ public class Legend extends ListFragment {
     private static LegendSection amenities_attraction = new LegendSection(R.string.kind_attraction, new LegendItem[]{
             waterfall,
             lighthouse,
+            watermill,
             windmill,
             museum,
             gallery,
