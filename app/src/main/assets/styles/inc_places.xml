@@ -3,7 +3,7 @@
     <!-- places -->
     <m cat="places" k="place">
         <m v="neighbourhood|allotments">
-            <text style="italic" priority="800" size="14" stroke-width="1.6"
+            <text priority="800" size="14" stroke-width="1.6"
                 use="place_village" />
         </m>
         <m v="hamlet|isolated_dwelling">
@@ -72,7 +72,7 @@
             </m>
         </m>
         <m v="locality" zoom-max="17">
-            <text style="italic" priority="700" size="18" use="place" />
+            <text style="italic" priority="700" size="14" stroke-width="1.6" use="place" />
         </m>
         <m v="island" zoom-max="17" select="first">
             <m k="measured">
