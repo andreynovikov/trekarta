@@ -1102,7 +1102,8 @@ public class Tags {
             "memorial",
             "diplomatic",
             "addr:interpolation",
-            "substance"
+            "substance",
+            "pump"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1743,7 +1744,8 @@ public class Tags {
             "aboriginal_lands",
             "pipeline",
             "hot_water",
-            "watermill"
+            "watermill",
+            "water_well"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

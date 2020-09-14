@@ -601,7 +601,7 @@
 
     <xi:include href="inc_railways.xml" />
 
-    <!-- Topological (orientational) objects on ground -->
+    <!-- Topological (orientational) lines on ground -->
     <m cat="topo" k="man_made">
         <m v="pipeline">
             <m zoom-min="14" zoom-max="16">
@@ -670,6 +670,19 @@
     <!-- Man made objects above ground -->
     <xi:include href="inc_aerialways.xml" />
 
+    <!-- Topological (orientational) objects on ground -->
+    <m cat="urban" k="man_made">
+        <m v="water_well">
+            <m select="first">
+                <m k="pump" v="yes">
+                    <symbol src="assets:symbols/amenity/water_pump.svg" merge-gap="0" symbol-color="color:amenity-brown" symbol-percent="70" />
+                </m>
+                <m k="pump" v="~">
+                    <symbol src="assets:symbols/amenity/water_well.svg" merge-gap="0" symbol-color="color:amenity-brown" symbol-percent="70" />
+                </m>
+            </m>
+        </m>
+    </m>
     <!-- Topological (orientational) objects above ground -->
     <m k="power">
         <m cat="topo" e="way" v="line" zoom-min="14">

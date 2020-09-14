@@ -690,5 +690,7 @@
     <string name="legend_oil_pipeline">Oil pipeline</string>
     <string name="legend_general_pipeline">General pipeline</string>
     <string name="legend_watermill">Watermill</string>
+    <string name="legend_water_well">Water well</string>
+    <string name="legend_water_pump">Water pump</string>
 
 </resources>

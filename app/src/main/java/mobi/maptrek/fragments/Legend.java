@@ -270,6 +270,10 @@ public class Legend extends ListFragment {
             .addTag("man_made", "pier").setShape(LegendView.PATH_PIER);
     private static LegendItem bridge = new LegendItem(GeometryType.POLY, R.string.legend_bridge, 17)
             .addTag("man_made", "bridge").setShape(LegendView.PATH_PLATFORM);
+    private static LegendItem water_well = new LegendItem(GeometryType.POINT, R.string.legend_water_well, 17)
+            .addTag("man_made", "water_well");
+    private static LegendItem water_pump = new LegendItem(GeometryType.POINT, R.string.legend_water_pump, 17)
+            .addTag("man_made", "water_well").addTag("pump", "yes");
     private static LegendItem tower = new LegendItem(GeometryType.POINT, R.string.legend_tower, 17)
             .addTag("man_made", "tower");
     private static LegendItem power_line = new LegendItem(GeometryType.LINE, R.string.legend_power_line, 17)
@@ -841,7 +845,8 @@ public class Legend extends ListFragment {
             general_pipeline, runway, apron, railway_platform, bridge, pier, pitch,
             sports_centre, stadium, garden, camp_site_area, zoo_area, theme_park_area, dog_park,
             cemetery, cycleway, railway_crossing, bus_station, subway_entrance, subway_station,
-            railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment
+            railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment,
+            water_well, water_pump
     ));
 
     private static HashSet<LegendItem> notUrbanItems = new HashSet<>(Arrays.asList(
@@ -858,7 +863,7 @@ public class Legend extends ListFragment {
             bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach, glacier,
             contour, pitch, sports_centre, stadium, building, addresses, garden, marina,
             theme_park_area, camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway,
-            railway_tunnel, tram, railway_crossing, ferry, highway_services
+            railway_tunnel, tram, railway_crossing, ferry, highway_services, water_well, water_pump
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
@@ -969,6 +974,8 @@ public class Legend extends ListFragment {
             railway_platform,
             bridge,
             pier,
+            water_well,
+            water_pump,
             addresses
     });
 
