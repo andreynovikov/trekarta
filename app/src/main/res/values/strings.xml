@@ -692,5 +692,7 @@
     <string name="legend_watermill">Watermill</string>
     <string name="legend_water_well">Water well</string>
     <string name="legend_water_pump">Water pump</string>
+    <string name="legend_motorcycle_shop">Motorcycle shop</string>
+    <string name="actionMapScale">Map scale</string>
 
 </resources>

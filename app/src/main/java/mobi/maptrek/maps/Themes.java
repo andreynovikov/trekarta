@@ -49,6 +49,7 @@ public enum Themes implements ThemeFile {
     private static final Logger logger = LoggerFactory.getLogger(Themes.class);
 
     public static final float[] MAP_FONT_SIZES = {.3f, .5f, .7f, .9f, 1.1f};
+    public static final float[] MAP_SCALE_SIZES = {.7f, .85f, 1f, 1.3f, 1.7f};
 
     private final String mPath;
 

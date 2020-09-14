@@ -5,6 +5,10 @@
         android:checkable="true"
         android:title="@string/actionAutoTilt" />
     <item
+        android:id="@+id/actionMapScale"
+        android:actionLayout="@layout/menu_item_action"
+        android:title="@string/actionMapScale" />
+    <item
         android:id="@+id/actionFontSize"
         android:actionLayout="@layout/menu_item_action"
         android:title="@string/actionFontSize" />

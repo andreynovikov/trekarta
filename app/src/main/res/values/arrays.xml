@@ -14,7 +14,7 @@
         <item>Off</item>
         <item>On</item>
     </string-array>
-    <string-array name="font_size_array">
+    <string-array name="size_array">
         <item>Tiny</item>
         <item>Small</item>
         <item>Normal</item>

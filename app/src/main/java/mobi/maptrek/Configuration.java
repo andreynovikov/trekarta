@@ -62,6 +62,7 @@ public class Configuration {
     private static final String PREF_MAP_STYLE = "map_style";
     private static final String PREF_ACTIVITY = "activity";
     private static final String PREF_MAP_FONT_SIZE = "map_font_size";
+    private static final String PREF_MAP_USER_SCALE = "map_user_scale";
     private static final String PREF_LANGUAGE = "language";
     private static final String PREF_HIDE_MAP_OBJECTS = "hide_map_objects";
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
@@ -333,6 +334,14 @@ public class Configuration {
 
     public static void setMapFontSize(int mapFontSize) {
         saveInt(PREF_MAP_FONT_SIZE, mapFontSize);
+    }
+
+    public static int getMapUserScale() {
+        return loadInt(PREF_MAP_USER_SCALE, 2);
+    }
+
+    public static void setMapUserScale(int mapScale) {
+        saveInt(PREF_MAP_USER_SCALE, mapScale);
     }
 
     public static String getLanguage() {

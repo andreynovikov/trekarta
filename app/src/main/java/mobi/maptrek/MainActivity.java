@@ -95,6 +95,7 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.canvas.AndroidBitmap;
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
@@ -120,7 +121,6 @@ import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.MapScaleBarLayer;
-import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -1226,10 +1226,23 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 dialog.show();
                 return true;
             }
+            case R.id.actionMapScale: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.actionMapScale);
+                builder.setItems(R.array.size_array, (dialog, which) -> {
+                    Configuration.setMapUserScale(which);
+                    // With rule categories it became a long lasting operation
+                    // so it has to be run in background
+                    mBackgroundHandler.post(this::setMapTheme);
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            }
             case R.id.actionFontSize: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.actionFontSize);
-                builder.setItems(R.array.font_size_array, (dialog, which) -> {
+                builder.setItems(R.array.size_array, (dialog, which) -> {
                     Configuration.setMapFontSize(which);
                     // With rule categories it became a long lasting operation
                     // so it has to be run in background
@@ -1746,15 +1759,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
         fragment.setMenu(R.menu.menu_map, menu -> {
             Resources resources = getResources();
-            MenuItem item = menu.findItem(R.id.actionNightMode);
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
+            MenuItem item = menu.findItem(R.id.actionNightMode);
             ((TextView) item.getActionView()).setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
-            item = menu.findItem(R.id.actionStyle);
             String[] mapStyles = resources.getStringArray(R.array.mapStyles);
+            item = menu.findItem(R.id.actionStyle);
             ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
+            String[] sizes = resources.getStringArray(R.array.size_array);
+            item = menu.findItem(R.id.actionMapScale);
+            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapUserScale()]);
             item = menu.findItem(R.id.actionFontSize);
-            String[] fontSizes = resources.getStringArray(R.array.font_size_array);
-            ((TextView) item.getActionView()).setText(fontSizes[Configuration.getMapFontSize()]);
+            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapFontSize()]);
             item = menu.findItem(R.id.actionLanguage);
             ((TextView) item.getActionView()).setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
@@ -4363,10 +4378,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 themeFile = mNightMode ? Themes.NIGHT : Themes.MAPTREK;
                 break;
         }
-        IRenderTheme theme = ThemeLoader.load(themeFile);
         float fontSize = Themes.MAP_FONT_SIZES[Configuration.getMapFontSize()];
-        theme.scaleTextSize(fontSize);
-        mMap.setTheme(theme, true);
+        float mapScale = Themes.MAP_SCALE_SIZES[Configuration.getMapUserScale()];
+        CanvasAdapter.textScale = fontSize / mapScale;
+        CanvasAdapter.userScale = mapScale;
+        mMap.setTheme(ThemeLoader.load(themeFile), true);
         mShieldFactory.setFontSize(fontSize);
         mShieldFactory.dispose();
         mOsmcSymbolFactory.dispose();
