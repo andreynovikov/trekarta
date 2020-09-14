@@ -798,6 +798,7 @@ public class Legend extends ListFragment {
     private static LegendItem car = new LegendAmenityItem(229);
     private static LegendItem car_repair = new LegendAmenityItem(232);
     private static LegendItem car_rental = new LegendAmenityItem(235);
+    private static LegendItem motorcycle = new LegendAmenityItem(230);
     private static LegendItem fuel = new LegendAmenityItem(238);
     private static LegendItem slipway = new LegendAmenityItem(241);
     private static LegendItem parking_point = new LegendItem(GeometryType.POINT, R.string.legend_parking, 17)
@@ -1217,6 +1218,7 @@ public class Legend extends ListFragment {
             car,
             car_repair,
             car_rental,
+            motorcycle,
             fuel,
             slipway,
             parking_point

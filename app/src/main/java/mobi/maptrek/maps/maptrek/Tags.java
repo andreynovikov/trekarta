@@ -368,7 +368,8 @@ public class Tags {
             new Tag("amenity", "fountain"), // 226
             null, null,
             new Tag("shop", "car"), // 229
-            null, null,
+            new Tag("shop", "motorcycle"), // 230
+            null,
             new Tag("shop", "car_repair"), // 232
             null, null,
             new Tag("amenity", "car_rental"), // 235
@@ -603,7 +604,8 @@ public class Tags {
             R.string.legend_fountain, // 226
             -1, -1,
             R.string.legend_car_dialer, // 229
-            -1, -1,
+            R.string.legend_motorcycle_shop, // 230
+            -1,
             R.string.legend_car_repair, // 232
             -1, -1,
             R.string.legend_car_rental, // 235
@@ -831,7 +833,8 @@ public class Tags {
             false, // 226 - fountain
             false, false,
             true, // 229
-            false, false,
+            true, // 230
+            false,
             true, // 232
             false, false,
             true, // 235
@@ -905,7 +908,7 @@ public class Tags {
             new int[] {106, 107, 262}, // health'n'beauty
             new int[] {139, 142, 145}, // kids
             new int[] {133, 136}, // pets
-            new int[] {229, 232, 235, 238, 241, 244}, // vehicles
+            new int[] {229, 230, 232, 235, 238, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
             new int[] {148, 151, 118, 250, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
@@ -1745,7 +1748,8 @@ public class Tags {
             "pipeline",
             "hot_water",
             "watermill",
-            "water_well"
+            "water_well",
+            "motorcycle"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

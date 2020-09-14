@@ -346,6 +346,9 @@
                 <m v="car_rental">
                     <symbol src="assets:symbols/transport/rental_car.svg" symbol-color="color:transportation" symbol-percent="80" />
                 </m>
+                <m v="motorcycle">
+                    <symbol src="assets:symbols/shopping/motorcycle.svg" symbol-color="color:shop" symbol-percent="80" />
+                </m>
                 <m v="fuel">
                     <symbol src="assets:symbols/transport/fuel.svg" symbol-color="color:transportation" symbol-percent="80" />
                 </m>
@@ -522,7 +525,9 @@
         </m>
         <!-- lonely house numbers -->
         <m cat="buildings" k="addr:housenumber" zoom-min="17">
-            <text use="house-number" />
+            <m k="feature" v="~">
+                <text use="house-number" />
+            </m>
         </m>
     </m>
 </rendertheme>
