@@ -47,6 +47,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -4412,7 +4413,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Configuration.setHideSystemUI(false);
         mStatusBarHeight = getStatusBarHeight();
         final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE ^ View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        } else {
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
         // for some reason visibility is not updated if application menu was previously shown
         decorView.invalidate();
     }
