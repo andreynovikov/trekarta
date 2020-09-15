@@ -46,6 +46,11 @@ public class Tag {
     public static final String KEY_ELE = "ele";
 
     /**
+     * The key of the depth OpenStreetMap tag.
+     */
+    public static final String KEY_DEPTH = "depth";
+
+    /**
      * The key of the id tag.
      */
     public static final String KEY_ID = "id";

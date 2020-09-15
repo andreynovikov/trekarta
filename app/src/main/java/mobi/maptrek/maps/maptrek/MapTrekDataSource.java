@@ -224,6 +224,8 @@ class MapTrekDataSource implements ITileDataSource {
                 if ("platform".equals(element.tags.getValue("railway")))
                     return;
             }
+            if (element.isLine() && element.tags.contains("power", "line"))
+                element.layer += 5; // place power lines above everything
 
             // Convert tree points to polygons
             if (tile.zoomLevel > 14 && element.type == GeometryBuffer.GeometryType.POINT && element.tags.contains(TAG_TREE)) {

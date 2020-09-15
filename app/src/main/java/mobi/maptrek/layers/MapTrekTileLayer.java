@@ -66,6 +66,7 @@ public class MapTrekTileLayer extends VectorTileLayer implements GestureListener
         super(map, CACHE_LIMIT);
         mTileManager.setZoomLevel(MIN_ZOOMLEVEL, MAX_ZOOMLEVEL);
         mOnAmenityGestureListener = listener;
+        // TODO: Use ViewConfiguration.get(context).getScaledTouchSlop() instead
         mFingerTipSize = MapTrek.ydpi * 0.08d;
         setTileSource(tileSource);
     }
