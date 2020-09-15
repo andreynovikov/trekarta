@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     buildToolsVersion '30.0.2'
-    ndkVersion '21.0.6113669'
+    ndkVersion '21.3.6528147'
 
     defaultConfig {
         applicationId "mobi.maptrek"
@@ -21,7 +21,7 @@ android {
     }
 
     testOptions {
-        // ndkVersion '18.1.5063045'
+        ndkVersion '21.3.6528147'
     }
 
     viewBinding {
