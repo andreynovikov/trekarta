@@ -78,7 +78,9 @@ public class SimpleRunTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        pressBack();
+        //pressBack();
+
+        // Press 'More' button
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withId(R.id.moreButton),
@@ -91,6 +93,8 @@ public class SimpleRunTest {
                         isDisplayed()));
         appCompatImageButton.perform(click());
 
+        // Press 'About' menu item
+
         DataInteraction linearLayout = onData(anything())
                 .inAdapterView(allOf(withId(android.R.id.list),
                         childAtPosition(
@@ -98,6 +102,8 @@ public class SimpleRunTest {
                                 0)))
                 .atPosition(0);
         linearLayout.perform(click());
+
+        // Check for 'Trekarta' title
 
         ViewInteraction textView = onView(
                 allOf(withId(R.id.title), withText("Trekarta"),
@@ -110,6 +116,8 @@ public class SimpleRunTest {
         textView.check(matches(withText("Trekarta")));
 
         pressBack();
+
+        // Press 'Places' button
 
         ViewInteraction appCompatImageButton2 = onView(
                 allOf(withId(R.id.placesButton),
@@ -124,6 +132,8 @@ public class SimpleRunTest {
 
         pressBack();
 
+        // Open Map settings menu
+
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withId(R.id.mapsButton),
                         childAtPosition(
@@ -135,13 +145,17 @@ public class SimpleRunTest {
                         isDisplayed()));
         appCompatImageButton3.perform(longClick());
 
+        // Press 'Legend' menu item
+
         DataInteraction linearLayout2 = onData(anything())
                 .inAdapterView(allOf(withId(android.R.id.list),
                         childAtPosition(
                                 withClassName(is("android.widget.FrameLayout")),
                                 0)))
-                .atPosition(7);
+                .atPosition(8);
         linearLayout2.perform(click());
+
+        // Find first legend title
 
         ViewInteraction textView2 = onView(
                 allOf(withId(R.id.name), withText("Administrative"),
@@ -155,6 +169,8 @@ public class SimpleRunTest {
 
         pressBack();
 
+        // Press 'Location' button
+
         ViewInteraction appCompatImageButton4 = onView(
                 allOf(withId(R.id.locationButton),
                         childAtPosition(
@@ -165,6 +181,8 @@ public class SimpleRunTest {
                                 0),
                         isDisplayed()));
         appCompatImageButton4.perform(longClick());
+
+        // Check presence of 'Share' button
 
         ViewInteraction imageButton2 = onView(
                 allOf(withId(R.id.shareButton),
