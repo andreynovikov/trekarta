@@ -67,6 +67,9 @@ public class SimpleRunTest {
 
     @Test
     public void mainActivityTest() {
+        // Close Introduction panel
+
+        /*
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.skip), withText("SKIP"),
                         childAtPosition(
@@ -77,8 +80,11 @@ public class SimpleRunTest {
                                 1),
                         isDisplayed()));
         appCompatButton.perform(click());
+         */
 
-        //pressBack();
+        // Close World map Download panel
+
+        pressBack();
 
         // Press 'More' button
 
