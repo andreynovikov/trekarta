@@ -22,9 +22,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -45,11 +45,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4ClassRunner.class)
 public class IntroductionTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+    public ActivityScenarioRule<MainActivity> mActivityTestRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
     public void introductionTest() {
@@ -162,18 +162,18 @@ public class IntroductionTest {
                         isDisplayed()));
         textView6.check(matches(withText("Skiing and skating")));
 
-        ViewInteraction appCompatImageButton6 = onView(
-                allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
-                                        childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
-                        isDisplayed()));
-        appCompatImageButton6.perform(click());
-
         if (BuildConfig.FULL_VERSION) {
+            ViewInteraction appCompatImageButton6 = onView(
+                    allOf(withId(R.id.next),
+                            childAtPosition(
+                                    allOf(withId(R.id.bottomContainer),
+                                            childAtPosition(
+                                                    withId(R.id.bottom),
+                                                    1)),
+                                    3),
+                            isDisplayed()));
+            appCompatImageButton6.perform(click());
+
             ViewInteraction textView7 = onView(
                     allOf(withId(R.id.title), withText("Night mode"),
                             childAtPosition(
@@ -183,7 +183,7 @@ public class IntroductionTest {
                             isDisplayed()));
             textView7.check(matches(withText("Night mode")));
         }
-        
+
         ViewInteraction button = onView(
                 allOf(withId(R.id.done),
                         childAtPosition(
@@ -211,7 +211,7 @@ public class IntroductionTest {
                         childAtPosition(
                                 allOf(withId(R.id.coordinatorLayout),
                                         childAtPosition(
-                                                IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class),
+                                                IsInstanceOf.instanceOf(android.widget.FrameLayout.class),
                                                 1)),
                                 8),
                         isDisplayed()));
@@ -222,7 +222,7 @@ public class IntroductionTest {
                         childAtPosition(
                                 allOf(withId(R.id.coordinatorLayout),
                                         childAtPosition(
-                                                IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class),
+                                                IsInstanceOf.instanceOf(android.widget.FrameLayout.class),
                                                 1)),
                                 10),
                         isDisplayed()));
