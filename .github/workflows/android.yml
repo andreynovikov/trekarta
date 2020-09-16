@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         api-level: [23, 29]
-        target: [default, google_apis]
+        target: [default]
     steps:
     - uses: actions/checkout@v2
     - name: Make gradlew executable
