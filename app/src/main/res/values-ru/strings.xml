@@ -666,4 +666,19 @@
     <string name="advice_select_multiple_maps">Используйте двойное нажатие, чтобы отобразить несколько карт</string>
     <string name="whatsNewTitle">Что нового</string>
     <string name="msgEnableGps">Вам необходимо включить точную геолокацию (GPS) в настройках Android, чтобы использовать определение местоположения в реальном времени</string>
+    <string name="legend_house_numbers">Номера домов</string>
+    <string name="legend_watermill">Водяная мельница</string>
+    <string name="legend_water_well">Водяной колодец</string>
+    <string name="legend_water_pump">Водяная колонка</string>
+    <string name="legend_motorcycle_shop">Мотомагазин</string>
+    <string name="actionMapScale">Масштаб карты</string>
+    <string name="legend_footway_tunnel">Пешеходный тоннель</string>
+    <string name="legend_general_pipeline">Трубопровод</string>
+    <string name="legend_oil_pipeline">Нефтяной трубопровод</string>
+    <string name="legend_gas_pipeline">Газовый трубопровод</string>
+    <string name="legend_steam_pipeline">Тепловой трубопровод</string>
+    <string name="legend_water_pipeline">Водяной трубопровод</string>
+    <string name="legend_aboriginal_lands_name">Навахо</string>
+    <string name="legend_aboriginal_lands">Земли аборигенов</string>
+    <string name="legend_track_tunnel">Тоннель</string>
 </resources>
