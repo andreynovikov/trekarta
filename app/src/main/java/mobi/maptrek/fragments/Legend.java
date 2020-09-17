@@ -843,11 +843,11 @@ public class Legend extends ListFragment {
             educational, recreation, construction, hospital_area, aboriginal_lands, military,
             stream, ditch, grass, forest, tree_row, tree, beach, wall, retaining_wall, fence, hedge,
             power_generator_wind, water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline,
-            general_pipeline, runway, apron, railway_platform, bridge, pier, pitch,
+            general_pipeline, runway, apron, railway_platform, bridge, pier, pitch, marina, spring,
             sports_centre, stadium, garden, camp_site_area, zoo_area, theme_park_area, dog_park,
             cemetery, cycleway, railway_crossing, bus_station, subway_entrance, subway_station,
             railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment,
-            water_well, water_pump
+            water_well, water_pump, city_wall, playground_area
     ));
 
     private static HashSet<LegendItem> notUrbanItems = new HashSet<>(Arrays.asList(
@@ -855,16 +855,18 @@ public class Legend extends ListFragment {
             dam, lock_gate, weir, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow,
             swamp, mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud,
             sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower,
-            water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline
+            water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline, spring
     ));
 
     private static HashSet<LegendItem> notNightItems = new HashSet<>(Arrays.asList(
-            recreation, construction, farmland, orchard, plant_nursery, farmyard, quarry,
-            underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp, mangrove,
-            bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach, glacier,
-            contour, pitch, sports_centre, stadium, building, addresses, garden, marina,
+            aboriginal_lands, recreation, construction, farmland, orchard, plant_nursery, farmyard,
+            quarry, underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp,
+            mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach,
+            glacier, contour, pitch, sports_centre, stadium, building, addresses, garden, marina,
             theme_park_area, camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway,
-            railway_tunnel, tram, railway_crossing, ferry, highway_services, water_well, water_pump
+            railway_tunnel, tram, railway_crossing, ferry, highway_services, water_well, water_pump,
+            water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline,
+            playground_area
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(

@@ -14,7 +14,7 @@
         <m cat="urban" v="wall" zoom-min="15">
             <line use="fence" width="0.5" />
         </m>
-        <m cat="buildings" v="city_wall" zoom-min="13">
+        <m cat="urban" v="city_wall" zoom-min="13">
             <line use="fence" width="1.4" />
         </m>
     </m>
