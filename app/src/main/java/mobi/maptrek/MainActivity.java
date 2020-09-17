@@ -4413,7 +4413,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Configuration.setHideSystemUI(false);
         mStatusBarHeight = getStatusBarHeight();
         final View decorView = getWindow().getDecorView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !mNightMode) {
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE ^ View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         } else {
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
