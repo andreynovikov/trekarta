@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2020.09" versioncode="78" date="18.09.2020">
+        <change>New amenities: motorcycle shops, watermills</change>
+        <change>New map objects: aboriginal lands, water wells, water pumps, pipelines</change>
+        <change>Configurable map user scale</change>
+        <change>Labels prioritized by map object area</change>
+        <change>Updated map styling</change>
+        <change>Track record button behavior swapped</change>
+        <change>Fixed navigation bar color in dark mode</change>
+        <change variant="full">Support for offline map plugins</change>
+    </release>
     <release version="2020.04" versioncode="77" date="08.04.2020">
         <change>Search for unnamed and specific amenities</change>
         <change variant="full">Ability to show multiple user maps</change>
