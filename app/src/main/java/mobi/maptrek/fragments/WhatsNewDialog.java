@@ -23,11 +23,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,9 +73,7 @@ public class WhatsNewDialog extends DialogFragment {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(R.string.whatsNewTitle);
-        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> {
-            Configuration.setLastSeenChangelog(MapTrek.versionCode);
-        });
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> Configuration.setLastSeenChangelog(MapTrek.versionCode));
         dialogBuilder.setView(dialogView);
 
         return dialogBuilder.create();
@@ -87,11 +83,9 @@ public class WhatsNewDialog extends DialogFragment {
     public void show(FragmentManager manager, String tag) {
         MapTrek application = MapTrek.getApplication();
         int lastCode = Configuration.getLastSeenChangelog();
-        if (lastCode == 0)
+        if (lastCode == 0) {
             Configuration.setLastSeenChangelog(MapTrek.versionCode);
-        // FIXME Uncomment in next version
-        // else
-        if (lastCode < MapTrek.versionCode) {
+        } else if (lastCode < MapTrek.versionCode) {
             getChangelog(application, lastCode);
             if (mChangelog.size() > 0)
                 super.show(manager, tag);
