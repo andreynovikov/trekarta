@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
@@ -327,7 +328,12 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                     HttpURLConnection urlConnection = null;
                     try {
                         urlConnection = (HttpURLConnection) url.openConnection();
-                        in = urlConnection.getInputStream();
+                        urlConnection.setRequestProperty("Accept-Encoding", "gzip");
+                        if ("gzip".equals(urlConnection.getContentEncoding())) {
+                            in = new GZIPInputStream(urlConnection.getInputStream());
+                        } else {
+                            in = urlConnection.getInputStream();
+                        }
                         File tmpFile = new File(mCacheFile.getAbsoluteFile() + "_tmp");
                         OutputStream out = new FileOutputStream(tmpFile);
                         loadMapIndex(in, out);
