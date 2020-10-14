@@ -26,22 +26,13 @@ import android.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 
 public class PluginEntryReceiver extends BroadcastReceiver {
-    private Bundle lastextras = null;
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (lastextras.equals(intent.getExtras())) {
-            // nothing has changed; we can safely return
-            return;
-        }
-        updateValues(intent);
+        Bundle extras = intent.getExtras();
         Intent pluginIntent = new Intent();
-        pluginIntent.setClassName(lastextras.getString("packageName"), lastextras.getString("activityName"));
+        pluginIntent.setClassName(extras.getString("packageName"), extras.getString("activityName"));
         Pair<Drawable, Intent> action = new Pair<>(null, pluginIntent);
-        Pair<String, Pair<Drawable, Intent>> entry = new Pair<>(lastextras.getString("name"), action);
+        Pair<String, Pair<Drawable, Intent>> entry = new Pair<>(extras.getString("name"), action);
         EventBus.getDefault().post(entry);
-    }
-
-    private void updateValues(Intent intent) {
-        lastextras = intent.getExtras();
     }
 }
