@@ -44,6 +44,7 @@ import org.oscim.theme.styles.CircleStyle.CircleBuilder;
 import org.oscim.theme.styles.ExtrusionStyle;
 import org.oscim.theme.styles.ExtrusionStyle.ExtrusionBuilder;
 import org.oscim.theme.styles.LineStyle;
+import org.oscim.theme.styles.LineStyle.Half;
 import org.oscim.theme.styles.LineStyle.LineBuilder;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.theme.styles.SymbolStyle;
@@ -540,6 +541,9 @@ public class XmlThemeBuilder extends DefaultHandler {
 
             else if ("fix".equals(name))
                 b.fixed = parseBoolean(value);
+
+            else if ("half".equals(name))
+                b.half = Half.valueOf(value.toUpperCase(Locale.ENGLISH));
 
             else if ("stipple".equals(name))
                 b.stipple = Math.round(parseInt(value) * mScale2 * mStrokeScale);

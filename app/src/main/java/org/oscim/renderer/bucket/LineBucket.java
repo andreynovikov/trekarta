@@ -506,7 +506,7 @@ public class LineBucket extends RenderBucket {
     }
 
     static class Shader extends GLShader {
-        int uMVP, uFade, uWidth, uColor, uMode, uHeight, aPos;
+        int uMVP, uFade, uWidth, uColor, uMode, uHalf, uHeight, aPos;
 
         Shader(String shaderFile) {
             if (!create(shaderFile))
@@ -516,6 +516,7 @@ public class LineBucket extends RenderBucket {
             uWidth = getUniform("u_width");
             uColor = getUniform("u_color");
             uMode = getUniform("u_mode");
+            uHalf = getUniform("u_half");
             uHeight = getUniform("u_height");
             aPos = getAttrib("a_pos");
         }
@@ -596,6 +597,7 @@ public class LineBucket extends RenderBucket {
 
             int uLineFade = s.uFade;
             int uLineMode = s.uMode;
+            int uLineHalf = s.uHalf;
             int uLineColor = s.uColor;
             int uLineWidth = s.uWidth;
             int uLineHeight = s.uHeight;
@@ -619,6 +621,8 @@ public class LineBucket extends RenderBucket {
 
             int capMode = 0;
             gl.uniform1i(uLineMode, capMode);
+
+            gl.uniform1i(uLineHalf, 0);
 
             boolean blur = false;
             double width;
@@ -694,6 +698,14 @@ public class LineBucket extends RenderBucket {
                         gl.uniform1i(uLineMode, capMode);
                     }
 
+                    if (line.half == LineStyle.Half.RIGHT) {
+                        gl.uniform1i(uLineHalf, -1);
+                    } else if (line.half == LineStyle.Half.LEFT) {
+                        gl.uniform1i(uLineHalf, 1);
+                    } else {
+                        gl.uniform1i(uLineHalf, 0);
+                    }
+
                     gl.drawArrays(GL.TRIANGLE_STRIP,
                             b.vertexOffset, b.numVertices);
 
@@ -738,6 +750,14 @@ public class LineBucket extends RenderBucket {
                     } else if (capMode != CAP_BUTT) {
                         capMode = CAP_BUTT;
                         gl.uniform1i(uLineMode, capMode);
+                    }
+
+                    if (line.half == LineStyle.Half.RIGHT) {
+                        gl.uniform1i(uLineHalf, -1);
+                    } else if (line.half == LineStyle.Half.LEFT) {
+                        gl.uniform1i(uLineHalf, 1);
+                    } else {
+                        gl.uniform1i(uLineHalf, 0);
                     }
 
                     gl.drawArrays(GL.TRIANGLE_STRIP,

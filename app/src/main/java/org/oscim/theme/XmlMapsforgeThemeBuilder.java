@@ -537,6 +537,9 @@ public class XmlMapsforgeThemeBuilder extends DefaultHandler {
             else if ("fix".equals(name))
                 b.fixed = parseBoolean(value);
 
+            else if ("half".equals(name))
+                b.half = LineStyle.Half.valueOf(value.toUpperCase(Locale.ENGLISH));
+
             else if ("stipple".equals(name))
                 b.stipple = Math.round(parseInt(value) * mScale2 * mStrokeScale);
 

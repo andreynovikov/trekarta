@@ -20,6 +20,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="half">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="right" />
+            <xs:enumeration value="left" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="color">
         <xs:restriction base="xs:string">
             <xs:pattern value="(#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})|color:.+)" />
@@ -169,6 +176,8 @@
         <xs:attribute name="dasharray" type="tns:strokeDasharray"  />
         <xs:attribute name="cap" default="round" type="tns:cap"  />
         <xs:attribute name="outline" default="" type="xs:string"  />
+        <!-- draw right or left half of line, works for not fixed, not textured lines -->
+        <xs:attribute name="half" default="" type="tns:half"  />
         <xs:attribute name="fade" default="-1" type="xs:integer"  />
         <xs:attribute name="blur" default="-1" type="xs:float"  />
         <xs:attribute name="fix" default="false" type="xs:boolean"  />

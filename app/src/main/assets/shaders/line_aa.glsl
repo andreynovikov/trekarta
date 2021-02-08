@@ -29,6 +29,7 @@ precision highp float;
 uniform sampler2D u_tex;
 uniform float u_fade;
 uniform int u_mode;
+uniform int u_half;
 uniform vec4 u_color;
 varying vec2 v_st;
 
@@ -49,13 +50,19 @@ void main() {
     // - 'len' is 0 at center of line. -> (1.0 - len) is 0 at the
     // edges
     // - 'u_fade' is 'pixel' / 'width', i.e. the inverse width of
-    // the
-    // line in pixel on screen.
+    // the line in pixel on screen.
     // - 'pixel' is 1.5 / relativeScale
     // - '(1.0 - len) / u_fade' interpolates the 'pixel' on
-    // line-edge
-    // between 0 and 1 (it is greater 1 for all inner pixel).
-    gl_FragColor = u_color * clamp((1.0 - len) / u_fade, 0.0, 1.0);
+    // line-edge between 0 and 1 (it is greater 1 for all inner pixel).
+
+    float fade = u_fade;
+    if (u_half < 0) { // right
+        fade *= -v_st.s;
+    } else if (u_half > 0) { // left
+        fade *= v_st.s;
+    }
+
+    gl_FragColor = u_color * clamp((1.0 - len) / fade, 0.0, 1.0);
     // -> nicer for thin lines
-    //gl_FragColor = u_color * clamp((1.0 - (len * len)) / u_fade, 0.0, 1.0);
+    //gl_FragColor = u_color * clamp((1.0 - (len * len)) / fade, 0.0, 1.0);
 }

@@ -30,9 +30,10 @@ $$
 precision highp float;
 #endif
 uniform sampler2D u_tex;
-uniform int u_mode;
-uniform vec4 u_color;
 uniform float u_fade;
+uniform int u_mode;
+uniform int u_half;
+uniform vec4 u_color;
 varying vec2 v_st;
 
 void main() {
@@ -52,11 +53,25 @@ void main() {
         len = abs(v_st.s);
         fuzz = fwidth(v_st.s);
     }
+
+    float fade = max(u_fade, fuzz);
+    if (u_half < 0) { // right
+        fade *= -v_st.s;
+    } else if (u_half > 0) { // left
+        fade *= v_st.s;
+    }
+
     // u_mode == 0 -> thin line
     // len = len * clamp(float(u_mode), len, 1.0);
     if (fuzz > 2.0)
         gl_FragColor = u_color * 0.5;
     else
-        gl_FragColor = u_color * clamp((1.0 - len) / max(u_fade, fuzz), 0.0, 1.0);
+        gl_FragColor = u_color * clamp((1.0 - len) / fade, 0.0, 1.0);
+        // Half lines:
+        // right
+        //gl_FragColor = u_color * clamp((1.0 - len) / max(u_fade, fuzz) * -v_st.s, 0.0, 1.0);
+        // left
+        //gl_FragColor = u_color * clamp((1.0 - len) / max(u_fade, fuzz) * v_st.s, 0.0, 1.0);
+
         //gl_FragColor = u_color * clamp((1.0 - len), 0.0, 1.0);
 }
