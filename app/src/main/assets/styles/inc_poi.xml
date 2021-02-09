@@ -420,6 +420,15 @@
                 <m v="bicycle_rental">
                     <symbol src="assets:symbols/transport/rental_bicycle.svg" symbol-color="color:transportation" symbol-percent="80" />
                 </m>
+                <m v="bicycle_repair_station">
+                    <symbol src="assets:symbols/transport/bicycle_repair_station.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
+                </m>
+                <m v="bicycle_parking">
+                    <symbol src="assets:symbols/transport/bicycle_parking.svg" symbol-color="color:transportation" symbol-percent="80" />
+                    <m  zoom-min="16">
+                        <text dy="-12" caption="true" fill="color:transportation" k="capacity" priority="200" size="12" stroke="#ffffff" stroke-width="2.0" />
+                    </m>
+                </m>
                 <m v="drinking_water">
                     <symbol merge-gap="0" src="assets:symbols/food/drinking_water.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                 </m>

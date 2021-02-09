@@ -825,6 +825,8 @@ public class Legend extends ListFragment {
     private static LegendItem taoist = new LegendAmenityItem(408);
 
     private static LegendItem bicycle_rental = new LegendAmenityItem(250);
+    private static LegendItem bicycle_repair_station = new LegendAmenityItem(251);
+    private static LegendItem bicycle_parking = new LegendAmenityItem(252);
     private static LegendItem drinking_water = new LegendAmenityItem(253);
     private static LegendItem shelter = new LegendAmenityItem(256);
     private static LegendItem toilets = new LegendAmenityItem(259);
@@ -1242,6 +1244,8 @@ public class Legend extends ListFragment {
             bicycle,
             outdoor,
             bicycle_rental,
+            bicycle_parking,
+            bicycle_repair_station,
             drinking_water,
             shelter,
             toilets,
@@ -1563,8 +1567,12 @@ public class Legend extends ListFragment {
                 == android.content.res.Configuration.UI_MODE_NIGHT_YES;
 
         switch (activity) {
-            case 2: // Winter
+            case 3: // Winter
                 theme = themeWinter;
+                break;
+            case 2: // Cycling
+                theme = new LegendSection[themeTopo.length];
+                System.arraycopy(themeTopo, 0, theme, 0, themeTopo.length);
                 break;
             case 1: // Hiking
                 theme = new LegendSection[themeTopo.length + 8];
@@ -1599,11 +1607,12 @@ public class Legend extends ListFragment {
             boolean hasItems = false;
             for (LegendItem item : section.items) {
                 switch (activity) {
-                    case 2: // Winter
+                    case 3: // Winter
                         if (notWinterItems.contains(item))
                             continue;
                         break;
-                    case 1:
+                    case 2: // Cycling
+                    case 1: // Hiking
                         break;
                     case 0:
                     default:
