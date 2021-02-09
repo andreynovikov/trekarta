@@ -847,7 +847,7 @@ public class Legend extends ListFragment {
             power_generator_wind, water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline,
             general_pipeline, runway, apron, railway_platform, bridge, pier, pitch, marina, spring,
             sports_centre, stadium, garden, camp_site_area, zoo_area, theme_park_area, dog_park,
-            cemetery, cycleway, railway_crossing, bus_station, subway_entrance, subway_station,
+            cemetery, railway_crossing, bus_station, subway_entrance, subway_station,
             railway_station, railway_halt, aeroway_aerodrome, aeroway_heliport, embankment,
             water_well, water_pump, city_wall, playground_area
     ));
@@ -865,14 +865,14 @@ public class Legend extends ListFragment {
             quarry, underground_river, grass, meadow, scrub, heath, reedbed, wet_meadow, swamp,
             mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, sand, beach,
             glacier, contour, pitch, sports_centre, stadium, building, addresses, garden, marina,
-            theme_park_area, camp_site_area, zoo_area, runway, apron, dog_park, cemetery, cycleway,
+            theme_park_area, camp_site_area, zoo_area, runway, apron, dog_park, cemetery,
             railway_tunnel, tram, railway_crossing, ferry, highway_services, water_well, water_pump,
             water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline,
             playground_area
     ));
 
     private static HashSet<LegendItem> notWinterItems = new HashSet<>(Arrays.asList(
-            ferry, unpaved_road, dirt_road, parking_unpaved, parking_dirt, cycleway, highway_services
+            ferry, unpaved_road, dirt_road, parking_unpaved, parking_dirt, highway_services
     ));
 
     private static LegendSection administrative = new LegendSection(R.string.legend_administrative, new LegendItem[]{
@@ -1036,7 +1036,6 @@ public class Legend extends ListFragment {
             stile,
             block,
             bollard,
-            cycleway,
             cycle_barrier
     });
 
@@ -1602,6 +1601,9 @@ public class Legend extends ListFragment {
                 case 1: // Urban
                     if (section.title == R.string.legend_tracks)
                         continue;
+            }
+            if (activity == 2 && section.title == R.string.legend_tracks) { // Cycling
+                mData.add(cycleway);
             }
             mData.add(new LegendItem(GeometryType.NONE, section.title, 0));
             boolean hasItems = false;
