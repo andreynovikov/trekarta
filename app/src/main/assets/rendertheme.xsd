@@ -252,6 +252,8 @@
         <xs:attribute name="merge-group-gap" type="xs:nonNegativeInteger"  />
         <!-- if set to false do not draw symbol underneath text labels -->
         <xs:attribute name="text-overlap" default="true" type="xs:boolean"  />
+        <!-- sets the z-order of a symbol relative to other symbols in case they overlap -->
+        <xs:attribute name="z-index" default="0" type="xs:integer"  />
     </xs:complexType>
 
     <xs:complexType name="extrusion">
