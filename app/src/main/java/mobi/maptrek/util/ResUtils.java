@@ -32,17 +32,17 @@ public class ResUtils {
         else if (Tags.isFood(kind))
             return R.drawable.ic_local_dining;
         else if (Tags.isAttraction(kind))
-            return R.drawable.ic_account_balance;
+            return R.drawable.ic_local_see;
         else if (Tags.isHealthBeauty(kind))
             return R.drawable.ic_spa;
         else if (Tags.isEntertainment(kind))
-            return R.drawable.ic_local_see;
+            return R.drawable.ic_attractions;
         else if (Tags.isHikeBike(kind))
-            return R.drawable.ic_directions_bike;
+            return R.drawable.ic_pedal_bike;
         else if (Tags.isShopping(kind))
             return R.drawable.ic_shopping_cart;
         else if (Tags.isService(kind))
-            return R.drawable.ic_local_laundry_service;
+            return R.drawable.ic_dry_cleaning;
         else if (Tags.isReligion(kind))
             return R.drawable.ic_change_history;
         else if (Tags.isKids(kind))
@@ -54,13 +54,13 @@ public class ResUtils {
         else if (Tags.isTransportation(kind))
             return R.drawable.ic_directions_bus;
         else if (Tags.isBuilding(kind))
-            return R.drawable.ic_business;
+            return R.drawable.ic_gite;
         else if (Tags.isUrban(kind))
             return R.drawable.ic_nature_people;
         else if (Tags.isRoad(kind))
             return R.drawable.ic_drag_handle;
         else if (Tags.isBarrier(kind))
-            return R.drawable.ic_do_not_disturb_on;
+            return R.drawable.ic_fence;
         else
             return 0;
     }

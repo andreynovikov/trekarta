@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright 2021 Andrey Novikov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU Lesser General Public License as published by the Free Software
+  ~ Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License along with
+  ~ this program. If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="@android:color/black"
+      android:pathData="M18,6H9V4H7v2H6l-4,4v9h20v-9L18,6zM4,12h10v5H4V12zM20,17h-4v-6.17l2,-2v0l2,2V17z"/>
+</vector>
