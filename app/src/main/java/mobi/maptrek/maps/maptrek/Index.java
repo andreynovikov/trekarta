@@ -48,12 +48,15 @@ import mobi.maptrek.maps.MapService;
 import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES_V2;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES_WO_XY;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES_V1;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_MAPS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_TILES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ENUM1;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_FLAGS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ID;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_KIND;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_TYPE;
@@ -462,12 +465,12 @@ public class Index {
 
             // copy features
             statement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " (" +
-                    TextUtils.join(", ", ALL_COLUMNS_FEATURES) + ") VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+                    TextUtils.join(", ", ALL_COLUMNS_FEATURES) + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
             SQLiteStatement extraStatement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
             extraStatement.bindLong(1, x);
             extraStatement.bindLong(2, y);
             mMapsDatabase.beginTransaction();
-            String[] COLUMNS_FEATURES = version == 1 ? ALL_COLUMNS_FEATURES_V1 : ALL_COLUMNS_FEATURES_WO_XY;
+            String[] COLUMNS_FEATURES = version == 1 ? ALL_COLUMNS_FEATURES_V1 : version == 2 ? ALL_COLUMNS_FEATURES_V2 : ALL_COLUMNS_FEATURES_WO_XY;
             int[] xy = new int[] {0, 0};
             cursor = database.query(TABLE_FEATURES, COLUMNS_FEATURES, null, null, null, null, null);
             cursor.moveToFirst();
@@ -479,7 +482,6 @@ public class Index {
                     statement.bindNull(3);
                 } else {
                     statement.bindLong(3, cursor.getInt(cursor.getColumnIndex(COLUMN_FEATURES_TYPE)));
-
                 }
                 int latColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LAT);
                 int lonColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LON);
@@ -529,6 +531,23 @@ public class Index {
                         statement.bindNull(11);
                     } else {
                         statement.bindString(11, cursor.getString(siteColumnIndex));
+                    }
+                }
+                if (version < 3 || !isPlaced) {
+                    statement.bindNull(12);
+                    statement.bindNull(13);
+                } else {
+                    int flagsColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_FLAGS);
+                    if (cursor.isNull(flagsColumnIndex)) {
+                        statement.bindNull(12);
+                    } else {
+                        statement.bindLong(12, cursor.getLong(flagsColumnIndex));
+                    }
+                    int enum1ColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_ENUM1);
+                    if (cursor.isNull(enum1ColumnIndex)) {
+                        statement.bindNull(13);
+                    } else {
+                        statement.bindLong(13, cursor.getLong(enum1ColumnIndex));
                     }
                 }
                 statement.execute();

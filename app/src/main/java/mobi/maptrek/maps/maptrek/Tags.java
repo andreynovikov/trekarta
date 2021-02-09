@@ -40,6 +40,10 @@ public class Tags {
     static final Tag TAG_FEATURE = new Tag("feature", "yes");
     static final Tag TAG_DEPTH = new Tag("depth", "yes");
     static final Tag TAG_MEASURED = new Tag("measured", "yes");
+    static final Tag TAG_FEE = new Tag("fee", "yes");
+    static final Tag TAG_WHEELCHAIR_YES = new Tag("wheelchair", "yes");
+    static final Tag TAG_WHEELCHAIR_LIMITED = new Tag("wheelchair", "limited");
+    static final Tag TAG_WHEELCHAIR_NO = new Tag("wheelchair", "no");
 
     public static final String[] kinds = {
             //"place",
@@ -62,6 +66,8 @@ public class Tags {
             "kind_urban",
             "kind_barrier"
     };
+
+    public static boolean accessibility = true;
 
     //TODO Return multiple kinds if applicable
     public static @NonNull String getKindName(int kind) {
@@ -384,7 +390,8 @@ public class Tags {
             new Tag("highway", "bus_stop"), // 248
             new Tag("railway", "tram_stop"), // 249
             new Tag("amenity", "bicycle_rental"), // 250
-            null, null,
+            new Tag("amenity", "bicycle_repair_station"), // 251
+            new Tag("amenity", "bicycle_parking"), // 252
             new Tag("amenity", "drinking_water"), // 253
             null, null,
             new Tag("amenity", "shelter"), // 256
@@ -620,7 +627,8 @@ public class Tags {
             R.string.legend_bus_stop, // 248
             R.string.legend_tram_stop, // 249
             R.string.legend_bicycle_rental, // 250
-            -1, -1,
+            R.string.legend_bicycle_repair_station, // 251
+            R.string.legend_bicycle_parking, // 252
             R.string.legend_drinking_water, // 253
             -1, -1,
             R.string.legend_shelter, // 256
@@ -849,7 +857,8 @@ public class Tags {
             true, // 248
             true, // 249
             true, // 250
-            false, false,
+            true, // 251
+            true, // 252
             true, // 253
             false, false,
             true, // 256
@@ -910,7 +919,7 @@ public class Tags {
             new int[] {133, 136}, // pets
             new int[] {229, 230, 232, 235, 238, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
-            new int[] {148, 151, 118, 250, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
+            new int[] {148, 151, 118, 250, 251, 252, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
             new int[] {64, 67, 68, 70, 73, 74, 76}  // barrier
     };
@@ -932,6 +941,29 @@ public class Tags {
             }
         }
         tags.add(Tags.TAG_FEATURE);
+    }
+
+    public static void setFlags(int flags, ExtendedMapElement element) {
+        if ((flags & 0x00000001) == 0x00000001)
+            element.tags.add(TAG_FEE);
+        if (accessibility) {
+            if ((flags & 0x00000006) == 0x00000006)
+                element.tags.add(TAG_WHEELCHAIR_YES);
+            else if ((flags & 0x00000004) == 0x00000004)
+                element.tags.add(TAG_WHEELCHAIR_LIMITED);
+            else if ((flags & 0x00000002) == 0x00000002)
+                element.tags.add(TAG_WHEELCHAIR_NO);
+        }
+    }
+
+    public static void setExtra(int type, int enum1, TagSet tags) {
+        if (type < 0 || type > typeTags.length || typeTags[type] == null)
+            return;
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (type) {
+            case 252: // bicycle_parking
+                tags.add(new Tag("capacity", String.valueOf(enum1)));
+        }
     }
 
     @StringRes
@@ -1106,7 +1138,10 @@ public class Tags {
             "diplomatic",
             "addr:interpolation",
             "substance",
-            "pump"
+            "pump",
+            "cycleway",
+            "cycleway:right",
+            "cycleway:left"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1168,7 +1203,7 @@ public class Tags {
             "river",
             "detached",
             "very_horrible",
-            "reserved",
+            "bicycle_parking",
             "cycleway",
             "hedge",
             "place_of_worship",
@@ -1414,7 +1449,7 @@ public class Tags {
             "pipeline",
             "tank",
             "kiosk",
-            "5",
+            "bicycle_repair_station",
             "region",
             "3",
             "carport",

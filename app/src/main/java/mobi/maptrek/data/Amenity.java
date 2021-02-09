@@ -19,6 +19,14 @@ package mobi.maptrek.data;
 import mobi.maptrek.maps.maptrek.Tags;
 
 public class Amenity extends Waypoint {
+    public enum Fee {
+        YES, NO
+    }
+
+    public enum Wheelchair {
+        YES, LIMITED, NO
+    }
+
     public int kindNumber;
     public String kind;
     public int type;
@@ -26,6 +34,8 @@ public class Amenity extends Waypoint {
     public String phone;
     public String wikipedia;
     public String website;
+    public Fee fee;
+    public Wheelchair wheelchair;
 
     public Amenity(long id, int kind, int type, double lat, double lon) {
         super(lat, lon);

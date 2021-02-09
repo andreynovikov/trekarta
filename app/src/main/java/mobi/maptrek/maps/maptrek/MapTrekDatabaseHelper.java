@@ -41,7 +41,7 @@ import mobi.maptrek.util.Smaz;
 public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     private static final Logger logger = LoggerFactory.getLogger(MapTrekDatabaseHelper.class);
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     static final String TABLE_MAPS = "maps";
     static final String TABLE_MAP_FEATURES = "map_features";
@@ -86,6 +86,8 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String COLUMN_FEATURES_PHONE = "phone";
     static final String COLUMN_FEATURES_WIKIPEDIA = "wikipedia";
     static final String COLUMN_FEATURES_WEBSITE = "website";
+    static final String COLUMN_FEATURES_FLAGS = "flags";
+    static final String COLUMN_FEATURES_ENUM1 = "enum1";
 
     private static final String COLUMN_FEATURES_NAMES_LANG = "lang";
     private static final String COLUMN_FEATURES_NAMES_NAME = "name";
@@ -151,7 +153,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_FEATURES_OPENING_HOURS + " TEXT, "
                     + COLUMN_FEATURES_PHONE + " TEXT, "
                     + COLUMN_FEATURES_WIKIPEDIA + " TEXT, "
-                    + COLUMN_FEATURES_WEBSITE + " TEXT"
+                    + COLUMN_FEATURES_WEBSITE + " TEXT, "
+                    + COLUMN_FEATURES_FLAGS + " INTEGER, "
+                    + COLUMN_FEATURES_ENUM1 + " INTEGER"
                     + ")";
 
     private static final String SQL_CREATE_FEATURE_NAMES =
@@ -240,6 +244,17 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_FEATURES_LON
     };
 
+    static final String[] ALL_COLUMNS_FEATURES_V2 = {
+            COLUMN_FEATURES_ID,
+            COLUMN_FEATURES_KIND,
+            COLUMN_FEATURES_LAT,
+            COLUMN_FEATURES_LON,
+            COLUMN_FEATURES_OPENING_HOURS,
+            COLUMN_FEATURES_PHONE,
+            COLUMN_FEATURES_WIKIPEDIA,
+            COLUMN_FEATURES_WEBSITE
+    };
+
     static final String[] ALL_COLUMNS_FEATURES_WO_XY = {
             COLUMN_FEATURES_ID,
             COLUMN_FEATURES_KIND,
@@ -249,7 +264,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_FEATURES_OPENING_HOURS,
             COLUMN_FEATURES_PHONE,
             COLUMN_FEATURES_WIKIPEDIA,
-            COLUMN_FEATURES_WEBSITE
+            COLUMN_FEATURES_WEBSITE,
+            COLUMN_FEATURES_FLAGS,
+            COLUMN_FEATURES_ENUM1
     };
 
     static final String[] ALL_COLUMNS_FEATURES = {
@@ -263,7 +280,9 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             COLUMN_FEATURES_OPENING_HOURS,
             COLUMN_FEATURES_PHONE,
             COLUMN_FEATURES_WIKIPEDIA,
-            COLUMN_FEATURES_WEBSITE
+            COLUMN_FEATURES_WEBSITE,
+            COLUMN_FEATURES_FLAGS,
+            COLUMN_FEATURES_ENUM1
     };
 
     static final String[] ALL_COLUMNS_FEATURE_NAMES = {
@@ -400,6 +419,10 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
             upgradeFeatureTable(db);
             db.execSQL(SQL_INDEX_FEATURE_TYPES);
         }
+        if (oldVersion < 7) {
+            db.execSQL("ALTER TABLE " + TABLE_FEATURES + " ADD COLUMN " + COLUMN_FEATURES_FLAGS + " INTEGER");
+            db.execSQL("ALTER TABLE " + TABLE_FEATURES + " ADD COLUMN " + COLUMN_FEATURES_ENUM1 + " INTEGER");
+        }
     }
 
     private static void createWorldMapTables(SQLiteDatabase db) {
@@ -519,6 +542,17 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     if (qs != null)
                         website = website.replace(qs, URLDecoder.decode(qs, "UTF-8"));
                     amenity.website = website;
+                }
+                if (!c.isNull(c.getColumnIndex(COLUMN_FEATURES_FLAGS))) {
+                    int flags = c.getInt(c.getColumnIndex(COLUMN_FEATURES_FLAGS));
+                    if ((flags & 0x00000001) == 0x00000001)
+                        amenity.fee = Amenity.Fee.YES;
+                    if ((flags & 0x00000006) == 0x00000006)
+                        amenity.wheelchair = Amenity.Wheelchair.YES;
+                    else if ((flags & 0x00000004) == 0x00000004)
+                        amenity.wheelchair = Amenity.Wheelchair.LIMITED;
+                    else if ((flags & 0x00000002) == 0x00000002)
+                        amenity.wheelchair = Amenity.Wheelchair.NO;
                 }
             }
         } catch (Exception e) {

@@ -40,6 +40,8 @@ import java.io.ByteArrayInputStream;
 
 import mobi.maptrek.layers.MapTrekTileLayer;
 
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ENUM1;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_FLAGS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_ID;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_KIND;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_FEATURES_LAT;
@@ -130,7 +132,8 @@ class MapTrekDataSource implements ITileDataSource {
         } else if (limitedZoomDiff >= 0 && Tags.typeSelectors[limitedZoomDiff].length() > 0) {
             String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
                     + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
-                    + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
+                    + COLUMN_FEATURES_LON + ", " + COLUMN_FEATURES_FLAGS  + ", "
+                    + COLUMN_FEATURES_ENUM1 + " FROM " + TABLE_FEATURES + " WHERE "
                     + COLUMN_FEATURES_TYPE + " IN (" + Tags.typeSelectors[limitedZoomDiff] + ") AND "
                     + COLUMN_FEATURES_X + " = ? AND " + COLUMN_FEATURES_Y + " = ?";
 
@@ -177,7 +180,12 @@ class MapTrekDataSource implements ITileDataSource {
                 ExtendedMapElement element = new ExtendedMapElement(1, 1);
                 element.id = c.getLong(0);
                 element.kind = c.getInt(1);
-                Tags.setTypeTag(c.getInt(2), element.tags);
+                if (!c.isNull(5))
+                    Tags.setFlags(c.getInt(5), element);
+                int type = c.getInt(2);
+                Tags.setTypeTag(type, element.tags);
+                if (!c.isNull(6))
+                    Tags.setExtra(type, c.getInt(6), element.tags);
                 element.database = this;
 
                 double px = MercatorProjection.longitudeToX(c.getDouble(4));
