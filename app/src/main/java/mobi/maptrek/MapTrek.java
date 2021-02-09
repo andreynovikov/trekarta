@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -65,11 +66,13 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.LongSparseArrayIterator;
+import mobi.maptrek.util.NativeMapFilenameFilter;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.util.ShieldFactory;
@@ -166,6 +169,24 @@ public class MapTrek extends Application {
 
         int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
         AppCompatDelegate.setDefaultNightMode(nightMode);
+
+        if (BuildConfig.DEBUG) {
+            // Look for test maps and import them
+            File dir = getExternalDir("native");
+            File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
+            for (File mapFile : mapFiles) {
+                if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
+                    Uri uri = Uri.fromFile(mapFile);
+                    logger.error("Found debug map: {}", mapFile.getAbsolutePath());
+                    Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(importIntent);
+                    } else {
+                        startService(importIntent);
+                    }
+                }
+            }
+        }
     }
 
     private void initializeSettings() {
@@ -380,6 +401,7 @@ public class MapTrek extends Application {
         mBitmapLayerMaps = bitmapLayerMaps;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void copyAsset(String asset, File outFile) {
         try {
             InputStream in = getAssets().open(asset);
@@ -497,7 +519,7 @@ public class MapTrek extends Application {
     }
 
     private class DefaultExceptionHandler implements Thread.UncaughtExceptionHandler {
-        private Thread.UncaughtExceptionHandler defaultHandler;
+        private final Thread.UncaughtExceptionHandler defaultHandler;
 
         DefaultExceptionHandler() {
             defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
@@ -534,7 +556,7 @@ public class MapTrek extends Application {
         }
 
         @Override
-        public void uncaughtException(final Thread thread, final Throwable ex) {
+        public void uncaughtException(@NonNull final Thread thread, @NonNull final Throwable ex) {
             caughtException(thread, ex);
             defaultHandler.uncaughtException(thread, ex);
         }

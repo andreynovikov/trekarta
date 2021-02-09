@@ -26,9 +26,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.JobIntentService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +110,8 @@ public class MapService extends IntentService {
                 try {
                     if (parts.length != 3)
                         throw new NumberFormatException("unexpected name");
-                    x = Integer.valueOf(parts[0]);
-                    y = Integer.valueOf(parts[1]);
+                    x = Integer.parseInt(parts[0]);
+                    y = Integer.parseInt(parts[1]);
                     hillshade = "mbtiles".equals(parts[2]);
                     if (x > 127 || y > 127)
                         throw new NumberFormatException("out of range");
@@ -134,15 +132,12 @@ public class MapService extends IntentService {
                     new OperationProgressListener(notificationManager, builder))) {
                 application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
                 builder.setContentText(getString(R.string.complete));
-                if (notificationManager != null) {
-                    notificationManager.notify(JOB_ID, builder.build());
-                }
             } else {
                 builder.setContentIntent(pendingIntent);
                 builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                if (notificationManager != null)
-                    notificationManager.notify(JOB_ID, builder.build());
             }
+            if (notificationManager != null)
+                notificationManager.notify(JOB_ID, builder.build());
         }
 
         if (actionRemoval) {
