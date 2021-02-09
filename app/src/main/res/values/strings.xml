@@ -8,6 +8,7 @@
     <string name="title_input_name">Name</string>
     <string name="titleMoveData">Move application data</string>
     <string name="titleCoordinatesInput">Enter coordinates</string>
+    <string name="whatsNewTitle">What\'s New</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -83,6 +84,7 @@
     <string name="actionMoveData">Move data</string>
     <string name="actionRuler">Ruler</string>
     <string name="actionLegend">Legend</string>
+    <string name="actionMapScale">Map scale</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -257,6 +259,10 @@
     <string name="finishing">Finishing…</string>
     <string name="osmLicense"><![CDATA[&#169; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors]]></string>
     <string name="notificationChannelName">Ongoing events</string>
+    <string name="full_access">Fully accessible</string>
+    <string name="limited_access">Partially accessible</string>
+    <string name="no_access">Not accessible</string>
+    <string name="fee">Fee usually charged</string>
 
     <string name="permReadFilesLabel">read user files</string>
     <string name="permReadFilesDescription">Allows the app to read Trekarta user data files such as places and tracks.</string>
@@ -283,6 +289,7 @@
     <string name="pref_unit_precision_title">Extra precision</string>
     <string name="pref_advanced">Advanced</string>
     <string name="pref_hillshades_transparency">Hillshades transparency</string>
+    <string name="pref_accessibility_badges_title">Accessibility badges</string>
 
     <string name="kind_place">Localities</string>
     <string name="kind_road">Roads</string>
@@ -682,7 +689,6 @@
     <string name="legend_highway_services">Travel plaza</string>
     <string name="legend_embankment">Embankment</string>
     <string name="legend_railway_service">Service railway</string>
-    <string name="whatsNewTitle">What\'s New</string>
     <string name="legend_house_numbers">House numbers</string>
     <string name="legend_water_pipeline">Water pipeline</string>
     <string name="legend_steam_pipeline">Steam pipeline</string>
@@ -693,6 +699,7 @@
     <string name="legend_water_well">Water well</string>
     <string name="legend_water_pump">Water pump</string>
     <string name="legend_motorcycle_shop">Motorcycle shop</string>
-    <string name="actionMapScale">Map scale</string>
+    <string name="legend_bicycle_repair_station">Bicycle repair station</string>
+    <string name="legend_bicycle_parking">Bicycle parking</string>
 
 </resources>

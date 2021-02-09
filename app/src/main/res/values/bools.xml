@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="def_zoom_buttons_visible">false</bool>
+    <bool name="def_accessibility_badges">true</bool>
     <bool name="def_unit_precision">false</bool>
     <bool name="isLandscape">false</bool>
     <bool name="isNotNightMode">true</bool>

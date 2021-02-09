@@ -16,6 +16,10 @@
             android:defaultValue="@bool/def_zoom_buttons_visible"
             android:key="zoom_buttons_visible"
             android:title="@string/pref_zoom_buttons_visible_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/def_accessibility_badges"
+            android:key="accessibility_badges"
+            android:title="@string/pref_accessibility_badges_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_units">
         <ListPreference

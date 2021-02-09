@@ -486,6 +486,15 @@
                 </m>
             </m>
             <m select="when-matched">
+                <m k="fee" v="yes">
+                    <symbol src="assets:symbols/fee.svg" symbol-percent="120" z-index="1" />
+                </m>
+                <m k="wheelchair" v="yes|limited">
+                    <symbol src="assets:symbols/wheelchair.svg" symbol-percent="120" z-index="1" />
+                </m>
+                <m k="wheelchair" v="no">
+                    <symbol src="assets:symbols/wheelchair-no.svg" symbol-percent="120" z-index="1" />
+                </m>
                 <m select="first">
                     <m k="tourism" v="information">
                         <m k="information" v="-|office">

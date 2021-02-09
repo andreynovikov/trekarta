@@ -75,7 +75,7 @@
             android:layout_marginTop="@dimen/waypoint_table_padding">
 
             <ImageView
-                android:id="@+id/icon"
+                android:id="@+id/kindIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -87,6 +87,53 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/feeRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_monetization"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/fee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary"
+                android:textColorLink="?android:textColorPrimary"
+                android:textIsSelectable="true" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/wheelchairRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/waypoint_table_padding">
+
+            <ImageView
+                android:id="@+id/wheelchairIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_accessible"
+                android:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/wheelchair"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary"
+                android:textColorLink="?android:textColorPrimary"
+                android:textIsSelectable="true" />
 
         </TableRow>
 

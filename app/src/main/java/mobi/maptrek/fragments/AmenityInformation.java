@@ -87,7 +87,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViews = FragmentAmenityInformationBinding.inflate(inflater, container, false);
-        final ViewGroup rootView = (ViewGroup) mViews.getRoot();
+        final ViewGroup rootView = mViews.getRoot();
         rootView.post(() -> {
             updatePeekHeight(rootView, false);
             int panelState = BottomSheetBehavior.STATE_COLLAPSED;
@@ -257,7 +257,34 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         @DrawableRes int icon = ResUtils.getKindIcon(mAmenity.kindNumber);
         if (icon == 0)
             icon = R.drawable.ic_place;
-        mViews.icon.setImageResource(icon);
+        mViews.kindIcon.setImageResource(icon);
+
+        if (mAmenity.fee == null) {
+            mViews.feeRow.setVisibility(View.GONE);
+        } else {
+            mViews.feeRow.setVisibility(View.VISIBLE);
+            mViews.fee.setText(R.string.fee);
+        }
+
+        if (mAmenity.wheelchair == null) {
+            mViews.wheelchairRow.setVisibility(View.GONE);
+        } else {
+            mViews.wheelchairRow.setVisibility(View.VISIBLE);
+            switch (mAmenity.wheelchair) {
+                case YES:
+                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
+                    mViews.wheelchair.setText(R.string.full_access);
+                    break;
+                case LIMITED:
+                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
+                    mViews.wheelchair.setText(R.string.limited_access);
+                    break;
+                case NO:
+                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_not_accessible);
+                    mViews.wheelchair.setText(R.string.no_access);
+                    break;
+            }
+        }
 
         if (mAmenity.openingHours == null) {
             mViews.openingHoursRow.setVisibility(View.GONE);

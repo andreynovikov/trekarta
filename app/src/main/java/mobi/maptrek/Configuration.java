@@ -68,6 +68,7 @@ public class Configuration {
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
+    public static final String PREF_ACCESSIBILITY_BADGES = "accessibility_badges";
     public static final String PREF_SPEED_UNIT = "speed_unit";
     public static final String PREF_DISTANCE_UNIT = "distance_unit";
     public static final String PREF_ELEVATION_UNIT = "elevation_unit";
@@ -86,6 +87,7 @@ public class Configuration {
     private static final String PREF_EXTERNAL_STORAGE = "external_storage";
     private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
     private static final String PREF_HIKING_TIMES = "hiking_times";
+    private static final String PREF_CYCLING_TIMES = "cycling_times";
     private static final String PREF_SKIING_TIMES = "skiing_times";
     private static final String PREF_HIGHLIGHTED_TYPE = "highlighted_type";
 
@@ -400,6 +402,10 @@ public class Configuration {
         return loadBoolean(PREF_ZOOM_BUTTONS_VISIBLE, false);
     }
 
+    public static boolean getAccessibilityBadgesEnabled() {
+        return loadBoolean(PREF_ACCESSIBILITY_BADGES, true);
+    }
+
     public static int getCoordinatesFormat() {
         return loadInt(PREF_COORDINATES_FORMAT, 0);
     }
@@ -510,6 +516,14 @@ public class Configuration {
 
     public static void accountHiking() {
         saveInt(PREF_HIKING_TIMES, Configuration.getHikingTimes() + 1);
+    }
+
+    public static int getCyclingTimes() {
+        return loadInt(PREF_CYCLING_TIMES, 0);
+    }
+
+    public static void accountCycling() {
+        saveInt(PREF_CYCLING_TIMES, Configuration.getCyclingTimes() + 1);
     }
 
     public static int getSkiingTimes() {
