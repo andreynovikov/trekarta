@@ -90,7 +90,8 @@ public class XmlAtlasThemeBuilder extends XmlThemeBuilder {
                             .repeatGap(((SymbolStyle) style).repeatGap)
                             .mergeGap(((SymbolStyle) style).mergeGap)
                             .mergeGroup(((SymbolStyle) style).mergeGroup)
-                            .textOverlap(((SymbolStyle) style).textOverlap).build();
+                            .textOverlap(((SymbolStyle) style).textOverlap)
+                            .zIndex(((SymbolStyle) style).zIndex).build();
                 }
             }
         }

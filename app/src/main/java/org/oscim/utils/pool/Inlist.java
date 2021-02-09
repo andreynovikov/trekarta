@@ -48,7 +48,31 @@ public class Inlist<T extends Inlist<T>> {
         }
 
         /**
-         * Insert item at start of list.
+         * Insert single item before other item in the list.
+         * item.next must be null.
+         */
+        public void pushBefore(T it, T other) {
+            if (it.next != null)
+                throw new IllegalArgumentException("item.next must be null");
+
+            Inlist prev = null;
+            Inlist itr = head;
+            while (itr != null && itr != other) {
+                prev = itr;
+                itr = itr.next;
+            }
+            if (itr == null)
+                throw new IllegalArgumentException("no other in list");
+            if (prev == null) {
+                push(it);
+            } else {
+                ((Inlist) it).next = prev.next;
+                prev.next = it;
+            }
+        }
+
+        /**
+         * Remove item at start of list.
          */
         public T pop() {
             if (head == null)

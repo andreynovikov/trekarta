@@ -1229,6 +1229,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("text-overlap".equals(name))
                 b.textOverlap = parseBoolean(value);
 
+            else if ("z-index".equals(name))
+                b.zIndex = Integer.parseInt(value);
+
             else if ("symbol-scaling".equals(name))
                 ; // no-op
 

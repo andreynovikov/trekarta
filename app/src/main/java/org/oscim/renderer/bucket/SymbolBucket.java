@@ -61,6 +61,11 @@ public final class SymbolBucket extends TextureBucket {
                 it.next = item;
                 return;
             }
+            if (it.zIndex > item.zIndex) {
+                /* insert before */
+                mSymbols.pushBefore(item, it);
+                return;
+            }
         }
         mSymbols.push(item);
     }

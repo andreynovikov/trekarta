@@ -23,6 +23,7 @@ public class Symbol extends SymbolItem {
         this.mergeGroup = si.mergeGroup;
         this.mergeGroupGap = si.mergeGroupGap;
         this.textOverlap = si.textOverlap;
+        this.zIndex = si.zIndex;
         return this;
     }
 }

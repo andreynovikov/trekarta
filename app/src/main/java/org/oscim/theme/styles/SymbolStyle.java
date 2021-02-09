@@ -49,6 +49,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
     public final String mergeGroup;
     public final int mergeGroupGap;
     public final boolean textOverlap;
+    public final int zIndex;
 
     public SymbolStyle(Bitmap bitmap) {
         this(bitmap, null, 0);
@@ -85,6 +86,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.mergeGroup = null;
         this.mergeGroupGap = -1;
         this.textOverlap = true;
+        this.zIndex = 0;
     }
 
     public SymbolStyle(SymbolBuilder<?> b) {
@@ -112,6 +114,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         this.mergeGroup = b.mergeGroup;
         this.mergeGroupGap = b.mergeGroupGap;
         this.textOverlap = b.textOverlap;
+        this.zIndex = b.zIndex;
     }
 
     @Override
@@ -159,6 +162,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
         public String mergeGroup;
         public int mergeGroupGap;
         public boolean textOverlap = true;
+        public int zIndex;
 
         public SymbolBuilder() {
         }
@@ -188,6 +192,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             this.mergeGroup = other.mergeGroup;
             this.mergeGroupGap = other.mergeGroupGap;
             this.textOverlap = other.textOverlap;
+            this.zIndex = other.zIndex;
 
             return self();
         }
@@ -220,6 +225,7 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
             this.mergeGroup = symbol.mergeGroup;
             this.mergeGroupGap = symbol.mergeGroupGap;
             this.textOverlap = symbol.textOverlap;
+            this.zIndex = symbol.zIndex;
 
             return self();
         }
@@ -323,6 +329,11 @@ public final class SymbolStyle extends RenderStyle<SymbolStyle> {
 
         public T textOverlap(boolean textOverlap) {
             this.textOverlap = textOverlap;
+            return self();
+        }
+
+        public T zIndex(int zIndex) {
+            this.zIndex = zIndex;
             return self();
         }
 

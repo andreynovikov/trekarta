@@ -281,9 +281,9 @@ public final class WayDecorator {
                     if (x >= 0 && x <= Tile.SIZE && y >= 0 && y <= Tile.SIZE) {
                         SymbolItem s = SymbolItem.pool.get();
                         if (symbol.bitmap != null)
-                            s.set(x, y, symbol.bitmap, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
+                            s.set(x, y, symbol.bitmap, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap, symbol.zIndex);
                         else
-                            s.set(x, y, symbol.texture, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
+                            s.set(x, y, symbol.texture, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap, symbol.zIndex);
                         ld.symbols.push(s);
                     }
 
@@ -349,9 +349,9 @@ public final class WayDecorator {
                     if (x >= 0 && x <= Tile.SIZE && y >= 0 && y <= Tile.SIZE) {
                         SymbolItem s = SymbolItem.pool.get();
                         if (symbol.bitmap != null)
-                            s.set(x, y, symbol.bitmap, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
+                            s.set(x, y, symbol.bitmap, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap, symbol.zIndex);
                         else
-                            s.set(x, y, symbol.texture, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap);
+                            s.set(x, y, symbol.texture, symbol.hash, theta, symbol.billboard, symbol.mergeGap, symbol.mergeGroup, symbol.mergeGroupGap, symbol.textOverlap, symbol.zIndex);
                         ld.symbols.push(s);
                     }
 

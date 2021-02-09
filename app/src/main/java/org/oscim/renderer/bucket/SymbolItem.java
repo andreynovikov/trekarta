@@ -44,6 +44,7 @@ public class SymbolItem extends Inlist<SymbolItem> {
             it.mergeGroup = null;
             it.mergeGroupGap = -1;
             it.textOverlap = true;
+            it.zIndex = 0;
             return true;
         }
     };
@@ -60,6 +61,7 @@ public class SymbolItem extends Inlist<SymbolItem> {
     public String mergeGroup;
     public int mergeGroupGap;
     public boolean textOverlap;
+    public int zIndex;
     public int hash;
 
     public static SymbolItem copy(SymbolItem orig) {
@@ -77,6 +79,7 @@ public class SymbolItem extends Inlist<SymbolItem> {
         si.mergeGroup = orig.mergeGroup;
         si.mergeGroupGap = orig.mergeGroupGap;
         si.textOverlap = orig.textOverlap;
+        si.zIndex = orig.zIndex;
 
         return si;
     }
@@ -86,10 +89,10 @@ public class SymbolItem extends Inlist<SymbolItem> {
     }
 
     public void set(float x, float y, TextureRegion texture, float rotation, boolean billboard) {
-        set(x, y, texture, texture.hashCode(), rotation, billboard, -1, null, -1, true);
+        set(x, y, texture, texture.hashCode(), rotation, billboard, -1, null, -1, true, 0);
     }
 
-    public void set(float x, float y, TextureRegion texture, int hash, float rotation, boolean billboard, int mergeGap, String mergeGroup, int mergeGroupGap, boolean textOverlap) {
+    public void set(float x, float y, TextureRegion texture, int hash, float rotation, boolean billboard, int mergeGap, String mergeGroup, int mergeGroupGap, boolean textOverlap, int zIndex) {
         this.x = x;
         this.y = y;
         this.texRegion = texture;
@@ -100,6 +103,7 @@ public class SymbolItem extends Inlist<SymbolItem> {
         this.mergeGroup = mergeGroup;
         this.mergeGroupGap = mergeGroupGap;
         this.textOverlap = textOverlap;
+        this.zIndex = zIndex;
     }
 
     public void set(float x, float y, Bitmap bitmap, boolean billboard) {
@@ -107,10 +111,10 @@ public class SymbolItem extends Inlist<SymbolItem> {
     }
 
     public void set(float x, float y, Bitmap bitmap, float rotation, boolean billboard) {
-        set(x, y, bitmap, bitmap.hashCode(), rotation, billboard, -1, null, -1,true);
+        set(x, y, bitmap, bitmap.hashCode(), rotation, billboard, -1, null, -1, true, 0);
     }
 
-    public void set(float x, float y, Bitmap bitmap, int hash, float rotation, boolean billboard, int mergeGap, String mergeGroup, int mergeGroupGap, boolean textOverlap) {
+    public void set(float x, float y, Bitmap bitmap, int hash, float rotation, boolean billboard, int mergeGap, String mergeGroup, int mergeGroupGap, boolean textOverlap, int zIndex) {
         this.x = x;
         this.y = y;
         this.bitmap = bitmap;
@@ -121,5 +125,6 @@ public class SymbolItem extends Inlist<SymbolItem> {
         this.mergeGroup = mergeGroup;
         this.mergeGroupGap = mergeGroupGap;
         this.textOverlap = textOverlap;
+        this.zIndex = zIndex;
     }
 }
