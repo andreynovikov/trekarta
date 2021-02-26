@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -38,23 +38,27 @@ import org.oscim.core.GeometryBuffer.GeometryType;
 import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
 import org.oscim.theme.IRenderTheme;
-import org.oscim.theme.XmlThemeBuilder;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.CircleStyle;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
 
+@SuppressWarnings("rawtypes")
 public class LegendView extends View {
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(LegendView.class);
+
     private static final RectF PATH_RECT = new RectF(0f, 0f, 1f, 0.6f);
     public static final Path PATH_BUILDING = new Path();
     public static final Path PATH_PLATFORM = new Path();
@@ -73,7 +77,7 @@ public class LegendView extends View {
     private float mCenterY;
     private float mLastLineWidth;
     private int mSymbolCount;
-    private Matrix mViewMatrix = new Matrix();
+    private final Matrix mViewMatrix = new Matrix();
     ArrayList<RenderStyle> mLines = new ArrayList<>();
 
     static {
@@ -242,12 +246,11 @@ public class LegendView extends View {
         mSymbolCount++;
         org.oscim.backend.canvas.Bitmap bitmap = null;
         if (symbolStyle.bitmap == null) {
-            String src = symbolStyle.src.toLowerCase(Locale.ENGLISH).substring(XmlThemeBuilder.PREFIX_GEN.length());
-            if (src.equals("/osmc-symbol")) {
+            if (symbolStyle.src.equals("/osmc-symbol")) {
                 String osmcSymbol = item.tags.getValue("osmc:symbol");
                 bitmap = mOsmcSymbolFactory.getBitmap(osmcSymbol, symbolStyle.symbolPercent);
-            } else if (src.startsWith("/shield/")) {
-                bitmap = mShieldFactory.getBitmap(item.tags, src, symbolStyle.symbolPercent);
+            } else if (symbolStyle.src.startsWith("/shield/")) {
+                bitmap = mShieldFactory.getBitmap(item.tags, symbolStyle.src, symbolStyle.symbolPercent);
             }
         } else {
             bitmap = symbolStyle.bitmap;
@@ -260,19 +263,13 @@ public class LegendView extends View {
     }
 
     void renderLine(LegendItem item, Canvas canvas, LineStyle lineStyle) {
+        float scale = (float) Math.pow(item.zoomLevel / 17.0, 2);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(lineStyle.fixed ? lineStyle.width * mDensity : lineStyle.width * mDensity * 8f);
+        paint.setStrokeWidth(lineStyle.fixed ? lineStyle.width * mDensity * scale : lineStyle.width * mDensity * 8f * scale);
         paint.setColor(lineStyle.color);
         if (item.type == GeometryType.LINE) {
             if (lineStyle.texture != null) {
-                // XMLThemeBuilder(623)
-                float xOffset = 0;
-                float symbolWidth = lineStyle.stipple - lineStyle.repeatGap;
-                if (symbolWidth > 0) {
-                    float r = .5f * lineStyle.texture.width / lineStyle.stipple;
-                    xOffset = (lineStyle.repeatStart + symbolWidth / 2f) * r;
-                }
                 Bitmap bmp = Bitmap.createBitmap(lineStyle.texture.bitmap.getPixels(),
                         lineStyle.texture.bitmap.getWidth(), lineStyle.texture.bitmap.getHeight(),
                         Bitmap.Config.ARGB_8888);
@@ -283,13 +280,34 @@ public class LegendView extends View {
                     bmpPaint = new Paint();
                     bmpPaint.setColorFilter(new PorterDuffColorFilter(lineStyle.stippleColor, PorterDuff.Mode.SRC_IN));
                 }
-                //canvas.drawBitmap(resized, mCenterX - xOffset, mCenterY - line.texture.height / 2f, bmpPaint);
-                canvas.drawBitmap(resized, mCenterX - xOffset, mCenterY - resized.getHeight() / 2f, bmpPaint);
+
+                float xOffset = 0, xWidth = 0;
+                int count = 1;
+                float gap = lineStyle.repeatGap > 0 ? lineStyle.repeatGap : lineStyle.stipple;
+                float hs = gap / 2;
+                float w = mRight - mLeft;
+                xWidth = resized.getWidth() + hs;
+                count = (int) (Math.max(w / xWidth, 1.0));
+                float remainder = w - xWidth * count;
+                if (remainder > resized.getWidth()) {
+                    count++;
+                }
+                xOffset = (w - xWidth * count + hs) / 2f;
+
+                paint.setStrokeWidth(5);
+                xOffset += mLeft;
+                while (count > 0) {
+                    canvas.drawBitmap(resized, xOffset, mCenterY - resized.getHeight() / 2f, bmpPaint);
+                    xOffset += xWidth;
+                    count--;
+                }
                 resized.recycle();
             } else if (lineStyle.outline) {
                 float halfWidth = mLastLineWidth / 2f;
-                canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
-                canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
+                if (lineStyle.half != LineStyle.Half.RIGHT)
+                    canvas.drawLine(mLeft, mCenterY - halfWidth, mRight, mCenterY - halfWidth, paint);
+                if (lineStyle.half != LineStyle.Half.LEFT)
+                    canvas.drawLine(mLeft, mCenterY + halfWidth, mRight, mCenterY + halfWidth, paint);
             } else if (lineStyle.stipple != 0) {
                 float main = lineStyle.stipple * mDensity * (1f - lineStyle.stippleRatio);
                 float stipple = lineStyle.stipple * mDensity * lineStyle.stippleRatio;
@@ -317,6 +335,7 @@ public class LegendView extends View {
                     paint.setStrokeCap(Paint.Cap.SQUARE);
                     paint.setMaskFilter(new BlurMaskFilter(paint.getStrokeWidth() * lineStyle.blur, BlurMaskFilter.Blur.INNER));
                 }
+                //TODO: line half
                 canvas.drawLine(mLeft, mCenterY, mRight, mCenterY, paint);
                 if (lineStyle.blur != 0f) {
                     canvas.restore();
@@ -344,7 +363,7 @@ public class LegendView extends View {
         else
             h = h / -2f;
         float gap = textStyle.bitmap != null ? textStyle.bitmap.getWidth() / 2f : 0f;
-        float x = 0f;
+        float x;
         switch (item.align) {
             case LegendItem.ALIGN_LEFT:
                 x = mLeft + textStyle.paint.getTextWidth(text) + gap;
