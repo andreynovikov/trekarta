@@ -15,17 +15,67 @@
                             <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                                 width="4.5" />
                             <line use="steps" />
+                            <m cat="hiking">
+                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                    width="8.5" />
+                                <line use="steps" width="3.0" />
+                            </m>
+                            <m cat="cycling">
+                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                    width="8.5" />
+                                <line use="steps" width="3.0" />
+                            </m>
                         </m>
                     </m>
                     <m cat="pedestrian" v="footway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
                         <line use="footway:z16" />
+                        <m cat="hiking">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="7" />
+                            <line fix="true" stroke="#aab28f67" width="4" />
+                        </m>
+                        <m cat="cycling">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="9" />
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="7" />
+                            <m k="bicycle" v="designated">
+                                <line fix="true" stroke="color:cycleway" width="4" />
+                            </m>
+                            <m k="bicycle" v="yes">
+                                <line fix="true" stipple="10" stipple-stroke="#aab28f67"
+                                    stroke="color:cycleway" width="4" />
+                            </m>
+                            <m k="bicycle" v="~">
+                                <line fix="true" stroke="#aab28f67" width="4" />
+                            </m>
+                        </m>
                     </m>
                     <m cat="pedestrian" v="path">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
                         <line use="path" />
+                        <m cat="hiking">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="7" />
+                            <line fix="true" stroke="#aab28f67" width="4" />
+                        </m>
+                        <m cat="cycling">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                width="7" />
+                            <m k="bicycle" v="designated">
+                                <line fix="true" stroke="color:cycleway" width="4" />
+                            </m>
+                            <m k="bicycle" v="yes">
+                                <line fix="true" stipple="10" stipple-stroke="#aab28f67"
+                                    stroke="color:cycleway" width="4" />
+                            </m>
+                            <m k="bicycle" v="~">
+                                <line fix="true" stroke="#aab28f67" width="4" />
+                            </m>
+                        </m>
                     </m>
                     <m v="bridleway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
@@ -39,6 +89,10 @@
                         <m cat="track-names">
                             <text use="road-name" />
                         </m>
+                    </m>
+                    <m cat="cycling" v="cycleway">
+                        <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
+                        <line use="cycleway" />
                     </m>
                     <m cat="roads" v="construction">
                         <line cap="butt" outline="bridge" use="highway-service" />
@@ -206,11 +260,6 @@
                                 repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
                                 text-overlap="false" />
                         </m>
-                    </m>
-                    <m cat="cycling" v="cycleway">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.2" />
-                        <line use="cycleway" />
                     </m>
                     <xi:include href="inc_highway_oneways.xml" />
                 </m> <!-- end area=no -->

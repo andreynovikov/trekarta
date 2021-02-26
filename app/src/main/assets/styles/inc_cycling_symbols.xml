@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- Cycling route symbols -->
+    <m cat="cycling" e="way" k="route" v="bicycle" zoom-max="16">
+        <m k="network" v="lcn">
+            <symbol billboard="true" merge-gap="150" merge-group="road-symbols" repeat="true"
+                repeat-gap="150" src="gen:/shield/13/#ffffff/#8855ff" text-overlap="false" />
+        </m>
+        <m k="network" v="rcn">
+            <symbol billboard="true" merge-gap="150" merge-group="road-symbols" repeat="true"
+                repeat-gap="150" src="gen:/shield/13/#ffffff/#aa00ff" text-overlap="false" />
+        </m>
+        <m k="network" v="ncn">
+            <symbol billboard="true" merge-gap="150" merge-group="road-symbols" repeat="true"
+                repeat-gap="150" src="gen:/shield/13/#ffffff/#ff0000" text-overlap="false" />
+        </m>
+        <m k="network" v="icn">
+            <symbol billboard="true" merge-gap="150" merge-group="road-symbols" repeat="true"
+                repeat-gap="150" src="gen:/shield/13/#ffffff/#0000ff" text-overlap="false" />
+        </m>
+    </m>
+    <m cat="cycling" e="way" k="route" v="mtb" zoom-max="16">
+        <symbol billboard="true" merge-gap="150" merge-group="road-symbols" repeat="true"
+            repeat-gap="150" src="gen:/shield/13/#ffffff/#d08000" text-overlap="false" />
+    </m>
+    <m cat="cycling" e="node" k="network">
+        <m v="lcn">
+            <symbol billboard="true" merge-gap="40" merge-group="road-symbols"
+                src="gen:/shield/18/#ffffff/#8855ff/round" />
+        </m>
+        <m v="rcn">
+            <symbol billboard="true" merge-gap="40" merge-group="road-symbols"
+                src="gen:/shield/18/#ffffff/#aa00ff/round" />
+        </m>
+    </m>
+
+    <!-- Cycling way symbols -->
+    <m cat="cycling" e="way" k="highway" zoom-min="15">
+        <m select="first">
+            <m k="mtb:scale" v="0">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+            </m>
+            <m k="mtb:scale" v="1">
+                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+            </m>
+            <m k="mtb:scale" v="2">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale" v="3">
+                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale" v="4">
+                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#010101" width="20" />
+            </m>
+            <m k="mtb:scale" v="5">
+                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#010101" width="20" />
+            </m>
+            <m k="mtb:scale" v="6">
+                <line fix="true" src="assets:symbols/tick_triple.svg" stipple="80" stipple-stroke="#010101" width="20" />
+            </m>
+            <m k="mtb:scale:imba" v="0">
+                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#ffffff" width="20" />
+            </m>
+            <m k="mtb:scale:imba" v="1">
+                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#00ff00" width="20" />
+            </m>
+            <m k="mtb:scale:imba" v="2">
+                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+            </m>
+            <m k="mtb:scale:imba" v="3">
+                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#010101" width="20" />
+            </m>
+            <m k="mtb:scale:imba" v="4">
+                <line fix="true" src="assets:symbols/dot_double_small.svg" stipple="80" stipple-stroke="#010101" width="20" />
+            </m>
+        </m>
+        <m select="first" zoom-min="16">
+            <m k="mtb:scale:uphill" v="0">
+                <line fix="true" src="assets:symbols/mtb/uphill0.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale:uphill" v="1">
+                <line fix="true" src="assets:symbols/mtb/uphill1.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale:uphill" v="2">
+                <line fix="true" src="assets:symbols/mtb/uphill2.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale:uphill" v="3">
+                <line fix="true" src="assets:symbols/mtb/uphill3.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale:uphill" v="4">
+                <line fix="true" src="assets:symbols/mtb/uphill4.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+            <m k="mtb:scale:uphill" v="5">
+                <line fix="true" src="assets:symbols/mtb/uphill5.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+            </m>
+        </m>
+    </m>
+</rendertheme>

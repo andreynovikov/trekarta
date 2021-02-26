@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
+    <!-- Cycling routes -->
+    <m cat="cycling" e="way" k="route" v="bicycle">
+        <m zoom-max="13">
+            <m k="network" v="lcn">
+                <line stroke="#8855ff" width="3" />
+            </m>
+            <m k="network" v="rcn">
+                <line stroke="#aa00ff" width="3" />
+            </m>
+            <m k="network" v="ncn">
+                <line stroke="#ff0000" width="3" />
+            </m>
+            <m k="network" v="icn">
+                <line stroke="#0000ff" width="3" />
+            </m>
+        </m>
+        <m zoom-min="14" zoom-max="15">
+            <m k="network" v="lcn">
+                <line stroke="#228855ff" width="2" />
+            </m>
+            <m k="network" v="rcn">
+                <line stroke="#22aa00ff" width="2" />
+            </m>
+            <m k="network" v="ncn">
+                <line stroke="#22ff0000" width="2" />
+            </m>
+            <m k="network" v="icn">
+                <line stroke="#220000ff" width="2" />
+            </m>
+        </m>
+        <m zoom-min="16">
+            <m k="network" v="lcn">
+                <line stroke="#118855ff" width="2" />
+            </m>
+            <m k="network" v="rcn">
+                <line stroke="#11aa00ff" width="2" />
+            </m>
+            <m k="network" v="ncn">
+                <line stroke="#11ff0000" width="2" />
+            </m>
+            <m k="network" v="icn">
+                <line stroke="#110000ff" width="2" />
+            </m>
+        </m>
+    </m>
+    <m cat="cycling" e="way" k="route" v="mtb">
+        <m zoom-max="13">
+            <line stroke="#d08000" width="2" />
+        </m>
+        <m zoom-min="14" zoom-max="15">
+            <line stroke="#22d08000" width="1.5" />
+        </m>
+        <m zoom-min="16">
+            <line stroke="#11d08000" width="1.5" />
+        </m>
+    </m>
+</rendertheme>

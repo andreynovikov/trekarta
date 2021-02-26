@@ -6,6 +6,10 @@
         <outline-layer id="road" stroke="color:road-outline" width="0.15" />
         <outline-layer id="primary" stroke="color:primary-road-outline" width="0.15" />
         <outline-layer id="motorway" stroke="color:motorway-road-outline" width="0.15" />
+        <outline-layer id="cycleway" stroke="color:cycleway" width="0.5" />
+        <outline-layer id="cycleway-right" stroke="color:cycleway" width="0.5" half="right" />
+        <outline-layer id="cycleway-left" stroke="color:cycleway" width="0.5" half="left" />
+        <outline-layer id="cycleway-ramp" stroke="color:cycleway" width="0.3" half="right" />
 
         <m cat="roads" select="first" zoom-max="7">
             <m v="motorway">
@@ -37,11 +41,25 @@
                                 </m>
                             </m>
                             <m cat="pedestrian" v="footway">
-                                <line stipple="6" use="footway" width="2.0" />
+                                <m select="first">
+                                    <m cat="cycling" k="bicycle" v="designated|yes">
+                                        <line stipple="6" use="footway" width="2.0" stipple-stroke="color:cycleway" />
+                                    </m>
+                                    <m>
+                                        <line stipple="6" use="footway" width="2.0" />
+                                    </m>
+                                </m>
                                 <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m cat="pedestrian" v="path">
-                                <line stipple="6" use="path" width="2.0" />
+                                <m select="first">
+                                    <m cat="cycling" k="bicycle" v="designated|yes">
+                                        <line stipple="6" use="path" width="2.0" stipple-stroke="color:cycleway" />
+                                    </m>
+                                    <m>
+                                        <line stipple="6" use="path" width="2.0" />
+                                    </m>
+                                </m>
                                 <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m v="bridleway">
@@ -49,8 +67,8 @@
                                 <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m cat="cycling" v="cycleway">
-                                <line stipple="6" use="cycleway" width="2.0" />
-                                <line fix="true" stroke="color:land" width="1.6" />
+                                <line stipple="12" stipple-stroke="color:transparent" use="cycleway" />
+                                <line stroke="color:land" width="0.2" />
                             </m>
                             <m cat="tracks" v="track">
                                 <line stipple="6" stipple-stroke="color:land"
@@ -146,7 +164,7 @@
                                 <m cat="roads-shield" zoom-max="16" zoom-min="14">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                         repeat-gap="150" src="gen:/shield/13/#f0f0f0/#7f462c"
-                                        text-overlap="false" />
+                                        text-overlap="false" billboard="true" />
                                 </m>
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -163,7 +181,7 @@
                                 <m cat="roads-shield" zoom-max="16" zoom-min="13">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                         repeat-gap="150" src="gen:/shield/13/#fdfdf1/#7f462c"
-                                        text-overlap="false" />
+                                        text-overlap="false" billboard="true" />
                                 </m>
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -180,7 +198,7 @@
                                 <m cat="roads-shield" zoom-max="16" zoom-min="12">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                         repeat-gap="150" src="gen:/shield/13/#fdf7e5/#7f462c"
-                                        text-overlap="false" />
+                                        text-overlap="false" billboard="true" />
                                 </m>
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -197,7 +215,7 @@
                                 <m cat="roads-shield" zoom-max="16" zoom-min="11">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                         repeat-gap="150" src="gen:/shield/13/#fff0b7/#c35817"
-                                        text-overlap="false" />
+                                        text-overlap="false" billboard="true" />
                                 </m>
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -214,7 +232,7 @@
                                 <m cat="roads-shield" zoom-max="16" zoom-min="10">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                         repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
-                                        text-overlap="false" />
+                                        text-overlap="false" billboard="true" />
                                 </m>
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -250,10 +268,17 @@
                         <m cat="pedestrian" v="via_ferrata">
                             <!--suppress XmlDefaultAttributeValue -->
                             <line use="steps" stipple-stroke="#000000" />
+                            <!--suppress XmlDefaultAttributeValue -->
+                            <line cat="hiking" use="steps" stipple-stroke="#000000" width="3.0" />
                         </m>
                         <m cat="pedestrian" v="steps">
                             <m zoom-min="16">
+                                <m cat="cycling" k="ramp:bicycle" v="yes">
+                                    <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="8" cap="butt" />
+                                </m>
                                 <line use="steps" />
+                                <line cat="hiking" use="steps" width="3.0" />
+                                <line cat="cycling" use="steps" width="3.0" />
                             </m>
                             <m zoom-max="15" zoom-min="14">
                                 <line use="footway" />
@@ -267,6 +292,9 @@
                                 <line use="footway:back" />
                                 <line use="footway:z16" />
                             </m>
+                            <m cat="cycling" k="bicycle" v="yes|designated">
+                                <line use="cycleway" />
+                            </m>
                         </m>
                         <m cat="pedestrian" v="path" zoom-min="14">
                             <m zoom-min="16">
@@ -275,6 +303,7 @@
                             <m k="ford" v="yes">
                                 <line fix="true" use="ford" width="4.0" />
                                 <line cat="hiking" fix="true" use="ford" width="6.0" />
+                                <line cat="cycling" fix="true" use="ford" width="6.0" />
                             </m>
                             <m k="trail_visibility" v="~|intermediate">
                                 <m k="access" v="no|private">
@@ -306,15 +335,17 @@
                         <m v="bridleway">
                             <m zoom-min="15">
                                 <line cat="tracks" use="footway:back" width="0.3" />
-                                <line cat="hiking" stroke="#ffffffff" use="footway:back"
-                                    width="4.0" />
+                                <line cat="hiking" stroke="#ffffffff" use="footway:back" width="4.0" />
+                                <line cat="cycling" stroke="#ffffffff" use="footway:back" width="4.0" />
                             </m>
                             <m k="ford" v="yes">
                                 <line cat="tracks" fix="true" use="ford" width="4.0" />
                                 <line cat="hiking" fix="true" use="ford" width="6.0" />
+                                <line cat="cycling" fix="true" use="ford" width="6.0" />
                             </m>
                             <line cat="tracks" use="bridleway" />
                             <line cat="hiking" use="bridleway" width="2.2" />
+                            <line cat="cycling" use="bridleway" width="2.2" />
                         </m>
                         <m v="track">
                             <m cat="tracks" zoom-max="13" zoom-min="13">
@@ -344,11 +375,14 @@
                                     <m k="ford" v="yes">
                                         <line cat="tracks" fix="true" use="ford" width="4.0" />
                                         <line cat="hiking" fix="true" use="ford" width="6.0" />
+                                        <line cat="cycling" fix="true" use="ford" width="6.0" />
                                     </m>
                                     <m k="ice_road" v="yes">
                                         <line cat="tracks" stroke="#9bc8c8" use="highway:track:back"
                                             width="0.8" />
                                         <line cat="hiking" stroke="#9bc8c8" use="highway:track:back"
+                                            width="4.0" />
+                                        <line cat="cycling" stroke="#9bc8c8" use="highway:track:back"
                                             width="4.0" />
                                     </m>
                                     <m k="winter_road" v="yes">
@@ -356,37 +390,50 @@
                                             width="0.8" />
                                         <line cat="hiking" stroke="#bed8d8" use="highway:track:back"
                                             width="4.0" />
+                                        <line cat="cycling" stroke="#bed8d8" use="highway:track:back"
+                                            width="4.0" />
                                     </m>
                                     <m>
                                         <line cat="tracks" use="highway:track:back" />
                                         <line cap="butt" cat="hiking" fix="true" stroke="#ffffff"
+                                            width="5.2" />
+                                        <line cap="butt" cat="cycling" fix="true" stroke="#ffffff"
                                             width="5.2" />
                                     </m>
                                 </m>
                                 <m k="smoothness" v="excellent|good|intermediate|bad">
                                     <line cat="tracks" use="highway:track:good" />
                                     <line cat="hiking" use="highway:track:good" width="2.2" />
+                                    <line cat="cycling" use="highway:track:good" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="~|very_bad">
                                     <line cat="tracks" use="highway:track:very_bad" />
                                     <line cat="hiking" use="highway:track:good" width="2.2" />
+                                    <line cat="cycling" use="highway:track:good" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="horrible">
                                     <line cat="tracks" use="highway:track:horrible" />
                                     <line cat="hiking" use="highway:track:good" width="2.2" />
+                                    <line cat="cycling" use="highway:track:good" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="very_horrible">
                                     <line cat="tracks" use="highway:track:very_horrible" />
                                     <line cat="hiking" use="highway:track:good" width="2.2" />
+                                    <line cat="cycling" use="highway:track:good" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="impassable">
                                     <line cat="tracks" use="highway:track:impassable" />
                                     <line cat="hiking" use="highway:track:very_horrible" width="2.2" />
+                                    <line cat="cycling" use="highway:track:very_horrible" width="2.2" />
                                 </m>
                             </m>
                             <m cat="track-names">
                                 <text use="road-name" />
                             </m>
+                        </m>
+                        <m cat="cycling" v="cycleway">
+                            <line use="cycleway:back" />
+                            <line use="cycleway" />
                         </m>
                         <m cat="roads" v="service">
                             <!-- matches every service but parking_isle -->
@@ -409,8 +456,16 @@
                                             use="highway-service" />
                                     </m>
                                     <m>
-                                        <line fade="14" outline="service-road"
-                                            use="highway-service" />
+                                        <line fade="14" outline="service-road" use="highway-service" />
+                                        <m cat="cycling" k="cycleway:right" v="track">
+                                            <line fade="14" outline="cycleway-right" use="highway-service" />
+                                        </m>
+                                        <m cat="cycling" k="cycleway:left" v="track">
+                                            <line fade="14" outline="cycleway-left" use="highway-service" />
+                                        </m>
+                                        <m cat="cycling" k="cycleway" v="track">
+                                            <line fade="14" outline="cycleway" use="highway-service" />
+                                        </m>
                                     </m>
                                     <m select="when-matched">
                                         <m k="ford" v="yes">
@@ -461,6 +516,15 @@
                                 </m>
                                 <m>
                                     <line outline="road" use="tertiary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="tertiary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="tertiary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="tertiary" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="road-name" />
@@ -481,6 +545,15 @@
                                 </m>
                                 <m>
                                     <line outline="road" use="secondary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="secondary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="secondary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="secondary" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="road-name" />
@@ -501,6 +574,15 @@
                                 </m>
                                 <m>
                                     <line outline="primary" use="primary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="primary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="primary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="primary" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="major-road-name" />
@@ -515,6 +597,15 @@
                                 </m>
                                 <m>
                                     <line outline="motorway" use="trunk-link" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="trunk-link" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="trunk-link" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="trunk-link" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="major-road-name" />
@@ -536,10 +627,28 @@
                         </m>
                         <m cat="pedestrian" v="pedestrian">
                             <line outline="service-road" use="pedestrian" />
+                            <m cat="cycling" k="cycleway:right" v="track">
+                                <line outline="cycleway-right" use="pedestrian" />
+                            </m>
+                            <m cat="cycling" k="cycleway:left" v="track">
+                                <line outline="cycleway-left" use="pedestrian" />
+                            </m>
+                            <m cat="cycling" k="cycleway" v="track">
+                                <line outline="cycleway" use="pedestrian" />
+                            </m>
                             <text use="road-name" />
                         </m>
                         <m cat="roads" v="road">
                             <line outline="road" use="pedestrian" />
+                            <m cat="cycling" k="cycleway:right" v="track">
+                                <line outline="cycleway-right" use="pedestrian" />
+                            </m>
+                            <m cat="cycling" k="cycleway:left" v="track">
+                                <line outline="cycleway-left" use="pedestrian" />
+                            </m>
+                            <m cat="cycling" k="cycleway" v="track">
+                                <line outline="cycleway" use="pedestrian" />
+                            </m>
                             <text use="road-name" />
                         </m>
                         <m cat="roads" v="residential|living_street">
@@ -558,6 +667,15 @@
                                 </m>
                                 <m>
                                     <line outline="road" use="residential" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="residential" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="residential" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="residential" />
+                                    </m>
                                 </m>
                             </m>
                             <m k="ford" v="yes">
@@ -600,6 +718,15 @@
                                 </m>
                                 <m>
                                     <line outline="road" use="unclassified" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="unclassified" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="unclassified" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="unclassified" />
+                                    </m>
                                 </m>
                             </m>
                             <m k="ford" v="yes">
@@ -642,6 +769,15 @@
                                 </m>
                                 <m>
                                     <line outline="road" use="tertiary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="tertiary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="tertiary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="tertiary" />
+                                    </m>
                                 </m>
                             </m>
                             <m k="ford" v="yes">
@@ -657,7 +793,7 @@
                             <m cat="roads-shield" zoom-max="16" zoom-min="14">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                     repeat-gap="150" src="gen:/shield/13/#f0f0f0/#7f462c"
-                                    text-overlap="false" />
+                                    text-overlap="false" billboard="true" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -681,6 +817,15 @@
                                 </m>
                                 <m>
                                     <line outline="primary" use="secondary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="secondary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="secondary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="secondary" />
+                                    </m>
                                 </m>
                             </m>
                             <m k="ford" v="yes">
@@ -696,7 +841,7 @@
                             <m cat="roads-shield" zoom-max="16" zoom-min="13">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                     repeat-gap="150" src="gen:/shield/13/#fdfdf1/#7f462c"
-                                    text-overlap="false" />
+                                    text-overlap="false" billboard="true" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -720,6 +865,15 @@
                                 </m>
                                 <m>
                                     <line outline="primary" use="primary" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="primary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="primary" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="primary" />
+                                    </m>
                                 </m>
                             </m>
                             <m k="ford" v="yes">
@@ -735,7 +889,7 @@
                             <m cat="roads-shield" zoom-max="16" zoom-min="12">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                     repeat-gap="150" src="gen:/shield/13/#fdf7e5/#7f462c"
-                                    text-overlap="false" />
+                                    text-overlap="false" billboard="true" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -759,13 +913,22 @@
                                 </m>
                                 <m>
                                     <line outline="motorway" use="trunk" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="trunk" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="trunk" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="trunk" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="11">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                     repeat-gap="150" src="gen:/shield/13/#fff0b7/#c35817"
-                                    text-overlap="false" />
+                                    text-overlap="false" billboard="true" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -783,23 +946,28 @@
                                 </m>
                                 <m>
                                     <line outline="motorway" use="highway" />
+                                    <m cat="cycling" k="cycleway:right" v="track">
+                                        <line outline="cycleway-right" use="highway" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway:left" v="track">
+                                        <line outline="cycleway-left" use="highway" />
+                                    </m>
+                                    <m cat="cycling" k="cycleway" v="track">
+                                        <line outline="cycleway" use="highway" />
+                                    </m>
                                 </m>
                             </m>
                             <text use="major-road-name" />
                             <m cat="roads-shield" zoom-max="16" zoom-min="10">
                                 <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
                                     repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
-                                    text-overlap="false" />
+                                    text-overlap="false" billboard="true" />
                             </m>
                             <m k="toll" v="yes">
                                 <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
                                     repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
                                     text-overlap="false" />
                             </m>
-                        </m>
-                        <m cat="cycling" v="cycleway">
-                            <line use="footway:back" width="0.2" />
-                            <line use="cycleway" />
                         </m>
                         <xi:include href="inc_highway_oneways.xml" />
                     </m> <!-- area: no -->

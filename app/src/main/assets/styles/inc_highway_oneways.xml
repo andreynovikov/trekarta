@@ -17,7 +17,7 @@
                 </m>
             </m>
         </m>
-        <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
+        <m cat="cycling" k="highway" v="cycleway|path|footway" zoom-min="17">
             <symbol use="oneway-bicycle" />
         </m>
     </m>
@@ -38,7 +38,7 @@
                 </m>
             </m>
         </m>
-        <m cat="cycling" k="highway" v="cycleway" zoom-min="17">
+        <m cat="cycling" k="highway" v="cycleway|path|footway" zoom-min="17">
             <symbol inverse="true" use="oneway-bicycle" />
         </m>
     </m>
