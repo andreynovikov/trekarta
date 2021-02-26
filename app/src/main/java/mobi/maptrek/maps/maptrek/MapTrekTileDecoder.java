@@ -171,18 +171,18 @@ class MapTrekTileDecoder extends PbfDecoder {
 
                 case TAG_TILE_NUM_TAGS:
                     numTags = decodeVarint32();
-                    log.debug("num tags " + numTags);
+                    log.debug("num tags {}", numTags);
                     break;
 
                 case TAG_TILE_NUM_KEYS:
                     numKeys = decodeVarint32();
-                    log.debug("num keys " + numKeys);
+                    log.debug("num keys {}", numKeys);
                     keys = new String[numKeys];
                     break;
 
                 case TAG_TILE_NUM_VALUES:
                     numValues = decodeVarint32();
-                    log.debug("num values " + numValues);
+                    log.debug("num values {}", numValues);
                     values = new String[numValues];
                     break;
 
@@ -199,14 +199,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_TILE_VERSION:
-                    int version = decodeVarint32();
-                    /*
-                    if (version < 4) {
-                        log.debug("{} invalid version:{}",
-                                mTile, version);
-                        return false;
-                    }
-                    */
+                    decodeVarint32();
                     break;
 
                 default:
@@ -292,6 +285,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         return coordCnt;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private boolean decodeTileElement(Tile tile, int geomType) throws IOException {
         mElem.clearData();
         mElem.tags.clear();
@@ -315,6 +309,7 @@ class MapTrekTileDecoder extends PbfDecoder {
         int type = -1;
         long area = -1;
         int depth = -1;
+        int color = 0; // transparent black is considered as 'not defined'
         String houseNumber = null;
 
         while (position() < end) {
@@ -446,7 +441,7 @@ class MapTrekTileDecoder extends PbfDecoder {
                     break;
 
                 case TAG_ELEM_BUILDING_COLOR:
-                    mElem.buildingColor = decodeVarint32();
+                    color = decodeVarint32();
                     break;
 
                 case TAG_ELEM_ROOF_COLOR:
@@ -504,10 +499,11 @@ class MapTrekTileDecoder extends PbfDecoder {
                 break;
         }
 
-        if (kind > 0) {
+        if (kind != 0) {
             mElem.kind = kind;
             boolean place_road_building = (kind & 0x00000007) > 0;
-            kind = kind >> 3;
+            // remove technical kinds
+            kind = (kind & 0x7fffffff) >> 3;
             boolean someKind = kind > 0;
             boolean hasKind = false;
             if (kind > 0) {
@@ -571,6 +567,13 @@ class MapTrekTileDecoder extends PbfDecoder {
         if (depth > 0) { // we set it here because extra tags should be added after filtering
             mElem.depth = depth;
             mElem.tags.add(Tags.TAG_DEPTH); // required for style filtering
+        }
+
+        if (color != 0) {
+            if (Tags.isRoute(mElem.kind))
+                mElem.tags.add(new Tag(Tag.KEY_ROUTE_COLOR, String.valueOf(color), false));
+            else
+                mElem.buildingColor = color;
         }
 
         mMapDataSink.process(mElem);
