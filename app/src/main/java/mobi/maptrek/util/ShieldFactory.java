@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Color;
+import org.oscim.core.Tag;
 import org.oscim.core.TagSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +50,14 @@ public class ShieldFactory {
 
     public @Nullable
     synchronized Bitmap getBitmap(@NonNull TagSet tags, String src, int percent) {
-        String ref = tags.getValue("ref");
+        String ref = tags.getValue(Tag.KEY_REF);
         if (ref == null)
             return null;
 
-        Bitmap bitmap = mBitmapCache.get(ref);
+        String color = tags.getValue(Tag.KEY_ROUTE_COLOR);
+
+        String cache_key = src + ":" + color == null ? ref : ref + "@" + color;
+        Bitmap bitmap = mBitmapCache.get(cache_key);
         if (bitmap != null)
             return bitmap;
 
@@ -67,7 +71,14 @@ public class ShieldFactory {
         int backColor = Color.parseColor(parts[1], Color.WHITE);
         int textColor = Color.parseColor(parts[2], Color.BLACK);
 
+        boolean round = parts.length > 3 && "round".equals(parts[3]);
+
+        float gap = 4f * MapTrek.density * mFontSize;
+        float border = 1.6f * MapTrek.density * mFontSize;
+
         float size = percent * 0.01f * textSize * MapTrek.density;
+        Rect bounds = new Rect();
+        float textHeight = 0;
 
         Paint textPaint = new Paint();
         textPaint.setColor(textColor);
@@ -75,24 +86,42 @@ public class ShieldFactory {
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         textPaint.setAntiAlias(true);
-        textPaint.setTextSize(size);
-        float textHeight = 0;
-        Rect bounds = new Rect();
-        for (String line : lines) {
-            Rect rect = new Rect();
-            textPaint.getTextBounds(line, 0, line.length(), rect);
-            bounds.union(rect); // update width
-            bounds.bottom += textHeight;
-            if (textHeight == 0f)
-                textHeight = textPaint.descent() - textPaint.ascent();
+        if (round) {
+            float testTextSize = size * 4;
+            textPaint.setTextSize(testTextSize);
+            textPaint.getTextBounds(lines[0], 0, lines[0].length(), bounds);
+            float fontSize = testTextSize * size / bounds.width();
+            textPaint.setTextSize(Math.min(fontSize, size - gap));
+        } else {
+            textPaint.setTextSize(size);
+            for (String line : lines) {
+                Rect rect = new Rect();
+                textPaint.getTextBounds(line, 0, line.length(), rect);
+                bounds.union(rect); // update width
+                bounds.bottom += textHeight;
+                if (textHeight == 0f)
+                    textHeight = textPaint.descent() - textPaint.ascent();
+            }
         }
 
-        float gap = 4f * MapTrek.density * mFontSize;
-        float border = 1.6f * MapTrek.density * mFontSize;
         float r = 2f * border;
-        float hb = border / 2f;
-        int width = (int) (bounds.width() + 2 * (gap + border));
-        int height = (int) (bounds.height() + 2 * (gap + border));
+        float cw = !round && color != null ? bounds.width() : 0f;
+        float ch = !round && color != null ? 2f * gap: 0f;
+        if (cw > 0) {
+            if (cw < 6f * gap)
+                cw = 6f * gap;
+            if (cw > 12f * gap)
+                cw = 12f * gap;
+        }
+        if (bounds.width() < cw)
+            bounds.right = (int) cw;
+        if (ch != 0f)
+            bounds.bottom += gap + ch;
+
+        int width = (int) ((round ? size : bounds.width()) + 2f * (gap + border));
+        int height = round ? width : (int) (bounds.height() + 2f * (gap + border));
+
+        float w2 = width / 2f;
 
         android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bmp);
@@ -102,21 +131,37 @@ public class ShieldFactory {
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(border);
         paint.setColor(backColor);
-        canvas.drawRoundRect(hb, hb, width - hb, height - hb, r, r, paint);
+        if (round)
+            canvas.drawCircle(w2, w2, w2 - border, paint);
+        else
+            canvas.drawRoundRect(border, border, width - border, height - border, r, r, paint);
         paint.setColor(textColor);
         paint.setStyle(Paint.Style.STROKE);
         paint.setAntiAlias(true);
-        canvas.drawRoundRect(hb, hb, width - hb, height - hb, r, r, paint);
+        if (round)
+            canvas.drawCircle(w2, w2, w2 - border, paint);
+        else
+            canvas.drawRoundRect(border, border, width - border, height - border, r, r, paint);
 
-        float x = width / 2f;
-        float y = height / 2f - ((textPaint.descent() + textPaint.ascent()) / 2f) - textHeight * (lines.length - 1) / 2f;
+        float y = (height - textPaint.descent() - textPaint.ascent() - textHeight * (lines.length - 1)) / 2f;
+        if (ch != 0f)
+            y -= (ch + gap) / 2f;
         for (String line : lines) {
-            canvas.drawText(line, x, y, textPaint);
+            canvas.drawText(line, w2, y, textPaint);
             y += textHeight;
         }
 
+        if (color != null) { // TODO: emphasize white route color
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Integer.parseInt(color)); // route color is without alpha
+            paint.setAlpha(0xFF);
+            float hg = (bounds.width() - cw) / 2f + gap;
+            float cr = r / 2f;
+            canvas.drawRoundRect(border + hg, height - border - gap - ch, width - border - hg, height - border - gap, cr, cr, paint);
+        }
+
         bitmap = new AndroidBitmap(bmp);
-        mBitmapCache.put(ref, bitmap);
+        mBitmapCache.put(cache_key, bitmap);
         return bitmap;
     }
 
