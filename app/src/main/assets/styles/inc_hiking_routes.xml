@@ -3,320 +3,45 @@
     <!-- Hiking routes -->
     <m cat="hiking" e="way" k="route" v="hiking">
         <m zoom-max="13">
-            <m k="network" v="iwn">
-                <line stroke="#880000ff" width="3" />
-            </m>
-            <m k="network" v="nwn">
-                <line stroke="#88ff0000" width="3" />
+            <m k="network" v="lwn">
+                <line stroke="#ffff00" width="3" />
             </m>
             <m k="network" v="rwn">
-                <line stroke="#8800ff00" width="3" />
-            </m>
-            <m k="network" v="lwn">
-                <line stroke="#88ffff00" width="3" />
-            </m>
-            <m k="osmc:symbol">
-                <m zoom-max="11">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
-                        src="gen:/osmc-symbol" symbol-percent="50" />
-                </m>
-                <m zoom-min="12">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
-                        src="gen:/osmc-symbol" symbol-percent="70" />
-                </m>
-            </m>
-        </m>
-        <m zoom-min="14">
-            <m k="network" v="iwn">
-                <line cap="butt" fix="true" stroke="#0000ff" width="1.5" />
+                <line stroke="#00ff00" width="3" />
             </m>
             <m k="network" v="nwn">
-                <line cap="butt" fix="true" stroke="#ff0000" width="1.5" />
+                <line stroke="#ff0000" width="3" />
+            </m>
+            <m k="network" v="iwn">
+                <line stroke="#0000ff" width="3" />
+            </m>
+        </m>
+        <m zoom-min="14" zoom-max="15">
+            <m k="network" v="iwn">
+                <line stroke="#220000ff" width="2" />
+            </m>
+            <m k="network" v="nwn">
+                <line stroke="#22ff0000" width="2" />
             </m>
             <m k="network" v="rwn">
-                <line cap="butt" fix="true" stroke="#00ff00" width="1.5" />
+                <line stroke="#2200ff00" width="2" />
             </m>
             <m k="network" v="lwn">
-                <line cap="butt" fix="true" stroke="#ffff00" width="1.5" />
-            </m>
-            <m k="osmc:symbol">
-                <m zoom-max="15">
-                    <symbol merge-gap="100" merge-group="osmc-symbols" repeat="true" repeat-gap="100"
-                        src="gen:/osmc-symbol" />
-                </m>
-                <m zoom-max="16" zoom-min="16">
-                    <symbol merge-gap="80" merge-group="osmc-symbols" repeat="true" repeat-gap="80"
-                        src="gen:/osmc-symbol" symbol-percent="130" />
-                </m>
+                <line stroke="#22ffff00" width="2" />
             </m>
         </m>
-    </m>
-
-    <!-- Hiking ways -->
-    <m cat="hiking" e="way" k="highway" zoom-min="14">
-        <m v="path|footway">
-            <m k="bridge" v="~|no">
-                <!-- TODO Background line is put here because of line style ordering error in legend view -->
-                <line fix="true" stroke="#ffffff" width="5.2" />
+        <m zoom-min="16">
+            <m k="network" v="iwn">
+                <line stroke="#110000ff" width="2" />
             </m>
-        </m>
-        <m v="path|footway">
-            <m k="route:network">
-                <m v="iwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
-                </m>
-                <m v="nwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
-                </m>
-                <m v="rwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
-                </m>
-                <m v="lwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
-                </m>
-                <!-- see above to-do -->
-                <line fix="true" stroke="#ffffff" width="5.2" />
+            <m k="network" v="nwn">
+                <line stroke="#11ff0000" width="2" />
             </m>
-            <m k="bridge" v="~|no">
-                <m k="sac_scale" v="~">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#aab28f67" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stroke="#aab28f67" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aab28f67"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aab28f67"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aab28f67"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aab28f67"
-                            stroke="#00000000" width="4" />
-                    </m>
-                </m>
+            <m k="network" v="rwn">
+                <line stroke="#1100ff00" width="2" />
             </m>
-        </m>
-        <m k="sac_scale" select="first">
-            <m v="t1">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#880040ff" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stroke="#880040ff" width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880040ff"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880040ff"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880040ff"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880040ff"
-                        stroke="#00000000" width="4" />
-                </m>
-            </m>
-            <m v="t2">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#880000dd" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stroke="#880000dd" width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880000dd"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880000dd"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880000dd"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880000dd"
-                        stroke="#00000000" width="4" />
-                </m>
-            </m>
-            <m v="t3">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#cce6ad00" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stroke="#cce6ad00" width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#cce6ad00"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#cce6ad00"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#cce6ad00"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#cce6ad00"
-                        stroke="#00000000" width="4" />
-                </m>
-            </m>
-            <m v="t4">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stroke="#88ff0000" width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000"
-                        stroke="#00000000" width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000"
-                        stroke="#00000000" width="4" />
-                </m>
-            </m>
-            <m v="t5">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000" stroke="#aa000000"
-                        width="4" />
-                </m>
-            </m>
-            <m v="t6">
-                <m k="trail_visibility" v="~">
-                    <line fix="true" stipple="8" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="excellent">
-                    <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="good">
-                    <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="intermediate">
-                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="bad|horrible">
-                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-                <m k="trail_visibility" v="no">
-                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aa000000" stroke="#00000000"
-                        width="4" />
-                </m>
-            </m>
-        </m>
-        <m v="track|bridleway">
-            <m k="route:network">
-                <m v="iwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#0000ff" width="12" />
-                </m>
-                <m v="nwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#ff0000" width="12" />
-                </m>
-                <m v="rwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#00ff00" width="12" />
-                </m>
-                <m v="lwn">
-                    <line blur="1" cap="butt" fix="true" stroke="#ffff00" width="12" />
-                </m>
-            </m>
-        </m>
-        <m v="pedestrian|service|road|residential|unclassified|tertiary|secondary|primary|trunk|motorway">
-            <m k="route:network" zoom-max="15">
-                <m v="iwn">
-                    <line blur="1" cap="butt" stroke="#0000ff" width="2.5" />
-                </m>
-                <m v="nwn">
-                    <line blur="1" cap="butt" stroke="#ff0000" width="2.5" />
-                </m>
-                <m v="rwn">
-                    <line blur="1" cap="butt" stroke="#00ff00" width="2.5" />
-                </m>
-                <m v="lwn">
-                    <line blur="1" cap="butt" stroke="#ffff00" width="2.5" />
-                </m>
-            </m>
-            <m k="route:network" zoom-max="16" zoom-min="16">
-                <m v="iwn">
-                    <line blur="1" cap="butt" stroke="#0000ff" width="2.0" />
-                </m>
-                <m v="nwn">
-                    <line blur="1" cap="butt" stroke="#ff0000" width="2.0" />
-                </m>
-                <m v="rwn">
-                    <line blur="1" cap="butt" stroke="#00ff00" width="2.0" />
-                </m>
-                <m v="lwn">
-                    <line blur="1" cap="butt" stroke="#ffff00" width="2.0" />
-                </m>
-            </m>
-            <m k="route:network" zoom-min="17">
-                <m v="iwn">
-                    <line blur="1" cap="butt" stroke="#0000ff" width="1.5" />
-                </m>
-                <m v="nwn">
-                    <line blur="1" cap="butt" stroke="#ff0000" width="1.5" />
-                </m>
-                <m v="rwn">
-                    <line blur="1" cap="butt" stroke="#00ff00" width="1.5" />
-                </m>
-                <m v="lwn">
-                    <line blur="1" cap="butt" stroke="#ffff00" width="1.5" />
-                </m>
+            <m k="network" v="lwn">
+                <line stroke="#11ffff00" width="2" />
             </m>
         </m>
     </m>
