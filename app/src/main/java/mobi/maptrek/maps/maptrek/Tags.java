@@ -2,7 +2,7 @@ package mobi.maptrek.maps.maptrek;
 
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2020 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -189,6 +189,10 @@ public class Tags {
         return (kind & 0x00040000) > 0;
     }
 
+    public static boolean isRoute(int kind) {
+        return (kind & 0x80000000) < 0;
+    }
+
     public static final int[] kindZooms = {
             15, // emergency
             16, // accommodation
@@ -346,7 +350,8 @@ public class Tags {
             new ExtendedTag("historic", "memorial").addTag("memorial", "statue"), // 188
             new Tag("historic", "memorial"), // 189
             new Tag("historic", "castle"), // 190
-            null, null,
+            new Tag("historic", "fort"), // 191
+            new Tag("historic", "city_gate"), // 192
             new Tag("historic", "monument"), // 193
             null, null,
             new Tag("historic", "archaeological_site"), // 196
@@ -381,7 +386,8 @@ public class Tags {
             new Tag("amenity", "car_rental"), // 235
             null, null,
             new Tag("amenity", "fuel"), // 238
-            null, null,
+            new Tag("amenity", "charging_station"), // 239
+            null,
             new Tag("leisure", "slipway"), // 241
             null, null,
             new Tag("amenity", "parking"), // 244
@@ -583,7 +589,8 @@ public class Tags {
             R.string.legend_statue, // 188
             R.string.legend_memorial, // 189
             R.string.legend_castle, // 190
-            -1, -1,
+            R.string.legend_fort, // 191
+            R.string.legend_city_gate, // 192
             R.string.legend_monument, // 193
             -1, -1,
             R.string.legend_archaeological_site, // 196
@@ -618,7 +625,8 @@ public class Tags {
             R.string.legend_car_rental, // 235
             -1, -1,
             R.string.legend_fuel_station, // 238
-            -1, -1,
+            R.string.legend_charging_station, // 239
+            -1,
             R.string.legend_slipway, // 241
             -1, -1,
             R.string.legend_parking, // 244
@@ -813,7 +821,8 @@ public class Tags {
             true, // 188
             true, // 189
             true, // 190
-            false, false,
+            true, // 191
+            true, // 192
             true, // 193
             false, false,
             true, // 196
@@ -848,7 +857,8 @@ public class Tags {
             true, // 235
             false, false,
             true, // 238
-            false, false,
+            true, // 239
+            false,
             false, // 241 - slipway
             false, false,
             false, // 244 - parking
@@ -909,7 +919,7 @@ public class Tags {
             new int[] {108, 109, 112, 115, 118, 121, 122, 124, 127, 130}, // emergency
             new int[] {1, 4, 7, 8, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
-            new int[] {178, 181, 183, 184, 185, 186, 187, 188, 189, 190, 193, 196, 197, 199, 202, 203, 205, 208, 211, 214, 217, 220, 223}, // attraction
+            new int[] {178, 181, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 196, 197, 199, 202, 203, 205, 208, 211, 214, 217, 220, 223}, // attraction
             new int[] {82, 83, 85, 88, 91, 94, 97, 100, 101, 103}, // entertainment
             new int[] {148, 151, 154, 157, 160, 163, 166, 169, 43, 172, 175, 61}, // shopping
             new int[] {265, 268, 271, 274, 277, 280, 283, 286}, // service
@@ -917,9 +927,9 @@ public class Tags {
             new int[] {106, 107, 262}, // health'n'beauty
             new int[] {139, 142, 145}, // kids
             new int[] {133, 136}, // pets
-            new int[] {229, 230, 232, 235, 238, 241, 244}, // vehicles
+            new int[] {229, 230, 232, 235, 238, 239, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
-            new int[] {148, 151, 118, 250, 251, 252, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
+            new int[] {148, 151, 118, 239, 250, 251, 252, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
             new int[] {64, 67, 68, 70, 73, 74, 76}  // barrier
     };
@@ -959,8 +969,9 @@ public class Tags {
     public static void setExtra(int type, int enum1, TagSet tags) {
         if (type < 0 || type > typeTags.length || typeTags[type] == null)
             return;
-        //noinspection SwitchStatementWithTooFewBranches
         switch (type) {
+            case 239: // charging_station
+                tags.add(new Tag("capacity", String.valueOf(enum1)));
             case 252: // bicycle_parking
                 tags.add(new Tag("capacity", String.valueOf(enum1)));
         }
@@ -979,8 +990,10 @@ public class Tags {
         if (tags.size() == 0)
             return null;
 
+        //noinspection rawtypes
         RenderStyle[] styles = theme.matchElement(GeometryBuffer.GeometryType.POINT, tags, 17);
         if (styles != null) {
+            //noinspection rawtypes
             for (RenderStyle style : styles) {
                 if (style instanceof SymbolStyle) {
                     try {
@@ -1128,7 +1141,7 @@ public class Tags {
             "trail_visibility",
             "osmc:symbol",
             "network",
-            "route:network",
+            "artwork_type",
             "information",
             "piste:border",
             "piste:grooming",
@@ -1141,7 +1154,13 @@ public class Tags {
             "pump",
             "cycleway",
             "cycleway:right",
-            "cycleway:left"
+            "cycleway:left",
+            "bicycle",
+            "ramp:bicycle",
+            "oneway:bicycle",
+            "mtb:scale",
+            "mtb:scale:uphill",
+            "mtb:scale:imba"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1455,7 +1474,7 @@ public class Tags {
             "carport",
             "dwelling_house",
             "wilderness_hut",
-            "3",
+            "designated",
             "pavilion",
             "chalet",
             "allotment_house",
@@ -1555,7 +1574,7 @@ public class Tags {
             "villa",
             "village_office",
             "photovoltaic",
-            "1",
+            "charging_station",
             "family_house",
             "public_building",
             "prefab_container",
@@ -1701,7 +1720,7 @@ public class Tags {
             "unpaved",
             "dirt",
             "hiking",
-            "bicycle",
+            "city_gate",
             "mtb",
             "iwn",
             "nwn",
@@ -1741,7 +1760,7 @@ public class Tags {
             "car_rental",
             "archaeological_site",
             "beach_resort",
-            "sauna",
+            "fort",
             "ferry_terminal",
             "shower",
             "zip_line",

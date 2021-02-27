@@ -267,7 +267,7 @@
                         <symbol src="assets:symbols/tourist/windmill.svg" symbol-color="color:man-made" symbol-percent="80" />
                     </m>
                 </m>
-                <m k="memorial">
+                <m k="memorial|artwork_type">
                     <m v="bust">
                         <symbol src="assets:symbols/tourist/bust.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
@@ -287,6 +287,12 @@
                     </m>
                     <m v="castle">
                         <symbol src="assets:symbols/tourist/castle.svg" symbol-color="color:memorials" symbol-percent="80" />
+                    </m>
+                    <m v="fort">
+                        <symbol src="assets:symbols/tourist/fort.svg" symbol-color="color:memorials" symbol-percent="80" />
+                    </m>
+                    <m v="city_gate">
+                        <symbol src="assets:symbols/tourist/city_gate.svg" symbol-color="color:memorials" symbol-percent="80" />
                     </m>
                     <m v="monument">
                         <symbol src="assets:symbols/tourist/monument.svg" symbol-color="color:memorials" symbol-percent="80" />
@@ -351,6 +357,12 @@
                 </m>
                 <m v="fuel">
                     <symbol src="assets:symbols/transport/fuel.svg" symbol-color="color:transportation" symbol-percent="80" />
+                </m>
+                <m v="charging_station">
+                    <symbol src="assets:symbols/transport/charging_station.svg" symbol-color="color:transportation" symbol-percent="80" />
+                    <m  zoom-min="16">
+                        <text dy="-14" caption="true" fill="color:transportation" k="capacity" priority="200" size="12" stroke="#ffffff" stroke-width="2.0" />
+                    </m>
                 </m>
                 <m v="slipway">
                     <symbol src="assets:symbols/amenity/slipway.svg" symbol-color="color:transportation" symbol-percent="80" />
