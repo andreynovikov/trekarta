@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <m k="oneway" v="1" zoom-min="16">
-        <m cat="roads" k="highway" select="first" v="-|cycleway|track|path|footway">
-            <m v="motorway|trunk">
-                <symbol symbol-percent="60" use="oneway" />
-            </m>
-            <m k="highway" v="-|service">
-                <symbol symbol-percent="50" use="oneway" />
-            </m>
-            <m zoom-min="17">
-                <m k="service" v="parking_aisle">
-                    <symbol repeat-start="20" symbol-percent="40" use="oneway" />
+        <m cat="roads" k="highway" v="motorway|trunk">
+            <symbol symbol-percent="60" use="oneway" />
+        </m>
+        <m cat="roads" k="highway" v="-|service">
+            <m select="first">
+                <m cat="cycling" zoom-min="17" k="oneway:bicycle" v="no">
+                    <symbol use="doubleway-bicycle" />
                 </m>
-                <m k="service" v="-|parking_aisle">
-                    <symbol repeat-start="20" symbol-percent="45" use="oneway" />
+                <m>
+                    <symbol symbol-percent="50" use="oneway" />
                 </m>
+            </m>
+        </m>
+        <m cat="roads" k="highway" v="service" zoom-min="17">
+            <m k="service" v="parking_aisle">
+                <symbol repeat-start="20" symbol-percent="40" use="oneway" />
+            </m>
+            <m k="service" v="-|parking_aisle">
+                <symbol repeat-start="20" symbol-percent="45" use="oneway" />
             </m>
         </m>
         <m cat="cycling" k="highway" v="cycleway|path|footway" zoom-min="17">
@@ -22,20 +27,25 @@
         </m>
     </m>
     <m k="oneway" v="-1" zoom-min="16">
-        <m cat="roads" k="highway" v="-|cycleway|track|path|footway">
-            <m v="motorway|trunk">
-                <symbol inverse="true" symbol-percent="60" use="oneway" />
-            </m>
-            <m k="highway" v="-|service">
-                <symbol inverse="true" symbol-percent="50" use="oneway" />
-            </m>
-            <m zoom-min="17">
-                <m k="service" v="parking_aisle">
-                    <symbol inverse="true" repeat-start="20" symbol-percent="40" use="oneway" />
+        <m cat="roads" k="highway" v="motorway|trunk">
+            <symbol inverse="true" symbol-percent="60" use="oneway" />
+        </m>
+        <m cat="roads" k="highway" v="-|service">
+            <m select="first">
+                <m cat="cycling" zoom-min="17" k="oneway:bicycle" v="no">
+                    <symbol inverse="true" use="doubleway-bicycle" />
                 </m>
-                <m k="service" v="-|parking_aisle">
-                    <symbol inverse="true" repeat-start="20" symbol-percent="45" use="oneway" />
+                <m>
+                    <symbol inverse="true" symbol-percent="50" use="oneway" />
                 </m>
+            </m>
+        </m>
+        <m cat="roads" k="highway" v="service" zoom-min="17">
+            <m k="service" v="parking_aisle">
+                <symbol inverse="true" repeat-start="20" symbol-percent="40" use="oneway" />
+            </m>
+            <m k="service" v="-|parking_aisle">
+                <symbol inverse="true" repeat-start="20" symbol-percent="45" use="oneway" />
             </m>
         </m>
         <m cat="cycling" k="highway" v="cycleway|path|footway" zoom-min="17">
