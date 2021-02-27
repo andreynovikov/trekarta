@@ -84,6 +84,9 @@ public enum Themes implements ThemeFile {
                 case 1:
                     categories.add("hiking");
                     break;
+                case 2:
+                    categories.add("cycling");
+                    break;
             }
 
             // This is the whole categories set to be enabled

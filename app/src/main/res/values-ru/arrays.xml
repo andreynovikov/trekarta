@@ -81,6 +81,7 @@
     <string-array name="activities">
         <item>Нет</item>
         <item>Походы</item>
+        <item>Велосипеды</item>
         <item>Лыжи</item>
     </string-array>
 </resources>

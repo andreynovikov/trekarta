@@ -63,8 +63,9 @@ public class Tag {
     public static final String VALUE_YES = "yes";
     public static final String VALUE_NO = "no";
 
-    // S3DB
     public static final String KEY_AREA = "area";
+    public static final String KEY_ROUTE_COLOR = "route:colour";
+    // S3DB
     public static final String KEY_BUILDING_COLOR = "building:colour";
     public static final String KEY_BUILDING_LEVELS = "building:levels";
     public static final String KEY_BUILDING_MATERIAL = "building:material";

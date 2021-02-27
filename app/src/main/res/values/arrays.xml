@@ -92,6 +92,7 @@
     <string-array name="activities">
         <item>None</item>
         <item>Hiking</item>
+        <item>Cycling</item>
         <item>Skiing</item>
     </string-array>
 </resources>
