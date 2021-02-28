@@ -541,8 +541,13 @@ class MapTrekTileDecoder extends PbfDecoder {
         }
 
         if (type > 0) {
-            for (Tag tag : Tags.typeAliasTags)
+            for (Tag tag : Tags.typeAliasTags) {
                 mElem.tags.remove(tag);
+                if (tag instanceof ExtendedTag) {
+                    while ((tag = ((ExtendedTag) tag).next) != null)
+                        mElem.tags.remove(tag);
+                }
+            }
             if (Tags.typeSelectable[type] || !Tags.isVisible(type)) {
                 Tag tag = Tags.typeTags[type];
                 if (tag.value.equals("theme_park") || tag.value.equals("zoo")) {

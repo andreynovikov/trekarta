@@ -448,7 +448,10 @@ public class Tags {
             new Tag("shop", "convenience"), // 43
             new Tag("shop", "hardware"), // 172
             new Tag("shop", "mall"), // 175
-            new Tag("shop", "dry_cleaning") // 268
+            new Tag("shop", "dry_cleaning"), // 268
+            new ExtendedTag("tourism", "artwork").addTag("artwork_type", "statue"), // 188
+            new ExtendedTag("tourism", "artwork").addTag("artwork_type", "bust"), // 185
+            new ExtendedTag("tourism", "artwork").addTag("artwork_type", "stone") // 186
     };
 
     public final static int[] typeNames = {
