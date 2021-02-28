@@ -309,8 +309,7 @@ public class MapTrek extends Application {
         if (mHillshadeHelper == null) {
             File file = new File(getExternalDir("native"), Index.HILLSHADE_FILENAME);
             if (reset)
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
+                logger.error("Hillshade database deleted: {}", file.delete());
             mHillshadeHelper = new HillshadeDatabaseHelper(this, file);
             mHillshadeHelper.setWriteAheadLoggingEnabled(true);
         }
