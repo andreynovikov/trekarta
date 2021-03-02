@@ -247,6 +247,7 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String[] ALL_COLUMNS_FEATURES_V2 = {
             COLUMN_FEATURES_ID,
             COLUMN_FEATURES_KIND,
+            COLUMN_FEATURES_TYPE,
             COLUMN_FEATURES_LAT,
             COLUMN_FEATURES_LON,
             COLUMN_FEATURES_OPENING_HOURS,
