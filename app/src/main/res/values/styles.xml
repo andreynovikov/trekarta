@@ -23,6 +23,7 @@
         <item name="dragHandleColor">@color/dragHandle</item>
         <item name="informationIconColor">@color/informationIconColor</item>
         <item name="actionIconColor">@color/actionIconColor</item>
+        <item name="zoomIconColor">@color/zoomIconColor</item>
         <item name="snackbarStyle">@style/AppSnackbar</item>
     </style>
 

@@ -4,6 +4,7 @@
         <attr name="dragHandleColor" format="color" />
         <attr name="informationIconColor" format="color" />
         <attr name="actionIconColor" format="color" />
+        <attr name="zoomIconColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="DiscreteSlider">

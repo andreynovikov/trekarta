@@ -46,4 +46,5 @@
     <color name="dragHandle">@color/colorPrimaryDark</color>
     <color name="informationIconColor">@color/colorPrimaryDark</color>
     <color name="actionIconColor">@color/colorPrimary</color>
+    <color name="zoomIconColor">@color/colorPrimaryLight</color>
 </resources>

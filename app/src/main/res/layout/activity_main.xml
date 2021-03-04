@@ -131,7 +131,7 @@
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_add_circle"
-                android:tint="@color/textColorPrimary" />
+                android:tint="?attr/zoomIconColor" />
 
             <ImageButton
                 android:id="@+id/zoomOut"
@@ -144,7 +144,7 @@
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_remove_circle"
-                android:tint="@color/textColorPrimary" />
+                android:tint="?attr/zoomIconColor" />
         </LinearLayout>
 
         <RelativeLayout
