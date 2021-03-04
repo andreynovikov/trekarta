@@ -115,7 +115,7 @@
     <style-color id="highway-service-tunnel" color="#e5e5e5" />
     <style-color id="pedestrian-tunnel" color="#d8d8d8" />
 
-    <style-color id="path-access-no" color="#c8c3ac" />
+    <style-color id="path-access-no" color="#aaaaaa" />
     <style-color id="access-no" color="#ffdddd" />
     <style-color id="access-private" color="#eeeeee" />
     <style-color id="service-access-private" color="#e0e0e0" />
@@ -149,7 +149,8 @@
     <style-color id="dam-stroke" color="#333333" />
     <style-color id="dam-fill" color="#999999" />
 
-    <style-color id="cliff" color="#888888" />
+    <style-color id="cliff" color="#aaaaaa" />
+    <style-color id="cliff-darker" color="#888888" />
     <style-color id="natural-text" color="#2d2d2d" />
 
     <style-color id="pier-stroke" color="#d0d0d0" />
@@ -164,8 +165,7 @@
     <style-area fill="color:land" id="land" mesh="true" />
 
     <!-- Water -->
-    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#dce4eb"
-        stroke-width="1.4" />
+    <style-text style="italic" fill="#486780" id="water" size="16" stroke="#dce4eb" stroke-width="1.4" />
     <style-symbol id="oneway-water" src="assets:symbols/oneway_river.svg" symbol-percent="50"
         rotate="true" repeat="true" repeat-gap="100" />
     <style-line id="water" stroke="color:water" use="fix" />
@@ -177,6 +177,7 @@
     <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
+    <style-text id="mountain" style="italic" fill="#888888" size="16" stroke="#ffffff" stroke-width="1.6" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
@@ -540,9 +541,6 @@
             <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
-    <m cat="nature" k="man_made" v="cutline">
-        <line cap="butt" fade="14" stroke="#d3dcb9" width="2.0" />
-    </m>
 
     <!-- Landuse -->
     <m closed="yes" e="way" k="landuse">
@@ -580,6 +578,15 @@
             <text caption="true" fill="#444444" k="ref" size="14" stroke="#eeeeee"
                 stroke-width="2.0" />
         </m>
+    </m>
+
+    <m cat="mountains" e="way" k="natural" v="ridge">
+        <line src="assets:patterns/ridge.svg" symbol-color="color:cliff-darker" />
+        <text use="mountain" />
+    </m>
+    <m cat="mountains" e="way" k="natural" v="arete">
+        <line src="assets:patterns/arete.svg" symbol-color="color:cliff-darker" />
+        <text use="mountain" />
     </m>
 
     <!-- THIS IS A DANGEROUS HACK as Android does not support xi:include! It assumes a lot of
