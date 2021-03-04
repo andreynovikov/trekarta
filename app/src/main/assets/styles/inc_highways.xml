@@ -40,18 +40,7 @@
                                         text-overlap="false" />
                                 </m>
                             </m>
-                            <m cat="pedestrian" v="footway">
-                                <m select="first">
-                                    <m cat="cycling" k="bicycle" v="designated|yes">
-                                        <line stipple="6" use="footway" width="2.0" stipple-stroke="color:cycleway" />
-                                    </m>
-                                    <m>
-                                        <line stipple="6" use="footway" width="2.0" />
-                                    </m>
-                                </m>
-                                <line fix="true" stroke="color:land" width="1.6" />
-                            </m>
-                            <m cat="pedestrian" v="path">
+                            <m cat="pedestrian" v="footway|path">
                                 <m select="first">
                                     <m cat="cycling" k="bicycle" v="designated|yes">
                                         <line stipple="6" use="path" width="2.0" stipple-stroke="color:cycleway" />
@@ -281,62 +270,38 @@
                                 <line cat="cycling" use="steps" width="3.0" />
                             </m>
                             <m zoom-max="15" zoom-min="14">
-                                <line use="footway" />
+                                <line use="path" />
                             </m>
                         </m>
-                        <m cat="pedestrian" v="footway">
-                            <m zoom-max="15">
-                                <line use="footway" />
-                            </m>
+                        <m cat="pedestrian" v="footway|path">
                             <m zoom-min="16">
-                                <line use="footway:back" />
-                                <line use="footway:z16" />
-                            </m>
-                            <m cat="cycling" k="bicycle" v="yes|designated">
-                                <line use="cycleway" />
-                            </m>
-                        </m>
-                        <m cat="pedestrian" v="path" zoom-min="14">
-                            <m zoom-min="16">
-                                <line use="footway:back" />
+                                <line use="path:back" />
                             </m>
                             <m k="ford" v="yes">
                                 <line fix="true" use="ford" width="4.0" />
                                 <line cat="hiking" fix="true" use="ford" width="6.0" />
                                 <line cat="cycling" fix="true" use="ford" width="6.0" />
                             </m>
-                            <m k="trail_visibility" v="~|intermediate">
+                            <m select="first">
                                 <m k="access" v="no|private">
                                     <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
-                                <m k="access" v="~|yes">
+                                <m k="trail_visibility" v="excellent|good">
+                                    <line stipple="8" stipple-ratio="0.7" use="path" />
+                                </m>
+                                <m k="trail_visibility" v="bad|horrible|no">
+                                    <line stipple="8" stipple-ratio="0.3" use="path" />
+                                </m>
+                                <m k="trail_visibility" v="~|intermediate">
                                     <line use="path" />
-                                </m>
-                            </m>
-                            <m k="trail_visibility" v="excellent|good">
-                                <m k="access" v="no|private">
-                                    <line stipple="6" stipple-ratio="0.7"
-                                        stipple-stroke="color:path-access-no" use="path" />
-                                </m>
-                                <m k="access" v="~|yes">
-                                    <line stipple="6" stipple-ratio="0.7" use="path" />
-                                </m>
-                            </m>
-                            <m k="trail_visibility" v="bad|horrible|no">
-                                <m k="access" v="no|private">
-                                    <line stipple="6" stipple-ratio="0.3"
-                                        stipple-stroke="color:path-access-no" use="path" />
-                                </m>
-                                <m k="access" v="~|yes">
-                                    <line stipple="6" stipple-ratio="0.3" use="path" />
                                 </m>
                             </m>
                         </m>
                         <m v="bridleway">
                             <m zoom-min="15">
-                                <line cat="tracks" use="footway:back" width="0.3" />
-                                <line cat="hiking" stroke="#ffffffff" use="footway:back" width="4.0" />
-                                <line cat="cycling" stroke="#ffffffff" use="footway:back" width="4.0" />
+                                <line cat="tracks" use="path:back" width="0.3" />
+                                <line cat="hiking" stroke="#ffffffff" use="path:back" width="4.0" />
+                                <line cat="cycling" stroke="#ffffffff" use="path:back" width="4.0" />
                             </m>
                             <m k="ford" v="yes">
                                 <line cat="tracks" fix="true" use="ford" width="4.0" />

@@ -1,41 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Road styles -->
-    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
-    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="color:transparent"
-        width="0.7" />
+    <style-line id="ford" cap="round" stroke="#83a3ba" width="0.7" />
+    <style-line id="4wd_only" cap="butt" stipple="15" stipple-stroke="#c3a889" stroke="color:transparent" width="0.7" />
     <style-line id="trunk" stroke="color:trunk" width="1.3" />
-    <style-line cap="butt" id="trunk-link" stroke="color:trunk_link" width="0.8" />
+    <style-line id="trunk-link" cap="butt" stroke="color:trunk_link" width="0.8" />
     <style-line id="highway" stroke="color:highway" width="1.2" />
     <style-line id="primary" stroke="color:primary" width="1.0" />
     <style-line id="secondary" stroke="color:secondary" use="primary" width="-0.1" />
     <style-line id="unclassified" stroke="color:unclassified" width="0.8" />
     <style-line id="tertiary" use="unclassified" width="0.1" />
-    <style-line id="road-construction" stipple="10" stipple-stroke="color:road-construction-stipple"
-        stroke="color:road-construction" width="0.7" />
+    <style-line id="road-construction" stipple="10" stipple-stroke="color:road-construction-stipple" stroke="color:road-construction" width="0.7" />
     <style-line id="residential" stroke="color:residential" use="unclassified" width="-0.1" />
     <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
     <style-line id="pedestrian" stroke="color:pedestrian" use="residential" width="-0.2" />
-    <style-area fill="#e0e0e0" id="pedestrian" />
-    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#44ffffff" width="2.8" />
-    <style-line cap="butt" fix="true" id="highway:track:good" stroke="#99764D" width="1.8" />
-    <style-line cap="butt" fix="true" id="highway:track:very_bad" stipple="14" stipple-ratio="0.8" stipple-stroke="#99764D"
-        stroke="#00ffffff" width="1.8" />
+    <style-area id="pedestrian" fill="#e0e0e0" />
+    <style-line id="highway:track:back" cap="butt" fix="true" stroke="#44ffffff" width="2.8" />
+    <style-line id="highway:track:good" cap="butt" fix="true" stroke="#99764D" width="1.8" />
+    <style-line id="highway:track:very_bad" cap="butt" fix="true" stipple="14" stipple-ratio="0.8" stipple-stroke="#99764D" stroke="color:transparent" width="1.8" />
     <style-line id="highway:track:horrible" stipple="10" stipple-ratio="0.6" use="highway:track:very_bad" />
     <style-line id="highway:track:very_horrible" stipple="8" stipple-ratio="0.4" use="highway:track:very_bad" />
     <style-line id="highway:track:impassable" stroke="#44ff0000" use="highway:track:very_horrible" />
-    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
-    <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#d37c58"
-        stroke="#00ffffff" width="1.2" />
-    <style-line id="footway:z16" stipple="6" stipple-ratio="0.7" use="footway" />
+    <style-line id="path:back" cap="butt" fix="true" stroke="#88ffffff" width="1.5" />
+    <style-line id="path" cap="butt" fix="true" stipple="6" stipple-stroke="#d37c58" stroke="color:transparent" width="1.2" />
+    <style-line id="path:z16" stipple="6" stipple-ratio="0.7" use="path" />
+    <style-line id="steps" cap="butt" fix="true" stipple="4" stipple-ratio="0.35" stipple-stroke="#be6253" stroke="#aaffffff" width="3.5" />
 
     <style-line id="cycleway:back" stroke="#44ffffff" width="0.5" />
     <style-line id="cycleway" stroke="color:cycleway" width="0.4" />
-    <style-line id="path" stipple="4" stipple-stroke="#837b58" use="footway" width="0.1" />
-    <style-line cap="butt" fix="true" id="bridleway" stipple="6" stipple-stroke="#007700"
-        stroke="#00ffffff" width="1.5" />
-    <style-line cap="butt" fix="true" id="steps" stipple="4" stipple-ratio="0.35" stipple-stroke="#be6253"
-        stroke="#aaffffff" width="3.5" />
+    <style-line id="bridleway" cap="butt" fix="true" stipple="6" stipple-stroke="#007700" stroke="color:transparent" width="1.5" />
 
     <style-line id="trunk-tunnel" stroke="color:trunk-tunnel" use="trunk" width="0.1" />
     <style-line id="trunk-link-tunnel" stroke="color:trunk-tunnel" use="trunk-link" width="0.1" />
@@ -48,7 +41,6 @@
     <style-line id="highway-service-tunnel" stroke="color:highway-service-tunnel" use="highway-service" />
     <style-line id="pedestrian-tunnel" stroke="color:pedestrian-tunnel" use="pedestrian" />
 
-    <style-text fill="color:road-text" id="road-name" priority="720" size="14"
-        stroke="color:road-text-outline" stroke-width="2.0" />
+    <style-text id="road-name" fill="color:road-text" priority="720" size="14" stroke="color:road-text-outline" stroke-width="2.0" />
     <style-text id="major-road-name" priority="750" size="16" use="road-name" />
 </rendertheme>
