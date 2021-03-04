@@ -27,33 +27,7 @@
                             </m>
                         </m>
                     </m>
-                    <m cat="pedestrian" v="footway">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.4" />
-                        <line use="footway:z16" />
-                        <m cat="hiking">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="7" />
-                            <line fix="true" stroke="#aab28f67" width="4" />
-                        </m>
-                        <m cat="cycling">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="9" />
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="7" />
-                            <m k="bicycle" v="designated">
-                                <line fix="true" stroke="color:cycleway" width="4" />
-                            </m>
-                            <m k="bicycle" v="yes">
-                                <line fix="true" stipple="10" stipple-stroke="#aab28f67"
-                                    stroke="color:cycleway" width="4" />
-                            </m>
-                            <m k="bicycle" v="~">
-                                <line fix="true" stroke="#aab28f67" width="4" />
-                            </m>
-                        </m>
-                    </m>
-                    <m cat="pedestrian" v="path">
+                    <m cat="pedestrian" v="footway|path">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
                             width="2.4" />
                         <line use="path" />
