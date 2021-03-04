@@ -177,8 +177,14 @@ public class Legend extends ListFragment {
             .addTag("natural", "saddle");
     private static final LegendItem mountain_pass = new LegendItem(GeometryType.POINT, R.string.legend_mountain_pass, 17)
             .addTag("mountain_pass", "yes");
+    private static final LegendItem ridge = new LegendItem(GeometryType.LINE, R.string.legend_ridge, 17)
+            .addTag("natural", "ridge");
+    private static final LegendItem arete = new LegendItem(GeometryType.LINE, R.string.legend_arete, 17)
+            .addTag("natural", "arete");
     private static final LegendItem cliff = new LegendItem(GeometryType.LINE, R.string.legend_cliff, 17)
             .addTag("natural", "cliff");
+    private static final LegendItem rock = new LegendItem(GeometryType.POINT, R.string.legend_rock, 17)
+            .addTag("natural", "rock");
     private static final LegendItem cave_entrance = new LegendItem(GeometryType.POINT, R.string.legend_cave_entrance, 17)
             .addTag("natural", "cave_entrance");
     private static final LegendItem spring = new LegendItem(GeometryType.POINT, R.string.legend_spring, 17)
@@ -382,8 +388,6 @@ public class Legend extends ListFragment {
             .addTag("highway", "pedestrian"); //.addTag("area", "yes");
     private static final LegendItem pedestrian_road = new LegendItem(GeometryType.LINE, R.string.legend_pedestrian_road, 17)
             .addTag("highway", "pedestrian");
-    private static final LegendItem footway = new LegendItem(GeometryType.LINE, R.string.legend_footway, 17)
-            .addTag("highway", "footway");
     private static final LegendItem path = new LegendItem(GeometryType.LINE, R.string.legend_path, 17)
             .addTag("highway", "path");
     private static final LegendItem path_visibility_good = new LegendItem(GeometryType.LINE, R.string.legend_path_visibility_good, 17)
@@ -392,10 +396,10 @@ public class Legend extends ListFragment {
             .addTag("highway", "path").addTag("trail_visibility", "bad");
     private static final LegendItem no_access_path = new LegendItem(GeometryType.LINE, R.string.legend_noaccess_path, 17)
             .addTag("highway", "path").addTag("access", "no");
-    private static final LegendItem footway_bridge = new LegendItem(GeometryType.LINE, R.string.legend_footway_bridge, 17)
-            .addTag("highway", "footway").addTag("bridge", "yes");
-    private static final LegendItem footway_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_footway_tunnel, 17)
-            .addTag("highway", "footway").addTag("tunnel", "yes");
+    private static final LegendItem path_bridge = new LegendItem(GeometryType.LINE, R.string.legend_path_bridge, 17)
+            .addTag("highway", "path").addTag("bridge", "yes");
+    private static final LegendItem path_tunnel = new LegendItem(GeometryType.LINE, R.string.legend_path_tunnel, 17)
+            .addTag("highway", "path").addTag("tunnel", "yes");
     private static final LegendItem steps = new LegendItem(GeometryType.LINE, R.string.legend_steps, 17)
             .addTag("highway", "steps");
     private static final LegendItem via_ferrata = new LegendItem(GeometryType.LINE, R.string.legend_via_ferrata, 17)
@@ -574,19 +578,19 @@ public class Legend extends ListFragment {
             .addTag("piste:type", "skitour");
 
     // Aerial cableways
-    private static final LegendItem cable_car = new LegendItem(GeometryType.LINE, R.string.legend_cable_car, 15)
+    private static final LegendItem cable_car = new LegendItem(GeometryType.LINE, R.string.legend_cable_car, 17)
             .addTag("aerialway", "cable_car");
-    private static final LegendItem gondola = new LegendItem(GeometryType.LINE, R.string.legend_gondola, 15)
+    private static final LegendItem gondola = new LegendItem(GeometryType.LINE, R.string.legend_gondola, 17)
             .addTag("aerialway", "gondola");
-    private static final LegendItem chair_lift = new LegendItem(GeometryType.LINE, R.string.legend_chair_lift, 15)
+    private static final LegendItem chair_lift = new LegendItem(GeometryType.LINE, R.string.legend_chair_lift, 17)
             .addTag("aerialway", "chair_lift");
-    private static final LegendItem drag_lift = new LegendItem(GeometryType.LINE, R.string.legend_drag_lift, 15)
+    private static final LegendItem drag_lift = new LegendItem(GeometryType.LINE, R.string.legend_drag_lift, 17)
             .addTag("aerialway", "drag_lift");
-    private static final LegendItem zip_line = new LegendItem(GeometryType.LINE, R.string.legend_zip_line, 15)
+    private static final LegendItem zip_line = new LegendItem(GeometryType.LINE, R.string.legend_zip_line, 17)
             .addTag("aerialway", "zip_line");
-    private static final LegendItem magic_carpet = new LegendItem(GeometryType.LINE, R.string.legend_magic_carpet, 15)
+    private static final LegendItem magic_carpet = new LegendItem(GeometryType.LINE, R.string.legend_magic_carpet, 17)
             .addTag("aerialway", "magic_carpet");
-    private static final LegendItem aerialway_station = new LegendItem(GeometryType.POINT, R.string.legend_station, 15)
+    private static final LegendItem aerialway_station = new LegendItem(GeometryType.POINT, R.string.legend_station, 17)
             .addTag("aerialway", "station");
 
     // Hiking
@@ -927,6 +931,7 @@ public class Legend extends ListFragment {
     private static final LegendItem shelter = new LegendAmenityItem(256);
     private static final LegendItem toilets = new LegendAmenityItem(259);
     private static final LegendItem firepit = new LegendAmenityItem(86);
+    private static final LegendItem hunting_stand = new LegendAmenityItem(87);
     private static final LegendItem information_office = new LegendAmenityItem(205);
     private static final LegendItem information_guidepost = new LegendAmenityItem(208);
     private static final LegendItem information_map = new LegendAmenityItem(211);
@@ -952,8 +957,9 @@ public class Legend extends ListFragment {
             farmland, orchard, plant_nursery, farmyard, quarry, nature_reserve, underground_river,
             dam, lock_gate, weir, ford_point, meadow, scrub, heath, wetland, reedbed, wet_meadow,
             swamp, mangrove, bog, fen, marsh, saltmarsh, tidalflat, bare_rock, scree, shingle, mud,
-            sand, glacier, cliff, peak, volcano, saddle, cave_entrance, contour, power_line, tower,
-            water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline, general_pipeline, spring
+            sand, glacier, ridge, arete, cliff, peak, volcano, saddle, rock, cave_entrance, contour,
+            power_line, tower, water_pipeline, steam_pipeline, gas_pipeline, oil_pipeline,
+            general_pipeline, spring
     ));
 
     private static final HashSet<LegendItem> notNightItems = new HashSet<>(Arrays.asList(
@@ -1044,11 +1050,14 @@ public class Legend extends ListFragment {
             mud,
             sand,
             glacier,
+            ridge,
+            arete,
             cliff,
             peak,
             volcano,
             saddle,
             mountain_pass,
+            rock,
             cave_entrance,
             spring,
             contour
@@ -1153,13 +1162,12 @@ public class Legend extends ListFragment {
     private static final LegendSection pedestrian = new LegendSection(R.string.legend_pedestrian, new LegendItem[]{
             pedestrian_area,
             pedestrian_road,
-            footway,
             path,
             path_visibility_good,
             path_visibility_bad,
             no_access_path,
-            footway_bridge,
-            footway_tunnel,
+            path_bridge,
+            path_tunnel,
             steps,
             via_ferrata // TODO Should go to hiking
     });
@@ -1351,7 +1359,8 @@ public class Legend extends ListFragment {
             information_office,
             information_guidepost,
             information_map,
-            information
+            information,
+            hunting_stand
     });
 
     private static final LegendSection amenities_service = new LegendSection(R.string.kind_service, new LegendItem[]{
@@ -1623,6 +1632,8 @@ public class Legend extends ListFragment {
                     tree,
                     wetland,
                     bare_rock,
+                    ridge,
+                    arete,
                     cliff,
                     peak,
                     saddle,
@@ -1748,6 +1759,13 @@ public class Legend extends ListFragment {
             case 0:
             default:
                 theme = nightMode ? themeNight : themeTopo;
+                //theme = new LegendSection[1];
+                //theme[0] = new LegendSection(R.string.legend_terrain_features, new LegendItem[]{
+                //        ridge,
+                //        cable_car,
+                //        cliff,
+                //        embankment
+                //});
                 break;
         }
 

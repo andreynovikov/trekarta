@@ -361,7 +361,7 @@
                 <m v="charging_station">
                     <symbol src="assets:symbols/transport/charging_station.svg" symbol-color="color:transportation" symbol-percent="80" />
                     <m  zoom-min="16">
-                        <text dy="-14" caption="true" fill="color:transportation" k="capacity" priority="200" size="12" stroke="#ffffff" stroke-width="2.0" />
+                        <text dy="-12" caption="true" fill="color:transportation" k="capacity" size="10" stroke="color:text-outline" stroke-width="2.0" />
                     </m>
                 </m>
                 <m v="slipway">
@@ -429,6 +429,9 @@
                 <m v="ranger_station">
                     <symbol src="assets:symbols/tourist/ranger_station.svg" symbol-color="color:public-service" symbol-percent="80" />
                 </m>
+                <m v="hunting_stand">
+                    <symbol src="assets:symbols/tourist/hunting_stand.svg" symbol-color="color:man-made" symbol-percent="60" />
+                </m>
                 <m v="bicycle_rental">
                     <symbol src="assets:symbols/transport/rental_bicycle.svg" symbol-color="color:transportation" symbol-percent="80" />
                 </m>
@@ -436,9 +439,9 @@
                     <symbol src="assets:symbols/transport/bicycle_repair_station.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                 </m>
                 <m v="bicycle_parking">
-                    <symbol src="assets:symbols/transport/bicycle_parking.svg" symbol-color="color:transportation" symbol-percent="80" />
+                    <symbol merge-gap="0" src="assets:symbols/transport/bicycle_parking.svg" symbol-color="color:transportation" symbol-percent="60" />
                     <m  zoom-min="16">
-                        <text dy="-12" caption="true" fill="color:transportation" k="capacity" priority="200" size="12" stroke="#ffffff" stroke-width="2.0" />
+                        <text dy="-10" caption="true" fill="color:transportation" k="capacity" size="10" stroke="color:text-outline" stroke-width="2.0" />
                     </m>
                 </m>
                 <m v="drinking_water">

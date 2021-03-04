@@ -343,6 +343,8 @@
     <string name="legend_volcano">Volcano</string>
     <string name="legend_saddle">Saddle</string>
     <string name="legend_mountain_pass">Mountain pass</string>
+    <string name="legend_ridge">Ridge</string>
+    <string name="legend_arete">Narrow ridge (arête)</string>
     <string name="legend_cliff">Cliff</string>
     <string name="legend_forest">Forest</string>
     <string name="legend_marsh">Marsh</string>
@@ -592,10 +594,9 @@
     <string name="legend_ferry">Ferry route</string>
     <string name="legend_pier">Pier</string>
     <string name="legend_pedestrian">Pedestrian paths</string>
-    <string name="legend_footway">Designated footway</string>
-    <string name="legend_path">Footpath</string>
-    <string name="legend_path_visibility_good">Clearly visible footpath</string>
-    <string name="legend_path_visibility_bad">Poorly visible footpath</string>
+    <string name="legend_path">Path</string>
+    <string name="legend_path_visibility_good">Clearly visible path</string>
+    <string name="legend_path_visibility_bad">Poorly visible path</string>
     <string name="legend_steps">Steps</string>
     <string name="legend_pedestrian_area">Plaza</string>
     <string name="legend_tracks">Forest and field tracks</string>
@@ -612,8 +613,8 @@
     <string name="legend_via_ferrata">Via ferrata</string>
     <string name="legend_track_bridge">Track bridge</string>
     <string name="legend_track_tunnel">Track tunnel</string>
-    <string name="legend_footway_bridge">Pedestrian bridge</string>
-    <string name="legend_footway_tunnel">Pedestrian tunnel</string>
+    <string name="legend_path_bridge">Pedestrian bridge</string>
+    <string name="legend_path_tunnel">Pedestrian tunnel</string>
     <string name="legend_city_wall">City wall</string>
     <string name="legend_retaining_wall">Retaining wall</string>
     <string name="legend_contour">Contour line</string>
@@ -621,6 +622,7 @@
     <string name="legend_tower">Tower</string>
     <string name="legend_power_line">High voltage power line and tower</string>
     <string name="legend_power_generator_wind">Wind power generator</string>
+    <string name="legend_rock">Notable rock</string>
     <string name="legend_cave_entrance">Cave entrance</string>
     <string name="legend_island">Island</string>
     <string name="legend_island_name">Tahiti</string>
@@ -725,6 +727,7 @@
     <string name="legend_kissing_gate">Kissing gate</string>
     <string name="legend_stile">Stile</string>
     <string name="legend_firepit">Fire pit</string>
+    <string name="legend_hunting_stand">Hunting stand</string>
     <string name="legend_intermittent_river">Intermittent river</string>
     <string name="legend_marina">Marina</string>
     <string name="legend_marina_name">Woolwich</string>

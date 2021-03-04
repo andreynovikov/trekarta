@@ -274,7 +274,7 @@ public class Tags {
             null,
             new Tag("tourism", "picnic_site"), // 85
             new Tag("leisure", "firepit"), // 86
-            null,
+            new Tag("amenity", "hunting_stand"), // 87
             new Tag("amenity", "theatre"), // 88
             null, null,
             new Tag("amenity", "cinema"), // 91
@@ -516,7 +516,7 @@ public class Tags {
             -1,
             R.string.legend_picnic_site, // 85
             R.string.legend_firepit, // 86
-            -1,
+            R.string.legend_hunting_stand, // 87
             R.string.legend_theatre, // 88
             -1, -1,
             R.string.legend_cinema, // 91
@@ -748,7 +748,7 @@ public class Tags {
             false,
             true, // 85
             false, // 86 - fire pit
-            false,
+            false, // 87 - hunting stand
             true, // 88
             false, false,
             true, // 91
@@ -871,7 +871,7 @@ public class Tags {
             true, // 249
             true, // 250
             true, // 251
-            true, // 252
+            false, // 252 - bicycle parking
             true, // 253
             false, false,
             true, // 256
@@ -932,7 +932,7 @@ public class Tags {
             new int[] {133, 136}, // pets
             new int[] {229, 230, 232, 235, 238, 239, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
-            new int[] {148, 151, 118, 239, 250, 251, 252, 253, 256, 259, 1, 4, 86, 205, 208, 211, 214}, // hike'n'bike
+            new int[] {148, 151, 118, 250, 251, 252, 253, 256, 259, 1, 4, 86, 87, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
             new int[] {64, 67, 68, 70, 73, 74, 76}  // barrier
     };
@@ -1782,14 +1782,14 @@ public class Tags {
             "tidalflat",
             "fen",
             "via_ferrata",
-            "wayside_shrine",
+            "rock",
             "statue",
             "bust",
             "stone",
             "plaque",
             "massage",
             "dentist",
-            "embassy",
+            "hunting_stand",
             "horse_riding",
             "gallery",
             "kissing_gate",
@@ -1801,7 +1801,9 @@ public class Tags {
             "rest_area",
             "embankment",
             "turntable",
-            "aboriginal_lands"
+            "aboriginal_lands",
+            "ridge",
+            "arete"
     };
     public final static int MAX_VALUE = values.length - 1;
 }

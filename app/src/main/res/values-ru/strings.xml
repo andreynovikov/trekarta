@@ -568,7 +568,7 @@
     <string name="legend_city_wall">Городская стена</string>
     <string name="legend_dirt_parking">Стоянка на грунте</string>
     <string name="legend_dog_park">Собачья площадка</string>
-    <string name="legend_footway_bridge">Пешеходный мост</string>
+    <string name="legend_path_bridge">Пешеходный мост</string>
     <string name="legend_grass">Трава</string>
     <string name="legend_heath">Пустошь</string>
     <string name="legend_garden">Сад</string>
@@ -583,7 +583,7 @@
     <string name="legend_impassable_track">Непроходимая для колёсного транспорта</string>
     <string name="legend_horrible_track">Только подготовленные внедорожники</string>
     <string name="legend_mud">Грязь</string>
-    <string name="legend_path">Тропинка</string>
+    <string name="legend_path">Дорожка или тропинка</string>
     <string name="legend_pedestrian_area">Площадь</string>
     <string name="legend_pedestrian">Пешеходные пути</string>
     <string name="legend_bridleway">Дорога для верховой езды</string>
@@ -593,7 +593,6 @@
     <string name="legend_ditch">Канава</string>
     <string name="legend_ferry">Паромная переправа</string>
     <string name="legend_ferry_terminal">Пристань</string>
-    <string name="legend_footway">Дорожка</string>
     <string name="legend_hiking_route_iwn">Маждународный маршрут</string>
     <string name="legend_hiking_route_nwn">Национальный маршрут</string>
     <string name="legend_hiking_route_lwn">Локальный маршрут</string>
@@ -672,7 +671,7 @@
     <string name="legend_water_pump">Водяная колонка</string>
     <string name="legend_motorcycle_shop">Мотомагазин</string>
     <string name="actionMapScale">Масштаб карты</string>
-    <string name="legend_footway_tunnel">Пешеходный тоннель</string>
+    <string name="legend_path_tunnel">Пешеходный тоннель</string>
     <string name="legend_general_pipeline">Трубопровод</string>
     <string name="legend_oil_pipeline">Нефтяной трубопровод</string>
     <string name="legend_gas_pipeline">Газовый трубопровод</string>
