@@ -641,12 +641,9 @@ public class XmlThemeBuilder extends DefaultHandler {
             b.stippleRatio = 0.5f;
             b.stippleColor = b.fillColor;
         } else {
-            if (src != null)
+            if (src != null) {
                 b.texture = Utils.loadTexture(mTheme.getRelativePathPrefix(), src, b.symbolWidth, b.symbolHeight, b.symbolPercent, b.symbolColor);
-
-            if (hasSymbol) {
-                // Line symbol
-                int width = (int) (b.texture.width + b.repeatGap);
+                int width = (int) (b.texture.width + b.repeatGap + b.repeatStart);
                 int height = b.texture.height;
                 Bitmap bitmap = CanvasAdapter.newBitmap(width, height, 0);
                 Canvas canvas = CanvasAdapter.newCanvas();
@@ -657,10 +654,14 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.fixed = true;
                 b.randomOffset = false;
                 b.stipple = width;
-                b.stippleWidth = 1;
-                b.stippleRatio = 0.5f;
+                if (hasSymbol) {
+                    b.stippleWidth = 1;
+                    b.stippleRatio = 0.5f;
+                }
                 b.strokeWidth = height * 0.5f;
                 b.stippleColor = Color.WHITE;
+                if (!hasSymbol)
+                    b.dashArray = new float[] {}; // quick fix for linetex_layer_tex.glsl texture step
             }
         }
 

@@ -38,60 +38,60 @@
     <m cat="cycling" e="way" k="highway" zoom-min="15">
         <m select="first">
             <m k="mtb:scale" v="0">
-                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+                <line fix="true" src="assets:symbols/tick.svg" symbol-color="#0000ff" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="1">
-                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+                <line fix="true" src="assets:symbols/tick_double.svg" symbol-color="#0000ff" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="2">
-                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/tick.svg" symbol-color="#ff0000" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="3">
-                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/tick_double.svg" symbol-color="#ff0000" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="4">
-                <line fix="true" src="assets:symbols/tick.svg" stipple="80" stipple-stroke="#010101" width="20" />
+                <line fix="true" src="assets:symbols/tick.svg" symbol-color="#010101" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="5">
-                <line fix="true" src="assets:symbols/tick_double.svg" stipple="80" stipple-stroke="#010101" width="20" />
+                <line fix="true" src="assets:symbols/tick_double.svg" symbol-color="#010101" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale" v="6">
-                <line fix="true" src="assets:symbols/tick_triple.svg" stipple="80" stipple-stroke="#010101" width="20" />
+                <line fix="true" src="assets:symbols/tick_triple.svg" symbol-color="#010101" symbol-height="20" repeat-gap="10" repeat-start="10" />
             </m>
             <m k="mtb:scale:imba" v="0">
-                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#ffffff" width="20" />
+                <line fix="true" src="assets:symbols/dot.svg" symbol-color="#ffffff" symbol-height="12" repeat-start="10" repeat-gap="10" />
             </m>
             <m k="mtb:scale:imba" v="1">
-                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#00ff00" width="20" />
+                <line fix="true" src="assets:symbols/dot.svg" symbol-color="#00ff00" symbol-height="12" repeat-start="10" repeat-gap="10" />
             </m>
             <m k="mtb:scale:imba" v="2">
-                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#0000ff" width="20" />
+                <line fix="true" src="assets:symbols/dot.svg" symbol-color="#0000ff" symbol-height="12" repeat-start="10" repeat-gap="10" />
             </m>
             <m k="mtb:scale:imba" v="3">
-                <line fix="true" src="assets:symbols/dot_small.svg" stipple="80" stipple-stroke="#010101" width="20" />
+                <line fix="true" src="assets:symbols/dot.svg" symbol-color="#000000" symbol-height="12" repeat-start="10" repeat-gap="10" />
             </m>
             <m k="mtb:scale:imba" v="4">
-                <line fix="true" src="assets:symbols/dot_double_small.svg" stipple="80" stipple-stroke="#010101" width="20" />
+                <line fix="true" src="assets:symbols/dot_double.svg" symbol-color="#000000" symbol-height="12" repeat-start="10" repeat-gap="10" />
             </m>
         </m>
         <m select="first" zoom-min="16">
             <m k="mtb:scale:uphill" v="0">
-                <line fix="true" src="assets:symbols/mtb/uphill0.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill0.svg" symbol-height="20" />
             </m>
             <m k="mtb:scale:uphill" v="1">
-                <line fix="true" src="assets:symbols/mtb/uphill1.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill1.svg" symbol-height="20" />
             </m>
             <m k="mtb:scale:uphill" v="2">
-                <line fix="true" src="assets:symbols/mtb/uphill2.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill2.svg" symbol-height="20" />
             </m>
             <m k="mtb:scale:uphill" v="3">
-                <line fix="true" src="assets:symbols/mtb/uphill3.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill3.svg" symbol-height="20" />
             </m>
             <m k="mtb:scale:uphill" v="4">
-                <line fix="true" src="assets:symbols/mtb/uphill4.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill4.svg" symbol-height="20" />
             </m>
             <m k="mtb:scale:uphill" v="5">
-                <line fix="true" src="assets:symbols/mtb/uphill5.svg" stipple="60" stipple-stroke="#ff0000" width="20" />
+                <line fix="true" src="assets:symbols/mtb/uphill5.svg" symbol-height="20" />
             </m>
         </m>
     </m>

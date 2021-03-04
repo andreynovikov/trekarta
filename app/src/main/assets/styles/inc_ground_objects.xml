@@ -2,22 +2,13 @@
 <rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
     <!-- Topological objects on ground -->
     <m cat="mountains" k="natural" v="cliff">
-        <m zoom-max="14">
-            <line cap="butt" fix="true" stroke="color:cliff" width="2" />
-            <lineSymbol repeat-gap="0" repeat-start="0" src="assets:symbols/natural/cliff.svg"
-                symbol-color="color:cliff" symbol-percent="30" />
-        </m>
-        <m zoom-min="15">
-            <line cap="butt" fix="true" stroke="color:cliff" width="3" />
-            <lineSymbol repeat-gap="0" repeat-start="0" src="assets:symbols/natural/cliff.svg"
-                symbol-color="color:cliff" symbol-percent="50" />
-        </m>
+        <line cap="butt" fix="true" stroke="color:cliff" width="2" />
+        <line src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" symbol-height="10" />
     </m>
     <m k="man_made">
         <m cat="urban" v="embankment" zoom-min="15">
             <line cap="butt" fix="true" stroke="color:cliff" width="1.5" />
-            <lineSymbol repeat-gap="2" repeat-start="0" src="assets:symbols/natural/embankment.svg"
-                symbol-color="color:cliff" symbol-percent="25" />
+            <line repeat-gap="3" repeat-start="3" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" symbol-height="6" />
         </m>
         <m cat="urban" v="pier" zoom-min="15">
             <m closed="no">

@@ -183,7 +183,7 @@
         <xs:attribute name="fix" default="false" type="xs:boolean"  />
         <xs:attribute name="repeat" default="false" type="xs:boolean"  />
         <xs:attribute name="repeat-gap" default="0" type="xs:positiveInteger"  />
-        <xs:attribute name="repeat-start" default="20" type="xs:positiveInteger"  />
+        <xs:attribute name="repeat-start" default="0" type="xs:positiveInteger"  />
 
         <!-- stipple repeat in 'pixel' -->
         <xs:attribute name="stipple" default="0" type="xs:integer"  />

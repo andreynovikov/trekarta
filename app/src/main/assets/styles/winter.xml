@@ -94,7 +94,8 @@
     <style-color id="dam-stroke" color="#333333" />
     <style-color id="dam-fill" color="#999999" />
 
-    <style-color id="cliff" color="#888888" />
+    <style-color id="cliff" color="#aaaaaa" />
+    <style-color id="cliff-darker" color="#888888" />
     <style-color id="natural-text" color="#2d2d2d" />
 
     <style-color id="pier-stroke" color="#d0d0d0" />
@@ -265,6 +266,13 @@
         <m cat="winter-topo" v="wetland">
             <area src="assets:patterns/wetland.svg" />
         </m>
+    </m>
+
+    <m cat="mountains" e="way" k="natural" v="ridge">
+        <line src="assets:patterns/ridge.svg" symbol-color="color:cliff-darker" />
+    </m>
+    <m cat="mountains" e="way" k="natural" v="arete">
+        <line src="assets:patterns/arete.svg" symbol-color="color:cliff-darker" />
     </m>
 
     <xi:include href="inc_water.xml" />
@@ -725,11 +733,10 @@
                     </m>
                 </m>
                 <line fix="true" stroke="#ff9faf" width="3" />
-                <line fix="true" src="assets:symbols/dot.svg" stipple="30" stipple-stroke="#ff9faf"
-                    width="15" />
+                <line fix="true" src="assets:symbols/winter/hike_path.svg" symbol-height="12" />
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" src="assets:symbols/dot_small.svg" stipple="30"
-                        stipple-stroke="#ffffff" width="15" />
+                    <line fix="true" src="assets:symbols/winter/hike_path_backcountry.svg"
+                        symbol-height="12" />
                 </m>
                 <text fill="#ff395a" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
@@ -810,12 +817,10 @@
         </m>
         <m k="piste:type" v="skitour">
             <m zoom-max="14">
-                <line fix="true" src="assets:symbols/winter/skitour_path.svg" stipple="30"
-                    stipple-stroke="#ff703c" width="15" />
+                <line fix="true" src="assets:symbols/winter/skitour_path.svg" symbol-height="10" />
             </m>
             <m zoom-min="15">
-                <line fix="true" src="assets:symbols/winter/skitour_path.svg" stipple="40"
-                    stipple-stroke="#ff703c" width="20" />
+                <line fix="true" src="assets:symbols/winter/skitour_path.svg" symbol-height="14" />
                 <text fill="#d53900" use="piste-name" /> <!-- Darken 20% -->
                 <text use="piste-ref" />
                 <symbol merge-gap="120" merge-group="piste-symbols" merge-group-gap="50"

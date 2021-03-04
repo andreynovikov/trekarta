@@ -32,7 +32,7 @@ public final class LineStyle extends RenderStyle<LineStyle> {
         LEFT, RIGHT
     }
 
-    public static final float REPEAT_START_DEFAULT = 20f;
+    public static final float REPEAT_START_DEFAULT = 0f;
     public static final float REPEAT_GAP_DEFAULT = 0f;
 
     private final int level;

@@ -273,35 +273,31 @@ public class LegendView extends View {
                 Bitmap bmp = Bitmap.createBitmap(lineStyle.texture.bitmap.getPixels(),
                         lineStyle.texture.bitmap.getWidth(), lineStyle.texture.bitmap.getHeight(),
                         Bitmap.Config.ARGB_8888);
-                Bitmap resized = Bitmap.createScaledBitmap(bmp, bmp.getWidth() >> 1, bmp.getHeight() >> 1, false);
-                bmp.recycle();
                 Paint bmpPaint = null;
                 if (lineStyle.stippleColor != 0xFF000000 && lineStyle.stippleColor != 0xFFFFFFFF) {
                     bmpPaint = new Paint();
                     bmpPaint.setColorFilter(new PorterDuffColorFilter(lineStyle.stippleColor, PorterDuff.Mode.SRC_IN));
                 }
 
-                float xOffset = 0, xWidth = 0;
-                int count = 1;
-                float gap = lineStyle.repeatGap > 0 ? lineStyle.repeatGap : lineStyle.stipple;
-                float hs = gap / 2;
                 float w = mRight - mLeft;
-                xWidth = resized.getWidth() + hs;
-                count = (int) (Math.max(w / xWidth, 1.0));
-                float remainder = w - xWidth * count;
-                if (remainder > resized.getWidth()) {
+                float bmpWidth = bmp.getWidth();
+                float bmpHeight2 = bmp.getHeight() / 2f;
+                int count = (int) (Math.max(w / bmpWidth, 1.0));
+                float remainder = w - bmpWidth * count;
+                if (remainder > bmp.getWidth()) {
                     count++;
                 }
-                xOffset = (w - xWidth * count + hs) / 2f;
-
+                count++;
+                float xOffset = (w - bmpWidth * count) / 2f;
                 paint.setStrokeWidth(5);
                 xOffset += mLeft;
                 while (count > 0) {
-                    canvas.drawBitmap(resized, xOffset, mCenterY - resized.getHeight() / 2f, bmpPaint);
-                    xOffset += xWidth;
+                    //canvas.drawRect(xOffset, mCenterY - bmpHeight2, xOffset + bmpWidth, mCenterY + bmpHeight2, paint);
+                    canvas.drawBitmap(bmp, xOffset, mCenterY - bmpHeight2, bmpPaint);
+                    xOffset += bmpWidth;
                     count--;
                 }
-                resized.recycle();
+                bmp.recycle();
             } else if (lineStyle.outline) {
                 float halfWidth = mLastLineWidth / 2f;
                 if (lineStyle.half != LineStyle.Half.RIGHT)

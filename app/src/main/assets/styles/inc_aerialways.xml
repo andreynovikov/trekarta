@@ -4,16 +4,16 @@
         <m closed="no" e="way">
             <line cap="butt" fix="true" stroke="#202020" width="1.8" />
             <m v="cable_car|gondola">
-                <line fix="true" src="assets:symbols/dot_black.svg" stipple="50"
-                    stipple-stroke="#202020" width="12" />
+                <line fix="true" src="assets:symbols/dot.svg" repeat-start="10" repeat-gap="10"
+                    symbol-color="#202020" symbol-height="12" />
                 <m zoom-min="14">
                     <text style="bold" fill="#606060" k="name" size="16" stroke="#ffffff"
                         stroke-width="2.0" />
                 </m>
             </m>
             <m v="chair_lift|drag_lift">
-                <line fix="true" src="assets:symbols/tick.svg" stipple="50" stipple-stroke="#202020"
-                    width="12" />
+                <line fix="true" src="assets:symbols/tick.svg" symbol-color="#202020" repeat-start="10" repeat-gap="10"
+                    symbol-height="12" />
             </m>
             <m v="zip_line" zoom-min="15">
                 <symbol cat="hiking" merge-gap="50" merge-group="aerialway-symbols" repeat="true"
