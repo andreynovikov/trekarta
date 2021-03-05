@@ -4,7 +4,7 @@
         <m cat="roads" k="highway" v="motorway|trunk">
             <symbol symbol-percent="60" use="oneway" />
         </m>
-        <m cat="roads" k="highway" v="-|service">
+        <m cat="roads" k="highway" v="-|service|path|footway">
             <m select="first">
                 <m cat="cycling" zoom-min="17" k="oneway:bicycle" v="no">
                     <symbol use="doubleway-bicycle" />
@@ -30,7 +30,7 @@
         <m cat="roads" k="highway" v="motorway|trunk">
             <symbol inverse="true" symbol-percent="60" use="oneway" />
         </m>
-        <m cat="roads" k="highway" v="-|service">
+        <m cat="roads" k="highway" v="-|service|path|footway">
             <m select="first">
                 <m cat="cycling" zoom-min="17" k="oneway:bicycle" v="no">
                     <symbol inverse="true" use="doubleway-bicycle" />

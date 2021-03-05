@@ -3,192 +3,232 @@
     <!-- Hiking ways -->
     <m cat="hiking" e="way" k="highway" zoom-min="14">
         <m k="access" v="-|no">
-            <m v="path|footway">
-                <m k="bridge" v="~|no">
-                    <!-- TODO Background line is put here because of line style ordering error in legend view -->
-                    <line fix="true" stroke="#ffffff" width="5.2" />
+            <m k="foot" v="-|no">
+                <m v="path|footway">
+                    <m k="bridge" v="~|no">
+                        <!-- TODO Background line is put here because of line style ordering error in legend view -->
+                        <line fix="true" stroke="#ffffff" width="5.2" />
+                    </m>
                 </m>
-            </m>
-            <m v="path|footway">
-                <m k="bridge" v="~|no">
-                    <m k="sac_scale" v="~">
+                <m v="path|footway">
+                    <m k="bridge" v="~|no">
+                        <m k="sac_scale" v="~">
+                            <m k="trail_visibility" v="~">
+                                <line fix="true" stipple="8" stipple-stroke="#aab28f67" stroke="#00000000"
+                                    width="4" />
+                            </m>
+                            <m k="trail_visibility" v="excellent">
+                                <line fix="true" stroke="#aab28f67" width="4" />
+                            </m>
+                            <m k="trail_visibility" v="good">
+                                <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aab28f67"
+                                    stroke="#00000000" width="4" />
+                            </m>
+                            <m k="trail_visibility" v="intermediate">
+                                <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aab28f67"
+                                    stroke="#00000000" width="4" />
+                            </m>
+                            <m k="trail_visibility" v="bad|horrible">
+                                <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aab28f67"
+                                    stroke="#00000000" width="4" />
+                            </m>
+                            <m k="trail_visibility" v="no">
+                                <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aab28f67"
+                                    stroke="#00000000" width="4" />
+                            </m>
+                        </m>
+                    </m>
+                </m>
+                <m v="cycleway">
+                    <m k="bridge" v="~|no">
+
+                        <!-- TODO Background line is put here because of line style ordering error in legend view -->
+                    </m>
+                </m>
+                <m v="cycleway">
+                    <m k="bridge" v="~|no">
+                        <m k="foot" v="yes|designated">
+                            <m k="sac_scale" v="~">
+                                <line fix="true" stroke="#ffffff" width="5.2" />
+                                <m k="trail_visibility" v="~">
+                                    <line fix="true" stipple="8" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="4" />
+                                </m>
+                                <m k="trail_visibility" v="excellent">
+                                    <line fix="true" stroke="#aab28f67" width="4" />
+                                </m>
+                                <m k="trail_visibility" v="good">
+                                    <line fix="true" stipple="16" stipple-ratio="0.8"
+                                        stipple-stroke="#aab28f67" stroke="#00000000" width="4" />
+                                </m>
+                                <m k="trail_visibility" v="intermediate">
+                                    <line fix="true" stipple="16" stipple-ratio="0.6"
+                                        stipple-stroke="#aab28f67" stroke="#00000000" width="4" />
+                                </m>
+                                <m k="trail_visibility" v="bad|horrible">
+                                    <line fix="true" stipple="16" stipple-ratio="0.4"
+                                        stipple-stroke="#aab28f67" stroke="#00000000" width="4" />
+                                </m>
+                                <m k="trail_visibility" v="no">
+                                    <line fix="true" stipple="16" stipple-ratio="0.2"
+                                        stipple-stroke="#aab28f67" stroke="#00000000" width="4" />
+                                </m>
+                            </m>
+                        </m>
+                    </m>
+                </m>
+                <m k="sac_scale" select="first">
+                    <m v="t1">
                         <m k="trail_visibility" v="~">
-                            <line fix="true" stipple="8" stipple-stroke="#aab28f67" stroke="#00000000"
+                            <line fix="true" stipple="8" stipple-stroke="#880040ff" stroke="#00000000"
                                 width="4" />
                         </m>
                         <m k="trail_visibility" v="excellent">
-                            <line fix="true" stroke="#aab28f67" width="4" />
+                            <line fix="true" stroke="#880040ff" width="4" />
                         </m>
                         <m k="trail_visibility" v="good">
-                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aab28f67"
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880040ff"
                                 stroke="#00000000" width="4" />
                         </m>
                         <m k="trail_visibility" v="intermediate">
-                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aab28f67"
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880040ff"
                                 stroke="#00000000" width="4" />
                         </m>
                         <m k="trail_visibility" v="bad|horrible">
-                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aab28f67"
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880040ff"
                                 stroke="#00000000" width="4" />
                         </m>
                         <m k="trail_visibility" v="no">
-                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aab28f67"
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880040ff"
                                 stroke="#00000000" width="4" />
                         </m>
                     </m>
-                </m>
-            </m>
-            <m k="sac_scale" select="first">
-                <m v="t1">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#880040ff" stroke="#00000000"
-                            width="4" />
+                    <m v="t2">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#880000dd" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent">
+                            <line fix="true" stroke="#880000dd" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="good">
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880000dd"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880000dd"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible">
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880000dd"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="no">
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880000dd"
+                                stroke="#00000000" width="4" />
+                        </m>
                     </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stroke="#880040ff" width="4" />
+                    <m v="t3">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#cce6ad00" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent">
+                            <line fix="true" stroke="#cce6ad00" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="good">
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible">
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="no">
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#cce6ad00"
+                                stroke="#00000000" width="4" />
+                        </m>
                     </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880040ff"
-                            stroke="#00000000" width="4" />
+                    <m v="t4">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent">
+                            <line fix="true" stroke="#88ff0000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="good">
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible">
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
+                        <m k="trail_visibility" v="no">
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000"
+                                stroke="#00000000" width="4" />
+                        </m>
                     </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880040ff"
-                            stroke="#00000000" width="4" />
+                    <m v="t5">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent">
+                            <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="good">
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible">
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="no">
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000" stroke="#aa000000"
+                                width="4" />
+                        </m>
                     </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880040ff"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880040ff"
-                            stroke="#00000000" width="4" />
-                    </m>
-                </m>
-                <m v="t2">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#880000dd" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stroke="#880000dd" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#880000dd"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#880000dd"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#880000dd"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#880000dd"
-                            stroke="#00000000" width="4" />
-                    </m>
-                </m>
-                <m v="t3">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#cce6ad00" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stroke="#cce6ad00" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#cce6ad00"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#cce6ad00"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#cce6ad00"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#cce6ad00"
-                            stroke="#00000000" width="4" />
-                    </m>
-                </m>
-                <m v="t4">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stroke="#88ff0000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000"
-                            stroke="#00000000" width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000"
-                            stroke="#00000000" width="4" />
-                    </m>
-                </m>
-                <m v="t5">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#88ff0000" stroke="#aa000000"
-                            width="4" />
-                    </m>
-                </m>
-                <m v="t6">
-                    <m k="trail_visibility" v="~">
-                        <line fix="true" stipple="8" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="excellent">
-                        <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="good">
-                        <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="intermediate">
-                        <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="bad|horrible">
-                        <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
-                    </m>
-                    <m k="trail_visibility" v="no">
-                        <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aa000000" stroke="#00000000"
-                            width="4" />
+                    <m v="t6">
+                        <m k="trail_visibility" v="~">
+                            <line fix="true" stipple="8" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="excellent">
+                            <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="good">
+                            <line fix="true" stipple="16" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="intermediate">
+                            <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="bad|horrible">
+                            <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
+                        <m k="trail_visibility" v="no">
+                            <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aa000000" stroke="#00000000"
+                                width="4" />
+                        </m>
                     </m>
                 </m>
             </m>

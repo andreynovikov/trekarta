@@ -32,9 +32,11 @@
                             width="2.4" />
                         <line use="path" />
                         <m cat="hiking">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="7" />
-                            <line fix="true" stroke="#aab28f67" width="4" />
+                            <m k="foot" v="-|no">
+                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                    width="7" />
+                                <line fix="true" stroke="#aab28f67" width="4" />
+                            </m>
                         </m>
                         <m cat="cycling">
                             <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
@@ -50,6 +52,7 @@
                                 <line fix="true" stroke="#aab28f67" width="4" />
                             </m>
                         </m>
+                        <text use="road-name" />
                     </m>
                     <m v="bridleway">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
@@ -67,6 +70,7 @@
                     <m cat="cycling" v="cycleway">
                         <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
                         <line use="cycleway" />
+                        <text use="road-name" />
                     </m>
                     <m cat="roads" v="construction">
                         <line cap="butt" outline="bridge" use="highway-service" />

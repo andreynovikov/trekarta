@@ -286,6 +286,9 @@
                                 <m k="access" v="no|private">
                                     <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
+                                <m k="foot" v="no">
+                                    <line use="path" stipple-stroke="color:path-access-no" />
+                                </m>
                                 <m k="trail_visibility" v="excellent|good">
                                     <line stipple="8" stipple-ratio="0.7" use="path" />
                                 </m>
@@ -294,6 +297,33 @@
                                 </m>
                                 <m k="trail_visibility" v="~|intermediate">
                                     <line use="path" />
+                                </m>
+                            </m>
+                            <m cat="hiking">
+                                <text use="road-name" />
+                            </m>
+                        </m>
+                        <m cat="pedestrian" v="cycleway">
+                            <m k="foot" v="yes|designated">
+                                <m zoom-min="16">
+                                    <line use="path:back" />
+                                </m>
+                                <m select="first">
+                                    <m k="access" v="no|private">
+                                        <line use="path" stipple-stroke="color:path-access-no" />
+                                    </m>
+                                    <m k="trail_visibility" v="excellent|good">
+                                        <line stipple="8" stipple-ratio="0.7" use="path" />
+                                    </m>
+                                    <m k="trail_visibility" v="bad|horrible|no">
+                                        <line stipple="8" stipple-ratio="0.3" use="path" />
+                                    </m>
+                                    <m k="trail_visibility" v="~|intermediate">
+                                        <line use="path" />
+                                    </m>
+                                </m>
+                                <m cat="hiking">
+                                    <text use="road-name" />
                                 </m>
                             </m>
                         </m>
@@ -399,6 +429,7 @@
                         <m cat="cycling" v="cycleway">
                             <line use="cycleway:back" />
                             <line use="cycleway" />
+                            <text use="road-name" />
                         </m>
                         <m cat="roads" v="service">
                             <!-- matches every service but parking_isle -->
@@ -452,6 +483,7 @@
                                         </m>
                                     </m>
                                 </m>
+                                <text use="road-name" />
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
                                 <line outline="service-road" use="highway-service" width="-0.2" />
