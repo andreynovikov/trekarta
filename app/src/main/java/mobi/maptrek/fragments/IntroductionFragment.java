@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,29 +28,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-import com.github.paolorotolo.appintro.AppIntroBaseFragment;
-import com.github.paolorotolo.appintro.model.SliderPage;
+import com.github.appintro.AppIntroBaseFragment;
+import com.github.appintro.model.SliderPage;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import mobi.maptrek.R;
 
 public class IntroductionFragment extends AppIntroBaseFragment {
-    private static final String ARG_CUSTOM_DRAWABLE = "custom_drawable";
+    private static final String ARG_DRAWABLE = "drawable";
     private CircleImageView mImageView;
 
     public static IntroductionFragment newInstance(SliderPage sliderPage) {
         IntroductionFragment slide = new IntroductionFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_TITLE, sliderPage.getTitleString());
-        args.putString(ARG_TITLE_TYPEFACE, sliderPage.getTitleTypeface());
-        args.putString(ARG_DESC, sliderPage.getDescriptionString());
-        args.putString(ARG_DESC_TYPEFACE, sliderPage.getDescTypeface());
-        args.putInt(ARG_CUSTOM_DRAWABLE, sliderPage.getImageDrawable());
-        args.putInt(ARG_BG_COLOR, sliderPage.getBgColor());
-        args.putInt(ARG_TITLE_COLOR, sliderPage.getTitleColor());
-        args.putInt(ARG_DESC_COLOR, sliderPage.getDescColor());
-        slide.setArguments(args);
-
+        slide.setArguments(sliderPage.toBundle());
         return slide;
     }
 
@@ -81,7 +71,7 @@ public class IntroductionFragment extends AppIntroBaseFragment {
                     if (viewWidth > viewHeight)
                         viewWidth = viewHeight;
                     mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
-                            getArguments().getInt(ARG_CUSTOM_DRAWABLE), viewWidth, viewHeight));
+                            getArguments().getInt(ARG_DRAWABLE), viewWidth, viewHeight));
                 }
             });
         }
