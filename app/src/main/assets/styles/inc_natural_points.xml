@@ -13,8 +13,7 @@
             </m>
         </m>
         <m select="when-matched">
-            <text caption="true" style="bold" dy="12" fill="color:natural-text" size="13" stroke="color:text-outline"
-                stroke-width="2.0" />
+            <text caption="true" dy="12" fill="color:natural-text" size="13" stroke="color:text-outline" stroke-width="1.5" />
         </m>
     </m>
 </rendertheme>

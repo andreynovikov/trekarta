@@ -149,8 +149,8 @@
     <style-color id="dam-stroke" color="#333333" />
     <style-color id="dam-fill" color="#999999" />
 
-    <style-color id="cliff" color="#aaaaaa" />
-    <style-color id="cliff-darker" color="#888888" />
+    <style-color id="cliff" color="#888888" />
+    <style-color id="cliff-darker" color="#666666" />
     <style-color id="natural-text" color="#2d2d2d" />
 
     <style-color id="pier-stroke" color="#d0d0d0" />
@@ -177,7 +177,7 @@
     <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-text id="mountain" style="italic" fill="#888888" size="16" stroke="#ffffff" stroke-width="1.6" />
+    <style-text id="mountain" style="italic" fill="color:cliff-darker" size="16" stroke="#ffffff" stroke-width="1.6" />
     <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->

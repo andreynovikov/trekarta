@@ -97,7 +97,7 @@ public class Index {
 
     public static final String WORLDMAP_FILENAME = "world.mtiles";
     public static final String BASEMAP_FILENAME = "basemap.mtiles";
-    public static final int BASEMAP_SIZE_STUB = 55;
+    public static final int BASEMAP_SIZE_STUB = 45;
     public static final String HILLSHADE_FILENAME = "hillshade.mbtiles";
     private static final long HUGE_MAP_THRESHOLD = 400 * 1024 * 1024; // 400MB
 

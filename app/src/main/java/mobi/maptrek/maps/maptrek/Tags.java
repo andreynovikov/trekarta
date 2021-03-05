@@ -445,6 +445,7 @@ public class Tags {
     };
 
     final static Tag[] typeAliasTags = new Tag[] {
+            new Tag("shop", "farm"), // 40
             new Tag("shop", "convenience"), // 43
             new Tag("shop", "hardware"), // 172
             new Tag("shop", "mall"), // 175
@@ -1144,7 +1145,7 @@ public class Tags {
             "trail_visibility",
             "osmc:symbol",
             "network",
-            "artwork_type",
+            "foot",
             "information",
             "piste:border",
             "piste:grooming",
@@ -1163,7 +1164,8 @@ public class Tags {
             "oneway:bicycle",
             "mtb:scale",
             "mtb:scale:uphill",
-            "mtb:scale:imba"
+            "mtb:scale:imba",
+            "artwork_type"
     };
     final static int MAX_KEY = keys.length - 1;
 

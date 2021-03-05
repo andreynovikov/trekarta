@@ -3,7 +3,7 @@
     <!-- Topological objects on ground -->
     <m cat="mountains" k="natural" v="cliff">
         <line cap="butt" fix="true" stroke="color:cliff" width="2" />
-        <line src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" symbol-height="10" />
+        <line src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" symbol-height="10" repeat-start="3" repeat-gap="3" />
     </m>
     <m k="man_made">
         <m cat="urban" v="embankment" zoom-min="15">

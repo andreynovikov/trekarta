@@ -105,6 +105,7 @@
                                 </m>
                             </m>
                         </m>
+                        <text use="road-name" />
                     </m>
                 </m>
             </m>
