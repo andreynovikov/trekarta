@@ -5,243 +5,237 @@
         <outline-layer id="service-bridge" stroke="#aa202020" width="0.15" />
         <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.1" />
         <!-- must contain bridge -->
-        <m k="bridge">
-            <!-- except bridge=no|false -->
-            <m k="bridge" v="-|no">
-                <!-- no areas -->
-                <m k="area" v="~|no">
-                    <m zoom-min="16">
-                        <m cat="pedestrian" v="steps">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="4.5" />
-                            <line use="steps" />
-                            <m cat="hiking">
-                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                    width="8.5" />
-                                <line use="steps" width="3.0" />
-                            </m>
-                            <m cat="cycling">
-                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                    width="8.5" />
-                                <line use="steps" width="3.0" />
-                            </m>
-                        </m>
-                    </m>
-                    <m cat="pedestrian" v="footway|path">
+        <m k="bridge" v="yes">
+            <m zoom-min="16">
+                <m cat="pedestrian" v="steps">
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        width="4.5" />
+                    <line use="steps" />
+                    <m cat="hiking">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.4" />
-                        <line use="path" />
-                        <m cat="hiking">
-                            <m k="foot" v="-|no">
-                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                    width="7" />
-                                <line fix="true" stroke="#aab28f67" width="4" />
-                            </m>
-                        </m>
-                        <m cat="cycling">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                width="7" />
-                            <m k="bicycle" v="designated">
-                                <line fix="true" stroke="color:cycleway" width="4" />
-                            </m>
-                            <m k="bicycle" v="yes">
-                                <line fix="true" stipple="10" stipple-stroke="#aab28f67"
-                                    stroke="color:cycleway" width="4" />
-                            </m>
-                            <m k="bicycle" v="~">
-                                <line fix="true" stroke="#aab28f67" width="4" />
-                            </m>
-                        </m>
-                        <text use="road-name" />
+                            width="8.5" />
+                        <line use="steps" width="3.0" />
                     </m>
-                    <m v="bridleway">
+                    <m cat="cycling">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.4" />
-                        <line use="bridleway" />
+                            width="8.5" />
+                        <line use="steps" width="3.0" />
                     </m>
-                    <m cat="tracks" v="track">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.8" />
-                        <line cap="butt" use="highway:track:good" />
-                        <m cat="track-names">
-                            <text use="road-name" />
-                        </m>
-                    </m>
-                    <m cat="cycling" v="cycleway">
-                        <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
-                        <line use="cycleway" />
-                        <text use="road-name" />
-                    </m>
-                    <m cat="roads" v="construction">
-                        <line cap="butt" outline="bridge" use="highway-service" />
-                        <line use="road-construction" />
-                        <text use="road-name" />
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="service">
-                        <!-- matches every service but parking_isle -->
-                        <m k="service" v="-|parking_aisle">
-                            <line cap="butt" fade="14" outline="service-bridge" use="highway-service" />
-                            <m k="access" v="private">
-                                <line fade="14" stipple="15" stipple-stroke="#eeeeee"
-                                    stroke="#00ffffff" use="highway-service" />
-                            </m>
-                            <m k="access" v="no">
-                                <line fade="14" stipple="15" stipple-stroke="#ffdddd"
-                                    stroke="#00ffffff" use="highway-service" />
-                            </m>
-                        </m>
-                        <m k="service" v="parking_aisle" zoom-min="16">
-                            <line cap="butt" outline="service-bridge" use="highway-service" width="-0.2" />
-                            <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
-                                    use="highway-service" width="-0.2" />
-                            </m>
-                            <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
-                                    use="highway-service" width="-0.2" />
-                            </m>
-                        </m>
-                    </m>
-                    <m cat="roads" v="tertiary_link">
-                        <line cap="butt" outline="bridge" use="tertiary" />
-                        <text use="road-name" />
-                    </m>
-                    <m cat="roads" v="secondary_link">
-                        <line cap="butt" outline="bridge" use="secondary" />
-                        <text use="road-name" />
-                    </m>
-                    <m cat="roads" v="primary_link">
-                        <line cap="butt" outline="bridge" use="primary" />
-                        <text use="major-road-name" />
-                    </m>
-                    <m cat="roads" v="trunk_link|motorway_link">
-                        <line cap="butt" outline="bridge" use="trunk-link" />
-                        <text use="major-road-name" />
-                    </m>
-                    <m cat="pedestrian" v="pedestrian">
-                        <line cap="butt" outline="bridge" use="pedestrian" />
-                        <text use="road-name" />
-                    </m>
-                    <m cat="roads" v="road">
-                        <line cap="butt" outline="bridge" use="pedestrian" />
-                        <text use="road-name" />
-                    </m>
-                    <m cat="roads" v="residential|living_street">
-                        <line cap="butt" outline="bridge" use="residential" />
-                        <m k="access" v="private">
-                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
-                                use="residential" />
-                        </m>
-                        <m k="access" v="no">
-                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
-                                use="residential" />
-                        </m>
-                        <text use="road-name" />
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="unclassified">
-                        <line cap="butt" outline="bridge" use="unclassified" />
-                        <m k="access" v="private">
-                            <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
-                                use="unclassified" />
-                        </m>
-                        <m k="access" v="no">
-                            <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
-                                use="unclassified" />
-                        </m>
-                        <text use="road-name" />
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="tertiary">
-                        <line cap="butt" outline="bridge" use="tertiary" />
-                        <text use="road-name" />
-                        <m cat="roads-shield" zoom-max="16" zoom-min="14">
-                            <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
-                                repeat-gap="150" src="gen:/shield/13/#f0f0f0/#7f462c"
-                                text-overlap="false" />
-                        </m>
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="secondary">
-                        <line cap="butt" outline="bridge" use="secondary" />
-                        <text use="major-road-name" />
-                        <m cat="roads-shield" zoom-max="16" zoom-min="13">
-                            <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
-                                repeat-gap="150" src="gen:/shield/13/#fdfdf1/#7f462c"
-                                text-overlap="false" />
-                        </m>
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="primary">
-                        <line cap="butt" outline="bridge" use="primary" />
-                        <text use="major-road-name" />
-                        <m cat="roads-shield" zoom-max="16" zoom-min="12">
-                            <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
-                                repeat-gap="150" src="gen:/shield/13/#fdf7e5/#7f462c"
-                                text-overlap="false" />
-                        </m>
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="trunk_link">
-                        <line cap="butt" outline="bridge" use="trunk-link" />
-                        <text use="major-road-name" />
-                    </m>
-                    <m cat="roads" v="trunk">
-                        <line cap="butt" outline="bridge" use="trunk" />
-                        <text use="major-road-name" />
-                        <m cat="roads-shield" zoom-max="16" zoom-min="11">
-                            <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
-                                repeat-gap="150" src="gen:/shield/13/#fff0b7/#c35817"
-                                text-overlap="false" />
-                        </m>
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <m cat="roads" v="motorway">
-                        <line cap="butt" outline="bridge" use="highway" />
-                        <text use="major-road-name" />
-                        <m cat="roads-shield" zoom-max="16" zoom-min="10">
-                            <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
-                                repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
-                                text-overlap="false" />
-                        </m>
-                        <m k="toll" v="yes">
-                            <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
-                                repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
-                                text-overlap="false" />
-                        </m>
-                    </m>
-                    <xi:include href="inc_highway_oneways.xml" />
-                </m> <!-- end area=no -->
+                </m>
             </m>
+            <m cat="pedestrian" v="footway|path">
+                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                    width="2.4" />
+                <line use="path" />
+                <m cat="hiking">
+                    <m k="foot" v="-|no">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="7" />
+                        <line fix="true" stroke="#aab28f67" width="4" />
+                    </m>
+                </m>
+                <m cat="cycling">
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                        width="7" />
+                    <m k="bicycle" v="designated">
+                        <line fix="true" stroke="color:cycleway" width="4" />
+                    </m>
+                    <m k="bicycle" v="yes">
+                        <line fix="true" stipple="10" stipple-stroke="#aab28f67"
+                            stroke="color:cycleway" width="4" />
+                    </m>
+                    <m k="bicycle" v="~">
+                        <line fix="true" stroke="#aab28f67" width="4" />
+                    </m>
+                </m>
+                <text use="road-name" />
+            </m>
+            <m v="bridleway">
+                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                    width="2.4" />
+                <line use="bridleway" />
+            </m>
+            <m cat="tracks" v="track">
+                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                    width="2.8" />
+                <line cap="butt" use="highway:track:good" />
+                <m cat="track-names">
+                    <text use="road-name" />
+                </m>
+            </m>
+            <m cat="cycling" v="cycleway">
+                <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
+                <line use="cycleway" />
+                <text use="road-name" />
+            </m>
+            <m cat="roads" v="construction">
+                <line cap="butt" outline="bridge" use="highway-service" />
+                <line use="road-construction" />
+                <text use="road-name" />
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="service">
+                <!-- matches every service but parking_isle -->
+                <m k="service" v="-|parking_aisle">
+                    <line cap="butt" fade="14" outline="service-bridge" use="highway-service" />
+                    <m k="access" v="private">
+                        <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                            stroke="#00ffffff" use="highway-service" />
+                    </m>
+                    <m k="access" v="no">
+                        <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                            stroke="#00ffffff" use="highway-service" />
+                    </m>
+                </m>
+                <m k="service" v="parking_aisle" zoom-min="16">
+                    <line cap="butt" outline="service-bridge" use="highway-service" width="-0.2" />
+                    <m k="access" v="private">
+                        <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                            use="highway-service" width="-0.2" />
+                    </m>
+                    <m k="access" v="no">
+                        <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                            use="highway-service" width="-0.2" />
+                    </m>
+                </m>
+            </m>
+            <m cat="roads" v="tertiary_link">
+                <line cap="butt" outline="bridge" use="tertiary" />
+                <text use="road-name" />
+            </m>
+            <m cat="roads" v="secondary_link">
+                <line cap="butt" outline="bridge" use="secondary" />
+                <text use="road-name" />
+            </m>
+            <m cat="roads" v="primary_link">
+                <line cap="butt" outline="bridge" use="primary" />
+                <text use="major-road-name" />
+            </m>
+            <m cat="roads" v="trunk_link|motorway_link">
+                <line cap="butt" outline="bridge" use="trunk-link" />
+                <text use="major-road-name" />
+            </m>
+            <m cat="pedestrian" v="pedestrian">
+                <line cap="butt" outline="bridge" use="pedestrian" />
+                <text use="road-name" />
+            </m>
+            <m cat="roads" v="road">
+                <line cap="butt" outline="bridge" use="pedestrian" />
+                <text use="road-name" />
+            </m>
+            <m cat="roads" v="residential|living_street">
+                <line cap="butt" outline="bridge" use="residential" />
+                <m k="access" v="private">
+                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                        use="residential" />
+                </m>
+                <m k="access" v="no">
+                    <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                        use="residential" />
+                </m>
+                <text use="road-name" />
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="unclassified">
+                <line cap="butt" outline="bridge" use="unclassified" />
+                <m k="access" v="private">
+                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                        use="unclassified" />
+                </m>
+                <m k="access" v="no">
+                    <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                        use="unclassified" />
+                </m>
+                <text use="road-name" />
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="tertiary">
+                <line cap="butt" outline="bridge" use="tertiary" />
+                <text use="road-name" />
+                <m cat="roads-shield" zoom-max="16" zoom-min="14">
+                    <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                        repeat-gap="150" src="gen:/shield/13/#f0f0f0/#7f462c"
+                        text-overlap="false" />
+                </m>
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="secondary">
+                <line cap="butt" outline="bridge" use="secondary" />
+                <text use="major-road-name" />
+                <m cat="roads-shield" zoom-max="16" zoom-min="13">
+                    <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                        repeat-gap="150" src="gen:/shield/13/#fdfdf1/#7f462c"
+                        text-overlap="false" />
+                </m>
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="primary">
+                <line cap="butt" outline="bridge" use="primary" />
+                <text use="major-road-name" />
+                <m cat="roads-shield" zoom-max="16" zoom-min="12">
+                    <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                        repeat-gap="150" src="gen:/shield/13/#fdf7e5/#7f462c"
+                        text-overlap="false" />
+                </m>
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="trunk_link">
+                <line cap="butt" outline="bridge" use="trunk-link" />
+                <text use="major-road-name" />
+            </m>
+            <m cat="roads" v="trunk">
+                <line cap="butt" outline="bridge" use="trunk" />
+                <text use="major-road-name" />
+                <m cat="roads-shield" zoom-max="16" zoom-min="11">
+                    <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                        repeat-gap="150" src="gen:/shield/13/#fff0b7/#c35817"
+                        text-overlap="false" />
+                </m>
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <m cat="roads" v="motorway">
+                <line cap="butt" outline="bridge" use="highway" />
+                <text use="major-road-name" />
+                <m cat="roads-shield" zoom-max="16" zoom-min="10">
+                    <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
+                        repeat-gap="150" src="gen:/shield/13/#fee4be/#c35817"
+                        text-overlap="false" />
+                </m>
+                <m k="toll" v="yes">
+                    <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
+                        repeat-gap="120" src="assets:symbols/transport/toll_road.svg"
+                        text-overlap="false" />
+                </m>
+            </m>
+            <xi:include href="inc_highway_oneways.xml" />
         </m> <!-- end bridge=yes -->
     </m>
 </rendertheme>

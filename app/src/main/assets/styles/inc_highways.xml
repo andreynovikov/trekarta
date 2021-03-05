@@ -283,10 +283,7 @@
                                 <line cat="cycling" fix="true" use="ford" width="6.0" />
                             </m>
                             <m select="first">
-                                <m k="access" v="no|private">
-                                    <line use="path" stipple-stroke="color:path-access-no" />
-                                </m>
-                                <m k="foot" v="no">
+                                <m k="foot|access" v="no|private">
                                     <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
                                 <m k="trail_visibility" v="excellent|good">
