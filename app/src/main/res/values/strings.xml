@@ -186,6 +186,8 @@
     <string name="introOffroad">Unpaved, dirt, winter and ice roads are specially visualized. 4wd only roads have specific marking. Fords are displayed on all roads, even primary.</string>
     <string name="introHikingTitle">Hiking</string>
     <string name="introHiking">Hiking activity mode emphasises paths and tracks. It visualizes path difficulty and visibility and shows hiking routes.</string>
+    <string name="introCyclingTitle">Cycling</string>
+    <string name="introCycling">Cycling activity mode reveals bicycle infrastructure. It shows cycling routes and visualizes mountain biking track difficulty and visibility.</string>
     <string name="introSkiingTitle">Skiing and skating</string>
     <string name="introSkiing">Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.</string>
     <string name="introNightModeTitle">Night mode</string>

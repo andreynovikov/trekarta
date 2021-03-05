@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,26 +18,26 @@ package mobi.maptrek;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import android.view.WindowManager;
 
-import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.model.SliderPage;
+import com.github.appintro.AppIntro;
+import com.github.appintro.model.SliderPage;
 
 import mobi.maptrek.fragments.IntroductionFragment;
 
 public class IntroductionActivity extends AppIntro {
-    public static final int CURRENT_INTRODUCTION = 5;
+    public static final int CURRENT_INTRODUCTION = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         int lastSeenIntroduction = Configuration.getLastSeenIntroduction();
 
         SliderPage sliderPage = new SliderPage();
-        sliderPage.setBgColor(getColor(R.color.explanationBackground));
+        sliderPage.setBackgroundColor(getColor(R.color.explanationBackground));
+        showStatusBar(true);
+        setStatusBarColorRes(R.color.explanationBackground);
+        setNavBarColorRes(R.color.explanationBackground);
 
         if (lastSeenIntroduction < 1) {
             // fresh installation
@@ -80,7 +80,18 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setDescription(getString(R.string.introHiking));
             sliderPage.setImageDrawable(R.mipmap.hiking);
             addSlide(IntroductionFragment.newInstance(sliderPage));
+        }
 
+        if (lastSeenIntroduction < 6) {
+            // 2021.03
+            sliderPage.setTitle(getString(R.string.introCyclingTitle));
+            sliderPage.setDescription(getString(R.string.introCycling));
+            sliderPage.setImageDrawable(R.mipmap.cycling);
+            addSlide(IntroductionFragment.newInstance(sliderPage));
+        }
+
+        if (lastSeenIntroduction < 3) {
+            // 2017.11
             sliderPage.setTitle(getString(R.string.introSkiingTitle));
             sliderPage.setDescription(getString(R.string.introSkiing));
             sliderPage.setImageDrawable(R.mipmap.skiing);
