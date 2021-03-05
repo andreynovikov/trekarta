@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 Hannes Janetzek
  * Copyright 2016 devemux86
+ * Copyright 2021 Andrey Novikov
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  * 
@@ -22,6 +23,7 @@ import org.oscim.theme.rule.RuleBuilder.RuleType;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.utils.Utils;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Rule {
@@ -289,7 +291,7 @@ public class Rule {
     }
 
     static class NegativeRule extends Rule {
-        public final String[] keys;
+        public final List<String> keys;
         public final String[] values;
 
         /* (-) 'exclusive negation' matches when either KEY is not present
@@ -309,7 +311,7 @@ public class Rule {
                      Rule[] subRules, RenderStyle[] styles) {
             super(element, zoom, selector, subRules, styles);
 
-            this.keys = keys;
+            this.keys = Arrays.asList(keys);
             this.values = values;
             this.exclusive = type == RuleType.EXCLUDE;
         }
@@ -320,17 +322,17 @@ public class Rule {
                 return true;
 
             for (Tag tag : tags)
-                for (String value : values)
-                    if (Utils.equals(value, tag.value))
-                        return !exclusive;
+                if (keys.contains(tag.key))
+                    for (String value : values)
+                        if (Utils.equals(value, tag.value))
+                            return !exclusive;
 
             return exclusive;
         }
 
         private boolean containsKeys(Tag[] tags) {
             for (Tag tag : tags)
-                for (String key : keys)
-                    if (Utils.equals(key, tag.key))
+                if (keys.contains(tag.key))
                         return true;
 
             return false;
