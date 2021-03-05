@@ -70,6 +70,7 @@ public class LineBucket extends RenderBucket {
     public float scale = 1;
 
     public boolean roundCap;
+    public boolean layered = false;
     private float mMinDist = MIN_DIST;
 
     public float heightOffset;
@@ -126,9 +127,9 @@ public class LineBucket extends RenderBucket {
         boolean squared = false;
 
         if (line.cap == Cap.ROUND)
-            rounded = true;
+            rounded = !layered;
         else if (line.cap == Cap.SQUARE)
-            squared = true;
+            squared = !layered;
 
         /* Note: just a hack to save some vertices, when there are
          * more than 200 lines per type. FIXME make optional! */
@@ -683,7 +684,7 @@ public class LineBucket extends RenderBucket {
                     }
 
                     /* Cap mode */
-                    if (lb.scale < 1.5/* || lb.line.fixed*/) {
+                    if (lb.scale < 1.5 || lb.layered /* || lb.line.fixed*/) {
                         if (capMode != CAP_THIN) {
                             capMode = CAP_THIN;
                             gl.uniform1i(uLineMode, capMode);

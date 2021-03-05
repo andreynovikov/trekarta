@@ -271,6 +271,7 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
                 return;
             }
 
+            lb.layered = mElement.layer != 5;
             lb.addLine(mElement);
 
             /* keep reference for outline layer(s) */
