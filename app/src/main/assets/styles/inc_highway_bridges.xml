@@ -23,20 +23,18 @@
                     </m>
                 </m>
             </m>
-            <m cat="pedestrian" v="footway|path">
-                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                    width="2.4" />
-                <line use="path" />
+            <m cat="pedestrian" v="footway|path" select="first">
                 <m cat="hiking">
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
                     <m k="foot" v="-|no">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="7" />
                         <line fix="true" stroke="#aab28f67" width="4" />
+                    </m>
+                    <m k="foot" v="no">
+                        <line use="path" stipple-stroke="color:pedestrian" width="1.5" />
                     </m>
                 </m>
                 <m cat="cycling">
-                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                        width="7" />
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
                     <m k="bicycle" v="designated">
                         <line fix="true" stroke="color:cycleway" width="4" />
                     </m>
@@ -46,6 +44,15 @@
                     </m>
                     <m k="bicycle" v="~">
                         <line fix="true" stroke="#aab28f67" width="4" />
+                    </m>
+                </m>
+                <m>
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.5" />
+                    <m zoom-max="14">
+                        <line use="path:z14" />
+                    </m>
+                    <m zoom-min="15">
+                        <line use="path" />
                     </m>
                 </m>
                 <text use="road-name" />
@@ -71,13 +78,16 @@
                         <text use="road-name" />
                     </m>
                     <m cat="pedestrian" k="foot" v="designated|yes">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="2.4" />
-                        <line use="path" />
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.4" />
+                        <m zoom-max="14">
+                            <line use="path:z14" />
+                        </m>
+                        <m zoom-min="15">
+                            <line use="path" />
+                        </m>
                         <m cat="hiking">
                             <m k="foot" v="-|no">
-                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                                    width="7" />
+                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
                                 <line fix="true" stroke="#aab28f67" width="4" />
                             </m>
                         </m>

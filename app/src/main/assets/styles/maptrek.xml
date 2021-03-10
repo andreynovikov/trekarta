@@ -115,7 +115,7 @@
     <style-color id="highway-service-tunnel" color="#e5e5e5" />
     <style-color id="pedestrian-tunnel" color="#d8d8d8" />
 
-    <style-color id="path-access-no" color="#aaaaaa" />
+    <style-color id="path-access-no" color="#999999" />
     <style-color id="access-no" color="#ffdddd" />
     <style-color id="access-private" color="#eeeeee" />
     <style-color id="service-access-private" color="#e0e0e0" />

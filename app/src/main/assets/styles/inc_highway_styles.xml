@@ -21,9 +21,9 @@
     <style-line id="highway:track:horrible" stipple="10" stipple-ratio="0.6" use="highway:track:very_bad" />
     <style-line id="highway:track:very_horrible" stipple="8" stipple-ratio="0.4" use="highway:track:very_bad" />
     <style-line id="highway:track:impassable" stroke="#44ff0000" use="highway:track:very_horrible" />
-    <style-line id="path:back" cap="butt" fix="true" stroke="#88ffffff" width="1.5" />
-    <style-line id="path" cap="butt" fix="true" stipple="6" stipple-stroke="#d37c58" stroke="color:transparent" width="1.2" />
-    <style-line id="path:z16" stipple="6" stipple-ratio="0.7" use="path" />
+    <style-line id="path:back" cap="butt" fix="true" stroke="#88ffffff" width="2.5" />
+    <style-line id="path:z14" cap="butt" fix="true" stroke="#44d37c58" width="1.5" />
+    <style-line id="path" cap="butt" fix="true" stipple="6" stipple-stroke="#d37c58" stroke="color:transparent" width="1.5" />
     <style-line id="steps" cap="butt" fix="true" stipple="4" stipple-ratio="0.35" stipple-stroke="#be6253" stroke="#aaffffff" width="3.5" />
 
     <style-line id="cycleway:back" stroke="#44ffffff" width="0.5" />

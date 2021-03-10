@@ -45,6 +45,10 @@
                                     <m cat="cycling" k="bicycle" v="designated|yes">
                                         <line stipple="6" use="path" width="2.0" stipple-stroke="color:cycleway" />
                                     </m>
+                                    <m cat="hiking">
+                                        <line cat="hiking" use="path" width="6.0" />
+                                        <line fix="true" stroke="color:land" width="5.6" />
+                                    </m>
                                     <m>
                                         <line stipple="6" use="path" width="2.0" />
                                     </m>
@@ -274,15 +278,30 @@
                             </m>
                         </m>
                         <m cat="pedestrian" v="footway|path">
-                            <m zoom-min="16">
-                                <line use="path:back" />
+                            <m select="first">
+                                <m cat="hiking">
+                                    <text use="road-name" />
+                                </m>
+                                <m zoom-min="16">
+                                    <line use="path:back" />
+                                </m>
                             </m>
                             <m k="ford" v="yes">
                                 <line fix="true" use="ford" width="4.0" />
                                 <line cat="hiking" fix="true" use="ford" width="6.0" />
                                 <line cat="cycling" fix="true" use="ford" width="6.0" />
                             </m>
-                            <m select="first">
+                            <m zoom-max="14">
+                                <m select="first">
+                                    <m k="foot|access" v="no|private">
+                                        <line use="path:z14" stroke="color:transparent" />
+                                    </m>
+                                    <m>
+                                        <line use="path:z14" />
+                                    </m>
+                                </m>
+                            </m>
+                            <m zoom-min="15" select="first">
                                 <m k="foot|access" v="no|private">
                                     <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
@@ -296,16 +315,28 @@
                                     <line use="path" />
                                 </m>
                             </m>
-                            <m cat="hiking">
-                                <text use="road-name" />
-                            </m>
                         </m>
                         <m cat="pedestrian" v="cycleway">
                             <m k="foot" v="yes|designated">
-                                <m zoom-min="16">
-                                    <line use="path:back" />
-                                </m>
                                 <m select="first">
+                                    <m cat="hiking">
+                                        <text use="road-name" />
+                                    </m>
+                                    <m zoom-min="16">
+                                        <line use="path:back" />
+                                    </m>
+                                </m>
+                                <m zoom-max="14">
+                                    <m select="first">
+                                        <m k="access" v="no|private">
+                                            <line use="path:z14" stroke="color:transparent" />
+                                        </m>
+                                        <m>
+                                            <line use="path:z14" />
+                                        </m>
+                                    </m>
+                                </m>
+                                <m zoom-min="15" select="first">
                                     <m k="access" v="no|private">
                                         <line use="path" stipple-stroke="color:path-access-no" />
                                     </m>
@@ -318,9 +349,6 @@
                                     <m k="trail_visibility" v="~|intermediate">
                                         <line use="path" />
                                     </m>
-                                </m>
-                                <m cat="hiking">
-                                    <text use="road-name" />
                                 </m>
                             </m>
                         </m>
