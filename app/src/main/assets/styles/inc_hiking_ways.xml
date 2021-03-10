@@ -41,12 +41,6 @@
                 </m>
                 <m v="cycleway">
                     <m k="bridge" v="~|no">
-
-                        <!-- TODO Background line is put here because of line style ordering error in legend view -->
-                    </m>
-                </m>
-                <m v="cycleway">
-                    <m k="bridge" v="~|no">
                         <m k="foot" v="yes|designated">
                             <m k="sac_scale" v="~">
                                 <line fix="true" stroke="#ffffff" width="5.2" />

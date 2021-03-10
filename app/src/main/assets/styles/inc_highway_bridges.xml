@@ -63,10 +63,26 @@
                     <text use="road-name" />
                 </m>
             </m>
-            <m cat="cycling" v="cycleway">
-                <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
-                <line use="cycleway" />
-                <text use="road-name" />
+            <m v="cycleway">
+                <m select="first">
+                    <m cat="cycling">
+                        <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
+                        <line use="cycleway" />
+                        <text use="road-name" />
+                    </m>
+                    <m cat="pedestrian" k="foot" v="designated|yes">
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                            width="2.4" />
+                        <line use="path" />
+                        <m cat="hiking">
+                            <m k="foot" v="-|no">
+                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
+                                    width="7" />
+                                <line fix="true" stroke="#aab28f67" width="4" />
+                            </m>
+                        </m>
+                    </m>
+                </m>
             </m>
             <m cat="roads" v="construction">
                 <line cap="butt" outline="bridge" use="highway-service" />

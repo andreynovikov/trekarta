@@ -9,7 +9,7 @@
                 <m cat="cycling" zoom-min="17" k="oneway:bicycle" v="no">
                     <symbol use="doubleway-bicycle" />
                 </m>
-                <m>
+                <m k="highway" v="-|cycleway">
                     <symbol symbol-percent="50" use="oneway" />
                 </m>
             </m>
