@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2021.03" versioncode="79" date="11.03.2021">
+        <change>Cycling activity reveals bicycle infrastructure</change>
+        <change>New amenities: fort, city gate, charging station, bicycle repair station, bicycle parking</change>
+        <change>New map objects: mountain ridge, hunting stand, rock</change>
+        <change>Fee and wheelchair amenity badges</change>
+        <change>Updated map styling</change>
+    </release>
     <release version="2020.09" versioncode="78" date="18.09.2020">
         <change>New amenities: motorcycle shops, watermills</change>
         <change>New map objects: aboriginal lands, water wells, water pumps, pipelines</change>

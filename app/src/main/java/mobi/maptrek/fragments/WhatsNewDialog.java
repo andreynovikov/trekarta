@@ -59,7 +59,7 @@ public class WhatsNewDialog extends DialogFragment {
     private static final String ATTRIBUTE_DATE = "date";
     private static final String ATTRIBUTE_VARIANT = "variant";
 
-    private ArrayList<ChangeListItem> mChangelog = new ArrayList<>();
+    private final ArrayList<ChangeListItem> mChangelog = new ArrayList<>();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -183,7 +183,7 @@ public class WhatsNewDialog extends DialogFragment {
     }
 
     private class ChangeListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         ChangeListAdapter(Context context) {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
