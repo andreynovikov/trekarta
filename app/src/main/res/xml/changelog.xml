@@ -2,7 +2,7 @@
 <changelog>
     <release version="2021.03" versioncode="79" date="11.03.2021">
         <change>Cycling activity reveals bicycle infrastructure</change>
-        <change>New amenities: fort, city gate, charging station, bicycle repair station, bicycle parking</change>
+        <change>New amenities: fort, city gate, car parts, charging station, bicycle repair station, bicycle parking</change>
         <change>New map objects: mountain ridge, hunting stand, rock</change>
         <change>Fee and wheelchair amenity badges</change>
         <change>Updated map styling</change>

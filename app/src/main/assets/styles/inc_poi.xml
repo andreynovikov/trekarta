@@ -346,6 +346,9 @@
                 <m v="car">
                     <symbol src="assets:symbols/shopping/car.svg" symbol-color="color:shop" symbol-percent="80" />
                 </m>
+                <m v="car_parts">
+                    <symbol src="assets:symbols/shopping/car_parts.svg" symbol-color="color:shop" symbol-percent="80" />
+                </m>
                 <m v="car_repair">
                     <symbol src="assets:symbols/shopping/car_repair.svg" symbol-color="color:amenity-brown" symbol-percent="80" />
                 </m>

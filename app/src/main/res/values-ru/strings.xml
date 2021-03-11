@@ -482,6 +482,7 @@
     <string name="legend_ruins">Руины</string>
     <string name="legend_library">Библиотека</string>
     <string name="legend_car_dialer">Автомобильный дилер</string>
+    <string name="legend_car_parts">Aвтомобильные запчасти</string>
     <string name="legend_car_repair">Ремонт автомобилей</string>
     <string name="legend_car_rental">Аренда автомобилей</string>
     <string name="legend_fuel_station">Заправочная станция</string>

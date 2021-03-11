@@ -510,6 +510,7 @@
     <string name="legend_ruins">Ruins</string>
     <string name="legend_library">Library</string>
     <string name="legend_car_dialer">Car dealer</string>
+    <string name="legend_car_parts">Car parts</string>
     <string name="legend_car_repair">Car repair</string>
     <string name="legend_car_rental">Car rental</string>
     <string name="legend_fuel_station">Fuel station</string>

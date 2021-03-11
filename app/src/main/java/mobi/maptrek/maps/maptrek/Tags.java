@@ -382,7 +382,8 @@ public class Tags {
             new Tag("shop", "motorcycle"), // 230
             null,
             new Tag("shop", "car_repair"), // 232
-            null, null,
+            new Tag("shop", "car_parts"), // 233
+            null,
             new Tag("amenity", "car_rental"), // 235
             null, null,
             new Tag("amenity", "fuel"), // 238
@@ -625,7 +626,8 @@ public class Tags {
             R.string.legend_motorcycle_shop, // 230
             -1,
             R.string.legend_car_repair, // 232
-            -1, -1,
+            R.string.legend_car_parts, // 233
+            -1,
             R.string.legend_car_rental, // 235
             -1, -1,
             R.string.legend_fuel_station, // 238
@@ -857,7 +859,8 @@ public class Tags {
             true, // 230
             false,
             true, // 232
-            false, false,
+            true, // 233
+            false,
             true, // 235
             false, false,
             true, // 238
@@ -931,7 +934,7 @@ public class Tags {
             new int[] {106, 107, 262}, // health'n'beauty
             new int[] {139, 142, 145}, // kids
             new int[] {133, 136}, // pets
-            new int[] {229, 230, 232, 235, 238, 239, 241, 244}, // vehicles
+            new int[] {229, 230, 232, 233, 235, 238, 239, 241, 244}, // vehicles
             new int[] {247, 248, 249}, // transportation
             new int[] {148, 151, 118, 250, 251, 252, 253, 256, 259, 1, 4, 86, 87, 205, 208, 211, 214}, // hike'n'bike
             new int[] {226}, // urban
@@ -1636,7 +1639,7 @@ public class Tags {
             "railway",
             "kitchen",
             "gym",
-            "0",
+            "car_parts",
             "air_shaft",
             "stands",
             "livestock",
