@@ -345,7 +345,7 @@
     <string name="legend_volcano">Volcano</string>
     <string name="legend_saddle">Saddle</string>
     <string name="legend_mountain_pass">Mountain pass</string>
-    <string name="legend_ridge">Ridge</string>
+    <string name="legend_ridge">Mountain ridge</string>
     <string name="legend_arete">Narrow ridge (arête)</string>
     <string name="legend_cliff">Cliff</string>
     <string name="legend_forest">Forest</string>
@@ -506,7 +506,6 @@
     <string name="legend_memorial">Memorial</string>
     <string name="legend_castle">Castle</string>
     <string name="legend_city_gate">City gate</string>
-    <string name="legend_fort">Fort</string>
     <string name="legend_monument">Monument</string>
     <string name="legend_ruins">Ruins</string>
     <string name="legend_library">Library</string>
@@ -750,5 +749,6 @@
     <string name="legend_motorcycle_shop">Motorcycle shop</string>
     <string name="legend_bicycle_repair_station">Bicycle repair station</string>
     <string name="legend_bicycle_parking">Bicycle parking</string>
+    <string name="legend_fort">Fort</string>
 
 </resources>
