@@ -284,10 +284,12 @@ public class LegendView extends View {
                 float bmpHeight2 = bmp.getHeight() / 2f;
                 int count = (int) (Math.max(w / bmpWidth, 1.0));
                 float remainder = w - bmpWidth * count;
-                if (remainder > bmp.getWidth()) {
+                if (remainder > bmpWidth) {
                     count++;
+                    remainder -= bmpWidth;
                 }
-                count++;
+                if (remainder > bmpWidth / 3)
+                    count++;
                 float xOffset = (w - bmpWidth * count) / 2f;
                 paint.setStrokeWidth(5);
                 xOffset += mLeft;

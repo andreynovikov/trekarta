@@ -490,13 +490,13 @@ public class Legend extends ListFragment {
                     new LegendItem(GeometryType.POLY, 0, 15)
                             .addTag("piste:border", "downhill").addTag("piste:difficulty", "unknown").setOverlay(
                     new LegendItem(GeometryType.LINE, 0, 15)
-                            .addTag("piste:type", "downhill").addTag("piste:lit", "yes").setTotalSymbols(4)));
+                            .addTag("piste:type", "downhill").addTag("piste:lit", "yes").setTotalSymbols(2)));
     private static final LegendItem piste_nordic = new LegendItem(GeometryType.LINE, R.string.legend_trail, 15)
             .addTag("piste:type", "nordic");
     private static final LegendItem piste_nordic_lit = new LegendItem(GeometryType.LINE, R.string.legend_lit_trail, 15)
             .addTag("piste:type", "nordic").addTag("piste:lit", "yes").setTotalSymbols(2);
     private static final LegendItem piste_nordic_oneway = new LegendItem(GeometryType.LINE, R.string.legend_oneway_trail, 15)
-            .addTag("piste:type", "nordic").addTag("piste:oneway", "yes").setTotalSymbols(0);
+            .addTag("piste:type", "nordic").addTag("piste:oneway", "yes").setTotalSymbols(2);
     private static final LegendItem piste_nordic_scooter = new LegendItem(GeometryType.LINE, R.string.legend_loosely_groomed_trail, 15)
             .addTag("piste:type", "nordic").addTag("piste:grooming", "scooter").setTotalSymbols(0);
     private static final LegendItem piste_nordic_backcountry = new LegendItem(GeometryType.LINE, R.string.legend_ungroomed_trail, 15)
@@ -553,7 +553,7 @@ public class Legend extends ListFragment {
     private static final LegendItem piste_sleigh_lit = new LegendItem(GeometryType.LINE, R.string.legend_lit_trail, 15)
             .addTag("piste:type", "sleigh").addTag("piste:lit", "yes").setTotalSymbols(2);
     private static final LegendItem piste_sleigh_oneway = new LegendItem(GeometryType.LINE, R.string.legend_oneway_trail, 15)
-            .addTag("piste:type", "sleigh").addTag("piste:oneway", "yes").setTotalSymbols(0);
+            .addTag("piste:type", "sleigh").addTag("piste:oneway", "yes").setTotalSymbols(2);
     private static final LegendItem piste_sleigh_scooter = new LegendItem(GeometryType.LINE, R.string.legend_loosely_groomed_trail, 15)
             .addTag("piste:type", "sleigh").addTag("piste:grooming", "scooter").setTotalSymbols(0);
     private static final LegendItem piste_sleigh_backcountry = new LegendItem(GeometryType.LINE, R.string.legend_ungroomed_trail, 15)
