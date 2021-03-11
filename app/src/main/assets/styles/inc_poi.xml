@@ -372,13 +372,8 @@
                 </m>
                 <m v="parking">
                     <m select="first">
-                        <m k="fee">
-                            <m k="fee" v="-|no">
-                                <symbol src="assets:symbols/transport/parking_car_paid.svg" symbol-color="color:transportation" symbol-percent="70" />
-                            </m>
-                        </m>
                         <m k="access" v="private">
-                            <symbol src="assets:symbols/transport/parking_private.svg" symbol-color="color:transportation" symbol-percent="50" />
+                            <symbol src="assets:symbols/transport/parking_private.svg" symbol-percent="50" />
                         </m>
                         <m>
                             <symbol src="assets:symbols/transport/parking.svg" symbol-color="color:transportation" symbol-percent="50" />

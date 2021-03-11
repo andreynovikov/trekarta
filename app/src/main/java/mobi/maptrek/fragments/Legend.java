@@ -902,8 +902,6 @@ public class Legend extends ListFragment {
     private static final LegendItem fuel = new LegendAmenityItem(238);
     private static final LegendItem charging_station = new LegendAmenityItem(239);
     private static final LegendItem slipway = new LegendAmenityItem(241);
-    private static final LegendItem parking_point = new LegendItem(GeometryType.POINT, R.string.legend_parking, 17)
-            .addTag("amenity", "parking").setKind(11);
     private static final LegendItem parking = new LegendItem(GeometryType.POLY, R.string.legend_parking, 17)
             .addTag("amenity", "parking").setKind(11);
     private static final LegendItem parking_unpaved = new LegendItem(GeometryType.POLY, R.string.legend_unpaved_parking, 17)
@@ -1332,8 +1330,7 @@ public class Legend extends ListFragment {
             car_rental,
             fuel,
             charging_station,
-            slipway,
-            parking_point
+            slipway
     });
 
     private static final LegendSection amenities_religion = new LegendSection(R.string.kind_religion, new LegendItem[]{
