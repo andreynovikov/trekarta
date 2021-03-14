@@ -428,18 +428,18 @@
                                 </m>
                                 <m k="smoothness" v="~|very_bad">
                                     <line cat="tracks" use="highway:track:very_bad" />
-                                    <line cat="hiking" use="highway:track:good" width="2.2" />
-                                    <line cat="cycling" use="highway:track:good" width="2.2" />
+                                    <line cat="hiking" use="highway:track:very_bad" width="2.2" />
+                                    <line cat="cycling" use="highway:track:very_bad" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="horrible">
                                     <line cat="tracks" use="highway:track:horrible" />
-                                    <line cat="hiking" use="highway:track:good" width="2.2" />
-                                    <line cat="cycling" use="highway:track:good" width="2.2" />
+                                    <line cat="hiking" use="highway:track:horrible" width="2.2" />
+                                    <line cat="cycling" use="highway:track:horrible" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="very_horrible">
                                     <line cat="tracks" use="highway:track:very_horrible" />
-                                    <line cat="hiking" use="highway:track:good" width="2.2" />
-                                    <line cat="cycling" use="highway:track:good" width="2.2" />
+                                    <line cat="hiking" use="highway:track:very_horrible" width="2.2" />
+                                    <line cat="cycling" use="highway:track:very_horrible" width="2.2" />
                                 </m>
                                 <m k="smoothness" v="impassable">
                                     <line cat="tracks" use="highway:track:impassable" />
