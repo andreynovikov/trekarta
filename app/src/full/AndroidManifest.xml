@@ -85,6 +85,19 @@
                 <data android:mimeType="application/vnd.google-earth.kmz" />
 
             </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- SEND action does not have scheme -->
+                <data android:mimeType="application/vnd.maptrek.mtrack" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/gpx+xml" />
+                <data android:mimeType="application/vnd.google-earth.kml+xml" />
+                <data android:mimeType="application/vnd.google-earth.kmz" />
+
+            </intent-filter>
         </activity>
     </application>
 
