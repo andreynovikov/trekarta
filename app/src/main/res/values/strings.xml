@@ -85,6 +85,7 @@
     <string name="actionRuler">Ruler</string>
     <string name="actionLegend">Legend</string>
     <string name="actionMapScale">Map scale</string>
+    <string name="actionImport">Import</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>

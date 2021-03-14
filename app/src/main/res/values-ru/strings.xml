@@ -50,6 +50,7 @@
     <string name="actionRememberTilt">Запомнить наклон</string>
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
+    <string name="actionImport">Импорт</string>
 
     <string name="notifTracking">Запись трека</string>
     <string name="notifTrackingFailure">Ошибка записи трека</string>

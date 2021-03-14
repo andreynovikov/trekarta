@@ -24,6 +24,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -1203,6 +1204,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            if (resultData != null) {
+                Uri uri = resultData.getData();
+                Intent intent = new Intent(Intent.ACTION_SEND, uri, this, DataImportActivity.class);
+                startActivity(intent);
+            }
+        }
+    }
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         int action = item.getItemId();
         if (action == R.id.actionNightMode) {
@@ -1363,6 +1376,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         } else if (action == R.id.actionManageMaps) {
             startMapSelection(true);
+            return true;
+        } else if (action == R.id.actionImport) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, 1);
             return true;
         } else if (action == R.id.actionHideSystemUI) {
             if (Configuration.getHideSystemUI())
@@ -1766,6 +1785,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
                     menu.removeItem(R.id.actionHideSystemUI);
+                    menu.removeItem(R.id.actionImport);
                 }
                 if (Configuration.ratingActionPerformed() ||
                         (Configuration.getRunningTime() < 120 &&

@@ -5,6 +5,7 @@
         <change>New amenities: fort, city gate, car parts, charging station, bicycle repair station, bicycle parking</change>
         <change>New map objects: mountain ridge, hunting stand, rock</change>
         <change>Fee and wheelchair amenity badges</change>
+        <change variant="full">Added ability to import data and map files from application</change>
         <change>Updated map styling</change>
     </release>
     <release version="2020.09" versioncode="78" date="18.09.2020">

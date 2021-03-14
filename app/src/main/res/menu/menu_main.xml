@@ -14,6 +14,9 @@
         android:checkable="true"
         android:title="@string/actionHideSystemUI" />
     <item
+        android:id="@+id/actionImport"
+        android:title="@string/actionImport" />
+    <item
         android:id="@+id/actionManageMaps"
         android:title="@string/actionManageMaps" />
     <item
