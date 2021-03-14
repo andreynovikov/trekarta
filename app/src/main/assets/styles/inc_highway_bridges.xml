@@ -108,6 +108,15 @@
                 <!-- matches every service but parking_isle -->
                 <m k="service" v="-|parking_aisle">
                     <line cap="butt" fade="14" outline="service-bridge" use="highway-service" />
+                    <m cat="cycling" k="cycleway:right" v="track">
+                        <line cap="butt" fade="14" outline="cycleway-right" use="highway-service" />
+                    </m>
+                    <m cat="cycling" k="cycleway:left" v="track">
+                        <line cap="butt" fade="14" outline="cycleway-left" use="highway-service" />
+                    </m>
+                    <m cat="cycling" k="cycleway" v="track">
+                        <line cap="butt" fade="14" outline="cycleway" use="highway-service" />
+                    </m>
                     <m k="access" v="private">
                         <line fade="14" stipple="15" stipple-stroke="#eeeeee"
                             stroke="#00ffffff" use="highway-service" />
@@ -131,30 +140,93 @@
             </m>
             <m cat="roads" v="tertiary_link">
                 <line cap="butt" outline="bridge" use="tertiary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="tertiary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="tertiary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="tertiary" />
+                </m>
                 <text use="road-name" />
             </m>
             <m cat="roads" v="secondary_link">
                 <line cap="butt" outline="bridge" use="secondary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="secondary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="secondary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="secondary" />
+                </m>
                 <text use="road-name" />
             </m>
             <m cat="roads" v="primary_link">
                 <line cap="butt" outline="bridge" use="primary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="primary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="primary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="primary" />
+                </m>
                 <text use="major-road-name" />
             </m>
             <m cat="roads" v="trunk_link|motorway_link">
                 <line cap="butt" outline="bridge" use="trunk-link" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="trunk-link" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="trunk-link" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="trunk-link" />
+                </m>
                 <text use="major-road-name" />
             </m>
             <m cat="pedestrian" v="pedestrian">
                 <line cap="butt" outline="bridge" use="pedestrian" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="pedestrian" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="pedestrian" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="pedestrian" />
+                </m>
                 <text use="road-name" />
             </m>
             <m cat="roads" v="road">
                 <line cap="butt" outline="bridge" use="pedestrian" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="pedestrian" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="pedestrian" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="pedestrian" />
+                </m>
                 <text use="road-name" />
             </m>
             <m cat="roads" v="residential|living_street">
                 <line cap="butt" outline="bridge" use="residential" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="residential" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="residential" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="residential" />
+                </m>
                 <m k="access" v="private">
                     <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
                         use="residential" />
@@ -172,6 +244,15 @@
             </m>
             <m cat="roads" v="unclassified">
                 <line cap="butt" outline="bridge" use="unclassified" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="unclassified" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="unclassified" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="unclassified" />
+                </m>
                 <m k="access" v="private">
                     <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
                         use="unclassified" />
@@ -189,6 +270,15 @@
             </m>
             <m cat="roads" v="tertiary">
                 <line cap="butt" outline="bridge" use="tertiary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="tertiary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="tertiary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="tertiary" />
+                </m>
                 <text use="road-name" />
                 <m cat="roads-shield" zoom-max="16" zoom-min="14">
                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -203,6 +293,15 @@
             </m>
             <m cat="roads" v="secondary">
                 <line cap="butt" outline="bridge" use="secondary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="secondary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="secondary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="secondary" />
+                </m>
                 <text use="major-road-name" />
                 <m cat="roads-shield" zoom-max="16" zoom-min="13">
                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -217,6 +316,15 @@
             </m>
             <m cat="roads" v="primary">
                 <line cap="butt" outline="bridge" use="primary" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="primary" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="primary" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="primary" />
+                </m>
                 <text use="major-road-name" />
                 <m cat="roads-shield" zoom-max="16" zoom-min="12">
                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -229,12 +337,17 @@
                         text-overlap="false" />
                 </m>
             </m>
-            <m cat="roads" v="trunk_link">
-                <line cap="butt" outline="bridge" use="trunk-link" />
-                <text use="major-road-name" />
-            </m>
             <m cat="roads" v="trunk">
                 <line cap="butt" outline="bridge" use="trunk" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="trunk" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="trunk" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="trunk" />
+                </m>
                 <text use="major-road-name" />
                 <m cat="roads-shield" zoom-max="16" zoom-min="11">
                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -249,6 +362,15 @@
             </m>
             <m cat="roads" v="motorway">
                 <line cap="butt" outline="bridge" use="highway" />
+                <m cat="cycling" k="cycleway:right" v="track">
+                    <line cap="butt" outline="cycleway-right" use="highway" />
+                </m>
+                <m cat="cycling" k="cycleway:left" v="track">
+                    <line cap="butt" outline="cycleway-left" use="highway" />
+                </m>
+                <m cat="cycling" k="cycleway" v="track">
+                    <line cap="butt" outline="cycleway" use="highway" />
+                </m>
                 <text use="major-road-name" />
                 <m cat="roads-shield" zoom-max="16" zoom-min="10">
                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
