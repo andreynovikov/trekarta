@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -115,6 +115,7 @@ import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.PathLayer;
 import org.oscim.layers.TileGridLayer;
+import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.S3DBLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -255,7 +256,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
         FragmentManager.OnBackStackChangedListener,
-        MapTrekTileSource.OnDataMissingListener,
         AmenitySetupDialog.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
@@ -395,7 +395,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
 
-    @SuppressLint({"ShowToast", "RestrictedApi"})
+    @SuppressLint({"ShowToast", "RestrictedApi", "UseCompatLoadingForDrawables"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -608,7 +608,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mBaseLayer = new MapTrekTileLayer(mMap, mNativeTileSource, this);
 
         mMap.setBaseMap(mBaseLayer); // will go to base group
-        mNativeTileSource.setOnDataMissingListener(this);
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
@@ -1822,6 +1821,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void onMapDownloadClicked() {
         mViews.mapDownloadButton.setVisibility(View.GONE);
+        mViews.mapDownloadButton.setTag(null);
         startMapSelection(false);
     }
 
@@ -2214,19 +2214,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mViews.popupAnchor, R.drawable.ic_volume_down);
             }
         }
-        if (mViews.mapDownloadButton.getVisibility() != View.GONE) {
-            if (mapPosition.zoomLevel < 8) {
-                mViews.mapDownloadButton.setVisibility(View.GONE);
-                mViews.mapDownloadButton.setTag(null);
-            } else if (e == Map.MOVE_EVENT) {
-                final Message m = Message.obtain(mMainHandler, () -> {
-                    mViews.mapDownloadButton.setVisibility(View.GONE);
-                    mViews.mapDownloadButton.setTag(null);
-                });
-                m.what = R.id.msgRemoveMapDownloadButton;
-                mMainHandler.sendMessageDelayed(m, 1000);
-            }
-        }
+        if (e != Map.FINISH_EVENT)
+            checkMissingData(mapPosition);
     }
 
     @Override
@@ -2490,7 +2479,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mMarkerLayer.setFocus(null);
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
         Bundle args = new Bundle(3);
@@ -2702,6 +2691,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         onTrackDetails(track, false);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void onTrackDetails(Track track, boolean current) {
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
@@ -2901,6 +2891,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.animator().animateTo(box);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onRouteDetails(Route route) {
         Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
@@ -2944,6 +2935,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onFeatureDetails(long id, boolean fromList) {
         Bundle args = new Bundle(3);
@@ -3128,7 +3120,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else {
             mMap.updateMap(true);
         }
-        int[] xy = (int[]) mViews.mapDownloadButton.getTag();
+        int[] xy = (int[]) mViews.mapDownloadButton.getTag(R.id.mapKey);
         if (xy != null)
             mNativeMapIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
     }
@@ -3137,9 +3129,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.onDetach();
-        mMap.updateMap(true);
         mNativeMapIndex.clearSelections();
         mMapCoverageLayer = null;
+        mMap.updateMap(true);
     }
 
     @Override
@@ -3617,6 +3609,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBackStackChanged() {
         logger.debug("onBackStackChanged()");
@@ -3662,39 +3655,56 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    // Called by tile manager, so it's on separate thread - do not block and do not update UI
-    @Override
-    public void onDataMissing(final int x, final int y, byte zoom) {
-        // Do not check "intermediate" maps - TODO: Should we consider movement when locked to location?
-        if (mMap.animator().isActive())
+    private void hideDownloadButton() {
+        if (mViews.mapDownloadButton.getVisibility() == View.VISIBLE) {
+            mViews.mapDownloadButton.setVisibility(View.GONE);
+            mViews.mapDownloadButton.setTag(null);
+        }
+    }
+
+    public void checkMissingData(MapPosition mapPosition) {
+        if (MapTrekTileSource.MissingTileData.counter.get() == 0) {
+            hideDownloadButton();
             return;
+        }
 
         // Do not show button if we are already choosing maps
-        if (mMapCoverageLayer != null)
+        if (mMapCoverageLayer != null) {
+            hideDownloadButton();
             return;
-
-        // Do not show button if this map is already downloading
-        if (mNativeMapIndex.isDownloading(x, y))
-            return;
-
-        // Do not show button if there is no map for that area
-        if (mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(x, y).downloadSize == 0L)
-            return;
+        }
 
         // Do not show button if custom map is shown
-        mMap.getMapPosition(mMapPosition);
         for (MapFile bitmapLayerMap : mBitmapLayerMaps)
-            if (bitmapLayerMap.contains(mMapPosition.getX(), mMapPosition.getY()))
+            if (bitmapLayerMap.contains(mapPosition.getX(), mapPosition.getY())) {
+                hideDownloadButton();
                 return;
-
-        runOnUiThread(() -> {
-            if (mViews.mapDownloadButton.getVisibility() == View.GONE) {
-                mViews.mapDownloadButton.setText(R.string.mapDownloadText);
-                mViews.mapDownloadButton.setVisibility(View.VISIBLE);
             }
-            mViews.mapDownloadButton.setTag(new int[]{x, y});
-            mMainHandler.removeMessages(R.id.msgRemoveMapDownloadButton);
-        });
+
+        float tileScale = 1f / (1 << mapPosition.zoomLevel);
+        int tileX = (int) (mapPosition.x / tileScale);
+        int tileY = (int) (mapPosition.y / tileScale);
+        String tag = tileX + "/" + tileY + "/" + mapPosition.zoomLevel;
+        if (!tag.equals(mViews.mapDownloadButton.getTag())) {
+            MapTile tile = mBaseLayer.getManager().getTile(tileX, tileY, mapPosition.zoomLevel);
+            if (tile != null) {
+                mViews.mapDownloadButton.setTag(tag);
+                int visibility = View.GONE;
+                int[] map = null;
+                MapTrekTileSource.MissingTileData tileData = (MapTrekTileSource.MissingTileData) tile.getData(MapTrekTileSource.TILE_DATA);
+                if (tileData != null) {
+                    int mapX = tile.tileX >> (tile.zoomLevel - 7);
+                    int mapY = tile.tileY >> (tile.zoomLevel - 7);
+                    if (!mNativeMapIndex.isDownloading(mapX, mapY) && // Do not show button if this map is already downloading
+                            !(mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(mapX, mapY).downloadSize == 0L)) { // Do not show button if there is no map for that area
+                        visibility = View.VISIBLE;
+                        map = new int[]{mapX, mapY};
+                    }
+                }
+                mViews.mapDownloadButton.setVisibility(visibility);
+                mViews.mapDownloadButton.setTag(R.id.mapKey, map);
+            }
+        }
     }
 
     @Override
@@ -3804,14 +3814,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void askForPermission() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            logger.error("No location permission");
             // Should we show an explanation?
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                logger.error("Should show rationale");
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
             } else {
+                logger.error("Request permission");
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
             }
         } else {
@@ -3827,10 +3840,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     enableLocations();
-                    //} else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                } else {
+                    logger.error("Permission denied");
                 }
             }
         }

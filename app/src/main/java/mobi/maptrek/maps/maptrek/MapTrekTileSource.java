@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,16 +24,18 @@ import org.oscim.core.MapElement;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
-import org.oscim.map.Viewport;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.geom.TileClipper;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.HashSet;
 
 public class MapTrekTileSource extends TileSource {
+    public static final String TILE_DATA = MapTrekTileSource.class.getSimpleName();
+
     private static final MapElement mLand = new MapElement();
 
     private static final int CLIP_BUFFER = 32;
@@ -49,8 +51,20 @@ public class MapTrekTileSource extends TileSource {
 
     private final SQLiteDatabase mNativeMapDatabase;
     private final HashSet<MapTrekDataSource> mMapTrekDataSources;
-    private OnDataMissingListener mOnDataMissingListener;
     private boolean mContoursEnabled = true;
+
+    public static class MissingTileData extends MapTile.TileData {
+        public static final AtomicInteger counter = new AtomicInteger(0);
+
+        MissingTileData() {
+            counter.incrementAndGet();
+        }
+
+        @Override
+        protected void dispose() {
+            counter.decrementAndGet();
+        }
+    }
 
     public MapTrekTileSource(SQLiteDatabase nativeMapDatabase) {
         super(2, 19); // if zoomMax is set to 20, weird 3D building artifacts occur on map rotation
@@ -62,10 +76,6 @@ public class MapTrekTileSource extends TileSource {
         mContoursEnabled = enabled;
         for (MapTrekDataSource source : mMapTrekDataSources)
             source.setContoursEnabled(enabled);
-    }
-
-    public void setOnDataMissingListener(OnDataMissingListener onDataMissingListener) {
-        mOnDataMissingListener = onDataMissingListener;
     }
 
     @Override
@@ -89,8 +99,8 @@ public class MapTrekTileSource extends TileSource {
     public void close() {
     }
 
-    private class NativeDataSource implements ITileDataSource {
-        private MapTrekDataSource mNativeDataSource;
+    private static class NativeDataSource implements ITileDataSource {
+        private final MapTrekDataSource mNativeDataSource;
 
         NativeDataSource(MapTrekDataSource nativeDataSource) {
             mNativeDataSource = nativeDataSource;
@@ -103,13 +113,8 @@ public class MapTrekTileSource extends TileSource {
             ProxyTileDataSink proxyDataSink = new ProxyTileDataSink(mapDataSink);
             mNativeDataSource.query(tile, proxyDataSink);
 
-            if (proxyDataSink.result == QueryResult.TILE_NOT_FOUND) {
-                if (tile.distance == 0d && mOnDataMissingListener != null) {
-                    int tileX = tile.tileX >> (tile.zoomLevel - 7);
-                    int tileY = tile.tileY >> (tile.zoomLevel - 7);
-                    mOnDataMissingListener.onDataMissing(tileX, tileY, (byte) 7);
-                }
-            }
+            if (proxyDataSink.result == QueryResult.TILE_NOT_FOUND)
+                tile.addData(TILE_DATA, new MissingTileData());
 
             if (proxyDataSink.result != QueryResult.SUCCESS) {
                 MapTile baseTile = tile;
@@ -140,7 +145,7 @@ public class MapTrekTileSource extends TileSource {
         private final float scale;
         private final float dx;
         private final float dy;
-        private TileClipper mTileClipper;
+        private final TileClipper mTileClipper;
         ITileDataSink mapDataSink;
 
         TransformTileDataSink(MapTile baseTile, MapTile tile, ITileDataSink mapDataSink) {
@@ -207,9 +212,5 @@ public class MapTrekTileSource extends TileSource {
         public void completed(QueryResult result) {
             this.result = result;
         }
-    }
-
-    public interface OnDataMissingListener {
-        void onDataMissing(int x, int y, byte zoom);
     }
 }

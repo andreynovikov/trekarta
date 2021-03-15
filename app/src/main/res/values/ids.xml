@@ -2,9 +2,9 @@
 <resources>
     <item name="actionStopNavigation" type="id"/>
     <item name="msgRemoveLicense" type="id" />
-    <item name="msgRemoveMapDownloadButton" type="id" />
     <item name="msgFindMissingMap" type="id" />
     <item name="msgResetBearing" type="id" />
     <item name="itemHolder" type="id" />
     <item name="msgHideSystemUI" type="id" />
+    <item name="mapKey" type="id" />
 </resources>

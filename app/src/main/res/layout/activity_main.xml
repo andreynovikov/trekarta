@@ -42,8 +42,12 @@
             android:id="@+id/mapDownloadButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="96dp"
             android:layout_gravity="center"
-            android:alpha="0.7"
+            android:alpha="0.8"
+            android:text="@string/mapDownloadText"
+            android:textColor="@color/colorPrimaryLight"
+            android:backgroundTint="@color/colorAccentLight"
             android:visibility="gone" />
 
         <mobi.maptrek.view.GaugePanel
