@@ -86,9 +86,22 @@
                             <line use="path" />
                         </m>
                         <m cat="hiking">
-                            <m k="foot" v="-|no">
-                                <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
-                                <line fix="true" stroke="#aab28f67" width="4" />
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
+                            <line fix="true" stroke="#aab28f67" width="4" />
+                        </m>
+                    </m>
+                    <m cat="pedestrian" select="first">
+                        <m cat="hiking">
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
+                            <line use="path" stipple-stroke="color:pedestrian" width="1.5" />
+                        </m>
+                        <m>
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.5" />
+                            <m zoom-max="14">
+                                <line use="path:z14" stroke="color:transparent" />
+                            </m>
+                            <m zoom-min="15">
+                                <line use="path" stipple-stroke="color:path-access-no" />
                             </m>
                         </m>
                     </m>
