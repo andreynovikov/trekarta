@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 
 package mobi.maptrek.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -39,9 +40,16 @@ public class HelperUtils {
     private static boolean isShowingTargetedAdvice = false;
 
     public static void showError(String message, CoordinatorLayout coordinatorLayout) {
-        final Snackbar snackbar = Snackbar
-                .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.actionDismiss, view -> snackbar.dismiss());
+        showError(message, R.string.actionDismiss, null, coordinatorLayout);
+    }
+
+    public static void showError(String message, @StringRes int action, View.OnClickListener listener, CoordinatorLayout coordinatorLayout) {
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(action, view -> {
+            if (listener != null)
+                listener.onClick(view);
+            snackbar.dismiss();
+        });
         TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
         snackbarTextView.setMaxLines(99);
         snackbar.show();
@@ -67,6 +75,7 @@ public class HelperUtils {
         if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
+        @SuppressLint("UseCompatLoadingForDrawables")
         Drawable drawable = activity.getDrawable(icon);
         if (drawable != null)
             drawable.setTint(activity.getResources().getColor(R.color.textColorPrimary, activity.getTheme()));

@@ -8,6 +8,7 @@
     <string name="title_input_name">Name</string>
     <string name="titleMoveData">Move application data</string>
     <string name="titleCoordinatesInput">Enter coordinates</string>
+    <string name="titleLocationPermissionRationale">Trekarta needs location permission</string>
     <string name="whatsNewTitle">What\'s New</string>
 
     <string name="ok">OK</string>
@@ -86,6 +87,7 @@
     <string name="actionLegend">Legend</string>
     <string name="actionMapScale">Map scale</string>
     <string name="actionImport">Import</string>
+    <string name="actionGrant">Grant</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -113,8 +115,10 @@
     <string name="msgNoFileDataSources">You can also import GPX and KML files.</string>
     <string name="msgDataImported">File is saved in application folder.</string>
     <string name="msgSaveFailed">Failed to save: %s</string>
-    <string name="msgReadExternalStorageRationale">Trekarta requests to %s to be able to access the file you want to open</string>
-    <string name="msgWriteExternalStorageRationale">Trekarta requests to %s to be able to store data and map files on external storage</string>
+    <string name="msgAccessFineLocationRationale">Trekarta needs to %s to be able to show your position on map in real time and record track of your movement on your request</string>
+    <string name="msgReadExternalStorageRationale">Trekarta needs to %s to be able to access the file you want to open</string>
+    <string name="msgWriteExternalStorageRationale">Trekarta needs to %s to be able to store data and map files on external storage</string>
+    <string name="msgLocationPermissionError">You should grant Trekarta location permission to be able to see your real time position on map</string>
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>

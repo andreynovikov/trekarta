@@ -3,6 +3,7 @@
     <string name="app_name">Трекарта</string>
     <string name="title_select_format">Выбор формата</string>
     <string name="title_export_track">Экспорт трека</string>
+    <string name="titleLocationPermissionRationale">Трекарте требуется разрешение Местоположение</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Отменить</string>
@@ -51,6 +52,7 @@
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
     <string name="actionImport">Импорт</string>
+    <string name="actionGrant">Дать</string>
 
     <string name="notifTracking">Запись трека</string>
     <string name="notifTrackingFailure">Ошибка записи трека</string>
@@ -74,6 +76,8 @@
     <string name="msgDataImported">Файл сохранён в папку приложения.</string>
     <string name="msgSaveFailed">Ошибка сохранения: %s</string>
     <string name="msgReadExternalStorageRationale">Трекарте требуется %s, чтобы иметь доступ к файлу, который вы хотите открыть</string>
+    <string name="msgAccessFineLocationRationale">Трекарте требуется %s, чтобы отображать вашу позицию на карте в реальном режиме времени и записывать трек вашего перемещения по вашему запросу</string>
+    <string name="msgLocationPermissionError">Вы должны предоставить Трекарте разрешение на получение местоположения, чтобы в реальном режиме времени отображать вашу позицию на карте</string>
     <string name="msgFailedToGetFileName">Не удалось получить имя файла</string>
     <string name="msgCancelDownload">Отменить загрузку карты?</string>
     <string name="msgCrashOccurred">Похоже, в прошлый раз приложение закрылось из-за ошибки. Вы окажете помощь разработчику, отправив отчёт об ошибке.</string>

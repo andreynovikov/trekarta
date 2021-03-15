@@ -41,6 +41,7 @@ import android.content.Loader;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -3814,18 +3815,26 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void askForPermission() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            logger.error("No location permission");
             // Should we show an explanation?
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                logger.error("Should show rationale");
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
+                String name;
+                try {
+                    PackageManager pm = getPackageManager();
+                    PermissionInfo permissionInfo = pm.getPermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.GET_META_DATA);
+                    name = permissionInfo.loadLabel(pm).toString().toLowerCase();
+                } catch (PackageManager.NameNotFoundException e) {
+                    logger.error("Failed to obtain name for permission", e);
+                    name = "access precise location";
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.titleLocationPermissionRationale)
+                        .setMessage(getString(R.string.msgAccessFineLocationRationale, name))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION))
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
+                        .create()
+                        .show();
             } else {
-                logger.error("Request permission");
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
+               requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
             }
         } else {
             enableLocations();
@@ -3841,7 +3850,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     enableLocations();
                 } else {
-                    logger.error("Permission denied");
+                    HelperUtils.showError(getString(R.string.msgLocationPermissionError), R.string.actionGrant, view -> {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                        startActivity(intent);
+                    }, mViews.coordinatorLayout);
                 }
             }
         }
