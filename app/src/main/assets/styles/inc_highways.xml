@@ -43,17 +43,41 @@
                             <m cat="pedestrian" v="footway|path">
                                 <m select="first">
                                     <m cat="cycling" k="bicycle" v="designated|yes">
-                                        <line stipple="6" use="path" width="2.0" stipple-stroke="color:cycleway" />
+                                        <line stipple="12" stipple-stroke="color:transparent" use="cycleway" />
+                                        <line stroke="color:land" width="0.2" />
                                     </m>
                                     <m cat="hiking">
                                         <line cat="hiking" use="path" width="6.0" />
                                         <line fix="true" stroke="color:land" width="5.6" />
+                                        <m k="sac_scale" v="~">
+                                            <line fix="true" stroke="#aab28f67" width="4" />
+                                        </m>
+                                        <m k="sac_scale" select="first">
+                                            <m v="t1">
+                                                <line fix="true" stroke="#660040ff" width="4" />
+                                            </m>
+                                            <m v="t2">
+                                                <line fix="true" stroke="#660000dd" width="4" />
+                                            </m>
+                                            <m v="t3">
+                                                <line fix="true" stroke="#99e6ad00" width="4" />
+                                            </m>
+                                            <m v="t4">
+                                                <line fix="true" stroke="#66ff0000" width="4" />
+                                            </m>
+                                            <m v="t5">
+                                                <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#66ff0000" stroke="#aa000000" width="4" />
+                                            </m>
+                                            <m v="t6">
+                                                <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="color:transparent" width="4" />
+                                            </m>
+                                        </m>
                                     </m>
                                     <m>
                                         <line stipple="6" use="path" width="2.0" />
+                                        <line fix="true" stroke="color:land" width="1.6" />
                                     </m>
                                 </m>
-                                <line fix="true" stroke="color:land" width="1.6" />
                             </m>
                             <m v="bridleway">
                                 <line stipple="6" use="bridleway" width="2.0" />
@@ -349,6 +373,14 @@
                                     <m k="trail_visibility" v="~|intermediate">
                                         <line use="path" />
                                     </m>
+                                </m>
+                            </m>
+                            <m k="foot" v="~|no">
+                                <m zoom-max="14">
+                                    <line use="path:z14" stroke="color:transparent" />
+                                </m>
+                                <m zoom-min="15">
+                                    <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
                             </m>
                         </m>
