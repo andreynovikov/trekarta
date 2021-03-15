@@ -24,6 +24,12 @@ Special hiking activity mode emphasises paths and tracks on map. It visualizes p
 
 ![](https://trekarta.info/images/hiking.png)
 
+__Cycling__
+
+Special cycling activity mode reveals bicycle infrastructure. It shows cycling routes and visualizes mountain biking track difficulty and visibility.
+
+![](https://trekarta.info/images/cycling.png)
+
 __Skiing and skating__
 
 Skiing activity mode displays clean winter map with mostly all skiing activities: downhill, nordic, hiking and touring. As a bonus freestyle snow-boarding, skating and sleighing areas are displayed.
@@ -50,4 +56,4 @@ Trekarta is designed to record tracks of your journey. Simply press a button whe
 
 Trekarta is developed as a hobby for personal use but is generously shared to public on as-is basis. Developers are welcome to contribute to the project. Specifically experts in OpenGL and PostGIS are much needed.
 
-Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/trekarta/issues), for questions and general discussions [Google Groups Q&A Forum](https://groups.google.com/d/forum/trekarta) should be preferred.
+Bug reports and feature proposals are welcome in [issue tracker](https://github.com/andreynovikov/trekarta/issues), for general questions [Discussions](https://github.com/andreynovikov/trekarta/discussions) should be preferred.
