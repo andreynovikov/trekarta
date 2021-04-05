@@ -76,6 +76,8 @@ import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_MAPS_Y;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.COLUMN_NAMES_NAME;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_FEATURE_NAMES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_GONE_FEATURES;
+import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_MAP_FEATURES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_NAMES;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_NAMES_FTS;
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.SQL_REMOVE_TILES;
@@ -104,10 +106,10 @@ public class Index {
     public enum ACTION {NONE, DOWNLOAD, CANCEL, REMOVE}
 
     private final Context mContext;
-    private SQLiteDatabase mMapsDatabase;
-    private SQLiteDatabase mHillshadeDatabase;
+    private final SQLiteDatabase mMapsDatabase;
+    private final SQLiteDatabase mHillshadeDatabase;
     private final DownloadManager mDownloadManager;
-    private MapStatus[][] mMaps = new MapStatus[128][128];
+    private final MapStatus[][] mMaps = new MapStatus[128][128];
     private boolean mHasDownloadSizes;
     private boolean mExpiredDownloadSizes;
     private boolean mAccountHillshades;
@@ -304,6 +306,15 @@ public class Index {
             if (progressListener != null)
                 progressListener.onProgressChanged(20);
             logger.error("  removed features");
+            // remove feature references
+            statement = mMapsDatabase.compileStatement(SQL_REMOVE_MAP_FEATURES);
+            statement.bindLong(1, x);
+            statement.bindLong(2, y);
+            statement.executeUpdateDelete();
+            if (progressListener != null)
+                progressListener.onProgressChanged(30);
+            logger.error("  removed feature references");
+            // remove feature names
             statement = mMapsDatabase.compileStatement(SQL_REMOVE_FEATURE_NAMES);
             statement.executeUpdateDelete();
             if (progressListener != null)
@@ -405,17 +416,17 @@ public class Index {
             short date = 0;
             Cursor cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"version"}, null, null, null);
             if (cursor.moveToFirst()) {
-                version = Short.valueOf(cursor.getString(0));
+                version = Short.parseShort(cursor.getString(0));
             }
             cursor.close();
             cursor = database.query(TABLE_INFO, new String[]{COLUMN_INFO_VALUE}, WHERE_INFO_NAME, new String[]{"timestamp"}, null, null, null);
             if (cursor.moveToFirst()) {
-                date = Short.valueOf(cursor.getString(0));
+                date = Short.parseShort(cursor.getString(0));
             }
             cursor.close();
             logger.error("Version: {} Date: {}", version, date);
 
-            int total = 0, progress = 0, step = 0;
+            int total = 2000, progress = 0, step = 0;
             if (progressListener != null) {
                 total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
                 total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
@@ -463,13 +474,24 @@ public class Index {
             mMapsDatabase.endTransaction();
             logger.error("  imported names");
 
+            // remove old features references
+            statement = mMapsDatabase.compileStatement(SQL_REMOVE_MAP_FEATURES);
+            statement.bindLong(1, x);
+            statement.bindLong(2, y);
+            mMapsDatabase.beginTransaction();
+            int num = statement.executeUpdateDelete();
+            if (progressListener != null) {
+                progress += 1000;
+                progressListener.onProgressChanged(progress);
+            }
+            logger.error("  removed feature references: {}", num);
+
             // copy features
             statement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_FEATURES + " (" +
                     TextUtils.join(", ", ALL_COLUMNS_FEATURES) + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-            SQLiteStatement extraStatement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
+            SQLiteStatement extraStatement = mMapsDatabase.compileStatement("INSERT INTO " + TABLE_MAP_FEATURES + " VALUES (?,?,?)");
             extraStatement.bindLong(1, x);
             extraStatement.bindLong(2, y);
-            mMapsDatabase.beginTransaction();
             String[] COLUMNS_FEATURES = version == 1 ? ALL_COLUMNS_FEATURES_V1 : version == 2 ? ALL_COLUMNS_FEATURES_V2 : ALL_COLUMNS_FEATURES_WO_XY;
             int[] xy = new int[] {0, 0};
             cursor = database.query(TABLE_FEATURES, COLUMNS_FEATURES, null, null, null, null, null);
@@ -596,6 +618,22 @@ public class Index {
             mMapsDatabase.endTransaction();
             logger.error("  imported feature names");
 
+            // remove gone features
+            statement = mMapsDatabase.compileStatement(SQL_REMOVE_GONE_FEATURES);
+            statement.bindLong(1, x);
+            statement.bindLong(2, x + 1);
+            statement.bindLong(3, y);
+            statement.bindLong(4, y + 1);
+            mMapsDatabase.beginTransaction();
+            num = statement.executeUpdateDelete();
+            if (progressListener != null) {
+                progress += 1000;
+                progressListener.onProgressChanged(progress);
+            }
+            mMapsDatabase.setTransactionSuccessful();
+            mMapsDatabase.endTransaction();
+            logger.error("  removed gone features: {}", num);
+
             // copy tiles
             statement = mMapsDatabase.compileStatement("REPLACE INTO " + TABLE_TILES + " VALUES (?,?,?,?)");
             mMapsDatabase.beginTransaction();
@@ -626,6 +664,7 @@ public class Index {
 
             database.close();
             setDownloaded(x, y, date);
+            logger.error("Import complete");
         } catch (SQLiteException e) {
             MapTrek.getApplication().registerException(e);
             logger.error("Import failed", e);

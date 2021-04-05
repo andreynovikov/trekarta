@@ -174,10 +174,13 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_TILES_ROW + " >= ? AND "
                     + COLUMN_TILES_ROW + " <= ?";
 
-    static final String SQL_REMOVE_FEATURES =
-            "DELETE FROM " + TABLE_FEATURES + " WHERE "
-                    + COLUMN_FEATURES_ID + " IN (SELECT a."
-                    + COLUMN_MAP_FEATURES_FEATURE + " FROM "
+    static final String SQL_REMOVE_MAP_FEATURES =
+            "DELETE FROM " + TABLE_MAP_FEATURES + " WHERE "
+                    + COLUMN_MAP_FEATURES_COLUMN + " = ? AND "
+                    + COLUMN_MAP_FEATURES_ROW + " = ?";
+
+    static final String SQL_SELECT_MAP_FEATURES =
+            "SELECT a." + COLUMN_MAP_FEATURES_FEATURE + " FROM "
                     + TABLE_MAP_FEATURES + " AS a LEFT JOIN "
                     + TABLE_MAP_FEATURES + " AS b ON (a."
                     + COLUMN_MAP_FEATURES_FEATURE + " = b."
@@ -188,7 +191,27 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_MAP_FEATURES_ROW + ")) WHERE a."
                     + COLUMN_MAP_FEATURES_COLUMN + " = ? AND a."
                     + COLUMN_MAP_FEATURES_ROW + " = ? AND b."
-                    + COLUMN_MAP_FEATURES_FEATURE + " IS NULL)";
+                    + COLUMN_MAP_FEATURES_FEATURE + " IS NULL";
+
+    static final String SQL_REMOVE_FEATURES =
+            "DELETE FROM " + TABLE_FEATURES + " WHERE "
+                    + COLUMN_FEATURES_ID + " IN (" + SQL_SELECT_MAP_FEATURES + ")";
+
+    static final String SQL_SELECT_GONE_FEATURES =
+            "SELECT " + COLUMN_FEATURES_ID + " FROM "
+                    + TABLE_FEATURES + " LEFT JOIN "
+                    + TABLE_MAP_FEATURES + " ON "
+                    + COLUMN_FEATURES_ID + " = "
+                    + COLUMN_MAP_FEATURES_FEATURE + " WHERE "
+                    + COLUMN_MAP_FEATURES_FEATURE + " IS NULL AND "
+                    + TABLE_FEATURES + "." + COLUMN_FEATURES_X + " >= (? << 7) AND "
+                    + TABLE_FEATURES + "." + COLUMN_FEATURES_X + " < (? << 7) AND "
+                    + TABLE_FEATURES + "." + COLUMN_FEATURES_Y + " >= (? << 7) AND "
+                    + TABLE_FEATURES + "." + COLUMN_FEATURES_Y + " < (? << 7)";
+
+    static final String SQL_REMOVE_GONE_FEATURES =
+            "DELETE FROM " + TABLE_FEATURES + " WHERE "
+                    + COLUMN_FEATURES_ID + " IN (" + SQL_SELECT_GONE_FEATURES + ")";
 
     static final String SQL_REMOVE_FEATURE_NAMES =
             "DELETE FROM " + TABLE_FEATURE_NAMES + " WHERE "
