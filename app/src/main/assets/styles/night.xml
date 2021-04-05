@@ -206,15 +206,8 @@
         <m cat="nature" v="mud">
             <area fill="#211e13" />
         </m>
-        <m cat="nature" v="marsh">
-            <area src="assets:patterns/wetland.svg" />
-            <text area-size="0.05" caption="true" use="water" />
-        </m>
-        <m cat="nature" v="wetland">
-            <area src="assets:patterns/wetland.svg" />
-            <text area-size="0.05" caption="true" use="water" />
-        </m>
     </m>
+
     <!-- Land usages -->
     <m closed="yes" e="way" k="landuse|leisure|amenity|tourism|highway">
         <m cat="landclasses" v="residential|commercial|retail">
@@ -264,6 +257,18 @@
     <m e="node" k="waterway">
         <m cat="urban" v="lock_gate" zoom-min="14">
             <symbol src="assets:symbols/lock_gate.svg" />
+        </m>
+    </m>
+
+    <!-- Wetlands -->
+    <m closed="yes" e="way" k="natural">
+        <m cat="nature" v="marsh">
+            <area src="assets:patterns/wetland.svg" />
+            <text area-size="0.05" caption="true" use="water" />
+        </m>
+        <m cat="nature" v="wetland">
+            <area src="assets:patterns/wetland.svg" />
+            <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
 

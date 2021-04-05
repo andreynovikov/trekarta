@@ -260,12 +260,6 @@
         <m cat="winter-topo" v="bare_rock">
             <area src="assets:patterns/rock_overlay.png" />
         </m>
-        <m cat="winter-topo" v="marsh">
-            <area src="assets:patterns/wetland.svg" />
-        </m>
-        <m cat="winter-topo" v="wetland">
-            <area src="assets:patterns/wetland.svg" />
-        </m>
     </m>
 
     <m cat="mountains" e="way" k="natural" v="ridge">
@@ -276,6 +270,16 @@
     </m>
 
     <xi:include href="inc_water.xml" />
+
+    <!-- Wetlands -->
+    <m closed="yes" e="way" k="natural">
+        <m cat="winter-topo" v="marsh">
+            <area src="assets:patterns/wetland.svg" />
+        </m>
+        <m cat="winter-topo" v="wetland">
+            <area src="assets:patterns/wetland.svg" />
+        </m>
+    </m>
 
     <xi:include href="inc_ground_objects.xml" />
 

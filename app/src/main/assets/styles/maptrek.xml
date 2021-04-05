@@ -460,6 +460,61 @@
             </m>
             <text area-size="0.05" caption="true" use="water" />
         </m>
+    </m>
+
+    <!-- Landuse -->
+    <m closed="yes" e="way" k="landuse">
+        <m cat="urban" v="cemetery" zoom-min="11">
+            <area src="assets:patterns/cemetery.svg" />
+            <m zoom-min="14">
+                <line use="park" />
+                <text style="bold_italic" area-size="0.1" caption="true" fill="#777777"
+                    priority="800" size="16" stroke="#f6f6f6" stroke-width="2.0" />
+            </m>
+        </m>
+    </m>
+    <m k="aeroway">
+        <m cat="aeroways" closed="yes" v="apron">
+            <area fill="#f0f0f0" />
+        </m>
+        <m cat="aeroways" closed="yes" v="terminal|hangar">
+            <area use="building" />
+            <text use="house-name" />
+        </m>
+        <m cat="aeroways" closed="no" v="runway">
+            <line use="aeroway:runway" />
+            <m zoom-min="13">
+                <text fill="#444444" k="ref" size="14" stroke="#eeeeee" stroke-width="2.0" />
+            </m>
+        </m>
+        <m cat="aeroways" closed="no" v="taxiway">
+            <line use="aeroway:runway" width="-1.0" />
+            <m zoom-min="15">
+                <text fill="#444444" k="ref" size="10" stroke="#eeeeee" stroke-width="2.0" />
+            </m>
+        </m>
+        <m cat="aeroways" closed="yes" v="runway|taxiway">
+            <area use="aeroway:runway" />
+            <text caption="true" fill="#444444" k="ref" size="14" stroke="#eeeeee"
+                stroke-width="2.0" />
+        </m>
+    </m>
+
+    <m cat="mountains" e="way" k="natural" v="ridge">
+        <line src="assets:patterns/ridge.svg" symbol-color="color:cliff-darker" />
+        <text use="mountain" />
+    </m>
+    <m cat="mountains" e="way" k="natural" v="arete">
+        <line src="assets:patterns/arete.svg" symbol-color="color:cliff-darker" />
+        <text use="mountain" />
+    </m>
+
+    <!-- THIS IS A DANGEROUS HACK as Android does not support xi:include! It assumes a lot of
+    prerequisites how includes are formatted, see Themes class for details -->
+    <xi:include href="inc_water.xml" />
+
+    <!-- Wetlands -->
+    <m closed="yes" e="way" k="natural">
         <m cat="nature" v="wetland">
             <m k="wetland">
                 <m v="marsh|wet_meadow">
@@ -541,57 +596,6 @@
             <text area-size="0.05" caption="true" use="water" />
         </m>
     </m>
-
-    <!-- Landuse -->
-    <m closed="yes" e="way" k="landuse">
-        <m cat="urban" v="cemetery" zoom-min="11">
-            <area src="assets:patterns/cemetery.svg" />
-            <m zoom-min="14">
-                <line use="park" />
-                <text style="bold_italic" area-size="0.1" caption="true" fill="#777777"
-                    priority="800" size="16" stroke="#f6f6f6" stroke-width="2.0" />
-            </m>
-        </m>
-    </m>
-    <m k="aeroway">
-        <m cat="aeroways" closed="yes" v="apron">
-            <area fill="#f0f0f0" />
-        </m>
-        <m cat="aeroways" closed="yes" v="terminal|hangar">
-            <area use="building" />
-            <text use="house-name" />
-        </m>
-        <m cat="aeroways" closed="no" v="runway">
-            <line use="aeroway:runway" />
-            <m zoom-min="13">
-                <text fill="#444444" k="ref" size="14" stroke="#eeeeee" stroke-width="2.0" />
-            </m>
-        </m>
-        <m cat="aeroways" closed="no" v="taxiway">
-            <line use="aeroway:runway" width="-1.0" />
-            <m zoom-min="15">
-                <text fill="#444444" k="ref" size="10" stroke="#eeeeee" stroke-width="2.0" />
-            </m>
-        </m>
-        <m cat="aeroways" closed="yes" v="runway|taxiway">
-            <area use="aeroway:runway" />
-            <text caption="true" fill="#444444" k="ref" size="14" stroke="#eeeeee"
-                stroke-width="2.0" />
-        </m>
-    </m>
-
-    <m cat="mountains" e="way" k="natural" v="ridge">
-        <line src="assets:patterns/ridge.svg" symbol-color="color:cliff-darker" />
-        <text use="mountain" />
-    </m>
-    <m cat="mountains" e="way" k="natural" v="arete">
-        <line src="assets:patterns/arete.svg" symbol-color="color:cliff-darker" />
-        <text use="mountain" />
-    </m>
-
-    <!-- THIS IS A DANGEROUS HACK as Android does not support xi:include! It assumes a lot of
-    prerequisites how includes are formatted, see Themes class for details -->
-    <xi:include href="inc_water.xml" />
 
     <m cat="forest" k="natural" v="tree_row" zoom-min="15">
         <line use="trees" />

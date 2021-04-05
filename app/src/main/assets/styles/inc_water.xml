@@ -2,7 +2,12 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <!-- Water -->
     <m cat="water" closed="yes" e="way" k="natural" v="water">
-        <area use="water" />
+        <m k="intermittent" v="yes">
+            <area src="assets:patterns/intermittent.svg" />
+        </m>
+        <m k="intermittent" v="~|no">
+            <area use="water" />
+        </m>
         <text area-size="0.1" caption="true" priority="600" use="water" />
     </m>
     <m cat="water" closed="yes" k="landuse" v="reservoir|basin">
