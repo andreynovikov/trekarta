@@ -112,7 +112,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'com.github.andreynovikov:androidcolorpicker:v0.0.2'
     implementation 'com.github.andreynovikov:Geo-Coordinate-Conversion-Java:v1.0.0'
