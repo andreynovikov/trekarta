@@ -110,25 +110,22 @@ class MapTrekDataSource implements ITileDataSource {
         }
 
         if (Tags.highlightedType >= 0 && z > 7) {
-            int mz = 1 << MAX_NATIVE_ZOOM - z;
-            int min_x = x * mz;
-            int min_y = y * mz;
-            int max_x = (x + 1) * mz;
-            int max_y = (y + 1) * mz;
-            String[] featureArgs = new String[]{String.valueOf(Tags.highlightedType), null, null};
+            int dz = MAX_NATIVE_ZOOM - z;
+            int min_x = x << dz;
+            int min_y = y << dz;
+            int max_x = ((x + 1) << dz) - 1;
+            int max_y = ((y + 1) << dz) - 1;
 
-            for (int tx = min_x; tx < max_x; tx++) {
-                for (int ty = min_y; ty < max_y; ty++) {
-                    String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
-                            + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
-                            + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
-                            + COLUMN_FEATURES_TYPE + " = ? AND "
-                            + COLUMN_FEATURES_X + " = ? AND " + COLUMN_FEATURES_Y + " = ?";
-                    featureArgs[1] = String.valueOf(tx);
-                    featureArgs[2] = String.valueOf(ty);
-                    addFeaturesToTile(tile, sink, sql, featureArgs);
-                }
-            }
+            String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
+                    + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
+                    + COLUMN_FEATURES_LON + " FROM " + TABLE_FEATURES + " WHERE "
+                    + COLUMN_FEATURES_TYPE + " = ? AND "
+                    + COLUMN_FEATURES_X + " >= ? AND " + COLUMN_FEATURES_X + " <= ? AND "
+                    + COLUMN_FEATURES_Y + " >= ? AND " + COLUMN_FEATURES_Y + " <= ?";
+            String[] featureArgs = new String[]{String.valueOf(Tags.highlightedType),
+                    String.valueOf(min_x), String.valueOf(max_x),
+                    String.valueOf(min_y), String.valueOf(max_y)};
+            addFeaturesToTile(tile, sink, sql, featureArgs);
         } else if (limitedZoomDiff >= 0 && Tags.typeSelectors[limitedZoomDiff].length() > 0) {
             String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
                     + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "
