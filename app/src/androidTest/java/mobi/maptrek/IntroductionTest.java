@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrey Novikov
+ * Copyright 2021 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -65,12 +65,14 @@ public class IntroductionTest {
         ViewInteraction appCompatImageButton = onView(
                 allOf(withId(R.id.next),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
+                                                withId(android.R.id.content),
+                                        0)),
+                                6),
                         isDisplayed()));
+
+
         appCompatImageButton.perform(click());
 
         ViewInteraction textView2 = onView(
@@ -85,11 +87,11 @@ public class IntroductionTest {
         ViewInteraction appCompatImageButton2 = onView(
                 allOf(withId(R.id.next),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
+                                                withId(android.R.id.content),
+                                                0)),
+                                6),
                         isDisplayed()));
         appCompatImageButton2.perform(click());
 
@@ -105,11 +107,11 @@ public class IntroductionTest {
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withId(R.id.next),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
+                                                withId(android.R.id.content),
+                                                0)),
+                                6),
                         isDisplayed()));
         appCompatImageButton3.perform(click());
 
@@ -125,11 +127,11 @@ public class IntroductionTest {
         ViewInteraction appCompatImageButton4 = onView(
                 allOf(withId(R.id.next),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
+                                                withId(android.R.id.content),
+                                                0)),
+                                6),
                         isDisplayed()));
         appCompatImageButton4.perform(click());
 
@@ -145,64 +147,84 @@ public class IntroductionTest {
         ViewInteraction appCompatImageButton5 = onView(
                 allOf(withId(R.id.next),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                3),
+                                                withId(android.R.id.content),
+                                                0)),
+                                6),
                         isDisplayed()));
         appCompatImageButton5.perform(click());
 
         ViewInteraction textView6 = onView(
+                allOf(withId(R.id.title), withText("Cycling"),
+                        childAtPosition(
+                                allOf(withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))),
+                                0),
+                        isDisplayed()));
+        textView6.check(matches(withText("Cycling")));
+
+        ViewInteraction appCompatImageButton6 = onView(
+                allOf(withId(R.id.next),
+                        childAtPosition(
+                                allOf(withId(R.id.background),
+                                        childAtPosition(
+                                                withId(android.R.id.content),
+                                                0)),
+                                6),
+                        isDisplayed()));
+        appCompatImageButton5.perform(click());
+
+        ViewInteraction textView7 = onView(
                 allOf(withId(R.id.title), withText("Skiing and skating"),
                         childAtPosition(
                                 allOf(withId(R.id.main),
                                         withParent(withId(R.id.view_pager))),
                                 0),
                         isDisplayed()));
-        textView6.check(matches(withText("Skiing and skating")));
+        textView7.check(matches(withText("Skiing and skating")));
 
         if (BuildConfig.FULL_VERSION) {
-            ViewInteraction appCompatImageButton6 = onView(
+            ViewInteraction appCompatImageButton7 = onView(
                     allOf(withId(R.id.next),
                             childAtPosition(
-                                    allOf(withId(R.id.bottomContainer),
+                                    allOf(withId(R.id.background),
                                             childAtPosition(
-                                                    withId(R.id.bottom),
-                                                    1)),
-                                    3),
+                                                    withId(android.R.id.content),
+                                                    0)),
+                                    6),
                             isDisplayed()));
-            appCompatImageButton6.perform(click());
+            appCompatImageButton7.perform(click());
 
-            ViewInteraction textView7 = onView(
+            ViewInteraction textView8 = onView(
                     allOf(withId(R.id.title), withText("Night mode"),
                             childAtPosition(
                                     allOf(withId(R.id.main),
                                             withParent(withId(R.id.view_pager))),
                                     0),
                             isDisplayed()));
-            textView7.check(matches(withText("Night mode")));
+            textView8.check(matches(withText("Night mode")));
         }
 
         ViewInteraction button = onView(
                 allOf(withId(R.id.done),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                4),
+                                                withId(android.R.id.content),
+                                                0)),
+                                7),
                         isDisplayed()));
         button.check(matches(isDisplayed()));
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.done), withText("DONE"),
                         childAtPosition(
-                                allOf(withId(R.id.bottomContainer),
+                                allOf(withId(R.id.background),
                                         childAtPosition(
-                                                withId(R.id.bottom),
-                                                1)),
-                                4),
+                                                withId(android.R.id.content),
+                                                0)),
+                                7),
                         isDisplayed()));
         appCompatButton.perform(click());
 
