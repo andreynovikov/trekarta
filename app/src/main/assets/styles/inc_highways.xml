@@ -40,6 +40,26 @@
                                         text-overlap="false" />
                                 </m>
                             </m>
+                            <m cat="pedestrian" v="steps" zoom-min="16" select="first">
+                                <m cat="hiking">
+                                    <line use="path" width="6.0" />
+                                    <line fix="true" stroke="color:land" width="5.6" />
+                                    <line use="steps" width="0.8" />
+                                </m>
+                                <m cat="cycling">
+                                    <line use="path" width="6.0" />
+                                    <line fix="true" stroke="color:land" width="5.6" />
+                                    <m k="ramp:bicycle" v="yes">
+                                        <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="8" cap="butt" />
+                                    </m>
+                                    <line use="steps" width="0.8" />
+                                </m>
+                                <m>
+                                    <line stipple="6" use="path" width="4.0" />
+                                    <line fix="true" stroke="color:land" width="3.6" />
+                                    <line use="steps" width="-0.8" />
+                                </m>
+                            </m>
                             <m cat="pedestrian" v="footway|path">
                                 <m select="first">
                                     <m cat="cycling" k="bicycle" v="designated|yes">
