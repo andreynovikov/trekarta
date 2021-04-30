@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2021.04" versioncode="80" date="30.04.2021">
+        <change>New map object: intermittent pond</change>
+        <change>Fix gone amenities were not removed from map database</change>
+    </release>
     <release version="2021.03" versioncode="79" date="11.03.2021">
         <change>Cycling activity reveals bicycle infrastructure</change>
         <change>New amenities: fort, city gate, car parts, charging station, bicycle repair station, bicycle parking</change>
