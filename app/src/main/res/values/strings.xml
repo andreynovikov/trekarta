@@ -342,6 +342,7 @@
     <string name="legend_glacier">Glacier</string>
     <string name="legend_pond">Pond</string>
     <string name="legend_pond_name">Vselug</string>
+    <string name="legend_intermittent_pond">Intermittent pond</string>
     <string name="legend_river">River, canal</string>
     <string name="legend_stream">Stream</string>
     <string name="legend_waterfall">Waterfall</string>

@@ -317,6 +317,7 @@
     <string name="legend_glacier">Ледник</string>
     <string name="legend_pond">Водоём</string>
     <string name="legend_pond_name">Вселуг</string>
+    <string name="legend_intermittent_pond">Пересыхающий водоём</string>
     <string name="legend_river">Река, канал</string>
     <string name="legend_stream">Ручей</string>
     <string name="legend_waterfall">Водопад</string>

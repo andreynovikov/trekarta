@@ -127,6 +127,8 @@ public class Legend extends ListFragment {
             .addTag("natural", "glacier");
     private static final LegendItem water = new LegendItem(GeometryType.POLY, R.string.legend_pond, 17)
             .addTag("natural", "water").setText(R.string.legend_pond_name);
+    private static final LegendItem intermittent_water = new LegendItem(GeometryType.POLY, R.string.legend_intermittent_pond, 17)
+            .addTag("natural", "water").addTag("intermittent", "yes");
     private static final LegendItem river = new LegendItem(GeometryType.LINE, R.string.legend_river, 17)
             .addTag("waterway", "river");
     private static final LegendItem intermittent_river = new LegendItem(GeometryType.LINE, R.string.legend_intermittent_river, 17)
@@ -1014,6 +1016,7 @@ public class Legend extends ListFragment {
 
     private static final LegendSection water_features = new LegendSection(R.string.legend_water, new LegendItem[]{
             water,
+            intermittent_water,
             river,
             intermittent_river,
             underground_river,
