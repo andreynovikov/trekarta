@@ -7,7 +7,7 @@ __Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, c
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=mobi.maptrek)
+     height="80">](https://play.google.com/store/apps/details?id=mobi.maptrek.lite)
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/mobi.maptrek/)
