@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="BaseAppTheme">
+    <style name="Theme.App" parent="Theme.App.Base">
         <item name="android:windowLightNavigationBar">@bool/isNotNightMode</item>
     </style>
 </resources>

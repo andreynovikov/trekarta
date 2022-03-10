@@ -44,7 +44,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
@@ -69,6 +68,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -402,6 +402,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
         logger.debug("onCreate()");
@@ -414,9 +415,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return;
         }
 
-        Window window = getWindow();
         // Required for transparent status bar
-        WindowCompat.setDecorFitsSystemWindows(window, false);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         mViews = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mViews.getRoot());
@@ -758,9 +758,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Initialize data loader
         getLoaderManager();
-
-        // Remove splash from background
-        window.setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
 
         // Get back to full screen mode after edge swipe
         /*
