@@ -88,8 +88,8 @@
                 android:onClick="onHighlightedTypeClicked"
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="centerInside"
-                android:tint="@color/colorPrimaryLight"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:tint="@color/colorPrimaryLight" />
 
             <ImageButton
                 android:id="@+id/compass"
@@ -135,7 +135,7 @@
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_add_circle"
-                android:tint="?attr/zoomIconColor" />
+                app:tint="?attr/zoomIconColor" />
 
             <ImageButton
                 android:id="@+id/zoomOut"
@@ -148,7 +148,7 @@
                 android:padding="@dimen/gauge_padding"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_remove_circle"
-                android:tint="?attr/zoomIconColor" />
+                app:tint="?attr/zoomIconColor" />
         </LinearLayout>
 
         <RelativeLayout
@@ -219,7 +219,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_record"
-                    android:tint="?attr/actionIconColor" />
+                    app:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/placesButton"
@@ -230,7 +230,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_place"
-                    android:tint="?attr/actionIconColor" />
+                    app:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/mapsButton"
@@ -241,7 +241,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_layers"
-                    android:tint="?attr/actionIconColor" />
+                    app:tint="?attr/actionIconColor" />
 
                 <ImageButton
                     android:id="@+id/moreButton"
@@ -252,7 +252,7 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_menu"
-                    android:tint="?attr/actionIconColor" />
+                    app:tint="?attr/actionIconColor" />
 
             </LinearLayout>
 

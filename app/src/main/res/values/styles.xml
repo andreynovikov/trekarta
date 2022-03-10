@@ -14,11 +14,9 @@
         <item name="android:textColorPrimary">@color/primary_text_color_selector</item>
         <item name="android:textColorSecondary">@color/secondary_text_color_selector</item>
         <item name="android:textColorTertiary">@color/tertiary_text_color_selector</item>
-        <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">@bool/isNotNightMode</item>
         <item name="android:navigationBarColor">@color/colorNavigationBackground</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:windowBackground">@drawable/background_splash</item>
         <item name="dragHandleColor">@color/dragHandle</item>
         <item name="informationIconColor">@color/informationIconColor</item>

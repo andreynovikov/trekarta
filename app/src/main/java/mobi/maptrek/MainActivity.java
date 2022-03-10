@@ -68,6 +68,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -224,7 +229,6 @@ import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
 import mobi.maptrek.maps.maptrek.MapTrekTileSource;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.provider.ExportProvider;
-import mobi.maptrek.ui.SoftInputAssist;
 import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
@@ -333,7 +337,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private Map mMap;
     private ActivityMainBinding mViews;
-    private SoftInputAssist mSoftwareInputAssist;
     private boolean mVerticalOrientation;
     private int mSlideGravity;
 
@@ -396,7 +399,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
 
-    @SuppressLint({"ShowToast", "RestrictedApi", "UseCompatLoadingForDrawables"})
+    @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -412,9 +415,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
 
         Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // Required for transparent status bar
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+
         mViews = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mViews.getRoot());
+
+        // Required for proper positioning of bottom action panel
+        ViewCompat.setOnApplyWindowInsetsListener(mViews.coordinatorLayout, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            mlp.leftMargin = insets.left;
+            mlp.bottomMargin = insets.bottom;
+            mlp.rightMargin = insets.right;
+            v.setLayoutParams(mlp);
+            // Return CONSUMED if you don't want the window insets to keep being
+            // passed down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         MapTrek application = MapTrek.getApplication();
 
@@ -743,8 +761,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // Remove splash from background
         window.setBackgroundDrawable(new ColorDrawable(resources.getColor(R.color.colorBackground, theme)));
-        View decorView = window.getDecorView();
-        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() ^ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         // Get back to full screen mode after edge swipe
         /*
@@ -782,8 +798,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
         });
         */
-
-        mSoftwareInputAssist = new SoftInputAssist(this);
 
         mStartTime = SystemClock.uptimeMillis();
 
@@ -956,8 +970,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onResume();
         logger.debug("onResume()");
 
-        mSoftwareInputAssist.onResume();
-
         if (mSavedLocationState != LocationState.DISABLED)
             askForPermission();
         if (mTrackingState == TRACKING_STATE.TRACKING) {
@@ -1037,8 +1049,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onPause();
         logger.debug("onPause()");
 
-        mSoftwareInputAssist.onPause();
-
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
 
@@ -1108,9 +1118,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             deleteTracks(mDeletedTracks);
             mDeletedTracks = null;
         }
-
-        if (mSoftwareInputAssist != null)
-            mSoftwareInputAssist.onDestroy();
 
         if (mMap != null)
             mMap.destroy();
@@ -1781,10 +1788,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 int activity = Configuration.getActivity();
                 if (activity > 0)
                     ((TextView) item.getActionView()).setText(activities[activity]);
-                if (BuildConfig.FULL_VERSION) {
+                if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
                     menu.removeItem(R.id.actionHideSystemUI);
+                }
+                if (!BuildConfig.FULL_VERSION) {
                     menu.removeItem(R.id.actionImport);
                 }
                 if (Configuration.ratingActionPerformed() ||
@@ -1816,7 +1825,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onMoreLongClicked() {
         boolean show = mViews.locationButton.getVisibility() == View.INVISIBLE;
         showActionPanel(show, true);
-        if (BuildConfig.FULL_VERSION && !show && !Configuration.getHideSystemUI())
+        if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                !show && !Configuration.getHideSystemUI())
             hideSystemUI();
     }
 
@@ -3843,6 +3853,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //noinspection SwitchStatementWithTooFewBranches
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
@@ -4421,34 +4432,33 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void hideSystemUI() {
         Configuration.setHideSystemUI(true);
         Configuration.accountFullScreen();
+
+        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
+        if (windowInsetsController == null)
+            return;
+        // Configure the behavior of the hidden system bars
+        windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        // Hide the system bars.
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+
         mStatusBarHeight = 0;
-        // Set the IMMERSIVE flag to make content appear under the system bars so that the content
-        // doesn't resize when the system bars hide and show.
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        // for some reason visibility is not updated if application menu was previously shown
-        decorView.invalidate();
         updateMapViewArea();
+        mMap.updateMap();
     }
 
     private void showSystemUI() {
         mMainHandler.removeMessages(R.id.msgHideSystemUI);
         Configuration.setHideSystemUI(false);
+
+        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
+        if (windowInsetsController == null)
+            return;
+        // Show the system bars.
+        windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
+
         mStatusBarHeight = getStatusBarHeight();
-        final View decorView = getWindow().getDecorView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !mNightMode) {
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE ^ View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-        } else {
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        }
-        // for some reason visibility is not updated if application menu was previously shown
-        decorView.invalidate();
+        updateMapViewArea();
+        mMap.updateMap();
     }
 
     private int getStatusBarHeight() {
