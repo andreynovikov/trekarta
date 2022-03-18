@@ -17,6 +17,8 @@
 package mobi.maptrek;
 
 import android.os.Bundle;
+
+import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.Fragment;
 
 import com.github.appintro.AppIntro;
@@ -29,6 +31,7 @@ public class IntroductionActivity extends AppIntro {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
         int lastSeenIntroduction = Configuration.getLastSeenIntroduction();
