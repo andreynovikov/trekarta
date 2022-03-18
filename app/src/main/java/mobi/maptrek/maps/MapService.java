@@ -31,6 +31,8 @@ import androidx.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
@@ -89,64 +91,68 @@ public class MapService extends IntentService {
 
         startForeground(JOB_ID, builder.build());
 
-        MapTrek application = MapTrek.getApplication();
-        Index mapIndex = application.getMapIndex();
+        try {
+            MapTrek application = MapTrek.getApplication();
+            Index mapIndex = application.getMapIndex();
 
-        if (actionImport) {
-            Uri uri = intent.getData();
-            if (uri == null)
-                return;
-            String filename = uri.getLastPathSegment();
-            if (filename == null)
-                return;
-            boolean hillshade = false;
-            final int x, y;
-            if (Index.BASEMAP_FILENAME.equals(filename)) {
-                x = -1;
-                y = -1;
-                builder.setContentTitle(getString(R.string.baseMapTitle));
-            } else {
-                String[] parts = filename.split("[\\-.]");
-                try {
-                    if (parts.length != 3)
-                        throw new NumberFormatException("unexpected name");
-                    x = Integer.parseInt(parts[0]);
-                    y = Integer.parseInt(parts[1]);
-                    hillshade = "mbtiles".equals(parts[2]);
-                    if (x > 127 || y > 127)
-                        throw new NumberFormatException("out of range");
-                } catch (NumberFormatException e) {
-                    logger.error(e.getMessage());
+            if (actionImport) {
+                Uri uri = intent.getData();
+                if (uri == null)
+                    return;
+                String filename = uri.getLastPathSegment();
+                if (filename == null)
+                    return;
+                boolean hillshade = false;
+                final int x, y;
+                if (Index.BASEMAP_FILENAME.equals(filename)) {
+                    x = -1;
+                    y = -1;
+                    builder.setContentTitle(getString(R.string.baseMapTitle));
+                } else {
+                    String[] parts = filename.split("[\\-.]");
+                    try {
+                        if (parts.length != 3)
+                            throw new NumberFormatException("unexpected name");
+                        x = Integer.parseInt(parts[0]);
+                        y = Integer.parseInt(parts[1]);
+                        hillshade = "mbtiles".equals(parts[2]);
+                        if (x > 127 || y > 127)
+                            throw new NumberFormatException("out of range");
+                    } catch (NumberFormatException e) {
+                        logger.error(e.getMessage());
+                        builder.setContentIntent(pendingIntent);
+                        builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+                        if (notificationManager != null)
+                            notificationManager.notify(JOB_ID, builder.build());
+                        return;
+                    }
+                    builder.setContentTitle(getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y));
+                }
+                if (notificationManager != null)
+                    notificationManager.notify(JOB_ID, builder.build());
+
+                if (processDownload(mapIndex, x, y, hillshade, uri.getPath(),
+                        new OperationProgressListener(notificationManager, builder))) {
+                    application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
+                    builder.setContentText(getString(R.string.complete));
+                } else {
                     builder.setContentIntent(pendingIntent);
                     builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
-                    if (notificationManager != null)
-                        notificationManager.notify(JOB_ID, builder.build());
-                    return;
                 }
-                builder.setContentTitle(getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y));
+                if (notificationManager != null)
+                    notificationManager.notify(JOB_ID, builder.build());
             }
-            if (notificationManager != null)
-                notificationManager.notify(JOB_ID, builder.build());
 
-            if (processDownload(mapIndex, x, y, hillshade, uri.getPath(),
-                    new OperationProgressListener(notificationManager, builder))) {
-                application.sendBroadcast(new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y));
-                builder.setContentText(getString(R.string.complete));
-            } else {
-                builder.setContentIntent(pendingIntent);
-                builder.setContentText(getString(R.string.failed)).setProgress(0, 0, false);
+            if (actionRemoval) {
+                int x = intent.getIntExtra(EXTRA_X, -1);
+                int y = intent.getIntExtra(EXTRA_Y, -1);
+                mapIndex.removeNativeMap(x, y, new OperationProgressListener(notificationManager, builder));
+                application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
+                if (notificationManager != null)
+                    notificationManager.cancel(0);
             }
-            if (notificationManager != null)
-                notificationManager.notify(JOB_ID, builder.build());
-        }
-
-        if (actionRemoval) {
-            int x = intent.getIntExtra(EXTRA_X, -1);
-            int y = intent.getIntExtra(EXTRA_Y, -1);
-            mapIndex.removeNativeMap(x, y, new OperationProgressListener(notificationManager, builder));
-            application.sendBroadcast(new Intent(BROADCAST_MAP_REMOVED).putExtras(intent));
-            if (notificationManager != null)
-                notificationManager.cancel(0);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
 
         stopForeground(true);

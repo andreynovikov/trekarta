@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -43,6 +43,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -140,6 +141,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -464,8 +466,20 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mFragmentManager = getFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
 
-        // Provide application context so that maps can be cached on rotation
-        mNativeMapIndex = application.getMapIndex();
+        try {
+            // Provide application context so that maps can be cached on rotation
+            mNativeMapIndex = application.getMapIndex();
+        } catch (Exception e) { // It's happening on Android 12 when maps where moved to external storage
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.actionMoveData);
+            builder.setMessage(R.string.msgMoveDataToApplicationStorageExplanation);
+            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
+                Configuration.setNewExternalStorage(NEW_APPLICATION_STORAGE);
+                MapTrek.getApplication().restart(this, DataMoveActivity.class);
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
         mMapIndex = application.getExtraMapIndex();
 
         mShieldFactory = application.getShieldFactory();
@@ -621,12 +635,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_EVENTS);
         layers.addGroup(MAP_BASE);
 
-        mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
-        mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
-
-        mBaseLayer = new MapTrekTileLayer(mMap, mNativeTileSource, this);
-
-        mMap.setBaseMap(mBaseLayer); // will go to base group
+        try {
+            mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
+            mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
+            mBaseLayer = new MapTrekTileLayer(mMap, mNativeTileSource, this);
+            mMap.setBaseMap(mBaseLayer); // will go to base group
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
 
         // setBaseMap does not operate with layer groups so we add remaining groups later
         layers.addGroup(MAP_MAPS);
@@ -638,15 +654,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        if (Configuration.getHillshadesEnabled())
-            showHillShade();
+        try {
+            if (Configuration.getHillshadesEnabled())
+                showHillShade();
+        } catch (SQLiteCantOpenDatabaseException ignore) {
+            // temporary, until data will be moved to application folder
+        }
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
             layers.add(mGridLayer, MAP_OVERLAYS);
 
         mBuildingsLayerEnabled = Configuration.getBuildingsLayerEnabled();
-        if (mBuildingsLayerEnabled) {
+        if (mBuildingsLayerEnabled && mBaseLayer != null) {
             mBuildingsLayer = new S3DBLayer(mMap, mBaseLayer, true);
             layers.add(mBuildingsLayer, MAP_3D);
         }
@@ -655,8 +675,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mLabelTileLoaderHook.setPreferredLanguage(language);
-        mLabelsLayer = new LabelLayer(mMap, mBaseLayer, mLabelTileLoaderHook);
-        layers.add(mLabelsLayer, MAP_LABELS);
+        if (mBaseLayer != null) {
+            mLabelsLayer = new LabelLayer(mMap, mBaseLayer, mLabelTileLoaderHook);
+            layers.add(mLabelsLayer, MAP_LABELS);
+        }
 
         int paintColor = resources.getColor(R.color.textColorPrimary, theme);
         int strokeColor = resources.getColor(R.color.colorBackground, theme);
@@ -676,13 +698,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
-        mWaypointDbDataSource = application.getWaypointDbDataSource();
-        mWaypointDbDataSource.open();
-        for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
-            if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
-                mEditedWaypoint = waypoint;
-            addWaypointMarker(waypoint);
-            mTotalDataItems++;
+        try {
+            mWaypointDbDataSource = application.getWaypointDbDataSource();
+            mWaypointDbDataSource.open();
+            for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
+                if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
+                    mEditedWaypoint = waypoint;
+                addWaypointMarker(waypoint);
+                mTotalDataItems++;
+            }
+        } catch (SQLiteCantOpenDatabaseException ignore) {
+            // temporary, until data will be moved to application folder
         }
         mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED));
@@ -694,7 +720,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         for (MapFile bitmapLayerMap : mBitmapLayerMaps)
             showBitmapMap(bitmapLayerMap, false);
 
-        setMapTheme();
+        try {
+            setMapTheme();
+        } catch (IllegalStateException ignore) {
+            // temporary, until data will be moved to application folder
+        }
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -1015,7 +1045,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
-        } else if (!mBaseMapWarningShown && mNativeMapIndex.getBaseMapVersion() == 0) {
+        } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
             BaseMapDownload fragment = (BaseMapDownload) Fragment.instantiate(this, BaseMapDownload.class.getName());
             fragment.setMapIndex(mNativeMapIndex);
             fragment.setEnterTransition(new Slide());
@@ -1024,7 +1054,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
-        } else {
+        } else if (mNativeMapIndex != null) { // this is temporary, until we will move data back to application folder
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
             dialogFragment.show(mFragmentManager, "whatsNew");
         }

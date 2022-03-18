@@ -168,6 +168,9 @@
     <string name="msgMoveDataToSDCard">Move to SD card to free device storage space</string>
     <string name="msgMoveDataToExternalStorageExplanation">All application data - places, tracks and maps will be moved to user storage root folder. This will prevent data from being silently removed when application is uninstalled. Application will restart to perform data move.</string>
     <string name="msgMoveDataToSDCardExplanation">All application data - places, tracks and maps will be moved to SD card. Depending on SD card type this may result in significant performance degradation. Please notice that data will be still automatically removed upon application uninstall. Application will restart to perform data move.</string>
+    <string name="msgMoveDataToApplicationStorageExplanation">Unfortunately Android 11 sets severe restrictions on accessing storage outside application folder. Therefore all data will be moved back to application folder, otherwise Trekarta wouldn\'t be able to work.</string>
+    <string name="msgMoveDataToApplicationStoragePermissionExplanation">Please select root folder where Trekarta currently stores all data (it should be named \'Trekarta\' and located in storage root) and allow access to these files.</string>
+    <string name="msgMoveDataToApplicationCheckExplanation">Check that all data is safely moved, nothing is lost and remove \'Trekarta\' folder from storage root.</string>
     <string name="msgMovingFiles">Moving files…</string>
     <string name="msgFailedToMoveData">Failed to move data: %s</string>
     <string name="msgCannotCreateDestinationFolder">cannot create destination folder</string>

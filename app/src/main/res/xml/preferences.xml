@@ -58,11 +58,11 @@
     <PreferenceCategory
         android:key="category_advanced"
         android:title="@string/pref_advanced">
-        <Preference
+        <!--Preference
             android:key="move_data"
             android:title="@string/actionMoveData">
             <intent android:action="mobi.maptrek.action.MOVE_DATA" />
-        </Preference>
+        </Preference-->
         <Preference
             android:key="reset_advices"
             android:title="@string/actionResetAdvices">

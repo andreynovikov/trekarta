@@ -48,6 +48,7 @@ import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import mobi.maptrek.Configuration;
@@ -221,13 +222,17 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     public void setAmenity(long id) {
-        mAmenity = MapTrekDatabaseHelper.getAmenityData(mLang, id, MapTrek.getApplication().getDetailedMapDatabase());
-        if (isVisible()) {
-            mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
-            updateAmenityInformation(mLatitude, mLongitude);
-            final ViewGroup rootView = (ViewGroup) getView();
-            if (rootView != null)
-                rootView.post(() -> updatePeekHeight(rootView, true));
+        try {
+            mAmenity = MapTrekDatabaseHelper.getAmenityData(mLang, id, MapTrek.getApplication().getDetailedMapDatabase());
+            if (isVisible()) {
+                mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
+                updateAmenityInformation(mLatitude, mLongitude);
+                final ViewGroup rootView = (ViewGroup) getView();
+                if (rootView != null)
+                    rootView.post(() -> updatePeekHeight(rootView, true));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

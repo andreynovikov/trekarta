@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -51,11 +51,14 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
             category.removePreference(findPreference("hillshades_transparency"));
         }
 
+        /*
         Preference sdcardPref = findPreference("move_data");
         sdcardPref.setOnPreferenceClickListener(preference -> {
             mFragmentHolder.popCurrent();
             return false;
         });
+         */
+
         Preference resetPref = findPreference("reset_advices");
         resetPref.setOnPreferenceClickListener(preference -> {
             mFragmentHolder.popCurrent();
@@ -76,7 +79,7 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         try {
             mFragmentHolder = (FragmentHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 

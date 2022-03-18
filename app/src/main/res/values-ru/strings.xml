@@ -744,4 +744,7 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
+    <string name="msgMoveDataToApplicationStoragePermissionExplanation">Выберите корневую папку, в которой Трекарта хранит все данные (обычно это папка \\\'Trekarta\\\' в корне хранилища файлов) и разрешите доступ к этим файлам.</string>
+    <string name="msgMoveDataToApplicationCheckExplanation">Проверьте, что все данные успешно перемещены, ничего не потеряно, и удалите папку \\\'Trekarta\\\' в корне хранилища файлов.</string>
+    <string name="msgMoveDataToApplicationStorageExplanation">К сожалению, Android 11 устанавливает жёсткие ограничения на доступ к файлам вне папки приложения. Поэтому все данные будут скопированы обратно в папку приложения, иначе Трекарта не сможет продолжить работу.</string>
 </resources>

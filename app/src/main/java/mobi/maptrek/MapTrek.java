@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,16 +18,15 @@ package mobi.maptrek;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
@@ -218,15 +217,20 @@ public class MapTrek extends Application {
 
     public void restart(@NonNull Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        /*
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (mgr != null)
-            mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 100, pendingIntent);
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
+         */
         if (context instanceof Activity)
             ((Activity) context).finish();
+        startActivity(intent);
+        /*
         Configuration.commit();
         Runtime.getRuntime().exit(0);
+         */
     }
 
     @TargetApi(26)
@@ -277,7 +281,7 @@ public class MapTrek extends Application {
             return new File(externalDir, type);
     }
 
-    public synchronized SQLiteDatabase getDetailedMapDatabase() {
+    public synchronized SQLiteDatabase getDetailedMapDatabase() throws IOException {
         if (mDetailedMapHelper == null) {
             File dbFile = new File(getExternalDir("native"), Index.WORLDMAP_FILENAME);
             boolean fresh = !dbFile.exists();
@@ -287,6 +291,9 @@ public class MapTrek extends Application {
             mDetailedMapHelper.setWriteAheadLoggingEnabled(true);
             try {
                 mDetailedMapDatabase = mDetailedMapHelper.getWritableDatabase();
+            } catch (SQLiteCantOpenDatabaseException e) {
+                logger.error("Failed to open map file", e);
+                mDetailedMapHelper.close();
             } catch (SQLiteException e) {
                 logger.error("Detailed map error", e);
                 mDetailedMapHelper.close();
@@ -320,6 +327,10 @@ public class MapTrek extends Application {
         if (mHillshadeDatabase == null) {
             try {
                 mHillshadeDatabase = getHillshadeDatabaseHelper(false).getWritableDatabase();
+            } catch (SQLiteCantOpenDatabaseException ignore) {
+                logger.error("Failed to open hillshade file");
+                mHillshadeHelper.close();
+                mHillshadeHelper = null;
             } catch (SQLiteException ignore) {
                 mHillshadeHelper.close();
                 mHillshadeHelper = null;
@@ -340,7 +351,7 @@ public class MapTrek extends Application {
             return null;
     }
 
-    public Index getMapIndex() {
+    public Index getMapIndex() throws IOException {
         if (mIndex == null)
             mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
         return mIndex;
@@ -401,20 +412,16 @@ public class MapTrek extends Application {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void copyAsset(String asset, File outFile) {
-        try {
-            InputStream in = getAssets().open(asset);
-            OutputStream out = new FileOutputStream(outFile);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            in.close();
-            out.close();
-        } catch (IOException e) {
-            logger.error("Failed to copy world map asset", e);
+    private void copyAsset(String asset, File outFile) throws IOException {
+        InputStream in = getAssets().open(asset);
+        OutputStream out = new FileOutputStream(outFile);
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
         }
+        in.close();
+        out.close();
     }
 
     public boolean hasPreviousRunsExceptions() {

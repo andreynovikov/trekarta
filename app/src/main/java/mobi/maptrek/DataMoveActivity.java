@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -23,14 +23,22 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import android.provider.DocumentsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -39,6 +47,7 @@ import android.widget.TextView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,7 +62,7 @@ public class DataMoveActivity extends Activity {
     private static final String DATA_MOVE_FRAGMENT = "dataMoveFragment";
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
-    private static String[] directories = new String[]{"data", "databases", "maps", "native"};
+    private static final String[] directories = new String[]{"data", "databases", "maps", "native"};
 
     private DataMoveFragment mDataMoveFragment;
     private MoveProgressHandler mProgressHandler;
@@ -61,6 +70,7 @@ public class DataMoveActivity extends Activity {
     private TextView mFileNameView;
     private ProgressBar mProgressBar;
     private Button mActionButton;
+    private static boolean mHasFolderPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +117,7 @@ public class DataMoveActivity extends Activity {
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mFileNameView.setText(savedInstanceState.getString("filename"));
         mProgressBar.setMax(savedInstanceState.getInt("progressBarMax"));
@@ -140,22 +150,36 @@ public class DataMoveActivity extends Activity {
             }
 
         } else {
-            mDataMoveFragment.startDataMove();
+            mDataMoveFragment.startDataMove(null);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mDataMoveFragment.startDataMove();
-                } else {
-                    Configuration.setNewExternalStorage(null);
-                    finish();
-                }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mDataMoveFragment.startDataMove(null);
+            } else {
+                Configuration.setNewExternalStorage(null);
+                finish();
             }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void askForFolderPermission() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.fromFile(new File(Configuration.getExternalStorage())));
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            mHasFolderPermission = true;
+            if (resultData != null)
+                mDataMoveFragment.startDataMove(resultData.getData());
         }
     }
 
@@ -187,12 +211,18 @@ public class DataMoveActivity extends Activity {
                 mProgressBar.setVisibility(View.GONE);
                 mActionButton.setVisibility(View.GONE);
                 mFileNameView.setText(R.string.finishing);
-                Intent iLaunch = new Intent(Intent.ACTION_MAIN);
-                iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-                iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
-                iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                startActivity(iLaunch);
-                finish();
+                if (Configuration.getExternalStorage() == null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DataMoveActivity.this);
+                    builder.setTitle(R.string.actionMoveData);
+                    builder.setMessage(R.string.msgMoveDataToApplicationCheckExplanation);
+                    builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
+                        restartMainActivity();
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                } else {
+                    restartMainActivity();
+                }
             }
         }
 
@@ -200,6 +230,15 @@ public class DataMoveActivity extends Activity {
         public void onProgressAnnotated(final String annotation) {
             runOnUiThread(() -> mFileNameView.setText(annotation));
         }
+    }
+
+    private void restartMainActivity() {
+        Intent iLaunch = new Intent(Intent.ACTION_MAIN);
+        iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
+        iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
+        iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(iLaunch);
+        finish();
     }
 
     private void setFinished() {
@@ -222,7 +261,6 @@ public class DataMoveActivity extends Activity {
         private ProgressListener mProgressListener;
         private int mProgress;
         private int mDivider = 1;
-        private File mSource;
         private File mDestination;
         private final Object lock = new Object();
         private boolean mStopped;
@@ -240,12 +278,22 @@ public class DataMoveActivity extends Activity {
         }
 
         @Override
-        public void onStart() {
-            super.onStart();
-            if (MainActivity.NEW_EXTERNAL_STORAGE.equals(Configuration.getNewExternalStorage()))
-                ((DataMoveActivity) getActivity()).askForPermission();
-            else
-                startDataMove();
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            logger.error("onAttach context");
+            DataMoveActivity activity = (DataMoveActivity) getActivity();
+            if (MainActivity.NEW_EXTERNAL_STORAGE.equals(Configuration.getNewExternalStorage())) {
+                activity.askForPermission();
+            } else if (MainActivity.NEW_APPLICATION_STORAGE.equals(Configuration.getNewExternalStorage()) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !mHasFolderPermission) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle(R.string.actionMoveData);
+                builder.setMessage(R.string.msgMoveDataToApplicationStoragePermissionExplanation);
+                builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> activity.askForFolderPermission());
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            } else {
+                startDataMove(null);
+            }
         }
 
         @Override
@@ -267,18 +315,18 @@ public class DataMoveActivity extends Activity {
             mProgressListener = listener;
         }
 
-        private void moveData() {
+        private void moveData(Uri uri) {
             MapTrek application = MapTrek.getApplication();
             DataMoveActivity activity = (DataMoveActivity) getActivity();
 
             mStopped = false;
 
             String currentStorage = Configuration.getExternalStorage();
+            File source;
             if (currentStorage != null)
-                mSource = new File(currentStorage);
+                source = new File(currentStorage);
             else
-                mSource = application.getExternalFilesDir(null);
-            assert mSource != null;
+                source = application.getExternalFilesDir(null);
 
             boolean moveHome = false;
             String newStorage = Configuration.getNewExternalStorage();
@@ -317,9 +365,14 @@ public class DataMoveActivity extends Activity {
 
             // check if there is enough empty space
             long size = 0L;
-            for (String dir : directories) {
-                File sourcePath = new File(mSource, dir);
-                size += getDirectorySize(sourcePath);
+            if (uri != null) {
+                Uri rootUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+                size = getDirectoryEntriesSize(rootUri);
+            } else {
+                for (String dir : directories) {
+                    File sourcePath = new File(source, dir);
+                    size += getDirectorySize(sourcePath);
+                }
             }
 
             logger.error("Required space: {}", size);
@@ -340,10 +393,15 @@ public class DataMoveActivity extends Activity {
             mProgressListener.onProgressAnnotated(getString(R.string.msgMovingFiles));
 
             try {
-                for (String dir : directories) {
-                    File sourcePath = new File(mSource, dir);
-                    if (sourcePath.exists())
-                        copyDirectory(sourcePath, new File(mDestination, dir));
+                if (uri != null) {
+                    Uri rootUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+                    copyDirectoryEntries(rootUri, mDestination);
+                } else {
+                    for (String dir : directories) {
+                        File sourcePath = new File(source, dir);
+                        if (sourcePath.exists())
+                            copyDirectory(sourcePath, new File(mDestination, dir));
+                    }
                 }
             } catch (IOException e) {
                 logger.error("Failed to move data", e);
@@ -357,15 +415,15 @@ public class DataMoveActivity extends Activity {
                 activity.setFinished();
                 if (mProgressListener != null) {
                     Bundle data = new Bundle(2);
-                    data.putString("source", mSource.getAbsolutePath());
+                    data.putString("source", source.getAbsolutePath());
                     data.putString("destination", mDestination.getAbsolutePath());
                     mProgressListener.onProgressFinished(data);
                 }
             }
         }
 
-        public void startDataMove() {
-            final Message m = Message.obtain(mBackgroundHandler, this::moveData);
+        public void startDataMove(Uri uri) {
+            final Message m = Message.obtain(mBackgroundHandler, () -> this.moveData(uri));
             mBackgroundHandler.sendMessage(m);
         }
 
@@ -379,8 +437,9 @@ public class DataMoveActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                if (mDestination != null)
-                    emptyDirectory(mDestination);
+                // FIXME Stop on destination not empty - still removing destination
+                // if (mDestination != null)
+                //     emptyDirectory(mDestination);
                 Configuration.setNewExternalStorage(null);
                 Configuration.commit();
             }
@@ -396,9 +455,9 @@ public class DataMoveActivity extends Activity {
                 }
 
                 String[] children = source.list();
-                for (String child : children) {
-                    copyDirectory(new File(source, child), new File(destination, child));
-                }
+                if (children != null)
+                    for (String child : children)
+                        copyDirectory(new File(source, child), new File(destination, child));
             } else {
                 // make sure the directory we plan to store the recording in exists
                 File directory = destination.getParentFile();
@@ -408,17 +467,113 @@ public class DataMoveActivity extends Activity {
 
                 logger.debug("Copy: [{}][{}]", source.getAbsolutePath(), destination.getAbsolutePath());
 
-                mInputStream = new MonitoredInputStream(new FileInputStream(source));
+                try {
+                    mInputStream = new MonitoredInputStream(new FileInputStream(source));
 
-                mInputStream.addChangeListener(location -> {
-                    if (mProgressListener != null) {
-                        int progress = mDivider > 1 ? (int) location >> mDivider : (int) location;
-                        mProgressListener.onProgressChanged(mProgress + progress);
+                    mInputStream.addChangeListener(location -> {
+                        if (mProgressListener != null) {
+                            int progress = mDivider > 1 ? (int) location >> mDivider : (int) location;
+                            mProgressListener.onProgressChanged(mProgress + progress);
+                        }
+                    });
+
+                    FileUtils.copyStreamToFile(mInputStream, destination);
+                    mProgress += source.length();
+                } catch (java.io.FileNotFoundException ignore) {
+                    logger.error("No file");
+                }
+            }
+        }
+
+        long getDirectoryEntriesSize(Uri childrenUri) {
+            ContentResolver contentResolver = getActivity().getContentResolver();
+            long totalSize = 0L;
+            Cursor c = contentResolver.query(childrenUri, new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_SIZE
+            }, null, null, null);
+            try {
+                while (c != null && c.moveToNext()) {
+                    if (mStopped)
+                        break;
+                    final String docId = c.getString(0);
+                    final String mime = c.getString(1);
+                    final int size = c.getInt(2);
+                    if (isDirectory(mime)) {
+                        final Uri childrenNode = DocumentsContract.buildChildDocumentsUriUsingTree(childrenUri, docId);
+                        totalSize += getDirectoryEntriesSize(childrenNode);
+                    } else {
+                        totalSize += size;
                     }
-                });
+                }
+            } finally {
+                closeQuietly(c);
+            }
+            return totalSize;
+        }
 
-                FileUtils.copyStreamToFile(mInputStream, destination);
-                mProgress += source.length();
+        void copyDirectoryEntries(Uri childrenUri, File destination) throws IOException {
+            ContentResolver contentResolver = getActivity().getContentResolver();
+
+            Cursor c = contentResolver.query(childrenUri, new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_SIZE
+            }, null, null, null);
+            try {
+                while (c != null && c.moveToNext()) {
+                    if (mStopped)
+                        break;
+                    final String docId = c.getString(0);
+                    final String name = c.getString(1);
+                    final String mime = c.getString(2);
+                    final int size = c.getInt(3);
+                    File destinationChild = new File(destination, name);
+                    if (isDirectory(mime)) {
+                        if (!destinationChild.exists() && !destinationChild.mkdirs()) {
+                            throw new IOException("Cannot create dir " + destinationChild.getAbsolutePath());
+                        }
+                        final Uri childrenNode = DocumentsContract.buildChildDocumentsUriUsingTree(childrenUri, docId);
+                        copyDirectoryEntries(childrenNode, destinationChild);
+                    } else {
+                        final Uri node = DocumentsContract.buildDocumentUriUsingTree(childrenUri, docId);
+                        logger.debug("Copy: [{}][{}]", node, destinationChild.getAbsolutePath());
+
+                        mInputStream = new MonitoredInputStream(contentResolver.openInputStream(node));
+
+                        mInputStream.addChangeListener(location -> {
+                            if (mProgressListener != null) {
+                                int progress = mDivider > 1 ? (int) location >> mDivider : (int) location;
+                                mProgressListener.onProgressChanged(mProgress + progress);
+                            }
+                        });
+
+                        FileUtils.copyStreamToFile(mInputStream, destinationChild);
+                        mProgress += size;
+                    }
+                }
+            } finally {
+                closeQuietly(c);
+            }
+        }
+
+        // Util method to check if the mime type is a directory
+        private static boolean isDirectory(String mimeType) {
+            return DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType);
+        }
+
+        // Util method to close a closeable
+        private static void closeQuietly(Closeable closeable) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (RuntimeException re) {
+                    throw re;
+                } catch (Exception ignore) {
+                    // ignore exception
+                }
             }
         }
     }
@@ -427,9 +582,9 @@ public class DataMoveActivity extends Activity {
         long size = 0L;
         if (source.isDirectory()) {
             File[] children = source.listFiles();
-            for (File child : children) {
-                size += getDirectorySize(child);
-            }
+            if (children != null)
+                for (File child : children)
+                    size += getDirectorySize(child);
         } else {
             size = source.length();
         }
@@ -439,9 +594,9 @@ public class DataMoveActivity extends Activity {
     private static void emptyDirectory(File source) {
         if (source.isDirectory()) {
             String[] children = source.list();
-            for (String child : children) {
-                emptyDirectory(new File(source, child));
-            }
+            if (children != null)
+                for (String child : children)
+                    emptyDirectory(new File(source, child));
         }
         logger.debug("Delete: [{}]", source.getAbsolutePath());
         //noinspection ResultOfMethodCallIgnored

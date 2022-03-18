@@ -58,6 +58,7 @@ import org.oscim.theme.IRenderTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -167,7 +168,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
         mCoordinates = new GeoPoint(latitude, longitude);
 
-        mDatabase = MapTrek.getApplication().getDetailedMapDatabase();
+        try {
+            mDatabase = MapTrek.getApplication().getDetailedMapDatabase();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
 
         mAdapter = new DataListAdapter(activity, mEmptyCursor, 0);
         setListAdapter(mAdapter);
