@@ -24,6 +24,7 @@ import org.oscim.tiling.TileSource;
 
 public class MapFile {
     public String name;
+    public String id;
     public BoundingBox boundingBox;
     public TileSource tileSource;
     public transient TileLayer tileLayer;
@@ -32,8 +33,9 @@ public class MapFile {
     MapFile() {
     }
 
-    public MapFile(String name) {
+    public MapFile(String name, String id) {
         this.name = name;
+        this.id = id;
     }
 
     /**

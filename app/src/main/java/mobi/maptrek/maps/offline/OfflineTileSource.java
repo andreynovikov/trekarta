@@ -166,4 +166,8 @@ public class OfflineTileSource extends TileSource {
     public String getName() {
         return mName;
     }
+
+    public String getUri() {
+        return mUri;
+    }
 }
