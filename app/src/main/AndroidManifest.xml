@@ -50,7 +50,8 @@
     <application
         android:name=".MapTrek"
         android:allowBackup="true"
-        android:fullBackupContent="@xml/backup_scheme"
+        android:fullBackupContent="@xml/old_backup_scheme"
+        android:dataExtractionRules="@xml/new_backup_scheme"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
