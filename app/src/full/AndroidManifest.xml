@@ -4,12 +4,17 @@
     package="mobi.maptrek">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <application tools:ignore="AllowBackup">
+    <application
+        tools:ignore="AllowBackup"
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".DataImportActivity"
             android:label="@string/intentImportData"
-            android:theme="@android:style/Theme.Material.Light.Dialog">
+            android:theme="@android:style/Theme.Material.Light.Dialog"
+            android:exported="true">
             <intent-filter android:label="@string/intentImportData">
                 <action android:name="android.intent.action.VIEW" />
 

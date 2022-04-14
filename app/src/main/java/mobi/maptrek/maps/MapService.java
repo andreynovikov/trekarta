@@ -84,7 +84,7 @@ public class MapService extends IntentService {
         builder.setContentTitle(getString(titleRes))
                 .setSmallIcon(R.drawable.ic_import_export)
                 .setGroup("maptrek")
-                .setCategory(Notification.CATEGORY_SERVICE)
+                .setCategory(Notification.CATEGORY_PROGRESS)
                 .setPriority(Notification.PRIORITY_LOW)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setColor(getResources().getColor(R.color.colorAccent, getTheme()));

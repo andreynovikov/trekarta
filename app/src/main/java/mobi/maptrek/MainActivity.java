@@ -999,10 +999,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (mSavedLocationState != LocationState.DISABLED)
             askForPermission();
-        if (mTrackingState == TRACKING_STATE.TRACKING) {
+        if (mTrackingState == TRACKING_STATE.TRACKING)
             enableTracking();
-            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_TRACK));
-        }
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences.getBoolean(NavigationService.PREF_NAVIGATION_BACKGROUND, false)) {
@@ -1094,14 +1092,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Configuration.setGauges(mViews.gaugePanel.getGaugeSettings());
 
         if (!isChangingConfigurations()) {
-            Intent intent = new Intent(getApplicationContext(), LocationService.class);
-            if (mTrackingState == TRACKING_STATE.TRACKING)
-                startService(intent.setAction(BaseLocationService.ENABLE_BACKGROUND_TRACK));
-            else
-                stopService(intent);
+            if (mTrackingState != TRACKING_STATE.TRACKING)
+                stopService(new Intent(getApplicationContext(), LocationService.class));
 
             if (mNavigationService != null) {
-                intent = new Intent(getApplicationContext(), NavigationService.class);
+                Intent intent = new Intent(getApplicationContext(), NavigationService.class);
                 if (mNavigationService.isNavigating())
                     startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
                 else
@@ -2099,7 +2094,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void enableTracking() {
-        startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK));
+        Intent intent = new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startForegroundService(intent);
+        else
+            startService(intent);
         if (mCurrentTrackLayer == null) {
             mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
             mMap.layers().add(mCurrentTrackLayer, MAP_DATA);

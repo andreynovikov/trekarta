@@ -12,6 +12,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -59,7 +60,8 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -105,7 +107,8 @@
         <service
             android:name=".location.LocationService"
             android:foregroundServiceType="location"
-            android:permission="${applicationId}.permission.RECEIVE_LOCATION">
+            android:permission="${applicationId}.permission.RECEIVE_LOCATION"
+            android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.location" />
                 <action android:name="${applicationId}.location.ILocationRemoteService" />
@@ -135,21 +138,23 @@
             android:readPermission="${applicationId}.permission.READ_MAP_DATA"
             android:writePermission="${applicationId}.permission.WRITE_MAP_DATA" />
 
-        <receiver android:name=".DownloadReceiver">
+        <receiver android:name=".DownloadReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
         <receiver
             android:name=".WaypointsRestoreReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter android:priority="-10">
                 <action android:name="mobi.maptrek.event.WaypointsRestored" />
             </intent-filter>
         </receiver>
         <receiver
             android:name=".plugin.PluginEntryReceiver"
-            android:permission="${applicationId}.permission.ADD_PLUGIN_ENTRIES">
+            android:permission="${applicationId}.permission.ADD_PLUGIN_ENTRIES"
+            android:exported="true">
             <intent-filter>
                 <action android:name="mobi.maptrek.plugin.NewEntry" />
             </intent-filter>

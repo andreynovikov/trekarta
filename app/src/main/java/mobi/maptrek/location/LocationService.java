@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -32,6 +32,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Icon;
+import android.location.GnssStatus;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.GpsStatus.NmeaListener;
@@ -48,6 +49,8 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.text.format.DateUtils;
 
@@ -87,11 +90,12 @@ public class LocationService extends BaseLocationService implements LocationList
 
     // Fake locations used for test purposes
     private static final boolean enableMockLocations = false;
-    private Handler mMockCallback = new Handler();
+    private final Handler mMockCallback = new Handler();
     private int mMockLocationTicker = 0;
 
     // Real locations
     private LocationManager mLocationManager = null;
+    private GnssStatus.Callback mGnssStatusCallback = null;
     private boolean mLocationsEnabled = false;
     private long mLastLocationMillis = 0;
 
@@ -143,6 +147,32 @@ public class LocationService extends BaseLocationService implements LocationList
     public void onCreate() {
         mLastKnownLocation = new Location("unknown");
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            mGnssStatusCallback = new GnssStatus.Callback() {
+                public void onFirstFix(int ttffMillis) {
+                    onGpsFirstFix();
+                }
+
+                public void onSatelliteStatusChanged(@NonNull GnssStatus status) {
+                    mTSats = status.getSatelliteCount();
+                    mFSats = 0;
+                    for (int i = 0; i < mTSats; i++) {
+                        if (status.usedInFix(i))
+                            mFSats++;
+                    }
+                    updateGpsStatus();
+                }
+
+                public void onStarted() {
+                    onGpsStarted();
+                }
+
+                public void	onStopped() {
+                    onGpsStopped();
+                }
+            };
+        }
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // Tracking preferences
         onSharedPreferenceChanged(sharedPreferences, PREF_TRACKING_MIN_TIME);
@@ -159,7 +189,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
         String action = intent.getAction();
         logger.debug("Command: {}", action);
-        if (action.equals(ENABLE_TRACK) || action.equals(ENABLE_BACKGROUND_TRACK) && !mTrackingEnabled) {
+        if (action.equals(ENABLE_TRACK) && !mTrackingEnabled) {
             mErrorMsg = "";
             mErrorTime = 0;
             mTrackingEnabled = true;
@@ -168,13 +198,21 @@ public class LocationService extends BaseLocationService implements LocationList
             openDatabase();
             mTrackingStarted = SystemClock.uptimeMillis();
             mTrackStarted = System.currentTimeMillis();
+            mForeground = true;
+            updateDistanceTracked();
+            // https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
+            startForeground(NOTIFICATION_ID, getNotification());
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
             mForeground = false;
             updateDistanceTracked();
             closeDatabase();
-            stopForeground(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            } else {
+                stopForeground(true);
+            }
             long trackedTime = (SystemClock.uptimeMillis() - mTrackingStarted) / 60000;
             Configuration.updateTrackingTime(trackedTime);
             if (action.equals(DISABLE_TRACK)) {
@@ -183,15 +221,6 @@ public class LocationService extends BaseLocationService implements LocationList
                 tryToSaveTrack();
             }
             stopSelf();
-        }
-        if (action.equals(ENABLE_BACKGROUND_TRACK)) {
-            mForeground = true;
-            updateDistanceTracked();
-            startForeground(NOTIFICATION_ID, getNotification());
-        }
-        if (action.equals(DISABLE_BACKGROUND_TRACK)) {
-            mForeground = false;
-            stopForeground(true);
         }
         updateNotification();
 
@@ -242,7 +271,11 @@ public class LocationService extends BaseLocationService implements LocationList
             mContinuous = false;
             mJustStarted = true;
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.addGpsStatusListener(this);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    mLocationManager.registerGnssStatusCallback(mGnssStatusCallback);
+                } else {
+                    mLocationManager.addGpsStatusListener(this);
+                }
                 try {
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_DELAY, 0, this);
                     //mLocationManager.addNmeaListener(this);
@@ -272,7 +305,11 @@ public class LocationService extends BaseLocationService implements LocationList
             } catch (SecurityException e) {
                 logger.error("Failed to remove updates", e);
             }
-            mLocationManager.removeGpsStatusListener(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mLocationManager.unregisterGnssStatusCallback(mGnssStatusCallback);
+            } else {
+                mLocationManager.removeGpsStatusListener(this);
+            }
             mLocationManager = null;
         }
         if (enableMockLocations && BuildConfig.DEBUG) {
@@ -313,15 +350,15 @@ public class LocationService extends BaseLocationService implements LocationList
         iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
         iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
         iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Intent iStop = new Intent(DISABLE_TRACK, null, getApplicationContext(), LocationService.class);
         iStop.putExtra("self", true);
-        PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_stop);
 
         Intent iPause = new Intent(PAUSE_TRACK, null, getApplicationContext(), LocationService.class);
-        PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
         Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.actionStop), piStop).build();
@@ -338,7 +375,10 @@ public class LocationService extends BaseLocationService implements LocationList
         builder.addAction(actionPause);
         builder.addAction(actionStop);
         builder.setGroup("maptrek");
-        builder.setCategory(Notification.CATEGORY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            builder.setCategory(Notification.CATEGORY_NAVIGATION);
+        else
+            builder.setCategory(Notification.CATEGORY_PROGRESS);
         builder.setPriority(Notification.PRIORITY_LOW);
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setColor(getResources().getColor(R.color.colorAccent, getTheme()));
@@ -376,7 +416,7 @@ public class LocationService extends BaseLocationService implements LocationList
             } else {
                 Cursor propertiesCursor = mTrackDB.rawQuery("SELECT * FROM track_properties ORDER BY _id DESC LIMIT 1", null);
                 if (propertiesCursor.moveToFirst()) {
-                    mDistanceTracked = propertiesCursor.getFloat(propertiesCursor.getColumnIndex("distance"));
+                    mDistanceTracked = propertiesCursor.getFloat(propertiesCursor.getColumnIndexOrThrow("distance"));
                 }
                 propertiesCursor.close();
             }
@@ -413,14 +453,14 @@ public class LocationService extends BaseLocationService implements LocationList
         String limitStr = limit > 0 ? " LIMIT " + limit : "";
         Cursor cursor = mTrackDB.rawQuery("SELECT * FROM track ORDER BY _id DESC" + limitStr, null);
         for (boolean hasItem = cursor.moveToLast(); hasItem; hasItem = cursor.moveToPrevious()) {
-            int latitudeE6 = cursor.getInt(cursor.getColumnIndex("latitude"));
-            int longitudeE6 = cursor.getInt(cursor.getColumnIndex("longitude"));
-            float elevation = cursor.getFloat(cursor.getColumnIndex("elevation"));
-            float speed = cursor.getFloat(cursor.getColumnIndex("speed"));
-            float bearing = cursor.getFloat(cursor.getColumnIndex("track"));
-            float accuracy = cursor.getFloat(cursor.getColumnIndex("accuracy"));
-            int code = cursor.getInt(cursor.getColumnIndex("code"));
-            long time = cursor.getLong(cursor.getColumnIndex("datetime"));
+            int latitudeE6 = cursor.getInt(cursor.getColumnIndexOrThrow("latitude"));
+            int longitudeE6 = cursor.getInt(cursor.getColumnIndexOrThrow("longitude"));
+            float elevation = cursor.getFloat(cursor.getColumnIndexOrThrow("elevation"));
+            float speed = cursor.getFloat(cursor.getColumnIndexOrThrow("speed"));
+            float bearing = cursor.getFloat(cursor.getColumnIndexOrThrow("track"));
+            float accuracy = cursor.getFloat(cursor.getColumnIndexOrThrow("accuracy"));
+            int code = cursor.getInt(cursor.getColumnIndexOrThrow("code"));
+            long time = cursor.getLong(cursor.getColumnIndexOrThrow("datetime"));
             track.addPoint(code == 0, latitudeE6, longitudeE6, elevation, speed, bearing, accuracy, time);
         }
         cursor.close();
@@ -435,14 +475,14 @@ public class LocationService extends BaseLocationService implements LocationList
             return track;
         Cursor cursor = mTrackDB.rawQuery("SELECT * FROM track WHERE datetime >= ? AND datetime <= ? ORDER BY _id DESC", new String[]{String.valueOf(start), String.valueOf(end)});
         for (boolean hasItem = cursor.moveToLast(); hasItem; hasItem = cursor.moveToPrevious()) {
-            int latitudeE6 = cursor.getInt(cursor.getColumnIndex("latitude"));
-            int longitudeE6 = cursor.getInt(cursor.getColumnIndex("longitude"));
-            float elevation = cursor.getFloat(cursor.getColumnIndex("elevation"));
-            float speed = cursor.getFloat(cursor.getColumnIndex("speed"));
-            float bearing = cursor.getFloat(cursor.getColumnIndex("track"));
-            float accuracy = cursor.getFloat(cursor.getColumnIndex("accuracy"));
-            int code = cursor.getInt(cursor.getColumnIndex("code"));
-            long time = cursor.getLong(cursor.getColumnIndex("datetime"));
+            int latitudeE6 = cursor.getInt(cursor.getColumnIndexOrThrow("latitude"));
+            int longitudeE6 = cursor.getInt(cursor.getColumnIndexOrThrow("longitude"));
+            float elevation = cursor.getFloat(cursor.getColumnIndexOrThrow("elevation"));
+            float speed = cursor.getFloat(cursor.getColumnIndexOrThrow("speed"));
+            float bearing = cursor.getFloat(cursor.getColumnIndexOrThrow("track"));
+            float accuracy = cursor.getFloat(cursor.getColumnIndexOrThrow("accuracy"));
+            int code = cursor.getInt(cursor.getColumnIndexOrThrow("code"));
+            long time = cursor.getLong(cursor.getColumnIndexOrThrow("datetime"));
             track.addPoint(code == 0, latitudeE6, longitudeE6, elevation, speed, bearing, accuracy, time);
         }
         cursor.close();
@@ -658,6 +698,15 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void updateGpsStatus() {
+        if (mLastLocationMillis >= 0) {
+            if (SystemClock.elapsedRealtime() - mLastLocationMillis < 3000) {
+                mGpsStatus = GPS_OK;
+            } else {
+                if (mContinuous)
+                    tearTrack();
+                mGpsStatus = GPS_SEARCHING;
+            }
+        }
         if (mGpsStatus == GPS_SEARCHING)
             logger.debug("Searching: {}/{}", mFSats, mTSats);
         updateNotification();
@@ -678,7 +727,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     @Override
-    public void onLocationChanged(final Location location) {
+    public void onLocationChanged(@NonNull final Location location) {
         if (enableMockLocations && BuildConfig.DEBUG)
             return;
 
@@ -775,11 +824,11 @@ public class LocationService extends BaseLocationService implements LocationList
     */
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onProviderDisabled(@NonNull String provider) {
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void onProviderEnabled(@NonNull String provider) {
     }
 
     @Override
@@ -805,26 +854,21 @@ public class LocationService extends BaseLocationService implements LocationList
 
         switch (event) {
             case GpsStatus.GPS_EVENT_STARTED:
-                mGpsStatus = GPS_SEARCHING;
-                mTSats = 0;
-                mFSats = 0;
-                updateGpsStatus();
+                onGpsStarted();
                 break;
             case GpsStatus.GPS_EVENT_FIRST_FIX:
-                mContinuous = false;
+                onGpsFirstFix();
                 break;
             case GpsStatus.GPS_EVENT_STOPPED:
-                tearTrack();
-                mGpsStatus = GPS_OFF;
-                mTSats = 0;
-                mFSats = 0;
-                updateGpsStatus();
+                onGpsStopped();
                 break;
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                 if (mLocationManager == null)
                     return;
                 try {
                     GpsStatus status = mLocationManager.getGpsStatus(null);
+                    if (status == null)
+                        return;
                     Iterator<GpsSatellite> it = status.getSatellites().iterator();
                     mTSats = 0;
                     mFSats = 0;
@@ -834,21 +878,31 @@ public class LocationService extends BaseLocationService implements LocationList
                         if (sat.usedInFix())
                             mFSats++;
                     }
-                    if (mLastLocationMillis >= 0) {
-                        if (SystemClock.elapsedRealtime() - mLastLocationMillis < 3000) {
-                            mGpsStatus = GPS_OK;
-                        } else {
-                            if (mContinuous)
-                                tearTrack();
-                            mGpsStatus = GPS_SEARCHING;
-                        }
-                    }
                     updateGpsStatus();
                 } catch (SecurityException e) {
                     logger.error("Failed to update gps status", e);
                 }
                 break;
         }
+    }
+
+    private void onGpsFirstFix() {
+        mContinuous = false;
+    }
+
+    private void onGpsStarted() {
+        mGpsStatus = GPS_SEARCHING;
+        mTSats = 0;
+        mFSats = 0;
+        updateGpsStatus();
+    }
+
+    private void onGpsStopped() {
+        tearTrack();
+        mGpsStatus = GPS_OFF;
+        mTSats = 0;
+        mFSats = 0;
+        updateGpsStatus();
     }
 
     private final ILocationRemoteService.Stub mLocationRemoteBinder = new ILocationRemoteService.Stub() {
