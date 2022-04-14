@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion '30.0.3'
-    ndkVersion '21.3.6528147'
+    buildToolsVersion '32.0.0'
+    ndkVersion '24.0.8215888'
 
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
-        targetSdkVersion 29
-        versionCode 81
-        versionName "2021.05"
+        targetSdkVersion 31
+        versionCode 82
+        versionName "2022.03"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }

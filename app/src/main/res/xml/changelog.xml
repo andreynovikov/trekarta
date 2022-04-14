@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2022.03" versioncode="82" date="21.03.2022">
+        <change>Fixed blank screen on newer devices</change>
+        <change>Fixed crash on start on newer devices</change>
+        <change>Removed option to store files on external storage</change>
+        <change variant="full">Removed fullscreen mode on older devices</change>
+    </release>
     <release version="2021.04" versioncode="80" date="30.04.2021">
         <change>New map object: intermittent pond</change>
-        <change>Fix gone amenities were not removed from map database</change>
+        <change>Fixed gone amenities were not removed from map database</change>
     </release>
     <release version="2021.03" versioncode="79" date="11.03.2021">
         <change>Cycling activity reveals bicycle infrastructure</change>
