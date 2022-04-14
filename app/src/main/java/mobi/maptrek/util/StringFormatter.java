@@ -108,7 +108,7 @@ public class StringFormatter
 
 	public static String[] distanceC(final double distance, int threshold)
 	{
-		return distanceC(distance, "%.0f", threshold);
+		return distanceC(distance, precisionFormat, threshold);
 	}
 
 	public static String[] distanceC(final double distance, final String format)
