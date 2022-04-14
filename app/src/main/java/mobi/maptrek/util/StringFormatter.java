@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -111,22 +111,16 @@ public class StringFormatter
 		return distanceC(distance, precisionFormat, threshold);
 	}
 
-	public static String[] distanceC(final double distance, final String format)
-	{
-		return distanceC(distance, format, 2000);
-	}
-	
 	public static String[] distanceC(final double distance, final String format, int threshold)
 	{
 		double dist = distance * distanceShortFactor;
 		String distunit = distanceShortAbbr;
-		if (Math.abs(dist) > threshold)
-		{
+		if (Math.abs(dist) > threshold) {
 			dist = dist / distanceShortFactor / 1000 * distanceFactor;
 			distunit = distanceAbbr;
 		}
 
-		return new String[] {String.format(format, dist), distunit};
+		return new String[] {String.format(distanceAbbr.equals(distunit) ? format : "%.0f", dist), distunit};
 	}
 
 	public static String speedH(final float speed)
@@ -311,7 +305,7 @@ public class StringFormatter
 		
 		if (min > 59)
 		{
-			hour = (int) Math.floor(min / 60);
+			hour = (int) Math.floor(min / 60d);
 			min = min - hour * 60;
 		}
 		if (hour > 23)
@@ -338,15 +332,15 @@ public class StringFormatter
 		if (seconds <= 59)
 		{
 			if (t)
-				return new String[] {"> " + String.valueOf(timeout), secondAbbr};
+				return new String[] {"> " + timeout, secondAbbr};
 			else
 				return new String[] {String.valueOf(seconds), secondAbbr};
 		}
-		int min = (int) Math.floor(seconds / 60);
+		int min = (int) Math.floor(seconds / 60d);
 		if (t)
 		{
-			min = (int) Math.floor(timeout / 60);
-			return new String[] {"> " + String.valueOf(min), minuteAbbr};
+			min = (int) Math.floor(timeout / 60d);
+			return new String[] {"> " + min, minuteAbbr};
 		}
 		else
 			return new String[] {String.valueOf(min), minuteAbbr};
@@ -359,7 +353,7 @@ public class StringFormatter
 
         if (min > 59)
 		{
-			hour = (int) Math.floor(min / 60);
+			hour = (int) Math.floor(min / 60d);
 			min = min - hour * 60;
 		}
 		if (hour > 99)
@@ -385,7 +379,7 @@ public class StringFormatter
         int min = minutes;
 
         if (min > 59) {
-            hour = (int) Math.floor(min / 60);
+            hour = (int) Math.floor(min / 60d);
             min = min - hour * 60;
         }
 
