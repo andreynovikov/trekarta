@@ -17,37 +17,40 @@
 
             <ImageView
                 android:id="@+id/splashIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:src="@mipmap/ic_splash_icon" />
+                android:layout_marginBottom="@dimen/table_padding"
+                android:src="@mipmap/application_icon" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@id/splashIcon"
-                android:text="@string/app_name"
-                android:textSize="36sp"
-                android:textStyle="bold" />
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_splash_branding" />
 
             <TextView
                 android:id="@+id/version"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/title"
                 android:layout_marginBottom="6sp"
                 android:layout_toEndOf="@id/splashIcon"
-                android:text="@string/version" />
+                android:text="@string/version"
+                android:textAlignment="center" />
 
             <TextView
                 android:id="@+id/links"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/version"
-                android:layout_toEndOf="@id/splashIcon" />
+                android:layout_marginBottom="6sp"
+                android:layout_toEndOf="@id/splashIcon"
+                android:textAlignment="center" />
         </RelativeLayout>
 
         <TextView
