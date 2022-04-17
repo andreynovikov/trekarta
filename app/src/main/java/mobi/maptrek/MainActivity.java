@@ -108,6 +108,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
+import org.oscim.backend.canvas.Color;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
@@ -1424,6 +1425,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "ruler");
             ft.addToBackStack("ruler");
             ft.commit();
+            mCrosshairLayer.lock(Color.RED);
             return true;
         } else if (action == R.id.actionAddGauge) {
             mViews.gaugePanel.onLongClick(mViews.gaugePanel);
@@ -3626,9 +3628,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         int count = mFragmentManager.getBackStackEntryCount();
         if (count > 0) {
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            if (BuildConfig.FULL_VERSION && "settings".equals(bse.getName()))
+            String name = bse.getName();
+            if ("ruler".equals(name))
+                mCrosshairLayer.unlock();
+            else if (BuildConfig.FULL_VERSION && "settings".equals(name))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mViews.mapsButton, false);
-            if ("trackProperties".equals(bse.getName()))
+            else if ("trackProperties".equals(name))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
             super.onBackPressed();
             if (count == 1 && mPanelState != PANEL_STATE.NONE)
