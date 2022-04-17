@@ -3638,16 +3638,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             super.onBackPressed();
             if (count == 1 && mPanelState != PANEL_STATE.NONE)
                 setPanelState(PANEL_STATE.NONE);
-            return;
-        }
-
-        if (count == 0 || secondBack) {
-            //mBackToast.cancel();
-            finish();
         } else {
-            secondBack = true;
-            mBackToast.show();
-            mBackHandler.postDelayed(() -> secondBack = false, 2000);
+            if (secondBack) {
+                mBackToast.cancel();
+                finish();
+            } else {
+                secondBack = true;
+                mBackToast.show();
+                mBackHandler.postDelayed(() -> secondBack = false, 2000);
+            }
         }
     }
 
