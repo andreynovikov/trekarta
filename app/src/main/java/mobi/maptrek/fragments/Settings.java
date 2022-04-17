@@ -59,11 +59,13 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         });
          */
 
+        /*
         Preference resetPref = findPreference("reset_advices");
         resetPref.setOnPreferenceClickListener(preference -> {
             mFragmentHolder.popCurrent();
             return false;
         });
+         */
 
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }

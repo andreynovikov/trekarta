@@ -55,18 +55,4 @@
             android:key="unit_precision"
             android:title="@string/pref_unit_precision_title" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:key="category_advanced"
-        android:title="@string/pref_advanced">
-        <!--Preference
-            android:key="move_data"
-            android:title="@string/actionMoveData">
-            <intent android:action="mobi.maptrek.action.MOVE_DATA" />
-        </Preference-->
-        <Preference
-            android:key="reset_advices"
-            android:title="@string/actionResetAdvices">
-            <intent android:action="mobi.maptrek.action.RESET_ADVICES" />
-        </Preference>
-    </PreferenceCategory>
 </PreferenceScreen>
