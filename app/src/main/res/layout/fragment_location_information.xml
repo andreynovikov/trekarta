@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_share"
-            android:tint="?attr/actionIconColor" />
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/inputButton"
@@ -47,7 +48,7 @@
             android:paddingBottom="@dimen/image_button_padding"
             android:paddingTop="@dimen/image_button_padding"
             android:src="@drawable/ic_input"
-            android:tint="?attr/actionIconColor" />
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/switchOffButton"
@@ -56,7 +57,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:paddingTop="@dimen/image_button_padding"
             android:src="@drawable/ic_location_disable"
-            android:tint="?attr/actionIconColor" />
+            app:tint="?attr/actionIconColor" />
 
     </LinearLayout>
 

@@ -165,11 +165,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         }
 
         updateLocation(latitude, longitude, zoom);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
 
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
@@ -180,10 +175,10 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         }
     }
 
-
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroyView() {
+        super.onDestroyView();
+
         mMapHolder.getMap().events.unbind(this);
         mMapHolder.removeLocationStateChangeListener(this);
     }
