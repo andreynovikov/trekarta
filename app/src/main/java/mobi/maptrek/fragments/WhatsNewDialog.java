@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,13 +16,8 @@
 
 package mobi.maptrek.fragments;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.FragmentManager;
-import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -34,6 +29,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -61,17 +58,16 @@ public class WhatsNewDialog extends DialogFragment {
 
     private final ArrayList<ChangeListItem> mChangelog = new ArrayList<>();
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Activity activity = getActivity();
-
-        @SuppressLint("InflateParams") final View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_list, null);
 
         final ListView listView = dialogView.findViewById(android.R.id.list);
-        WhatsNewDialog.ChangeListAdapter listAdapter = new WhatsNewDialog.ChangeListAdapter(activity);
+        WhatsNewDialog.ChangeListAdapter listAdapter = new WhatsNewDialog.ChangeListAdapter();
         listView.setAdapter(listAdapter);
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
         dialogBuilder.setTitle(R.string.whatsNewTitle);
         dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> Configuration.setLastSeenChangelog(MapTrek.versionCode));
         dialogBuilder.setView(dialogView);
@@ -80,7 +76,7 @@ public class WhatsNewDialog extends DialogFragment {
     }
 
     @Override
-    public void show(FragmentManager manager, String tag) {
+    public void show(@NonNull FragmentManager manager, String tag) {
         MapTrek application = MapTrek.getApplication();
         int lastCode = Configuration.getLastSeenChangelog();
         if (lastCode == 0) {
@@ -176,19 +172,14 @@ public class WhatsNewDialog extends DialogFragment {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         try {
             final Date parsedDate = dateFormat.parse(dateString);
-            return DateFormat.getDateFormat(getContext()).format(parsedDate);
+            if (parsedDate != null)
+                return DateFormat.getDateFormat(getContext()).format(parsedDate);
         } catch (ParseException ignored) {
-            return dateString;
         }
+        return dateString;
     }
 
     private class ChangeListAdapter extends BaseAdapter {
-        private final LayoutInflater mInflater;
-
-        ChangeListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
         @Override
         public ChangeListItem getItem(int position) {
             return mChangelog.get(position);
@@ -217,12 +208,12 @@ public class WhatsNewDialog extends DialogFragment {
             if (convertView == null) {
                 itemHolder = new WhatsNewDialog.ChangeListItemHolder();
                 if (item.version != null) {
-                    convertView = mInflater.inflate(R.layout.list_item_change_title, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change_title, parent, false);
                     itemHolder.divider = convertView.findViewById(R.id.group_divider);
                     itemHolder.version = convertView.findViewById(R.id.version);
                     itemHolder.date = convertView.findViewById(R.id.date);
                 } else {
-                    convertView = mInflater.inflate(R.layout.list_item_change, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change, parent, false);
                     itemHolder.change = convertView.findViewById(R.id.change);
                 }
                 convertView.setTag(itemHolder);

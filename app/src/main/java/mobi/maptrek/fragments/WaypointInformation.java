@@ -18,7 +18,6 @@ package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -28,7 +27,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
@@ -134,12 +138,11 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        double latitude = getArguments().getDouble(ARG_LATITUDE, Double.NaN);
-        double longitude = getArguments().getDouble(ARG_LONGITUDE, Double.NaN);
-        mExpanded = getArguments().getBoolean(ARG_DETAILS);
+        double latitude = Double.NaN;
+        double longitude = Double.NaN;
 
         boolean editorMode = false;
         if (savedInstanceState != null) {
@@ -147,6 +150,13 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
             mExpanded = savedInstanceState.getBoolean(ARG_DETAILS);
             editorMode = savedInstanceState.getBoolean("editorMode");
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                latitude = arguments.getDouble(ARG_LATITUDE, Double.NaN);
+                longitude = arguments.getDouble(ARG_LONGITUDE, Double.NaN);
+                mExpanded = arguments.getBoolean(ARG_DETAILS);
+            }
         }
 
         final ViewGroup rootView = (ViewGroup) getView();
@@ -244,23 +254,23 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnWaypointActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnWaypointActionListener");
         }
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -275,7 +285,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
@@ -407,7 +417,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
         int viewsState, editsState;
         if (enabled) {
-            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
+            mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(rootView.getContext(), R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
             ((EditText) rootView.findViewById(R.id.descriptionEdit)).setText(mWaypoint.description);
             colorSwatch.setColor(mWaypoint.style.color);
@@ -431,7 +441,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
             viewsState = View.VISIBLE;
             editsState = View.GONE;
             // Hide keyboard
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null)
                 imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
             rootView.post(() -> updatePeekHeight(rootView, false));
@@ -469,15 +479,14 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     private void setLockDrawable(TextView coordsView) {
-        Activity activity = getActivity();
         int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
-        Drawable drawable = activity.getDrawable(imageResource);
+        Drawable drawable = AppCompatResources.getDrawable(coordsView.getContext(), imageResource);
         if (drawable != null) {
             int drawableSize = (int) Math.round(coordsView.getLineHeight() * 0.7);
             int drawablePadding = (int) (MapTrek.density * 1.5f);
             drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
             int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
-            drawable.setTint(activity.getColor(tintColor));
+            drawable.setTint(coordsView.getContext().getColor(tintColor));
             coordsView.setCompoundDrawables(null, null, drawable, null);
         }
     }

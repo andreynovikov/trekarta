@@ -16,7 +16,7 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -25,6 +25,9 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +44,7 @@ public class About extends Fragment {
     private FragmentAboutBinding mViews;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViews = FragmentAboutBinding.inflate(inflater, container, false);
         updateAboutInfo();
         return mViews.getRoot();
@@ -57,15 +60,15 @@ public class About extends Fragment {
         // version
         String versionName;
         try {
-            versionName = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName;
+            Activity activity = getActivity();
+            if (!BuildConfig.DEBUG && activity != null)
+                versionName = activity.getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName;
+            else
+                versionName = Integer.toString(MapTrek.versionCode);
         } catch (PackageManager.NameNotFoundException e) {
-            versionName = "unknown";
+            versionName = Integer.toString(MapTrek.versionCode);
         }
-        if (BuildConfig.DEBUG) {
-            mViews.version.setText(getString(R.string.version, Integer.toString(MapTrek.versionCode)));
-        } else {
-            mViews.version.setText(getString(R.string.version, versionName));
-        }
+        mViews.version.setText(getString(R.string.version, versionName));
 
         // Links
         String links = "<a href=\"" +

@@ -17,10 +17,8 @@
 package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -33,6 +31,9 @@ import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
@@ -47,19 +48,18 @@ public class AmenitySetupDialog extends DialogFragment {
         void onAmenityKindVisibilityChanged();
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
-        String title = args.getString("title", null);
+        String title = args != null ? args.getString("title", null) : null;
 
-        final Activity activity = getActivity();
-
-        @SuppressLint("InflateParams") final View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_list, null);
+        @SuppressLint("InflateParams") final View dialogView = getLayoutInflater().inflate(R.layout.dialog_list, null);
         final ListView listView = dialogView.findViewById(android.R.id.list);
-        AmenitySetupListAdapter listAdapter = new AmenitySetupListAdapter(getActivity());
+        AmenitySetupListAdapter listAdapter = new AmenitySetupListAdapter();
         listView.setAdapter(listAdapter);
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
         if (title != null)
             dialogBuilder.setTitle(title);
         dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> {});
@@ -115,18 +115,11 @@ public class AmenitySetupDialog extends DialogFragment {
     }
 
     private class AmenitySetupListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-        private Context mContext;
-
-        AmenitySetupListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mContext = context;
-        }
-
         @Override
         public Pair<String, Integer> getItem(int position) {
-            Resources resources = mContext.getResources();
-            int id = resources.getIdentifier(Tags.kinds[position], "string", getActivity().getPackageName());
+            Context context = requireContext();
+            Resources resources = context.getResources();
+            int id = resources.getIdentifier(Tags.kinds[position], "string", context.getPackageName());
             String name = id != 0 ? resources.getString(id) : Tags.kinds[position];
             return new Pair<>(name, Tags.kindZooms[position]);
         }
@@ -148,7 +141,7 @@ public class AmenitySetupDialog extends DialogFragment {
 
             if (convertView == null) {
                 itemHolder = new AmenitySetupListItemHolder();
-                convertView = mInflater.inflate(R.layout.list_item_amenity_setup, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_amenity_setup, parent, false);
                 itemHolder.name = convertView.findViewById(R.id.name);
                 itemHolder.zoom = convertView.findViewById(R.id.zoom);
                 convertView.setTag(itemHolder);

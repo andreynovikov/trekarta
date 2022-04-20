@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.hardware.GeomagneticField;
 import android.os.Bundle;
@@ -31,6 +30,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
@@ -88,6 +91,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mSunriseSunset = new SunriseSunset();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -101,7 +105,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         inputButton.setOnClickListener(v -> {
             TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
             mTextInputDialog = builder.setCallbacks(LocationInformation.this)
-                    .setHint(getContext().getString(R.string.coordinates))
+                    .setHint(container.getContext().getString(R.string.coordinates))
                     .setShowPasteButton(true)
                     .create();
             mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
@@ -141,20 +145,25 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        double latitude = getArguments().getDouble(ARG_LATITUDE);
-        double longitude = getArguments().getDouble(ARG_LONGITUDE);
-        int zoom = getArguments().getInt(ARG_ZOOM);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        double latitude = 0d;
+        double longitude = 0d;
+        int zoom = 14;
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
             zoom = savedInstanceState.getInt(ARG_ZOOM);
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                latitude = getArguments().getDouble(ARG_LATITUDE);
+                longitude = getArguments().getDouble(ARG_LONGITUDE);
+                zoom = getArguments().getInt(ARG_ZOOM);
+            }
         }
 
-        mSunriseSunset = new SunriseSunset();
         updateLocation(latitude, longitude, zoom);
     }
 
@@ -180,7 +189,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         mColorTextPrimary = context.getColor(R.color.textColorPrimary);
@@ -190,12 +199,12 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -207,7 +216,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);

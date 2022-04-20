@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +23,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
@@ -53,11 +56,14 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        mName = getArguments().getString(ARG_NAME);
-        mColor = getArguments().getInt(ARG_COLOR);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mName = arguments.getString(ARG_NAME);
+            mColor = arguments.getInt(ARG_COLOR);
+        }
 
         String name = mName;
         int color = mColor;
@@ -87,12 +93,12 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnWaypointPropertiesChangedListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnWaypointPropertiesChangedListener");
+            throw new ClassCastException(context + " must implement OnWaypointPropertiesChangedListener");
         }
         mFragmentHolder = (FragmentHolder) context;
         mFragmentHolder.addBackClickListener(this);
@@ -107,7 +113,7 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(ARG_NAME, mNameEdit.getText().toString());
         outState.putInt(ARG_COLOR, mColorSwatch.getColor());

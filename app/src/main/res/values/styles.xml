@@ -25,6 +25,7 @@
         <item name="actionIconColor">@color/actionIconColor</item>
         <item name="zoomIconColor">@color/zoomIconColor</item>
         <item name="snackbarStyle">@style/AppSnackbar</item>
+        <item name="preferenceTheme">@style/AppPreferenceTheme</item>
     </style>
 
     <style name="Theme.App.Starting.Base" parent="Theme.SplashScreen">
@@ -32,6 +33,10 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_animated</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.App</item>
+    </style>
+
+    <style name="AppPreferenceTheme" parent="PreferenceThemeOverlay">
+        <item name="android:layout">@layout/fragment_settings</item>
     </style>
 
     <style name="AppSnackbar" parent="@style/Widget.MaterialComponents.Snackbar">

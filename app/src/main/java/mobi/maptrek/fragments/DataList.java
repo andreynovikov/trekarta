@@ -17,7 +17,6 @@
 package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ListFragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Rect;
@@ -27,6 +26,11 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.ListFragment;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -83,7 +87,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
     private GeoPoint mCoordinates;
 
-    private String mLineSeparator = System.getProperty("line.separator");
+    private final String mLineSeparator = System.getProperty("line.separator");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,15 +125,24 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
-        double latitude = arguments.getDouble(ARG_LATITUDE);
-        double longitude = arguments.getDouble(ARG_LONGITUDE);
-        boolean currentLocation = arguments.getBoolean(ARG_CURRENT_LOCATION);
-        boolean noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
-        int minHeight = arguments.getInt(ARG_HEIGHT, 0);
+
+        double latitude = Double.NaN;
+        double longitude = Double.NaN;
+        boolean currentLocation = false;
+        boolean noExtraSources = false;
+        int minHeight = 0;
+
+        if (arguments != null) {
+            latitude = arguments.getDouble(ARG_LATITUDE);
+            longitude = arguments.getDouble(ARG_LONGITUDE);
+            currentLocation = arguments.getBoolean(ARG_CURRENT_LOCATION);
+            noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
+            minHeight = arguments.getInt(ARG_HEIGHT, 0);
+        }
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
@@ -169,14 +182,12 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         // If list contains no data footer is not displayed, so we should not worry about
         // message being shown twice
         if (noExtraSources) {
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            if (inflater != null)
-                listView.addFooterView(inflater.inflate(R.layout.list_footer_data_source, listView, false), null, false);
+            listView.addFooterView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_footer_data_source, listView, false), null, false);
         }
 
         if (mDataSource instanceof WaypointDbDataSource) {
             mFloatingButton = mFragmentHolder.enableListActionButton();
-            mFloatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_add_location));
+            mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_add_location));
             mFloatingButton.setOnClickListener(v -> {
                 CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
                 CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
@@ -188,27 +199,27 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mWaypointActionListener = (OnWaypointActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnWaypointActionListener");
         }
         try {
             mTrackActionListener = (OnTrackActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
+            throw new ClassCastException(context + " must implement OnTrackActionListener");
         }
         try {
             mRouteActionListener = (OnRouteActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnRouteActionListener");
+            throw new ClassCastException(context + " must implement OnRouteActionListener");
         }
         try {
             mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement DataHolder");
+            throw new ClassCastException(context + " must implement DataHolder");
         }
         mFragmentHolder = (FragmentHolder) context;
     }
@@ -235,7 +246,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     }
 
     @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
         Cursor cursor = (Cursor) mAdapter.getItem(position);
         int itemType = mDataSource.getDataType(position);
         if (itemType == DataSource.TYPE_WAYPOINT) {
@@ -355,14 +366,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         private static final int STATE_SECTIONED_CELL = 1;
         private static final int STATE_REGULAR_CELL = 2;
         @ColorInt
-        private int mAccentColor;
+        private final int mAccentColor;
         private int[] mCellStates;
-
-        private LayoutInflater mInflater;
 
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mAccentColor = getResources().getColor(R.color.colorAccentLight, context.getTheme());
             mCellStates = cursor == null ? null : new int[cursor.getCount()];
         }
@@ -388,7 +396,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                     layout = R.layout.list_item_route;
                     break;
             }
-            View view = mInflater.inflate(layout, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
             if (view != null) {
                 ItemHolder holder = new ItemHolder();
                 holder.separator = view.findViewById(R.id.separator);
@@ -534,7 +542,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         ImageView viewButton;
     }
 
-    private AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+    private final AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
 
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
@@ -554,18 +562,18 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.action_share:
-                    shareSelectedItems();
-                    mode.finish();
-                    return true;
-                case R.id.action_delete:
-                    deleteSelectedItems();
-                    mode.finish();
-                    return true;
-                default:
-                    return false;
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_share) {
+                shareSelectedItems();
+                mode.finish();
+                return true;
             }
+            if (itemId == R.id.action_delete) {
+                deleteSelectedItems();
+                mode.finish();
+                return true;
+            }
+            return false;
         }
 
         @Override

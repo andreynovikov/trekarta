@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,6 +26,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.util.Locale;
@@ -43,11 +47,11 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_send));
+        floatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_send));
         floatingButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
@@ -60,11 +64,11 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
             text.append("\nBrand : ").append(Build.BRAND);
             text.append("\nModel : ").append(Build.MODEL);
             text.append("\nProduct : ").append(Build.PRODUCT);
-            text.append("\nLocale : ").append(Locale.getDefault().toString());
+            text.append("\nLocale : ").append(Locale.getDefault());
             text.append("\nBuild : ").append(Build.DISPLAY);
             text.append("\nVersion : ").append(Build.VERSION.RELEASE);
             try {
-                PackageInfo info = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+                PackageInfo info = view.getContext().getPackageManager().getPackageInfo(view.getContext().getPackageName(), 0);
                 if (info != null) {
                     text.append("\nApk Version : ").append(info.versionCode).append(" ").append(info.versionName);
                 }
@@ -79,13 +83,13 @@ public class CrashReport extends Fragment implements OnBackPressedListener {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 

@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,6 +23,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.Fragment;
 
 import org.oscim.core.GeoPoint;
 
@@ -56,17 +60,20 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        mLatitude = getArguments().getDouble(ARG_LATITUDE);
-        mLongitude = getArguments().getDouble(ARG_LONGITUDE);
-        mName = getArguments().getString(ARG_NAME);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState != null) {
             mLatitude = savedInstanceState.getDouble(ARG_LATITUDE);
             mLongitude = savedInstanceState.getDouble(ARG_LONGITUDE);
             mName = savedInstanceState.getString(ARG_NAME);
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                mLatitude = getArguments().getDouble(ARG_LATITUDE);
+                mLongitude = getArguments().getDouble(ARG_LONGITUDE);
+                mName = getArguments().getString(ARG_NAME);
+            }
         }
 
         String name;
@@ -81,7 +88,7 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
         mMapHolder.showMarker(point, name, false);
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_pin_drop));
+        floatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_pin_drop));
         floatingButton.setOnClickListener(v -> {
             String name1;
             if (mName != null && !"".equals(mName))
@@ -95,23 +102,23 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnWaypointActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnWaypointActionListener");
         }
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -126,7 +133,7 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);

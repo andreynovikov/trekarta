@@ -20,12 +20,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
 import android.view.View;
 
 import org.slf4j.Logger;
@@ -86,10 +87,11 @@ public class DataExport extends DialogFragment implements ProgressListener {
         new Thread(new ExportRunnable()).start();
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mCanceled = false;
-        Activity activity = getActivity();
+        Activity activity = requireActivity();
 
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_progress, null);
@@ -136,7 +138,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
         @Override
         public void run() {
-            Activity activity = getActivity();
+            Activity activity = requireActivity();
             File exportFile;
             String mime = null;
             boolean nativeFile = mFormat == FORMAT_NATIVE;

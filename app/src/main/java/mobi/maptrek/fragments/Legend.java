@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,12 +16,13 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.fragment.app.ListFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -1695,9 +1696,10 @@ public class Legend extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mAdapter = new Legend.LegendListAdapter(getActivity());
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mAdapter = new Legend.LegendListAdapter();
         setListAdapter(mAdapter);
         updateData();
     }
@@ -1712,7 +1714,7 @@ public class Legend extends ListFragment {
             mOsmcSymbolFactory = mMapHolder.getOsmcSymbolFactory();
 
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
     }
 
@@ -1828,11 +1830,6 @@ public class Legend extends ListFragment {
     }
 
     private class LegendListAdapter extends BaseAdapter {
-        private final LayoutInflater mInflater;
-
-        LegendListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
 
         @Override
         public LegendItem getItem(int position) {
@@ -1862,9 +1859,9 @@ public class Legend extends ListFragment {
             if (convertView == null) {
                 itemHolder = new Legend.LegendListItemHolder();
                 if (legendItem.type == GeometryType.NONE) {
-                    convertView = mInflater.inflate(R.layout.list_item_section_title, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_section_title, parent, false);
                 } else {
-                    convertView = mInflater.inflate(R.layout.list_item_legend, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_legend, parent, false);
                     itemHolder.item = convertView.findViewById(R.id.item);
                 }
                 itemHolder.name = convertView.findViewById(R.id.name);

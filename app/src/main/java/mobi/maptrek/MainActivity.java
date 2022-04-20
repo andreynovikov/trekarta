@@ -26,9 +26,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -74,6 +71,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -464,7 +465,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         TrackStyle.DEFAULT_WIDTH = resources.getInteger(R.integer.trackWidth);
 
         // find the retained fragment on activity restarts
-        mFragmentManager = getFragmentManager();
+        mFragmentManager = getSupportFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
 
         try {
@@ -1038,14 +1039,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             HelperUtils.showError(userNotification, mViews.coordinatorLayout);
 
         if (MapTrek.getApplication().hasPreviousRunsExceptions()) {
-            Fragment fragment = Fragment.instantiate(this, CrashReport.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), CrashReport.class.getName());
             fragment.setEnterTransition(new Slide());
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
         } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
-            BaseMapDownload fragment = (BaseMapDownload) Fragment.instantiate(this, BaseMapDownload.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            BaseMapDownload fragment = (BaseMapDownload) factory.instantiate(getClassLoader(), BaseMapDownload.class.getName());
             fragment.setMapIndex(mNativeMapIndex);
             fragment.setEnterTransition(new Slide());
             FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -1319,7 +1322,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             dialog.show(mFragmentManager, "amenitySetup");
             return true;
         } else if (action == R.id.actionOtherFeatures) {
-            PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            PanelMenuFragment fragment = (PanelMenuFragment) factory.instantiate(getClassLoader(), PanelMenuFragment.class.getName());
             fragment.setMenu(R.menu.menu_map_features, menu -> {
                 menu.findItem(R.id.action3dBuildings).setChecked(mBuildingsLayerEnabled);
                 menu.findItem(R.id.actionHillshades).setChecked(Configuration.getHillshadesEnabled());
@@ -1420,7 +1424,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 hideSystemUI();
             return true;
         } else if (action == R.id.actionRuler) {
-            Ruler fragment = (Ruler) Fragment.instantiate(this, Ruler.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), Ruler.class.getName());
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.contentPanel, fragment, "ruler");
             ft.addToBackStack("ruler");
@@ -1451,13 +1456,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             snackbar.show();
             return true;
         } else if (action == R.id.actionLegend) {
-            Fragment fragment = Fragment.instantiate(this, Legend.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), Legend.class.getName());
             showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
             return true;
         } else if (action == R.id.actionSettings) {
             Bundle args = new Bundle(1);
             args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mNativeMapIndex.hasHillshades());
-            Fragment fragment = Fragment.instantiate(this, Settings.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), Settings.class.getName());
+            fragment.setArguments(args);
             fragment.setEnterTransition(new Slide(mSlideGravity));
             fragment.setReturnTransition(new Slide(mSlideGravity));
             FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -1479,11 +1487,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             if (mFragmentManager.getBackStackEntryCount() > 0) {
                 popAll();
             }
-            Fragment fragment = Fragment.instantiate(this, TextSearchFragment.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), TextSearchFragment.class.getName());
+            fragment.setArguments(args);
             showExtendPanel(PANEL_STATE.MORE, "search", fragment);
             return true;
         } else if (action == R.id.actionAbout) {
-            Fragment fragment = Fragment.instantiate(this, About.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), About.class.getName());
             fragment.setEnterTransition(new Slide(mSlideGravity));
             fragment.setReturnTransition(new Slide(mSlideGravity));
             FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -1689,7 +1700,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         args.putDouble(LocationInformation.ARG_LATITUDE, mMapPosition.getLatitude());
         args.putDouble(LocationInformation.ARG_LONGITUDE, mMapPosition.getLongitude());
         args.putInt(LocationInformation.ARG_ZOOM, mMapPosition.getZoomLevel());
-        Fragment fragment = Fragment.instantiate(this, LocationInformation.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), LocationInformation.class.getName());
+        fragment.setArguments(args);
         showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
 
@@ -1714,7 +1727,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.recordButton, false);
         Bundle args = new Bundle(1);
         args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, true);
-        Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
+        fragment.setArguments(args);
         showExtendPanel(PANEL_STATE.RECORD, "nativeTrackList", fragment);
     }
 
@@ -1731,7 +1746,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (hasExtraSources) {
             Bundle args = new Bundle(1);
             args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, false);
-            Fragment fragment = Fragment.instantiate(this, DataSourceList.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
+            fragment.setArguments(args);
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
             Bundle args = new Bundle(3);
@@ -1747,7 +1764,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
             }
             args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, BuildConfig.FULL_VERSION);
-            DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
+            fragment.setArguments(args);
             fragment.setDataSource(mWaypointDbDataSource);
             showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
         }
@@ -1773,13 +1792,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         args.putInt(MapList.ARG_ZOOM_LEVEL, mMapPosition.getZoomLevel());
         args.putBoolean(MapList.ARG_HIDE_OBJECTS, mHideMapObjects);
         args.putInt(MapList.ARG_TRANSPARENCY, mBitmapMapTransparency);
-        MapList fragment = (MapList) Fragment.instantiate(this, MapList.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        MapList fragment = (MapList) factory.instantiate(getClassLoader(), MapList.class.getName());
+        fragment.setArguments(args);
         fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMaps);
         showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
     }
 
     private void onMapsLongClicked() {
-        PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        PanelMenuFragment fragment = (PanelMenuFragment) factory.instantiate(getClassLoader(), PanelMenuFragment.class.getName());
         fragment.setMenu(R.menu.menu_map, menu -> {
             Resources resources = getResources();
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
@@ -1804,7 +1826,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void onMoreClicked() {
         if (mViews.locationButton.getVisibility() == View.VISIBLE) {
-            PanelMenuFragment fragment = (PanelMenuFragment) Fragment.instantiate(this, PanelMenuFragment.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            PanelMenuFragment fragment = (PanelMenuFragment) factory.instantiate(getClassLoader(), PanelMenuFragment.class.getName());
             fragment.setMenu(R.menu.menu_main, menu -> {
                 Resources resources = getResources();
                 MenuItem item = menu.findItem(R.id.actionActivity);
@@ -2465,7 +2488,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         args.putDouble(MarkerInformation.ARG_LATITUDE, point.getLatitude());
         args.putDouble(MarkerInformation.ARG_LONGITUDE, point.getLongitude());
         args.putString(MarkerInformation.ARG_NAME, name);
-        Fragment fragment = Fragment.instantiate(this, MarkerInformation.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), MarkerInformation.class.getName());
+        fragment.setArguments(args);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "markerInformation");
@@ -2479,7 +2504,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Bundle args = new Bundle(2);
         args.putString(WaypointProperties.ARG_NAME, mEditedWaypoint.name);
         args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.style.color);
-        Fragment fragment = Fragment.instantiate(this, WaypointProperties.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), WaypointProperties.class.getName());
+        fragment.setArguments(args);
         fragment.setEnterTransition(new Fade());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "waypointProperties");
@@ -2541,7 +2568,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         fragment = mFragmentManager.findFragmentByTag("waypointInformation");
         if (fragment == null) {
-            fragment = Fragment.instantiate(this, WaypointInformation.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            fragment = factory.instantiate(getClassLoader(), WaypointInformation.class.getName());
+            fragment.setArguments(args);
             Slide slide = new Slide(Gravity.BOTTOM);
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
@@ -2697,7 +2726,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         Bundle args = new Bundle(2);
         args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
         args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.style.color);
-        Fragment fragment = Fragment.instantiate(this, TrackProperties.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), TrackProperties.class.getName());
+        fragment.setArguments(args);
         fragment.setEnterTransition(new Fade());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
@@ -2734,7 +2765,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onTrackDetails(Track track, boolean current) {
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
-            fragment = Fragment.instantiate(this, TrackInformation.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            fragment = factory.instantiate(getClassLoader(), TrackInformation.class.getName());
             Slide slide = new Slide(mSlideGravity);
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
@@ -2935,7 +2967,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     public void onRouteDetails(Route route) {
         Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
         if (fragment == null) {
-            fragment = Fragment.instantiate(this, RouteInformation.class.getName());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            fragment = factory.instantiate(getClassLoader(), RouteInformation.class.getName());
             Slide slide = new Slide(mSlideGravity);
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
@@ -2998,7 +3031,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         fragment = mFragmentManager.findFragmentByTag("amenityInformation");
         if (fragment == null) {
-            fragment = Fragment.instantiate(this, AmenityInformation.class.getName(), args);
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            fragment = factory.instantiate(getClassLoader(), AmenityInformation.class.getName());
+            fragment.setArguments(args);
             Slide slide = new Slide(Gravity.BOTTOM);
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
@@ -3056,7 +3091,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mapPosition.setTilt(0f);
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mapPosition);
         }
-        MapSelection fragment = (MapSelection) Fragment.instantiate(this, MapSelection.class.getName());
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        MapSelection fragment = (MapSelection) factory.instantiate(getClassLoader(), MapSelection.class.getName());
         fragment.setMapIndex(mNativeMapIndex);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -3526,7 +3562,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
 
-    @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableActionButton() {
         if (mViews.listActionButton.getVisibility() == View.VISIBLE)
@@ -3536,7 +3571,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return mViews.actionButton;
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     public void disableActionButton() {
         mViews.actionButton.setVisibility(View.GONE);
@@ -3544,7 +3578,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mViews.listActionButton.setVisibility(View.VISIBLE);
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     public FloatingActionButton enableListActionButton() {
         TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
@@ -3552,7 +3585,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return mViews.listActionButton;
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     public void disableListActionButton() {
         mViews.listActionButton.setVisibility(View.GONE);
@@ -4179,7 +4211,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
         }
         args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
-        DataList fragment = (DataList) Fragment.instantiate(this, DataList.class.getName(), args);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
+        fragment.setArguments(args);
         fragment.setDataSource(source);
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new Fade());

@@ -17,7 +17,6 @@
 package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -25,7 +24,10 @@ import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import androidx.annotation.IdRes;
 import androidx.annotation.MenuRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
+
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.util.Xml;
@@ -73,15 +75,16 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         populateMenu();
-        mAdapter = new MenuListAdapter(getActivity());
+        mAdapter = new MenuListAdapter();
         setListAdapter(mAdapter);
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mFragmentHolder = (FragmentHolder) context;
     }
@@ -93,10 +96,11 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
     }
 
     @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
         PopupMenu.OnMenuItemClickListener listener = (PopupMenu.OnMenuItemClickListener) getActivity();
         mFragmentHolder.popCurrent();
-        listener.onMenuItemClick(mMenuItems.get(position));
+        if (listener != null)
+            listener.onMenuItemClick(mMenuItems.get(position));
     }
 
     public void setMenu(@MenuRes int menuId, OnPrepareMenuListener onPrepareMenuListener) {
@@ -220,11 +224,6 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
     }
 
     public class MenuListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-
-        MenuListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
 
         @Override
         public PanelMenuItem getItem(int position) {
@@ -250,7 +249,7 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
             if (actionView != null) {
                 if (actionView.getTag() == null) {
                     itemHolder = new MenuItemHolder();
-                    convertView = mInflater.inflate(R.layout.menu_item, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.menu_item, parent, false);
                     itemHolder.title = convertView.findViewById(R.id.title);
                     itemHolder.icon = convertView.findViewById(R.id.icon);
                     itemHolder.check = convertView.findViewById(R.id.check);
@@ -265,7 +264,7 @@ public class PanelMenuFragment extends ListFragment implements PanelMenu {
                 }
             } else if (convertView == null || convertView.getTag() == null) {
                 itemHolder = new MenuItemHolder();
-                convertView = mInflater.inflate(R.layout.menu_item, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.menu_item, parent, false);
                 itemHolder.title = convertView.findViewById(R.id.title);
                 itemHolder.icon = convertView.findViewById(R.id.icon);
                 itemHolder.check = convertView.findViewById(R.id.check);

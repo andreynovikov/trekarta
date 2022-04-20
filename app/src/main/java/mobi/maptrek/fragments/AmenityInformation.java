@@ -18,7 +18,6 @@ package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -31,7 +30,9 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -86,7 +87,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         setRetainInstance(true);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViews = FragmentAmenityInformationBinding.inflate(inflater, container, false);
         final ViewGroup rootView = mViews.getRoot();
         rootView.post(() -> {
@@ -109,16 +110,22 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        double latitude = getArguments().getDouble(ARG_LATITUDE, Double.NaN);
-        double longitude = getArguments().getDouble(ARG_LONGITUDE, Double.NaN);
+        double latitude = Double.NaN;
+        double longitude = Double.NaN;
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
             mLang = savedInstanceState.getInt(ARG_LANG);
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                latitude = arguments.getDouble(ARG_LATITUDE, Double.NaN);
+                longitude = arguments.getDouble(ARG_LONGITUDE, Double.NaN);
+            }
         }
 
         final ViewGroup rootView = (ViewGroup) getView();
@@ -182,18 +189,18 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -213,7 +220,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(ARG_LATITUDE, mLatitude);
         outState.putDouble(ARG_LONGITUDE, mLongitude);
@@ -238,7 +245,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
 
     @SuppressLint("ClickableViewAccessibility")
     private void updateAmenityInformation(double latitude, double longitude) {
-        final Activity activity = getActivity();
+        final Activity activity = requireActivity();
         boolean hasName = mAmenity.name != null;
         String type = mAmenity.type != -1 ? getString(mAmenity.type) : "";
 
@@ -255,7 +262,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             mViews.kindRow.setVisibility(View.GONE);
         } else {
             mViews.kindRow.setVisibility(View.VISIBLE);
-            Resources resources = activity.getResources();
+            Resources resources = getResources();
             int id = resources.getIdentifier(mAmenity.kind, "string", activity.getPackageName());
             mViews.kind.setText(resources.getString(id));
         }

@@ -19,36 +19,37 @@ package mobi.maptrek.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceScreen;
 
 import org.greenrobot.eventbus.EventBus;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 
-public class Settings extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+@SuppressWarnings({"unused", "CommentedOutCode"})
+public class Settings extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String ARG_HILLSHADES_AVAILABLE = "hillshades_available";
 
     private FragmentHolder mFragmentHolder;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
 
         Bundle args = getArguments();
-        if (!args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
+        if (args != null && !args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
             PreferenceCategory category = (PreferenceCategory) findPreference("category_general");
-            category.removePreference(findPreference("hillshades_transparency"));
+            Preference preference = findPreference("hillshades_transparency");
+            if (category != null && preference != null)
+                category.removePreference(preference);
         }
 
         /*
@@ -57,9 +58,7 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
             mFragmentHolder.popCurrent();
             return false;
         });
-         */
 
-        /*
         Preference resetPref = findPreference("reset_advices");
         resetPref.setOnPreferenceClickListener(preference -> {
             mFragmentHolder.popCurrent();
@@ -67,16 +66,13 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         });
          */
 
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings, container, false);
-    }
-
-    @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mFragmentHolder = (FragmentHolder) context;
@@ -92,8 +88,9 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         PreferenceScreen preferenceScreen = getPreferenceScreen();
         for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
             Preference preference = preferenceScreen.getPreference(i);
@@ -115,7 +112,6 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
         updatePreference(findPreference(key), key);
     }
 
-    @SuppressWarnings("unused")
     private void updatePreference(Preference preference, String key) {
         if (preference == null) return;
         if (preference instanceof ListPreference) {
@@ -123,7 +119,7 @@ public class Settings extends PreferenceFragment implements SharedPreferences.On
             listPreference.setSummary(listPreference.getEntry());
             //return;
         }
-        //SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences();
-        //preference.setSummary(sharedPrefs.getString(key, "Default"));
+        // SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences();
+        // preference.setSummary(sharedPrefs.getString(key, "Default"));
     }
 }

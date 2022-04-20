@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -32,6 +31,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +57,7 @@ public class DataSourceList extends ListFragment {
     private DataSourceListAdapter mAdapter;
     private OnTrackActionListener mTrackActionListener;
     private DataHolder mDataHolder;
-    private List<DataSource> mData = new ArrayList<>();
+    private final List<DataSource> mData = new ArrayList<>();
     private boolean mNativeTracks;
 
     @Override
@@ -63,10 +66,12 @@ public class DataSourceList extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        mNativeTracks = getArguments().getBoolean(ARG_NATIVE_TRACKS);
+        Bundle arguments = getArguments();
+        if (arguments != null)
+            mNativeTracks = arguments.getBoolean(ARG_NATIVE_TRACKS);
 
         if (mNativeTracks) {
             TextView emptyView = (TextView) getListView().getEmptyView();
@@ -74,22 +79,25 @@ public class DataSourceList extends ListFragment {
                 emptyView.setText(R.string.msgEmptyTrackList);
         }
 
-        mAdapter = new DataSourceListAdapter(getActivity());
+        mAdapter = new DataSourceListAdapter(requireContext());
         setListAdapter(mAdapter);
-        getListView().setOnItemLongClickListener((parent, view, position, id) -> {
+        updateData();
+
+        getListView().setOnItemLongClickListener((parent, v, position, id) -> {
             final DataSource dataSource = mAdapter.getItem(position);
-            PopupMenu popup = new PopupMenu(getContext(), view);
+            PopupMenu popup = new PopupMenu(getContext(), v);
             popup.inflate(R.menu.context_menu_data_list);
             if (dataSource instanceof WaypointDbDataSource)
                 popup.getMenu().findItem(R.id.action_delete).setVisible(false);
             popup.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case R.id.action_share:
-                        mDataHolder.onDataSourceShare(dataSource);
-                        return true;
-                    case R.id.action_delete:
-                        mDataHolder.onDataSourceDelete(dataSource);
-                        return true;
+                int itemId = item.getItemId();
+                if (itemId == R.id.action_share) {
+                    mDataHolder.onDataSourceShare(dataSource);
+                    return true;
+                }
+                if (itemId == R.id.action_delete) {
+                    mDataHolder.onDataSourceDelete(dataSource);
+                    return true;
                 }
                 return false;
             });
@@ -99,36 +107,35 @@ public class DataSourceList extends ListFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement DataHolder");
+            throw new ClassCastException(context + " must implement DataHolder");
         }
         try {
             mTrackActionListener = (OnTrackActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
+            throw new ClassCastException(context + " must implement OnTrackActionListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mData.clear();
         mDataHolder = null;
         mTrackActionListener = null;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        updateData();
+    public void onDestroyView() {
+        super.onDestroyView();
+        mData.clear();
     }
 
     @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
         DataSource source = mAdapter.getItem(position);
         if (source.isNativeTrack()) {
             Track track = ((TrackDataSource) source).getTracks().get(0);
@@ -165,12 +172,10 @@ public class DataSourceList extends ListFragment {
     }
 
     private class DataSourceListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-        private int mAccentColor;
-        private int mDisabledColor;
+        private final int mAccentColor;
+        private final int mDisabledColor;
 
         DataSourceListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mAccentColor = context.getColor(R.color.colorAccentLight);
             mDisabledColor = context.getColor(R.color.colorPrimary);
         }
@@ -203,7 +208,7 @@ public class DataSourceList extends ListFragment {
 
             if (convertView == null) {
                 itemHolder = new DataSourceListItemHolder();
-                convertView = mInflater.inflate(R.layout.list_item_data_source, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_data_source, parent, false);
                 itemHolder.name = convertView.findViewById(R.id.name);
                 itemHolder.description = convertView.findViewById(R.id.description);
                 itemHolder.filename = convertView.findViewById(R.id.filename);

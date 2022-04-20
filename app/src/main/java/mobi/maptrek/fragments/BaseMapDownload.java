@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,6 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.Fragment;
 
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
@@ -41,11 +45,11 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_file_download));
+        floatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_file_download));
         floatingButton.setOnClickListener(v -> {
             mMapIndex.downloadBaseMap();
             mFragmentHolder.disableActionButton();
@@ -61,13 +65,13 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 

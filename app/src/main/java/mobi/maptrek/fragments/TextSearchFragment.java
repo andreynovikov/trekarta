@@ -18,7 +18,6 @@ package mobi.maptrek.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -35,6 +34,9 @@ import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.ListFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,11 +101,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private IRenderTheme mTheme;
     private CancellationSignal mCancellationSignal;
     private DataListAdapter mAdapter;
-    private MatrixCursor mEmptyCursor = new MatrixCursor(mColumns);
+    private final MatrixCursor mEmptyCursor = new MatrixCursor(mColumns);
     private GeoPoint mCoordinates;
     private CharSequence[] mKinds;
     private int mSelectedKind;
-    private HashMap<Integer, Drawable> mTypeIconCache = new HashMap<>();
+    private final HashMap<Integer, Drawable> mTypeIconCache = new HashMap<>();
 
     private FragmentSearchListBinding mViews;
     private String mText;
@@ -120,7 +122,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViews = FragmentSearchListBinding.inflate(inflater, container, false);
 
         mViews.filterButton.setOnClickListener(this);
@@ -152,19 +154,24 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        Bundle arguments = getArguments();
-        double latitude = arguments.getDouble(ARG_LATITUDE);
-        double longitude = arguments.getDouble(ARG_LONGITUDE);
+        double latitude = Double.NaN;
+        double longitude = Double.NaN;
 
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                latitude = arguments.getDouble(ARG_LATITUDE);
+                longitude = arguments.getDouble(ARG_LONGITUDE);
+            }
         }
 
-        Activity activity = getActivity();
+        Context context = view.getContext();
 
         mCoordinates = new GeoPoint(latitude, longitude);
 
@@ -174,20 +181,20 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             logger.error(e.getMessage(), e);
         }
 
-        mAdapter = new DataListAdapter(activity, mEmptyCursor, 0);
+        mAdapter = new DataListAdapter(context, mEmptyCursor, 0);
         setListAdapter(mAdapter);
 
-        QuickFilterAdapter adapter = new QuickFilterAdapter(activity);
+        QuickFilterAdapter adapter = new QuickFilterAdapter(context);
         mViews.quickFilters.setAdapter(adapter);
 
         LinearLayoutManager horizontalLayoutManager
-                = new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
+                = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
         mViews.quickFilters.setLayoutManager(horizontalLayoutManager);
 
-        Resources resources = activity.getResources();
-        String packageName = activity.getPackageName();
+        Resources resources = getResources();
+        String packageName = view.getContext().getPackageName();
         mKinds = new CharSequence[Tags.kinds.length]; // we add two kinds but skip two last
-        mKinds[0] = activity.getString(R.string.any);
+        mKinds[0] = context.getString(R.string.any);
         mKinds[1] = resources.getString(R.string.kind_place);
         for (int i = 0; i < Tags.kinds.length - 2; i++) { // skip urban and barrier kinds
             int id = resources.getIdentifier(Tags.kinds[i], "string", packageName);
@@ -219,23 +226,23 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mFeatureActionListener = (OnFeatureActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnFeatureActionListener");
+            throw new ClassCastException(context + " must implement OnFeatureActionListener");
         }
         try {
             mLocationListener = (OnLocationListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnLocationListener");
+            throw new ClassCastException(context + " must implement OnLocationListener");
         }
         try {
             mMapHolder = (MapHolder) context;
             mTheme = mMapHolder.getMap().getTheme();
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         mFragmentHolder = (FragmentHolder) context;
     }
@@ -273,7 +280,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
         View view = getView();
         if (view != null) {
             // Hide keyboard
@@ -414,17 +421,15 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     private class DataListAdapter extends CursorAdapter {
         private final int mAccentColor;
-        private LayoutInflater mInflater;
 
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mAccentColor = getResources().getColor(R.color.colorAccentLight, context.getTheme());
         }
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = mInflater.inflate(R.layout.list_item_amenity, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_amenity, parent, false);
             if (view != null) {
                 ItemHolder holder = new ItemHolder();
                 holder.name = view.findViewById(R.id.name);
@@ -486,8 +491,8 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     public class QuickFilterAdapter extends RecyclerView.Adapter<QuickFilterAdapter.SimpleViewHolder> {
-        private Context context;
-        private List<Integer> elements;
+        private final Context context;
+        private final List<Integer> elements;
 
         QuickFilterAdapter(Context context) {
             this.context = context;
@@ -520,7 +525,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             if (type >= 0)
                 holder.button.setImageDrawable(getTypeDrawable(-type)); // we need to separate caches because search result icons are tinted
             else
-                holder.button.setImageDrawable(context.getDrawable(R.drawable.ic_more_horiz));
+                holder.button.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_more_horiz));
 
             holder.button.setOnClickListener(view -> {
                 if (type >= 0) {

@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -30,6 +29,10 @@ import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -59,7 +62,7 @@ public class MapList extends Fragment {
     private Switch mHideSwitch;
     private SeekBar mTransparencySeekBar;
     private LinearLayout mMapList;
-    private ArrayList<MapFile> mMaps = new ArrayList<>();
+    private final ArrayList<MapFile> mMaps = new ArrayList<>();
     private Collection<MapFile> mActiveMaps;
     private OnMapActionListener mListener;
     private FragmentHolder mFragmentHolder;
@@ -123,8 +126,8 @@ public class MapList extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
         double latitude = arguments.getDouble(ARG_LATITUDE);
@@ -156,7 +159,7 @@ public class MapList extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnMapActionListener) context;
@@ -239,19 +242,20 @@ public class MapList extends Fragment {
                 PopupMenu popup = new PopupMenu(getContext(), view);
                 popup.inflate(R.menu.context_menu_data_list);
                 popup.setOnMenuItemClickListener(item -> {
-                    switch (item.getItemId()) {
-                        case R.id.action_share:
-                            mListener.onMapShare(mapFile);
-                            return true;
-                        case R.id.action_delete:
-                            mListener.onMapDelete(mapFile);
-                            mMapList.removeView(view);
-                            mMaps.remove(mapFile);
-                            if (mMaps.size() == 0) {
-                                mEmptyView.setVisibility(View.VISIBLE);
-                                mMapListHeader.setVisibility(View.GONE);
-                            }
-                            return true;
+                    int itemId = item.getItemId();
+                    if (itemId == R.id.action_share) {
+                        mListener.onMapShare(mapFile);
+                        return true;
+                    }
+                    if (itemId == R.id.action_delete) {
+                        mListener.onMapDelete(mapFile);
+                        mMapList.removeView(view);
+                        mMaps.remove(mapFile);
+                        if (mMaps.size() == 0) {
+                            mEmptyView.setVisibility(View.VISIBLE);
+                            mMapListHeader.setVisibility(View.GONE);
+                        }
+                        return true;
                     }
                     return false;
                 });
@@ -263,7 +267,7 @@ public class MapList extends Fragment {
         mMapList.addView(mapView);
     }
 
-    private class MapComparator implements Comparator<MapFile>, Serializable {
+    private static class MapComparator implements Comparator<MapFile>, Serializable {
         @Override
         public int compare(MapFile o1, MapFile o2) {
             /*

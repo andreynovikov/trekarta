@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,6 +27,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
 
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
@@ -37,7 +39,6 @@ import mobi.maptrek.util.StringFormatter;
 public class RouteInformation extends ListFragment {
     private Route mRoute;
 
-    private InstructionListAdapter mAdapter;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnRouteActionListener mListener;
@@ -55,30 +56,30 @@ public class RouteInformation extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mAdapter = new InstructionListAdapter(getActivity());
-        setListAdapter(mAdapter);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        InstructionListAdapter adapter = new InstructionListAdapter();
+        setListAdapter(adapter);
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnRouteActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnRouteActionListener");
+            throw new ClassCastException(context + " must implement OnRouteActionListener");
         }
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -91,7 +92,7 @@ public class RouteInformation extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView lv, View v, int position, long id) {
+    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
         mMapHolder.setMapLocation(mRoute.get(position));
         mFragmentHolder.popAll();
     }
@@ -101,11 +102,6 @@ public class RouteInformation extends ListFragment {
     }
 
     private class InstructionListAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-
-        InstructionListAdapter(Context context) {
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
 
         @Override
         public Route.Instruction getItem(int position) {
@@ -128,7 +124,7 @@ public class RouteInformation extends ListFragment {
 
             if (convertView == null) {
                 itemHolder = new InstructionListItemHolder();
-                convertView = mInflater.inflate(R.layout.list_item_route_instruction, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_route_instruction, parent, false);
                 itemHolder.text = convertView.findViewById(R.id.text);
                 itemHolder.distance = convertView.findViewById(R.id.distance);
                 itemHolder.sign = convertView.findViewById(R.id.sign);

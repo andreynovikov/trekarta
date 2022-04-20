@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,10 +27,14 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import mobi.maptrek.R;
 import mobi.maptrek.util.JosmCoordinatesParser;
@@ -40,7 +43,7 @@ public class CoordinatesInputDialog extends DialogFragment {
     private int mColorTextPrimary;
     private int mColorDarkBlue;
     private int mColorRed;
-    private String mLineSeparator = System.getProperty("line.separator");
+    private final String mLineSeparator = System.getProperty("line.separator");
 
     private CoordinatesInputDialogCallback mCallback;
     private AlertDialog mDialog;
@@ -52,7 +55,7 @@ public class CoordinatesInputDialog extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         mColorTextPrimary = context.getColor(R.color.textColorPrimary);
@@ -60,6 +63,7 @@ public class CoordinatesInputDialog extends DialogFragment {
         mColorRed = context.getColor(R.color.red);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
@@ -69,7 +73,7 @@ public class CoordinatesInputDialog extends DialogFragment {
         final Activity activity = getActivity();
 
         @SuppressLint("InflateParams")
-        View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_coordinates_input, null);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_coordinates_input, null);
         final EditText textEdit = dialogView.findViewById(R.id.coordinatesEdit);
 
         textEdit.requestFocus();

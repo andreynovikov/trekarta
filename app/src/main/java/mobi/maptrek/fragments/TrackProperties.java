@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 
 package mobi.maptrek.fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +23,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
@@ -54,21 +57,22 @@ public class TrackProperties extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        mName = getArguments().getString(ARG_NAME);
-        mColor = getArguments().getInt(ARG_COLOR);
-        mNameEdit.setText(mName);
-        mColorSwatch.setColor(mColor);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState != null) {
             mNameEdit.setText(savedInstanceState.getString(ARG_NAME));
             mColorSwatch.setColor(savedInstanceState.getInt(ARG_COLOR));
+        } else {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                mName = getArguments().getString(ARG_NAME);
+                mColor = getArguments().getInt(ARG_COLOR);
+            }
         }
 
-        //FIXME WTF?
         mNameEdit.setText(mName);
+        mColorSwatch.setColor(mColor);
 
         mNameEdit.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -92,12 +96,12 @@ public class TrackProperties extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnTrackPropertiesChangedListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnTrackPropertiesChangedListener");
+            throw new ClassCastException(context + " must implement OnTrackPropertiesChangedListener");
         }
         mFragmentHolder = (FragmentHolder) context;
     }
@@ -116,7 +120,7 @@ public class TrackProperties extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(ARG_NAME, mNameEdit.getText().toString());
         outState.putInt(ARG_COLOR, mColorSwatch.getColor());

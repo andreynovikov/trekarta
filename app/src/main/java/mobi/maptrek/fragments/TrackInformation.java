@@ -17,7 +17,6 @@
 package mobi.maptrek.fragments;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +38,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -162,13 +166,14 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         initializeTrackInformation();
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnTrackActionListener) context;
@@ -212,21 +217,24 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_view:
-                mListener.onTrackView(mTrack);
-                mFragmentHolder.popAll();
-                return true;
-            case R.id.action_edit:
-                setEditorMode(true);
-                return true;
-            case R.id.action_share:
-                mListener.onTrackShare(mTrack);
-                return true;
-            case R.id.action_delete:
-                mListener.onTrackDelete(mTrack);
-                mFragmentHolder.popCurrent();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_view) {
+            mListener.onTrackView(mTrack);
+            mFragmentHolder.popAll();
+            return true;
+        }
+        if (itemId == R.id.action_edit) {
+            setEditorMode(true);
+            return true;
+        }
+        if (itemId == R.id.action_share) {
+            mListener.onTrackShare(mTrack);
+            return true;
+        }
+        if (itemId == R.id.action_delete) {
+            mListener.onTrackDelete(mTrack);
+            mFragmentHolder.popCurrent();
+            return true;
         }
         return false;
     }
@@ -263,8 +271,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         Track.TrackPoint ltp = mTrack.getLastPoint();
         boolean hasTime = ftp.time > 0 && ltp.time > 0;
 
-        String start_coords = StringFormatter.coordinates(ftp);
-        mStartCoordinatesView.setText(start_coords);
+        String startCoords = StringFormatter.coordinates(ftp);
+        mStartCoordinatesView.setText(startCoords);
 
         updateTrackInformation(activity, resources);
 
@@ -318,7 +326,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (Float.isNaN(point.speed)) {
                 if (hasTime) {
                     if (ptp != null) {
-                        speed = ((float) point.vincentyDistance(ptp)) / ((point.time - ptp.time) / 1000);
+                        speed = ((float) point.vincentyDistance(ptp)) / ((point.time - ptp.time) / 1000f);
                     } else {
                         speed = 0f;
                     }
@@ -465,7 +473,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         int viewsState, editsState;
         if (enabled) {
-            mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_done));
+            mMoreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_done));
             ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mTrack.name);
             colorSwatch.setColor(mTrack.style.color);
             colorSwatch.setOnClickListener(v -> {
@@ -481,7 +489,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (!mTrack.source.isNativeTrack())
                 HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mMoreButton, false);
         } else {
-            mMoreButton.setImageDrawable(getContext().getDrawable(R.drawable.ic_more_vert));
+            mMoreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_more_vert));
             ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
@@ -508,7 +516,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
     }
 
-    private ServiceConnection mTrackingConnection = new ServiceConnection() {
+    private final ServiceConnection mTrackingConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mTrackingService = (ILocationService) service;
             mTrackingService.registerTrackingCallback(mTrackingListener);
@@ -519,7 +527,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
     };
 
-    private ITrackingListener mTrackingListener = new ITrackingListener() {
+    private final ITrackingListener mTrackingListener = new ITrackingListener() {
         public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
             if (!continuous)
                 mSegmentCount++;

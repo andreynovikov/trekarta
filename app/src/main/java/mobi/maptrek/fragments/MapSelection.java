@@ -18,7 +18,6 @@ package mobi.maptrek.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -33,6 +32,10 @@ import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,8 +144,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mListener.onBeginMapManagement();
 
@@ -164,18 +167,18 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnMapActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnMapActionListener");
+            throw new ClassCastException(context + " must implement OnMapActionListener");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
         mResources = getResources();
 
@@ -197,7 +200,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
     }
 
@@ -293,7 +296,7 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
 
     @Override
     public void onStatsChanged() {
-        getActivity().runOnUiThread(() -> updateUI(mMapIndex.getMapStats()));
+        requireActivity().runOnUiThread(() -> updateUI(mMapIndex.getMapStats()));
     }
 
     @Override

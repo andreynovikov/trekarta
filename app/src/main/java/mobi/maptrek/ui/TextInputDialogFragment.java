@@ -20,13 +20,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
 import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.InputType;
@@ -59,7 +60,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mClipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     }
@@ -83,6 +84,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         mClipboard.removePrimaryClipChangedListener(this);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();

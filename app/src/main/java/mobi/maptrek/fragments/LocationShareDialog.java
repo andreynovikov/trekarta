@@ -19,7 +19,6 @@ package mobi.maptrek.fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -30,6 +29,9 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.DialogFragment;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -63,7 +65,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
     private DataHolder mDataHolder;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mDataHolder = (DataHolder) context;
@@ -78,9 +80,10 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
         mDataHolder = null;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Activity activity = getActivity();
+        Activity activity = requireActivity();
         ListAdapter adapter = new LocationShareAdapter(activity, android.R.layout.select_dialog_item, android.R.id.text1, items);
         return new AlertDialog.Builder(activity).setAdapter(adapter, this).create();
     }
@@ -151,7 +154,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
             TextView tv = v.findViewById(android.R.id.text1);
             Item item = getItem(position);
             if (item != null) {
-                Drawable icon = getContext().getDrawable(item.icon);
+                Drawable icon = AppCompatResources.getDrawable(parent.getContext(), item.icon);
                 if (icon != null) {
                     icon.setTint(getContext().getColor(R.color.colorPrimaryDark));
                     tv.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
@@ -171,6 +174,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
             this.icon = icon;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return text;

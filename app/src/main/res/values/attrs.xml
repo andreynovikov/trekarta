@@ -7,6 +7,30 @@
         <attr name="zoomIconColor" format="color" />
     </declare-styleable>
 
+    <declare-styleable name="FormattedSeekBarPreference">
+        <attr format="integer" name="min" />
+        <attr name="android:max" />
+        <attr name="android:layout" />
+        <!--Attribute controlling the amount to increment or decrement the seekbar when the user
+        presses the arrow keys-->
+        <attr format="integer" name="seekBarIncrement" />
+        <!-- Attribute indicating whether the slider within this preference can be adjusted, that is
+        pressing left/right keys when this preference is focused will move the slider accordingly
+        (e.g. inline adjustable preferences). False, if the slider within the preference is
+        read-only and cannot be adjusted. By default, the seekbar is adjustable. -->
+        <attr format="boolean" name="adjustable" />
+        <!-- Flag indicating whether the TextView next to the seekbar that shows the current seekbar
+        value will be displayed. If true, the view is VISIBLE; if false, the view will be GONE.
+        By default, this view is GONE. -->
+        <attr format="boolean" name="showSeekBarValue" />
+        <!-- Flag indicating whether the SeekBarPreference should continuously save the Seekbar
+        value while the Seekbar is being dragged. If true, the SeekBarPreference should continuously
+        save the Seekbar value while it is being dragged. If false, the Seekbar value is only saved
+        when released. By default, this boolean is false. -->
+        <attr format="boolean" name="updatesContinuously" />
+        <attr format="string" name="format" />
+    </declare-styleable>
+
     <declare-styleable name="DiscreteSlider">
         <attr name="tickMarkCount" format="integer" />
         <attr name="tickMarkRadius" format="dimension" />
