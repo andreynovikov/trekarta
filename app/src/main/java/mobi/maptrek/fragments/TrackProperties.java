@@ -91,7 +91,7 @@ public class TrackProperties extends Fragment {
                 mColorSwatch.setColor(color);
                 mColor = color;
             });
-            dialog.show(getFragmentManager(), "ColorPickerDialog");
+            dialog.show(getParentFragmentManager(), "ColorPickerDialog");
         });
     }
 

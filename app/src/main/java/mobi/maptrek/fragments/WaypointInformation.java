@@ -427,7 +427,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 dialog.setColors(MarkerStyle.DEFAULT_COLORS, colorSwatch.getColor());
                 dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
                 dialog.setOnColorSelectedListener(colorSwatch::setColor);
-                dialog.show(getFragmentManager(), "ColorPickerDialog");
+                dialog.show(getParentFragmentManager(), "ColorPickerDialog");
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;

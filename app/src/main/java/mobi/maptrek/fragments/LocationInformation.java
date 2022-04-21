@@ -108,7 +108,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
                     .setHint(container.getContext().getString(R.string.coordinates))
                     .setShowPasteButton(true)
                     .create();
-            mTextInputDialog.show(getFragmentManager(), "coordinatesInput");
+            mTextInputDialog.show(getParentFragmentManager(), "coordinatesInput");
         });
 
         mCoordinateDegree = mRootView.findViewById(R.id.coordinate_degree);
@@ -169,7 +169,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
 
-        TextInputDialogFragment coordinatesInput = (TextInputDialogFragment) getFragmentManager().findFragmentByTag("coordinatesInput");
+        TextInputDialogFragment coordinatesInput = (TextInputDialogFragment) getParentFragmentManager().findFragmentByTag("coordinatesInput");
         if (coordinatesInput != null) {
             coordinatesInput.setCallback(this);
         }

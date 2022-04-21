@@ -88,7 +88,7 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
             dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
             dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
             dialog.setOnColorSelectedListener(color1 -> mColorSwatch.setColor(color1));
-            dialog.show(getFragmentManager(), "ColorPickerDialog");
+            dialog.show(getParentFragmentManager(), "ColorPickerDialog");
         });
     }
 

@@ -193,7 +193,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
                         .setTitle(getString(R.string.titleCoordinatesInput))
                         .create();
-                coordinatesInput.show(getFragmentManager(), "pointCoordinatesInput");
+                coordinatesInput.show(getParentFragmentManager(), "pointCoordinatesInput");
             });
         }
     }
@@ -239,7 +239,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     @Override
     public void onResume() {
         super.onResume();
-        CoordinatesInputDialog coordinatesInput = (CoordinatesInputDialog) getFragmentManager().findFragmentByTag("pointCoordinatesInput");
+        CoordinatesInputDialog coordinatesInput = (CoordinatesInputDialog) getParentFragmentManager().findFragmentByTag("pointCoordinatesInput");
         if (coordinatesInput != null) {
             coordinatesInput.setCallback(this);
         }
