@@ -18,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerVertical="true"
         app:backdropFillColor="@color/colorBackground"
-        app:backdropStrokeColor="@color/textColorSecondary"
+        app:backdropStrokeColor="@color/textColorTertiary"
         app:backdropStrokeWidth="1dp"
         app:horizontalBarThickness="4dp"
         app:progressDrawable="@drawable/transparent_progress_drawable"
@@ -37,6 +37,6 @@
         android:ellipsize="marquee"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textColorSecondary" />
+        android:textColor="@color/textColorPrimary" />
 
 </RelativeLayout>

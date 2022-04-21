@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
@@ -18,7 +19,7 @@
         android:background="@drawable/circle"
         android:scaleType="center"
         android:src="@drawable/ic_folder"
-        android:tint="@color/colorBackground" />
+        app:tint="@color/colorBackground" />
 
     <TextView
         android:id="@+id/description"
@@ -28,7 +29,8 @@
         android:layout_marginEnd="@dimen/textPadding"
         android:layout_toEndOf="@id/icon"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/textColorSecondary" />
 
     <TextView
         android:id="@+id/filename"
@@ -41,6 +43,7 @@
         android:gravity="end"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/textColorSecondary"
         android:textStyle="italic" />
 
     <ImageView
@@ -52,7 +55,7 @@
         android:paddingStart="@dimen/textPadding"
         android:paddingBottom="4dp"
         android:src="@drawable/ic_visibility"
-        android:tint="?attr/actionIconColor"
+        app:tint="?attr/actionIconColor"
         tools:ignore="RtlSymmetry" />
 
     <TextView
@@ -66,6 +69,7 @@
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/textColorPrimary" />
 
 </RelativeLayout>

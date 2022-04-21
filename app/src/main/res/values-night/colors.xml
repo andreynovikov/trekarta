@@ -27,10 +27,11 @@
     <color name="colorAccentLight">#f09274</color> <!-- 300 + desaturate 20% -->
     <color name="colorAccentLightest">#ffccbc</color> <!-- 100 -->
     <color name="colorBackground">#111111</color>
+    <color name="colorSplashBackground">#222222</color>
     <color name="textColorPrimary">#a1a1a1</color>
     <color name="textColorPrimaryDisabled">#80a1a1a1</color>
-    <color name="textColorSecondary">#828282</color>
-    <color name="textColorSecondaryDisabled">#80828282</color>
+    <color name="textColorSecondary">#525252</color>
+    <color name="textColorSecondaryDisabled">#80525252</color>
     <color name="textColorTertiary">#626262</color>
     <color name="textColorTertiaryDisabled">#80626262</color>
     <color name="panelBackground">#99333333</color>

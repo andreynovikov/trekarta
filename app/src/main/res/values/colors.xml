@@ -32,8 +32,8 @@
     <color name="textColorPrimaryDisabled">#80212121</color>
     <color name="textColorSecondary">#727272</color>
     <color name="textColorSecondaryDisabled">#80727272</color>
-    <color name="textColorTertiary">#626262</color>
-    <color name="textColorTertiaryDisabled">#80626262</color>
+    <color name="textColorTertiary">#929292</color>
+    <color name="textColorTertiaryDisabled">#80929292</color>
     <color name="panelBackground">#99ffffff</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
     <color name="panelExtendedBackground">#cc999999</color>
