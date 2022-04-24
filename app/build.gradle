@@ -9,8 +9,8 @@ android {
         applicationId "mobi.maptrek"
         minSdkVersion 23
         targetSdkVersion 31
-        versionCode 82
-        versionName "2022.03"
+        versionCode 83
+        versionName "2022.04"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }

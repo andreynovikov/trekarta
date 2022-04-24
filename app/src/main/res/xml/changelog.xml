@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2022.04" versioncode="83" date="25.04.2022">
+        <change>Restore background track writing</change>
+        <change>Enable double back press to exit</change>
+        <change>Fix extra precision for distance</change>
+    </release>
     <release version="2022.03" versioncode="82" date="21.03.2022">
         <change>Fixed blank screen on newer devices</change>
         <change>Fixed crash on start on newer devices</change>
-        <change>Removed option to store files on external storage</change>
+        <change variant="full">Removed option to store files on external storage</change>
         <change variant="full">Removed fullscreen mode on older devices</change>
     </release>
     <release version="2021.04" versioncode="80" date="30.04.2021">

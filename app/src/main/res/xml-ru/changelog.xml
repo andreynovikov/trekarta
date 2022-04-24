@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2022.04" versioncode="83" date="25.04.2022">
+        <change>Восстановлена запись трека в фоновом режиме</change>
+        <change>Включён выход по двойному нажатию назад</change>
+        <change>Исправлена повышенная точность для расстояния</change>
+    </release>
     <release version="2022.03" versioncode="82" date="21.03.2022">
         <change>Исправлен белый экран при старте на современных устройствах</change>
         <change>Исправлена невозможность запуска на современных устройствах</change>
