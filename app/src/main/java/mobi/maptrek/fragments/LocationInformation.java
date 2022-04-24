@@ -90,7 +90,6 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         mSunriseSunset = new SunriseSunset();
     }
 
@@ -169,9 +168,9 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mMapHolder.getMap().events.bind(this);
         mMapHolder.addLocationStateChangeListener(this);
 
-        TextInputDialogFragment coordinatesInput = (TextInputDialogFragment) getParentFragmentManager().findFragmentByTag("coordinatesInput");
-        if (coordinatesInput != null) {
-            coordinatesInput.setCallback(this);
+        mTextInputDialog = (TextInputDialogFragment) getParentFragmentManager().findFragmentByTag("coordinatesInput");
+        if (mTextInputDialog != null) {
+            mTextInputDialog.setCallback(this);
         }
     }
 
