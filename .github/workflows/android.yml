@@ -21,7 +21,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 11
-        cache: 'gradle'
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Build with Gradle
@@ -39,7 +38,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 11
-        cache: 'gradle'
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Execute unit tests
@@ -55,7 +53,7 @@ jobs:
         api-level: [23, 29]
         target: [default]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Execute instrumentation tests
