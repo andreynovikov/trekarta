@@ -279,7 +279,7 @@ public class Configuration {
             String[] filenames = new String[mapFiles.size()];
             int i = 0;
             for (MapFile mapFile : mapFiles) {
-                filenames[i] = mapFile.tileSource.getOption("path");
+                filenames[i] = mapFile.id;
                 i++;
             }
             saveString(PREF_BITMAP_MAP, TextUtils.join(";", filenames));

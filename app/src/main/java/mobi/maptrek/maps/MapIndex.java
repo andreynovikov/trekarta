@@ -102,6 +102,7 @@ public class MapIndex implements Serializable {
                 if (result.isSuccess()) {
                     SQLiteMapInfo info = tileSource.getMapInfo();
                     mapFile.name = info.name;
+                    mapFile.id = tileSource.getOption("path");
                     mapFile.boundingBox = info.boundingBox;
                     mapFile.tileSource = tileSource;
                     tileSource.close();
@@ -133,7 +134,7 @@ public class MapIndex implements Serializable {
 
             List<OnlineTileSource> tileSources = OnlineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
             for (OnlineTileSource tileSource : tileSources) {
-                MapFile mapFile = new MapFile(tileSource.getName());
+                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
                 mapFile.tileSource = tileSource;
                 mapFile.boundingBox = WORLD_BOUNDING_BOX;
                 //TODO Implement tile cache expiration
@@ -160,7 +161,7 @@ public class MapIndex implements Serializable {
 
             List<OfflineTileSource> tileSources = OfflineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
             for (OfflineTileSource tileSource : tileSources) {
-                MapFile mapFile = new MapFile(tileSource.getName());
+                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
                 mapFile.tileSource = tileSource;
                 mapFile.boundingBox = WORLD_BOUNDING_BOX;
                 mMaps.add(mapFile);
@@ -169,13 +170,13 @@ public class MapIndex implements Serializable {
     }
 
     @NonNull
-    public ArrayList<MapFile> getMaps(@Nullable String[] filenames) {
+    public ArrayList<MapFile> getMaps(@Nullable String[] ids) {
         ArrayList<MapFile> maps = new ArrayList<>();
-        if (filenames == null)
+        if (ids == null)
             return maps;
-        for (String filename : filenames) {
+        for (String id : ids) {
             for (MapFile map : mMaps) {
-                if (filename.equals(map.tileSource.getOption("path")))
+                if (id.equals(map.id))
                     maps.add(map);
             }
         }

@@ -140,4 +140,8 @@ public class OnlineTileSource extends BitmapTileSource {
     public String getName() {
         return mName;
     }
+
+    public String getUri() {
+        return mUri;
+    }
 }
