@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,18 +17,11 @@
 package mobi.maptrek;
 
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,230 +48,137 @@ public class IntroductionTest {
     public void introductionTest() {
         ViewInteraction textView = onView(
                 allOf(withId(R.id.title), withText("Offline maps"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView.check(matches(withText("Offline maps")));
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                        0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
-
-
         appCompatImageButton.perform(click());
 
         ViewInteraction textView2 = onView(
                 allOf(withId(R.id.title), withText("Places"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView2.check(matches(withText("Places")));
 
         ViewInteraction appCompatImageButton2 = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         appCompatImageButton2.perform(click());
 
         ViewInteraction textView3 = onView(
                 allOf(withId(R.id.title), withText("Tracks"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView3.check(matches(withText("Tracks")));
 
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         appCompatImageButton3.perform(click());
 
         ViewInteraction textView4 = onView(
                 allOf(withId(R.id.title), withText("Off-road"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView4.check(matches(withText("Off-road")));
 
         ViewInteraction appCompatImageButton4 = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         appCompatImageButton4.perform(click());
 
         ViewInteraction textView5 = onView(
                 allOf(withId(R.id.title), withText("Hiking"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hiking")));
 
         ViewInteraction appCompatImageButton5 = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         appCompatImageButton5.perform(click());
 
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.title), withText("Cycling"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView6.check(matches(withText("Cycling")));
 
         ViewInteraction appCompatImageButton6 = onView(
                 allOf(withId(R.id.next),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                6),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
-        appCompatImageButton5.perform(click());
+        appCompatImageButton6.perform(click());
 
         ViewInteraction textView7 = onView(
                 allOf(withId(R.id.title), withText("Skiing and skating"),
-                        childAtPosition(
-                                allOf(withId(R.id.main),
-                                        withParent(withId(R.id.view_pager))),
-                                0),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
                         isDisplayed()));
         textView7.check(matches(withText("Skiing and skating")));
 
         if (BuildConfig.FULL_VERSION) {
             ViewInteraction appCompatImageButton7 = onView(
                     allOf(withId(R.id.next),
-                            childAtPosition(
-                                    allOf(withId(R.id.background),
-                                            childAtPosition(
-                                                    withId(android.R.id.content),
-                                                    0)),
-                                    6),
+                            withParent(allOf(withId(R.id.background),
+                                    withParent(withId(android.R.id.content)))),
                             isDisplayed()));
             appCompatImageButton7.perform(click());
 
             ViewInteraction textView8 = onView(
                     allOf(withId(R.id.title), withText("Night mode"),
-                            childAtPosition(
-                                    allOf(withId(R.id.main),
-                                            withParent(withId(R.id.view_pager))),
-                                    0),
+                            withParent(allOf(withId(R.id.main),
+                                    withParent(withId(R.id.view_pager)))),
                             isDisplayed()));
             textView8.check(matches(withText("Night mode")));
         }
 
-        ViewInteraction button = onView(
-                allOf(withId(R.id.done),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                7),
-                        isDisplayed()));
-        button.check(matches(isDisplayed()));
-
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.done), withText("DONE"),
-                        childAtPosition(
-                                allOf(withId(R.id.background),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                7),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        ViewInteraction frameLayout = onView(
-                allOf(withId(R.id.contentPanel),
-                        childAtPosition(
-                                allOf(withId(R.id.coordinatorLayout),
-                                        childAtPosition(
-                                                IsInstanceOf.instanceOf(android.widget.FrameLayout.class),
-                                                1)),
-                                8),
-                        isDisplayed()));
-        frameLayout.check(matches(isDisplayed()));
-
         ViewInteraction imageButton = onView(
                 allOf(withId(R.id.actionButton),
-                        childAtPosition(
-                                allOf(withId(R.id.coordinatorLayout),
-                                        childAtPosition(
-                                                IsInstanceOf.instanceOf(android.widget.FrameLayout.class),
-                                                1)),
-                                10),
+                        withParent(allOf(withId(R.id.coordinatorLayout),
+                                withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class)))),
                         isDisplayed()));
         imageButton.check(matches(isDisplayed()));
 
         pressBack();
 
+        ViewInteraction view = onView(
+                allOf(withId(R.id.mapView),
+                        withParent(withParent(withId(android.R.id.content))),
+                        isDisplayed()));
+        view.check(matches(isDisplayed()));
+
         ViewInteraction linearLayout = onView(
                 allOf(withId(R.id.actionPanel),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.coordinatorLayout),
-                                        7),
-                                1),
+                        withParent(withParent(withId(R.id.coordinatorLayout))),
                         isDisplayed()));
         linearLayout.check(matches(isDisplayed()));
-    }
-
-    private static Matcher<View> childAtPosition(
-            final Matcher<View> parentMatcher, final int position) {
-
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Child at position " + position + " in parent ");
-                parentMatcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(View view) {
-                ViewParent parent = view.getParent();
-                return parent instanceof ViewGroup && parentMatcher.matches(parent)
-                        && view.equals(((ViewGroup) parent).getChildAt(position));
-            }
-        };
     }
 }

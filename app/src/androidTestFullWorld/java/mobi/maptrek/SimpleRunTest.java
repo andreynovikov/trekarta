@@ -44,6 +44,7 @@ import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -112,14 +113,14 @@ public class SimpleRunTest {
         // Check for 'Trekarta' title
 
         ViewInteraction textView = onView(
-                allOf(withId(R.id.title), withText("Trekarta"),
+                allOf(withId(R.id.title), withContentDescription("Trekarta"),
                         childAtPosition(
                                 childAtPosition(
                                         IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 1),
                         isDisplayed()));
-        textView.check(matches(withText("Trekarta")));
+        textView.check(matches(withContentDescription("Trekarta")));
 
         pressBack();
 
