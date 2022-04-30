@@ -31,15 +31,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.LongSparseArray;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.greenrobot.eventbus.EventBus;
 import org.oscim.theme.styles.TextStyle;
@@ -59,6 +66,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Waypoint;
@@ -66,6 +75,7 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapService;
+import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
@@ -90,6 +100,7 @@ public class MapTrek extends Application {
     public static int versionCode = 0;
 
     public static boolean isMainActivityRunning = false;
+    private boolean mMainActivityExists = false;
 
     private Index mIndex;
     private MapIndex mExtraMapIndex;
@@ -120,6 +131,7 @@ public class MapTrek extends Application {
     public void onCreate() {
         super.onCreate();
         mSelf = this;
+        registerActivityLifecycleCallbacks(new ListeningToActivityCallbacks());
 
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
@@ -169,6 +181,7 @@ public class MapTrek extends Application {
         int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
         AppCompatDelegate.setDefaultNightMode(nightMode);
 
+        /*
         if (BuildConfig.DEBUG) {
             // Look for test maps and import them
             File dir = getExternalDir("native");
@@ -178,7 +191,16 @@ public class MapTrek extends Application {
                     Uri uri = Uri.fromFile(mapFile);
                     logger.error("Found debug map: {}", mapFile.getAbsolutePath());
                     Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Data data = new Data.Builder()
+                                .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+                                .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
+                                .build();
+                        OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                                .setInputData(data)
+                                .build();
+                        WorkManager.getInstance(this).enqueue(importWorkRequest);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         startForegroundService(importIntent);
                     } else {
                         startService(importIntent);
@@ -186,6 +208,7 @@ public class MapTrek extends Application {
                 }
             }
         }
+         */
     }
 
     private void initializeSettings() {
@@ -445,18 +468,39 @@ public class MapTrek extends Application {
         return notification;
     }
 
+    synchronized public void optionallyCloseMapDatabase(UUID id) {
+        WorkManager workManager = WorkManager.getInstance(this);
+        ListenableFuture<List<WorkInfo>> workInfos = workManager.getWorkInfosByTag(MapWorker.TAG);
+        boolean hasWorks = false;
+        try {
+            for (WorkInfo workInfo : workInfos.get()) {
+                WorkInfo.State state = workInfo.getState();
+                if (workInfo.getId().equals(id))
+                    continue;
+                hasWorks = hasWorks || (state == WorkInfo.State.RUNNING | state == WorkInfo.State.ENQUEUED);
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        logger.error("optionallyCloseMapDatabase {} {}", mMainActivityExists, hasWorks);
+        if (!mMainActivityExists && !hasWorks) {
+            // close databases
+            if (mHillshadeHelper != null) {
+                mHillshadeHelper.close();
+                mHillshadeHelper = null;
+                mHillshadeDatabase = null;
+            }
+            if (mDetailedMapHelper != null) {
+                mDetailedMapHelper.close();
+                mDetailedMapHelper = null;
+                mDetailedMapDatabase = null;
+            }
+        }
+    }
+
     public void onMainActivityFinishing() {
-        // close databases
-        if (mHillshadeHelper != null) {
-            mHillshadeHelper.close();
-            mHillshadeHelper = null;
-            mHillshadeDatabase = null;
-        }
-        if (mDetailedMapHelper != null) {
-            mDetailedMapHelper.close();
-            mDetailedMapHelper = null;
-            mDetailedMapDatabase = null;
-        }
+        optionallyCloseMapDatabase(null);
         if (mWaypointDbDataSource != null) {
             mWaypointDbDataSource.close();
             mWaypointDbDataSource = null;
@@ -568,4 +612,47 @@ public class MapTrek extends Application {
         }
     }
 
+    class ListeningToActivityCallbacks implements Application.ActivityLifecycleCallbacks {
+
+        @Override
+        public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
+            logger.error("{} is onActivityCreated", activity.getLocalClassName());
+            if (activity.getLocalClassName().equals(MainActivity.class.getSimpleName()))
+                mMainActivityExists = true;
+        }
+
+        @Override
+        public void onActivityStarted(@NonNull Activity activity) {
+            logger.error("{} is onActivityStarted", activity.getLocalClassName());
+        }
+
+        @Override
+        public void onActivityResumed(@NonNull Activity activity) {
+            logger.error("{} is onActivityResumed", activity.getLocalClassName());
+        }
+
+        @Override
+        public void onActivityPaused(@NonNull Activity activity) {
+            logger.error("{} is onActivityPaused", activity.getLocalClassName());
+        }
+
+        @Override
+        public void onActivityStopped(@NonNull Activity activity) {
+            logger.error("{} is onActivityStopped", activity.getLocalClassName());
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+            logger.error("{} is onActivitySaveInstanceState", activity.getLocalClassName());
+        }
+
+        @Override
+        public void onActivityDestroyed(@NonNull Activity activity) {
+            logger.error("{} is onActivityDestroyed", activity.getLocalClassName());
+            if (activity.isFinishing() && activity.getLocalClassName().equals(MainActivity.class.getSimpleName())) {
+                mMainActivityExists = false;
+                onMainActivityFinishing();
+            }
+        }
+    }
 }

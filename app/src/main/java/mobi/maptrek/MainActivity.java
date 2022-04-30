@@ -1182,7 +1182,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mShieldFactory.dispose();
             if (mOsmcSymbolFactory != null)
                 mOsmcSymbolFactory.dispose();
-            MapTrek.getApplication().onMainActivityFinishing();
         }
 
         //mFragmentManager = null;

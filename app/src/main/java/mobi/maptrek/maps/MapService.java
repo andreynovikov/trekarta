@@ -54,14 +54,7 @@ public class MapService extends IntentService {
         super("MapService");
     }
 
-    /*
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, MapService.class, JOB_ID, work);
-    }
-    */
-
     @Override
-    //protected void onHandleWork(@NonNull Intent intent) {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent == null)
             return;

@@ -58,7 +58,7 @@ public class MapFile {
             double jx = polygonPoints[j];
             double jy = polygonPoints[j + 1];
             if (iy < y && jy >= y || jy < y && iy >= y) {
-                if (ix + (y - iy) * 1. / (jy - iy) * (jx - ix) < x) {
+                if (ix + (y - iy) / (jy - iy) * (jx - ix) < x) {
                     inside = !inside;
                 }
             }

@@ -28,6 +28,11 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import android.os.Build;
 import android.text.TextUtils;
 
 import org.slf4j.Logger;
@@ -45,6 +50,7 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.MapService;
+import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.util.ProgressListener;
 
 import static mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper.ALL_COLUMNS_FEATURES;
@@ -131,18 +137,18 @@ public class Index {
             Cursor cursor = mMapsDatabase.query(TABLE_MAPS, ALL_COLUMNS_MAPS, WHERE_MAPS_PRESENT, null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                int x = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_X));
-                int y = cursor.getInt(cursor.getColumnIndex(COLUMN_MAPS_Y));
-                short date = cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_DATE));
-                byte version = (byte) cursor.getShort(cursor.getColumnIndex(COLUMN_MAPS_VERSION));
+                int x = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_MAPS_X));
+                int y = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_MAPS_Y));
+                short date = cursor.getShort(cursor.getColumnIndexOrThrow(COLUMN_MAPS_DATE));
+                byte version = (byte) cursor.getShort(cursor.getColumnIndexOrThrow(COLUMN_MAPS_VERSION));
                 logger.debug("index({}, {}, {}, {})", x, y, date, version);
                 if (x == -1 && y == -1) {
                     mBaseMapVersion = date;
                     cursor.moveToNext();
                     continue;
                 }
-                long downloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_DOWNLOADING));
-                long hillshadeDownloading = cursor.getLong(cursor.getColumnIndex(COLUMN_MAPS_HILLSHADE_DOWNLOADING));
+                long downloading = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_MAPS_DOWNLOADING));
+                long hillshadeDownloading = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_MAPS_HILLSHADE_DOWNLOADING));
                 MapStatus mapStatus = getNativeMap(x, y);
                 mapStatus.created = date;
                 mapStatus.hillshadeVersion = version;
@@ -498,12 +504,12 @@ public class Index {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 statement.clearBindings();
-                statement.bindLong(1, cursor.getLong(cursor.getColumnIndex(COLUMN_FEATURES_ID)));
-                statement.bindLong(2, cursor.getInt(cursor.getColumnIndex(COLUMN_FEATURES_KIND)));
+                statement.bindLong(1, cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_FEATURES_ID)));
+                statement.bindLong(2, cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FEATURES_KIND)));
                 if (version == 1) {
                     statement.bindNull(3);
                 } else {
-                    statement.bindLong(3, cursor.getInt(cursor.getColumnIndex(COLUMN_FEATURES_TYPE)));
+                    statement.bindLong(3, cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FEATURES_TYPE)));
                 }
                 int latColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LAT);
                 int lonColumnIndex = cursor.getColumnIndex(COLUMN_FEATURES_LON);
@@ -793,10 +799,23 @@ public class Index {
                 if (mapStatus.action == ACTION.NONE)
                     continue;
                 if (mapStatus.action == ACTION.REMOVE) {
-                    Intent deleteIntent = new Intent(Intent.ACTION_DELETE, null, mContext, MapService.class);
-                    deleteIntent.putExtra(MapService.EXTRA_X, x);
-                    deleteIntent.putExtra(MapService.EXTRA_Y, y);
-                    mContext.startService(deleteIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Data data = new Data.Builder()
+                                .putString(MapWorker.KEY_ACTION, Intent.ACTION_DELETE)
+                                .putInt(MapWorker.KEY_X, x)
+                                .putInt(MapWorker.KEY_Y, y)
+                                .build();
+                        OneTimeWorkRequest deleteWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                                .addTag(MapWorker.TAG)
+                                .setInputData(data)
+                                .build();
+                        WorkManager.getInstance(mContext).enqueue(deleteWorkRequest);
+                    } else {
+                        Intent deleteIntent = new Intent(Intent.ACTION_DELETE, null, mContext, MapService.class);
+                        deleteIntent.putExtra(MapService.EXTRA_X, x);
+                        deleteIntent.putExtra(MapService.EXTRA_Y, y);
+                        mContext.startService(deleteIntent);
+                    }
                     mapStatus.action = ACTION.NONE;
                     continue;
                 }
@@ -913,7 +932,7 @@ public class Index {
         Cursor c = mDownloadManager.query(query);
         int status = 0;
         if (c.moveToFirst())
-            status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            status = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
         c.close();
         return status;
     }
