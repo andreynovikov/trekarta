@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2022.05" versioncode="84" date="01.05.2022">
+        <change>Исправлена загрузка карт на Android 12</change>
+        <change variant="full">Исправлена обработка пользовательских карт при вращении устройства</change>
+    </release>
     <release version="2022.04" versioncode="83" date="25.04.2022">
         <change>Восстановлена запись трека в фоновом режиме</change>
         <change>Включён выход по двойному нажатию назад</change>
