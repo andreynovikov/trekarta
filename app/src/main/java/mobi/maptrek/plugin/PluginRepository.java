@@ -1,52 +1,67 @@
-package mobi.maptrek;
+/*
+ * Copyright 2022 Andrey Novikov
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
+package mobi.maptrek.plugin;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Pair;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import androidx.annotation.NonNull;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class BasePluginActivity extends AppCompatActivity {
+import mobi.maptrek.util.ContextUtils;
+
+public final class PluginRepository {
+
+    private final Context mContext;
+
     // Plugins
-    private AbstractMap<String, Intent> mPluginPreferences = new HashMap<>();
-    private AbstractMap<String, Pair<Drawable, Intent>> mPluginTools = new HashMap<>();
+    private final AbstractMap<String, Intent> mPluginPreferences = new HashMap<>();
+    private final AbstractMap<String, Pair<Drawable, Intent>> mPluginTools = new HashMap<>();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+    public PluginRepository(@NonNull Context context) {
+        mContext = context;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
-    public java.util.Map<String, Intent> getPluginsPreferences() {
-        return mPluginPreferences;
-    }
-
-    public java.util.Map<String, Pair<Drawable, Intent>> getPluginsTools() {
+    public AbstractMap<String, Pair<Drawable, Intent>> getPluginTools() {
         return mPluginTools;
     }
 
+    public AbstractMap<String, Intent> getPluginPreferences() {
+        return mPluginPreferences;
+    }
+
+    public void addPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
+        mPluginTools.put(entry.first, entry.second);
+    }
+
     public void initializePlugins() {
-        PackageManager packageManager = getPackageManager();
+        PackageManager packageManager = mContext.getPackageManager();
         List<ResolveInfo> plugins;
 
         // enumerate initializable plugins
-        sendExplicitBroadcast("mobi.maptrek.plugins.action.INITIALIZE");
+        ContextUtils.sendExplicitBroadcast(mContext, "mobi.maptrek.plugins.action.INITIALIZE");
 
         // enumerate plugins with preferences
         plugins = packageManager.queryIntentActivities(new Intent("mobi.maptrek.plugins.preferences"), 0);
@@ -65,7 +80,7 @@ public abstract class BasePluginActivity extends AppCompatActivity {
                 Resources resources = packageManager.getResourcesForApplication(plugin.activityInfo.applicationInfo);
                 int id = resources.getIdentifier("ic_menu_tool", "drawable", plugin.activityInfo.packageName);
                 if (id != 0)
-                    icon = resources.getDrawable(id, getTheme());
+                    icon = resources.getDrawable(id, mContext.getTheme());
             } catch (Resources.NotFoundException | PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
@@ -75,22 +90,5 @@ public abstract class BasePluginActivity extends AppCompatActivity {
             Pair<Drawable, Intent> pair = new Pair<>(icon, intent);
             mPluginTools.put(plugin.activityInfo.loadLabel(packageManager).toString(), pair);
         }
-    }
-
-    protected void sendExplicitBroadcast(String action) {
-        PackageManager packageManager = getPackageManager();
-        Intent intent = new Intent(action);
-        List<ResolveInfo> plugins = packageManager.queryBroadcastReceivers(intent, 0);
-        for (ResolveInfo plugin : plugins) {
-            intent = new Intent(action);
-            intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
-            intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            sendBroadcast(intent);
-        }
-    }
-
-    @Subscribe
-    public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
-        mPluginTools.put(entry.first, entry.second);
     }
 }

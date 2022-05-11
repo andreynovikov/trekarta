@@ -80,6 +80,7 @@ import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.LongSparseArrayIterator;
 import mobi.maptrek.util.NativeMapFilenameFilter;
 import mobi.maptrek.util.OsmcSymbolFactory;
@@ -116,6 +117,7 @@ public class MapTrek extends Application {
     private SafeResultReceiver mResultReceiver;
     private Waypoint mEditedWaypoint;
     private List<MapFile> mBitmapLayerMaps;
+    private PluginRepository mPluginRepository;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -381,8 +383,14 @@ public class MapTrek extends Application {
     }
 
     public MapIndex getExtraMapIndex() {
-        if (mExtraMapIndex == null)
+        if (mExtraMapIndex == null) {
             mExtraMapIndex = new MapIndex(this, getExternalDir("maps"));
+
+            if (BuildConfig.FULL_VERSION) {
+                mExtraMapIndex.initializeOfflineMapProviders();
+                mExtraMapIndex.initializeOnlineMapProviders();
+            }
+        }
         return mExtraMapIndex;
     }
 
@@ -406,6 +414,16 @@ public class MapTrek extends Application {
         return mOsmcSymbolFactory;
     }
 
+    public PluginRepository getPluginRepository() {
+        if (mPluginRepository == null) {
+            mPluginRepository = new PluginRepository(this);
+
+            if (BuildConfig.FULL_VERSION) {
+                mPluginRepository.initializePlugins();
+            }
+        }
+        return mPluginRepository;
+    }
 
     @Nullable
     public SafeResultReceiver getResultReceiver() {
