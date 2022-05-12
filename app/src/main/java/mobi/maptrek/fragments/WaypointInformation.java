@@ -79,7 +79,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     private double mLatitude;
     private double mLongitude;
 
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private BottomSheetBehavior<View> mBottomSheetBehavior;
+    private WaypointBottomSheetCallback mBottomSheetCallback;
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
@@ -195,50 +196,18 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
 
         final View dragHandle = rootView.findViewById(R.id.dragHandle);
         dragHandle.setAlpha(mExpanded ? 0f : 1f);
+        mBottomSheetCallback = new WaypointBottomSheetCallback();
         ViewParent parent = rootView.getParent();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
-                    mFragmentHolder.disableActionButton();
-                    CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
-                    p.setAnchorId(R.id.contentPanel);
-                    mFloatingButton.setLayoutParams(p);
-                    mFloatingButton.setAlpha(1f);
-                    if (mPopAll)
-                        mFragmentHolder.popAll();
-                    else
-                        mFragmentHolder.popCurrent();
-                }
-                if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
-                    mMapHolder.updateMapViewArea();
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    TextView coordsView = rootView.findViewById(R.id.coordinates);
-                    if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
-                            && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
-                        Rect r = new Rect();
-                        coordsView.getGlobalVisibleRect(r);
-                        if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
-                            r.left = r.right - coordsView.getTotalPaddingRight();
-                        } else {
-                            r.right = r.left + coordsView.getTotalPaddingLeft();
-                        }
-                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
-                    }
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                if (!mExpanded)
-                    dragHandle.setAlpha(1f - slideOffset);
-                mFloatingButton.setAlpha(1f + slideOffset);
-            }
-        });
+        mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
         mListener.onWaypointFocus(mWaypoint);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
     }
 
     @Override
@@ -550,5 +519,46 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     public void onLocationChanged(Location location) {
         if (!mEditorMode)
             updateWaypointInformation(location.getLatitude(), location.getLongitude());
+    }
+
+    private class WaypointBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
+                mFragmentHolder.disableActionButton();
+                CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
+                p.setAnchorId(R.id.contentPanel);
+                mFloatingButton.setLayoutParams(p);
+                mFloatingButton.setAlpha(1f);
+                if (mPopAll)
+                    mFragmentHolder.popAll();
+                else
+                    mFragmentHolder.popCurrent();
+            }
+            if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
+                mMapHolder.updateMapViewArea();
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
+                if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
+                        && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
+                    Rect r = new Rect();
+                    coordsView.getGlobalVisibleRect(r);
+                    if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                        r.left = r.right - coordsView.getTotalPaddingRight();
+                    } else {
+                        r.right = r.left + coordsView.getTotalPaddingLeft();
+                    }
+                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
+                }
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            if (!mExpanded)
+                bottomSheet.findViewById(R.id.dragHandle).setAlpha(1f - slideOffset);
+            mFloatingButton.setAlpha(1f + slideOffset);
+        }
     }
 }
