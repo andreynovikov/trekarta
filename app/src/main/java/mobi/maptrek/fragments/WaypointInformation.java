@@ -194,20 +194,13 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         if (editorMode)
             setEditorMode(true);
 
-        final View dragHandle = rootView.findViewById(R.id.dragHandle);
-        dragHandle.setAlpha(mExpanded ? 0f : 1f);
+        rootView.findViewById(R.id.dragHandle).setAlpha(mExpanded ? 0f : 1f);
         mBottomSheetCallback = new WaypointBottomSheetCallback();
         ViewParent parent = rootView.getParent();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
         mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
         mListener.onWaypointFocus(mWaypoint);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
     }
 
     @Override
@@ -251,6 +244,12 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
     }
 
     @Override
