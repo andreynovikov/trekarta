@@ -89,6 +89,7 @@ android {
         abortOnError false
         checkReleaseBuilds true
     }
+    namespace 'mobi.maptrek'
 }
 
 repositories {
