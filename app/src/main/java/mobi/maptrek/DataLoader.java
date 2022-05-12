@@ -186,7 +186,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
             mProgressListener.onProgressFinished();
         }
 
-        if (isReset()) {
+        if (isReset() || data == null) {
             return;
         }
 
