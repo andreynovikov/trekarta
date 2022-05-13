@@ -46,6 +46,9 @@ import mobi.maptrek.maps.offline.OfflineTileSource;
 import mobi.maptrek.maps.offline.OfflineTileSourceFactory;
 import mobi.maptrek.maps.online.OnlineTileSource;
 import mobi.maptrek.maps.online.OnlineTileSourceFactory;
+import mobi.maptrek.maps.plugin.PluginOfflineTileSource;
+import mobi.maptrek.maps.plugin.PluginOnlineTileSource;
+import mobi.maptrek.maps.plugin.PluginTileSourceFactory;
 import mobi.maptrek.util.FileList;
 import mobi.maptrek.util.MapFilenameFilter;
 
@@ -56,11 +59,13 @@ public class MapIndex implements Serializable {
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
     private final Context mContext;
-    private HashSet<MapFile> mMaps;
+    private final HashSet<MapFile> mMaps;
+    private final PluginTileSourceFactory mPluginTileSourceFactory;
 
     @SuppressLint("UseSparseArrays")
     public MapIndex(@NonNull Context context, @Nullable File root) {
         mContext = context;
+        mPluginTileSourceFactory = new PluginTileSourceFactory(context, context.getPackageManager());
         mMaps = new HashSet<>();
         if (root != null) {
             logger.debug("MapIndex({})", root.getAbsolutePath());
@@ -117,6 +122,16 @@ public class MapIndex implements Serializable {
         mMaps.add(mapFile);
     }
 
+    public void initializeNewPluginMapProviders() {
+        for (PluginOnlineTileSource source : mPluginTileSourceFactory.getOnlineTileSources()) {
+            addTileSource(source, source.getSourceId());
+        }
+
+        for (PluginOfflineTileSource source : mPluginTileSourceFactory.getOfflineTileSources()) {
+            addTileSource(source, source.getSourceId());
+        }
+    }
+
     public void initializeOnlineMapProviders() {
         PackageManager packageManager = mContext.getPackageManager();
 
@@ -134,12 +149,7 @@ public class MapIndex implements Serializable {
 
             List<OnlineTileSource> tileSources = OnlineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
             for (OnlineTileSource tileSource : tileSources) {
-                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
-                mapFile.tileSource = tileSource;
-                mapFile.boundingBox = WORLD_BOUNDING_BOX;
-                //TODO Implement tile cache expiration
-                //tileProvider.tileExpiration = onlineMapTileExpiration;
-                mMaps.add(mapFile);
+                addTileSource(tileSource, tileSource.getUri());
             }
         }
     }
@@ -161,12 +171,16 @@ public class MapIndex implements Serializable {
 
             List<OfflineTileSource> tileSources = OfflineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
             for (OfflineTileSource tileSource : tileSources) {
-                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
-                mapFile.tileSource = tileSource;
-                mapFile.boundingBox = WORLD_BOUNDING_BOX;
-                mMaps.add(mapFile);
+              addTileSource(tileSource, tileSource.getUri());
             }
         }
+    }
+
+    private void addTileSource(TileSource tileSource, String id) {
+        MapFile mapFile = new MapFile(tileSource.getName(), id);
+        mapFile.tileSource = tileSource;
+        mapFile.boundingBox = WORLD_BOUNDING_BOX;
+        mMaps.add(mapFile);
     }
 
     @NonNull
