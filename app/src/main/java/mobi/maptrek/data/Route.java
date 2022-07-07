@@ -41,7 +41,7 @@ public class Route {
     public RouteStyle style = new RouteStyle();
     public DataSource source; // back reference to it's source
 
-    private final ArrayList<Instruction> instructions = new ArrayList<>();
+    public final ArrayList<Instruction> instructions = new ArrayList<>();
     private Instruction lastInstruction;
     private UpdateListener updateListener;
 
@@ -56,12 +56,17 @@ public class Route {
         distance = 0;
     }
 
-    public void addInstruction(int latitudeE6, int longitudeE6) {
-        addInstruction(new GeoPoint(latitudeE6, longitudeE6));
+    public void addInstruction(int latitudeE6, int longitudeE6, String name) {
+        addInstruction(new GeoPoint(latitudeE6, longitudeE6), name);
     }
 
     public void addInstruction(GeoPoint point) {
-        Instruction instruction = new Instruction(point);
+        Instruction instruction = new Instruction(point, null);
+        addInstruction(instruction);
+    }
+
+    public void addInstruction(GeoPoint point, String name) {
+        Instruction instruction = new Instruction(point, name);
         addInstruction(instruction);
     }
 
@@ -75,7 +80,7 @@ public class Route {
     }
 
     public void insertInstruction(GeoPoint point) {
-        Instruction instruction = new Instruction(point);
+        Instruction instruction = new Instruction(point, null);
         insertInstruction(instruction);
     }
 
@@ -337,9 +342,11 @@ public class Route {
         private String text;
         private int sign;
         private int distance; // TODO Use distance if set
+        private String name;
 
-        Instruction(GeoPoint point) {
+        Instruction(GeoPoint point, String name) {
             super(point.latitudeE6, point.longitudeE6);
+            this.name = name;
             sign = UNDEFINED;
         }
 
@@ -349,6 +356,10 @@ public class Route {
 
         public String getText() {
             return text;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 

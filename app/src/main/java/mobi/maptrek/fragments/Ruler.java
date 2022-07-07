@@ -18,6 +18,7 @@ package mobi.maptrek.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.io.GPXManager;
+import mobi.maptrek.ui.TextInputDialogFragment;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Color;
@@ -133,6 +137,47 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
                 updateTrackMeasurements();
+            }
+        });
+
+        ImageButton saveButton = rootView.findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(v -> {
+            if (!mPointHistory.isEmpty()) {
+                new TextInputDialogFragment.Builder()
+                        .setCallbacks(new TextInputDialogFragment.TextInputDialogCallback() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {
+
+                            }
+
+                            @Override
+                            public void onTextInputPositiveClick(String id, String inputText) {
+                                FileDataSource source = new FileDataSource();
+                                source.name = inputText;
+                                mRoute.name = inputText;
+                                source.routes.add(mRoute);
+                                GPXManager.saveAs(source, GPXManager.EXTENSION);
+                                getParentFragmentManager().popBackStack();
+                            }
+
+                            @Override
+                            public void onTextInputNegativeClick(String id) {
+
+                            }
+                        })
+                        .setHint(getString(R.string.title_input_name))
+                        .setShowPasteButton(false)
+                        .create().show(getParentFragmentManager(), "coordinatesInput");
             }
         });
 

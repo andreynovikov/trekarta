@@ -14,6 +14,7 @@
   ~
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
@@ -43,11 +44,11 @@
             android:id="@+id/distance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_straighten"
             android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="?attr/informationIconColor"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:textColorPrimary" />
+            android:textColor="?android:textColorPrimary"
+            app:drawableStartCompat="@drawable/ic_straighten"
+            app:drawableTint="?attr/informationIconColor" />
 
         <Space
             android:layout_width="0dp"
@@ -58,11 +59,11 @@
             android:id="@+id/size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_linear_scale"
             android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="?attr/informationIconColor"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:textColorPrimary" />
+            android:textColor="?android:textColorPrimary"
+            app:drawableStartCompat="@drawable/ic_linear_scale"
+            app:drawableTint="?attr/informationIconColor" />
 
         <Space
             android:layout_width="0dp"
@@ -91,7 +92,8 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_add"
-            android:tint="?attr/actionIconColor" />
+            android:contentDescription="@string/actionAdd"
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/insertButton"
@@ -102,7 +104,8 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_insert"
-            android:tint="?attr/actionIconColor" />
+            android:contentDescription="@string/actionInsert"
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/removeButton"
@@ -113,7 +116,8 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_linear_scale_delete"
-            android:tint="?attr/actionIconColor" />
+            android:contentDescription="@string/actionRemove"
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/undoButton"
@@ -124,7 +128,20 @@
             android:padding="@dimen/image_button_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_undo"
-            android:tint="?attr/actionIconColor" />
+            android:contentDescription="@string/actionUndo"
+            app:tint="?attr/actionIconColor" />
+
+        <ImageButton
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/image_button_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_save"
+            android:contentDescription="@string/actionSave"
+            app:tint="?attr/actionIconColor" />
 
     </LinearLayout>
 

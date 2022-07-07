@@ -95,6 +95,20 @@ public abstract class Manager {
         manager.saveData(source, saveListener, progressListener);
     }
 
+    public static void saveAs(FileDataSource source, String ext) {
+        saveAs(source, ext, null);
+    }
+
+    public static void saveAs(FileDataSource source, String ext, OnSaveListener saveListener) {
+        saveAs(source, ext, saveListener, null);
+    }
+
+    public static void saveAs(FileDataSource source, String ext, OnSaveListener saveListener, ProgressListener progressListener) {
+        Manager manager = Manager.getDataManager(ext);
+        assert manager != null : "Failed to get IO manager for extension " + ext;
+        manager.saveData(source, saveListener, progressListener);
+    }
+
     /**
      * Loads data from file (input stream). File name is used only for reference.
      * @param inputStream <code>InputStream</code> with waypoints

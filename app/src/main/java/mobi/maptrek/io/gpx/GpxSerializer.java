@@ -19,6 +19,7 @@ package mobi.maptrek.io.gpx;
 import androidx.annotation.Nullable;
 import android.util.Xml;
 
+import mobi.maptrek.data.Route;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedWriter;
@@ -40,6 +41,8 @@ public class GpxSerializer {
             int size = source.waypoints.size();
             for (Track track : source.tracks)
                 size += track.points.size();
+            for (Route route : source.routes)
+                size += route.size();
             progressListener.onProgressStarted(size);
         }
 
@@ -62,6 +65,9 @@ public class GpxSerializer {
         }
         for (Track track : source.tracks) {
             progress = serializeTrack(serializer, track, progressListener, progress);
+        }
+        for (Route route : source.routes) {
+            progress = serializeRoute(serializer, route, progressListener, progress);
         }
         serializer.endTag(GpxFile.NS, GpxFile.TAG_GPX);
         serializer.endDocument();
@@ -90,7 +96,7 @@ public class GpxSerializer {
         }
         if (waypoint.date != null) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_TIME);
-            serializer.text(String.valueOf(GpxFile.formatTime(waypoint.date)));
+            serializer.text(GpxFile.formatTime(waypoint.date));
             serializer.endTag(GpxFile.NS, GpxFile.TAG_TIME);
         }
         serializer.endTag(GpxFile.NS, GpxFile.TAG_WPT);
@@ -140,6 +146,36 @@ public class GpxSerializer {
         }
         serializer.endTag(GpxFile.NS, GpxFile.TAG_TRKSEG);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_TRK);
+
+        return progress;
+    }
+
+    private static int serializeRoute(XmlSerializer serializer, Route route, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+        serializer.startTag(GpxFile.NS, GpxFile.TAG_RTE);
+        serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
+        serializer.text(route.name);
+        serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
+        if (route.description != null) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
+            serializer.cdsect(route.description);
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        }
+
+        for (Route.Instruction ri : route.instructions) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_RTEPT);
+            serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(ri.latitudeE6 / 1E6));
+            serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(ri.longitudeE6 / 1E6));
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_RTEPT);
+            if (ri.getName() != null) {
+                serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
+                serializer.text(String.valueOf(ri.getName()));
+                serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
+            }
+            progress++;
+            if (progressListener != null)
+                progressListener.onProgressChanged(progress);
+        }
+        serializer.endTag(GpxFile.NS, GpxFile.TAG_RTE);
 
         return progress;
     }
