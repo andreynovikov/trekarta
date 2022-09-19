@@ -3466,7 +3466,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         View mLBB = findViewById(R.id.locationButtonBackground);
         View mRBB = findViewById(R.id.recordButtonBackground);
         View mPBB = findViewById(R.id.placesButtonBackground);
-        View mOBB = findViewById(R.id.mapsButtonBackground);
         View mMBB = findViewById(R.id.moreButtonBackground);
 
         // View that gains active state
@@ -3477,7 +3476,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             otherViews.add(mLBB);
             otherViews.add(mRBB);
             otherViews.add(mPBB);
-            otherViews.add(mOBB);
             otherViews.add(mMBB);
         } else {
             // If switching from one view to another animate only that view
@@ -3490,9 +3488,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     break;
                 case PLACES:
                     otherViews.add(mPBB);
-                    break;
-                case MAPS:
-                    otherViews.add(mOBB);
                     break;
                 case MORE:
                     otherViews.add(mMBB);
@@ -3510,9 +3505,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 break;
             case PLACES:
                 thisView = mPBB;
-                break;
-            case MAPS:
-                thisView = mOBB;
                 break;
             case MORE:
                 thisView = mMBB;

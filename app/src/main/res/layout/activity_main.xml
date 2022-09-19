@@ -181,13 +181,6 @@
                     android:background="@color/panelBackground" />
 
                 <View
-                    android:id="@+id/mapsButtonBackground"
-                    android:layout_width="@dimen/image_button_size"
-                    android:layout_height="@dimen/image_button_size"
-                    android:layout_weight="1"
-                    android:background="@color/panelBackground" />
-
-                <View
                     android:id="@+id/moreButtonBackground"
                     android:layout_width="@dimen/image_button_size"
                     android:layout_height="@dimen/image_button_size"
@@ -199,6 +192,16 @@
             <LinearLayout
                 android:id="@+id/actionPanel"
                 style="@style/ActionPanel">
+
+                <ImageButton
+                    android:id="@+id/itineraryButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/search" />
 
                 <ImageButton
                     android:id="@+id/locationButton"
@@ -230,17 +233,6 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_place"
-                    app:tint="?attr/actionIconColor" />
-
-                <ImageButton
-                    android:id="@+id/mapsButton"
-                    android:layout_width="@dimen/image_button_size"
-                    android:layout_height="@dimen/image_button_size"
-                    android:layout_weight="1"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:padding="@dimen/image_button_padding"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_layers"
                     app:tint="?attr/actionIconColor" />
 
                 <ImageButton
