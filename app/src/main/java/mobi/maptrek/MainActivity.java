@@ -560,7 +560,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                             v.setTranslationX(cWidth - width);
                     }
                     break;
-                case MAPS:
+                case ITINERARY:
                     if (mVerticalOrientation) {
                         int cWidth = (int) (rootWidth - mViews.itineraryButton.getX());
                         if (width < cWidth)
@@ -1331,7 +1331,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
                 menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
             });
-            showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
+            // showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
             return true;
         } else if (action == R.id.actionActivity) {
             int activity = Configuration.getActivity();
@@ -1412,6 +1412,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if (action == R.id.actionManageMaps) {
             startMapSelection(true);
             return true;
+        } else if (action == R.id.actionManageBackground) {
+            onMapsClicked();
+            return true;
+        } else if (action == R.id.actionBackgroundSettings) {
+            onMapsLongClicked();
+            return true;
         } else if (action == R.id.actionImport) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -1459,7 +1465,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if (action == R.id.actionLegend) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Legend.class.getName());
-            showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
+            // showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
             return true;
         } else if (action == R.id.actionSettings) {
             Bundle args = new Bundle(1);

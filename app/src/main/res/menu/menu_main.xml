@@ -20,6 +20,12 @@
         android:id="@+id/actionManageMaps"
         android:title="@string/actionManageMaps" />
     <item
+        android:id="@+id/actionManageBackground"
+        android:title="@string/actionManageBackground" />
+    <item
+        android:id="@+id/actionBackgroundSettings"
+        android:title="@string/actionBackgroundSettings"/>
+    <item
         android:id="@+id/actionAddGauge"
         android:title="@string/actionAddGauge" />
     <item
