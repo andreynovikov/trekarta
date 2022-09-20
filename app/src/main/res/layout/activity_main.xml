@@ -158,16 +158,15 @@
             <LinearLayout
                 android:id="@+id/actionPanelBackground"
                 style="@style/ActionPanel">
-
                 <View
-                    android:id="@+id/locationButtonBackground"
+                    android:id="@+id/itineraryButtonBackground"
                     android:layout_width="@dimen/image_button_size"
                     android:layout_height="@dimen/image_button_size"
                     android:layout_weight="1"
                     android:background="@color/panelBackground" />
 
                 <View
-                    android:id="@+id/itineraryButtonBackground"
+                    android:id="@+id/locationButtonBackground"
                     android:layout_width="@dimen/image_button_size"
                     android:layout_height="@dimen/image_button_size"
                     android:layout_weight="1"
