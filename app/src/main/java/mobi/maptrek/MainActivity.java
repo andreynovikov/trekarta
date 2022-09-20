@@ -101,6 +101,7 @@ import android.view.animation.RotateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -175,6 +176,7 @@ import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
+import mobi.maptrek.fragments.ItineraryFragment;
 import mobi.maptrek.fragments.Legend;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.LocationShareDialog;
@@ -752,12 +754,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         });
         mViews.itineraryButton.setOnClickListener(v -> {
-            if (BuildConfig.FULL_VERSION) {
-                onItineraryClicked();
-            } else {
-                // Todo: add a long press?
-                onItineraryClicked();
-            }
+            onItineraryClicked();
         });
         mViews.itineraryButton.setOnLongClickListener(v -> {
             onItineraryClicked();
@@ -1792,8 +1789,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void onItineraryClicked() {
-        // todo
-        logger.debug("pouet");
+        TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
+        if (mViews.addItineraryButton.getVisibility() == View.VISIBLE) {
+            mViews.addItineraryButton.setVisibility(View.GONE);
+        } else {
+            mViews.addItineraryButton.setVisibility(View.VISIBLE);
+        }
+
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        ItineraryFragment fragment = (ItineraryFragment) factory.instantiate(getClassLoader(), ItineraryFragment.class.getName());
+        showExtendPanel(PANEL_STATE.ITINERARY, "itinerary", fragment);
     }
 
     private void onMapsClicked() {
@@ -3491,6 +3496,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             otherViews.add(mRBB);
             otherViews.add(mPBB);
             otherViews.add(mMBB);
+            otherViews.add(mIBB);
         } else {
             // If switching from one view to another animate only that view
             switch (mPanelState) {
@@ -3588,6 +3594,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mViews.listActionButton.getVisibility() == View.INVISIBLE)
             mViews.listActionButton.setVisibility(View.VISIBLE);
     }
+
+
 
     @Override
     public FloatingActionButton enableListActionButton() {
