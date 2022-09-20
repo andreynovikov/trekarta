@@ -305,7 +305,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         LOCATION,
         RECORD,
         PLACES,
-        MAPS,
         ITINERARY,
         MORE
     }
@@ -1328,7 +1327,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 menu.findItem(R.id.actionContours).setChecked(Configuration.getContoursEnabled());
                 menu.findItem(R.id.actionGrid).setChecked(mMap.layers().contains(mGridLayer));
             });
-            // showExtendPanel(PANEL_STATE.MAPS, "mapFeaturesMenu", fragment);
+            showExtendPanel(PANEL_STATE.MORE, "mapFeaturesMenu", fragment);
             return true;
         } else if (action == R.id.actionActivity) {
             int activity = Configuration.getActivity();
@@ -1462,7 +1461,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         } else if (action == R.id.actionLegend) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Legend.class.getName());
-            // showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
+            showExtendPanel(PANEL_STATE.MORE, "legend", fragment);
             return true;
         } else if (action == R.id.actionSettings) {
             Bundle args = new Bundle(1);
@@ -1813,12 +1812,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         MapList fragment = (MapList) factory.instantiate(getClassLoader(), MapList.class.getName());
         fragment.setArguments(args);
         fragment.setMaps(mMapIndex.getMaps(), mBitmapLayerMaps);
-        showExtendPanel(PANEL_STATE.MAPS, "mapsList", fragment);
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.replace(R.id.contentPanel, fragment, "mapsList");
+        ft.addToBackStack("mapsList");
+        ft.commit();
     }
 
     private void onMapsLongClicked() {
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         PanelMenuFragment fragment = (PanelMenuFragment) factory.instantiate(getClassLoader(), PanelMenuFragment.class.getName());
+
         fragment.setMenu(R.menu.menu_map, menu -> {
             Resources resources = getResources();
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
@@ -1838,7 +1841,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             if (!BuildConfig.FULL_VERSION)
                 menu.removeItem(R.id.actionNightMode);
         });
-        showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
+        showExtendPanel(PANEL_STATE.MORE, "mapMenu", fragment);
     }
 
     private void onMoreClicked() {
@@ -3495,8 +3498,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             otherViews.add(mLBB);
             otherViews.add(mRBB);
             otherViews.add(mPBB);
-            otherViews.add(mMBB);
             otherViews.add(mIBB);
+            otherViews.add(mMBB);
         } else {
             // If switching from one view to another animate only that view
             switch (mPanelState) {
