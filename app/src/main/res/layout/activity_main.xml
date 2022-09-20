@@ -310,5 +310,16 @@
             android:visibility="gone"
             app:layout_anchor="@id/extendPanel" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addItineraryButton"
+            style="@style/ListFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add"
+            android:tint="@color/colorBackground"
+            android:layout_marginBottom="80dp"
+            android:layout_gravity="bottom|right"
+            android:visibility="gone" />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>
