@@ -28,13 +28,19 @@ import mobi.maptrek.R;
 import mobi.maptrek.VisoRandoApiCaller;
 
 public class ItineraryFragment extends Fragment {
+    public static final String ARG_LATITUDE = "lat";
+    public static final String ARG_LONGITUDE = "lon";
+
     public ItineraryFragment() {
         super(R.layout.fragment_itinerary);
     }
 
     @MainThread
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        new VisoRandoApiCaller().execute();
+        Bundle arguments = getArguments();
+        double latitude = arguments.getDouble(ARG_LATITUDE);
+        double longitude = arguments.getDouble(ARG_LONGITUDE);
 
+        new VisoRandoApiCaller(latitude, longitude).execute();
     }
 }
