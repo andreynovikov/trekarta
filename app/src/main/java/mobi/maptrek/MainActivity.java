@@ -99,11 +99,14 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -412,6 +415,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private CharSequence[] mTypes;
     private ItemWithIcon[] mTypesWithIcon;
     boolean[] typeFilterChecked;
+    private ListAdapter mapFilterAdapter;
 
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
@@ -846,9 +850,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (lastIntroduction < IntroductionActivity.CURRENT_INTRODUCTION)
             startActivity(new Intent(this, IntroductionActivity.class));
 
+        typeFilterChecked = new boolean[Tags.selectedTypes.length];
         loadTypes(getApplicationContext());
 
-        typeFilterChecked = new boolean[mTypes.length];
     }
 
     protected void onNewIntent(Intent intent) {
@@ -1962,40 +1966,50 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     public void onMapFilterClicked() {
+        mapFilterAdapter = this.getMapFilterAdapter(mTypesWithIcon);
         final AlertDialog mapFilterDialog = new AlertDialog.Builder(this)
         .setTitle(R.string.actionMapFilter)
-                .setMultiChoiceItems(mTypes, typeFilterChecked, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                Toast.makeText(getApplicationContext(), "checked "+which+", "+Tags.selectedTypes[which], Toast.LENGTH_LONG).show();
-                typeFilterChecked[which] = isChecked;
-                if(isChecked) {
-                    Tags.setHighlightedType(Tags.selectedTypes[which]);
+        //         .setMultiChoiceItems(mTypes, typeFilterChecked, new DialogInterface.OnMultiChoiceClickListener() {
+        //     @Override
+        //     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+        //         Toast.makeText(getApplicationContext(), "checked "+which+", "+Tags.selectedTypes[which], Toast.LENGTH_LONG).show();
+        //         typeFilterChecked[which] = isChecked;
+        //         if(isChecked) {
+        //             Tags.setHighlightedType(Tags.selectedTypes[which]);
+        //             mMap.clearMap();
+        //         } else {
+        //             Tags.removeHighlightedType(Tags.selectedTypes[which]);
+        //             mMap.clearMap();
+        //         }
+        //     }
+        // })
+        .setAdapter(mapFilterAdapter, null)
+        .create();
+       mapFilterDialog.getListView().setItemsCanFocus(false);
+       mapFilterDialog.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+       for(int i = 0; i < typeFilterChecked.length; ++i) {
+            mapFilterDialog.getListView().setItemChecked(i, typeFilterChecked[i]);
+            if(typeFilterChecked[i]){
+                mapFilterDialog.getListView().setSelection(i);
+            }
+       }
+       mapFilterDialog.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+           @Override
+           public void onItemClick(AdapterView<?> parent, View view,
+               int position, long id) {
+               // Manage selected items here
+                typeFilterChecked[position] = !typeFilterChecked[position];
+                CheckedTextView checkedTextView = ((CheckedTextView)view);
+                if(typeFilterChecked[position]) {
+                    Tags.setHighlightedType(Tags.selectedTypes[position]);
                     mMap.clearMap();
                 } else {
-                    Tags.removeHighlightedType(Tags.selectedTypes[which]);
+                    Tags.removeHighlightedType(Tags.selectedTypes[position]);
                     mMap.clearMap();
                 }
-            }
-        })
-        // .setAdapter(this.getMapFilterAdapter(mKindsWithIcon), null)
-        .create();
-//        mapFilterDialog.getListView().setItemsCanFocus(false);
-//        mapFilterDialog.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-//        mapFilterDialog.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view,
-//                int position, long id) {
-//                // Manage selected items here
-//                System.out.println("clicked" + position);
-//                CheckedTextView textView = (CheckedTextView) view;
-//                if(textView.isChecked()) {
-//
-//                } else {
-//
-//                }
-//            }
-//        });
+           }
+       });
+
         mapFilterDialog.show();
     }
 
@@ -4663,6 +4677,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mTypes = new CharSequence[Tags.selectedTypes.length];
         mTypesWithIcon = new ItemWithIcon[Tags.selectedTypes.length];
         for (int i = 0; i < Tags.selectedTypes.length; ++i) {
+            typeFilterChecked[i] = false;
             mTypes[i] = Tags.typeTags[Tags.selectedTypes[i]].value; /*resources.getString(id)*/
             mTypesWithIcon[i] = new ItemWithIcon(mTypes[i].toString(), Tags.selectedTypes[i]);
         }
@@ -4671,23 +4686,32 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private ListAdapter getMapFilterAdapter(ItemWithIcon[] items) {
         return new ArrayAdapter<ItemWithIcon>(
                 this,
-                android.R.layout.select_dialog_item,
+                android.R.layout.simple_list_item_multiple_choice,
                 android.R.id.text1,
                 items
         ) {
             public View getView(int position, View convertView, ViewGroup parent) {
                 //Use super class to create the View
                 View v = super.getView(position, convertView, parent);
-                TextView tv = (TextView) v.findViewById(android.R.id.text1);
+                CheckedTextView tv = (CheckedTextView) v.findViewById(android.R.id.text1);
 
                 //Put the image on the TextView
+                Drawable drawable;
                 if(items[position] != null) {
-                    tv.setCompoundDrawablesWithIntrinsicBounds(Tags.getTypeDrawable(getApplicationContext(), getMap().getTheme(), items[position].icon), null, null, null);
+                    drawable = Tags.getTypeDrawable(getApplicationContext(), getMap().getTheme(), items[position].icon);
+                    tv.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);boolean checked = typeFilterChecked[position];
+                tv.setChecked(checked);
+                if(checked){
+                    tv.setSelected(checked);
+                    tv.setChecked(checked);
+                    tv.setCheckMarkDrawable(drawable);
+                }
                 }
 
                 //Add margin between image and text (support various screen densities)
                 int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
                 tv.setCompoundDrawablePadding(dp5);
+
 
                 return v;
             }
