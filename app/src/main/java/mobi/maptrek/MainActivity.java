@@ -1795,8 +1795,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mViews.addItineraryButton.setVisibility(View.VISIBLE);
         }
 
+        Bundle args = new Bundle(5);
+        args.putDouble(MapList.ARG_LATITUDE, mMapPosition.getLatitude());
+        args.putDouble(MapList.ARG_LONGITUDE, mMapPosition.getLongitude());
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         ItineraryFragment fragment = (ItineraryFragment) factory.instantiate(getClassLoader(), ItineraryFragment.class.getName());
+        fragment.setArguments(args);
         showExtendPanel(PANEL_STATE.ITINERARY, "itinerary", fragment);
     }
 
