@@ -104,6 +104,18 @@
                 android:visibility="gone" />
 
             <ImageButton
+                android:id="@+id/mapPointsFilter"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:elevation="@dimen/panel_elevation"
+                android:onClick="onMapFilterClicked"
+                android:padding="@dimen/gauge_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_filter"
+                android:visibility="visible" />
+
+            <ImageButton
                 android:id="@+id/navigationArrow"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"

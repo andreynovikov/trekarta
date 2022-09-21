@@ -109,7 +109,7 @@ class MapTrekDataSource implements ITileDataSource {
             result = FAILED;
         }
 
-        if (Tags.highlightedType >= 0 && z > 7) {
+        if (Tags.highlightedTypes.size() >= 0 && z > 7) {
             int dz = MAX_NATIVE_ZOOM - z;
             int min_x = x << dz;
             int min_y = y << dz;
@@ -122,10 +122,12 @@ class MapTrekDataSource implements ITileDataSource {
                     + COLUMN_FEATURES_TYPE + " = ? AND "
                     + COLUMN_FEATURES_X + " >= ? AND " + COLUMN_FEATURES_X + " <= ? AND "
                     + COLUMN_FEATURES_Y + " >= ? AND " + COLUMN_FEATURES_Y + " <= ?";
-            String[] featureArgs = new String[]{String.valueOf(Tags.highlightedType),
-                    String.valueOf(min_x), String.valueOf(max_x),
-                    String.valueOf(min_y), String.valueOf(max_y)};
-            addFeaturesToTile(tile, sink, sql, featureArgs);
+            for(int i = 0; i < Tags.highlightedTypes.size(); ++i) {
+                String[] featureArgs = new String[]{String.valueOf(Tags.highlightedTypes.get(i)),
+                        String.valueOf(min_x), String.valueOf(max_x),
+                        String.valueOf(min_y), String.valueOf(max_y)};
+                addFeaturesToTile(tile, sink, sql, featureArgs);
+            }
         } else if (limitedZoomDiff >= 0 && Tags.typeSelectors[limitedZoomDiff].length() > 0) {
             String sql = "SELECT DISTINCT " + COLUMN_FEATURES_ID + ", " + COLUMN_FEATURES_KIND
                     + ", " + COLUMN_FEATURES_TYPE + ", " + COLUMN_FEATURES_LAT + ", "

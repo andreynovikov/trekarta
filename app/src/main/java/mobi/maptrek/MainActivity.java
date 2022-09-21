@@ -99,9 +99,11 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -178,6 +180,7 @@ import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.ItineraryFragment;
+import mobi.maptrek.fragments.ItemWithIcon;
 import mobi.maptrek.fragments.Legend;
 import mobi.maptrek.fragments.LocationInformation;
 import mobi.maptrek.fragments.LocationShareDialog;
@@ -406,6 +409,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
 
+    private CharSequence[] mTypes;
+    private ItemWithIcon[] mTypesWithIcon;
+    boolean[] typeFilterChecked;
+
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -522,6 +529,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mPanelState = PANEL_STATE.NONE;
 
         mViews.license.setClickable(true);
+        mViews.mapPointsFilter.setClickable(true);
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
         mViews.gaugePanel.setTag(Boolean.TRUE);
@@ -530,6 +538,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mViews.navigationArrow.setOnClickListener(v -> {
             MapObject mapObject = mNavigationService.getWaypoint();
             setMapLocation(mapObject.coordinates);
+        });
+
+        mViews.mapPointsFilter.setOnClickListener(v -> {
+            onMapFilterClicked();
         });
         mViews.navigationArrow.setOnLongClickListener(v -> {
             showNavigationMenu();
@@ -833,6 +845,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (lastIntroduction < IntroductionActivity.CURRENT_INTRODUCTION)
             startActivity(new Intent(this, IntroductionActivity.class));
+
+        loadTypes(getApplicationContext());
+
+        typeFilterChecked = new boolean[mTypes.length];
     }
 
     protected void onNewIntent(Intent intent) {
@@ -1930,6 +1946,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     public void onCompassClicked(View view) {
+        Toast.makeText(getApplicationContext(), "yo la boussole", Toast.LENGTH_LONG).show();
         if (mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.NORTH;
             updateLocationDrawable();
@@ -1938,6 +1955,43 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMap.getMapPosition(mMapPosition);
         mMapPosition.setBearing(0);
         mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
+    }
+
+    public void onMapFilterClicked() {
+        Toast.makeText(getApplicationContext(), "yolo", Toast.LENGTH_LONG).show();
+        final AlertDialog mapFilterDialog = new AlertDialog.Builder(this)
+        .setTitle(R.string.actionMapFilter)
+                .setMultiChoiceItems(mTypes, typeFilterChecked, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                Toast.makeText(getApplicationContext(), "checked "+which+", "+Tags.selectedTypes[which], Toast.LENGTH_LONG).show();
+                typeFilterChecked[which] = isChecked;
+                if(isChecked) {
+                    Tags.setHighlightedType(Tags.selectedTypes[which]);
+                } else {
+                    Tags.removeHighlightedType(Tags.selectedTypes[which]);
+                }
+            }
+        })
+        // .setAdapter(this.getMapFilterAdapter(mKindsWithIcon), null)
+        .create();
+//        mapFilterDialog.getListView().setItemsCanFocus(false);
+//        mapFilterDialog.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+//        mapFilterDialog.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view,
+//                int position, long id) {
+//                // Manage selected items here
+//                System.out.println("clicked" + position);
+//                CheckedTextView textView = (CheckedTextView) view;
+//                if(textView.isChecked()) {
+//
+//                } else {
+//
+//                }
+//            }
+//        });
+        mapFilterDialog.show();
     }
 
     @Override
@@ -4596,5 +4650,42 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private double movingAverage(double current, double previous) {
         return 0.2 * previous + 0.8 * current;
+    }
+
+    private void loadTypes(Context context){
+        Resources resources = getResources();
+        String packageName = context.getPackageName();
+        mTypes = new CharSequence[Tags.selectedTypes.length];
+        mTypesWithIcon = new ItemWithIcon[Tags.selectedTypes.length];
+        for (int i = 0; i < Tags.selectedTypes.length; ++i) {
+            mTypes[i] = Tags.typeTags[Tags.selectedTypes[i]].value; /*resources.getString(id)*/
+            mTypesWithIcon[i] = new ItemWithIcon(mTypes[i].toString(), Tags.selectedTypes[i]);
+        }
+    }
+
+    private ListAdapter getMapFilterAdapter(ItemWithIcon[] items) {
+        return new ArrayAdapter<ItemWithIcon>(
+                this,
+                android.R.layout.select_dialog_item,
+                android.R.id.text1,
+                items
+        ) {
+            public View getView(int position, View convertView, ViewGroup parent) {
+                //Use super class to create the View
+                View v = super.getView(position, convertView, parent);
+                TextView tv = (TextView) v.findViewById(android.R.id.text1);
+
+                //Put the image on the TextView
+                if(items[position] != null) {
+                    tv.setCompoundDrawablesWithIntrinsicBounds(Tags.getTypeDrawable(getApplicationContext(), getMap().getTheme(), items[position].icon), null, null, null);
+                }
+
+                //Add margin between image and text (support various screen densities)
+                int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
+                tv.setCompoundDrawablePadding(dp5);
+
+                return v;
+            }
+        };
     }
 }

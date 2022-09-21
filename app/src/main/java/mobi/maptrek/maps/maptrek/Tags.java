@@ -31,6 +31,7 @@ import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.styles.RenderStyle;
 import org.oscim.theme.styles.SymbolStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import mobi.maptrek.R;
@@ -210,6 +211,19 @@ public class Tags {
             17, // hike'n'bike
             17, // urban
             16  // barrier
+    };
+
+    public final static int[] selectedTypes = {7, //guest house
+            13, //hostel
+            19, //camp_site
+            43, //supermarket
+            58, //restaurant
+            121, //doctors
+            124, //pharmacy
+            220, //viewpoint
+            253, //drinking water
+            259, //toilet
+            286 //shower
     };
 
     public final static Tag[] typeTags = {
@@ -922,7 +936,7 @@ public class Tags {
             true // 420
     };
 
-    static final int[][] kindTypes = {
+    public static final int[][] kindTypes = {
             new int[] {108, 109, 112, 115, 118, 121, 122, 124, 127, 130}, // emergency
             new int[] {1, 4, 7, 8, 10, 13, 16, 19, 22}, // accommodation
             new int[] {25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61}, // food
@@ -946,6 +960,7 @@ public class Tags {
     final static String[] typeSelectors = new String[4];
 
     static int highlightedType = -1;
+    static ArrayList<Integer> highlightedTypes = new ArrayList<Integer>();
 
     public static void setTypeTag(int type, TagSet tags) {
         if (type < 0 || type > typeTags.length || typeTags[type] == null)
@@ -1018,12 +1033,18 @@ public class Tags {
 
     public static void setHighlightedType(int type) {
         if (type >= 0 && type < typeNames.length) {
-            highlightedType = type;
+            highlightedTypes.add(type);
+        }
+    }
+
+    public static void removeHighlightedType(int type) {
+        if (type >= 0 && type < typeNames.length) {
+            highlightedTypes.remove(Arrays.asList(type));
         }
     }
 
     public static void resetHighlightedType() {
-        highlightedType = -1;
+        highlightedTypes = new ArrayList<Integer>();
     }
 
 
