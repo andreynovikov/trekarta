@@ -1031,9 +1031,9 @@ public class Tags {
         return null;
     }
 
-    public static void removeHighlightedType(int type) {
+    public static void setHighlightedType(int type) {
         if (type >= 0 && type < typeNames.length) {
-            highlightedTypes.remove(Arrays.asList(type));
+            highlightedTypes.add(type);
         }
     }
 
