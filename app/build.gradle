@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "mobi.maptrek"
-        minSdkVersion 23
+        minSdk 26
         targetSdkVersion 31
         versionCode 84
         versionName "2022.05"
@@ -81,7 +81,7 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += ['**/publicsuffixes.gz', '**/NOTICE']
+            excludes += ['**/publicsuffixes.gz', '**/NOTICE', '**/LICENSE.md', '**/NOTICE.md']
         }
     }
 
@@ -125,4 +125,5 @@ dependencies {
     implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.3'
     implementation 'com.github.AppIntro:AppIntro:6.1.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.graphhopper:graphhopper-core:5.3'
 }

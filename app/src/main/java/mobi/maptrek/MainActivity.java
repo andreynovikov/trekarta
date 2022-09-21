@@ -172,6 +172,7 @@ import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.BaseMapDownload;
 import mobi.maptrek.fragments.CrashReport;
+import mobi.maptrek.fragments.CreateRoute;
 import mobi.maptrek.fragments.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
@@ -765,7 +766,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         });
         mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
-
+        mViews.addItineraryButton.setOnClickListener(v -> onAddItineraryClicked());
         // Resume state
         int state = Configuration.getLocationState();
         if (state >= LocationState.NORTH.ordinal())
@@ -1788,7 +1789,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void onItineraryClicked() {
-        TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
+        // TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
         if (mViews.addItineraryButton.getVisibility() == View.VISIBLE) {
             mViews.addItineraryButton.setVisibility(View.GONE);
         } else {
@@ -1798,6 +1799,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         ItineraryFragment fragment = (ItineraryFragment) factory.instantiate(getClassLoader(), ItineraryFragment.class.getName());
         showExtendPanel(PANEL_STATE.ITINERARY, "itinerary", fragment);
+    }
+
+    private void onAddItineraryClicked() {
+        // hide button
+        if (mViews.addItineraryButton.getVisibility() == View.VISIBLE) {
+            mViews.addItineraryButton.setVisibility(View.GONE);
+        }
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        CreateRoute fragment = (CreateRoute) factory.instantiate(getClassLoader(), CreateRoute.class.getName());
+        showExtendPanel(PANEL_STATE.ITINERARY, "createItinerary", fragment);
     }
 
     private void onMapsClicked() {
@@ -3597,8 +3608,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (mViews.listActionButton.getVisibility() == View.INVISIBLE)
             mViews.listActionButton.setVisibility(View.VISIBLE);
     }
-
-
 
     @Override
     public FloatingActionButton enableListActionButton() {

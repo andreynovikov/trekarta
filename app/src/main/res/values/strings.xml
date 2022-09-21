@@ -760,6 +760,9 @@
     <string name="legend_bicycle_repair_station">Bicycle repair station</string>
     <string name="legend_bicycle_parking">Bicycle parking</string>
     <string name="legend_fort">Fort</string>
+    <string name="create_route_from_placeholder">From…</string>
+    <string name="create_route_to_placeholder">To…</string>
+    <string name="create_route">Go</string>
     <string name="actionManageBackground">Manage Background</string>
     <string name="actionBackgroundSettings">Background settings</string>
 
