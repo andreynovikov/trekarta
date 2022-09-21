@@ -1031,15 +1031,15 @@ public class Tags {
         return null;
     }
 
-    public static void setHighlightedType(int type) {
+    public static void removeHighlightedType(int type) {
         if (type >= 0 && type < typeNames.length) {
-            highlightedTypes.add(type);
+            highlightedTypes.remove(Arrays.asList(type));
         }
     }
 
     public static void removeHighlightedType(int type) {
         if (type >= 0 && type < typeNames.length) {
-            highlightedTypes.remove(Arrays.asList(type));
+            highlightedTypes.remove(Integer.valueOf(type));
         }
     }
 
