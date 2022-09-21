@@ -15,13 +15,26 @@
  */
 
 package mobi.maptrek.fragments;
+import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import mobi.maptrek.R;
 
+import mobi.maptrek.R;
+import mobi.maptrek.VisoRandoApiCaller;
 
 public class ItineraryFragment extends Fragment {
     public ItineraryFragment() {
         super(R.layout.fragment_itinerary);
+    }
+
+    @MainThread
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        new VisoRandoApiCaller().execute();
+
     }
 }
