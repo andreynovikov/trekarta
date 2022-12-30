@@ -1056,9 +1056,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
+        /*
         } else if (mNativeMapIndex != null) { // this is temporary, until we will move data back to application folder
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
             dialogFragment.show(mFragmentManager, "whatsNew");
+        */
+        } else if (!BuildConfig.FULL_VERSION) {
+            new AlertDialog.Builder(this)
+                .setMessage(R.string.msgUnsupportedVersion)
+                .setPositiveButton(getString(R.string.close), (dialog, which) -> {})
+                .show();
         }
 
         if (Configuration.getHideSystemUI())

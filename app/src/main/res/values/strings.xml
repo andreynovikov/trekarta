@@ -180,6 +180,7 @@
     <string name="msgFileMoveError">file move error</string>
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
     <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
+    <string name="msgUnsupportedVersion">The Lite version is not supported and will not be updated anymore. Full version of Trekarta is now free, please switch to it. Remove Lite version only after you will successfully move all your personal data to full version, otherwise it will be lost!</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
