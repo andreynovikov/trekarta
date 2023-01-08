@@ -46,23 +46,12 @@ public class IntroductionActivity extends AppIntro {
             // fresh installation
 
             sliderPage.setTitle(getString(R.string.introOfflineMapsTitle));
-            String description = getString(R.string.introOfflineMaps);
-            if (BuildConfig.FULL_VERSION) {
-                description += " ";
-                description += getString(R.string.introOfflineMapsFull);
-            }
-            sliderPage.setDescription(description);
+            sliderPage.setDescription(getString(R.string.introOfflineMaps));
             sliderPage.setImageDrawable(R.mipmap.maps);
             addSlide(IntroductionFragment.newInstance(sliderPage));
 
             sliderPage.setTitle(getString(R.string.introPlacesTitle));
-            if (BuildConfig.FULL_VERSION)
-                description = getString(R.string.introPlacesPrefixFull);
-            else
-                description = getString(R.string.introPlacesPrefix);
-            description += " ";
-            description += getString(R.string.introPlaces);
-            sliderPage.setDescription(description);
+            sliderPage.setDescription(getString(R.string.introPlaces));
             sliderPage.setImageDrawable(R.mipmap.places);
             addSlide(IntroductionFragment.newInstance(sliderPage));
 
@@ -101,7 +90,7 @@ public class IntroductionActivity extends AppIntro {
             addSlide(IntroductionFragment.newInstance(sliderPage));
         }
 
-        if (lastSeenIntroduction < 5 && BuildConfig.FULL_VERSION) {
+        if (lastSeenIntroduction < 5) {
             // 2019.09
             sliderPage.setTitle(getString(R.string.introNightModeTitle));
             sliderPage.setDescription(getString(R.string.introNightMode));

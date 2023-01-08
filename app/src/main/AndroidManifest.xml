@@ -17,31 +17,31 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <permission
-        android:name="${applicationId}.permission.READ_FILES"
+        android:name="mobi.maptrek.permission.READ_FILES"
         android:description="@string/permReadFilesDescription"
         android:label="@string/permReadFilesLabel"
         android:protectionLevel="normal" />
     <permission
-        android:name="${applicationId}.permission.WRITE_FILES"
+        android:name="mobi.maptrek.permission.WRITE_FILES"
         android:description="@string/permWriteFilesDescription"
         android:label="@string/permWriteFilesLabel"
         android:protectionLevel="signature" />
     <permission
-        android:name="${applicationId}.permission.RECEIVE_LOCATION"
+        android:name="mobi.maptrek.permission.RECEIVE_LOCATION"
         android:description="@string/permReceiveLocationDescription"
         android:label="@string/permReceiveLocationLabel" />
     <permission
-        android:name="${applicationId}.permission.READ_MAP_DATA"
+        android:name="mobi.maptrek.permission.READ_MAP_DATA"
         android:description="@string/permReadMapDataDescription"
         android:label="@string/permReadMapDataLabel"
         android:protectionLevel="signature" />
     <permission
-        android:name="${applicationId}.permission.WRITE_MAP_DATA"
+        android:name="mobi.maptrek.permission.WRITE_MAP_DATA"
         android:description="@string/permWriteMapDataDescription"
         android:label="@string/permWriteMapDataLabel"
         android:protectionLevel="signature" />
     <permission
-        android:name="${applicationId}.permission.ADD_PLUGIN_ENTRIES"
+        android:name="mobi.maptrek.permission.ADD_PLUGIN_ENTRIES"
         android:description="@string/permAddPluginEntriesDescription"
         android:label="@string/permAddPluginEntriesLabel"
         android:protectionLevel="normal" />
@@ -97,6 +97,100 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".DataImportActivity"
+            android:label="@string/intentImportData"
+            android:theme="@android:style/Theme.Material.Light.Dialog"
+            android:exported="true">
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- KML from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.kml"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.kmz"
+                    android:scheme="file" />
+                <!-- GPX from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="file" />
+                <!-- MBTiles from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.mbtiles"
+                    android:scheme="file" />
+                <!-- SQLite from file managers -->
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.sqlitedb"
+                    android:scheme="file" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- KML from DownloadManager -->
+                <data
+                    android:mimeType="application/vnd.google-earth.kml+xml"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="application/vnd.google-earth.kmz"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="text/xml"
+                    android:scheme="content" />
+                <!-- GPX, MBTiles, SQLite from DownloadManager -->
+                <data
+                    android:mimeType="application/gpx+xml"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="text/plain"
+                    android:scheme="content" />
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- SEND action does not have scheme -->
+                <data android:mimeType="application/vnd.maptrek.mtrack" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/gpx+xml" />
+                <data android:mimeType="application/vnd.google-earth.kml+xml" />
+                <data android:mimeType="application/vnd.google-earth.kmz" />
+
+            </intent-filter>
+            <intent-filter android:label="@string/intentImportData">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <!-- SEND action does not have scheme -->
+                <data android:mimeType="application/vnd.maptrek.mtrack" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/gpx+xml" />
+                <data android:mimeType="application/vnd.google-earth.kml+xml" />
+                <data android:mimeType="application/vnd.google-earth.kmz" />
+
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".IntroductionActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
@@ -107,11 +201,11 @@
         <service
             android:name=".location.LocationService"
             android:foregroundServiceType="location"
-            android:permission="${applicationId}.permission.RECEIVE_LOCATION"
+            android:permission="mobi.maptrek.permission.RECEIVE_LOCATION"
             android:exported="true">
             <intent-filter>
-                <action android:name="${applicationId}.location" />
-                <action android:name="${applicationId}.location.ILocationRemoteService" />
+                <action android:name="mobi.maptrek.location" />
+                <action android:name="mobi.maptrek.location.ILocationRemoteService" />
             </intent-filter>
         </service>
         <service
@@ -126,17 +220,17 @@
 
         <provider
             android:name=".provider.ExportProvider"
-            android:authorities="${applicationId}.files"
+            android:authorities="mobi.maptrek.files"
             android:exported="true"
             android:grantUriPermissions="true"
-            android:readPermission="${applicationId}.permission.READ_FILES"
-            android:writePermission="${applicationId}.permission.WRITE_FILES" />
+            android:readPermission="mobi.maptrek.permission.READ_FILES"
+            android:writePermission="mobi.maptrek.permission.WRITE_FILES" />
         <provider
             android:name=".provider.DataProvider"
-            android:authorities="${applicationId}.data"
+            android:authorities="mobi.maptrek.data"
             android:exported="true"
-            android:readPermission="${applicationId}.permission.READ_MAP_DATA"
-            android:writePermission="${applicationId}.permission.WRITE_MAP_DATA" />
+            android:readPermission="mobi.maptrek.permission.READ_MAP_DATA"
+            android:writePermission="mobi.maptrek.permission.WRITE_MAP_DATA" />
 
         <receiver android:name=".DownloadReceiver"
             android:exported="true">
@@ -153,7 +247,7 @@
         </receiver>
         <receiver
             android:name=".plugin.PluginEntryReceiver"
-            android:permission="${applicationId}.permission.ADD_PLUGIN_ENTRIES"
+            android:permission="mobi.maptrek.permission.ADD_PLUGIN_ENTRIES"
             android:exported="true">
             <intent-filter>
                 <action android:name="mobi.maptrek.plugin.NewEntry" />

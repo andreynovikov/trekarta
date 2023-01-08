@@ -58,7 +58,6 @@ import java.util.Locale;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
-import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
@@ -178,18 +177,18 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         try {
             mListener = (OnTrackActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnTrackActionListener");
+            throw new ClassCastException(context + " must implement OnTrackActionListener");
         }
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement MapHolder");
+            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
             mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FragmentHolder");
+            throw new ClassCastException(context + " must implement FragmentHolder");
         }
     }
 
@@ -361,11 +360,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         View speedRow = rootView.findViewById(R.id.speedRow);
         speedRow.setVisibility(hasSpeed ? View.VISIBLE : View.GONE);
-
-        if (!BuildConfig.FULL_VERSION) {
-            rootView.findViewById(R.id.charts).setVisibility(View.GONE);
-            return;
-        }
 
         View elevationHeader = rootView.findViewById(R.id.elevationHeader);
         if (hasElevation) {
@@ -539,19 +533,17 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (speed > mMaxSpeed)
                 mMaxSpeed = speed;
 
-            if (BuildConfig.FULL_VERSION) {
-                int offset = (int) (time - mTrack.points.get(0).time) / 1000;
-                String xValue = "+" + DateUtils.formatElapsedTime(offset);
-                if (mElevationData != null) {
-                    int count = mElevationData.getDataSets().get(0).getEntryCount();
-                    mElevationData.addEntry(new Entry(elev, count), 0);
-                    mElevationData.addXValue(xValue);
-                }
-                if (mSpeedData != null) {
-                    int count = mSpeedData.getDataSets().get(0).getEntryCount();
-                    mSpeedData.addEntry(new Entry(speed * StringFormatter.speedFactor, count), 0);
-                    //mSpeedData.addXValue(xValue); they appear to share the same array
-                }
+            int offset = (int) (time - mTrack.points.get(0).time) / 1000;
+            String xValue = "+" + DateUtils.formatElapsedTime(offset);
+            if (mElevationData != null) {
+                int count = mElevationData.getDataSets().get(0).getEntryCount();
+                mElevationData.addEntry(new Entry(elev, count), 0);
+                mElevationData.addXValue(xValue);
+            }
+            if (mSpeedData != null) {
+                int count = mSpeedData.getDataSets().get(0).getEntryCount();
+                mSpeedData.addEntry(new Entry(speed * StringFormatter.speedFactor, count), 0);
+                //mSpeedData.addXValue(xValue); they appear to share the same array
             }
 
             if (isVisible()) {
@@ -559,12 +551,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 Resources resources = getResources();
                 updateTrackInformation(activity, resources);
                 updateTrackStatistics(resources);
-                if (BuildConfig.FULL_VERSION) {
-                    mElevationChart.notifyDataSetChanged();
-                    mElevationChart.invalidate();
-                    mSpeedChart.notifyDataSetChanged();
-                    mSpeedChart.invalidate();
-                }
+                mElevationChart.notifyDataSetChanged();
+                mElevationChart.invalidate();
+                mSpeedChart.notifyDataSetChanged();
+                mSpeedChart.invalidate();
             }
         }
     };

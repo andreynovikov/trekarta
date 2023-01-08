@@ -137,21 +137,19 @@ public class IntroductionTest {
                         isDisplayed()));
         textView7.check(matches(withText("Skiing and skating")));
 
-        if (BuildConfig.FULL_VERSION) {
-            ViewInteraction appCompatImageButton7 = onView(
-                    allOf(withId(R.id.next),
-                            withParent(allOf(withId(R.id.background),
-                                    withParent(withId(android.R.id.content)))),
-                            isDisplayed()));
-            appCompatImageButton7.perform(click());
+        ViewInteraction appCompatImageButton7 = onView(
+                allOf(withId(R.id.next),
+                        withParent(allOf(withId(R.id.background),
+                                withParent(withId(android.R.id.content)))),
+                        isDisplayed()));
+        appCompatImageButton7.perform(click());
 
-            ViewInteraction textView8 = onView(
-                    allOf(withId(R.id.title), withText("Night mode"),
-                            withParent(allOf(withId(R.id.main),
-                                    withParent(withId(R.id.view_pager)))),
-                            isDisplayed()));
-            textView8.check(matches(withText("Night mode")));
-        }
+        ViewInteraction textView8 = onView(
+                allOf(withId(R.id.title), withText("Night mode"),
+                        withParent(allOf(withId(R.id.main),
+                                withParent(withId(R.id.view_pager)))),
+                        isDisplayed()));
+        textView8.check(matches(withText("Night mode")));
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.done), withText("DONE"),

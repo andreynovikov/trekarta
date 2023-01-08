@@ -39,42 +39,6 @@ android {
 
     flavorDimensions "tier", "region"
 
-    productFlavors {
-        full {
-            dimension "tier"
-            buildConfigField "boolean", "FULL_VERSION", "true"
-        }
-        lite {
-            dimension "tier"
-            applicationIdSuffix ".lite"
-            versionNameSuffix "-lite"
-            buildConfigField "boolean", "FULL_VERSION", "false"
-        }
-        world {
-            dimension "region"
-            buildConfigField "boolean", "RUSSIAN_EDITION", "false"
-        }
-        russia {
-            dimension "region"
-            applicationIdSuffix ".re"
-            buildConfigField "boolean", "RUSSIAN_EDITION", "true"
-        }
-    }
-
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-        // To check for a certain build type, use variant.buildType.name == "<buildType>"
-        if (names.contains("full") && names.contains("russia")) {
-            // Gradle ignores any variants that satisfy the conditions above.
-            setIgnore(true)
-        }
-    }
-
-    applicationVariants.all { variant ->
-        // we need applicationId to be resolved first
-        variant.buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
-    }
-
     externalNativeBuild {
         ndkBuild {
             path 'Android.mk'
