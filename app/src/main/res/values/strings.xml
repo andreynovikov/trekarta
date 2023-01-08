@@ -183,12 +183,9 @@
     <string name="msgUnsupportedVersion">The Lite version is not supported and will not be updated anymore. Full version of Trekarta is now free, please switch to it. Remove Lite version only after you will successfully move all your personal data to full version, otherwise it will be lost!</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
-    <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
-    <string name="introOfflineMapsFull">You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
+    <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades. You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
     <string name="introPlacesTitle">Places</string>
-    <string name="introPlacesPrefixFull">Places can be easily imported from GPX and KML files or</string>
-    <string name="introPlacesPrefix">Places</string>
-    <string name="introPlaces">can be created within application. You can navigate to points and share them with others.</string>
+    <string name="introPlaces">Places can be easily imported from GPX and KML files or can be created within application. You can navigate to points and share them with others.</string>
     <string name="introTracksTitle">Tracks</string>
     <string name="introTracks">You can record tracks of your journey. Just press a button when you start and press it once more when you finish. You can quit the application if you do not need to look at the map, the track will be recorded in the background.</string>
     <string name="introOffroadTitle">Off-road</string>

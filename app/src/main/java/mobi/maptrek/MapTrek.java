@@ -29,7 +29,6 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,8 +36,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -74,14 +71,12 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.LongSparseArrayIterator;
-import mobi.maptrek.util.NativeMapFilenameFilter;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.util.ShieldFactory;
@@ -178,8 +173,7 @@ public class MapTrek extends Application {
 
         mapObjects.clear();
 
-        int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
-        AppCompatDelegate.setDefaultNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(Configuration.getNightModeState());
 
         /*
         if (BuildConfig.DEBUG) {
@@ -268,7 +262,7 @@ public class MapTrek extends Application {
     }
 
     public boolean hasSDCard() {
-        return mSDCardDirectory != null && BuildConfig.FULL_VERSION;
+        return mSDCardDirectory != null;
     }
 
     public File getExternalDirectory() {

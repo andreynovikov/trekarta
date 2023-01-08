@@ -488,21 +488,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
         if (savedInstanceState == null) {
-            if (BuildConfig.FULL_VERSION) {
-                initializePlugins();
-                mMapIndex.initializeOfflineMapProviders();
-                mMapIndex.initializeOnlineMapProviders();
-            }
+            initializePlugins();
+            mMapIndex.initializeOfflineMapProviders();
+            mMapIndex.initializeOnlineMapProviders();
 
             String language = Configuration.getLanguage();
             if (language == null) {
-                if (BuildConfig.RUSSIAN_EDITION) {
-                    language = "ru";
-                } else {
-                    language = resources.getConfiguration().locale.getLanguage();
-                    if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
-                        language = "none";
-                }
+                language = resources.getConfiguration().locale.getLanguage();
+                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
+                    language = "none";
                 Configuration.setLanguage(language);
             }
         }
@@ -606,20 +600,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mMap = mViews.mapView.map();
         if (lastIntroduction == 0) {
-            if (BuildConfig.RUSSIAN_EDITION) {
-                mMap.setMapPosition(56.4, 39, 1 << 5);
-            } else {
-                // Set initial location based on device language
-                switch (resources.getConfiguration().locale.getLanguage()) {
-                    case "de":
-                        mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
-                        break;
-                    case "ru":
-                        mMap.setMapPosition(56.4, 39, 1 << 5);
-                        break;
-                    default:
-                        mMap.setMapPosition(-19, -12, 1 << 2);
-                }
+            // Set initial location based on device language
+            switch (resources.getConfiguration().locale.getLanguage()) {
+                case "de":
+                    mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
+                    break;
+                case "ru":
+                    mMap.setMapPosition(56.4, 39, 1 << 5);
+                    break;
+                default:
+                    mMap.setMapPosition(-19, -12, 1 << 2);
             }
         } else {
             mMap.setMapPosition(Configuration.getPosition());
@@ -751,11 +741,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         });
         mViews.mapsButton.setOnClickListener(v -> {
-            if (BuildConfig.FULL_VERSION) {
-                onMapsClicked();
-            } else {
-                onMapsLongClicked();
-            }
+            onMapsClicked();
         });
         mViews.mapsButton.setOnLongClickListener(v -> {
             onMapsLongClicked();
@@ -1056,16 +1042,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
-        /*
         } else if (mNativeMapIndex != null) { // this is temporary, until we will move data back to application folder
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
             dialogFragment.show(mFragmentManager, "whatsNew");
-        */
-        } else if (!BuildConfig.FULL_VERSION) {
-            new AlertDialog.Builder(this)
-                .setMessage(R.string.msgUnsupportedVersion)
-                .setPositiveButton(getString(R.string.close), (dialog, which) -> {})
-                .show();
         }
 
         if (Configuration.getHideSystemUI())
@@ -1741,12 +1720,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void onPlacesClicked() {
         boolean hasExtraSources = false;
-        if (BuildConfig.FULL_VERSION) {
-            for (FileDataSource source : mData) {
-                if (!source.isNativeTrack()) {
-                    hasExtraSources = true;
-                    break;
-                }
+        for (FileDataSource source : mData) {
+            if (!source.isNativeTrack()) {
+                hasExtraSources = true;
+                break;
             }
         }
         if (hasExtraSources) {
@@ -1769,7 +1746,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
                 args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
             }
-            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, BuildConfig.FULL_VERSION);
+            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
             fragment.setArguments(args);
@@ -1824,8 +1801,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             item = menu.findItem(R.id.actionLanguage);
             ((TextView) item.getActionView()).setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-            if (!BuildConfig.FULL_VERSION)
-                menu.removeItem(R.id.actionNightMode);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
     }
@@ -1841,13 +1816,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 int activity = Configuration.getActivity();
                 if (activity > 0)
                     ((TextView) item.getActionView()).setText(activities[activity]);
-                if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
                     menu.removeItem(R.id.actionHideSystemUI);
-                }
-                if (!BuildConfig.FULL_VERSION) {
-                    menu.removeItem(R.id.actionImport);
                 }
                 if (Configuration.ratingActionPerformed() ||
                         (Configuration.getRunningTime() < 120 &&
@@ -1878,7 +1850,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onMoreLongClicked() {
         boolean show = mViews.locationButton.getVisibility() == View.INVISIBLE;
         showActionPanel(show, true);
-        if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
                 !show && !Configuration.getHideSystemUI())
             hideSystemUI();
     }
@@ -3669,7 +3641,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String name = bse.getName();
             if ("ruler".equals(name))
                 mCrosshairLayer.unlock();
-            else if (BuildConfig.FULL_VERSION && "settings".equals(name))
+            else if ("settings".equals(name))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mViews.mapsButton, false);
             else if ("trackProperties".equals(name))
                 HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);

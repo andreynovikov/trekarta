@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import mobi.maptrek.BuildConfig;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 
@@ -49,7 +48,7 @@ public class ExportProvider extends ContentProvider {
     private static final Logger logger = LoggerFactory.getLogger(ExportProvider.class);
 
     private static final String COLUMN_LAST_MODIFIED = "_last_modified";
-    private static final String AUTHORITY = BuildConfig.EXPORT_PROVIDER_AUTHORITY;
+    private static final String AUTHORITY = "mobi.maptrek.files";
     private static final String[] COLUMNS = {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE, COLUMN_LAST_MODIFIED};
 
     private PathStrategy mStrategy;
@@ -398,6 +397,9 @@ public class ExportProvider extends ContentProvider {
         public File getFileForUri(Uri uri) {
             String path = uri.getEncodedPath();
             logger.info("getFileForUri({})", path);
+            if (path == null) {
+                throw new IllegalArgumentException("Unable to find path for " + uri);
+            }
 
             final int splitIndex = path.indexOf('/', 1);
             final String tag = Uri.decode(path.substring(1, splitIndex));

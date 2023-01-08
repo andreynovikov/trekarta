@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
@@ -54,7 +53,6 @@ public class WhatsNewDialog extends DialogFragment {
     private static final String ATTRIBUTE_VERSION_CODE = "versioncode";
     private static final String ATTRIBUTE_VERSION = "version";
     private static final String ATTRIBUTE_DATE = "date";
-    private static final String ATTRIBUTE_VARIANT = "variant";
 
     private final ArrayList<ChangeListItem> mChangelog = new ArrayList<>();
 
@@ -128,11 +126,9 @@ public class WhatsNewDialog extends DialogFragment {
             String name = parser.getName();
             if (name.equals(TAG_CHANGE)) {
                 parser.require(XmlPullParser.START_TAG, null, TAG_CHANGE);
-                String variant = parser.getAttributeValue(null, ATTRIBUTE_VARIANT);
                 ChangeListItem changeItem = new ChangeListItem();
                 changeItem.change = readText(parser);
-                if (BuildConfig.FULL_VERSION || !"full".equals(variant))
-                    mChangelog.add(changeItem);
+                mChangelog.add(changeItem);
                 parser.require(XmlPullParser.END_TAG, null, TAG_CHANGE);
             } else {
                 skip(parser);
