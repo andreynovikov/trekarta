@@ -269,23 +269,7 @@
     <string name="msgMapSelectionExplanation">Серые квадраты обозначают области, доступные для загрузки. После загрузки индекса карт в каждом квадрате содержится информация о размере области карты и возрасте данных. Если вы пометите флажком загрузку затемнений рельефа, добавится отображение информации о их доступности для данной области, а размеры скорректируются с учетом затемнений. Яркие зеленые зоны обозначают активные (загруженные) области, загружающиеся в настоящее время зоны темно-зеленые. Если доступно обновление для определенной области, квадрат будет желтым. Если будет доступно обновление для карты мира, появится специальный флажок. Отметить активную область для удаления можно длинным нажатием. Если область удалена, пространство освобождается не сразу, а постепенно в течение времени. Индекс карт обновляется не более одного раза в день.</string>
     <string name="pref_general">Основное</string>
     <string name="pref_zoom_buttons_visible_title">Видимые кнопки масштаба</string>
-    <string name="titleMoveData">Перемещение данных приложения</string>
-    <string name="actionMoveData">Переместить данные</string>
-    <string name="msgWriteExternalStorageRationale">Трекарте требуется %s, чтобы иметь возможность переместить файлы данных и карт на внешний носитель</string>
-    <string name="msgMoveDataToApplicationStorage">Переместить обратно в область памяти приложения</string>
-    <string name="msgMoveDataToExternalStorage">Переместить в пользовательскую область памяти, чтобы исключить потерю данных при удалении приложения</string>
-    <string name="msgMoveDataToSDCard">Переместить на SD-карту, чтобы освободить память устройства</string>
     <string name="finishing">Завершение…</string>
-    <string name="intentMoveData">Перемещение данных Трекарты</string>
-    <string name="msgFileMoveError">ошибка перемещения файла</string>
-    <string name="msgNotEnoughSpaceOnDestinationStorage">недостаточно места в выбранном хранилище</string>
-    <string name="msgCannotAccessSourceFolder">нет доступа к исходной папке</string>
-    <string name="msgDestinationFolderIsNotEmpty">папка назначения не является пустой</string>
-    <string name="msgCannotCreateDestinationFolder">невозможно создать папку назначения</string>
-    <string name="msgFailedToMoveData">Ошибка перемещения данных: %s</string>
-    <string name="msgMovingFiles">Перемещение файлов…</string>
-    <string name="msgMoveDataToExternalStorageExplanation">Все данные приложения - места, треки и карты будут перемещены в корень пользовательской области памяти. Это исключит безусловное удаление данных при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
-    <string name="msgMoveDataToSDCardExplanation">Все данные приложения - места, треки и карты будут перемещены на SD-карту. В зависимости от типа SD-карты это может привести к значительному снижению производительности. Пожалуйста, учтите, что данные по-прежнему будут автоматически удалены при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
     <string name="msgMapDeleteFailed">Ошибка удаления файла карты</string>
     <string name="share_map_intent_title">Поделиться файлом карты через:</string>
     <string name="notificationChannelName">Текущие события</string>
@@ -741,8 +725,4 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
-    <string name="msgMoveDataToApplicationStoragePermissionExplanation">Выберите корневую папку, в которой Трекарта хранит все данные (обычно это папка \\\'Trekarta\\\' в корне хранилища файлов) и разрешите доступ к этим файлам.</string>
-    <string name="msgMoveDataToApplicationCheckExplanation">Проверьте, что все данные успешно перемещены, ничего не потеряно, и удалите папку \\\'Trekarta\\\' в корне хранилища файлов.</string>
-    <string name="msgMoveDataToApplicationStorageExplanation">К сожалению, Android 11 устанавливает жёсткие ограничения на доступ к файлам вне папки приложения. Поэтому все данные будут скопированы обратно в папку приложения, иначе Трекарта не сможет продолжить работу.</string>
-    <string name="msgUnsupportedVersion">Лайт версия больше не поддерживается и не обновляется. Полная версия Трекарты стала бесплатной, пожалуйста, перейдите на неё. Удалите Лайт версию только после того, как успешно перенесёте ваши персональные данные на полную версию, иначе они будут безвозвратно утеряны!</string>
 </resources>

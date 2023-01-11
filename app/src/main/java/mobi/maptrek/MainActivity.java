@@ -288,10 +288,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
 
-    public static final String NEW_APPLICATION_STORAGE = "-=MOVE_TO_APP=-";
-    public static final String NEW_EXTERNAL_STORAGE = "-=MOVE_TO_ROOT=-";
-    public static final String NEW_SD_STORAGE = "-=MOVE_TO_SD=-";
-
     public enum TRACKING_STATE {
         DISABLED,
         PENDING,
@@ -411,14 +407,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         logger.debug("onCreate()");
 
-        logger.error("ES: {}", Configuration.getExternalStorage());
-        logger.error("New ES: {}", Configuration.getNewExternalStorage());
-        if (Configuration.getNewExternalStorage() != null) {
-            startActivity(new Intent(this, DataMoveActivity.class));
-            finish();
-            return;
-        }
-
         // Required for transparent status bar
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
@@ -468,20 +456,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
 
-        try {
-            // Provide application context so that maps can be cached on rotation
-            mNativeMapIndex = application.getMapIndex();
-        } catch (Exception e) { // It's happening on Android 12 when maps where moved to external storage
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.actionMoveData);
-            builder.setMessage(R.string.msgMoveDataToApplicationStorageExplanation);
-            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
-                Configuration.setNewExternalStorage(NEW_APPLICATION_STORAGE);
-                MapTrek.getApplication().restart(this, DataMoveActivity.class);
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
+        mNativeMapIndex = application.getMapIndex();
         mMapIndex = application.getExtraMapIndex();
 
         mShieldFactory = application.getShieldFactory();
@@ -835,54 +810,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             setMapLocation(position.getGeoPoint());
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
-        } else if ("mobi.maptrek.action.MOVE_DATA".equals(action)) {
-            final AtomicInteger selected = new AtomicInteger(0);
-            boolean hasSDCard = MapTrek.getApplication().hasSDCard();
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.titleMoveData);
-            CharSequence[] items = new CharSequence[hasSDCard ? 2 : 1];
-            final String[] storageVariants = new String[hasSDCard ? 2 : 1];
-            String externalStorage = Configuration.getExternalStorage();
-            if (externalStorage != null) {
-                items[0] = getString(R.string.msgMoveDataToApplicationStorage);
-                storageVariants[0] = NEW_APPLICATION_STORAGE;
-            } else {
-                items[0] = getString(R.string.msgMoveDataToExternalStorage);
-                storageVariants[0] = NEW_EXTERNAL_STORAGE;
-            }
-            if (hasSDCard) {
-                if (MapTrek.getApplication().getSDCardDirectory().getAbsolutePath().equals(externalStorage)) {
-                    items[1] = getString(R.string.msgMoveDataToExternalStorage);
-                    storageVariants[1] = NEW_EXTERNAL_STORAGE;
-                } else {
-                    items[1] = getString(R.string.msgMoveDataToSDCard);
-                    storageVariants[1] = NEW_SD_STORAGE;
-                }
-            }
-            builder.setSingleChoiceItems(items, selected.get(), (dialog, which) -> selected.set(which));
-            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
-                final int item = selected.get();
-                if (!NEW_APPLICATION_STORAGE.equals(storageVariants[item])) {
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                    builder1.setTitle(R.string.actionMoveData);
-                    if (NEW_EXTERNAL_STORAGE.equals(storageVariants[item]))
-                        builder1.setMessage(R.string.msgMoveDataToExternalStorageExplanation);
-                    else
-                        builder1.setMessage(R.string.msgMoveDataToSDCardExplanation);
-                    builder1.setPositiveButton(R.string.actionContinue, (dialog1, which1) -> {
-                        Configuration.setNewExternalStorage(storageVariants[item]);
-                        MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                    });
-                    builder1.setNegativeButton(R.string.cancel, null);
-                    AlertDialog nextDialog = builder1.create();
-                    nextDialog.show();
-                } else {
-                    Configuration.setNewExternalStorage(storageVariants[item]);
-                    MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
             Snackbar.make(mViews.coordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
@@ -4492,9 +4419,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMainHandler.removeMessages(R.id.msgHideSystemUI);
         Configuration.setHideSystemUI(false);
 
-        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-        if (windowInsetsController == null)
-            return;
+        WindowInsetsControllerCompat windowInsetsController =  WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         // Show the system bars.
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 

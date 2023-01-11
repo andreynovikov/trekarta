@@ -117,7 +117,7 @@ public abstract class Manager {
         File file;
         if (source.path == null) {
             String name = source.name != null && !"".equals(source.name) ? source.name : "data_source_" + System.currentTimeMillis();
-            file = MapTrek.getApplication().getExternalDir("data");
+            file = MapTrek.getApplication().getExternalFilesDir("data");
             file = new File(file, FileUtils.sanitizeFilename(name) + getExtension());
         } else {
             file = new File(source.path);

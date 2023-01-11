@@ -69,7 +69,6 @@ import java.util.Set;
 import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
-import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.FileDataSource;
@@ -401,7 +400,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private void openDatabase() {
         //noinspection SpellCheckingInspection
-        File path = new File(MapTrek.getApplication().getExternalDir("databases"), "track.sqlitedb");
+        File path = new File(getExternalFilesDir("databases"), "track.sqlitedb");
         try {
             mTrackDB = SQLiteDatabase.openDatabase(path.getAbsolutePath(), null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
             Cursor cursor = mTrackDB.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = 'track'", null);
@@ -571,7 +570,7 @@ public class LocationService extends BaseLocationService implements LocationList
                     .putExtra("reason", "missing"));
             return;
         }
-        File dataDir = MapTrek.getApplication().getExternalDir("data");
+        File dataDir = getExternalFilesDir("data");
         if (dataDir == null) {
             logger.error("Can not save track: application data folder missing");
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)

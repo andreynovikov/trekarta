@@ -408,7 +408,7 @@ public class DataImportActivity extends Activity {
         @Nullable
         private File getDestinationFile(String filename) {
             boolean isMap = filename.endsWith(".mbtiles") || filename.endsWith(".sqlitedb");
-            File dir = MapTrek.getApplication().getExternalDir(isMap ? "maps" : "data");
+            File dir = getContext().getExternalFilesDir(isMap ? "maps" : "data");
             if (dir == null) {
                 logger.error("Path for {} unavailable", isMap ? "maps" : "data");
                 return null;
