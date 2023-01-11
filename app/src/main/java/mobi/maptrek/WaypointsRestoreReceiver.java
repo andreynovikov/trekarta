@@ -34,9 +34,8 @@ public class WaypointsRestoreReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         logger.debug(intent.getAction());
-        MapTrek application = MapTrek.getApplication();
-        File fromFile = new File(application.getExternalDir("databases"), "waypoints.sqlitedb.restore");
-        File toFile = new File(application.getExternalDir("databases"), "waypoints.sqlitedb");
+        File fromFile = new File(context.getExternalFilesDir("databases"), "waypoints.sqlitedb.restore");
+        File toFile = new File(context.getExternalFilesDir("databases"), "waypoints.sqlitedb");
         if (fromFile.exists() && toFile.delete() && fromFile.renameTo(toFile)) {
             logger.info("Waypoints restored");
         } else {

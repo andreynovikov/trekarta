@@ -84,8 +84,6 @@ public class Configuration {
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
-    private static final String PREF_EXTERNAL_STORAGE = "external_storage";
-    private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
     private static final String PREF_HIKING_TIMES = "hiking_times";
     private static final String PREF_CYCLING_TIMES = "cycling_times";
     private static final String PREF_SKIING_TIMES = "skiing_times";
@@ -460,22 +458,6 @@ public class Configuration {
 
     public static void setLastSeenChangelog(int code) {
         saveInt(LAST_SEEN_CHANGELOG, code);
-    }
-
-    public static String getExternalStorage() {
-        return loadString(PREF_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setExternalStorage(String storage) {
-        saveString(PREF_EXTERNAL_STORAGE, storage);
-    }
-
-    public static String getNewExternalStorage() {
-        return loadString(PREF_NEW_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setNewExternalStorage(String storage) {
-        saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
     }
 
     public static int getHighlightedType() {

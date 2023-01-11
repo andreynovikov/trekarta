@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <permission
@@ -83,7 +82,6 @@
                 <action android:name="mobi.maptrek.action.CENTER_ON_COORDINATES" />
                 <action android:name="mobi.maptrek.action.NAVIGATE_TO_OBJECT" />
                 <action android:name="mobi.maptrek.action.NAVIGATE_TO_POINT" />
-                <action android:name="mobi.maptrek.action.MOVE_DATA" />
                 <action android:name="mobi.maptrek.action.RESET_ADVICES" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -205,10 +203,6 @@
         <activity
             android:name=".IntroductionActivity"
             android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".DataMoveActivity"
-            android:label="@string/intentMoveData"
-            android:theme="@android:style/Theme.Material.Light.Dialog" />
 
         <service
             android:name=".location.LocationService"
