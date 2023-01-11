@@ -969,7 +969,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("baseMapDownload");
             ft.commit();
             mBaseMapWarningShown = true;
-        } else if (mNativeMapIndex != null) { // this is temporary, until we will move data back to application folder
+        } else if (WhatsNewDialog.shouldShow()) {
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
             dialogFragment.show(mFragmentManager, "whatsNew");
         }
