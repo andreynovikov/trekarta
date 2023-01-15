@@ -31,6 +31,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
@@ -39,6 +42,7 @@ import mobi.maptrek.util.StringFormatter;
 public class RouteInformation extends ListFragment {
     private Route mRoute;
 
+    private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnRouteActionListener mListener;
@@ -61,6 +65,18 @@ public class RouteInformation extends ListFragment {
 
         InstructionListAdapter adapter = new InstructionListAdapter();
         setListAdapter(adapter);
+
+        ListView listView = getListView();
+        listView.addHeaderView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false), null, false);
+
+        mFloatingButton = mFragmentHolder.enableListActionButton();
+        mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        mFloatingButton.setOnClickListener(v -> {
+            mMapHolder.navigateVia(mRoute);
+            mFragmentHolder.popAll();
+        });
+
+        initializeRouteInformation();
     }
 
     @Override
@@ -87,8 +103,15 @@ public class RouteInformation extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mFragmentHolder.disableListActionButton();
         mFragmentHolder = null;
         mMapHolder = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFloatingButton = null;
     }
 
     @Override
@@ -99,6 +122,27 @@ public class RouteInformation extends ListFragment {
 
     public void setRoute(Route route) {
         mRoute = route;
+        if (isVisible()) {
+            initializeRouteInformation();
+        }
+    }
+
+    private void initializeRouteInformation() {
+        View rootView = getView();
+        assert rootView != null;
+
+        ((TextView) rootView.findViewById(R.id.name)).setText(mRoute.name);
+
+        View sourceRow = rootView.findViewById(R.id.sourceRow);
+        if (mRoute.source == null || mRoute.source.isNativeTrack()) { // TODO: isNativeTrack
+            sourceRow.setVisibility(View.GONE);
+        } else {
+            ((TextView) rootView.findViewById(R.id.source)).setText(mRoute.source.name);
+            sourceRow.setVisibility(View.VISIBLE);
+        }
+
+        String distance = StringFormatter.distanceHP(mRoute.distance);
+        ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
     }
 
     private class InstructionListAdapter extends BaseAdapter {
