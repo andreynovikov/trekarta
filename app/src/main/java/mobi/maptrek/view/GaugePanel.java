@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import mobi.maptrek.MapHolder;
@@ -54,8 +55,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     private final List<List<View>> mLines = new ArrayList<>();
     private final List<Integer> mLineWidths = new ArrayList<>();
 
-    private ArrayList<Gauge> mGauges = new ArrayList<>();
-    private SparseArray<Gauge> mGaugeMap = new SparseArray<>();
+    private final ArrayList<Gauge> mGauges = new ArrayList<>();
+    private final SparseArray<Gauge> mGaugeMap = new SparseArray<>();
     private MapHolder mMapHolder;
     private boolean mNavigationMode = false;
     private List<View> mLineViewsBuffer = new ArrayList<>();
@@ -251,7 +252,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         String[] gauges = settings.split(",");
         for (String gaugeStr : gauges) {
-            int type = Integer.valueOf(gaugeStr);
+            int type = Integer.parseInt(gaugeStr);
             addGauge(type);
         }
         setNavigationMode(false);
@@ -304,6 +305,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             mGauges.add(i, gauge);
         }
         mGaugeMap.put(type, gauge);
+        updateAbbrVisibility();
 
         mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
         if (type == Gauge.TYPE_ELEVATION && mPressureSensor != null && mVisible)
@@ -318,6 +320,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         removeView(gauge);
         mGauges.remove(gauge);
         mGaugeMap.remove(type);
+        updateAbbrVisibility();
+
         mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
         if (type == Gauge.TYPE_ELEVATION && !mHasSensors && mVisible)
             mSensorManager.unregisterListener(this);
@@ -332,7 +336,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         if (v instanceof Gauge) {
             Gauge gauge = (Gauge) v;
             menu.add(0, gauge.getType(), Menu.NONE, context.getString(R.string.remove_gauge, getGaugeName(gauge.getType())));
-            gauge.getType();
         }
         ArrayList<Integer> availableGauges = getAvailableGauges(type);
         for (int availableGauge : availableGauges) {
@@ -393,7 +396,24 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             if (isNavigationGauge(gauge.getType()))
                 gauge.setVisibility(visibility);
         }
+        updateAbbrVisibility();
         return true;
+    }
+
+    private void updateAbbrVisibility() {
+        boolean hasSameUnit = false;
+        HashSet<String> units = new HashSet<>();
+        for (Gauge g : mGauges) {
+            String unit = g.getDefaultGaugeUnit();
+            if (g.getVisibility() == View.VISIBLE && units.contains(unit)) {
+                hasSameUnit = true;
+                break;
+            }
+            units.add(unit);
+        }
+
+        for (Gauge g : mGauges)
+            g.enableAbbr(hasSameUnit);
     }
 
     private boolean isNavigationGauge(int type) {
@@ -412,6 +432,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             gauges.add(Gauge.TYPE_DISTANCE);
             gauges.add(Gauge.TYPE_BEARING);
             gauges.add(Gauge.TYPE_TURN);
+            gauges.add(Gauge.TYPE_XTK);
+            gauges.add(Gauge.TYPE_VMG);
+            // gauges.add(Gauge.TYPE_ETE);
         }
         for (int i = 0; i < mGaugeMap.size(); i++) {
             int gauge = mGaugeMap.keyAt(i);

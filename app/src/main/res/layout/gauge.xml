@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="end"
-    android:orientation="vertical"
     android:padding="@dimen/gauge_padding"
     tools:viewBindingIgnore="true">
 
@@ -17,13 +17,33 @@
         android:lines="1"
         android:minEms="2"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/gaugeName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/gauge_padding"
+        android:gravity="start"
+        android:lines="1"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="10sp"
+        android:visibility="visible"
+        app:layout_constraintBaseline_toBaselineOf="@id/gaugeUnit"
+        app:layout_constraintEnd_toStartOf="@+id/gaugeUnit"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/gaugeUnit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="end"
         android:lines="1"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gaugeValue" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

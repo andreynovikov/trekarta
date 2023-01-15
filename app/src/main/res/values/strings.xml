@@ -65,6 +65,8 @@
     <string name="actionFindRouteHere">Find route here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
+    <string name="actionNextRouteWaypoint">Next route point</string>
+    <string name="actionPrevRouteWaypoint">Previous route point</string>
     <string name="actionAutoTilt">Tilt on track up</string>
     <string name="actionRememberTilt">Remember tilt</string>
     <string name="actionHideSystemUI">Fullscreen</string>
@@ -205,6 +207,16 @@
     <string name="place_name">Place #%d</string>
     <string name="remove_gauge">Remove %s</string>
     <string name="add_gauge">Add %s</string>
+    <string name="gauge_speed_abbr">SPD</string>
+    <string name="gauge_bearing_abbr">BRG</string>
+    <string name="gauge_distance_abbr">DST</string>
+    <string name="gauge_track_abbr">TRK</string>
+    <string name="gauge_altitude_abbr">ALT</string>
+    <string name="gauge_turn_abbr">TRN</string>
+    <string name="gauge_vmg_abbr">VMG</string>
+    <string name="gauge_xtk_abbr">XTK</string>
+    <string name="gauge_ete_abbr">ETE</string>
+    <string name="gauge_elevation_abbr">ELE</string>
     <string name="gauge_speed">Speed</string>
     <string name="gauge_bearing">Bearing</string>
     <string name="gauge_distance">Distance</string>
@@ -212,7 +224,7 @@
     <string name="gauge_altitude">Altitude</string>
     <string name="gauge_turn">Turn</string>
     <string name="gauge_vmg">VMG</string>
-    <string name="gauge_xtk">XTK</string>
+    <string name="gauge_xtk">Cross track</string>
     <string name="gauge_ete">ETE</string>
     <string name="gauge_elevation">Elevation</string>
     <string name="place_altitude" translatable="false">&#2336; %s</string>
@@ -738,5 +750,4 @@
     <string name="legend_bicycle_repair_station">Bicycle repair station</string>
     <string name="legend_bicycle_parking">Bicycle parking</string>
     <string name="legend_fort">Fort</string>
-
 </resources>
