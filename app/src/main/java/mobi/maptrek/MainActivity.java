@@ -40,6 +40,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -162,6 +163,9 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.source.RouteDataSource;
+import mobi.maptrek.data.source.TrackDataSource;
+import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
@@ -1309,13 +1313,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mLocationState = LocationState.ENABLED;
                 updateLocationDrawable();
             }
-            BoundingBox box = new BoundingBox();
+            BoundingBox box = mNavigationService.getRouteBoundingBox();
             mMap.getMapPosition(mMapPosition);
             box.extend(mMapPosition.getLatitude(), mMapPosition.getLongitude());
-            MapObject mapObject = mNavigationService.getWaypoint();
-            box.extend(mapObject.coordinates.getLatitude(), mapObject.coordinates.getLongitude());
             box.extendBy(0.05);
             mMap.animator().animateTo(box);
+            return true;
+        } else if (action == R.id.actionNextRouteWaypoint) {
+            mNavigationService.nextRouteWaypoint();
+            return true;
+        } else if (action == R.id.actionPrevRouteWaypoint) {
+            mNavigationService.prevRouteWaypoint();
             return true;
         } else if (action == R.id.actionStopNavigation) {
             stopNavigation();
@@ -2007,6 +2015,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             askForPermission();
     }
 
+    private void startNavigation(Route route) {
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_VIA_ROUTE);
+        i.putExtra(NavigationService.EXTRA_ROUTE, route);
+        startService(i);
+        if (mLocationState == LocationState.DISABLED)
+            askForPermission();
+    }
+
     @Override
     public void stopNavigation() {
         startService(new Intent(this, NavigationService.class).setAction(NavigationService.STOP_NAVIGATION));
@@ -2067,6 +2084,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return false;
         MapObject mapObject = mNavigationService.getWaypoint();
         return mapObject.coordinates.equals(coordinates);
+    }
+
+    public void navigateVia(@NonNull Route route) {
+        startNavigation(route);
     }
 
     private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
@@ -2249,6 +2270,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void showNavigationMenu() {
         PopupMenu popup = new PopupMenu(this, mViews.mapButtonHolder);
         popup.inflate(R.menu.context_menu_navigation);
+        Menu popupMenu = popup.getMenu();
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasNextRouteWaypoint())
+            popupMenu.removeItem(R.id.actionNextRouteWaypoint);
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasPrevRouteWaypoint())
+            popupMenu.removeItem(R.id.actionPrevRouteWaypoint);
         popup.setOnMenuItemClickListener(this);
         popup.show();
     }
@@ -4103,28 +4129,47 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onDataSourceSelected(@NonNull DataSource source) {
-        Bundle args = new Bundle(3);
-        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-            Location location = mLocationService.getLocation();
-            args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
-            args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
-            args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
+        if (source.isNativeTrack()) {
+            Track track = ((TrackDataSource) source).getTracks().get(0);
+            onTrackDetails(track, false);
+        } else if (source.isIndividual()) {
+            Cursor cursor = source.getCursor();
+            cursor.moveToPosition(0);
+            int itemType = source.getDataType(0);
+            if (itemType == DataSource.TYPE_WAYPOINT) {
+                Waypoint waypoint = ((WaypointDataSource) source).cursorToWaypoint(cursor);
+                onWaypointDetails(waypoint, true);
+            } else if (itemType == DataSource.TYPE_TRACK) {
+                Track track = ((TrackDataSource) source).cursorToTrack(cursor);
+                onTrackDetails(track);
+            } else if (itemType == DataSource.TYPE_ROUTE) {
+                Route route = ((RouteDataSource) source).cursorToRoute(cursor);
+                onRouteDetails(route);
+            }
         } else {
-            MapPosition position = mMap.getMapPosition();
-            args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
-            args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
-            args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
+            Bundle args = new Bundle(3);
+            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                Location location = mLocationService.getLocation();
+                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
+            } else {
+                MapPosition position = mMap.getMapPosition();
+                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
+            }
+            args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
+            fragment.setArguments(args);
+            fragment.setDataSource(source);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            fragment.setEnterTransition(new Fade());
+            ft.add(R.id.extendPanel, fragment, "dataList");
+            ft.addToBackStack("dataList");
+            ft.commit();
         }
-        args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
-        FragmentFactory factory = mFragmentManager.getFragmentFactory();
-        DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-        fragment.setArguments(args);
-        fragment.setDataSource(source);
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        fragment.setEnterTransition(new Fade());
-        ft.add(R.id.extendPanel, fragment, "dataList");
-        ft.addToBackStack("dataList");
-        ft.commit();
     }
 
     @Override

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import org.oscim.core.GeoPoint;
 import org.oscim.map.Map;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ShieldFactory;
 
@@ -41,6 +42,8 @@ public interface MapHolder {
     void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name);
 
     void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name);
+
+    void navigateVia(@NonNull Route route);
 
     boolean isNavigatingTo(@NonNull GeoPoint coordinates);
 

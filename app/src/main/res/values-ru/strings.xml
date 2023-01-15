@@ -48,6 +48,8 @@
     <string name="actionNavigateHere">Задать направление сюда</string>
     <string name="actionRememberScale">Запомнить масштаб</string>
     <string name="actionOverviewRoute">Просмотреть маршрут</string>
+    <string name="actionNextRouteWaypoint">Следующая точка маршрута</string>
+    <string name="actionPrevRouteWaypoint">Предыдущая точка маршрута</string>
     <string name="actionRememberTilt">Запомнить наклон</string>
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
@@ -144,7 +146,7 @@
     <string name="gauge_track">Путевой угол</string>
     <string name="gauge_turn">Курсовой угол</string>
     <string name="gauge_vmg">VMG</string>
-    <string name="gauge_xtk">XTK</string>
+    <string name="gauge_xtk">Радиальная дистанция</string>
     <string name="hide_map_objects">Прятать объекты карты</string>
     <string name="intentCopyMap">Установить карту</string>
     <string name="intentImportData">Импорт в Трекарту</string>
