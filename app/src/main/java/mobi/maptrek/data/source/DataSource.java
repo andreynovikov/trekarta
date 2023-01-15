@@ -66,6 +66,13 @@ public abstract class DataSource {
     public abstract boolean isNativeTrack();
 
     /**
+     * Returns whether the source contains only one item and nothing more.
+     *
+     * @return <code>true</code> if this is single item source, <code>false</code> otherwise.
+     */
+    public abstract boolean isIndividual();
+
+    /**
      * Returns whether the source is loaded from file (contains data).
      *
      * @return <code>true</code> if data is loaded, <code>false</code> if it is just a stub.
