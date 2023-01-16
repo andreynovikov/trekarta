@@ -18,15 +18,16 @@ package mobi.maptrek.view;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.Locale;
 
 import mobi.maptrek.R;
 import mobi.maptrek.util.StringFormatter;
 
-public class Gauge extends RelativeLayout {
+public class Gauge extends ConstraintLayout {
     public static final int TYPE_SPEED = 0x00001;
     public static final int TYPE_TRACK = 0x00002;
     public static final int TYPE_ALTITUDE = 0x00004;
@@ -65,6 +66,9 @@ public class Gauge extends RelativeLayout {
     }
 
     public void setValue(float value) {
+        if (value == mValue)
+            return;
+
         mValue = value;
         String indication;
         String unit = getDefaultGaugeUnit();

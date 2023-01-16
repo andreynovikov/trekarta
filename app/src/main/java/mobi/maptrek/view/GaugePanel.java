@@ -26,7 +26,6 @@ import android.text.TextUtils;
 import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -89,6 +88,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         int width = 0;
         int height = 0;
+        int maxWidth = 0;
 
         int lineWidth = 0;
         int lineHeight = 0;
@@ -126,7 +126,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 childWidthSize = 0;
             }
 
-            if (lp.width == LayoutParams.MATCH_PARENT) {
+            if (lp.height == LayoutParams.MATCH_PARENT) {
                 childWidthMode = MeasureSpec.EXACTLY;
             } else if (lp.height >= 0) {
                 childHeightMode = MeasureSpec.EXACTLY;
@@ -140,6 +140,10 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                     MeasureSpec.makeMeasureSpec(childWidthSize, childWidthMode),
                     MeasureSpec.makeMeasureSpec(childHeightSize, childHeightMode)
             );
+
+            int childWidth = child.getMeasuredWidth();
+            if (maxWidth < childWidth)
+                maxWidth = childWidth;
 
             int childHeight = child.getMeasuredHeight();
 
@@ -159,12 +163,25 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             }
         }
 
+        // set all children width to most wide one
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() != GONE) {
+                int childHeight = child.getMeasuredHeight();
+                child.measure(
+                        MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY)
+                );
+            }
+        }
+
         width += getPaddingLeft() + getPaddingRight();
         height += getPaddingTop() + getPaddingBottom();
 
         setMeasuredDimension(
                 (modeWidth == MeasureSpec.EXACTLY) ? sizeWidth : width,
-                (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height);
+                (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height
+        );
     }
 
     @Override
@@ -311,7 +328,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         if (type == Gauge.TYPE_ELEVATION && mPressureSensor != null && mVisible)
             mSensorManager.registerListener(this, mPressureSensor, SensorManager.SENSOR_DELAY_NORMAL, 1000);
 
-        gauge.setGravity(Gravity.END | Gravity.TOP);
         gauge.setOnLongClickListener(this);
     }
 
