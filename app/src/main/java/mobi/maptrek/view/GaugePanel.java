@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 
 /**
@@ -47,6 +46,7 @@ import mobi.maptrek.R;
  */
 //TODO Redesign to balance gauge quantity in columns
 public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener, SensorEventListener {
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(GaugePanel.class);
 
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
@@ -56,7 +56,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     private final ArrayList<Gauge> mGauges = new ArrayList<>();
     private final SparseArray<Gauge> mGaugeMap = new SparseArray<>();
-    private MapHolder mMapHolder;
     private boolean mNavigationMode = false;
     private List<View> mLineViewsBuffer = new ArrayList<>();
     private SensorManager mSensorManager;
@@ -275,10 +274,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         setNavigationMode(false);
     }
 
-    public void setMapHolder(MapHolder mapHolder) {
-        mMapHolder = mapHolder;
-    }
-
     private String getGaugeName(int type) {
         Context context = getContext();
         switch (type) {
@@ -370,8 +365,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             removeGauge(type);
         else
             addGauge(type);
-        if (mMapHolder != null)
-            mMapHolder.updateMapViewArea();
         return true;
     }
 
@@ -402,9 +395,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
     }
 
-    public boolean setNavigationMode(boolean mode) {
+    public void setNavigationMode(boolean mode) {
         if (mNavigationMode == mode)
-            return false;
+            return;
         mNavigationMode = mode;
         int visibility = mode ? View.VISIBLE : View.GONE;
         TransitionManager.beginDelayedTransition(this);
@@ -413,7 +406,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 gauge.setVisibility(visibility);
         }
         updateAbbrVisibility();
-        return true;
     }
 
     private void updateAbbrVisibility() {
