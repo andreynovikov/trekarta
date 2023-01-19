@@ -45,17 +45,19 @@
         <item name="android:layout_marginBottom">-6dp</item>
     </style>
 
+    <style name="MainConstraint">
+        <item name="android:layout_marginEnd">@dimen/image_button_size</item>
+    </style>
+
     <style name="MapButtonHolder">
-        <item name="android:layout_gravity">bottom|start</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintVertical_bias">1.0</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <style name="MapZoomHolder">
-        <item name="android:layout_gravity">center_vertical|start</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="GaugePanel">
-        <item name="android:layout_marginTop">@dimen/gauge_padding</item>
-        <item name="android:layout_marginBottom">@dimen/image_button_size_with_gap</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 </resources>
