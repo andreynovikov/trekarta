@@ -70,8 +70,14 @@ public class Gauge extends ConstraintLayout {
             return;
 
         mValue = value;
-        String indication;
         String unit = getDefaultGaugeUnit();
+        if (Float.isNaN(value) || Float.isInfinite(value)) {
+            mValueView.setText("-");
+            mUnitView.setText(unit);
+            return;
+        }
+
+        String indication;
         switch (mType) {
             case Gauge.TYPE_SPEED:
             case Gauge.TYPE_VMG: {
