@@ -99,6 +99,7 @@
 
     <string name="msgNavigationProgress">%1$s left, proceed on a course of %2$s</string>
     <string name="msgNavigating">Navigating to %s</string>
+    <string name="msgNavigatingPoint">route point</string>
     <string name="msgNavigationActions">You can stop navigation completely or pause it until next application start</string>
     <string name="msgBackQuit">Press Back once more to quit</string>
     <string name="msgPlaceDeleted">Place deleted</string>

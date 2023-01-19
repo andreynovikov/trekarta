@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -56,11 +56,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -79,8 +82,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.transition.Slide;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
@@ -92,7 +97,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
@@ -493,9 +497,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mViews.license.setClickable(true);
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
-
-        mViews.gaugePanel.setTag(Boolean.TRUE);
-        mViews.gaugePanel.setMapHolder(this);
 
         mViews.navigationArrow.setOnClickListener(v -> {
             MapObject mapObject = mNavigationService.getWaypoint();
@@ -985,7 +986,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (type >= 0 && mViews.highlightedType.getVisibility() != View.VISIBLE)
             setHighlightedType(type);
 
-        updateMapViewArea();
+        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(globalLayoutListener);
 
         mMap.updateMap(true);
     }
@@ -997,6 +999,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
+
+        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
+        vto.removeOnGlobalLayoutListener(globalLayoutListener);
 
         mViews.mapView.onPause();
         mMap.events.unbind(this);
@@ -1965,30 +1970,33 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     };
 
     private void enableNavigation() {
-        logger.debug("enableNavigation");
+        logger.error("enableNavigation");
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
     }
 
     private void disableNavigation() {
-        logger.debug("disableNavigation");
+        logger.error("disableNavigation");
         if (mIsNavigationBound) {
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
         }
         updateNavigationUI();
+        updatePanels();
     }
 
     private final ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            logger.debug("onServiceConnected: NavigationService");
+            logger.error("onServiceConnected: NavigationService");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
+            updatePanels();
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            logger.debug("onServiceDisconnected: NavigationService");
+            logger.error("onServiceDisconnected: NavigationService");
             mNavigationService = null;
             updateNavigationUI();
+            updatePanels();
         }
     };
 
@@ -2280,7 +2288,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     private void updateLocationDrawable() {
-        logger.debug("updateLocationDrawable()");
+        logger.error("updateLocationDrawable()");
         if (mViews.recordButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
             mViews.recordButton.getDrawable().setTint(recordColor);
@@ -2292,28 +2300,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mViews.locationButton.clearAnimation();
             mViews.satellites.animate().translationY(-200);
         }
-        final ViewPropertyAnimator gaugePanelAnimator = mViews.gaugePanel.animate();
-        gaugePanelAnimator.setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (mLocationState == LocationState.NORTH)
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.gaugePanel, true);
-                //HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.coordinatorLayout);
-                if (mLocationState == LocationState.SEARCHING)
-                    mViews.satellites.animate().translationY(8);
-                gaugePanelAnimator.setListener(null);
-                updateMapViewArea();
-            }
-        });
+
         switch (mLocationState) {
             case DISABLED:
                 mNavigationNorthDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
-                if (mViews.gaugePanel.getWidth() > 0) {
-                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                    mViews.gaugePanel.onVisibilityChanged(false);
-                }
+                updatePanels();
                 break;
             case SEARCHING:
                 mLocationSearchingDrawable.setTint(mColorAccent);
@@ -2323,33 +2316,29 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 rotation.setRepeatCount(Animation.INFINITE);
                 rotation.setDuration(1000);
                 mViews.locationButton.startAnimation(rotation);
-                if (mViews.gaugePanel.getVisibility() == View.INVISIBLE) {
+                if (mViews.gaugePanel.getVisibility() == View.GONE) {
                     mViews.satellites.animate().translationY(8);
                 } else {
-                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                    mViews.gaugePanel.onVisibilityChanged(false);
+                    updatePanels();
                 }
                 break;
             case ENABLED:
                 mMyLocationDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
-                gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                mViews.gaugePanel.onVisibilityChanged(false);
+                updatePanels();
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(false);
-                gaugePanelAnimator.translationX(0);
-                mViews.gaugePanel.onVisibilityChanged(true);
+                updatePanels();
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
                 mViews.locationButton.setImageDrawable(mNavigationTrackDrawable);
                 mCrosshairLayer.setEnabled(false);
-                gaugePanelAnimator.translationX(0);
-                mViews.gaugePanel.onVisibilityChanged(true);
+                updatePanels();
         }
         mViews.locationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
@@ -2360,6 +2349,79 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
+    private void updatePanels() {
+        logger.error("updatePanels()");
+        boolean isRouting = mNavigationService != null && mNavigationService.isNavigatingViaRoute();
+
+        TransitionSet transitionSet = new TransitionSet();
+        Transition transition = new Slide(Gravity.START);
+        transition.addTarget(mViews.gaugePanel);
+        transitionSet.addTransition(transition);
+        if (isRouting) {
+            transition = new Slide(Gravity.TOP);
+            transition.addTarget(mViews.navigationPanel);
+            transitionSet.addTransition(transition);
+            transition = new AutoTransition();
+            transition.addTarget(mViews.mapButtonHolder);
+            transition.setDuration(300);
+            transitionSet.addTransition(transition);
+        }
+        transitionSet.setDuration(600);
+
+        transitionSet.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                if (mLocationState == LocationState.NORTH)
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.gaugePanel, true);
+                // TODO: implement as transition too?
+                if (mLocationState == LocationState.SEARCHING)
+                    mViews.satellites.animate().translationY(8);
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
+        TransitionManager.beginDelayedTransition(mViews.getRoot(), transitionSet);
+
+        switch (mLocationState) {
+            case DISABLED:
+            case SEARCHING:
+            case ENABLED:
+                if (mViews.gaugePanel.getVisibility() != View.GONE) {
+                    mViews.navigationPanel.setVisibility(View.GONE);
+                    mViews.gaugePanel.setVisibility(View.GONE);
+                    mViews.gaugePanel.onVisibilityChanged(false);
+                }
+                getWindow().setStatusBarColor(getColor(android.R.color.transparent));
+                break;
+            case NORTH:
+            case TRACK:
+                if (isRouting) {
+                    mViews.navigationPanel.setVisibility(View.VISIBLE);
+                    getWindow().setStatusBarColor(getColor(R.color.colorNavigationBackground));
+                } else if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
+                    mViews.navigationPanel.setVisibility(View.GONE);
+                    getWindow().setStatusBarColor(getColor(android.R.color.transparent));
+                }
+                mViews.gaugePanel.setVisibility(View.VISIBLE);
+                mViews.gaugePanel.onVisibilityChanged(true);
+                break;
+        }
+    }
+
     private void updateGauges() {
         Location location = mLocationService.getLocation();
         mViews.gaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
@@ -2367,12 +2429,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mViews.gaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
     }
 
-    //TODO Logic of calling this is a total mess! Think out proper event mechanism
+    //FIXME! Logic of calling this is a total mess! Think out proper event mechanism
     private void updateNavigationUI() {
         logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
-        boolean changed = mViews.gaugePanel.setNavigationMode(enabled);
+        mViews.gaugePanel.setNavigationMode(enabled);
         if (enabled) {
             if (mViews.navigationArrow.getVisibility() == View.GONE) {
                 mViews.navigationArrow.setAlpha(0f);
@@ -2406,8 +2468,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mNavigationLayer = null;
             }
         }
-        if (changed)
-            updateMapViewArea();
     }
 
     @Override
@@ -2427,7 +2487,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "markerInformation");
         ft.addToBackStack("markerInformation");
         ft.commit();
-        updateMapViewArea();
     }
 
     private void onWaypointProperties(Waypoint waypoint) {
@@ -2443,7 +2502,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "waypointProperties");
         ft.addToBackStack("waypointProperties");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -2665,7 +2723,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
         ft.addToBackStack("trackProperties");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -2706,7 +2763,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "trackInformation");
             ft.addToBackStack("trackInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((TrackInformation) fragment).setTrack(track, current);
         mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
@@ -2908,7 +2964,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "routeInformation");
             ft.addToBackStack("routeInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((RouteInformation) fragment).setRoute(route);
         mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
@@ -2973,7 +3028,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.bottomSheetPanel, fragment, "amenityInformation");
             ft.addToBackStack("amenityInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((AmenityInformation) fragment).setPreferredLanguage(Configuration.getLanguage());
         ((AmenityInformation) fragment).setAmenity(id);
@@ -3030,7 +3084,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "mapSelection");
         ft.addToBackStack("mapSelection");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -3488,7 +3541,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         s.start();
 
         mPanelState = state;
-        updateMapViewArea();
     }
 
     private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
@@ -3711,110 +3763,96 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    @Override
-    public void updateMapViewArea() {
-        logger.debug("updateMapViewArea()");
-        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                logger.debug("onGlobalLayout()");
-                if (isFinishing())
-                        return;
+    private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        public void onGlobalLayout() {
+            logger.debug("onGlobalLayout()");
+            if (isFinishing())
+                    return;
 
-                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
-                p.topMargin = mStatusBarHeight;
+            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
+            p.topMargin = mStatusBarHeight;
 
-                BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
+            BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
 
-                if (mFragmentManager != null) {
-                    if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
-                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
-                        } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                            mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                            mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
-                        }
+            if (mFragmentManager != null) {
+                if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
+                    } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
+                        mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                        mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
                     }
-
-                    if (Boolean.TRUE.equals(mViews.gaugePanel.getTag())) {
-                        mViews.gaugePanel.setTranslationX(-mViews.gaugePanel.getWidth());
-                        mViews.gaugePanel.setVisibility(View.VISIBLE);
-                        mViews.gaugePanel.setTag(null);
-                    }
-
-                    Rect area = new Rect();
-                    mViews.mapView.getLocalVisibleRect(area);
-                    int mapWidth = area.width();
-                    int mapHeight = area.height();
-                    int pointerOffset = (int) (50 * MapTrek.density);
-
-                    int scaleBarOffset = 0;
-                    area.top = mStatusBarHeight;
-                    if (mViews.gaugePanel.getTranslationX() >= 0f) {
-                        scaleBarOffset = (int) (mViews.gaugePanel.getRight() + mViews.gaugePanel.getTranslationX());
-                        int h = mViews.gaugePanel.getHeight();
-                        if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
-                            area.left = scaleBarOffset;
-                    }
-
-                    if (mVerticalOrientation)
-                        area.bottom = mViews.actionPanel.getTop();
-                    else
-                        area.right = mViews.actionPanel.getLeft();
-
-                    if (mPanelState != PANEL_STATE.NONE) {
-                        if (mVerticalOrientation)
-                            area.bottom = mViews.extendPanel.getTop();
-                        else
-                            area.right = mViews.extendPanel.getLeft();
-                    }
-
-                    // This part does not currently make sense as map center is not adjusted yet
-                    int count = mFragmentManager.getBackStackEntryCount();
-                    if (count > 0) {
-                        FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-                        View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
-                        if ("search".equals(bse.getName()))
-                            if (mVerticalOrientation)
-                                area.bottom = contentPanel.getTop();
-                            else
-                                area.right = contentPanel.getLeft();
-                    }
-
-                    if (mVerticalOrientation) {
-                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
-                                || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                            area.bottom = mViews.bottomSheetPanel.getTop();
-                    }
-
-                    if (!area.isEmpty()) {
-                        int centerX = mapWidth / 2;
-                        int centerY = mapHeight / 2;
-                        mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
-                        mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
-                        mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
-                        mMovingOffset -= pointerOffset;
-                        if (mMovingOffset < 0)
-                            mMovingOffset = 0;
-
-                        mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
-                    }
-
-                    BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                    renderer.setOffset(scaleBarOffset + 8 * MapTrek.density, area.top);
                 }
 
-                ViewTreeObserver ob;
-                if (vto.isAlive())
-                    ob = vto;
-                else
-                    ob = getWindow().getDecorView().getViewTreeObserver();
+                Rect area = new Rect();
+                mViews.mapView.getLocalVisibleRect(area);
+                int mapWidth = area.width();
+                int mapHeight = area.height();
+                int pointerOffset = (int) (50 * MapTrek.density);
 
-                ob.removeOnGlobalLayoutListener(this);
+                area.top = mStatusBarHeight;
+
+                float scaleBarTopOffset = area.top;
+                float scaleBarLeftOffset = 0;
+                if (mViews.gaugePanel.getVisibility() == View.VISIBLE) {
+                    scaleBarLeftOffset = mViews.gaugePanel.getRight();
+                    int h = mViews.gaugePanel.getHeight();
+                    if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
+                        area.left = (int) scaleBarLeftOffset;
+                }
+                if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
+                    scaleBarTopOffset += mViews.routeWptDistance.getBottom();
+                }
+
+                if (mVerticalOrientation)
+                    area.bottom = mViews.actionPanel.getTop();
+                else
+                    area.right = mViews.actionPanel.getLeft();
+
+                if (mPanelState != PANEL_STATE.NONE) {
+                    if (mVerticalOrientation)
+                        area.bottom = mViews.extendPanel.getTop();
+                    else
+                        area.right = mViews.extendPanel.getLeft();
+                }
+
+                // This part does not currently make sense as map center is not adjusted yet
+                int count = mFragmentManager.getBackStackEntryCount();
+                if (count > 0) {
+                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+                    View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
+                    if ("search".equals(bse.getName()))
+                        if (mVerticalOrientation)
+                            area.bottom = contentPanel.getTop();
+                        else
+                            area.right = contentPanel.getLeft();
+                }
+
+                if (mVerticalOrientation) {
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                            || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                        area.bottom = mViews.bottomSheetPanel.getTop();
+                }
+
+                if (!area.isEmpty()) {
+                    int centerX = mapWidth / 2;
+                    int centerY = mapHeight / 2;
+                    mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
+                    mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
+                    mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
+                    mMovingOffset -= pointerOffset;
+                    if (mMovingOffset < 0)
+                        mMovingOffset = 0;
+
+                    mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
+                }
+
+                BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
+                renderer.setOffset(scaleBarLeftOffset + 8 * MapTrek.density, scaleBarTopOffset);
             }
-        });
-    }
+        }
+    };
 
     private void askForPermission() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -3900,7 +3938,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            logger.debug("Broadcast: {}", action);
+            logger.error("Broadcast: {}", action);
             if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
@@ -3939,10 +3977,46 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
-                enableNavigation();
+                int state = intent.getIntExtra("state", -1);
+                if (state == BaseNavigationService.STATE_STARTED)
+                    enableNavigation();
                 updateNavigationUI();
+                if (state == BaseNavigationService.STATE_NEXT_WPT)
+                    if (mNavigationService.isNavigatingViaRoute()) {
+                        mViews.routeWaypoint.setText(mNavigationService.getInstructionText());
+                        @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
+                        Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
+                        mViews.navigationSign.setImageDrawable(signDrawable);
+                        int color = getResources().getColor(R.color.panelBackground, getTheme());
+                        mViews.routeWaypoint.setBackgroundColor(color);
+                        mViews.navigationSign.setBackgroundColor(color);
+                        mViews.navigationSign.setTag(false);
+                    }
+                updatePanels();
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action) && mNavigationService != null) {
+                if (mNavigationService.isNavigatingViaRoute()) {
+                    mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
+                    int ete = mNavigationService.getWptEte();
+                    if (ete == Integer.MAX_VALUE) {
+                        mViews.routeWptEte.setText("-");
+                    } else {
+                        mViews.routeWptEte.setText(StringFormatter.timeH(ete));
+                        if (ete <= 1) {
+                            if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                                int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
+                                mViews.routeWaypoint.setBackgroundColor(color);
+                                mViews.navigationSign.setBackgroundColor(color);
+                                mViews.navigationSign.setTag(true);
+                            }
+                        } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                            int color = getResources().getColor(R.color.panelBackground, getTheme());
+                            mViews.routeWaypoint.setBackgroundColor(color);
+                            mViews.navigationSign.setBackgroundColor(color);
+                            mViews.navigationSign.setTag(false);
+                        }
+                    }
+                }
                 mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
                 mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
                 mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
@@ -4456,7 +4530,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
         mStatusBarHeight = 0;
-        updateMapViewArea();
         mMap.updateMap();
     }
 
@@ -4469,7 +4542,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 
         mStatusBarHeight = getStatusBarHeight();
-        updateMapViewArea();
         mMap.updateMap();
     }
 

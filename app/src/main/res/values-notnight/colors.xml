@@ -35,6 +35,7 @@
     <color name="textColorTertiary">#626262</color>
     <color name="textColorTertiaryDisabled">#80626262</color>
     <color name="panelBackground">#99ffffff</color>
+    <color name="panelAccentBackground">#99ff5722</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
     <color name="panelExtendedBackground">#cc999999</color>
     <color name="colorControlActivated">#e0e0e0</color>
