@@ -106,8 +106,6 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             if (Configuration.getHideSystemUI())
                 rootView.requestLayout();
         });
-        mMapHolder.updateMapViewArea();
-
         return rootView;
     }
 
@@ -420,8 +418,6 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
                 mFloatingButton.setAlpha(1f);
                 mFragmentHolder.popCurrent();
             }
-            if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
-                mMapHolder.updateMapViewArea();
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                 TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
                 HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true);

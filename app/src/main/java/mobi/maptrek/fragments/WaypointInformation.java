@@ -535,8 +535,6 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
                 else
                     mFragmentHolder.popCurrent();
             }
-            if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
-                mMapHolder.updateMapViewArea();
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                 TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
                 if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)

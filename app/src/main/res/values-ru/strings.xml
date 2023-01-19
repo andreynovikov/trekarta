@@ -62,6 +62,7 @@
 
     <string name="msgNavigationProgress">Осталось %1$s, продолжайте двигаться курсом %2$s</string>
     <string name="msgNavigating">Движение на точку %s</string>
+    <string name="msgNavigatingPoint">маршрута</string>
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
     <string name="msgPlaceDeleted">Точка удалена</string>
     <string name="msgPlaceSaved">Точка сохранена</string>

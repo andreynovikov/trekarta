@@ -33,8 +33,6 @@ public interface MapHolder {
 
     OsmcSymbolFactory getOsmcSymbolFactory();
 
-    void updateMapViewArea();
-
     void disableLocations();
 
     void disableTracking();
