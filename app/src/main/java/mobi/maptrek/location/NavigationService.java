@@ -96,8 +96,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
     public double navXTK = Double.NEGATIVE_INFINITY;
 
     private int prevSecs = 0;
-    private double avgSpeed = 0.0;
-    private double avgVMG = 0.0;
+    // 10 min, 5 min, 3 min, 2 min average
+    private final double[] avgVMG = new double[] {0.0, 0.0, 0.0, 0.0};
+
+    private String ntTitle = null;
+    private String ntBearing = null;
+    private String ntDistance = null;
 
     private final Binder mBinder = new LocalBinder();
 
@@ -217,8 +221,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 return;
 
             NavigationService.this.nextRouteWaypoint();
-            if (avgVMG < 0)
-                avgVMG = 0.0;
         }
 
         @Override
@@ -227,8 +229,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 return;
 
             NavigationService.this.prevRouteWaypoint();
-            if (avgVMG < 0)
-                avgVMG = 0.0;
         }
 
         @Override
@@ -294,7 +294,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         @Override
         public int getEte() {
-            if (isNavigatingViaRoute())
+            if (isNavigatingViaRoute() && navRouteCurrentIndex() < navRoute.length() - 1)
                 return navRouteETE(navRouteDistanceLeft() + navDistance);
             else
                 return navETE;
@@ -343,6 +343,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         String bearing = StringFormatter.angleH(navBearing);
         String distance = StringFormatter.distanceH(navDistance);
 
+        if (title.equals(ntTitle) && bearing.equals(ntBearing) && distance.equals(ntDistance))
+            return null; // not changed
+
+        ntTitle = title;
+        ntBearing = bearing;
+        ntDistance = distance;
+
         StringBuilder sb = new StringBuilder(40);
         sb.append(getString(R.string.msgNavigationProgress, distance, bearing));
         String message = sb.toString();
@@ -380,19 +387,23 @@ public class NavigationService extends BaseNavigationService implements OnShared
         builder.addAction(actionPause);
         builder.addAction(actionStop);
         builder.setGroup("maptrek");
-        builder.setCategory(Notification.CATEGORY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            builder.setCategory(Notification.CATEGORY_NAVIGATION);
+        else
+            builder.setCategory(Notification.CATEGORY_PROGRESS);
         builder.setPriority(Notification.PRIORITY_LOW);
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setColor(getResources().getColor(R.color.colorAccent, getTheme()));
         builder.setOngoing(true);
-
         return builder.build();
     }
 
     private void updateNotification() {
         if (mForeground) {
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, getNotification());
+            Notification notification = getNotification();
+            if (notification != null)
+                notificationManager.notify(NOTIFICATION_ID, notification);
         }
     }
 
@@ -422,8 +433,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navXTK = Double.NEGATIVE_INFINITY;
 
         prevSecs = 0;
-        avgSpeed = 0.0;
-        avgVMG = 0.0;
+        avgVMG[0] = 0.0;
+        avgVMG[1] = 0.0;
+        avgVMG[2] = 0.0;
+        avgVMG[3] = 0.0;
     }
 
     private void navigateTo(final MapObject waypoint) {
@@ -436,7 +449,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : DEFAULT_WAYPOINT_PROXIMITY;
         updateNavigationState(STATE_STARTED);
         if (mLastKnownLocation != null)
-            calculateNavigationStatus(mLastKnownLocation);
+            calculateNavigationStatus();
     }
 
     private void navigateTo(final Route route, final int direction) {
@@ -457,7 +470,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         updateNavigationState(STATE_STARTED);
         updateNavigationState(STATE_NEXT_WPT);
         if (mLastKnownLocation != null)
-            calculateNavigationStatus(mLastKnownLocation);
+            calculateNavigationStatus();
     }
 
     public void setRouteWaypoint(int waypoint) {
@@ -470,6 +483,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
             prevWaypoint = null;
         navRouteDistance = -1;
         navCourse = prevWaypoint == null ? 0d : prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
+        navETE = Integer.MAX_VALUE;
+        calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -486,6 +501,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
         prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection).getCoordinates());
         navRouteDistance = -1;
         navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
+        if (avgVMG[0] < 0) avgVMG[0] = 0.0;
+        if (avgVMG[1] < 0) avgVMG[1] = 0.0;
+        if (avgVMG[2] < 0) avgVMG[2] = 0.0;
+        if (avgVMG[3] < 0) avgVMG[3] = 0.0;
+        navETE = Integer.MAX_VALUE;
+        calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -499,6 +520,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
             prevWaypoint = null;
         navRouteDistance = -1;
         navCourse = prevWaypoint == null ? 0d : prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
+        if (avgVMG[0] < 0) avgVMG[0] = 0.0;
+        if (avgVMG[1] < 0) avgVMG[1] = 0.0;
+        if (avgVMG[2] < 0) avgVMG[2] = 0.0;
+        if (avgVMG[3] < 0) avgVMG[3] = 0.0;
+        navETE = Integer.MAX_VALUE;
+        calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_WPT);
     }
 
@@ -573,13 +600,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (index == 0)
             return 0;
         int ete = Integer.MAX_VALUE;
-        if (avgVMG > 0) {
+        if (avgVMG[0] > 0) {
             int i = navDirection == DIRECTION_FORWARD ? index : navRoute.length() - index - 1;
             int j = i - navDirection;
             MapObject w1 = new MapObject(navRoute.get(i).getCoordinates());
             MapObject w2 = new MapObject(navRoute.get(j).getCoordinates());
             double distance = w1.coordinates.vincentyDistance(w2.coordinates);
-            ete = (int) Math.round(distance / avgVMG / 60);
+            ete = (int) Math.round(distance / avgVMG[0] / 60);
         }
         return ete;
     }
@@ -592,8 +619,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
      */
     public int navRouteETE(double distance) {
         int eta = Integer.MAX_VALUE;
-        if (avgVMG > 0) {
-            eta = (int) Math.round(distance / avgVMG / 60);
+        if (avgVMG[0] > 0) {
+            eta = (int) Math.round(distance / avgVMG[0] / 60);
         }
         return eta;
     }
@@ -606,33 +633,41 @@ public class NavigationService extends BaseNavigationService implements OnShared
         return navRouteETE(distance);
     }
 
-    private void calculateNavigationStatus(Location loc) {
-        int secs = (int) (loc.getElapsedRealtimeNanos() * 1e-9);
+    private void calculateNavigationStatus() {
+        int secs = (int) (mLastKnownLocation.getElapsedRealtimeNanos() * 1e-9);
         int diff = secs - prevSecs;
         if (diff < 1)
             return;
 
         prevSecs = secs;
 
-        GeoPoint point = new GeoPoint(loc.getLatitude(), loc.getLongitude());
+        GeoPoint point = new GeoPoint(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         double distance = point.vincentyDistance(navWaypoint.coordinates);
         double bearing = point.bearingTo(navWaypoint.coordinates);
-        double track = loc.getBearing();
 
         // turn
-        long turn = Math.round(bearing - track);
+        long turn = Math.round(bearing - mLastKnownLocation.getBearing());
         if (Math.abs(turn) > 180) {
             turn = turn - (long) (Math.signum(turn)) * 360;
         }
 
         // vmg
-        avgSpeed = movingAverage(loc.getSpeed(), avgSpeed, MathUtils.clamp(300 - diff, 1, 300)); // 5 minutes average
-        avgVMG = movingAverage(Geo.vmg(avgSpeed, Math.abs(turn)), avgVMG, MathUtils.clamp(30 - diff, 1, 30)); // 30 seconds average
+        double vmg = Geo.vmg(mLastKnownLocation.getSpeed(), Math.abs(turn));
+        avgVMG[0] = movingAverage(vmg, avgVMG[0], MathUtils.clamp(600 - diff, 1, 600)); // 10 minutes average
+        avgVMG[1] = movingAverage(vmg, avgVMG[1], MathUtils.clamp(300 - diff, 1, 300)); // 5 minutes average
+        avgVMG[2] = movingAverage(vmg, avgVMG[2], MathUtils.clamp(180 - diff, 1, 180)); // 3 minutes average
+        avgVMG[3] = movingAverage(vmg, avgVMG[3], MathUtils.clamp(120 - diff, 1, 120)); // 2 minutes average
 
         // ete
         int ete = Integer.MAX_VALUE;
-        if (avgVMG > 0)
-            ete = (int) Math.round(distance / avgVMG / 60);
+        if (navETE <= 2 && avgVMG[3] > 0)
+            ete = (int) Math.round(distance / avgVMG[3] / 60);
+        else if (navETE <= 3 && avgVMG[2] > 0)
+            ete = (int) Math.round(distance / avgVMG[2] / 60);
+        else if (navETE <= 5 && avgVMG[1] > 0)
+            ete = (int) Math.round(distance / avgVMG[1] / 60);
+        else if (avgVMG[0] > 0)
+            ete = (int) Math.round(distance / avgVMG[0] / 60);
 
         double xtk = Double.NEGATIVE_INFINITY;
 
@@ -666,11 +701,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
             }
         }
 
-        if (distance != navDistance || bearing != navBearing || turn != navTurn || avgVMG != navVMG || ete != navETE || xtk != navXTK) {
+        if (distance != navDistance || bearing != navBearing || turn != navTurn || avgVMG[0] != navVMG || ete != navETE || xtk != navXTK) {
             navDistance = distance;
             navBearing = bearing;
             navTurn = turn;
-            navVMG = avgVMG;
+            navVMG = avgVMG[0];
             navETE = ete;
             navXTK = xtk;
             updateNavigationStatus();
@@ -694,7 +729,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
     public void onMapObjectUpdated(MapObject.UpdatedEvent event) {
         logger.error("onMapObjectUpdated({})", (event.mapObject.equals(navWaypoint)));
         if (event.mapObject.equals(navWaypoint))
-            calculateNavigationStatus(mLastKnownLocation);
+            calculateNavigationStatus();
     }
 
     private final ServiceConnection locationConnection = new ServiceConnection() {
@@ -721,8 +756,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             if (navWaypoint != null) {
                 if (prevWaypoint == null) // set to current location to correctly calculate XTK
                     prevWaypoint = new MapObject(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                //TODO Redesign VMG, ETE calculation
-                calculateNavigationStatus(mLastKnownLocation);
+                calculateNavigationStatus();
             }
         }
 
