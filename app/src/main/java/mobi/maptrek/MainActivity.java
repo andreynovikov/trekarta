@@ -1990,6 +1990,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
             updatePanels();
+            updateNavigationGauges(true);
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -2429,11 +2430,57 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mViews.gaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
     }
 
-    //FIXME! Logic of calling this is a total mess! Think out proper event mechanism
+    private void updateNavigationGauges(boolean updateRoutePanels) {
+        if (mNavigationService == null)
+            return; // not ready
+
+        if (mNavigationService.isNavigatingViaRoute()) {
+            if (updateRoutePanels) {
+                mViews.routeWaypoint.setText(mNavigationService.getInstructionText());
+                @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
+                Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
+                mViews.navigationSign.setImageDrawable(signDrawable);
+                int color = getResources().getColor(R.color.panelBackground, getTheme());
+                mViews.routeWaypoint.setBackgroundColor(color);
+                mViews.navigationSign.setBackgroundColor(color);
+                mViews.navigationSign.setTag(false);
+            }
+            mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
+            int ete = mNavigationService.getWptEte();
+            if (ete == Integer.MAX_VALUE) {
+                mViews.routeWptEte.setText("-");
+            } else {
+                mViews.routeWptEte.setText(StringFormatter.timeH(ete));
+                if (ete <= 1) {
+                    if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                        int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
+                        mViews.routeWaypoint.setBackgroundColor(color);
+                        mViews.navigationSign.setBackgroundColor(color);
+                        mViews.navigationSign.setTag(true);
+                    }
+                } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                    int color = getResources().getColor(R.color.panelBackground, getTheme());
+                    mViews.routeWaypoint.setBackgroundColor(color);
+                    mViews.navigationSign.setBackgroundColor(color);
+                    mViews.navigationSign.setTag(false);
+                }
+            }
+        }
+        mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
+        mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
+        mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
+        mViews.gaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
+        mViews.gaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
+        mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
+    }
+
     private void updateNavigationUI() {
         logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
+        if (mViews.gaugePanel.getNavigationMode() == enabled)
+            return; // nothing changed
+
         mViews.gaugePanel.setNavigationMode(enabled);
         if (enabled) {
             if (mViews.navigationArrow.getVisibility() == View.GONE) {
@@ -3978,53 +4025,18 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
                 int state = intent.getIntExtra("state", -1);
-                if (state == BaseNavigationService.STATE_STARTED)
+                if (state == BaseNavigationService.STATE_STARTED) {
                     enableNavigation();
-                updateNavigationUI();
+                    updateNavigationUI();
+                }
                 if (state == BaseNavigationService.STATE_NEXT_WPT)
-                    if (mNavigationService.isNavigatingViaRoute()) {
-                        mViews.routeWaypoint.setText(mNavigationService.getInstructionText());
-                        @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
-                        Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
-                        mViews.navigationSign.setImageDrawable(signDrawable);
-                        int color = getResources().getColor(R.color.panelBackground, getTheme());
-                        mViews.routeWaypoint.setBackgroundColor(color);
-                        mViews.navigationSign.setBackgroundColor(color);
-                        mViews.navigationSign.setTag(false);
-                    }
+                    updateNavigationGauges(true);
                 updatePanels();
             }
-            if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action) && mNavigationService != null) {
-                if (mNavigationService.isNavigatingViaRoute()) {
-                    mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
-                    int ete = mNavigationService.getWptEte();
-                    if (ete == Integer.MAX_VALUE) {
-                        mViews.routeWptEte.setText("-");
-                    } else {
-                        mViews.routeWptEte.setText(StringFormatter.timeH(ete));
-                        if (ete <= 1) {
-                            if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
-                                int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
-                                mViews.routeWaypoint.setBackgroundColor(color);
-                                mViews.navigationSign.setBackgroundColor(color);
-                                mViews.navigationSign.setTag(true);
-                            }
-                        } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
-                            int color = getResources().getColor(R.color.panelBackground, getTheme());
-                            mViews.routeWaypoint.setBackgroundColor(color);
-                            mViews.navigationSign.setBackgroundColor(color);
-                            mViews.navigationSign.setTag(false);
-                        }
-                    }
-                }
-                mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
-                mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
-                mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
-                mViews.gaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
-                mViews.gaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
-                mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
-                adjustNavigationArrow(mNavigationService.getTurn());
-                updateNavigationUI();
+            if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action)) {
+                updateNavigationGauges(false);
+                if (mNavigationService != null)
+                    adjustNavigationArrow(mNavigationService.getTurn());
             }
         }
     };

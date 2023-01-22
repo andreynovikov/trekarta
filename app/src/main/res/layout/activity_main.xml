@@ -85,7 +85,6 @@
                     android:layout_height="wrap_content"
                     android:background="@color/panelBackground"
                     android:padding="4dp"
-                    android:src="@drawable/instruction_turn_right"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:tint="@color/actionIconColor"

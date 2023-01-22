@@ -395,6 +395,10 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
     }
 
+    public boolean getNavigationMode() {
+        return mNavigationMode;
+    }
+
     public void setNavigationMode(boolean mode) {
         if (mNavigationMode == mode)
             return;
