@@ -106,8 +106,10 @@ public class Gauge extends ConstraintLayout {
                 indication = String.format(Locale.getDefault(), StringFormatter.precisionFormat, value);
         }
 
-        mValueView.setText(indication);
-        mUnitView.setText(unit);
+        if (!mValueView.getText().equals(indication))
+            mValueView.setText(indication);
+        if (!mUnitView.getText().equals(unit))
+            mUnitView.setText(unit);
     }
 
     public void refresh() {
