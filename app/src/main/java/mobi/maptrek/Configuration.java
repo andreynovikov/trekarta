@@ -56,6 +56,9 @@ public class Configuration {
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
     private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
+    private static final String PREF_NAVIGATION_ROUTE = "navigation_route";
+    private static final String PREF_NAVIGATION_ROUTE_POINT = "navigation_route_point";
+    private static final String PREF_NAVIGATION_ROUTE_DIRECTION = "navigation_route_direction";
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
     private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
@@ -192,6 +195,30 @@ public class Configuration {
         } else {
             saveString(PREF_NAVIGATION_WAYPOINT, null);
         }
+    }
+
+    public static boolean getNavigationViaRoute() {
+        return loadBoolean(PREF_NAVIGATION_ROUTE, false);
+    }
+
+    public static void setNavigationViaRoute(boolean state) {
+        saveBoolean(PREF_NAVIGATION_ROUTE, state);
+    }
+
+    public static int getNavigationRoutePoint() {
+        return loadInt(PREF_NAVIGATION_ROUTE_POINT, -1);
+    }
+
+    public static void setNavigationRoutePoint(int index) {
+        saveInt(PREF_NAVIGATION_ROUTE_POINT, index);
+    }
+
+    public static int getNavigationRouteDirection() {
+        return loadInt(PREF_NAVIGATION_ROUTE_DIRECTION, 0);
+    }
+
+    public static void setNavigationRouteDirection(int direction) {
+        saveInt(PREF_NAVIGATION_ROUTE_DIRECTION, direction);
     }
 
     public static String getGauges() {
