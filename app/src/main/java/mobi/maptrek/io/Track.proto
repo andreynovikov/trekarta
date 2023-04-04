@@ -2,8 +2,8 @@ package mobi.maptrek.io;
 
 message Track {
     message Point {
-    	required int32 latitude_e6  = 1;
-    	required int32 longitude_e6 = 2;
+    	  required int32 latitude_e6  = 1;
+    	  required int32 longitude_e6 = 2;
         optional float altitude     = 3;
         optional float speed        = 4;
         optional float bearing      = 5;

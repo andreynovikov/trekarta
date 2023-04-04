@@ -30,6 +30,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,12 +41,19 @@ import org.oscim.utils.math.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.Locale;
+
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Route;
+import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.io.Manager;
+import mobi.maptrek.io.RouteManager;
+import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.Geo;
 import mobi.maptrek.util.StringFormatter;
 
@@ -95,9 +103,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
     public double navCourse = 0d;
     public double navXTK = Double.NEGATIVE_INFINITY;
 
+    private int navSecs = 0;
     private int prevSecs = 0;
-    // 10 min, 5 min, 3 min, 2 min average
-    private final double[] avgVMG = new double[] {0.0, 0.0, 0.0, 0.0};
+    // 10 min, 6 min, 3 min average
+    private final double[] avgVMG = new double[] {0.0, 0.0, 0.0};
 
     private String ntTitle = null;
     private String ntBearing = null;
@@ -130,10 +139,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (action.equals(NAVIGATE_TO_POINT)) {
             if (extras == null)
                 return START_NOT_STICKY;
-            MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
-            mo.name = extras.getString(EXTRA_NAME);
-            mo.proximity = extras.getInt(EXTRA_PROXIMITY);
-            navigateTo(mo);
+            boolean viaRoute = extras.getBoolean(EXTRA_ROUTE);
+            if (viaRoute) {
+            } else {
+                MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
+                mo.name = extras.getString(EXTRA_NAME);
+                mo.proximity = extras.getInt(EXTRA_PROXIMITY);
+                navigateTo(mo);
+            }
         }
         if (action.equals(NAVIGATE_TO_OBJECT)) {
             if (extras == null)
@@ -159,6 +172,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
             stopForeground(true);
             if (action.equals(STOP_NAVIGATION))
                 stopNavigation();
+            Configuration.setNavigationViaRoute(navRoute != null);
+            Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
+            Configuration.setNavigationRouteDirection(navDirection);
             Configuration.setNavigationPoint(navWaypoint);
             stopSelf();
         }
@@ -196,7 +212,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         @Override
         public boolean isNavigatingViaRoute() {
-            logger.error("isNavigatingViaRoute " + (navRoute != null));
             return navRoute != null;
         }
 
@@ -335,6 +350,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             unbindService(locationConnection);
             mLocationService = null;
         }
+        mLastKnownLocation = null;
     }
 
     private Notification getNotification() {
@@ -432,11 +448,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navCourse = 0f;
         navXTK = Double.NEGATIVE_INFINITY;
 
+        navSecs = 0;
         prevSecs = 0;
         avgVMG[0] = 0.0;
         avgVMG[1] = 0.0;
         avgVMG[2] = 0.0;
-        avgVMG[3] = 0.0;
     }
 
     private void navigateTo(final MapObject waypoint) {
@@ -456,6 +472,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (navWaypoint != null)
             stopNavigation();
 
+        saveRoute();
         connect();
 
         navRoute = route;
@@ -504,7 +521,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avgVMG[0] < 0) avgVMG[0] = 0.0;
         if (avgVMG[1] < 0) avgVMG[1] = 0.0;
         if (avgVMG[2] < 0) avgVMG[2] = 0.0;
-        if (avgVMG[3] < 0) avgVMG[3] = 0.0;
         navETE = Integer.MAX_VALUE;
         calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_WPT);
@@ -523,7 +539,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avgVMG[0] < 0) avgVMG[0] = 0.0;
         if (avgVMG[1] < 0) avgVMG[1] = 0.0;
         if (avgVMG[2] < 0) avgVMG[2] = 0.0;
-        if (avgVMG[3] < 0) avgVMG[3] = 0.0;
         navETE = Integer.MAX_VALUE;
         calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_WPT);
@@ -639,6 +654,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (diff < 1)
             return;
 
+        //if (diff < 600)
+            navSecs += diff;
         prevSecs = secs;
 
         GeoPoint point = new GeoPoint(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
@@ -653,18 +670,15 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         // vmg
         double vmg = Geo.vmg(mLastKnownLocation.getSpeed(), Math.abs(turn));
-        avgVMG[0] = movingAverage(vmg, avgVMG[0], MathUtils.clamp(600 - diff, 1, 600)); // 10 minutes average
-        avgVMG[1] = movingAverage(vmg, avgVMG[1], MathUtils.clamp(300 - diff, 1, 300)); // 5 minutes average
-        avgVMG[2] = movingAverage(vmg, avgVMG[2], MathUtils.clamp(180 - diff, 1, 180)); // 3 minutes average
-        avgVMG[3] = movingAverage(vmg, avgVMG[3], MathUtils.clamp(120 - diff, 1, 120)); // 2 minutes average
+        avgVMG[0] = movingAverage(vmg, avgVMG[0], MathUtils.clamp(600 - diff, 1, navSecs)); // 10 minutes average
+        avgVMG[1] = movingAverage(vmg, avgVMG[1], MathUtils.clamp(360 - diff, 1, navSecs)); // 6 minutes average
+        avgVMG[2] = movingAverage(vmg, avgVMG[2], MathUtils.clamp(180 - diff, 1, navSecs)); // 3 minutes average
 
         // ete
         int ete = Integer.MAX_VALUE;
-        if (navETE <= 2 && avgVMG[3] > 0)
-            ete = (int) Math.round(distance / avgVMG[3] / 60);
-        else if (navETE <= 3 && avgVMG[2] > 0)
+        if (navETE <= 3 && avgVMG[2] > 0 && avgVMG[2] > avgVMG[1]) // otherwise ete can jump back and forth
             ete = (int) Math.round(distance / avgVMG[2] / 60);
-        else if (navETE <= 5 && avgVMG[1] > 0)
+        else if (navETE <= 6 && avgVMG[1] > 0 && avgVMG[1] > avgVMG[0])
             ete = (int) Math.round(distance / avgVMG[1] / 60);
         else if (avgVMG[0] > 0)
             ete = (int) Math.round(distance / avgVMG[0] / 60);
@@ -701,11 +715,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
             }
         }
 
-        if (distance != navDistance || bearing != navBearing || turn != navTurn || avgVMG[0] != navVMG || ete != navETE || xtk != navXTK) {
+        if (distance != navDistance || bearing != navBearing || turn != navTurn || vmg != navVMG || ete != navETE || xtk != navXTK) {
             navDistance = distance;
             navBearing = bearing;
             navTurn = turn;
-            navVMG = avgVMG[0];
+            navVMG = vmg;
             navETE = ete;
             navXTK = xtk;
             updateNavigationStatus();
@@ -732,6 +746,30 @@ public class NavigationService extends BaseNavigationService implements OnShared
             calculateNavigationStatus();
     }
 
+    private void saveRoute() {
+        File dataDir = getExternalFilesDir("data");
+        if (dataDir == null) {
+            logger.error("Can not save route: application data folder missing");
+            return; // TODO: what to do?
+        }
+        FileDataSource source = new FileDataSource();
+        source.name = "CurrentRoute";
+        File file = new File(dataDir, FileUtils.sanitizeFilename(source.name) + RouteManager.EXTENSION);
+        source.path = file.getAbsolutePath();
+        source.routes.add(navRoute);
+        Manager.save(source, new Manager.OnSaveListener() {
+            @Override
+            public void onSaved(FileDataSource source) {
+                // TODO: what to do?
+            }
+
+            @Override
+            public void onError(FileDataSource source, Exception e) {
+                // TODO: what to do?
+            }
+        });
+    }
+
     private final ServiceConnection locationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mLocationService = (ILocationService) service;
@@ -750,8 +788,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
         public void onLocationChanged() {
             if (mLocationService == null)
                 return;
-
-            mLastKnownLocation = mLocationService.getLocation();
+            Location location = mLocationService.getLocation();
+            if ((SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) > 1e+9 * 30) // do not trust location which is more then 30 seconds old
+                return;
+            mLastKnownLocation = location;
+            if (prevSecs == 0)
+                prevSecs = (int) (mLastKnownLocation.getElapsedRealtimeNanos() * 1e-9);
 
             if (navWaypoint != null) {
                 if (prevWaypoint == null) // set to current location to correctly calculate XTK

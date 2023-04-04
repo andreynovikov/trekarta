@@ -70,7 +70,7 @@ public abstract class Manager {
     @Nullable
     private static Manager getDataManager(FileDataSource source) {
         // FIXME Method not suitable for exporting data
-        if (source.path == null)
+        if (source.path == null && source.isIndividual() && source.getTracksCount() == 1)
             return new TrackManager();
         if (source.path.toLowerCase().endsWith(GPXManager.EXTENSION))
             return new GPXManager();
@@ -78,6 +78,8 @@ public abstract class Manager {
             return new KMLManager();
         if (source.path.toLowerCase().endsWith(TrackManager.EXTENSION))
             return new TrackManager();
+        if (source.path.toLowerCase().endsWith(RouteManager.EXTENSION))
+            return new RouteManager();
         return null;
     }
 
