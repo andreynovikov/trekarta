@@ -51,13 +51,12 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
 
-    private final List<List<View>> mLines = new ArrayList<>();
+    private final List<Integer> mLines = new ArrayList<>();
     private final List<Integer> mLineWidths = new ArrayList<>();
 
     private final ArrayList<Gauge> mGauges = new ArrayList<>();
     private final SparseArray<Gauge> mGaugeMap = new SparseArray<>();
     private boolean mNavigationMode = false;
-    private List<View> mLineViewsBuffer = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mPressureSensor;
     private boolean mVisible;
@@ -78,9 +77,11 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        logger.error("onMeasure");
 
         int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
         int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);
+        logger.error("{} {}", sizeWidth, sizeHeight);
 
         int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
@@ -185,6 +186,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        logger.error("onLayout");
         mLines.clear();
         mLineWidths.clear();
 
@@ -197,68 +199,62 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         int lineWidth = 0;
         int lineHeight = 0;
-        mLineViewsBuffer.clear();
 
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child.getVisibility() == View.GONE) {
+            if (child.getVisibility() == View.GONE)
                 continue;
-            }
 
             int childWidth = child.getMeasuredWidth();
             int childHeight = child.getMeasuredHeight();
 
             if (lineHeight + childHeight > height) {
                 mLineWidths.add(lineWidth);
-                mLines.add(mLineViewsBuffer);
+                mLines.add(i);
 
                 linesSum += lineWidth;
 
                 lineHeight = 0;
                 lineWidth = 0;
-                mLineViewsBuffer.clear();
             }
 
             lineHeight += childHeight;
             lineWidth = Math.max(lineWidth, childWidth);
-            mLineViewsBuffer.add(child);
         }
 
         mLineWidths.add(lineWidth);
-        mLines.add(mLineViewsBuffer);
 
         linesSum += lineWidth;
 
         int horizontalGravityMargin = width - linesSum;
-        int numLines = mLines.size();
-        int top;
-        int left = getPaddingLeft();
+        int top = getPaddingTop();
+        int left = getPaddingLeft() + horizontalGravityMargin;
 
-        for (int i = 0; i < numLines; i++) {
-            lineWidth = mLineWidths.get(i);
-            mLineViewsBuffer = mLines.get(i);
-            top = getPaddingTop();
-            int children = mLineViewsBuffer.size();
+        int line = 0;
+        int nextLine = mLines.size() > 0 ? mLines.get(0) : childCount;
+        lineWidth = mLineWidths.get(0);
 
-            for (int j = 0; j < children; j++) {
-                View child = mLineViewsBuffer.get(j);
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == View.GONE)
+                continue;
 
-                if (child.getVisibility() == View.GONE)
-                    continue;
-
-                int childWidth = child.getMeasuredWidth();
-                int childHeight = child.getMeasuredHeight();
-                int gravityMargin = lineWidth - childWidth;
-
-                child.layout(left + gravityMargin + horizontalGravityMargin,
-                        top,
-                        left + childWidth + gravityMargin + horizontalGravityMargin,
-                        top + childHeight);
-
-                top += childHeight;
+            if (i == nextLine) {
+                line++;
+                lineWidth = mLineWidths.get(line);
+                top = getPaddingTop();
+                left += lineWidth;
+                if (line < mLines.size())
+                    nextLine = mLines.get(line);
             }
+                
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
+            int gravityMargin = lineWidth - childWidth;
 
-            left += lineWidth;
+            child.layout(left + gravityMargin, top, left + childWidth + gravityMargin, top + childHeight);
+
+            top += childHeight;
         }
     }
 
