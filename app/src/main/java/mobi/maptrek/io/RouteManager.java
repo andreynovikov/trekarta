@@ -324,7 +324,7 @@ public class RouteManager extends Manager {
     }
 
     /**
-     * Saves track properties by modifying only file tail.
+     * Saves route properties by modifying only file tail.
      */
     public void saveProperties(FileDataSource source) throws Exception {
         Route route = source.routes.get(0);
