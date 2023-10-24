@@ -62,6 +62,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     private boolean mVisible;
     private boolean mHasSensors;
 
+    private final int[][] childSizes = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+
     public GaugePanel(Context context) {
         super(context);
     }
@@ -77,35 +79,25 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        logger.error("onMeasure");
 
         int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
         int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);
-        logger.error("{} {}", sizeWidth, sizeHeight);
 
         int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
 
         int width = 0;
         int height = 0;
-        int maxWidth = 0;
-
-        int lineWidth = 0;
-        int lineHeight = 0;
 
         int childCount = getChildCount();
+        int visibleCount = 0;
 
+        // First pass - measure children
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            boolean lastChild = i == childCount - 1;
 
-            if (child.getVisibility() == View.GONE) {
-                if (lastChild) {
-                    width += lineWidth;
-                    height = Math.max(height, lineHeight);
-                }
+            if (child.getVisibility() == View.GONE)
                 continue;
-            }
 
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
             LayoutParams lp = child.getLayoutParams();
@@ -113,27 +105,14 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             int childWidthMode = MeasureSpec.AT_MOST;
             int childWidthSize = sizeWidth;
 
-            int childHeightMode = MeasureSpec.AT_MOST;
-            int childHeightSize = sizeHeight;
+            int childHeightMode = MeasureSpec.UNSPECIFIED;
+            int childHeightSize = 0;
 
             if (lp.width == LayoutParams.MATCH_PARENT) {
                 childWidthMode = MeasureSpec.EXACTLY;
             } else if (lp.width >= 0) {
                 childWidthMode = MeasureSpec.EXACTLY;
                 childWidthSize = lp.width;
-            } else if (modeWidth == MeasureSpec.UNSPECIFIED) {
-                childWidthMode = MeasureSpec.UNSPECIFIED;
-                childWidthSize = 0;
-            }
-
-            if (lp.height == LayoutParams.MATCH_PARENT) {
-                childWidthMode = MeasureSpec.EXACTLY;
-            } else if (lp.height >= 0) {
-                childHeightMode = MeasureSpec.EXACTLY;
-                childHeightSize = lp.height;
-            } else if (modeHeight == MeasureSpec.UNSPECIFIED) {
-                childHeightMode = MeasureSpec.UNSPECIFIED;
-                childHeightSize = 0;
             }
 
             child.measure(
@@ -141,29 +120,42 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                     MeasureSpec.makeMeasureSpec(childHeightSize, childHeightMode)
             );
 
-            int childWidth = child.getMeasuredWidth();
-            if (maxWidth < childWidth)
-                maxWidth = childWidth;
+            childSizes[i][0] = child.getMeasuredWidth();
+            childSizes[i][1] = child.getMeasuredHeight();
 
-            int childHeight = child.getMeasuredHeight();
-
-            if (lineHeight + childHeight > sizeHeight) {
-                height = Math.max(height, lineHeight);
-                lineHeight = childHeight;
-                width += lineWidth;
-                lineWidth = child.getMeasuredWidth();
-            } else {
-                lineHeight += childHeight;
-                lineWidth = Math.max(lineWidth, child.getMeasuredWidth());
-            }
-
-            if (lastChild) {
-                height = Math.max(height, lineHeight);
-                width += lineWidth;
-            }
+            width = Math.max(width, childSizes[i][0]);
+            height += childSizes[i][1];
+            visibleCount++;
         }
 
+        if (height > sizeHeight) {
+            int lines = (height + sizeHeight - 1) / sizeHeight;
+            int childrenInLine = (visibleCount + lines - 1) / lines; // currently we assume that all children are the same height, this can change in future
+            height = 0;
+            width = 0;
+            int lineWidth = 0;
+            int lineHeight = 0;
+            int j = 0;
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                if (child.getVisibility() == GONE)
+                    continue;
+                j++;
+                if (j > childrenInLine) {
+                    width += lineWidth;
+                    lineWidth = childSizes[i][0];
+                    height = Math.max(height, lineHeight);
+                    lineHeight = childSizes[i][1];
+                    j = 0;
+                } else {
+                    lineWidth = Math.max(lineWidth, childSizes[i][0]);
+                    lineHeight += childSizes[i][1];
+                }
+            }
+            width += lineWidth;
+        }
         // set all children width to most wide one
+        /*
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
@@ -174,6 +166,7 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 );
             }
         }
+         */
 
         width += getPaddingLeft() + getPaddingRight();
         height += getPaddingTop() + getPaddingBottom();
@@ -186,7 +179,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        logger.error("onLayout");
         mLines.clear();
         mLineWidths.clear();
 
@@ -231,8 +223,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         int left = getPaddingLeft() + horizontalGravityMargin;
 
         int line = 0;
-        int nextLine = mLines.size() > 0 ? mLines.get(0) : childCount;
         lineWidth = mLineWidths.get(0);
+        int nextLine = mLines.size() > 0 ? mLines.get(0) : childCount;
 
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
@@ -240,10 +232,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                 continue;
 
             if (i == nextLine) {
-                line++;
-                lineWidth = mLineWidths.get(line);
                 top = getPaddingTop();
-                left += lineWidth;
+                left += mLineWidths.get(line++); // get width of previous line and increase line count
+                lineWidth = mLineWidths.get(line);
                 if (line < mLines.size())
                     nextLine = mLines.get(line);
             }
