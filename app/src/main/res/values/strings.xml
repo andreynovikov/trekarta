@@ -40,6 +40,7 @@
     <string name="downloadHillshades">Download concomitant hillshades</string>
     <string name="iamin">Yes, I\'m in</string>
     <string name="nameOrCoordinates">Name or coordinates</string>
+    <string name="satellitesStub" translatable="false">0/0</string>
 
     <string name="actionSave">Save</string>
     <string name="actionStop">Stop</string>

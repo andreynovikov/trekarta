@@ -38,6 +38,7 @@ public class Gauge extends ConstraintLayout {
     public static final int TYPE_VMG = 0x80000;
     public static final int TYPE_XTK = 0x100000;
     public static final int TYPE_ETE = 0x200000;
+    // If new gauge type is added sizes array should be adjusted in GaugePanel
 
     private int mType;
     private TextView mValueView;
