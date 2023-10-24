@@ -41,7 +41,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -626,12 +625,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        try {
-            if (Configuration.getHillshadesEnabled())
-                showHillShade();
-        } catch (SQLiteCantOpenDatabaseException ignore) {
-            // temporary, until data will be moved to application folder
-        }
+        if (Configuration.getHillshadesEnabled())
+            showHillShade();
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
@@ -670,18 +665,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
-        try {
-            mWaypointDbDataSource = application.getWaypointDbDataSource();
-            mWaypointDbDataSource.open();
-            for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
-                if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
-                    mEditedWaypoint = waypoint;
-                addWaypointMarker(waypoint);
-                mTotalDataItems++;
-            }
-        } catch (SQLiteCantOpenDatabaseException ignore) {
-            // temporary, until data will be moved to application folder
+        mWaypointDbDataSource = application.getWaypointDbDataSource();
+        mWaypointDbDataSource.open();
+        for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
+            if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
+                mEditedWaypoint = waypoint;
+            addWaypointMarker(waypoint);
+            mTotalDataItems++;
         }
+
         mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED));
         registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
@@ -692,11 +684,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         for (MapFile bitmapLayerMap : mBitmapLayerMaps)
             showBitmapMap(bitmapLayerMap, false);
 
-        try {
-            setMapTheme();
-        } catch (IllegalStateException ignore) {
-            // temporary, until data will be moved to application folder
-        }
+        setMapTheme();
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -750,9 +738,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
 
         // Resume navigation
-        MapObject mapObject = Configuration.getNavigationPoint();
-        if (mapObject != null)
-            startNavigation(mapObject);
+        //MapObject mapObject = Configuration.getNavigationPoint();
+        //if (mapObject != null)
+        //    startNavigation(mapObject, Configuration.getNavigationViaRoute());
 
         // Initialize data loader
         getLoaderManager();
@@ -1440,7 +1428,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             removeMarker();
             MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
             mapObject.name = getString(R.string.selectedLocation);
-            startNavigation(mapObject);
+            startNavigation(mapObject, false);
             return true;
         } else if (action == R.id.actionFindRouteHere) {
             removeMarker();
@@ -2001,13 +1989,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     };
 
-    private void startNavigation(MapObject mapObject) {
+    private void startNavigation(MapObject mapObject, boolean viaRoute) {
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_TO_POINT);
         i.putExtra(NavigationService.EXTRA_NAME, mapObject.name);
         i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.coordinates.getLatitude());
         i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.coordinates.getLongitude());
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
+        i.putExtra(NavigationService.EXTRA_ROUTE, viaRoute);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
             askForPermission();
@@ -2082,7 +2071,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name) {
-        startNavigation(new MapObject(name, coordinates));
+        startNavigation(new MapObject(name, coordinates), false);
     }
 
     @Override
@@ -2625,7 +2614,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onWaypointNavigate(Waypoint waypoint) {
-        startNavigation(waypoint);
+        startNavigation(waypoint, false);
     }
 
     @Override
@@ -3985,7 +3974,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            logger.error("Broadcast: {}", action);
+            logger.debug("Broadcast: {}", action);
             if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
@@ -4029,8 +4018,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     enableNavigation();
                     updateNavigationUI();
                 }
-                if (state == BaseNavigationService.STATE_NEXT_WPT)
+                if (state == BaseNavigationService.STATE_NEXT_WPT) {
                     updateNavigationGauges(true);
+                    if (mNavigationLayer != null && mNavigationService != null)
+                        mNavigationLayer.setDestination(mNavigationService.getWaypoint().coordinates);
+                }
                 updatePanels();
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action)) {
