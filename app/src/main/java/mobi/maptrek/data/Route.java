@@ -44,7 +44,7 @@ public class Route implements Parcelable {
     public RouteStyle style = new RouteStyle();
     public DataSource source; // back reference to it's source
 
-    private final ArrayList<Instruction> instructions = new ArrayList<>();
+    public final ArrayList<Instruction> instructions = new ArrayList<>();
     private Instruction lastInstruction;
     private UpdateListener updateListener;
 
@@ -59,13 +59,20 @@ public class Route implements Parcelable {
         distance = 0;
     }
 
-    public void addInstruction(int latitudeE6, int longitudeE6) {
-        addInstruction(new GeoPoint(latitudeE6, longitudeE6));
+    public Instruction addInstruction(int latitudeE6, int longitudeE6) {
+        return addInstruction(new GeoPoint(latitudeE6, longitudeE6));
     }
 
-    public void addInstruction(GeoPoint point) {
+    public Instruction addInstruction(GeoPoint point) {
         Instruction instruction = new Instruction(point);
         addInstruction(instruction);
+        return instruction;
+    }
+
+    public Instruction addInstruction(int latitudeE6, int longitudeE6, String text, int sign) {
+        Instruction instruction = new Instruction(latitudeE6, longitudeE6, text, sign);
+        addInstruction(instruction);
+        return instruction;
     }
 
     private void addInstruction(Instruction instruction) {
@@ -384,8 +391,8 @@ public class Route implements Parcelable {
         public static final int KEEP_RIGHT = 7;
         public static final int U_TURN_RIGHT = 8;
 
-        private String text;
-        private int sign;
+        public String text;
+        public int sign;
         private int distance; // TODO Use distance if set
 
         Instruction(GeoPoint point) {

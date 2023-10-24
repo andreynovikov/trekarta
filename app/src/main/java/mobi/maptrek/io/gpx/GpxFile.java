@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class GpxFile {
     public static final String NS = "http://www.topografix.com/GPX/1/1";
@@ -41,14 +42,14 @@ public class GpxFile {
     public static final String ATTRIBUTE_LON = "lon";
     public static final String ATTRIBUTE_CREATOR = "creator";
 
-    static final DateFormat TRKTIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-    static final DateFormat TRKTIME_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+    static final DateFormat TRKTIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
+    static final DateFormat TRKTIME_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT);
 
     public static long parseTime(String timeString) throws ParseException {
         if (timeString.length() > 20)
-            return GpxFile.TRKTIME_MS.parse(timeString).getTime();
+            return Objects.requireNonNull(GpxFile.TRKTIME_MS.parse(timeString)).getTime();
         else
-            return GpxFile.TRKTIME.parse(timeString).getTime();
+            return Objects.requireNonNull(GpxFile.TRKTIME.parse(timeString)).getTime();
     }
 
     public static String formatTime(Date date) {
