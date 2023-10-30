@@ -3,6 +3,13 @@
     <!-- Administrative boundaries -->
     <m cat="administrative" k="boundary" v="administrative">
         <m k="admin_level">
+            <m k="admin_level" v="2|3|4">
+                <m zoom-min="8">
+                    <line fix="true" stipple="5" stipple-ratio="0.4" stipple-stroke="#ac46ac"
+                        stroke="color:transparent" width="2.5" />
+                </m>
+            </m>
+            <!--
             <m k="admin_level" v="4">
                 <m zoom-min="8">
                     <line fix="true" stipple="5" stipple-ratio="0.4" stipple-stroke="#88ac46ac"
@@ -53,6 +60,7 @@
                     <line fix="true" stroke="#88ac46ac" width="0.6" />
                 </m>
             </m>
+            -->
         </m>
     </m>
 </rendertheme>

@@ -283,7 +283,8 @@
     <string name="legend_state">Штат/область</string>
     <string name="legend_country_boundary">Граница государства</string>
     <string name="legend_region_boundary">Граница региона</string>
-    <string name="legend_province_boundary">Граница провинции</string>
+    <string name="x_legend_province_boundary">Граница провинции</string>
+    <string name="legend_province_boundary">Граница</string>
     <string name="legend_capital">Столица государства</string>
     <string name="legend_capital_name">Москва</string>
     <string name="legend_city">Крупный город</string>

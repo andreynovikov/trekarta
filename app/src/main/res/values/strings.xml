@@ -319,7 +319,8 @@
     <string name="legend_state">State</string>
     <string name="legend_country_boundary">Country boundary</string>
     <string name="legend_region_boundary">Region boundary</string>
-    <string name="legend_province_boundary">Province boundary</string>
+    <string name="x_legend_province_boundary">Province boundary</string>
+    <string name="legend_province_boundary">Boundary</string>
     <string name="legend_capital">Country capital</string>
     <string name="legend_capital_name">Moscow</string>
     <string name="legend_city">City</string>
