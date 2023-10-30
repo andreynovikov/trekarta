@@ -78,16 +78,68 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible">
 
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/routeSignBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="start"
+                    app:constraint_referenced_ids="navigationSign,routeWptDistance,routeWptEte" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/routeWaypointBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="routeWaypoint,routeWptEte" />
+
+                <View
+                    android:id="@+id/routeSignBackground"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/panelBackground"
+                    app:layout_constraintBottom_toBottomOf="@+id/routeWaypointBarrier"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <ImageView
                     android:id="@+id/navigationSign"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/panelBackground"
                     android:padding="4dp"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:tint="@color/actionIconColor"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"
+                    tools:src="@drawable/instruction_turn_right" />
+
+                <TextView
+                    android:id="@+id/routeWptDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/gauge_padding"
+                    android:paddingHorizontal="@dimen/gauge_padding"
+                    android:paddingTop="0dp"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toBottomOf="@+id/navigationSign"
+                    tools:text="10 km" />
+
+                <TextView
+                    android:id="@+id/routeWptEte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/gauge_padding"
+                    android:paddingHorizontal="@dimen/gauge_padding"
+                    android:paddingTop="0dp"
+                    android:textAlignment="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toBottomOf="@+id/routeWptDistance"
+                    tools:text="12 min" />
 
                 <TextView
                     android:id="@+id/routeWaypoint"
@@ -98,40 +150,10 @@
                     android:textAlignment="center"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/navigationSign"
+                    app:layout_constraintEnd_toStartOf="@+id/routeSignBarrier"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Route waypoint" />
-
-                <TextView
-                    android:id="@+id/routeWptDistance"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/panelBackground"
-                    android:paddingBottom="@dimen/gauge_padding"
-                    android:paddingHorizontal="@dimen/gauge_padding"
-                    android:paddingTop="0dp"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toStartOf="@+id/routeWptEte"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/routeWaypoint"
-                    tools:text="10 km" />
-
-                <TextView
-                    android:id="@+id/routeWptEte"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/panelBackground"
-                    android:paddingBottom="@dimen/gauge_padding"
-                    android:paddingHorizontal="@dimen/gauge_padding"
-                    android:paddingTop="0dp"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toStartOf="@+id/navigationSign"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/routeWptDistance"
-                    app:layout_constraintTop_toBottomOf="@+id/routeWaypoint"
-                    tools:text="12 min" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
