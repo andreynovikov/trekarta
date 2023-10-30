@@ -2431,26 +2431,27 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mViews.navigationSign.setImageDrawable(signDrawable);
                 int color = getResources().getColor(R.color.panelBackground, getTheme());
                 mViews.routeWaypoint.setBackgroundColor(color);
-                mViews.navigationSign.setBackgroundColor(color);
+                mViews.routeSignBackground.setBackgroundColor(color);
                 mViews.navigationSign.setTag(false);
             }
             mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
             int ete = mNavigationService.getWptEte();
             if (ete == Integer.MAX_VALUE) {
-                mViews.routeWptEte.setText("-");
+                mViews.routeWptEte.setVisibility(View.GONE);
             } else {
+                mViews.routeWptEte.setVisibility(View.VISIBLE);
                 mViews.routeWptEte.setText(StringFormatter.timeH(ete));
                 if (ete <= 1) {
                     if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
                         int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
                         mViews.routeWaypoint.setBackgroundColor(color);
-                        mViews.navigationSign.setBackgroundColor(color);
+                        mViews.routeSignBackground.setBackgroundColor(color);
                         mViews.navigationSign.setTag(true);
                     }
                 } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
                     int color = getResources().getColor(R.color.panelBackground, getTheme());
                     mViews.routeWaypoint.setBackgroundColor(color);
-                    mViews.navigationSign.setBackgroundColor(color);
+                    mViews.routeSignBackground.setBackgroundColor(color);
                     mViews.navigationSign.setTag(false);
                 }
             }
