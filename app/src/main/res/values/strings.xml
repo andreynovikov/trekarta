@@ -8,6 +8,7 @@
     <string name="title_input_name">Name</string>
     <string name="titleCoordinatesInput">Enter coordinates</string>
     <string name="titleLocationPermissionRationale">Trekarta needs location permission</string>
+    <string name="titleNotificationPermissionRationale">Trekarta needs notification permission</string>
     <string name="whatsNewTitle">What\'s New</string>
 
     <string name="ok">OK</string>
@@ -119,7 +120,9 @@
     <string name="msgSaveFailed">Failed to save: %s</string>
     <string name="msgAccessFineLocationRationale">Trekarta needs to %s to be able to show your position on map in real time and record track of your movement on your request</string>
     <string name="msgReadExternalStorageRationale">Trekarta needs to %s to be able to access the file you want to open</string>
+    <string name="msgShowNotificationRationale">Trekarta needs to %s to be able to write track or navigate in background</string>
     <string name="msgLocationPermissionError">You should grant Trekarta location permission to be able to see your real time position on map</string>
+    <string name="msgNotificationPermissionError">You should grant Trekarta notification permission to be able to write track or navigate in background</string>
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
