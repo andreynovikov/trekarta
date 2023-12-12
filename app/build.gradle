@@ -2,16 +2,16 @@ apply plugin: 'com.android.application'
 
 android {
     namespace 'mobi.maptrek'
-    compileSdkVersion 32
-    buildToolsVersion '33.0.1'
+
     ndkVersion '25.1.8937393'
 
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
-        targetSdkVersion 31
-        versionCode 85
-        versionName "2022.05"
+        targetSdkVersion 33
+        compileSdk 34
+        versionCode 86
+        versionName "2023.11"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }
@@ -26,7 +26,7 @@ android {
     }
 
     androidResources {
-        additionalParameters "--keep-raw-values"
+        additionalParameters = ["--keep-raw-values"]
     }
 
 
@@ -36,8 +36,6 @@ android {
             //shrinkResources true
         }
     }
-
-    flavorDimensions "tier", "region"
 
     externalNativeBuild {
         ndkBuild {
@@ -54,6 +52,9 @@ android {
         abortOnError false
         checkReleaseBuilds true
     }
+    buildFeatures {
+        aidl true
+    }
 }
 
 repositories {
@@ -62,7 +63,7 @@ repositories {
 }
 
 configurations {
-    all {
+    configureEach {
         // https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
     }
@@ -75,17 +76,18 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test:rules:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation "androidx.preference:preference:1.2.0"
-    implementation "androidx.work:work-runtime:2.7.1"
-    implementation 'androidx.core:core-splashscreen:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation "androidx.preference:preference:1.2.1"
+    implementation "androidx.work:work-runtime:2.8.1"
+    implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'androidx.annotation:annotation:1.5.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.annotation:annotation:1.7.0'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation 'com.github.andreynovikov:androidcolorpicker:v0.0.3'
     implementation 'com.github.andreynovikov:Geo-Coordinate-Conversion-Java:v1.0.0'
     implementation 'com.caverock:androidsvg:1.4'
-    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-jdk14:2.0.9'
     implementation 'com.noveogroup.android:android-logger:1.3.6'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
