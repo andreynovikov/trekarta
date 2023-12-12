@@ -7,6 +7,6 @@ interface ILocationRemoteService
     void registerCallback(ILocationCallback cb);
     void unregisterCallback(ILocationCallback cb);
     boolean isLocating();
-	Location getLocation();
+	android.location.Location getLocation();
     int getStatus();
 }
