@@ -62,12 +62,14 @@ import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
@@ -276,6 +278,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    private static final int PERMISSIONS_REQUEST_NOTIFICATION = 2;
 
     private static final int MAP_EVENTS = 1;
     private static final int MAP_BASE = 2;
@@ -675,9 +678,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
 
         mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED));
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN), ContextCompat.RECEIVER_NOT_EXPORTED);
 
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
@@ -814,14 +817,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return;
             logger.debug("   {}", uri);
             String data = uri.getSchemeSpecificPart();
-            String query = uri.getQuery();
+            String query = null;
+            // String query = uri.getQuery(); returns null for some reason
+            int queryIdx = data.indexOf('?');
             // geo:latitude,longitude
             // geo:latitude,longitude?z=zoom
             // geo:0,0?q=lat,lng(label)
             // geo:0,0?q=lat, lng - buggy Instagram (with space)
             int zoom = 0;
-            if (query != null) {
-                data = data.substring(0, data.indexOf(query) - 1);
+            if (queryIdx >= 0) {
+                query = data.substring(queryIdx + 1, data.length() - 1);
+                data = data.substring(0, queryIdx);
                 if (query.startsWith("z="))
                     try {
                         zoom = Integer.parseInt(query.substring(2));
@@ -830,6 +836,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
             }
             try {
+                logger.error(data);
                 String[] ll = data.split(",");
                 String marker = null;
                 double lat = Double.parseDouble(ll[0]);
@@ -882,11 +889,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE), ContextCompat.RECEIVER_NOT_EXPORTED);
 
         MapTrek application = MapTrek.getApplication();
         SafeResultReceiver resultReceiver = application.getResultReceiver();
@@ -906,7 +913,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onResume()");
 
         if (mSavedLocationState != LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
         if (mTrackingState == TRACKING_STATE.TRACKING)
             enableTracking();
 
@@ -1567,7 +1574,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onLocationClicked() {
         switch (mLocationState) {
             case DISABLED:
-                askForPermission();
+                askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
                 break;
             case SEARCHING:
                 mLocationState = LocationState.DISABLED;
@@ -1622,7 +1629,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onRecordLongClicked() {
         if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
             return;
         }
         if (mTrackingState == TRACKING_STATE.TRACKING) {
@@ -1874,6 +1881,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mSavedLocationState = mPreviousLocationState;
             mPreviousLocationState = LocationState.NORTH;
         }
+        if (mTrackingState == TRACKING_STATE.PENDING || mIsNavigationBound)
+            askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
         if (mTrackingState == TRACKING_STATE.PENDING)
             enableTracking();
         updateLocationDrawable();
@@ -1999,7 +2008,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         i.putExtra(NavigationService.EXTRA_ROUTE, viaRoute);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
     private void startNavigation(long id) {
@@ -2010,7 +2019,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         i.putExtra(NavigationService.EXTRA_ID, id);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
     private void startNavigation(Route route) {
@@ -2019,7 +2028,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         i.putExtra(NavigationService.EXTRA_ROUTE, route);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
     @Override
@@ -3726,21 +3735,21 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
             anim.addListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     p.setForeground(null);
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {
+                public void onAnimationCancel(@NonNull Animator animation) {
                     p.setForeground(null);
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {
+                public void onAnimationRepeat(@NonNull Animator animation) {
                 }
             });
             anim.setDuration(500);
@@ -3891,38 +3900,58 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     };
 
-    private void askForPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    private void askForPermission(int permissionRequest) {
+        String permission = null;
+        @StringRes int title = 0;
+        @StringRes int rationale = 0;
+
+        switch (permissionRequest) {
+            case PERMISSIONS_REQUEST_FINE_LOCATION:
+                permission = Manifest.permission.ACCESS_FINE_LOCATION;
+                title = R.string.titleLocationPermissionRationale;
+                rationale = R.string.msgAccessFineLocationRationale;
+                break;
+            case PERMISSIONS_REQUEST_NOTIFICATION:
+                if (Build.VERSION.SDK_INT >= 33) {
+                    permission = Manifest.permission.POST_NOTIFICATIONS;
+                    title = R.string.titleNotificationPermissionRationale;
+                    rationale = R.string.msgShowNotificationRationale;
+                }
+                break;
+        }
+        if (permission == null)
+            return;
+
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (shouldShowRequestPermissionRationale(permission)) {
+                String finalPermission = permission;
                 String name;
                 try {
                     PackageManager pm = getPackageManager();
-                    PermissionInfo permissionInfo = pm.getPermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.GET_META_DATA);
+                    PermissionInfo permissionInfo = pm.getPermissionInfo(permission, PackageManager.GET_META_DATA);
                     name = permissionInfo.loadLabel(pm).toString().toLowerCase();
                 } catch (PackageManager.NameNotFoundException e) {
                     logger.error("Failed to obtain name for permission", e);
                     name = "access precise location";
                 }
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.titleLocationPermissionRationale)
-                        .setMessage(getString(R.string.msgAccessFineLocationRationale, name))
-                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION))
+                        .setTitle(title)
+                        .setMessage(getString(rationale, name))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{finalPermission}, permissionRequest))
                         .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
                         .create()
                         .show();
             } else {
-               requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
+                requestPermissions(new String[]{permission}, permissionRequest);
             }
-        } else {
+        } else if (permissionRequest == PERMISSIONS_REQUEST_FINE_LOCATION) {
             enableLocations();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //noinspection SwitchStatementWithTooFewBranches
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -3935,7 +3964,21 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         startActivity(intent);
                     }, mViews.coordinatorLayout);
                 }
+                break;
             }
+            case PERMISSIONS_REQUEST_NOTIFICATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    HelperUtils.showError(getString(R.string.msgNotificationPermissionError), R.string.actionGrant, view -> {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                        startActivity(intent);
+                    }, mViews.coordinatorLayout);
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -3975,7 +4018,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            logger.debug("Broadcast: {}", action);
+            logger.error("Broadcast: {}", action); // FIXME: test!
             if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
