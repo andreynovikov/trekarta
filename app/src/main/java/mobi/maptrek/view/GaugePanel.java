@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -26,7 +26,6 @@ import android.text.TextUtils;
 import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,9 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
-import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 
 /**
@@ -47,22 +46,23 @@ import mobi.maptrek.R;
  */
 //TODO Redesign to balance gauge quantity in columns
 public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener, SensorEventListener {
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(GaugePanel.class);
 
     public static final String DEFAULT_GAUGE_SET = Gauge.TYPE_SPEED + "," + Gauge.TYPE_DISTANCE;
 
-    private final List<List<View>> mLines = new ArrayList<>();
+    private final List<Integer> mLines = new ArrayList<>();
     private final List<Integer> mLineWidths = new ArrayList<>();
 
-    private ArrayList<Gauge> mGauges = new ArrayList<>();
-    private SparseArray<Gauge> mGaugeMap = new SparseArray<>();
-    private MapHolder mMapHolder;
+    private final ArrayList<Gauge> mGauges = new ArrayList<>();
+    private final SparseArray<Gauge> mGaugeMap = new SparseArray<>();
     private boolean mNavigationMode = false;
-    private List<View> mLineViewsBuffer = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mPressureSensor;
     private boolean mVisible;
     private boolean mHasSensors;
+
+    private final int[][] childSizes = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
     public GaugePanel(Context context) {
         super(context);
@@ -89,22 +89,15 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         int width = 0;
         int height = 0;
 
-        int lineWidth = 0;
-        int lineHeight = 0;
-
         int childCount = getChildCount();
+        int visibleCount = 0;
 
+        // First pass - measure children
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            boolean lastChild = i == childCount - 1;
 
-            if (child.getVisibility() == View.GONE) {
-                if (lastChild) {
-                    width += lineWidth;
-                    height = Math.max(height, lineHeight);
-                }
+            if (child.getVisibility() == View.GONE)
                 continue;
-            }
 
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
             LayoutParams lp = child.getLayoutParams();
@@ -112,27 +105,14 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             int childWidthMode = MeasureSpec.AT_MOST;
             int childWidthSize = sizeWidth;
 
-            int childHeightMode = MeasureSpec.AT_MOST;
-            int childHeightSize = sizeHeight;
+            int childHeightMode = MeasureSpec.UNSPECIFIED;
+            int childHeightSize = 0;
 
             if (lp.width == LayoutParams.MATCH_PARENT) {
                 childWidthMode = MeasureSpec.EXACTLY;
             } else if (lp.width >= 0) {
                 childWidthMode = MeasureSpec.EXACTLY;
                 childWidthSize = lp.width;
-            } else if (modeWidth == MeasureSpec.UNSPECIFIED) {
-                childWidthMode = MeasureSpec.UNSPECIFIED;
-                childWidthSize = 0;
-            }
-
-            if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthMode = MeasureSpec.EXACTLY;
-            } else if (lp.height >= 0) {
-                childHeightMode = MeasureSpec.EXACTLY;
-                childHeightSize = lp.height;
-            } else if (modeHeight == MeasureSpec.UNSPECIFIED) {
-                childHeightMode = MeasureSpec.UNSPECIFIED;
-                childHeightSize = 0;
             }
 
             child.measure(
@@ -140,30 +120,61 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
                     MeasureSpec.makeMeasureSpec(childHeightSize, childHeightMode)
             );
 
-            int childHeight = child.getMeasuredHeight();
+            childSizes[i][0] = child.getMeasuredWidth();
+            childSizes[i][1] = child.getMeasuredHeight();
 
-            if (lineHeight + childHeight > sizeHeight) {
-                height = Math.max(height, lineHeight);
-                lineHeight = childHeight;
-                width += lineWidth;
-                lineWidth = child.getMeasuredWidth();
-            } else {
-                lineHeight += childHeight;
-                lineWidth = Math.max(lineWidth, child.getMeasuredWidth());
+            width = Math.max(width, childSizes[i][0]);
+            height += childSizes[i][1];
+            visibleCount++;
+        }
+
+        if (height > sizeHeight) {
+            int lines = (height + sizeHeight - 1) / sizeHeight;
+            int childrenInLine = (visibleCount + lines - 1) / lines; // currently we assume that all children are the same height, this can change in future
+            height = 0;
+            width = 0;
+            int lineWidth = 0;
+            int lineHeight = 0;
+            int j = 0;
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                if (child.getVisibility() == GONE)
+                    continue;
+                j++;
+                if (j > childrenInLine) {
+                    width += lineWidth;
+                    lineWidth = childSizes[i][0];
+                    height = Math.max(height, lineHeight);
+                    lineHeight = childSizes[i][1];
+                    j = 0;
+                } else {
+                    lineWidth = Math.max(lineWidth, childSizes[i][0]);
+                    lineHeight += childSizes[i][1];
+                }
             }
-
-            if (lastChild) {
-                height = Math.max(height, lineHeight);
-                width += lineWidth;
+            width += lineWidth;
+        }
+        // set all children width to most wide one
+        /*
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() != GONE) {
+                int childHeight = child.getMeasuredHeight();
+                child.measure(
+                        MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY)
+                );
             }
         }
+         */
 
         width += getPaddingLeft() + getPaddingRight();
         height += getPaddingTop() + getPaddingBottom();
 
         setMeasuredDimension(
                 (modeWidth == MeasureSpec.EXACTLY) ? sizeWidth : width,
-                (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height);
+                (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height
+        );
     }
 
     @Override
@@ -180,68 +191,61 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         int lineWidth = 0;
         int lineHeight = 0;
-        mLineViewsBuffer.clear();
 
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child.getVisibility() == View.GONE) {
+            if (child.getVisibility() == View.GONE)
                 continue;
-            }
 
             int childWidth = child.getMeasuredWidth();
             int childHeight = child.getMeasuredHeight();
 
             if (lineHeight + childHeight > height) {
                 mLineWidths.add(lineWidth);
-                mLines.add(mLineViewsBuffer);
+                mLines.add(i);
 
                 linesSum += lineWidth;
 
                 lineHeight = 0;
                 lineWidth = 0;
-                mLineViewsBuffer.clear();
             }
 
             lineHeight += childHeight;
             lineWidth = Math.max(lineWidth, childWidth);
-            mLineViewsBuffer.add(child);
         }
 
         mLineWidths.add(lineWidth);
-        mLines.add(mLineViewsBuffer);
 
         linesSum += lineWidth;
 
         int horizontalGravityMargin = width - linesSum;
-        int numLines = mLines.size();
-        int top;
-        int left = getPaddingLeft();
+        int top = getPaddingTop();
+        int left = getPaddingLeft() + horizontalGravityMargin;
 
-        for (int i = 0; i < numLines; i++) {
-            lineWidth = mLineWidths.get(i);
-            mLineViewsBuffer = mLines.get(i);
-            top = getPaddingTop();
-            int children = mLineViewsBuffer.size();
+        int line = 0;
+        lineWidth = mLineWidths.get(0);
+        int nextLine = mLines.size() > 0 ? mLines.get(0) : childCount;
 
-            for (int j = 0; j < children; j++) {
-                View child = mLineViewsBuffer.get(j);
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == View.GONE)
+                continue;
 
-                if (child.getVisibility() == View.GONE)
-                    continue;
-
-                int childWidth = child.getMeasuredWidth();
-                int childHeight = child.getMeasuredHeight();
-                int gravityMargin = lineWidth - childWidth;
-
-                child.layout(left + gravityMargin + horizontalGravityMargin,
-                        top,
-                        left + childWidth + gravityMargin + horizontalGravityMargin,
-                        top + childHeight);
-
-                top += childHeight;
+            if (i == nextLine) {
+                top = getPaddingTop();
+                left += mLineWidths.get(line++); // get width of previous line and increase line count
+                lineWidth = mLineWidths.get(line);
+                if (line < mLines.size())
+                    nextLine = mLines.get(line);
             }
+                
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
+            int gravityMargin = lineWidth - childWidth;
 
-            left += lineWidth;
+            child.layout(left + gravityMargin, top, left + childWidth + gravityMargin, top + childHeight);
+
+            top += childHeight;
         }
     }
 
@@ -251,14 +255,10 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
         String[] gauges = settings.split(",");
         for (String gaugeStr : gauges) {
-            int type = Integer.valueOf(gaugeStr);
+            int type = Integer.parseInt(gaugeStr);
             addGauge(type);
         }
         setNavigationMode(false);
-    }
-
-    public void setMapHolder(MapHolder mapHolder) {
-        mMapHolder = mapHolder;
     }
 
     private String getGaugeName(int type) {
@@ -304,12 +304,12 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             mGauges.add(i, gauge);
         }
         mGaugeMap.put(type, gauge);
+        updateAbbrVisibility();
 
         mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
         if (type == Gauge.TYPE_ELEVATION && mPressureSensor != null && mVisible)
             mSensorManager.registerListener(this, mPressureSensor, SensorManager.SENSOR_DELAY_NORMAL, 1000);
 
-        gauge.setGravity(Gravity.END | Gravity.TOP);
         gauge.setOnLongClickListener(this);
     }
 
@@ -318,6 +318,8 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         removeView(gauge);
         mGauges.remove(gauge);
         mGaugeMap.remove(type);
+        updateAbbrVisibility();
+
         mHasSensors = mGaugeMap.get(Gauge.TYPE_ELEVATION) != null;
         if (type == Gauge.TYPE_ELEVATION && !mHasSensors && mVisible)
             mSensorManager.unregisterListener(this);
@@ -332,7 +334,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         if (v instanceof Gauge) {
             Gauge gauge = (Gauge) v;
             menu.add(0, gauge.getType(), Menu.NONE, context.getString(R.string.remove_gauge, getGaugeName(gauge.getType())));
-            gauge.getType();
         }
         ArrayList<Integer> availableGauges = getAvailableGauges(type);
         for (int availableGauge : availableGauges) {
@@ -351,8 +352,6 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             removeGauge(type);
         else
             addGauge(type);
-        if (mMapHolder != null)
-            mMapHolder.updateMapViewArea();
         return true;
     }
 
@@ -383,9 +382,13 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
         }
     }
 
-    public boolean setNavigationMode(boolean mode) {
+    public boolean getNavigationMode() {
+        return mNavigationMode;
+    }
+
+    public void setNavigationMode(boolean mode) {
         if (mNavigationMode == mode)
-            return false;
+            return;
         mNavigationMode = mode;
         int visibility = mode ? View.VISIBLE : View.GONE;
         TransitionManager.beginDelayedTransition(this);
@@ -393,7 +396,23 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             if (isNavigationGauge(gauge.getType()))
                 gauge.setVisibility(visibility);
         }
-        return true;
+        updateAbbrVisibility();
+    }
+
+    private void updateAbbrVisibility() {
+        boolean hasSameUnit = false;
+        HashSet<String> units = new HashSet<>();
+        for (Gauge g : mGauges) {
+            String unit = g.getDefaultGaugeUnit();
+            if (g.getVisibility() == View.VISIBLE && units.contains(unit)) {
+                hasSameUnit = true;
+                break;
+            }
+            units.add(unit);
+        }
+
+        for (Gauge g : mGauges)
+            g.enableAbbr(hasSameUnit);
     }
 
     private boolean isNavigationGauge(int type) {
@@ -412,6 +431,9 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
             gauges.add(Gauge.TYPE_DISTANCE);
             gauges.add(Gauge.TYPE_BEARING);
             gauges.add(Gauge.TYPE_TURN);
+            gauges.add(Gauge.TYPE_XTK);
+            gauges.add(Gauge.TYPE_VMG);
+            // gauges.add(Gauge.TYPE_ETE);
         }
         for (int i = 0; i < mGaugeMap.size(); i++) {
             int gauge = mGaugeMap.keyAt(i);

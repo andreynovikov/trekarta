@@ -16,10 +16,11 @@
 
 package mobi.maptrek;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.FileObserver;
 import android.util.Pair;
+
+import androidx.loader.content.AsyncTaskLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         // This method is called on a background thread and should generate a
         // new set of data to be delivered back to the client.
         logger.debug("loadInBackground()");
-        File dataDir = MapTrek.getApplication().getExternalDir("data");
+        File dataDir = getContext().getExternalFilesDir("data");
         if (dataDir == null)
             return null;
         File[] files = dataDir.listFiles(new DataFilenameFilter());
@@ -186,7 +187,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
             mProgressListener.onProgressFinished();
         }
 
-        if (isReset()) {
+        if (isReset() || data == null) {
             return;
         }
 
@@ -216,12 +217,12 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         logger.debug("onStartLoading()");
         if (mData != null) {
             // Deliver any previously loaded data immediately.
-            deliverResult(new ArrayList<FileDataSource>());
+            deliverResult(new ArrayList<>());
         }
 
         // Begin monitoring the underlying data source.
         if (mObserver == null) {
-            final File dir = MapTrek.getApplication().getExternalDir("data");
+            final File dir = getContext().getExternalFilesDir("data");
             if (dir == null)
                 return;
 

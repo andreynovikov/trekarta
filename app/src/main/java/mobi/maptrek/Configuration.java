@@ -56,6 +56,9 @@ public class Configuration {
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
     private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
+    private static final String PREF_NAVIGATION_ROUTE = "navigation_route";
+    private static final String PREF_NAVIGATION_ROUTE_POINT = "navigation_route_point";
+    private static final String PREF_NAVIGATION_ROUTE_DIRECTION = "navigation_route_direction";
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
     private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
@@ -84,8 +87,6 @@ public class Configuration {
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
-    private static final String PREF_EXTERNAL_STORAGE = "external_storage";
-    private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
     private static final String PREF_HIKING_TIMES = "hiking_times";
     private static final String PREF_CYCLING_TIMES = "cycling_times";
     private static final String PREF_SKIING_TIMES = "skiing_times";
@@ -194,6 +195,30 @@ public class Configuration {
         } else {
             saveString(PREF_NAVIGATION_WAYPOINT, null);
         }
+    }
+
+    public static boolean getNavigationViaRoute() {
+        return loadBoolean(PREF_NAVIGATION_ROUTE, false);
+    }
+
+    public static void setNavigationViaRoute(boolean state) {
+        saveBoolean(PREF_NAVIGATION_ROUTE, state);
+    }
+
+    public static int getNavigationRoutePoint() {
+        return loadInt(PREF_NAVIGATION_ROUTE_POINT, -1);
+    }
+
+    public static void setNavigationRoutePoint(int index) {
+        saveInt(PREF_NAVIGATION_ROUTE_POINT, index);
+    }
+
+    public static int getNavigationRouteDirection() {
+        return loadInt(PREF_NAVIGATION_ROUTE_DIRECTION, 0);
+    }
+
+    public static void setNavigationRouteDirection(int direction) {
+        saveInt(PREF_NAVIGATION_ROUTE_DIRECTION, direction);
     }
 
     public static String getGauges() {
@@ -460,22 +485,6 @@ public class Configuration {
 
     public static void setLastSeenChangelog(int code) {
         saveInt(LAST_SEEN_CHANGELOG, code);
-    }
-
-    public static String getExternalStorage() {
-        return loadString(PREF_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setExternalStorage(String storage) {
-        saveString(PREF_EXTERNAL_STORAGE, storage);
-    }
-
-    public static String getNewExternalStorage() {
-        return loadString(PREF_NEW_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setNewExternalStorage(String storage) {
-        saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
     }
 
     public static int getHighlightedType() {

@@ -31,6 +31,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
@@ -39,6 +41,7 @@ import mobi.maptrek.util.StringFormatter;
 public class RouteInformation extends ListFragment {
     private Route mRoute;
 
+    private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnRouteActionListener mListener;
@@ -61,6 +64,18 @@ public class RouteInformation extends ListFragment {
 
         InstructionListAdapter adapter = new InstructionListAdapter();
         setListAdapter(adapter);
+
+        ListView listView = getListView();
+        listView.addHeaderView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false), null, false);
+
+        mFloatingButton = mFragmentHolder.enableListActionButton();
+        mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        mFloatingButton.setOnClickListener(v -> {
+            mMapHolder.navigateVia(mRoute);
+            mFragmentHolder.popAll();
+        });
+
+        initializeRouteInformation();
     }
 
     @Override
@@ -87,8 +102,15 @@ public class RouteInformation extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mFragmentHolder.disableListActionButton();
         mFragmentHolder = null;
         mMapHolder = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFloatingButton = null;
     }
 
     @Override
@@ -99,6 +121,27 @@ public class RouteInformation extends ListFragment {
 
     public void setRoute(Route route) {
         mRoute = route;
+        if (isVisible()) {
+            initializeRouteInformation();
+        }
+    }
+
+    private void initializeRouteInformation() {
+        View rootView = getView();
+        assert rootView != null;
+
+        ((TextView) rootView.findViewById(R.id.name)).setText(mRoute.name);
+
+        View sourceRow = rootView.findViewById(R.id.sourceRow);
+        if (mRoute.source == null || mRoute.source.isNativeTrack()) { // TODO: isNativeTrack
+            sourceRow.setVisibility(View.GONE);
+        } else {
+            ((TextView) rootView.findViewById(R.id.source)).setText(mRoute.source.name);
+            sourceRow.setVisibility(View.VISIBLE);
+        }
+
+        String distance = StringFormatter.distanceHP(mRoute.distance);
+        ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
     }
 
     private class InstructionListAdapter extends BaseAdapter {
@@ -136,60 +179,7 @@ public class RouteInformation extends ListFragment {
             itemHolder.text.setText(mRoute.getInstructionText(position));
             double distance = mRoute.distanceBetween(position - 1, position);
             itemHolder.distance.setText(distance > 0 ? StringFormatter.distanceH(distance) : "");
-            @DrawableRes int sign; // https://thenounproject.com/dergraph/collection/travel-navigation/
-            switch (mRoute.getSign(position)) {
-                case Route.Instruction.START:
-                    sign = R.drawable.instruction_start;
-                    break;
-                case Route.Instruction.U_TURN_UNKNOWN:
-                case Route.Instruction.U_TURN_LEFT:
-                    sign = R.drawable.instruction_u_turn_left;
-                    break;
-                case Route.Instruction.KEEP_LEFT:
-                    sign = R.drawable.instruction_keep_left;
-                    break;
-                case Route.Instruction.TURN_SHARP_LEFT:
-                    sign = R.drawable.instruction_turn_sharp_left;
-                    break;
-                case Route.Instruction.TURN_LEFT:
-                    sign = R.drawable.instruction_turn_left;
-                    break;
-                case Route.Instruction.TURN_SLIGHT_LEFT:
-                    sign = R.drawable.instruction_turn_slight_left;
-                    break;
-                case Route.Instruction.TURN_SLIGHT_RIGHT:
-                    sign = R.drawable.instruction_turn_slight_right;
-                    break;
-                case Route.Instruction.TURN_RIGHT:
-                    sign = R.drawable.instruction_turn_right;
-                    break;
-                case Route.Instruction.TURN_SHARP_RIGHT:
-                    sign = R.drawable.instruction_turn_sharp_right;
-                    break;
-                case Route.Instruction.FINISH:
-                    sign = R.drawable.instruction_finish;
-                    break;
-                case Route.Instruction.REACHED_VIA:
-                    sign = R.drawable.instruction_via_reached;
-                    break;
-                case Route.Instruction.LEAVE_ROUNDABOUT: // TODO Make separate icon
-                case Route.Instruction.USE_ROUNDABOUT:
-                    sign = R.drawable.instruction_use_roundabout;
-                    break;
-                case Route.Instruction.KEEP_RIGHT:
-                    sign = R.drawable.instruction_keep_right;
-                    break;
-                case Route.Instruction.U_TURN_RIGHT:
-                    sign = R.drawable.instruction_u_turn_right;
-                    break;
-                case Route.Instruction.CONTINUE_ON_STREET:
-                case Route.Instruction.IGNORE:
-                case Route.Instruction.UNKNOWN:
-                default:
-                    sign = R.drawable.instruction_continue_on_street;
-                    break;
-            }
-            itemHolder.sign.setImageResource(sign);
+            itemHolder.sign.setImageResource(getSignDrawable(mRoute.getSign(position)));
 
             return convertView;
         }
@@ -206,4 +196,61 @@ public class RouteInformation extends ListFragment {
         ImageView sign;
     }
 
+    @DrawableRes
+    public static int getSignDrawable(int sign) {
+        @DrawableRes int signDrawable; // https://thenounproject.com/dergraph/collection/travel-navigation/
+        switch (sign) {
+            case Route.Instruction.START:
+                signDrawable = R.drawable.instruction_start;
+                break;
+            case Route.Instruction.U_TURN_UNKNOWN:
+            case Route.Instruction.U_TURN_LEFT:
+                signDrawable = R.drawable.instruction_u_turn_left;
+                break;
+            case Route.Instruction.KEEP_LEFT:
+                signDrawable = R.drawable.instruction_keep_left;
+                break;
+            case Route.Instruction.TURN_SHARP_LEFT:
+                signDrawable = R.drawable.instruction_turn_sharp_left;
+                break;
+            case Route.Instruction.TURN_LEFT:
+                signDrawable = R.drawable.instruction_turn_left;
+                break;
+            case Route.Instruction.TURN_SLIGHT_LEFT:
+                signDrawable = R.drawable.instruction_turn_slight_left;
+                break;
+            case Route.Instruction.TURN_SLIGHT_RIGHT:
+                signDrawable = R.drawable.instruction_turn_slight_right;
+                break;
+            case Route.Instruction.TURN_RIGHT:
+                signDrawable = R.drawable.instruction_turn_right;
+                break;
+            case Route.Instruction.TURN_SHARP_RIGHT:
+                signDrawable = R.drawable.instruction_turn_sharp_right;
+                break;
+            case Route.Instruction.FINISH:
+                signDrawable = R.drawable.instruction_finish;
+                break;
+            case Route.Instruction.REACHED_VIA:
+                signDrawable = R.drawable.instruction_via_reached;
+                break;
+            case Route.Instruction.LEAVE_ROUNDABOUT: // TODO Make separate icon
+            case Route.Instruction.USE_ROUNDABOUT:
+                signDrawable = R.drawable.instruction_use_roundabout;
+                break;
+            case Route.Instruction.KEEP_RIGHT:
+                signDrawable = R.drawable.instruction_keep_right;
+                break;
+            case Route.Instruction.U_TURN_RIGHT:
+                signDrawable = R.drawable.instruction_u_turn_right;
+                break;
+            case Route.Instruction.CONTINUE_ON_STREET:
+            case Route.Instruction.IGNORE:
+            case Route.Instruction.UNKNOWN:
+            default:
+                signDrawable = R.drawable.instruction_continue_on_street;
+                break;
+        }
+        return signDrawable;
+    }
 }

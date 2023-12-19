@@ -4,6 +4,7 @@
     <string name="title_select_format">Выбор формата</string>
     <string name="title_export_track">Экспорт трека</string>
     <string name="titleLocationPermissionRationale">Трекарте требуется разрешение Местоположение</string>
+    <string name="titleNotificationPermissionRationale">Трекарте требуется разрешение Уведомления</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Отменить</string>
@@ -48,6 +49,8 @@
     <string name="actionNavigateHere">Задать направление сюда</string>
     <string name="actionRememberScale">Запомнить масштаб</string>
     <string name="actionOverviewRoute">Просмотреть маршрут</string>
+    <string name="actionNextRouteWaypoint">Следующая точка маршрута</string>
+    <string name="actionPrevRouteWaypoint">Предыдущая точка маршрута</string>
     <string name="actionRememberTilt">Запомнить наклон</string>
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
@@ -60,6 +63,7 @@
 
     <string name="msgNavigationProgress">Осталось %1$s, продолжайте двигаться курсом %2$s</string>
     <string name="msgNavigating">Движение на точку %s</string>
+    <string name="msgNavigatingPoint">маршрута</string>
     <string name="msgNavigationActions">Вы можете полностью прекратить движение или остановить его до следующего запуска приложения</string>
     <string name="msgPlaceDeleted">Точка удалена</string>
     <string name="msgPlaceSaved">Точка сохранена</string>
@@ -77,7 +81,9 @@
     <string name="msgSaveFailed">Ошибка сохранения: %s</string>
     <string name="msgReadExternalStorageRationale">Трекарте требуется %s, чтобы иметь доступ к файлу, который вы хотите открыть</string>
     <string name="msgAccessFineLocationRationale">Трекарте требуется %s, чтобы отображать вашу позицию на карте в реальном режиме времени и записывать трек вашего перемещения по вашему запросу</string>
+    <string name="msgShowNotificationRationale">Трекарте требуется %s, чтобы записывать трек или следовать на точку в фоновом режиме</string>
     <string name="msgLocationPermissionError">Вы должны предоставить Трекарте разрешение на получение местоположения, чтобы в реальном режиме времени отображать вашу позицию на карте</string>
+    <string name="msgNotificationPermissionError">Вы должны предоставить Трекарте разрешение на отображение уведомлений, чтобы записывать трек или следовать на точку в фоновом режиме</string>
     <string name="msgFailedToGetFileName">Не удалось получить имя файла</string>
     <string name="msgCancelDownload">Отменить загрузку карты?</string>
     <string name="msgCrashOccurred">Похоже, в прошлый раз приложение закрылось из-за ошибки. Вы окажете помощь разработчику, отправив отчёт об ошибке.</string>
@@ -93,12 +99,9 @@
     <string name="msgRestorePlacesFailed">Ошибка восстановления точек</string>
 
     <string name="introOfflineMapsTitle">Офлайн карты</string>
-    <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к интернету.</string>
-    <string name="introOfflineMapsFull">Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
+    <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к интернету. Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
     <string name="introPlacesTitle">Точки</string>
-    <string name="introPlacesPrefixFull">Точки могут быть легко импортированы из GPX и KML файлов, или</string>
-    <string name="introPlacesPrefix">Точки</string>
-    <string name="introPlaces">могут быть созданы в приложении. Вы можете задавать движение на точку, а также делиться ими друг с другом.</string>
+    <string name="introPlaces">Точки могут быть легко импортированы из GPX и KML файлов, или могут быть созданы в приложении. Вы можете задавать движение на точку, а также делиться ими друг с другом.</string>
     <string name="introTracksTitle">Треки</string>
     <string name="introTracks">Вы можете записывать треки ваших путешествий. Просто нажмите кнопку для начала записи, а потом нажмите её ещё раз для окончания. Вы можете выйти из приложения, если вам не надо смотреть на карту, трек будет записываться в фоновом режиме.</string>
     <string name="introOffroadTitle">Бездорожье</string>
@@ -147,7 +150,7 @@
     <string name="gauge_track">Путевой угол</string>
     <string name="gauge_turn">Курсовой угол</string>
     <string name="gauge_vmg">VMG</string>
-    <string name="gauge_xtk">XTK</string>
+    <string name="gauge_xtk">Радиальная дистанция</string>
     <string name="hide_map_objects">Прятать объекты карты</string>
     <string name="intentCopyMap">Установить карту</string>
     <string name="intentImportData">Импорт в Трекарту</string>
@@ -272,23 +275,7 @@
     <string name="msgMapSelectionExplanation">Серые квадраты обозначают области, доступные для загрузки. После загрузки индекса карт в каждом квадрате содержится информация о размере области карты и возрасте данных. Если вы пометите флажком загрузку затемнений рельефа, добавится отображение информации о их доступности для данной области, а размеры скорректируются с учетом затемнений. Яркие зеленые зоны обозначают активные (загруженные) области, загружающиеся в настоящее время зоны темно-зеленые. Если доступно обновление для определенной области, квадрат будет желтым. Если будет доступно обновление для карты мира, появится специальный флажок. Отметить активную область для удаления можно длинным нажатием. Если область удалена, пространство освобождается не сразу, а постепенно в течение времени. Индекс карт обновляется не более одного раза в день.</string>
     <string name="pref_general">Основное</string>
     <string name="pref_zoom_buttons_visible_title">Видимые кнопки масштаба</string>
-    <string name="titleMoveData">Перемещение данных приложения</string>
-    <string name="actionMoveData">Переместить данные</string>
-    <string name="msgWriteExternalStorageRationale">Трекарте требуется %s, чтобы иметь возможность переместить файлы данных и карт на внешний носитель</string>
-    <string name="msgMoveDataToApplicationStorage">Переместить обратно в область памяти приложения</string>
-    <string name="msgMoveDataToExternalStorage">Переместить в пользовательскую область памяти, чтобы исключить потерю данных при удалении приложения</string>
-    <string name="msgMoveDataToSDCard">Переместить на SD-карту, чтобы освободить память устройства</string>
     <string name="finishing">Завершение…</string>
-    <string name="intentMoveData">Перемещение данных Трекарты</string>
-    <string name="msgFileMoveError">ошибка перемещения файла</string>
-    <string name="msgNotEnoughSpaceOnDestinationStorage">недостаточно места в выбранном хранилище</string>
-    <string name="msgCannotAccessSourceFolder">нет доступа к исходной папке</string>
-    <string name="msgDestinationFolderIsNotEmpty">папка назначения не является пустой</string>
-    <string name="msgCannotCreateDestinationFolder">невозможно создать папку назначения</string>
-    <string name="msgFailedToMoveData">Ошибка перемещения данных: %s</string>
-    <string name="msgMovingFiles">Перемещение файлов…</string>
-    <string name="msgMoveDataToExternalStorageExplanation">Все данные приложения - места, треки и карты будут перемещены в корень пользовательской области памяти. Это исключит безусловное удаление данных при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
-    <string name="msgMoveDataToSDCardExplanation">Все данные приложения - места, треки и карты будут перемещены на SD-карту. В зависимости от типа SD-карты это может привести к значительному снижению производительности. Пожалуйста, учтите, что данные по-прежнему будут автоматически удалены при удалении приложения. Приложение будет перезапущено для выполнения данной операции.</string>
     <string name="msgMapDeleteFailed">Ошибка удаления файла карты</string>
     <string name="share_map_intent_title">Поделиться файлом карты через:</string>
     <string name="notificationChannelName">Текущие события</string>
@@ -299,7 +286,8 @@
     <string name="legend_state">Штат/область</string>
     <string name="legend_country_boundary">Граница государства</string>
     <string name="legend_region_boundary">Граница региона</string>
-    <string name="legend_province_boundary">Граница провинции</string>
+    <string name="x_legend_province_boundary">Граница провинции</string>
+    <string name="legend_province_boundary">Граница</string>
     <string name="legend_capital">Столица государства</string>
     <string name="legend_capital_name">Москва</string>
     <string name="legend_city">Крупный город</string>
@@ -744,7 +732,4 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
-    <string name="msgMoveDataToApplicationStoragePermissionExplanation">Выберите корневую папку, в которой Трекарта хранит все данные (обычно это папка \\\'Trekarta\\\' в корне хранилища файлов) и разрешите доступ к этим файлам.</string>
-    <string name="msgMoveDataToApplicationCheckExplanation">Проверьте, что все данные успешно перемещены, ничего не потеряно, и удалите папку \\\'Trekarta\\\' в корне хранилища файлов.</string>
-    <string name="msgMoveDataToApplicationStorageExplanation">К сожалению, Android 11 устанавливает жёсткие ограничения на доступ к файлам вне папки приложения. Поэтому все данные будут скопированы обратно в папку приложения, иначе Трекарта не сможет продолжить работу.</string>
 </resources>

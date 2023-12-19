@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2022 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -77,7 +77,9 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     private int mLang;
 
     private FragmentAmenityInformationBinding mViews;
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private BottomSheetBehavior<View> mBottomSheetBehavior;
+    private AmenityBottomSheetCallback mBottomSheetCallback;
+    private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
 
@@ -104,8 +106,6 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
             if (Configuration.getHideSystemUI())
                 rootView.requestLayout();
         });
-        mMapHolder.updateMapViewArea();
-
         return rootView;
     }
 
@@ -131,49 +131,25 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         final ViewGroup rootView = (ViewGroup) getView();
         assert rootView != null;
 
-        FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageResource(R.drawable.ic_navigate);
-        floatingButton.setOnClickListener(v -> {
+        mFloatingButton = mFragmentHolder.enableActionButton();
+        mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        mFloatingButton.setOnClickListener(v -> {
             mMapHolder.navigateTo(mAmenity.coordinates, mAmenity.name);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         });
 
-        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) floatingButton.getLayoutParams();
+        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
         p.setAnchorId(R.id.bottomSheetPanel);
-        floatingButton.setLayoutParams(p);
+        mFloatingButton.setLayoutParams(p);
 
         mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
         updateAmenityInformation(latitude, longitude);
 
-        final View dragHandle = rootView.findViewById(R.id.dragHandle);
-        dragHandle.setAlpha(1f);
+        rootView.findViewById(R.id.dragHandle).setAlpha(1f);
+        mBottomSheetCallback = new AmenityBottomSheetCallback();
         ViewParent parent = rootView.getParent();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
-                    mFragmentHolder.disableActionButton();
-                    CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) floatingButton.getLayoutParams();
-                    p.setAnchorId(R.id.contentPanel);
-                    floatingButton.setLayoutParams(p);
-                    floatingButton.setAlpha(1f);
-                    mFragmentHolder.popCurrent();
-                }
-                if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
-                    mMapHolder.updateMapViewArea();
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    TextView coordsView = rootView.findViewById(R.id.coordinates);
-                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true);
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                dragHandle.setAlpha(1f - slideOffset);
-            }
-        });
+        mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
     }
 
     @Override
@@ -216,6 +192,7 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
         mViews = null;
     }
 
@@ -427,5 +404,30 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
 
     public void setPreferredLanguage(String lang) {
         mLang = MapTrekDatabaseHelper.getLanguageId(lang);
+    }
+
+    private class AmenityBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
+                mFragmentHolder.disableActionButton();
+                CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
+                p.setAnchorId(R.id.contentPanel);
+                mFloatingButton.setLayoutParams(p);
+                mFloatingButton.setAlpha(1f);
+                mFragmentHolder.popCurrent();
+            }
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
+                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true);
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            bottomSheet.findViewById(R.id.dragHandle).setAlpha(1f - slideOffset);
+            mFloatingButton.setAlpha(1f + slideOffset);
+        }
     }
 }

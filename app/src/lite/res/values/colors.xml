@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- http://www.materialui.co/colors -->
-    <color name="colorAccentDarkest">#1B5E20</color> <!-- 900 -->
-    <color name="colorAccentDark">#388E3C</color> <!-- 700 -->
-    <color name="colorAccent">#4CAF50</color> <!-- 500 -->
-    <color name="colorAccentLight">#81C784</color> <!-- 300 -->
-    <color name="colorAccentLightest">#C8E6C9</color> <!-- 100 -->
-</resources>

@@ -23,9 +23,11 @@ import org.oscim.map.Map;
 import org.oscim.theme.styles.LineStyle;
 
 import mobi.maptrek.data.Route;
+import mobi.maptrek.data.Track;
 
 public class RouteLayer extends PathLayer implements Route.UpdateListener {
     private final Route mRoute;
+    private Track mTrack;
 
     public RouteLayer(Map map, Route route) {
         this(map, Color.fade(Color.DKGRAY, 0.5), 12f, route);
@@ -36,6 +38,12 @@ public class RouteLayer extends PathLayer implements Route.UpdateListener {
         mRoute = route;
         mRoute.setUpdateListener(this);
         onRouteChanged();
+    }
+
+    public RouteLayer(Map mMap, Route route, Track track) {
+        this(mMap, route);
+        mTrack = track;
+        setPoints(track.points);
     }
 
     @Override
@@ -50,5 +58,9 @@ public class RouteLayer extends PathLayer implements Route.UpdateListener {
 
     public Route getRoute() {
         return mRoute;
+    }
+
+    public Track getTrack() {
+        return mTrack;
     }
 }

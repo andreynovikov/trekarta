@@ -9,7 +9,6 @@
 
     <dimen name="image_button_padding">8dp</dimen>
     <dimen name="image_button_size">48dp</dimen>
-    <dimen name="image_button_size_with_gap">52dp</dimen>
     <dimen name="image_button_size_medium">32dp</dimen>
     <dimen name="image_button_size_small">24dp</dimen>
     <dimen name="image_button_size_margin">52dp</dimen>

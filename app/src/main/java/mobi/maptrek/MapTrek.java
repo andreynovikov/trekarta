@@ -32,7 +32,6 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -113,7 +112,6 @@ public class MapTrek extends Application {
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
-    private File mSDCardDirectory;
     private SafeResultReceiver mResultReceiver;
     private Waypoint mEditedWaypoint;
     private List<MapFile> mBitmapLayerMaps;
@@ -161,32 +159,13 @@ public class MapTrek extends Application {
         if (Build.VERSION.SDK_INT > 25)
             createNotificationChannel();
 
-        File[] dirs = getExternalFilesDirs(null);
-        for (File dir : dirs) {
-            if (mSDCardDirectory == null && dir != null) {
-                try {
-                    if (Environment.isExternalStorageRemovable(dir) &&
-                            Environment.getExternalStorageState(dir).equals(Environment.MEDIA_MOUNTED)) {
-                        mSDCardDirectory = dir;
-                        break;
-                    }
-                } catch (IllegalArgumentException ignore) {
-                    // directory is inaccessible
-                }
-            }
-        }
-        // find removable external storage
-        logger.error("Has SD card: {}", mSDCardDirectory);
-
         mapObjects.clear();
 
-        int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
-        AppCompatDelegate.setDefaultNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(Configuration.getNightModeState());
 
-        /*
         if (BuildConfig.DEBUG) {
             // Look for test maps and import them
-            File dir = getExternalDir("native");
+            File dir = getExternalFilesDir("native");
             File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
             for (File mapFile : mapFiles) {
                 if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
@@ -210,7 +189,6 @@ public class MapTrek extends Application {
                 }
             }
         }
-         */
     }
 
     private void initializeSettings() {
@@ -269,46 +247,9 @@ public class MapTrek extends Application {
             notificationManager.createNotificationChannel(channel);
     }
 
-    public boolean hasSDCard() {
-        return mSDCardDirectory != null && BuildConfig.FULL_VERSION;
-    }
-
-    public File getExternalDirectory() {
-        return new File(Environment.getExternalStorageDirectory(), "Trekarta");
-    }
-
-    public File getSDCardDirectory() {
-        return mSDCardDirectory;
-    }
-
-    public File getExternalDir(String type) {
-        String externalDir = Configuration.getExternalStorage();
-        if (externalDir == null) {
-            return getExternalFilesDir(type);
-        } else {
-            File dir = new File(externalDir, type);
-            if (!dir.exists())
-                //noinspection ResultOfMethodCallIgnored
-                dir.mkdirs();
-            return dir;
-        }
-    }
-
-    public static File getExternalDirForContext(Context context, String type) {
-        if (!Configuration.isInitialized()) {
-            PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
-            Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(context));
-        }
-        String externalDir = Configuration.getExternalStorage();
-        if (externalDir == null)
-            return context.getExternalFilesDir(type);
-        else
-            return new File(externalDir, type);
-    }
-
     public synchronized SQLiteDatabase getDetailedMapDatabase() throws IOException {
         if (mDetailedMapHelper == null) {
-            File dbFile = new File(getExternalDir("native"), Index.WORLDMAP_FILENAME);
+            File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
             boolean fresh = !dbFile.exists();
             if (fresh)
                 copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
@@ -339,7 +280,7 @@ public class MapTrek extends Application {
 
     private synchronized HillshadeDatabaseHelper getHillshadeDatabaseHelper(boolean reset) {
         if (mHillshadeHelper == null) {
-            File file = new File(getExternalDir("native"), Index.HILLSHADE_FILENAME);
+            File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
             if (reset)
                 logger.error("Hillshade database deleted: {}", file.delete());
             mHillshadeHelper = new HillshadeDatabaseHelper(this, file);
@@ -376,27 +317,28 @@ public class MapTrek extends Application {
             return null;
     }
 
-    public Index getMapIndex() throws IOException {
+    public Index getMapIndex() {
         if (mIndex == null)
-            mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
+            try {
+                mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
+            } catch (IOException e) {
+                logger.error("Couldn't open map database", e);
+            }
         return mIndex;
     }
 
     public MapIndex getExtraMapIndex() {
         if (mExtraMapIndex == null) {
-            mExtraMapIndex = new MapIndex(this, getExternalDir("maps"));
-
-            if (BuildConfig.FULL_VERSION) {
-                mExtraMapIndex.initializeOfflineMapProviders();
-                mExtraMapIndex.initializeOnlineMapProviders();
-            }
+            mExtraMapIndex = new MapIndex(this, getExternalFilesDir("maps"));
+            mExtraMapIndex.initializeOfflineMapProviders();
+            mExtraMapIndex.initializeOnlineMapProviders();
         }
         return mExtraMapIndex;
     }
 
     public synchronized WaypointDbDataSource getWaypointDbDataSource() {
         if (mWaypointDbDataSource == null) {
-            File waypointsFile = new File(getExternalDir("databases"), "waypoints.sqlitedb");
+            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
             mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
         }
         return mWaypointDbDataSource;

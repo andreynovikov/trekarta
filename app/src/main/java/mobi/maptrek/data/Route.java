@@ -16,6 +16,9 @@
 
 package mobi.maptrek.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 
@@ -27,7 +30,7 @@ import mobi.maptrek.data.style.RouteStyle;
 import mobi.maptrek.util.Geo;
 import mobi.maptrek.util.StringFormatter;
 
-public class Route {
+public class Route implements Parcelable {
     public int id;
     public String name;
     public String description;
@@ -41,7 +44,7 @@ public class Route {
     public RouteStyle style = new RouteStyle();
     public DataSource source; // back reference to it's source
 
-    private final ArrayList<Instruction> instructions = new ArrayList<>();
+    public final ArrayList<Instruction> instructions = new ArrayList<>();
     private Instruction lastInstruction;
     private UpdateListener updateListener;
 
@@ -56,13 +59,20 @@ public class Route {
         distance = 0;
     }
 
-    public void addInstruction(int latitudeE6, int longitudeE6) {
-        addInstruction(new GeoPoint(latitudeE6, longitudeE6));
+    public Instruction addInstruction(int latitudeE6, int longitudeE6) {
+        return addInstruction(new GeoPoint(latitudeE6, longitudeE6));
     }
 
-    public void addInstruction(GeoPoint point) {
+    public Instruction addInstruction(GeoPoint point) {
         Instruction instruction = new Instruction(point);
         addInstruction(instruction);
+        return instruction;
+    }
+
+    public Instruction addInstruction(int latitudeE6, int longitudeE6, String text, int sign) {
+        Instruction instruction = new Instruction(latitudeE6, longitudeE6, text, sign);
+        addInstruction(instruction);
+        return instruction;
     }
 
     private void addInstruction(Instruction instruction) {
@@ -311,6 +321,53 @@ public class Route {
             updateListener.onRouteChanged();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(id);
+        out.writeString(name);
+        out.writeString(description);
+        out.writeInt(width);
+        synchronized (instructions) {
+            out.writeInt(instructions.size());
+            for (Instruction instruction : instructions) {
+                out.writeInt(instruction.latitudeE6);
+                out.writeInt(instruction.longitudeE6);
+                out.writeString(instruction.text);
+                out.writeInt(instruction.sign);
+            }
+        }
+    }
+
+    public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
+        public Route createFromParcel(Parcel in) {
+            return new Route(in);
+        }
+
+        public Route[] newArray(int size) {
+            return new Route[size];
+        }
+    };
+
+    private Route(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        description = in.readString();
+        width = in.readInt();
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            int latitudeE6 = in.readInt();
+            int longitudeE6 = in.readInt();
+            String text = in.readString();
+            int sign = in.readInt();
+            addInstruction(new Instruction(latitudeE6, longitudeE6, text, sign));
+        }
+    }
+
     public static class Instruction extends GeoPoint {
         public static final int UNDEFINED = -299;
         public static final int START = -199;
@@ -334,13 +391,19 @@ public class Route {
         public static final int KEEP_RIGHT = 7;
         public static final int U_TURN_RIGHT = 8;
 
-        private String text;
-        private int sign;
+        public String text;
+        public int sign;
         private int distance; // TODO Use distance if set
 
         Instruction(GeoPoint point) {
             super(point.latitudeE6, point.longitudeE6);
             sign = UNDEFINED;
+        }
+
+        Instruction(int latitudeE6, int longitudeE6, String text, int sign) {
+            super(latitudeE6, longitudeE6);
+            this.text = text;
+            this.sign = sign;
         }
 
         public GeoPoint getCoordinates() {

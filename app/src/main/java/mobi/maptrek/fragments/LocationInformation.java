@@ -42,7 +42,6 @@ import org.oscim.map.Map;
 
 import java.util.Locale;
 
-import mobi.maptrek.BuildConfig;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.LocationState;
 import mobi.maptrek.LocationStateChangeListener;
@@ -122,20 +121,14 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mOffset = mRootView.findViewById(R.id.offset);
         mDeclination = mRootView.findViewById(R.id.declination);
 
-        if (BuildConfig.FULL_VERSION) {
-            mRootView.findViewById(R.id.extendTable).setVisibility(View.VISIBLE);
-        }
-
         if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SUNRISE_SUNSET)) {
             ViewTreeObserver vto = mRootView.getViewTreeObserver();
             vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
                     mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    if (BuildConfig.FULL_VERSION) {
-                        View view = mSunrise.getVisibility() == View.VISIBLE ? mSunrise : mSunset;
-                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, view, true);
-                    }
+                    View view = mSunrise.getVisibility() == View.VISIBLE ? mSunrise : mSunset;
+                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SUNRISE_SUNSET, R.string.advice_sunrise_sunset, view, true);
                 }
             });
         }
@@ -228,33 +221,31 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         mCoordinateUtmUps.setText(StringFormatter.coordinates(3, " ", latitude, longitude));
         mCoordinateMgrs.setText(StringFormatter.coordinates(4, " ", latitude, longitude));
 
-        if (BuildConfig.FULL_VERSION) {
-            mSunriseSunset.setLocation(latitude, longitude);
-            double sunrise = mSunriseSunset.compute(true);
-            double sunset = mSunriseSunset.compute(false);
+        mSunriseSunset.setLocation(latitude, longitude);
+        double sunrise = mSunriseSunset.compute(true);
+        double sunset = mSunriseSunset.compute(false);
 
-            if (sunrise == Double.MAX_VALUE || sunset == Double.MAX_VALUE) {
-                mSunrise.setText(R.string.never_rises);
-                mSunsetTitle.setVisibility(View.GONE);
-                mSunset.setVisibility(View.GONE);
-            } else if (sunrise == Double.MIN_VALUE || sunset == Double.MIN_VALUE) {
-                mSunset.setText(R.string.never_sets);
-                mSunriseTitle.setVisibility(View.GONE);
-                mSunrise.setVisibility(View.GONE);
-            } else {
-                mSunrise.setText(mSunriseSunset.formatTime(sunrise));
-                mSunset.setText(mSunriseSunset.formatTime(sunset));
-                mSunriseTitle.setVisibility(View.VISIBLE);
-                mSunrise.setVisibility(View.VISIBLE);
-                mSunsetTitle.setVisibility(View.VISIBLE);
-                mSunset.setVisibility(View.VISIBLE);
-            }
-
-            mOffset.setText(StringFormatter.timeO((int) (mSunriseSunset.getUtcOffset() * 60)));
-
-            GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
-            mDeclination.setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
+        if (sunrise == Double.MAX_VALUE || sunset == Double.MAX_VALUE) {
+            mSunrise.setText(R.string.never_rises);
+            mSunsetTitle.setVisibility(View.GONE);
+            mSunset.setVisibility(View.GONE);
+        } else if (sunrise == Double.MIN_VALUE || sunset == Double.MIN_VALUE) {
+            mSunset.setText(R.string.never_sets);
+            mSunriseTitle.setVisibility(View.GONE);
+            mSunrise.setVisibility(View.GONE);
+        } else {
+            mSunrise.setText(mSunriseSunset.formatTime(sunrise));
+            mSunset.setText(mSunriseSunset.formatTime(sunset));
+            mSunriseTitle.setVisibility(View.VISIBLE);
+            mSunrise.setVisibility(View.VISIBLE);
+            mSunsetTitle.setVisibility(View.VISIBLE);
+            mSunset.setVisibility(View.VISIBLE);
         }
+
+        mOffset.setText(StringFormatter.timeO((int) (mSunriseSunset.getUtcOffset() * 60)));
+
+        GeomagneticField mag = new GeomagneticField((float) latitude, (float) longitude, 0.0f, System.currentTimeMillis());
+        mDeclination.setText(String.format(Locale.getDefault(), "%+.1f\u00B0", mag.getDeclination()));
     }
 
     @Override

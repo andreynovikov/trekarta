@@ -6,9 +6,9 @@
     <string name="title_map_import">Map import</string>
     <string name="title_map_removal">Removing map</string>
     <string name="title_input_name">Name</string>
-    <string name="titleMoveData">Move application data</string>
     <string name="titleCoordinatesInput">Enter coordinates</string>
     <string name="titleLocationPermissionRationale">Trekarta needs location permission</string>
+    <string name="titleNotificationPermissionRationale">Trekarta needs notification permission</string>
     <string name="whatsNewTitle">What\'s New</string>
 
     <string name="ok">OK</string>
@@ -41,6 +41,7 @@
     <string name="downloadHillshades">Download concomitant hillshades</string>
     <string name="iamin">Yes, I\'m in</string>
     <string name="nameOrCoordinates">Name or coordinates</string>
+    <string name="satellitesStub" translatable="false">0/0</string>
 
     <string name="actionSave">Save</string>
     <string name="actionStop">Stop</string>
@@ -66,6 +67,8 @@
     <string name="actionFindRouteHere">Find route here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
+    <string name="actionNextRouteWaypoint">Next route point</string>
+    <string name="actionPrevRouteWaypoint">Previous route point</string>
     <string name="actionAutoTilt">Tilt on track up</string>
     <string name="actionRememberTilt">Remember tilt</string>
     <string name="actionHideSystemUI">Fullscreen</string>
@@ -82,7 +85,6 @@
     <string name="actionFontSize">Font size</string>
     <string name="actionRate">Say thanks</string>
     <string name="actionHillshades">Hillshades</string>
-    <string name="actionMoveData">Move data</string>
     <string name="actionRuler">Ruler</string>
     <string name="actionLegend">Legend</string>
     <string name="actionMapScale">Map scale</string>
@@ -99,6 +101,7 @@
 
     <string name="msgNavigationProgress">%1$s left, proceed on a course of %2$s</string>
     <string name="msgNavigating">Navigating to %s</string>
+    <string name="msgNavigatingPoint">route point</string>
     <string name="msgNavigationActions">You can stop navigation completely or pause it until next application start</string>
     <string name="msgBackQuit">Press Back once more to quit</string>
     <string name="msgPlaceDeleted">Place deleted</string>
@@ -117,8 +120,9 @@
     <string name="msgSaveFailed">Failed to save: %s</string>
     <string name="msgAccessFineLocationRationale">Trekarta needs to %s to be able to show your position on map in real time and record track of your movement on your request</string>
     <string name="msgReadExternalStorageRationale">Trekarta needs to %s to be able to access the file you want to open</string>
-    <string name="msgWriteExternalStorageRationale">Trekarta needs to %s to be able to store data and map files on external storage</string>
+    <string name="msgShowNotificationRationale">Trekarta needs to %s to be able to write track or navigate in background</string>
     <string name="msgLocationPermissionError">You should grant Trekarta location permission to be able to see your real time position on map</string>
+    <string name="msgNotificationPermissionError">You should grant Trekarta notification permission to be able to write track or navigate in background</string>
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
@@ -163,31 +167,13 @@
     <string name="msgWaitForFtsTable">Please wait while maps database is updated for full text search. Depending on how many map areas you have downloaded so far it can take up to several minutes.</string>
     <string name="msgRateApplication">If you are enjoying Trekarta please rate it and leave comment on the Google Play Store to boost its spread</string>
     <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
-    <string name="msgMoveDataToApplicationStorage">Move back to default application storage</string>
-    <string name="msgMoveDataToExternalStorage">Move to user storage to prevent data loss on application uninstall</string>
-    <string name="msgMoveDataToSDCard">Move to SD card to free device storage space</string>
-    <string name="msgMoveDataToExternalStorageExplanation">All application data - places, tracks and maps will be moved to user storage root folder. This will prevent data from being silently removed when application is uninstalled. Application will restart to perform data move.</string>
-    <string name="msgMoveDataToSDCardExplanation">All application data - places, tracks and maps will be moved to SD card. Depending on SD card type this may result in significant performance degradation. Please notice that data will be still automatically removed upon application uninstall. Application will restart to perform data move.</string>
-    <string name="msgMoveDataToApplicationStorageExplanation">Unfortunately Android 11 sets severe restrictions on accessing storage outside application folder. Therefore all data will be moved back to application folder, otherwise Trekarta wouldn\'t be able to work.</string>
-    <string name="msgMoveDataToApplicationStoragePermissionExplanation">Please select root folder where Trekarta currently stores all data (it should be named \'Trekarta\' and located in storage root) and allow access to these files.</string>
-    <string name="msgMoveDataToApplicationCheckExplanation">Check that all data is safely moved, nothing is lost and remove \'Trekarta\' folder from storage root.</string>
-    <string name="msgMovingFiles">Moving files…</string>
-    <string name="msgFailedToMoveData">Failed to move data: %s</string>
-    <string name="msgCannotCreateDestinationFolder">cannot create destination folder</string>
-    <string name="msgDestinationFolderIsNotEmpty">destination folder is not empty</string>
-    <string name="msgCannotAccessSourceFolder">cannot access source folder</string>
-    <string name="msgNotEnoughSpaceOnDestinationStorage">not enough space on destination storage</string>
-    <string name="msgFileMoveError">file move error</string>
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
     <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
-    <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades.</string>
-    <string name="introOfflineMapsFull">You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
+    <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades. You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
     <string name="introPlacesTitle">Places</string>
-    <string name="introPlacesPrefixFull">Places can be easily imported from GPX and KML files or</string>
-    <string name="introPlacesPrefix">Places</string>
-    <string name="introPlaces">can be created within application. You can navigate to points and share them with others.</string>
+    <string name="introPlaces">Places can be easily imported from GPX and KML files or can be created within application. You can navigate to points and share them with others.</string>
     <string name="introTracksTitle">Tracks</string>
     <string name="introTracks">You can record tracks of your journey. Just press a button when you start and press it once more when you finish. You can quit the application if you do not need to look at the map, the track will be recorded in the background.</string>
     <string name="introOffroadTitle">Off-road</string>
@@ -226,6 +212,16 @@
     <string name="place_name">Place #%d</string>
     <string name="remove_gauge">Remove %s</string>
     <string name="add_gauge">Add %s</string>
+    <string name="gauge_speed_abbr">SPD</string>
+    <string name="gauge_bearing_abbr">BRG</string>
+    <string name="gauge_distance_abbr">DST</string>
+    <string name="gauge_track_abbr">TRK</string>
+    <string name="gauge_altitude_abbr">ALT</string>
+    <string name="gauge_turn_abbr">TRN</string>
+    <string name="gauge_vmg_abbr">VMG</string>
+    <string name="gauge_xtk_abbr">XTK</string>
+    <string name="gauge_ete_abbr">ETE</string>
+    <string name="gauge_elevation_abbr">ELE</string>
     <string name="gauge_speed">Speed</string>
     <string name="gauge_bearing">Bearing</string>
     <string name="gauge_distance">Distance</string>
@@ -233,7 +229,7 @@
     <string name="gauge_altitude">Altitude</string>
     <string name="gauge_turn">Turn</string>
     <string name="gauge_vmg">VMG</string>
-    <string name="gauge_xtk">XTK</string>
+    <string name="gauge_xtk">Cross track</string>
     <string name="gauge_ete">ETE</string>
     <string name="gauge_elevation">Elevation</string>
     <string name="place_altitude" translatable="false">&#2336; %s</string>
@@ -243,7 +239,6 @@
     <string name="about">Trekarta is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you\'ve been.</string>
     <string name="intentCopyMap">Install map</string>
     <string name="intentImportData">Trekarta import</string>
-    <string name="intentMoveData">Trekarta data move</string>
     <string name="mapDownloadText">Download missing map</string>
     <string name="mapTitle">Area %1$d-%2$d map</string>
     <string name="hillshadeTitle">Area %1$d-%2$d hillshade</string>
@@ -327,7 +322,8 @@
     <string name="legend_state">State</string>
     <string name="legend_country_boundary">Country boundary</string>
     <string name="legend_region_boundary">Region boundary</string>
-    <string name="legend_province_boundary">Province boundary</string>
+    <string name="x_legend_province_boundary">Province boundary</string>
+    <string name="legend_province_boundary">Boundary</string>
     <string name="legend_capital">Country capital</string>
     <string name="legend_capital_name">Moscow</string>
     <string name="legend_city">City</string>
@@ -760,5 +756,4 @@
     <string name="legend_bicycle_repair_station">Bicycle repair station</string>
     <string name="legend_bicycle_parking">Bicycle parking</string>
     <string name="legend_fort">Fort</string>
-
 </resources>

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2023.11" versioncode="85" date="11.11.2023">
+        <change>Added support for GPX routes</change>
+        <change>Added basic support for route navigation</change>
+        <change>Discontinued Lite version</change>
+        <change>Fixed gauge layout</change>
+        <change>Fixed opening locations from other apps</change>
+    </release>
     <release version="2022.05" versioncode="84" date="01.05.2022">
         <change>Fixed maps download on Android 12</change>
         <change variant="full">Fixed custom maps processing on device rotation</change>
