@@ -61,6 +61,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.ContentFrameLayout;
@@ -113,6 +114,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.CanvasAdapter;
@@ -234,6 +236,8 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.plugin.PluginRepository;
+import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
@@ -256,7 +260,7 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 
-public class MainActivity extends BasePluginActivity implements ILocationListener,
+public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
         MapHolder,
         Map.InputListener,
@@ -410,6 +414,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private WeakReference<SafeResultReceiver> mResultReceiver;
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
+    private PluginRepository mPluginRepository;
 
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
@@ -418,6 +423,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onCreate(savedInstanceState);
 
         logger.debug("onCreate()");
+        EventBus.getDefault().register(this);
 
         // Required for transparent status bar
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -474,11 +480,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mShieldFactory = application.getShieldFactory();
         mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
-        if (savedInstanceState == null) {
-            initializePlugins();
-            mMapIndex.initializeOfflineMapProviders();
-            mMapIndex.initializeOnlineMapProviders();
+        mPluginRepository = application.getPluginRepository();
 
+        if (savedInstanceState == null) {
             String language = Configuration.getLanguage();
             if (language == null) {
                 language = resources.getConfiguration().locale.getLanguage();
@@ -1048,6 +1052,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     protected void onDestroy() {
         super.onDestroy();
         logger.debug("onDestroy()");
+        EventBus.getDefault().unregister(this);
 
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
@@ -1760,7 +1765,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 if (mViews.gaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                     menu.removeItem(R.id.actionAddGauge);
-                java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
+                java.util.Map<String, Pair<Drawable, Intent>> tools = mPluginRepository.getPluginTools();
                 String[] toolNames = tools.keySet().toArray(new String[0]);
                 Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
                 for (String toolName : toolNames) {
@@ -4079,7 +4084,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
             if (WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED.equals(action)) {
-                sendExplicitBroadcast(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
+                ContextUtils.sendExplicitBroadcast(MainActivity.this, WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
             }
             if (WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED.equals(action)) {
                 for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints())
@@ -4625,5 +4630,12 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private double movingAverage(double current, double previous) {
         return 0.2 * previous + 0.8 * current;
+    }
+
+    @Subscribe
+    public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
+        if (BuildConfig.FULL_VERSION) {
+            mPluginRepository.addPluginEntry(entry);
+        }
     }
 }
