@@ -4634,8 +4634,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Subscribe
     public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
-        if (BuildConfig.FULL_VERSION) {
-            mPluginRepository.addPluginEntry(entry);
-        }
+        mPluginRepository.addPluginEntry(entry);
     }
 }

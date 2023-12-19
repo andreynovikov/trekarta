@@ -164,30 +164,7 @@ public class MapTrek extends Application {
         AppCompatDelegate.setDefaultNightMode(Configuration.getNightModeState());
 
         if (BuildConfig.DEBUG) {
-            // Look for test maps and import them
-            File dir = getExternalFilesDir("native");
-            File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
-            for (File mapFile : mapFiles) {
-                if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
-                    Uri uri = Uri.fromFile(mapFile);
-                    logger.error("Found debug map: {}", mapFile.getAbsolutePath());
-                    Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Data data = new Data.Builder()
-                                .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
-                                .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
-                                .build();
-                        OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-                                .setInputData(data)
-                                .build();
-                        WorkManager.getInstance(this).enqueue(importWorkRequest);
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(importIntent);
-                    } else {
-                        startService(importIntent);
-                    }
-                }
-            }
+            findDebugMaps();
         }
     }
 
@@ -218,6 +195,7 @@ public class MapTrek extends Application {
         return mSelf;
     }
 
+    /** @noinspection unused*/
     public void restart(@NonNull Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -359,12 +337,41 @@ public class MapTrek extends Application {
     public PluginRepository getPluginRepository() {
         if (mPluginRepository == null) {
             mPluginRepository = new PluginRepository(this);
-
-            if (BuildConfig.FULL_VERSION) {
-                mPluginRepository.initializePlugins();
-            }
+            mPluginRepository.initializePlugins();
         }
         return mPluginRepository;
+    }
+
+    private void findDebugMaps() {
+        // Look for test maps and import them
+        File dir = getExternalFilesDir("native");
+        if (dir == null)
+            return;
+        File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
+        if (mapFiles == null)
+            return;
+        for (File mapFile : mapFiles) {
+            if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
+                Uri uri = Uri.fromFile(mapFile);
+                logger.error("Found debug map: {}", mapFile.getAbsolutePath());
+                Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Data data = new Data.Builder()
+                            .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+                            .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
+                            .build();
+                    OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                            .setInputData(data)
+                            .build();
+                    WorkManager.getInstance(this).enqueue(importWorkRequest);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(importIntent);
+                } else {
+                    startService(importIntent);
+                }
+            }
+        }
+
     }
 
     @Nullable
@@ -397,6 +404,7 @@ public class MapTrek extends Application {
     @SuppressWarnings("SameParameterValue")
     private void copyAsset(String asset, File outFile) throws IOException {
         InputStream in = getAssets().open(asset);
+        //noinspection IOStreamConstructor
         OutputStream out = new FileOutputStream(outFile);
         byte[] buffer = new byte[1024];
         int read;
@@ -552,7 +560,8 @@ public class MapTrek extends Application {
                         .append(thread.toString())
                         .append("\nException :\n\n");
 
-                if (mExceptionLog.getParentFile().canWrite()) {
+                File file = mExceptionLog.getParentFile();
+                if (file != null && file.canWrite()) {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(mExceptionLog, false));
                     writer.write(msg.toString());
                     ex.printStackTrace(new PrintWriter(writer));
