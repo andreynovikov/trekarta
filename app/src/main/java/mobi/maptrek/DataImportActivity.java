@@ -18,12 +18,10 @@ package mobi.maptrek;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
@@ -37,6 +35,10 @@ import android.os.Message;
 import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -63,7 +65,7 @@ import mobi.maptrek.util.MonitoredInputStream;
 import mobi.maptrek.util.ProgressHandler;
 import mobi.maptrek.util.ProgressListener;
 
-public class DataImportActivity extends Activity {
+public class DataImportActivity extends FragmentActivity {
     private static final Logger logger = LoggerFactory.getLogger(DataImportActivity.class);
     private static final String DATA_IMPORT_FRAGMENT = "dataImportFragment";
     private static final DateFormat SUFFIX_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT);
@@ -87,7 +89,7 @@ public class DataImportActivity extends Activity {
         mProgressBar = findViewById(R.id.progressBar);
         mActionButton = findViewById(R.id.action);
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         mDataImportFragment = (DataImportFragment) fm.findFragmentByTag(DATA_IMPORT_FRAGMENT);
         if (mDataImportFragment == null) {
             mDataImportFragment = new DataImportFragment();
@@ -171,19 +173,15 @@ public class DataImportActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (mTask != null)
-                        mDataImportFragment.startImport(mTask);
-                } else {
-                    finish();
-                }
-                // return;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (mTask != null)
+                    mDataImportFragment.startImport(mTask);
+            } else {
+                finish();
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -273,19 +271,21 @@ public class DataImportActivity extends Activity {
         private void processIntent(final Intent intent) {
             String action = intent.getAction();
             String type = intent.getType();
-            logger.debug("Action: {}", action);
+            logger.error("Action: {}", action);
             logger.debug("Type: {}", type);
             if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action)) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (uri == null)
                     uri = intent.getData();
-                logger.debug("Uri: {}", uri.toString());
+                if (uri == null)
+                    return;
+                logger.debug("Uri: {}", uri);
                 logger.debug("Authority: {}", uri.getAuthority());
                 final Uri finalUri = uri;
                 Runnable task = () -> readFile(finalUri);
                 String scheme = uri.getScheme();
                 if ("file".equals(scheme)) {
-                    ((DataImportActivity) getActivity()).askForPermission(task);
+                    ((DataImportActivity) requireActivity()).askForPermission(task);
                 } else {
                     startImport(task);
                 }
@@ -302,18 +302,20 @@ public class DataImportActivity extends Activity {
         }
 
         private void readFile(Uri uri) {
-            DataImportActivity activity = (DataImportActivity) getActivity();
+            DataImportActivity activity = (DataImportActivity) requireActivity();
 
             String name = null;
             long length = -1;
 
             String scheme = uri.getScheme();
             if ("file".equals(scheme)) {
-                String path = uri.getPath();
-                File src = new File(path);
-                name = uri.getLastPathSegment();
-                length = src.length();
                 try {
+                    String path = uri.getPath();
+                    if (path == null)
+                        throw new FileNotFoundException();
+                    File src = new File(path);
+                    name = uri.getLastPathSegment();
+                    length = src.length();
                     mInputStream = new MonitoredInputStream(new FileInputStream(src));
                 } catch (FileNotFoundException e) {
                     logger.error("Failed to get imported file stream", e);
@@ -326,9 +328,11 @@ public class DataImportActivity extends Activity {
                 Cursor cursor = resolver.query(uri, new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE}, null, null, null);
                 if (cursor != null) {
                     logger.debug("   from cursor");
-                    if (cursor.moveToFirst()) {
-                        name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                        length = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (nameIndex >= 0 && sizeIndex >= 0 && cursor.moveToFirst()) {
+                        name = cursor.getString(nameIndex);
+                        length = cursor.getLong(sizeIndex);
                     }
                     cursor.close();
                 }
@@ -341,11 +345,10 @@ public class DataImportActivity extends Activity {
                         cursor.close();
                 }
                 if (length == -1) {
-                    try {
-                        AssetFileDescriptor afd = resolver.openAssetFileDescriptor(uri, "r");
+                    try (AssetFileDescriptor afd = resolver.openAssetFileDescriptor(uri, "r")) {
                         if (afd != null)
                             length = afd.getLength();
-                    } catch (FileNotFoundException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -370,6 +373,12 @@ public class DataImportActivity extends Activity {
                 return;
             }
 
+            if (name == null) {
+                logger.error("Failed to get file name");
+                activity.showError(getString(R.string.msgFailedToGetFileName));
+                return;
+            }
+
             if (!name.endsWith(TrackManager.EXTENSION) &&
                     !name.endsWith(KMLManager.EXTENSION) &&
                     !name.endsWith(KMLManager.ZIP_EXTENSION) &&
@@ -385,7 +394,7 @@ public class DataImportActivity extends Activity {
             mProgressListener.onProgressAnnotated(name);
             File dst = null;
             try {
-                dst = getDestinationFile(name);
+                dst = getDestinationFile(activity, name);
 
                 mInputStream.addChangeListener(location -> {
                     if (mProgressListener != null) {
@@ -406,9 +415,9 @@ public class DataImportActivity extends Activity {
         }
 
         @Nullable
-        private File getDestinationFile(String filename) {
+        private File getDestinationFile(@NonNull Context context, String filename) {
             boolean isMap = filename.endsWith(".mbtiles") || filename.endsWith(".sqlitedb");
-            File dir = getContext().getExternalFilesDir(isMap ? "maps" : "data");
+            File dir = context.getExternalFilesDir(isMap ? "maps" : "data");
             if (dir == null) {
                 logger.error("Path for {} unavailable", isMap ? "maps" : "data");
                 return null;

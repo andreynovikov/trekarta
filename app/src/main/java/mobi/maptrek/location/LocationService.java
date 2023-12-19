@@ -48,10 +48,10 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 import android.text.format.DateUtils;
 
 import org.slf4j.Logger;
@@ -542,7 +542,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
         //TODO Try to 'guess' starting and ending location name
         mLastTrack.description = DateUtils.formatDateRange(this, startTime, stopTime, flags) +
-                " \u2014 " + StringFormatter.distanceH(mLastTrack.getDistance());
+                " — " + StringFormatter.distanceH(mLastTrack.getDistance());
         flags |= DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_DATE;
         mLastTrack.name = DateUtils.formatDateRange(this, startTime, stopTime, flags);
 
@@ -1067,6 +1067,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
             mLastKnownLocation = new Location(LocationManager.GPS_PROVIDER);
             mLastKnownLocation.setTime(System.currentTimeMillis());
+            mLastKnownLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
             mLastKnownLocation.setAccuracy(3 + mMockLocationTicker % 100);
             mLastKnownLocation.setSpeed(20);
             mLastKnownLocation.setAltitude(20 + mMockLocationTicker);
@@ -1093,19 +1094,19 @@ public class LocationService extends BaseLocationService implements LocationList
                 mLastKnownLocation.setBearing(270);
             }
             */
-            double lat = 60.0 + mMockLocationTicker * 0.0001;
+            double lat = 60.0 - mMockLocationTicker * 0.0001;
             double lon = 30.3;
             if (ddd < 10) {
-                mLastKnownLocation.setBearing(ddd);
+                mLastKnownLocation.setBearing(180 + ddd);
             }
             if (ddd < 90) {
-                mLastKnownLocation.setBearing(10);
+                mLastKnownLocation.setBearing(180 + 10);
             } else if (ddd < 110) {
-                mLastKnownLocation.setBearing(100 - ddd);
+                mLastKnownLocation.setBearing(180 + 100 - ddd);
             } else if (ddd < 190) {
-                mLastKnownLocation.setBearing(-10);
+                mLastKnownLocation.setBearing(180 - 10);
             } else {
-                mLastKnownLocation.setBearing(-200 + ddd);
+                mLastKnownLocation.setBearing(180 - 200 + ddd);
             }
             mLastKnownLocation.setLatitude(lat);
             mLastKnownLocation.setLongitude(lon);

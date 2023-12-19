@@ -24,9 +24,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -34,7 +32,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -54,8 +51,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -80,6 +79,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -745,9 +747,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         //if (mapObject != null)
         //    startNavigation(mapObject, Configuration.getNavigationViaRoute());
 
-        // Initialize data loader
-        getLoaderManager();
-
         // Get back to full screen mode after edge swipe
         /*
         decorView.setOnSystemUiVisibilityChangeListener(
@@ -886,7 +885,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onStart()");
 
         // Start loading user data
-        DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
+        DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
@@ -1039,7 +1038,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         unregisterReceiver(mBroadcastReceiver);
 
-        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
         if (loader != null) {
             ((DataLoader) loader).setProgressHandler(null);
         }
@@ -1152,17 +1151,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            if (resultData != null) {
-                Uri uri = resultData.getData();
-                Intent intent = new Intent(Intent.ACTION_SEND, uri, this, DataImportActivity.class);
+    ActivityResultLauncher<String> mGetContent = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                Intent intent = new Intent(Intent.ACTION_SEND, uri, MainActivity.this, DataImportActivity.class);
                 startActivity(intent);
             }
-        }
-    }
+    );
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -1332,10 +1327,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             startMapSelection(true);
             return true;
         } else if (action == R.id.actionImport) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-            startActivityForResult(intent, 1);
+            mGetContent.launch("*/*");
             return true;
         } else if (action == R.id.actionHideSystemUI) {
             if (Configuration.getHideSystemUI())
@@ -1749,8 +1741,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 MenuItem item = menu.findItem(R.id.actionActivity);
                 String[] activities = resources.getStringArray(R.array.activities);
                 int activity = Configuration.getActivity();
-                if (activity > 0)
-                    ((TextView) item.getActionView()).setText(activities[activity]);
+                if (activity > 0) {
+                    TextView textView = (TextView) item.getActionView();
+                    if (textView != null)
+                        textView.setText(activities[activity]);
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
@@ -2857,7 +2852,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 File thisFile = new File(fileSource.path);
                 File thatFile = new File(thisFile.getParent(), FileUtils.sanitizeFilename(track.name) + TrackManager.EXTENSION);
                 if (!thisFile.equals(thatFile)) {
-                    Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+                    Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
                     if (loader != null) {
                         // Let loader do the task if it is available
                         ((DataLoader) loader).renameSource(fileSource, thatFile);
@@ -3982,6 +3977,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
+    @NonNull
     @Override
     public Loader<List<FileDataSource>> onCreateLoader(int id, Bundle args) {
         logger.debug("onCreateLoader({})", id);
@@ -3989,7 +3985,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onLoadFinished(Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
+    public void onLoadFinished(@NonNull Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
         logger.debug("onLoadFinished()");
         if (data == null)
             return;
@@ -4010,7 +4006,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onLoaderReset(Loader<List<FileDataSource>> loader) {
+    public void onLoaderReset(@NonNull Loader<List<FileDataSource>> loader) {
 
     }
 
@@ -4018,7 +4014,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            logger.error("Broadcast: {}", action); // FIXME: test!
+            logger.debug("Broadcast: {}", action);
             if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
@@ -4243,7 +4239,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             removeSourceFromMap(source);
         }
         source.setVisible(available); // Set visibility for UI response, it does not affect other parts as source is replaced by loader
-        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
         if (loader != null)
             ((DataLoader) loader).markDataSourceLoadable(source, available);
         mMap.updateMap(true);

@@ -29,12 +29,15 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -70,12 +73,14 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
+import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.LongSparseArrayIterator;
+import mobi.maptrek.util.NativeMapFilenameFilter;
 import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.util.ShieldFactory;
@@ -156,10 +161,9 @@ public class MapTrek extends Application {
 
         AppCompatDelegate.setDefaultNightMode(Configuration.getNightModeState());
 
-        /*
         if (BuildConfig.DEBUG) {
             // Look for test maps and import them
-            File dir = getExternalDir("native");
+            File dir = getExternalFilesDir("native");
             File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
             for (File mapFile : mapFiles) {
                 if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
@@ -183,7 +187,6 @@ public class MapTrek extends Application {
                 }
             }
         }
-         */
     }
 
     private void initializeSettings() {

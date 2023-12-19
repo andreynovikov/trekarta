@@ -16,10 +16,11 @@
 
 package mobi.maptrek;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.FileObserver;
 import android.util.Pair;
+
+import androidx.loader.content.AsyncTaskLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +217,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         logger.debug("onStartLoading()");
         if (mData != null) {
             // Deliver any previously loaded data immediately.
-            deliverResult(new ArrayList<FileDataSource>());
+            deliverResult(new ArrayList<>());
         }
 
         // Begin monitoring the underlying data source.
