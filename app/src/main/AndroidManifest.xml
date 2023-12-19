@@ -46,6 +46,18 @@
         android:label="@string/permAddPluginEntriesLabel"
         android:protectionLevel="normal" />
 
+    <queries>
+        <intent>
+            <action android:name="mobi.maptrek.maps.online.provider.action.INITIALIZE" />
+        </intent>
+        <intent>
+            <action android:name="mobi.maptrek.maps.offline.provider.action.INITIALIZE"/>
+        </intent>
+        <intent>
+            <action android:name="mobi.maptrek.plugins.action.INITIALIZE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".MapTrek"
         android:allowBackup="true"
