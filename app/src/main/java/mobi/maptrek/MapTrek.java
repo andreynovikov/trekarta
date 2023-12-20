@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -67,6 +67,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Waypoint;
@@ -155,6 +156,13 @@ public class MapTrek extends Application {
         ydpi = metrics.ydpi;
 
         TextStyle.MAX_TEXT_WIDTH = (int) (density * 220);
+
+        // Configure work manager to execute one job at a time to import and remove maps sequentially
+        androidx.work.Configuration configuration =
+                new androidx.work.Configuration.Builder()
+                        .setExecutor(Executors.newFixedThreadPool(1))
+                        .build();
+        WorkManager.initialize(getApplicationContext(), configuration);
 
         if (Build.VERSION.SDK_INT > 25)
             createNotificationChannel();

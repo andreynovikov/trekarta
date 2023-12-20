@@ -224,19 +224,32 @@
             android:name=".maps.MapService"
             android:exported="false" />
 
+        <!--
+        Disable Android Startup (for custom Worker Manager initialization)
+        https://developer.android.com/topic/libraries/app-startup#manual
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
+
         <provider
             android:name=".provider.ExportProvider"
             android:authorities="mobi.maptrek.files"
             android:exported="true"
             android:grantUriPermissions="true"
             android:readPermission="mobi.maptrek.permission.READ_FILES"
-            android:writePermission="mobi.maptrek.permission.WRITE_FILES" />
+            android:writePermission="mobi.maptrek.permission.WRITE_FILES">
+        </provider>
+
         <provider
             android:name=".provider.DataProvider"
             android:authorities="mobi.maptrek.data"
             android:exported="true"
             android:readPermission="mobi.maptrek.permission.READ_MAP_DATA"
-            android:writePermission="mobi.maptrek.permission.WRITE_MAP_DATA" />
+            android:writePermission="mobi.maptrek.permission.WRITE_MAP_DATA">
+        </provider>
 
         <receiver android:name=".DownloadReceiver"
             android:exported="true">

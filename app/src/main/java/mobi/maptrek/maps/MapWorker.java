@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -43,10 +43,6 @@ import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.util.ProgressListener;
-
-/*
-https://stackoverflow.com/questions/52803230/workmanager-how-to-execute-jobs-sequentially
- */
 
 public class MapWorker extends Worker {
    private static final Logger logger = LoggerFactory.getLogger(MapWorker.class);

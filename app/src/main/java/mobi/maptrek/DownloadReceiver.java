@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -48,29 +48,30 @@ public class DownloadReceiver extends BroadcastReceiver
 			DownloadManager.Query query = new DownloadManager.Query();
 			query.setFilterById(ref);
             assert downloadManager != null;
-            Cursor cursor = downloadManager.query(query);
-			if (cursor.moveToFirst()) {
-				int status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
-				if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                    String fileUri = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI));
-                    Uri uri = Uri.parse(fileUri);
-                    logger.debug("Downloaded: {}", fileUri);
-					Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, context, MapService.class);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-						Data data = new Data.Builder()
-								.putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
-								.putString(MapWorker.KEY_FILE_URI, fileUri)
-								.build();
-						OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-								.addTag(MapWorker.TAG)
-								.setInputData(data)
-								.build();
-						WorkManager.getInstance(context).enqueue(importWorkRequest);
-					} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(importIntent);
-                    } else {
-                        context.startService(importIntent);
-                    }
+			try (Cursor cursor = downloadManager.query(query)) {
+				if (cursor.moveToFirst()) {
+					int status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+					if (status == DownloadManager.STATUS_SUCCESSFUL) {
+						String fileUri = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI));
+						Uri uri = Uri.parse(fileUri);
+						logger.debug("Downloaded: {}", fileUri);
+						Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, context, MapService.class);
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+							Data data = new Data.Builder()
+									.putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+									.putString(MapWorker.KEY_FILE_URI, fileUri)
+									.build();
+							OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+									.addTag(MapWorker.TAG)
+									.setInputData(data)
+									.build();
+							WorkManager.getInstance(context).enqueue(importWorkRequest);
+						} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+							context.startForegroundService(importIntent);
+						} else {
+							context.startService(importIntent);
+						}
+					}
 				}
 			}
 		}
