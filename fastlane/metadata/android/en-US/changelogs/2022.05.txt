@@ -1,0 +1,4 @@
+release version="2022.05" versioncode="84" date="01.05.2022"
+Fixed maps download on Android 12
+Fixed custom maps processing on device rotation
+ 
