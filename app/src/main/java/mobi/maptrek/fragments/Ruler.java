@@ -203,13 +203,9 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     }
 
     private void updateTrackMeasurements() {
-        if (mRoute.length() > 1) {
-            mMeasurementsView.setVisibility(View.VISIBLE);
-            mDistanceView.setText(StringFormatter.distanceHP(mRoute.distance));
-            mSizeView.setText(getResources().getQuantityString(R.plurals.numberOfSegments, mRoute.length() - 1, mRoute.length() - 1));
-        } else {
-            mMeasurementsView.setVisibility(View.INVISIBLE);
-        }
+        int length = Math.max(mRoute.length() - 1, 0);
+        mDistanceView.setText(StringFormatter.distanceHP(mRoute.distance));
+        mSizeView.setText(getResources().getQuantityString(R.plurals.numberOfSegments, length, length));
     }
 
     @Override
