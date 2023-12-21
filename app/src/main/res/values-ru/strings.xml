@@ -56,6 +56,8 @@
     <string name="actionResetAdvices">Сбросить подсказки</string>
     <string name="actionImport">Импорт</string>
     <string name="actionGrant">Дать</string>
+    <string name="actionDownload">Загрузить</string>
+    <string name="actionSkip">Пропустить</string>
 
     <string name="notifTracking">Запись трека</string>
     <string name="notifTrackingFailure">Ошибка записи трека</string>
@@ -230,7 +232,7 @@
     <string name="complete">готово</string>
     <string name="downloadBasemap">Загрузить обновлённую карту мира (%s)</string>
     <string name="failed">не удалось</string>
-    <string name="msgBaseMapDownload">Для большего удобства загрузите детальную карту мира (%s). Вы можете сделать это сейчас или позже в любое время.</string>
+    <string name="msgBaseMapDownload">Для большего удобства загрузите детальную карту мира (%s). Вы можете сделать это позже в любое время.</string>
     <string name="processed">%d%% обработано</string>
     <string name="title_map_import">Импорт карты</string>
     <string name="title_map_removal">Удаление карты</string>

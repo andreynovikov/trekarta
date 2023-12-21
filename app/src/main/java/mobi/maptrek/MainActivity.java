@@ -963,14 +963,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("crashReport");
             ft.commit();
         } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            BaseMapDownload fragment = (BaseMapDownload) factory.instantiate(getClassLoader(), BaseMapDownload.class.getName());
-            fragment.setMapIndex(mNativeMapIndex);
-            fragment.setEnterTransition(new Slide());
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "baseMapDownload");
-            ft.addToBackStack("baseMapDownload");
-            ft.commit();
+            BaseMapDownload dialogFragment = new BaseMapDownload(mNativeMapIndex);
+            dialogFragment.show(mFragmentManager, "baseMapDownload");
             mBaseMapWarningShown = true;
         } else if (WhatsNewDialog.shouldShow()) {
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
