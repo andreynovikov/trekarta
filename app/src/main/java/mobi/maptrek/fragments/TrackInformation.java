@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -39,6 +39,7 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -71,7 +72,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
 
-public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener, OnBackPressedListener {
+public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
     private Track mTrack;
     private boolean mIsCurrent;
 
@@ -186,10 +187,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
@@ -208,7 +209,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public void onDetach() {
         super.onDetach();
-        mFragmentHolder.removeBackClickListener(this);
+        mBackPressedCallback.remove();
         mFragmentHolder = null;
         mMapHolder = null;
         mListener = null;
@@ -498,17 +499,15 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         colorSwatch.setVisibility(editsState);
 
         mEditorMode = enabled;
+        mBackPressedCallback.setEnabled(enabled);
     }
 
-    @Override
-    public boolean onBackClick() {
-        if (mEditorMode) {
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
             setEditorMode(false);
-            return true;
-        } else {
-            return false;
         }
-    }
+    };
 
     private final ServiceConnection mTrackingConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {

@@ -52,7 +52,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 
-import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.DrawableRes;
@@ -194,7 +194,6 @@ import mobi.maptrek.fragments.LocationShareDialog;
 import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
-import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnFeatureActionListener;
 import mobi.maptrek.fragments.OnLocationListener;
 import mobi.maptrek.fragments.OnMapActionListener;
@@ -279,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         MapTrekTileLayer.OnAmenityGestureListener,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
-        FragmentManager.OnBackStackChangedListener,
         AmenitySetupDialog.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
@@ -472,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         // find the retained fragment on activity restarts
         mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.addOnBackStackChangedListener(this);
+        mFragmentManager.registerFragmentLifecycleCallbacks(mFragmentLifecycleCallback, true);
 
         mNativeMapIndex = application.getMapIndex();
         mMapIndex = application.getExtraMapIndex();
@@ -907,6 +905,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         resultReceiver.setCallback(this);
         mResultReceiver = new WeakReference<>(resultReceiver);
 
+        getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+        mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
         MapTrek.isMainActivityRunning = true;
     }
 
@@ -1037,6 +1037,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         logger.debug("onStop()");
 
         MapTrek.isMainActivityRunning = false;
+        mBackPressedCallback.remove();
 
         mResultReceiver.get().setCallback(null);
 
@@ -1134,6 +1135,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             savedInstanceState.putInt("progressBar", mViews.progressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
+        savedInstanceState.putBoolean("baseMapWarningShown", mBaseMapWarningShown);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -1153,6 +1155,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mViews.progressBar.setMax(savedInstanceState.getInt("progressBar"));
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
+        mBaseMapWarningShown = savedInstanceState.getBoolean("baseMapWarningShown");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
@@ -1347,7 +1350,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.replace(R.id.contentPanel, fragment, "ruler");
             ft.addToBackStack("ruler");
             ft.commit();
-            mCrosshairLayer.lock(Color.RED);
             return true;
         } else if (action == R.id.actionAddGauge) {
             mViews.gaugePanel.onLongClick(mViews.gaugePanel);
@@ -3460,10 +3462,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
             //TODO Make it properly work without "immediate" - that is why exit transitions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            if (name.equals(bse.getName())) {
-                setPanelState(PANEL_STATE.NONE);
+            if (name.equals(bse.getName()))
                 return;
-            }
         }
         mViews.extendPanel.setForeground(null);
 
@@ -3589,8 +3589,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelState = state;
     }
 
-    private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
-
     @Override
     public FloatingActionButton enableActionButton() {
         if (mViews.listActionButton.getVisibility() == View.VISIBLE)
@@ -3620,36 +3618,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     @Override
-    public void addBackClickListener(OnBackPressedListener listener) {
-        mBackListeners.add(new WeakReference<>(listener));
-    }
-
-    @Override
-    public void removeBackClickListener(OnBackPressedListener listener) {
-        for (Iterator<WeakReference<OnBackPressedListener>> iterator = mBackListeners.iterator();
-             iterator.hasNext(); ) {
-            WeakReference<OnBackPressedListener> weakRef = iterator.next();
-            if (weakRef.get() == listener) {
-                iterator.remove();
-            }
-        }
-    }
-
-    @Override
     public void popCurrent() {
         logger.debug("popCurrent()");
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count > 0) {
-            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            String fragmentName = bse.getName();
-            if ("baseMapDownload".equals(fragmentName)) {
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
-                }
-            } else if ("trackProperties".equals(fragmentName)) {
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
-            }
-        }
         mFragmentManager.popBackStack();
     }
 
@@ -3665,73 +3635,98 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         return mViews.coordinatorLayout;
     }
 
-    private boolean backKeyIntercepted() {
-        boolean intercepted = false;
-        for (WeakReference<OnBackPressedListener> weakRef : mBackListeners) {
-            OnBackPressedListener onBackClickListener = weakRef.get();
-            if (onBackClickListener != null) {
-                boolean isFragIntercept = onBackClickListener.onBackClick();
-                if (!intercepted)
-                    intercepted = isFragIntercept;
-            }
-        }
-        return intercepted;
-    }
+    private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
+        final Handler mBackHandler = new Handler();
 
-    final Handler mBackHandler = new Handler();
-
-    @Override
-    public void onBackPressed() {
-        logger.debug("onBackPressed()");
-        if (backKeyIntercepted())
-            return;
-
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count > 0) {
-            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            String name = bse.getName();
-            if ("ruler".equals(name))
-                mCrosshairLayer.unlock();
-            else if ("settings".equals(name))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mViews.mapsButton, false);
-            else if ("trackProperties".equals(name))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
-            super.onBackPressed();
-            if (count == 1 && mPanelState != PANEL_STATE.NONE)
-                setPanelState(PANEL_STATE.NONE);
-        } else {
+        @Override
+        public void handleOnBackPressed() {
             if (secondBack) {
                 mBackToast.cancel();
-                finish();
+                this.setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
             } else {
                 secondBack = true;
                 mBackToast.show();
                 mBackHandler.postDelayed(() -> secondBack = false, 2000);
             }
         }
-    }
+    };
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    @Override
-    public void onBackStackChanged() {
-        logger.debug("onBackStackChanged()");
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count == 0) {
-            if (mPanelState != PANEL_STATE.NONE)
-                setPanelState(PANEL_STATE.NONE);
-            return;
+    private final FragmentManager.FragmentLifecycleCallbacks mFragmentLifecycleCallback = new FragmentManager.FragmentLifecycleCallbacks() {
+        @Override
+        public void onFragmentPreAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+            logger.error("onFragmentPreAttached({})", f.getClass().getName());
         }
-        FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-        Fragment f = mFragmentManager.findFragmentByTag(bse.getName());
-        if (f == null)
-            return;
-        View v = f.getView();
-        if (v == null)
-            return;
-        final ViewGroup p = (ViewGroup) v.getParent();
-        if (p.getForeground() != null) {
-            p.setForeground(getDrawable(R.drawable.dim));
-            p.getForeground().setAlpha(0);
+
+        @Override
+        public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+            logger.error("onFragmentAttached({})", f.getClass().getName());
+            mBackPressedCallback.setEnabled(false);
+        }
+
+        @Override
+        public void onFragmentPreCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentPreCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull View v, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentViewCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentStarted({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentResumed({})", f.getClass().getName());
+            if (f.getClass() == Ruler.class)
+                mCrosshairLayer.lock(Color.RED);
+        }
+
+        @Override
+        public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentPaused({})", f.getClass().getName());
+            if (f.getClass() == Ruler.class)
+                mCrosshairLayer.unlock();
+        }
+
+        @Override
+        public void onFragmentStopped(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentStopped({})", f.getClass().getName());
+            if (mFragmentManager.getBackStackEntryCount() == 0 && mPanelState != PANEL_STATE.NONE)
+                setPanelState(PANEL_STATE.NONE);
+        }
+
+        @Override
+        public void onFragmentSaveInstanceState(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Bundle outState) {
+            logger.error("onFragmentSaveInstanceState({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentViewDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentViewDestroyed({})", f.getClass().getName());
+
+            int count = mFragmentManager.getBackStackEntryCount();
+            if (count == 0)
+                return;
+            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+            Fragment fr = mFragmentManager.findFragmentByTag(bse.getName());
+            if (fr == null)
+                return;
+            View fv = fr.getView();
+            if (fv == null)
+                return;
+            final ViewGroup p = (ViewGroup) fv.getParent();
+            if (p == null || p.getForeground() == null)
+                return;
             ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
             anim.addListener(new Animator.AnimatorListener() {
                 @Override
@@ -3755,7 +3750,45 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             anim.setDuration(500);
             anim.start();
         }
-    }
+
+        @Override
+        public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentDestroyed({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentDetached(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentDetached({})", f.getClass().getName());
+            mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
+
+            Class<? extends Fragment> cls = f.getClass();
+            if (cls == BaseMapDownload.class) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    HelperUtils.showTargetedAdvice(
+                            MainActivity.this,
+                            Configuration.ADVICE_ENABLE_LOCATIONS,
+                            R.string.advice_enable_locations,
+                            mViews.locationButton,
+                            false
+                    );
+            } else if (cls == Settings.class)
+                HelperUtils.showTargetedAdvice(
+                        MainActivity.this,
+                        Configuration.ADVICE_MAP_SETTINGS,
+                        R.string.advice_map_settings,
+                        mViews.mapsButton,
+                        false
+                );
+            else if (cls == TrackProperties.class)
+                HelperUtils.showTargetedAdvice(
+                        MainActivity.this,
+                        Configuration.ADVICE_RECORDED_TRACKS,
+                        R.string.advice_recorded_tracks,
+                        mViews.recordButton,
+                        false
+                );
+        }
+    };
 
     private void hideDownloadButton() {
         if (mViews.mapDownloadButton.getVisibility() == View.VISIBLE) {

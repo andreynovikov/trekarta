@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -70,7 +72,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
 
-public class WaypointInformation extends Fragment implements OnBackPressedListener, LocationChangeListener {
+public class WaypointInformation extends Fragment implements LocationChangeListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
@@ -230,17 +232,17 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackPressedCallback.remove();
         mListener.onWaypointFocus(null);
-        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
@@ -506,19 +508,20 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     @Override
-    public boolean onBackClick() {
-        if (mEditorMode)
-            setEditorMode(false);
-        else
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        return true;
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         if (!mEditorMode)
             updateWaypointInformation(location.getLatitude(), location.getLongitude());
     }
+
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (mEditorMode)
+                setEditorMode(false);
+            else
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+    };
 
     private class WaypointBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
         @Override

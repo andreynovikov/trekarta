@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -33,7 +34,7 @@ import androidx.fragment.app.Fragment;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 
-public class BaseMapDownload extends Fragment implements OnBackPressedListener {
+public class BaseMapDownload extends Fragment {
     private FragmentHolder mFragmentHolder;
     private Index mMapIndex;
     private TextView mMessageView;
@@ -69,27 +70,29 @@ public class BaseMapDownload extends Fragment implements OnBackPressedListener {
         super.onAttach(context);
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mFragmentHolder.removeBackClickListener(this);
+        mBackPressedCallback.remove();
         mFragmentHolder = null;
-    }
-
-    @Override
-    public boolean onBackClick() {
-        mFragmentHolder.disableActionButton();
-        return false;
     }
 
     public void setMapIndex(Index mapIndex) {
         mMapIndex = mapIndex;
     }
 
+    private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            mFragmentHolder.disableActionButton();
+            this.remove();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        }
+    };
 }

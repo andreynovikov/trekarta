@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,6 +25,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
@@ -64,7 +65,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
 
-public class AmenityInformation extends Fragment implements OnBackPressedListener, LocationChangeListener {
+public class AmenityInformation extends Fragment implements LocationChangeListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_LANG = "lang";
@@ -174,17 +175,17 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackPressedCallback.remove();
         mMapHolder.removeMarker();
-        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mMapHolder = null;
     }
@@ -392,12 +393,6 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     }
 
     @Override
-    public boolean onBackClick() {
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        return true;
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         updateAmenityInformation(location.getLatitude(), location.getLongitude());
     }
@@ -405,6 +400,13 @@ public class AmenityInformation extends Fragment implements OnBackPressedListene
     public void setPreferredLanguage(String lang) {
         mLang = MapTrekDatabaseHelper.getLanguageId(lang);
     }
+
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+    };
 
     private class AmenityBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
         @Override

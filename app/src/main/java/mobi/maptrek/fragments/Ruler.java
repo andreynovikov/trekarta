@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,7 +18,6 @@ package mobi.maptrek.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,7 +141,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        Log.e("R", "onAttach");
         try {
             mMapHolder = (MapHolder) context;
         } catch (ClassCastException e) {
@@ -155,7 +153,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         super.onStart();
         mRouteLayer = new RouteLayer(mMapHolder.getMap(), Color.RED, 5, mRoute);
         mMapHolder.getMap().layers().add(mRouteLayer);
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(getContext(), R.drawable.dot_black, Color.RED));
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(requireContext(), R.drawable.dot_black, Color.RED));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
         ArrayList<MarkerItem> items = new ArrayList<>(mRoute.length());
         for (GeoPoint point : mRoute.getCoordinates()) {
@@ -193,7 +191,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.e("R", "onDetach");
         mMapHolder = null;
     }
 
