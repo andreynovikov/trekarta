@@ -72,6 +72,7 @@ public class Configuration {
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
     public static final String PREF_ACCESSIBILITY_BADGES = "accessibility_badges";
+    public static final String PREF_CONFIRM_EXIT = "confirm_exit";
     public static final String PREF_SPEED_UNIT = "speed_unit";
     public static final String PREF_DISTANCE_UNIT = "distance_unit";
     public static final String PREF_ELEVATION_UNIT = "elevation_unit";
@@ -429,6 +430,10 @@ public class Configuration {
 
     public static boolean getAccessibilityBadgesEnabled() {
         return loadBoolean(PREF_ACCESSIBILITY_BADGES, true);
+    }
+
+    public static boolean getConfirmExitEnabled() {
+        return loadBoolean(PREF_CONFIRM_EXIT, false);
     }
 
     public static int getCoordinatesFormat() {

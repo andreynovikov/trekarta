@@ -905,7 +905,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         resultReceiver.setCallback(this);
         mResultReceiver = new WeakReference<>(resultReceiver);
 
-        getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+        if (Configuration.getConfirmExitEnabled())
+            getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
         mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
         MapTrek.isMainActivityRunning = true;
     }
@@ -4484,10 +4485,19 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case Configuration.PREF_ZOOM_BUTTONS_VISIBLE: {
                 boolean visible = Configuration.getZoomButtonsVisible();
                 mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+                break;
             }
             case Configuration.PREF_ACCESSIBILITY_BADGES: {
                 Tags.accessibility = Configuration.getAccessibilityBadgesEnabled();
                 mMap.clearMap();
+                break;
+            }
+            case Configuration.PREF_CONFIRM_EXIT: {
+                if (Configuration.getConfirmExitEnabled())
+                    getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+                else
+                    mBackPressedCallback.remove();
+                break;
             }
             case Configuration.PREF_MAP_HILLSHADES: {
                 boolean enabled = Configuration.getHillshadesEnabled();
