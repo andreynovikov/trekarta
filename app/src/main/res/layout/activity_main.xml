@@ -110,7 +110,7 @@
                     app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/actionIconColor"
+                    app:tint="@color/textColorPrimary"
                     tools:ignore="ContentDescription"
                     tools:src="@drawable/instruction_turn_right" />
 
@@ -122,6 +122,7 @@
                     android:paddingHorizontal="@dimen/gauge_padding"
                     android:paddingTop="0dp"
                     android:textAlignment="center"
+                    android:textAppearance="?android:attr/textAppearance"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
@@ -136,6 +137,7 @@
                     android:paddingHorizontal="@dimen/gauge_padding"
                     android:paddingTop="0dp"
                     android:textAlignment="center"
+                    android:textAppearance="?android:attr/textAppearance"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
                     app:layout_constraintTop_toBottomOf="@+id/routeWptDistance"
@@ -178,7 +180,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/gauge_padding"
-                app:layout_constraintTop_toBottomOf="@+id/navigationPanel">
+                app:layout_constraintTop_toBottomOf="@+id/navigationPanel"
+                tools:ignore="MissingConstraints">
 
                 <ImageButton
                     android:id="@+id/compass"
