@@ -180,7 +180,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
         if (action.equals(ENABLE_BACKGROUND_NAVIGATION)) {
             mForeground = true;
-            startForeground(NOTIFICATION_ID, getNotification());
+            startForeground(NOTIFICATION_ID, getNotification(true));
             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             editor.putBoolean(PREF_NAVIGATION_BACKGROUND, true);
             editor.apply();
@@ -271,6 +271,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         @Override
         public int getSign() {
+            //noinspection StatementWithEmptyBody
             if (isNavigatingViaRoute()) {
                 return navRoute.getSign(navRouteCurrentIndex());
             } else {
@@ -353,13 +354,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         mLastKnownLocation = null;
     }
 
-    private Notification getNotification() {
+    private Notification getNotification(boolean force) {
         String name = navWaypoint.name != null ? navWaypoint.name : getString(R.string.msgNavigatingPoint);
         String title = getString(R.string.msgNavigating, name);
         String bearing = StringFormatter.angleH(navBearing);
         String distance = StringFormatter.distanceH(navDistance);
 
-        if (title.equals(ntTitle) && bearing.equals(ntBearing) && distance.equals(ntDistance))
+        if (!force && title.equals(ntTitle) && bearing.equals(ntBearing) && distance.equals(ntDistance))
             return null; // not changed
 
         ntTitle = title;
@@ -417,7 +418,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void updateNotification() {
         if (mForeground) {
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            Notification notification = getNotification();
+            Notification notification = getNotification(false);
             if (notification != null)
                 notificationManager.notify(NOTIFICATION_ID, notification);
         }
