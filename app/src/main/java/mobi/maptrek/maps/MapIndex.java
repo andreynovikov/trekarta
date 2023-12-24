@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import mobi.maptrek.maps.offline.OfflineTileSource;
 import mobi.maptrek.maps.offline.OfflineTileSourceFactory;
@@ -56,7 +57,7 @@ public class MapIndex implements Serializable {
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
     private final Context mContext;
-    private HashSet<MapFile> mMaps;
+    private final HashSet<MapFile> mMaps;
 
     @SuppressLint("UseSparseArrays")
     public MapIndex(@NonNull Context context, @Nullable File root) {
@@ -75,7 +76,7 @@ public class MapIndex implements Serializable {
 
     private void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
-            for (File child : fileOrDirectory.listFiles())
+            for (File child : Objects.requireNonNull(fileOrDirectory.listFiles()))
                 deleteRecursive(child);
         //noinspection ResultOfMethodCallIgnored
         fileOrDirectory.delete();
