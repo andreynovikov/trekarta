@@ -60,6 +60,7 @@
 
     <application
         android:name=".MapTrek"
+        android:hasFragileUserData="true"
         android:allowBackup="true"
         android:fullBackupContent="@xml/old_backup_scheme"
         android:dataExtractionRules="@xml/new_backup_scheme"
