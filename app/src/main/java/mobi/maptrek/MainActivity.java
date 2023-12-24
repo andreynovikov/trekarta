@@ -403,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private boolean mFirstMove = true;
     private boolean mBaseMapWarningShown = false;
     private boolean mObjectInteractionEnabled = true;
+    private boolean mAskedNotificationPermission = false;
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
 
@@ -1016,10 +1017,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
             if (mNavigationService != null) {
                 Intent intent = new Intent(getApplicationContext(), NavigationService.class);
-                if (mNavigationService.isNavigating())
-                    startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
-                else
+                if (mNavigationService.isNavigating()) {
+                    if (Configuration.notificationsDenied()) {
+                        stopNavigation();
+                        stopService(intent);
+                    } else {
+                        startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+                    }
+                } else {
                     stopService(intent);
+                }
             }
             disableNavigation();
             disableLocations();
@@ -1878,10 +1885,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mSavedLocationState = mPreviousLocationState;
             mPreviousLocationState = LocationState.NORTH;
         }
-        if (mTrackingState == TRACKING_STATE.PENDING || mIsNavigationBound)
-            askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
         if (mTrackingState == TRACKING_STATE.PENDING)
             enableTracking();
+        if (mNavigationService != null && mNavigationService.isNavigating())
+            askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
         updateLocationDrawable();
     }
 
@@ -2061,6 +2068,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         mTrackingState = TRACKING_STATE.TRACKING;
         updateLocationDrawable();
+        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
     }
 
     @Override
@@ -3940,10 +3948,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 rationale = R.string.msgAccessFineLocationRationale;
                 break;
             case PERMISSIONS_REQUEST_NOTIFICATION:
-                if (Build.VERSION.SDK_INT >= 33) {
+                if (Build.VERSION.SDK_INT >= 33 && !Configuration.notificationsDenied() && !mAskedNotificationPermission) {
                     permission = Manifest.permission.POST_NOTIFICATIONS;
                     title = R.string.titleNotificationPermissionRationale;
                     rationale = R.string.msgShowNotificationRationale;
+                    mAskedNotificationPermission = true;
                 }
                 break;
         }
@@ -3952,7 +3961,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(permission)) {
+            if (shouldShowRequestPermissionRationale(permission) || permissionRequest == PERMISSIONS_REQUEST_NOTIFICATION) {
                 String finalPermission = permission;
                 String name;
                 try {
@@ -3966,7 +3975,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 new AlertDialog.Builder(this)
                         .setTitle(title)
                         .setMessage(getString(rationale, name))
-                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{finalPermission}, permissionRequest))
+                        .setPositiveButton(R.string.actionGrant, (dialog, which) -> requestPermissions(new String[]{finalPermission}, permissionRequest))
                         .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
                         .create()
                         .show();
@@ -3997,17 +4006,27 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case PERMISSIONS_REQUEST_NOTIFICATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    HelperUtils.showError(getString(R.string.msgNotificationPermissionError), R.string.actionGrant, view -> {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                        startActivity(intent);
-                    }, mViews.coordinatorLayout);
+                    // Save decision only if user implicitly denied notifications
+                    Configuration.setNotificationsDenied();
                 }
                 break;
             }
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    private void showNotificationSettings() {
+        Intent intent = new Intent();
+        if (Build.VERSION.SDK_INT >= 26) {
+            intent.setAction(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName());
+        } else {
+            intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", getPackageName(), null));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        startActivity(intent);
     }
 
     @NonNull
@@ -4090,6 +4109,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 if (state == BaseNavigationService.STATE_STARTED) {
                     enableNavigation();
                     updateNavigationUI();
+                    if (mLocationState != LocationState.DISABLED)
+                        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
                 }
                 if (state == BaseNavigationService.STATE_NEXT_WPT) {
                     updateNavigationGauges(true);

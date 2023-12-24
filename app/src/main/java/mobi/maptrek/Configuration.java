@@ -83,6 +83,7 @@ public class Configuration {
     private static final String PREF_AUTO_TILT = "auto_tilt";
     private static final String PREF_HIDE_SYSTEM_UI = "hide_system_ui";
     private static final String PREF_ACTION_RATING = "action_rating";
+    private static final String PREF_NOTIFICATIONS_DENIED = "notifications_denied";
     private static final String LAST_SEEN_INTRODUCTION = "last_seen_introduction";
     private static final String LAST_SEEN_CHANGELOG = "last_seen_changelog";
     private static final String PREF_RUNNING_TIME = "running_time";
@@ -476,6 +477,14 @@ public class Configuration {
         saveBoolean(PREF_ACTION_RATING, true);
     }
 
+    public static boolean notificationsDenied() {
+        return loadBoolean(PREF_NOTIFICATIONS_DENIED, false);
+    }
+
+    public static void setNotificationsDenied() {
+        saveBoolean(PREF_NOTIFICATIONS_DENIED, true);
+    }
+
     public static int getLastSeenIntroduction() {
         return loadInt(LAST_SEEN_INTRODUCTION, 0);
     }
@@ -613,6 +622,7 @@ public class Configuration {
         EventBus.getDefault().post(new ChangedEvent(key));
     }
 
+    /** @noinspection UnusedReturnValue*/
     public static boolean commit() {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
