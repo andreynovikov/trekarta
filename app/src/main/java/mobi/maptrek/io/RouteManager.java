@@ -156,8 +156,10 @@ public class RouteManager extends Manager {
             output.writeRawVarint32(getSerializedInstructionSize(instruction));
             output.writeInt32(FIELD_INSTRUCTION_LATITUDE, instruction.latitudeE6);
             output.writeInt32(FIELD_INSTRUCTION_LONGITUDE, instruction.longitudeE6);
-            output.writeString(FIELD_INSTRUCTION_TEXT, instruction.text);
-            output.writeInt32(FIELD_INSTRUCTION_SIGN, instruction.sign);
+            if (instruction.text != null)
+                output.writeString(FIELD_INSTRUCTION_TEXT, instruction.text);
+            if (instruction.sign != Route.Instruction.UNDEFINED)
+                output.writeInt32(FIELD_INSTRUCTION_SIGN, instruction.sign);
             progress++;
             if (progressListener != null)
                 progressListener.onProgressChanged(progress);
@@ -206,7 +208,7 @@ public class RouteManager extends Manager {
         int latitudeE6 = 0;
         int longitudeE6 = 0;
         String text = null;
-        int sign = Route.Instruction.IGNORE;
+        int sign = Route.Instruction.UNDEFINED;
 
         boolean done = false;
         while (!done) {
@@ -302,8 +304,10 @@ public class RouteManager extends Manager {
         int size = 0;
         size += CodedOutputStream.computeInt32Size(FIELD_INSTRUCTION_LATITUDE, instruction.latitudeE6);
         size += CodedOutputStream.computeInt32Size(FIELD_INSTRUCTION_LONGITUDE, instruction.longitudeE6);
-        size += CodedOutputStream.computeStringSize(FIELD_INSTRUCTION_TEXT, instruction.text);
-        size += CodedOutputStream.computeInt32Size(FIELD_INSTRUCTION_SIGN, instruction.sign);
+        if (instruction.text != null)
+            size += CodedOutputStream.computeStringSize(FIELD_INSTRUCTION_TEXT, instruction.text);
+        if (instruction.sign != Route.Instruction.UNDEFINED)
+            size += CodedOutputStream.computeInt32Size(FIELD_INSTRUCTION_SIGN, instruction.sign);
         return size;
     }
 

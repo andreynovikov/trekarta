@@ -47,6 +47,9 @@ public abstract class Manager {
         if (file.toLowerCase().endsWith(TrackManager.EXTENSION)) {
             return new TrackManager();
         }
+        if (file.toLowerCase().endsWith(RouteManager.EXTENSION)) {
+            return new RouteManager();
+        }
         if (file.toLowerCase().endsWith(GPXManager.EXTENSION)) {
             return new GPXManager();
         }

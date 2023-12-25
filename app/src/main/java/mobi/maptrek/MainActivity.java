@@ -745,11 +745,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         boolean visible = Configuration.getZoomButtonsVisible();
         mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
 
-        // Resume navigation
-        //MapObject mapObject = Configuration.getNavigationPoint();
-        //if (mapObject != null)
-        //    startNavigation(mapObject, Configuration.getNavigationViaRoute());
-
         // Get back to full screen mode after edge swipe
         /*
         decorView.setOnSystemUiVisibilityChangeListener(
@@ -905,6 +900,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         resultReceiver.setCallback(this);
         mResultReceiver = new WeakReference<>(resultReceiver);
+
+        // Resume navigation
+        if (Configuration.getNavigationPoint() != null)
+            resumeNavigation();
 
         if (Configuration.getConfirmExitEnabled())
             getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
@@ -1436,7 +1435,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             removeMarker();
             MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
             mapObject.name = getString(R.string.selectedLocation);
-            startNavigation(mapObject, false);
+            startNavigation(mapObject);
             return true;
         } else if (action == R.id.actionFindRouteHere) {
             removeMarker();
@@ -2002,14 +2001,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     };
 
-    private void startNavigation(MapObject mapObject, boolean viaRoute) {
+    private void startNavigation(MapObject mapObject) {
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_TO_POINT);
         i.putExtra(NavigationService.EXTRA_NAME, mapObject.name);
         i.putExtra(NavigationService.EXTRA_LATITUDE, mapObject.coordinates.getLatitude());
         i.putExtra(NavigationService.EXTRA_LONGITUDE, mapObject.coordinates.getLongitude());
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
-        i.putExtra(NavigationService.EXTRA_ROUTE, viaRoute);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
@@ -2030,6 +2028,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_VIA_ROUTE);
         i.putExtra(NavigationService.EXTRA_ROUTE, route);
+        startService(i);
+        if (mLocationState == LocationState.DISABLED)
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
+    }
+
+    private void resumeNavigation() {
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.RESUME_NAVIGATION);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
@@ -2085,7 +2091,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void navigateTo(@NonNull GeoPoint coordinates, @Nullable String name) {
-        startNavigation(new MapObject(name, coordinates), false);
+        startNavigation(new MapObject(name, coordinates));
     }
 
     @Override
@@ -2629,7 +2635,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onWaypointNavigate(Waypoint waypoint) {
-        startNavigation(waypoint, false);
+        startNavigation(waypoint);
     }
 
     @Override

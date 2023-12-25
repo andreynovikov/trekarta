@@ -177,14 +177,13 @@ public class Configuration {
      */
     @Nullable
     public static MapObject getNavigationPoint() {
-        MapObject waypoint = null;
-        String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
-        if (navWpt != null) {
-            waypoint = new MapObject(mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
-            waypoint.name = navWpt;
-            waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
-            saveString(PREF_NAVIGATION_WAYPOINT, null);
-        }
+        float lat = mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, Float.NaN);
+        float lon = mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, Float.NaN);
+        if (Float.isNaN(lat) || Float.isNaN(lon))
+            return null;
+        MapObject waypoint = new MapObject(lat, lon);
+        waypoint.name = loadString(PREF_NAVIGATION_WAYPOINT, null);
+        waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
         return waypoint;
     }
 
@@ -195,7 +194,8 @@ public class Configuration {
             saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.coordinates.getLongitude());
             saveInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
         } else {
-            saveString(PREF_NAVIGATION_WAYPOINT, null);
+            remove(PREF_NAVIGATION_LATITUDE);
+            remove(PREF_NAVIGATION_LONGITUDE);
         }
     }
 
@@ -301,7 +301,7 @@ public class Configuration {
 
     public static void setBitmapMaps(@NonNull Collection<MapFile> mapFiles) {
         if (mapFiles.isEmpty()) {
-            saveString(PREF_BITMAP_MAP, null);
+            remove(PREF_BITMAP_MAP);
         } else {
             String[] filenames = new String[mapFiles.size()];
             int i = 0;
@@ -329,7 +329,7 @@ public class Configuration {
     }
 
     public static void resetAdviceState() {
-        saveLong(PREF_ADVICE_STATES, 0L);
+        remove(PREF_ADVICE_STATES);
         mAdviceMask = 0L;
     }
 
@@ -618,6 +618,14 @@ public class Configuration {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(key, value);
+        editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    private static void remove(String key) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.remove(key);
         editor.apply();
         EventBus.getDefault().post(new ChangedEvent(key));
     }

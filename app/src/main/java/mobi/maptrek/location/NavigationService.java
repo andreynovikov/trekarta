@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
@@ -139,14 +140,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (action.equals(NAVIGATE_TO_POINT)) {
             if (extras == null)
                 return START_NOT_STICKY;
-            boolean viaRoute = extras.getBoolean(EXTRA_ROUTE);
-            if (viaRoute) {
-            } else {
-                MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
-                mo.name = extras.getString(EXTRA_NAME);
-                mo.proximity = extras.getInt(EXTRA_PROXIMITY);
-                navigateTo(mo);
-            }
+            MapObject mo = new MapObject(extras.getDouble(EXTRA_LATITUDE), extras.getDouble(EXTRA_LONGITUDE));
+            mo.name = extras.getString(EXTRA_NAME);
+            mo.proximity = extras.getInt(EXTRA_PROXIMITY);
+            navigateTo(mo);
         }
         if (action.equals(NAVIGATE_TO_OBJECT)) {
             if (extras == null)
@@ -166,6 +163,24 @@ public class NavigationService extends BaseNavigationService implements OnShared
             navigateTo(route, dir);
             if (start != -1)
                 setRouteWaypoint(start);
+        }
+        if (action.equals(RESUME_NAVIGATION)) {
+            navCurrentRoutePoint = Configuration.getNavigationRoutePoint();
+            navDirection = Configuration.getNavigationRouteDirection();
+            navWaypoint = Configuration.getNavigationPoint();
+            if (navWaypoint == null)
+                return START_NOT_STICKY;
+            if (Configuration.getNavigationViaRoute()) {
+                loadRoute();
+                if (navRoute != null) {
+                    resumeRoute();
+                } else {
+                    logger.error("No route to resume");
+                    stopNavigation();
+                }
+            } else {
+                resumeWaypoint();
+            }
         }
         if (action.equals(STOP_NAVIGATION) || action.equals(PAUSE_NAVIGATION)) {
             mForeground = false;
@@ -340,7 +355,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void connect() {
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
         bindService(new Intent(this, LocationService.class), locationConnection, BIND_AUTO_CREATE);
     }
 
@@ -454,15 +470,21 @@ public class NavigationService extends BaseNavigationService implements OnShared
         avgVMG[0] = 0.0;
         avgVMG[1] = 0.0;
         avgVMG[2] = 0.0;
+
+        Configuration.setNavigationPoint(null);
     }
 
     private void navigateTo(final MapObject waypoint) {
         if (navWaypoint != null)
             stopNavigation();
+        navWaypoint = waypoint;
 
+        resumeWaypoint();
+    }
+
+    private void resumeWaypoint() {
         connect();
 
-        navWaypoint = waypoint;
         navProximity = navWaypoint.proximity > 0 ? navWaypoint.proximity : DEFAULT_WAYPOINT_PROXIMITY;
         updateNavigationState(STATE_STARTED);
         if (mLastKnownLocation != null)
@@ -472,13 +494,16 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void navigateTo(final Route route, final int direction) {
         if (navWaypoint != null)
             stopNavigation();
-
-        saveRoute();
-        connect();
-
         navRoute = route;
         navDirection = direction;
         navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.length() - 2;
+
+        saveRoute();
+        resumeRoute();
+    }
+
+    private void resumeRoute() {
+        connect();
 
         navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint).getCoordinates());
         prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection).getCoordinates());
@@ -740,6 +765,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         logger.trace("Status dispatched");
     }
 
+    /** @noinspection unused*/
     @Subscribe
     public void onMapObjectUpdated(MapObject.UpdatedEvent event) {
         logger.error("onMapObjectUpdated({})", (event.mapObject.equals(navWaypoint)));
@@ -769,6 +795,26 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 // TODO: what to do?
             }
         });
+    }
+
+    private void loadRoute() {
+        File dataDir = getExternalFilesDir("data");
+        if (dataDir == null) {
+            logger.error("Can not load route: application data folder missing");
+            return; // TODO: what to do?
+        }
+        File file = new File(dataDir, FileUtils.sanitizeFilename("CurrentRoute") + RouteManager.EXTENSION);
+        Manager manager = Manager.getDataManager(file.getName());
+        if (manager != null) {
+            try {
+                FileDataSource source = manager.loadData(new FileInputStream(file), file.getAbsolutePath());
+                source.path = file.getAbsolutePath();
+                source.setLoaded();
+                navRoute = source.routes.get(0);
+            } catch (Exception e) {
+                logger.error("Saved route not found");
+            }
+        }
     }
 
     private final ServiceConnection locationConnection = new ServiceConnection() {

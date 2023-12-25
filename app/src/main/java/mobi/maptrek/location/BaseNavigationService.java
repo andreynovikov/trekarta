@@ -42,6 +42,11 @@ public abstract class BaseNavigationService extends Service
 	 */
 	public static final String PAUSE_NAVIGATION = "mobi.maptrek.location.pauseNavigation";
 	/**
+	 * Service command to resume paused navigation.
+	 * alone.
+	 */
+	public static final String RESUME_NAVIGATION = "mobi.maptrek.location.resumeNavigation";
+	/**
 	 * Service command to stop navigation.
 	 */
 	public static final String STOP_NAVIGATION = "mobi.maptrek.location.stopNavigation";
