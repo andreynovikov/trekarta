@@ -36,6 +36,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
 import org.slf4j.Logger;
@@ -243,8 +244,9 @@ public class MapSelection extends Fragment implements Index.MapStateListener {
         if (!isVisible())
             return;
 
-        if (mMapIndex.isBaseMapOutdated()) {
-            mDownloadBasemap.setText(getString(R.string.downloadBasemap, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
+        if (mMapIndex.isBaseMapOutdated() || mMapIndex.getBaseMapVersion() == 0) {
+            @StringRes int msgId = mMapIndex.getBaseMapVersion() > 0 ? R.string.downloadUpdatedBasemap : R.string.downloadBasemap;
+            mDownloadBasemap.setText(getString(msgId, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
             mDownloadCheckboxHolder.setVisibility(View.VISIBLE);
         }
 
@@ -256,7 +258,8 @@ public class MapSelection extends Fragment implements Index.MapStateListener {
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
                 ((View)mFloatingButton).setVisibility(View.VISIBLE);
                 mHelpButton.setVisibility(View.INVISIBLE);
-                mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
+                if (stats.download > 0)
+                    mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
                 ((View)mFloatingButton).setVisibility(View.VISIBLE);

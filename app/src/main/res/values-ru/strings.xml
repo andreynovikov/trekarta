@@ -229,7 +229,8 @@
     <string name="actionAmenityZooms">Объекты</string>
     <string name="baseMapTitle">Карта мира</string>
     <string name="complete">готово</string>
-    <string name="downloadBasemap">Загрузить обновлённую карту мира (%s)</string>
+    <string name="downloadBasemap">Загрузить карту мира (%s)</string>
+    <string name="downloadUpdatedBasemap">Загрузить обновлённую карту мира (%s)</string>
     <string name="failed">не удалось</string>
     <string name="msgBaseMapDownload">Для большего удобства загрузите детальную карту мира (%s). Вы можете сделать это позже в любое время.</string>
     <string name="processed">%d%% обработано</string>

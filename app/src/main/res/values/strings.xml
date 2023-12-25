@@ -37,7 +37,8 @@
     <string name="processed">%d%% processed</string>
     <string name="any">Any</string>
     <string name="baseMapTitle">World map</string>
-    <string name="downloadBasemap">Download updated world map (%s)</string>
+    <string name="downloadBasemap">Download world map (%s)</string>
+    <string name="downloadUpdatedBasemap">Download updated world map (%s)</string>
     <string name="downloadHillshades">Download concomitant hillshades</string>
     <string name="iamin">Yes, I\'m in</string>
     <string name="nameOrCoordinates">Name or coordinates</string>
