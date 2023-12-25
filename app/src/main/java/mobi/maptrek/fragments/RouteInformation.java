@@ -68,13 +68,6 @@ public class RouteInformation extends ListFragment {
         ListView listView = getListView();
         listView.addHeaderView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false), null, false);
 
-        mFloatingButton = mFragmentHolder.enableListActionButton();
-        mFloatingButton.setImageResource(R.drawable.ic_navigate);
-        mFloatingButton.setOnClickListener(v -> {
-            mMapHolder.navigateVia(mRoute);
-            mFragmentHolder.popAll();
-        });
-
         initializeRouteInformation();
     }
 
@@ -108,8 +101,20 @@ public class RouteInformation extends ListFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStart() {
+        super.onStart();
+        mFloatingButton = mFragmentHolder.enableListActionButton();
+        mFloatingButton.setImageResource(R.drawable.ic_navigate);
+        mFloatingButton.setOnClickListener(v -> {
+            mMapHolder.navigateVia(mRoute);
+            mFragmentHolder.popAll();
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mFragmentHolder.disableListActionButton();
         mFloatingButton = null;
     }
 

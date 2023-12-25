@@ -50,6 +50,7 @@ import android.widget.TextView;
 import org.oscim.core.GeoPoint;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.DataHolder;
@@ -87,7 +88,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
     private GeoPoint mCoordinates;
 
-    private final String mLineSeparator = System.getProperty("line.separator");
+    private final String mLineSeparator = System.getProperty("line.separator", "\n");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,12 +117,6 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         }
 
         return rootView;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mFloatingButton = null;
     }
 
     @Override
@@ -184,10 +179,14 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         if (noExtraSources) {
             listView.addFooterView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_footer_data_source, listView, false), null, false);
         }
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         if (mDataSource instanceof WaypointDbDataSource) {
             mFloatingButton = mFragmentHolder.enableListActionButton();
-            mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_add_location));
+            mFloatingButton.setImageResource(R.drawable.ic_add_location);
             mFloatingButton.setOnClickListener(v -> {
                 CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
                 CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
@@ -196,6 +195,13 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 coordinatesInput.show(getParentFragmentManager(), "pointCoordinatesInput");
             });
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mFragmentHolder.disableListActionButton();
+        mFloatingButton = null;
     }
 
     @Override
@@ -231,7 +237,6 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         mWaypointActionListener = null;
         mTrackActionListener = null;
         mRouteActionListener = null;
-        mFragmentHolder.disableListActionButton();
         mFragmentHolder = null;
         mDataHolder = null;
     }
@@ -336,7 +341,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
     @Override
     public void onTextInputPositiveClick(String id, String inputText) {
-        String[] lines = inputText.split(mLineSeparator);
+        String[] lines = inputText.split(Objects.requireNonNull(mLineSeparator));
         boolean errors = false;
         for (String line : lines) {
             if (line.length() == 0)
@@ -423,7 +428,6 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                     break;
 
                 case STATE_REGULAR_CELL:
-                    needSeparator = false;
                     break;
 
                 case STATE_UNKNOWN:
