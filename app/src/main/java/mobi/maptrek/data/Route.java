@@ -368,6 +368,19 @@ public class Route implements Parcelable {
         }
     }
 
+    public Track toTrack() {
+        Track track = new Track();
+        track.name = name;
+        track.description = description;
+        boolean continuous = false;
+        for (Instruction instruction : instructions) {
+            track.addPointFast(continuous, instruction.latitudeE6, instruction.longitudeE6, instruction.elevation, Float.NaN, Float.NaN, Float.NaN, 0L);
+            continuous = true;
+        }
+        track.style.color = style.color;
+        return track;
+    }
+
     public static class Instruction extends GeoPoint {
         public static final int UNDEFINED = -299;
         public static final int START = -199;
