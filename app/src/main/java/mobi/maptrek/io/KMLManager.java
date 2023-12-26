@@ -69,7 +69,7 @@ public class KMLManager extends Manager {
         for (Waypoint waypoint : dataSource.waypoints) {
             if (waypoint.name == null)
                 waypoint.name = "Place " + j;
-            waypoint._id = 31 * (hash + waypoint.name.hashCode()) + i;
+            waypoint._id = 31L * (hash + waypoint.name.hashCode()) + i;
             waypoint.source = dataSource;
             if (waypoint.style.color == 0)
                 waypoint.style.color = MarkerStyle.DEFAULT_COLOR;

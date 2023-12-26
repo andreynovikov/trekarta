@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -91,6 +91,7 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case GpxFile.TAG_NAME:
                     metadata.name = readTextElement(parser, GpxFile.TAG_NAME);
@@ -181,6 +182,7 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case GpxFile.TAG_TRKPT:
                     readTrackPoint(parser, track, continuous);
@@ -261,6 +263,7 @@ public class GpxParser {
         float lon = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
         String pointName = null;
         String pointDesc = null;
+        float pointEle = Float.NaN;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -273,6 +276,9 @@ public class GpxParser {
                 case GpxFile.TAG_DESC:
                     pointDesc = readTextElement(parser, GpxFile.TAG_DESC);
                     break;
+                case GpxFile.TAG_ELE:
+                    pointEle = readFloatElement(parser, GpxFile.TAG_ELE);
+                    break;
                 default:
                     skip(parser);
                     break;
@@ -284,6 +290,7 @@ public class GpxParser {
             instruction.text = pointDesc;
         else if (pointName != null)
             instruction.text = pointName;
+        instruction.elevation = pointEle;
     }
 
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -322,6 +329,7 @@ public class GpxParser {
         return result;
     }
 
+    /** @noinspection SameParameterValue*/
     private static float readFloatElement(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, name);
         float result = readFloat(parser);
@@ -329,6 +337,7 @@ public class GpxParser {
         return result;
     }
 
+    /** @noinspection SameParameterValue*/
     private static int readIntegerElement(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, name);
         int result = readInteger(parser);

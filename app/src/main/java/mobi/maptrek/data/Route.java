@@ -393,11 +393,13 @@ public class Route implements Parcelable {
 
         public String text;
         public int sign;
+        public float elevation;
         private int distance; // TODO Use distance if set
 
         Instruction(GeoPoint point) {
             super(point.latitudeE6, point.longitudeE6);
             sign = UNDEFINED;
+            elevation = Float.NaN;
         }
 
         Instruction(int latitudeE6, int longitudeE6, String text, int sign) {
