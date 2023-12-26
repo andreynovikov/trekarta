@@ -43,6 +43,8 @@ public interface MapHolder {
 
     void navigateVia(@NonNull Route route);
 
+    void navigateViaReversed(@NonNull Route route);
+
     boolean isNavigatingTo(@NonNull GeoPoint coordinates);
 
     void stopNavigation();

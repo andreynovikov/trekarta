@@ -19,11 +19,14 @@ package mobi.maptrek.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
@@ -38,7 +41,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.util.StringFormatter;
 
-public class RouteInformation extends ListFragment {
+public class RouteInformation extends ListFragment implements PopupMenu.OnMenuItemClickListener {
     private Route mRoute;
 
     private FloatingActionButton mFloatingButton;
@@ -50,7 +53,6 @@ public class RouteInformation extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -66,7 +68,18 @@ public class RouteInformation extends ListFragment {
         setListAdapter(adapter);
 
         ListView listView = getListView();
-        listView.addHeaderView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false), null, false);
+        View headerView = LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false);
+
+        ImageButton moreButton = headerView.findViewById(R.id.moreButton);
+        moreButton.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(getContext(), moreButton);
+            moreButton.setOnTouchListener(popup.getDragToOpenListener());
+            popup.inflate(R.menu.context_menu_route);
+            popup.setOnMenuItemClickListener(RouteInformation.this);
+            popup.show();
+        });
+
+        listView.addHeaderView(headerView, null, false);
 
         initializeRouteInformation();
     }
@@ -147,6 +160,21 @@ public class RouteInformation extends ListFragment {
 
         String distance = StringFormatter.distanceHP(mRoute.distance);
         ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_navigate_reversed) {
+            mMapHolder.navigateViaReversed(mRoute);
+            mFragmentHolder.popAll();
+            return true;
+        }
+        if (itemId == R.id.action_share) {
+            mListener.onRouteShare(mRoute);
+            return true;
+        }
+        return false;
     }
 
     private class InstructionListAdapter extends BaseAdapter {

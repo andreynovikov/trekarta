@@ -2024,10 +2024,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
-    private void startNavigation(Route route) {
+    private void startNavigation(Route route, int dir) {
         enableNavigation();
         Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_VIA_ROUTE);
         i.putExtra(NavigationService.EXTRA_ROUTE, route);
+        i.putExtra(NavigationService.EXTRA_ROUTE_DIRECTION, dir);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
@@ -2105,7 +2106,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     public void navigateVia(@NonNull Route route) {
-        startNavigation(route);
+        startNavigation(route, NavigationService.DIRECTION_FORWARD);
+    }
+
+    public void navigateViaReversed(@NonNull Route route) {
+        startNavigation(route, NavigationService.DIRECTION_REVERSE);
     }
 
     private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
@@ -3032,7 +3037,29 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onRouteShare(Route route) {
-
+        final AtomicInteger selected = new AtomicInteger(0);
+        final DialogInterface.OnClickListener exportAction = (dialog, which) -> {
+            DataExport.Builder builder = new DataExport.Builder();
+            @DataExport.ExportFormat int format = selected.get() + 1;
+            DataExport dataExport = builder.setRoute(route).setFormat(format).create();
+            dataExport.show(mFragmentManager, "dataExport");
+        };
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.title_select_format);
+        builder.setSingleChoiceItems(R.array.data_format_array,
+                selected.get(), (dialog, which) -> selected.set(which));
+        builder.setPositiveButton(R.string.actionContinue, exportAction);
+        builder.setNeutralButton(R.string.explain, null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        // Workaround to prevent dialog dismissing
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            builder1.setMessage(getString(R.string.msgOtherFormatsExplanation));
+            builder1.setPositiveButton(R.string.ok, null);
+            AlertDialog dialog1 = builder1.create();
+            dialog1.show();
+        });
     }
 
     @Override

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_navigate_reversed"
+        android:icon="@drawable/ic_navigate"
+        android:title="@string/actionNavigateReversed"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/actionShare"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+</menu>
