@@ -65,6 +65,7 @@
     <string name="actionManageMaps">Manage maps</string>
     <string name="actionAddPlaceHere">Add place</string>
     <string name="actionNavigateHere">Navigate here</string>
+    <string name="actionNavigateReversed">Navigate reversed</string>
     <string name="actionFindRouteHere">Find route here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
@@ -98,6 +99,7 @@
     <string name="share_data_intent_title">Share data to:</string>
     <string name="share_map_intent_title">Share map file to:</string>
 
+    <string name="notifLocating">Acquiring position</string>
     <string name="notifTracking">Recording track</string>
     <string name="notifTrackingFailure">Track writing error</string>
     <string name="notifLocationWaiting">Waiting for location</string>
@@ -110,6 +112,7 @@
     <string name="msgPlaceDeleted">Place deleted</string>
     <string name="msgPlaceSaved">Place saved</string>
     <string name="msgEmptyPlaceList">Your places will appear here. You can create place by entering its coordinates or by long pressing Places button.</string>
+    <string name="msgLocating">Trekarta is following your movement to support ongoing action</string>
     <string name="msgTrackDeleted">Track deleted</string>
     <string name="msgTracked">%1$s tracked since %2$s</string>
     <string name="msgTracking">Trekarta is recording your movement</string>
@@ -257,6 +260,7 @@
     <string name="currentTrack">Current track</string>
     <string name="title_delete_permanently">Delete permanently?</string>
     <string name="share_track_intent_title">Share track to:</string>
+    <string name="share_route_intent_title">Share route to:</string>
     <string name="never_rises">Sun never rises</string>
     <string name="never_sets">Sun never sets</string>
     <string name="transparency">Transparency</string>

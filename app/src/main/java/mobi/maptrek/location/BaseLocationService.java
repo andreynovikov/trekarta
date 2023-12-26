@@ -39,12 +39,12 @@ public abstract class BaseLocationService extends Service {
      * Service command to start background mode. Service is switched to <em>Foreground</em>
      * state to ensure it will not be killed by OS.
      */
-    public static final String ENABLE_BACKGROUND_TRACK = "mobi.maptrek.location.enableBackgroundTrack";
+    public static final String ENABLE_BACKGROUND_LOCATIONS = "mobi.maptrek.location.enableBackgroundLocations";
     /**
      * Service command to stop background mode. Service is switched back from <em>Foreground</em>
-     * state. Track is continued to be recorded.
+     * state.
      */
-    public static final String DISABLE_BACKGROUND_TRACK = "mobi.maptrek.location.disableBackgroundTrack";
+    public static final String DISABLE_BACKGROUND_LOCATIONS = "mobi.maptrek.location.disableBackgroundLocations";
     /**
      * Broadcast sent when track is about to be saved (or not)
      */

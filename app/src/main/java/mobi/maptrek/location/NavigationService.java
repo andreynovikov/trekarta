@@ -185,6 +185,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (action.equals(STOP_NAVIGATION) || action.equals(PAUSE_NAVIGATION)) {
             mForeground = false;
             stopForeground(true);
+            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_LOCATIONS));
             if (action.equals(STOP_NAVIGATION))
                 stopNavigation();
             Configuration.setNavigationViaRoute(navRoute != null);
@@ -199,6 +200,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             editor.putBoolean(PREF_NAVIGATION_BACKGROUND, true);
             editor.apply();
+            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_BACKGROUND_LOCATIONS));
         }
         if (action.equals(DISABLE_BACKGROUND_NAVIGATION)) {
             mForeground = false;
@@ -206,6 +208,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             editor.putBoolean(PREF_NAVIGATION_BACKGROUND, false);
             editor.apply();
+            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_LOCATIONS));
         }
         updateNotification();
 
