@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2023.11" versioncode="85" date="11.11.2023">
+    <release version="2023.12" versioncode="88" date="27.12.2023">
+        <change>Added route reverse navigation</change>
+        <change>Added route sharing</change>
+        <change>Added ability to keep data on app removal</change>
+        <change>Fixed plugin discovery</change>
+        <change>Fixed navigation in background</change>
+        <change>Fixed resuming navigation after pause</change>
+    </release>
+    <release version="2023.11" versioncode="86" date="11.11.2023">
         <change>Added support for GPX routes</change>
         <change>Added basic support for route navigation</change>
         <change>Discontinued Lite version</change>

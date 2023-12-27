@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2023.11" versioncode="85" date="11.11.2023">
+    <release version="2023.12" versioncode="88" date="27.12.2023">
+        <change>Добавлена поддержка навигации по маршруту в обратную сторону</change>
+        <change>Добавлена возможность поделиться маршрутом</change>
+        <change>Добавлена возможность сохранения данных при удалении приложения</change>
+        <change>Исправлено обнаружение плагинов</change>
+        <change>Исправлена навигация в фоновом режиме</change>
+        <change>Исправлено возобнавление навигации после постановки на паузу</change>
+    </release>
+    <release version="2023.11" versioncode="86" date="11.11.2023">
         <change>Добавлена поддержка GPX маршрутов</change>
         <change>Добавлена базовая поддержка навигации по маршруту</change>
         <change>Прекращена поддержка Lite версии</change>
