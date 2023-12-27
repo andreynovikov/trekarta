@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,80 +16,53 @@
 
 package mobi.maptrek.fragments;
 
-import android.content.Context;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.text.format.Formatter;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 
-public class BaseMapDownload extends Fragment implements OnBackPressedListener {
-    private FragmentHolder mFragmentHolder;
-    private Index mMapIndex;
-    private TextView mMessageView;
+public class BaseMapDownload extends DialogFragment {
+    @NonNull
+    private final Index mMapIndex;
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_basemap_download, container, false);
-        mMessageView = rootView.findViewById(R.id.message);
-        return rootView;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        FloatingActionButton floatingButton = mFragmentHolder.enableActionButton();
-        floatingButton.setImageDrawable(AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_file_download));
-        floatingButton.setOnClickListener(v -> {
-            mMapIndex.downloadBaseMap();
-            mFragmentHolder.disableActionButton();
-            mFragmentHolder.popCurrent();
-        });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        long size = mMapIndex != null ? mMapIndex.getBaseMapSize() : Index.BASEMAP_SIZE_STUB * 1024 * 1024;
-        mMessageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement FragmentHolder");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mFragmentHolder.removeBackClickListener(this);
-        mFragmentHolder = null;
-    }
-
-    @Override
-    public boolean onBackClick() {
-        mFragmentHolder.disableActionButton();
-        return false;
-    }
-
-    public void setMapIndex(Index mapIndex) {
+    public BaseMapDownload(@NonNull Index mapIndex) {
+        super();
         mMapIndex = mapIndex;
     }
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final View dialogView = getLayoutInflater().inflate(R.layout.fragment_basemap_download, null);
+
+        TextView messageView = dialogView.findViewById(R.id.message);
+        long size = mMapIndex.getBaseMapSize();
+        messageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        dialogBuilder.setPositiveButton(R.string.actionDownload, (dialog, which) -> mMapIndex.downloadBaseMap());
+        dialogBuilder.setNegativeButton(R.string.actionSkip, (dialog, which) -> {});
+        dialogBuilder.setView(dialogView);
+
+        Dialog dialog = dialogBuilder.create();
+
+        Window window = dialog.getWindow();
+        assert window != null;
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.gravity = Gravity.BOTTOM;
+        window.setAttributes(lp);
+
+        return dialog;
+    }
 }

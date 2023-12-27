@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
@@ -39,13 +40,15 @@ import mobi.maptrek.util.ProgressListener;
 
 // TODO Localize strings
 public class KmlSerializer {
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
 
     public static void serialize(OutputStream outputStream, FileDataSource source, @Nullable ProgressListener progressListener) throws IOException {
 
         int progress = 0;
         if (progressListener != null) {
             int size = source.waypoints.size();
+            for (Route route : source.routes)
+                size += route.size();
             for (Track track : source.tracks)
                 size += track.points.size();
             progressListener.onProgressStarted(size);
@@ -60,7 +63,7 @@ public class KmlSerializer {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_KML);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_DOCUMENT);
 
-        if (source.tracks.size() > 0) {
+        if (source.tracks.size() > 0 || source.routes.size() > 0) {
             serializer.startTag(KmlFile.NS, KmlFile.TAG_FOLDER);
             serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
             serializer.text("Points");
@@ -72,8 +75,11 @@ public class KmlSerializer {
         for (Waypoint waypoint : source.waypoints) {
             progress = serializeWaypoint(serializer, waypoint, progressListener, progress);
         }
-        if (source.tracks.size() > 0) {
+        if (source.tracks.size() > 0 || source.routes.size() > 0) {
             serializer.endTag(KmlFile.NS, KmlFile.TAG_FOLDER);
+        }
+        for (Route route : source.routes) {
+            progress = serializeTrack(serializer, route.toTrack(), progressListener, progress);
         }
         for (Track track : source.tracks) {
             progress = serializeTrack(serializer, track, progressListener, progress);
@@ -129,14 +135,16 @@ public class KmlSerializer {
             serializer.cdsect(track.description);
             serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
         }
-        serializer.startTag(KmlFile.NS, KmlFile.TAG_TIME_SPAN);
-        serializer.startTag(KmlFile.NS, KmlFile.TAG_BEGIN);
-        serializer.text(sdf.format(new Date(track.points.get(0).time)));
-        serializer.endTag(KmlFile.NS, KmlFile.TAG_BEGIN);
-        serializer.startTag(KmlFile.NS, KmlFile.TAG_END);
-        serializer.text(sdf.format(new Date(track.getLastPoint().time)));
-        serializer.endTag(KmlFile.NS, KmlFile.TAG_END);
-        serializer.endTag(KmlFile.NS, KmlFile.TAG_TIME_SPAN);
+        if (track.points.get(0).time > 0L) {
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_TIME_SPAN);
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_BEGIN);
+            serializer.text(sdf.format(new Date(track.points.get(0).time)));
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_BEGIN);
+            serializer.startTag(KmlFile.NS, KmlFile.TAG_END);
+            serializer.text(sdf.format(new Date(track.getLastPoint().time)));
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_END);
+            serializer.endTag(KmlFile.NS, KmlFile.TAG_TIME_SPAN);
+        }
         serializer.startTag(KmlFile.NS, KmlFile.TAG_OPEN);
         serializer.text("0");
         serializer.endTag(KmlFile.NS, KmlFile.TAG_OPEN);
@@ -179,7 +187,7 @@ public class KmlSerializer {
         return progress;
     }
 
-    private static void startTrackPart(XmlSerializer serializer, int part, String name, Style style) throws IOException {
+    private static void startTrackPart(XmlSerializer serializer, int part, String name, Style<TrackStyle> style) throws IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_PLACEMARK);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
         if (part > 1)
@@ -203,7 +211,7 @@ public class KmlSerializer {
         serializer.endTag(KmlFile.NS, KmlFile.TAG_PLACEMARK);
     }
 
-    private static void serializeStyle(XmlSerializer serializer, Style style) throws IOException {
+    private static void serializeStyle(XmlSerializer serializer, Style<?> style) throws IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_STYLE);
         if (style.id != null && ! "".equals(style.id)) {
             serializer.attribute("", KmlFile.ATTRIBUTE_ID, style.id);

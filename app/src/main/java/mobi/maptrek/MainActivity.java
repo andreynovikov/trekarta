@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,9 +24,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -34,13 +32,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -54,17 +51,25 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.StringRes;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
@@ -75,11 +80,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.transition.Slide;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.transition.TransitionValues;
@@ -91,7 +101,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
@@ -105,6 +114,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.CanvasAdapter;
@@ -162,6 +172,9 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.source.RouteDataSource;
+import mobi.maptrek.data.source.TrackDataSource;
+import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
@@ -181,7 +194,6 @@ import mobi.maptrek.fragments.LocationShareDialog;
 import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
-import mobi.maptrek.fragments.OnBackPressedListener;
 import mobi.maptrek.fragments.OnFeatureActionListener;
 import mobi.maptrek.fragments.OnLocationListener;
 import mobi.maptrek.fragments.OnMapActionListener;
@@ -223,6 +235,8 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.plugin.PluginRepository;
+import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
@@ -245,7 +259,7 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 
-public class MainActivity extends BasePluginActivity implements ILocationListener,
+public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
         MapHolder,
         Map.InputListener,
@@ -264,11 +278,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         MapTrekTileLayer.OnAmenityGestureListener,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
-        FragmentManager.OnBackStackChangedListener,
         AmenitySetupDialog.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    private static final int PERMISSIONS_REQUEST_NOTIFICATION = 2;
 
     private static final int MAP_EVENTS = 1;
     private static final int MAP_BASE = 2;
@@ -287,10 +301,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
-
-    public static final String NEW_APPLICATION_STORAGE = "-=MOVE_TO_APP=-";
-    public static final String NEW_EXTERNAL_STORAGE = "-=MOVE_TO_ROOT=-";
-    public static final String NEW_SD_STORAGE = "-=MOVE_TO_SD=-";
 
     public enum TRACKING_STATE {
         DISABLED,
@@ -393,6 +403,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private boolean mFirstMove = true;
     private boolean mBaseMapWarningShown = false;
     private boolean mObjectInteractionEnabled = true;
+    private boolean mAskedNotificationPermission = false;
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
 
@@ -402,6 +413,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private WeakReference<SafeResultReceiver> mResultReceiver;
 
     private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
+    private PluginRepository mPluginRepository;
 
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
     @Override
@@ -410,14 +422,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         super.onCreate(savedInstanceState);
 
         logger.debug("onCreate()");
-
-        logger.error("ES: {}", Configuration.getExternalStorage());
-        logger.error("New ES: {}", Configuration.getNewExternalStorage());
-        if (Configuration.getNewExternalStorage() != null) {
-            startActivity(new Intent(this, DataMoveActivity.class));
-            finish();
-            return;
-        }
+        EventBus.getDefault().register(this);
 
         // Required for transparent status bar
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -466,44 +471,22 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         // find the retained fragment on activity restarts
         mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.addOnBackStackChangedListener(this);
+        mFragmentManager.registerFragmentLifecycleCallbacks(mFragmentLifecycleCallback, true);
 
-        try {
-            // Provide application context so that maps can be cached on rotation
-            mNativeMapIndex = application.getMapIndex();
-        } catch (Exception e) { // It's happening on Android 12 when maps where moved to external storage
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.actionMoveData);
-            builder.setMessage(R.string.msgMoveDataToApplicationStorageExplanation);
-            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
-                Configuration.setNewExternalStorage(NEW_APPLICATION_STORAGE);
-                MapTrek.getApplication().restart(this, DataMoveActivity.class);
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
+        mNativeMapIndex = application.getMapIndex();
         mMapIndex = application.getExtraMapIndex();
 
         mShieldFactory = application.getShieldFactory();
         mOsmcSymbolFactory = application.getOsmcSymbolFactory();
 
-        if (savedInstanceState == null) {
-            if (BuildConfig.FULL_VERSION) {
-                initializePlugins();
-                mMapIndex.initializeNewPluginMapProviders();
-                mMapIndex.initializeOfflineMapProviders();
-                mMapIndex.initializeOnlineMapProviders();
-            }
+        mPluginRepository = application.getPluginRepository();
 
+        if (savedInstanceState == null) {
             String language = Configuration.getLanguage();
             if (language == null) {
-                if (BuildConfig.RUSSIAN_EDITION) {
-                    language = "ru";
-                } else {
-                    language = resources.getConfiguration().locale.getLanguage();
-                    if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
-                        language = "none";
-                }
+                language = resources.getConfiguration().locale.getLanguage();
+                if (!Arrays.asList(new String[]{"en", "de", "ru"}).contains(language))
+                    language = "none";
                 Configuration.setLanguage(language);
             }
         }
@@ -521,9 +504,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mViews.license.setClickable(true);
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
-
-        mViews.gaugePanel.setTag(Boolean.TRUE);
-        mViews.gaugePanel.setMapHolder(this);
 
         mViews.navigationArrow.setOnClickListener(v -> {
             MapObject mapObject = mNavigationService.getWaypoint();
@@ -607,20 +587,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         mMap = mViews.mapView.map();
         if (lastIntroduction == 0) {
-            if (BuildConfig.RUSSIAN_EDITION) {
-                mMap.setMapPosition(56.4, 39, 1 << 5);
-            } else {
-                // Set initial location based on device language
-                switch (resources.getConfiguration().locale.getLanguage()) {
-                    case "de":
-                        mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
-                        break;
-                    case "ru":
-                        mMap.setMapPosition(56.4, 39, 1 << 5);
-                        break;
-                    default:
-                        mMap.setMapPosition(-19, -12, 1 << 2);
-                }
+            // Set initial location based on device language
+            switch (resources.getConfiguration().locale.getLanguage()) {
+                case "de":
+                    mMap.setMapPosition(50.8, 10.45, (1 << 6) * 1.5);
+                    break;
+                case "ru":
+                    mMap.setMapPosition(56.4, 39, 1 << 5);
+                    break;
+                default:
+                    mMap.setMapPosition(-19, -12, 1 << 2);
             }
         } else {
             mMap.setMapPosition(Configuration.getPosition());
@@ -657,12 +633,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
 
-        try {
-            if (Configuration.getHillshadesEnabled())
-                showHillShade();
-        } catch (SQLiteCantOpenDatabaseException ignore) {
-            // temporary, until data will be moved to application folder
-        }
+        if (Configuration.getHillshadesEnabled())
+            showHillShade();
 
         mGridLayer = new TileGridLayer(mMap, MapTrek.density * .75f);
         if (Configuration.getGridLayerEnabled())
@@ -701,33 +673,26 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         // Load waypoints
-        try {
-            mWaypointDbDataSource = application.getWaypointDbDataSource();
-            mWaypointDbDataSource.open();
-            for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
-                if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
-                    mEditedWaypoint = waypoint;
-                addWaypointMarker(waypoint);
-                mTotalDataItems++;
-            }
-        } catch (SQLiteCantOpenDatabaseException ignore) {
-            // temporary, until data will be moved to application folder
+        mWaypointDbDataSource = application.getWaypointDbDataSource();
+        mWaypointDbDataSource.open();
+        for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints()) {
+            if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
+                mEditedWaypoint = waypoint;
+            addWaypointMarker(waypoint);
+            mTotalDataItems++;
         }
+
         mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED));
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED));
-        registerReceiver(mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN), ContextCompat.RECEIVER_NOT_EXPORTED);
 
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
         for (MapFile bitmapLayerMap : mBitmapLayerMaps)
             showBitmapMap(bitmapLayerMap, false);
 
-        try {
-            setMapTheme();
-        } catch (IllegalStateException ignore) {
-            // temporary, until data will be moved to application folder
-        }
+        setMapTheme();
 
         //if (BuildConfig.DEBUG)
         //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
@@ -752,11 +717,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return true;
         });
         mViews.mapsButton.setOnClickListener(v -> {
-            if (BuildConfig.FULL_VERSION) {
-                onMapsClicked();
-            } else {
-                onMapsLongClicked();
-            }
+            onMapsClicked();
         });
         mViews.mapsButton.setOnLongClickListener(v -> {
             onMapsLongClicked();
@@ -783,14 +744,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         boolean visible = Configuration.getZoomButtonsVisible();
         mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
-
-        // Resume navigation
-        MapObject mapObject = Configuration.getNavigationPoint();
-        if (mapObject != null)
-            startNavigation(mapObject);
-
-        // Initialize data loader
-        getLoaderManager();
 
         // Get back to full screen mode after edge swipe
         /*
@@ -850,54 +803,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             setMapLocation(position.getGeoPoint());
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
-        } else if ("mobi.maptrek.action.MOVE_DATA".equals(action)) {
-            final AtomicInteger selected = new AtomicInteger(0);
-            boolean hasSDCard = MapTrek.getApplication().hasSDCard();
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.titleMoveData);
-            CharSequence[] items = new CharSequence[hasSDCard ? 2 : 1];
-            final String[] storageVariants = new String[hasSDCard ? 2 : 1];
-            String externalStorage = Configuration.getExternalStorage();
-            if (externalStorage != null) {
-                items[0] = getString(R.string.msgMoveDataToApplicationStorage);
-                storageVariants[0] = NEW_APPLICATION_STORAGE;
-            } else {
-                items[0] = getString(R.string.msgMoveDataToExternalStorage);
-                storageVariants[0] = NEW_EXTERNAL_STORAGE;
-            }
-            if (hasSDCard) {
-                if (MapTrek.getApplication().getSDCardDirectory().getAbsolutePath().equals(externalStorage)) {
-                    items[1] = getString(R.string.msgMoveDataToExternalStorage);
-                    storageVariants[1] = NEW_EXTERNAL_STORAGE;
-                } else {
-                    items[1] = getString(R.string.msgMoveDataToSDCard);
-                    storageVariants[1] = NEW_SD_STORAGE;
-                }
-            }
-            builder.setSingleChoiceItems(items, selected.get(), (dialog, which) -> selected.set(which));
-            builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
-                final int item = selected.get();
-                if (!NEW_APPLICATION_STORAGE.equals(storageVariants[item])) {
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                    builder1.setTitle(R.string.actionMoveData);
-                    if (NEW_EXTERNAL_STORAGE.equals(storageVariants[item]))
-                        builder1.setMessage(R.string.msgMoveDataToExternalStorageExplanation);
-                    else
-                        builder1.setMessage(R.string.msgMoveDataToSDCardExplanation);
-                    builder1.setPositiveButton(R.string.actionContinue, (dialog1, which1) -> {
-                        Configuration.setNewExternalStorage(storageVariants[item]);
-                        MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                    });
-                    builder1.setNegativeButton(R.string.cancel, null);
-                    AlertDialog nextDialog = builder1.create();
-                    nextDialog.show();
-                } else {
-                    Configuration.setNewExternalStorage(storageVariants[item]);
-                    MapTrek.getApplication().restart(MainActivity.this, DataMoveActivity.class);
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
         } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
             mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
             Snackbar.make(mViews.coordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
@@ -909,14 +814,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 return;
             logger.debug("   {}", uri);
             String data = uri.getSchemeSpecificPart();
-            String query = uri.getQuery();
+            String query = null;
+            // String query = uri.getQuery(); returns null for some reason
+            int queryIdx = data.indexOf('?');
             // geo:latitude,longitude
             // geo:latitude,longitude?z=zoom
             // geo:0,0?q=lat,lng(label)
             // geo:0,0?q=lat, lng - buggy Instagram (with space)
             int zoom = 0;
-            if (query != null) {
-                data = data.substring(0, data.indexOf(query) - 1);
+            if (queryIdx >= 0) {
+                query = data.substring(queryIdx + 1, data.length() - 1);
+                data = data.substring(0, queryIdx);
                 if (query.startsWith("z="))
                     try {
                         zoom = Integer.parseInt(query.substring(2));
@@ -925,6 +833,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                     }
             }
             try {
+                logger.error(data);
                 String[] ll = data.split(",");
                 String marker = null;
                 double lat = Double.parseDouble(ll[0]);
@@ -974,14 +883,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onStart()");
 
         // Start loading user data
-        DataLoader loader = (DataLoader) getLoaderManager().initLoader(0, null, this);
+        DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE));
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE), ContextCompat.RECEIVER_NOT_EXPORTED);
 
         MapTrek application = MapTrek.getApplication();
         SafeResultReceiver resultReceiver = application.getResultReceiver();
@@ -992,6 +901,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         resultReceiver.setCallback(this);
         mResultReceiver = new WeakReference<>(resultReceiver);
 
+        // Resume navigation
+        if (Configuration.getNavigationPoint() != null)
+            resumeNavigation();
+
+        if (Configuration.getConfirmExitEnabled())
+            getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+        mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
         MapTrek.isMainActivityRunning = true;
     }
 
@@ -1001,7 +917,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onResume()");
 
         if (mSavedLocationState != LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
         if (mTrackingState == TRACKING_STATE.TRACKING)
             enableTracking();
 
@@ -1048,16 +964,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.addToBackStack("crashReport");
             ft.commit();
         } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            BaseMapDownload fragment = (BaseMapDownload) factory.instantiate(getClassLoader(), BaseMapDownload.class.getName());
-            fragment.setMapIndex(mNativeMapIndex);
-            fragment.setEnterTransition(new Slide());
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "baseMapDownload");
-            ft.addToBackStack("baseMapDownload");
-            ft.commit();
+            BaseMapDownload dialogFragment = new BaseMapDownload(mNativeMapIndex);
+            dialogFragment.show(mFragmentManager, "baseMapDownload");
             mBaseMapWarningShown = true;
-        } else if (mNativeMapIndex != null) { // this is temporary, until we will move data back to application folder
+        } else if (WhatsNewDialog.shouldShow()) {
             WhatsNewDialog dialogFragment = new WhatsNewDialog();
             dialogFragment.show(mFragmentManager, "whatsNew");
         }
@@ -1069,7 +979,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         if (type >= 0 && mViews.highlightedType.getVisibility() != View.VISIBLE)
             setHighlightedType(type);
 
-        updateMapViewArea();
+        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(globalLayoutListener);
 
         mMap.updateMap(true);
     }
@@ -1081,6 +992,9 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
+
+        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
+        vto.removeOnGlobalLayoutListener(globalLayoutListener);
 
         mViews.mapView.onPause();
         mMap.events.unbind(this);
@@ -1102,10 +1016,16 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
             if (mNavigationService != null) {
                 Intent intent = new Intent(getApplicationContext(), NavigationService.class);
-                if (mNavigationService.isNavigating())
-                    startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
-                else
+                if (mNavigationService.isNavigating()) {
+                    if (Configuration.notificationsDenied()) {
+                        stopNavigation();
+                        stopService(intent);
+                    } else {
+                        startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
+                    }
+                } else {
                     stopService(intent);
+                }
             }
             disableNavigation();
             disableLocations();
@@ -1118,12 +1038,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         logger.debug("onStop()");
 
         MapTrek.isMainActivityRunning = false;
+        mBackPressedCallback.remove();
 
         mResultReceiver.get().setCallback(null);
 
         unregisterReceiver(mBroadcastReceiver);
 
-        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
         if (loader != null) {
             ((DataLoader) loader).setProgressHandler(null);
         }
@@ -1133,6 +1054,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     protected void onDestroy() {
         super.onDestroy();
         logger.debug("onDestroy()");
+        EventBus.getDefault().unregister(this);
 
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
@@ -1214,6 +1136,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             savedInstanceState.putInt("progressBar", mViews.progressBar.getMax());
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
+        savedInstanceState.putBoolean("baseMapWarningShown", mBaseMapWarningShown);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -1233,20 +1156,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mViews.progressBar.setMax(savedInstanceState.getInt("progressBar"));
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
+        mBaseMapWarningShown = savedInstanceState.getBoolean("baseMapWarningShown");
         setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            if (resultData != null) {
-                Uri uri = resultData.getData();
-                Intent intent = new Intent(Intent.ACTION_SEND, uri, this, DataImportActivity.class);
+    ActivityResultLauncher<String> mGetContent = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                Intent intent = new Intent(Intent.ACTION_SEND, uri, MainActivity.this, DataImportActivity.class);
                 startActivity(intent);
             }
-        }
-    }
+    );
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -1397,13 +1317,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mLocationState = LocationState.ENABLED;
                 updateLocationDrawable();
             }
-            BoundingBox box = new BoundingBox();
+            BoundingBox box = mNavigationService.getRouteBoundingBox();
             mMap.getMapPosition(mMapPosition);
             box.extend(mMapPosition.getLatitude(), mMapPosition.getLongitude());
-            MapObject mapObject = mNavigationService.getWaypoint();
-            box.extend(mapObject.coordinates.getLatitude(), mapObject.coordinates.getLongitude());
             box.extendBy(0.05);
             mMap.animator().animateTo(box);
+            return true;
+        } else if (action == R.id.actionNextRouteWaypoint) {
+            mNavigationService.nextRouteWaypoint();
+            return true;
+        } else if (action == R.id.actionPrevRouteWaypoint) {
+            mNavigationService.prevRouteWaypoint();
             return true;
         } else if (action == R.id.actionStopNavigation) {
             stopNavigation();
@@ -1412,10 +1336,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             startMapSelection(true);
             return true;
         } else if (action == R.id.actionImport) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-            startActivityForResult(intent, 1);
+            mGetContent.launch("*/*");
             return true;
         } else if (action == R.id.actionHideSystemUI) {
             if (Configuration.getHideSystemUI())
@@ -1430,7 +1351,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "ruler");
             ft.addToBackStack("ruler");
             ft.commit();
-            mCrosshairLayer.lock(Color.RED);
             return true;
         } else if (action == R.id.actionAddGauge) {
             mViews.gaugePanel.onLongClick(mViews.gaugePanel);
@@ -1654,7 +1574,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onLocationClicked() {
         switch (mLocationState) {
             case DISABLED:
-                askForPermission();
+                askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
                 break;
             case SEARCHING:
                 mLocationState = LocationState.DISABLED;
@@ -1709,7 +1629,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onRecordLongClicked() {
         if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
             return;
         }
         if (mTrackingState == TRACKING_STATE.TRACKING) {
@@ -1735,12 +1655,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private void onPlacesClicked() {
         boolean hasExtraSources = false;
-        if (BuildConfig.FULL_VERSION) {
-            for (FileDataSource source : mData) {
-                if (!source.isNativeTrack()) {
-                    hasExtraSources = true;
-                    break;
-                }
+        for (FileDataSource source : mData) {
+            if (!source.isNativeTrack()) {
+                hasExtraSources = true;
+                break;
             }
         }
         if (hasExtraSources) {
@@ -1763,7 +1681,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
                 args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
             }
-            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, BuildConfig.FULL_VERSION);
+            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
             fragment.setArguments(args);
@@ -1818,8 +1736,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             item = menu.findItem(R.id.actionLanguage);
             ((TextView) item.getActionView()).setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
-            if (!BuildConfig.FULL_VERSION)
-                menu.removeItem(R.id.actionNightMode);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
     }
@@ -1833,15 +1749,15 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 MenuItem item = menu.findItem(R.id.actionActivity);
                 String[] activities = resources.getStringArray(R.array.activities);
                 int activity = Configuration.getActivity();
-                if (activity > 0)
-                    ((TextView) item.getActionView()).setText(activities[activity]);
-                if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (activity > 0) {
+                    TextView textView = (TextView) item.getActionView();
+                    if (textView != null)
+                        textView.setText(activities[activity]);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
                     menu.removeItem(R.id.actionHideSystemUI);
-                }
-                if (!BuildConfig.FULL_VERSION) {
-                    menu.removeItem(R.id.actionImport);
                 }
                 if (Configuration.ratingActionPerformed() ||
                         (Configuration.getRunningTime() < 120 &&
@@ -1852,7 +1768,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
                 if (mViews.gaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                     menu.removeItem(R.id.actionAddGauge);
-                java.util.Map<String, Pair<Drawable, Intent>> tools = getPluginsTools();
+                java.util.Map<String, Pair<Drawable, Intent>> tools = mPluginRepository.getPluginTools();
                 String[] toolNames = tools.keySet().toArray(new String[0]);
                 Arrays.sort(toolNames, Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER));
                 for (String toolName : toolNames) {
@@ -1872,7 +1788,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void onMoreLongClicked() {
         boolean show = mViews.locationButton.getVisibility() == View.INVISIBLE;
         showActionPanel(show, true);
-        if (BuildConfig.FULL_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
                 !show && !Configuration.getHideSystemUI())
             hideSystemUI();
     }
@@ -1970,6 +1886,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         if (mTrackingState == TRACKING_STATE.PENDING)
             enableTracking();
+        if (mNavigationService != null && mNavigationService.isNavigating())
+            askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
         updateLocationDrawable();
     }
 
@@ -2052,30 +1970,34 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     };
 
     private void enableNavigation() {
-        logger.debug("enableNavigation");
+        logger.error("enableNavigation");
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
     }
 
     private void disableNavigation() {
-        logger.debug("disableNavigation");
+        logger.error("disableNavigation");
         if (mIsNavigationBound) {
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
         }
         updateNavigationUI();
+        updatePanels();
     }
 
     private final ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            logger.debug("onServiceConnected: NavigationService");
+            logger.error("onServiceConnected: NavigationService");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
+            updatePanels();
+            updateNavigationGauges(true);
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            logger.debug("onServiceDisconnected: NavigationService");
+            logger.error("onServiceDisconnected: NavigationService");
             mNavigationService = null;
             updateNavigationUI();
+            updatePanels();
         }
     };
 
@@ -2088,7 +2010,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         i.putExtra(NavigationService.EXTRA_PROXIMITY, mapObject.proximity);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
     private void startNavigation(long id) {
@@ -2099,7 +2021,25 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         i.putExtra(NavigationService.EXTRA_ID, id);
         startService(i);
         if (mLocationState == LocationState.DISABLED)
-            askForPermission();
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
+    }
+
+    private void startNavigation(Route route, int dir) {
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_VIA_ROUTE);
+        i.putExtra(NavigationService.EXTRA_ROUTE, route);
+        i.putExtra(NavigationService.EXTRA_ROUTE_DIRECTION, dir);
+        startService(i);
+        if (mLocationState == LocationState.DISABLED)
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
+    }
+
+    private void resumeNavigation() {
+        enableNavigation();
+        Intent i = new Intent(this, NavigationService.class).setAction(NavigationService.RESUME_NAVIGATION);
+        startService(i);
+        if (mLocationState == LocationState.DISABLED)
+            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
     }
 
     @Override
@@ -2135,6 +2075,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
         mTrackingState = TRACKING_STATE.TRACKING;
         updateLocationDrawable();
+        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
     }
 
     @Override
@@ -2162,6 +2103,14 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             return false;
         MapObject mapObject = mNavigationService.getWaypoint();
         return mapObject.coordinates.equals(coordinates);
+    }
+
+    public void navigateVia(@NonNull Route route) {
+        startNavigation(route, NavigationService.DIRECTION_FORWARD);
+    }
+
+    public void navigateViaReversed(@NonNull Route route) {
+        startNavigation(route, NavigationService.DIRECTION_REVERSE);
     }
 
     private final Set<WeakReference<LocationStateChangeListener>> mLocationStateChangeListeners = new HashSet<>();
@@ -2344,12 +2293,17 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     private void showNavigationMenu() {
         PopupMenu popup = new PopupMenu(this, mViews.mapButtonHolder);
         popup.inflate(R.menu.context_menu_navigation);
+        Menu popupMenu = popup.getMenu();
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasNextRouteWaypoint())
+            popupMenu.removeItem(R.id.actionNextRouteWaypoint);
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasPrevRouteWaypoint())
+            popupMenu.removeItem(R.id.actionPrevRouteWaypoint);
         popup.setOnMenuItemClickListener(this);
         popup.show();
     }
 
     private void updateLocationDrawable() {
-        logger.debug("updateLocationDrawable()");
+        logger.error("updateLocationDrawable()");
         if (mViews.recordButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
             mViews.recordButton.getDrawable().setTint(recordColor);
@@ -2361,28 +2315,13 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             mViews.locationButton.clearAnimation();
             mViews.satellites.animate().translationY(-200);
         }
-        final ViewPropertyAnimator gaugePanelAnimator = mViews.gaugePanel.animate();
-        gaugePanelAnimator.setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (mLocationState == LocationState.NORTH)
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.gaugePanel, true);
-                //HelperUtils.showAdvice(Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.coordinatorLayout);
-                if (mLocationState == LocationState.SEARCHING)
-                    mViews.satellites.animate().translationY(8);
-                gaugePanelAnimator.setListener(null);
-                updateMapViewArea();
-            }
-        });
+
         switch (mLocationState) {
             case DISABLED:
                 mNavigationNorthDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
-                if (mViews.gaugePanel.getWidth() > 0) {
-                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                    mViews.gaugePanel.onVisibilityChanged(false);
-                }
+                updatePanels();
                 break;
             case SEARCHING:
                 mLocationSearchingDrawable.setTint(mColorAccent);
@@ -2392,33 +2331,29 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 rotation.setRepeatCount(Animation.INFINITE);
                 rotation.setDuration(1000);
                 mViews.locationButton.startAnimation(rotation);
-                if (mViews.gaugePanel.getVisibility() == View.INVISIBLE) {
+                if (mViews.gaugePanel.getVisibility() == View.GONE) {
                     mViews.satellites.animate().translationY(8);
                 } else {
-                    gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                    mViews.gaugePanel.onVisibilityChanged(false);
+                    updatePanels();
                 }
                 break;
             case ENABLED:
                 mMyLocationDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
-                gaugePanelAnimator.translationX(-mViews.gaugePanel.getWidth());
-                mViews.gaugePanel.onVisibilityChanged(false);
+                updatePanels();
                 break;
             case NORTH:
                 mNavigationNorthDrawable.setTint(mColorAccent);
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(false);
-                gaugePanelAnimator.translationX(0);
-                mViews.gaugePanel.onVisibilityChanged(true);
+                updatePanels();
                 break;
             case TRACK:
                 mNavigationTrackDrawable.setTint(mColorAccent);
                 mViews.locationButton.setImageDrawable(mNavigationTrackDrawable);
                 mCrosshairLayer.setEnabled(false);
-                gaugePanelAnimator.translationX(0);
-                mViews.gaugePanel.onVisibilityChanged(true);
+                updatePanels();
         }
         mViews.locationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
@@ -2429,6 +2364,79 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
+    private void updatePanels() {
+        logger.error("updatePanels()");
+        boolean isRouting = mNavigationService != null && mNavigationService.isNavigatingViaRoute();
+
+        TransitionSet transitionSet = new TransitionSet();
+        Transition transition = new Slide(Gravity.START);
+        transition.addTarget(mViews.gaugePanel);
+        transitionSet.addTransition(transition);
+        if (isRouting) {
+            transition = new Slide(Gravity.TOP);
+            transition.addTarget(mViews.navigationPanel);
+            transitionSet.addTransition(transition);
+            transition = new AutoTransition();
+            transition.addTarget(mViews.mapButtonHolder);
+            transition.setDuration(300);
+            transitionSet.addTransition(transition);
+        }
+        transitionSet.setDuration(600);
+
+        transitionSet.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                if (mLocationState == LocationState.NORTH)
+                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_MORE_GAUGES, R.string.advice_more_gauges, mViews.gaugePanel, true);
+                // TODO: implement as transition too?
+                if (mLocationState == LocationState.SEARCHING)
+                    mViews.satellites.animate().translationY(8);
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
+        TransitionManager.beginDelayedTransition(mViews.getRoot(), transitionSet);
+
+        switch (mLocationState) {
+            case DISABLED:
+            case SEARCHING:
+            case ENABLED:
+                if (mViews.gaugePanel.getVisibility() != View.GONE) {
+                    mViews.navigationPanel.setVisibility(View.GONE);
+                    mViews.gaugePanel.setVisibility(View.GONE);
+                    mViews.gaugePanel.onVisibilityChanged(false);
+                }
+                getWindow().setStatusBarColor(getColor(android.R.color.transparent));
+                break;
+            case NORTH:
+            case TRACK:
+                if (isRouting) {
+                    mViews.navigationPanel.setVisibility(View.VISIBLE);
+                    getWindow().setStatusBarColor(getColor(R.color.colorNavigationBackground));
+                } else if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
+                    mViews.navigationPanel.setVisibility(View.GONE);
+                    getWindow().setStatusBarColor(getColor(android.R.color.transparent));
+                }
+                mViews.gaugePanel.setVisibility(View.VISIBLE);
+                mViews.gaugePanel.onVisibilityChanged(true);
+                break;
+        }
+    }
+
     private void updateGauges() {
         Location location = mLocationService.getLocation();
         mViews.gaugePanel.setValue(Gauge.TYPE_SPEED, location.getSpeed());
@@ -2436,12 +2444,59 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mViews.gaugePanel.setValue(Gauge.TYPE_ALTITUDE, (float) location.getAltitude());
     }
 
-    //TODO Logic of calling this is a total mess! Think out proper event mechanism
+    private void updateNavigationGauges(boolean updateRoutePanels) {
+        if (mNavigationService == null)
+            return; // not ready
+
+        if (mNavigationService.isNavigatingViaRoute()) {
+            if (updateRoutePanels) {
+                mViews.routeWaypoint.setText(mNavigationService.getInstructionText());
+                @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
+                Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
+                mViews.navigationSign.setImageDrawable(signDrawable);
+                int color = getResources().getColor(R.color.panelBackground, getTheme());
+                mViews.routeWaypoint.setBackgroundColor(color);
+                mViews.routeSignBackground.setBackgroundColor(color);
+                mViews.navigationSign.setTag(false);
+            }
+            mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
+            int ete = mNavigationService.getWptEte();
+            if (ete == Integer.MAX_VALUE) {
+                mViews.routeWptEte.setVisibility(View.GONE);
+            } else {
+                mViews.routeWptEte.setVisibility(View.VISIBLE);
+                mViews.routeWptEte.setText(StringFormatter.timeH(ete));
+                if (ete <= 1) {
+                    if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                        int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
+                        mViews.routeWaypoint.setBackgroundColor(color);
+                        mViews.routeSignBackground.setBackgroundColor(color);
+                        mViews.navigationSign.setTag(true);
+                    }
+                } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
+                    int color = getResources().getColor(R.color.panelBackground, getTheme());
+                    mViews.routeWaypoint.setBackgroundColor(color);
+                    mViews.routeSignBackground.setBackgroundColor(color);
+                    mViews.navigationSign.setTag(false);
+                }
+            }
+        }
+        mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
+        mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
+        mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
+        mViews.gaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
+        mViews.gaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
+        mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
+    }
+
     private void updateNavigationUI() {
         logger.debug("updateNavigationUI()");
         boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
                 mNavigationService != null && mNavigationService.isNavigating();
-        boolean changed = mViews.gaugePanel.setNavigationMode(enabled);
+        if (mViews.gaugePanel.getNavigationMode() == enabled)
+            return; // nothing changed
+
+        mViews.gaugePanel.setNavigationMode(enabled);
         if (enabled) {
             if (mViews.navigationArrow.getVisibility() == View.GONE) {
                 mViews.navigationArrow.setAlpha(0f);
@@ -2475,8 +2530,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 mNavigationLayer = null;
             }
         }
-        if (changed)
-            updateMapViewArea();
     }
 
     @Override
@@ -2496,7 +2549,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "markerInformation");
         ft.addToBackStack("markerInformation");
         ft.commit();
-        updateMapViewArea();
     }
 
     private void onWaypointProperties(Waypoint waypoint) {
@@ -2512,7 +2564,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "waypointProperties");
         ft.addToBackStack("waypointProperties");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -2734,7 +2785,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "trackProperties");
         ft.addToBackStack("trackProperties");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -2775,7 +2825,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "trackInformation");
             ft.addToBackStack("trackInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((TrackInformation) fragment).setTrack(track, current);
         mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
@@ -2824,7 +2873,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 File thisFile = new File(fileSource.path);
                 File thatFile = new File(thisFile.getParent(), FileUtils.sanitizeFilename(track.name) + TrackManager.EXTENSION);
                 if (!thisFile.equals(thatFile)) {
-                    Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+                    Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
                     if (loader != null) {
                         // Let loader do the task if it is available
                         ((DataLoader) loader).renameSource(fileSource, thatFile);
@@ -2977,7 +3026,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.contentPanel, fragment, "routeInformation");
             ft.addToBackStack("routeInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((RouteInformation) fragment).setRoute(route);
         mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
@@ -2989,7 +3037,29 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onRouteShare(Route route) {
-
+        final AtomicInteger selected = new AtomicInteger(0);
+        final DialogInterface.OnClickListener exportAction = (dialog, which) -> {
+            DataExport.Builder builder = new DataExport.Builder();
+            @DataExport.ExportFormat int format = selected.get() + 1;
+            DataExport dataExport = builder.setRoute(route).setFormat(format).create();
+            dataExport.show(mFragmentManager, "dataExport");
+        };
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.title_select_format);
+        builder.setSingleChoiceItems(R.array.data_format_array,
+                selected.get(), (dialog, which) -> selected.set(which));
+        builder.setPositiveButton(R.string.actionContinue, exportAction);
+        builder.setNeutralButton(R.string.explain, null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        // Workaround to prevent dialog dismissing
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            builder1.setMessage(getString(R.string.msgOtherFormatsExplanation));
+            builder1.setPositiveButton(R.string.ok, null);
+            AlertDialog dialog1 = builder1.create();
+            dialog1.show();
+        });
     }
 
     @Override
@@ -3042,7 +3112,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             ft.replace(R.id.bottomSheetPanel, fragment, "amenityInformation");
             ft.addToBackStack("amenityInformation");
             ft.commit();
-            updateMapViewArea();
         }
         ((AmenityInformation) fragment).setPreferredLanguage(Configuration.getLanguage());
         ((AmenityInformation) fragment).setAmenity(id);
@@ -3099,7 +3168,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         ft.replace(R.id.contentPanel, fragment, "mapSelection");
         ft.addToBackStack("mapSelection");
         ft.commit();
-        updateMapViewArea();
     }
 
     @Override
@@ -3430,10 +3498,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(0);
             //TODO Make it properly work without "immediate" - that is why exit transitions do not work
             mFragmentManager.popBackStackImmediate(bse.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            if (name.equals(bse.getName())) {
-                setPanelState(PANEL_STATE.NONE);
+            if (name.equals(bse.getName()))
                 return;
-            }
         }
         mViews.extendPanel.setForeground(null);
 
@@ -3557,10 +3623,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         s.start();
 
         mPanelState = state;
-        updateMapViewArea();
     }
-
-    private final Set<WeakReference<OnBackPressedListener>> mBackListeners = new HashSet<>();
 
     @Override
     public FloatingActionButton enableActionButton() {
@@ -3591,36 +3654,8 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void addBackClickListener(OnBackPressedListener listener) {
-        mBackListeners.add(new WeakReference<>(listener));
-    }
-
-    @Override
-    public void removeBackClickListener(OnBackPressedListener listener) {
-        for (Iterator<WeakReference<OnBackPressedListener>> iterator = mBackListeners.iterator();
-             iterator.hasNext(); ) {
-            WeakReference<OnBackPressedListener> weakRef = iterator.next();
-            if (weakRef.get() == listener) {
-                iterator.remove();
-            }
-        }
-    }
-
-    @Override
     public void popCurrent() {
         logger.debug("popCurrent()");
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count > 0) {
-            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            String fragmentName = bse.getName();
-            if ("baseMapDownload".equals(fragmentName)) {
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
-                }
-            } else if ("trackProperties".equals(fragmentName)) {
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
-            }
-        }
         mFragmentManager.popBackStack();
     }
 
@@ -3636,97 +3671,160 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         return mViews.coordinatorLayout;
     }
 
-    private boolean backKeyIntercepted() {
-        boolean intercepted = false;
-        for (WeakReference<OnBackPressedListener> weakRef : mBackListeners) {
-            OnBackPressedListener onBackClickListener = weakRef.get();
-            if (onBackClickListener != null) {
-                boolean isFragIntercept = onBackClickListener.onBackClick();
-                if (!intercepted)
-                    intercepted = isFragIntercept;
-            }
-        }
-        return intercepted;
-    }
+    private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
+        final Handler mBackHandler = new Handler();
 
-    final Handler mBackHandler = new Handler();
-
-    @Override
-    public void onBackPressed() {
-        logger.debug("onBackPressed()");
-        if (backKeyIntercepted())
-            return;
-
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count > 0) {
-            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-            String name = bse.getName();
-            if ("ruler".equals(name))
-                mCrosshairLayer.unlock();
-            else if (BuildConfig.FULL_VERSION && "settings".equals(name))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_MAP_SETTINGS, R.string.advice_map_settings, mViews.mapsButton, false);
-            else if ("trackProperties".equals(name))
-                HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
-            super.onBackPressed();
-            if (count == 1 && mPanelState != PANEL_STATE.NONE)
-                setPanelState(PANEL_STATE.NONE);
-        } else {
+        @Override
+        public void handleOnBackPressed() {
             if (secondBack) {
                 mBackToast.cancel();
-                finish();
+                this.setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
             } else {
                 secondBack = true;
                 mBackToast.show();
                 mBackHandler.postDelayed(() -> secondBack = false, 2000);
             }
         }
-    }
+    };
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    @Override
-    public void onBackStackChanged() {
-        logger.debug("onBackStackChanged()");
-        int count = mFragmentManager.getBackStackEntryCount();
-        if (count == 0) {
-            if (mPanelState != PANEL_STATE.NONE)
-                setPanelState(PANEL_STATE.NONE);
-            return;
+    private final FragmentManager.FragmentLifecycleCallbacks mFragmentLifecycleCallback = new FragmentManager.FragmentLifecycleCallbacks() {
+        @Override
+        public void onFragmentPreAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+            logger.error("onFragmentPreAttached({})", f.getClass().getName());
         }
-        FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-        Fragment f = mFragmentManager.findFragmentByTag(bse.getName());
-        if (f == null)
-            return;
-        View v = f.getView();
-        if (v == null)
-            return;
-        final ViewGroup p = (ViewGroup) v.getParent();
-        if (p.getForeground() != null) {
-            p.setForeground(getDrawable(R.drawable.dim));
-            p.getForeground().setAlpha(0);
+
+        @Override
+        public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+            logger.error("onFragmentAttached({})", f.getClass().getName());
+            mBackPressedCallback.setEnabled(false);
+        }
+
+        @Override
+        public void onFragmentPreCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentPreCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull View v, @Nullable Bundle savedInstanceState) {
+            logger.error("onFragmentViewCreated({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentStarted({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentResumed({})", f.getClass().getName());
+            if (f.getClass() == Ruler.class)
+                mCrosshairLayer.lock(Color.RED);
+        }
+
+        @Override
+        public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentPaused({})", f.getClass().getName());
+            if (f.getClass() == Ruler.class)
+                mCrosshairLayer.unlock();
+        }
+
+        @Override
+        public void onFragmentStopped(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentStopped({})", f.getClass().getName());
+            if (mFragmentManager.getBackStackEntryCount() == 0 && mPanelState != PANEL_STATE.NONE)
+                setPanelState(PANEL_STATE.NONE);
+        }
+
+        @Override
+        public void onFragmentSaveInstanceState(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Bundle outState) {
+            logger.error("onFragmentSaveInstanceState({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentViewDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentViewDestroyed({})", f.getClass().getName());
+
+            int count = mFragmentManager.getBackStackEntryCount();
+            if (count == 0)
+                return;
+            FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+            Fragment fr = mFragmentManager.findFragmentByTag(bse.getName());
+            if (fr == null)
+                return;
+            View fv = fr.getView();
+            if (fv == null)
+                return;
+            final ViewGroup p = (ViewGroup) fv.getParent();
+            if (p == null || p.getForeground() == null)
+                return;
             ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
             anim.addListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     p.setForeground(null);
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {
+                public void onAnimationCancel(@NonNull Animator animation) {
                     p.setForeground(null);
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {
+                public void onAnimationRepeat(@NonNull Animator animation) {
                 }
             });
             anim.setDuration(500);
             anim.start();
         }
-    }
+
+        @Override
+        public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentDestroyed({})", f.getClass().getName());
+        }
+
+        @Override
+        public void onFragmentDetached(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            logger.error("onFragmentDetached({})", f.getClass().getName());
+            mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
+
+            Class<? extends Fragment> cls = f.getClass();
+            if (cls == BaseMapDownload.class) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    HelperUtils.showTargetedAdvice(
+                            MainActivity.this,
+                            Configuration.ADVICE_ENABLE_LOCATIONS,
+                            R.string.advice_enable_locations,
+                            mViews.locationButton,
+                            false
+                    );
+            } else if (cls == Settings.class)
+                HelperUtils.showTargetedAdvice(
+                        MainActivity.this,
+                        Configuration.ADVICE_MAP_SETTINGS,
+                        R.string.advice_map_settings,
+                        mViews.mapsButton,
+                        false
+                );
+            else if (cls == TrackProperties.class)
+                HelperUtils.showTargetedAdvice(
+                        MainActivity.this,
+                        Configuration.ADVICE_RECORDED_TRACKS,
+                        R.string.advice_recorded_tracks,
+                        mViews.recordButton,
+                        false
+                );
+        }
+    };
 
     private void hideDownloadButton() {
         if (mViews.mapDownloadButton.getVisibility() == View.VISIBLE) {
@@ -3780,143 +3878,150 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         }
     }
 
-    @Override
-    public void updateMapViewArea() {
-        logger.debug("updateMapViewArea()");
-        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                logger.debug("onGlobalLayout()");
-                if (isFinishing())
-                        return;
+    private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        public void onGlobalLayout() {
+            logger.debug("onGlobalLayout()");
+            if (isFinishing())
+                    return;
 
-                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
-                p.topMargin = mStatusBarHeight;
+            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
+            p.topMargin = mStatusBarHeight;
 
-                BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
+            BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
 
-                if (mFragmentManager != null) {
-                    if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
-                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
-                        } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                            mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                            mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
-                            HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
-                        }
+            if (mFragmentManager != null) {
+                if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
+                    } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
+                        mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                        mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
                     }
-
-                    if (Boolean.TRUE.equals(mViews.gaugePanel.getTag())) {
-                        mViews.gaugePanel.setTranslationX(-mViews.gaugePanel.getWidth());
-                        mViews.gaugePanel.setVisibility(View.VISIBLE);
-                        mViews.gaugePanel.setTag(null);
-                    }
-
-                    Rect area = new Rect();
-                    mViews.mapView.getLocalVisibleRect(area);
-                    int mapWidth = area.width();
-                    int mapHeight = area.height();
-                    int pointerOffset = (int) (50 * MapTrek.density);
-
-                    int scaleBarOffset = 0;
-                    area.top = mStatusBarHeight;
-                    if (mViews.gaugePanel.getTranslationX() >= 0f) {
-                        scaleBarOffset = (int) (mViews.gaugePanel.getRight() + mViews.gaugePanel.getTranslationX());
-                        int h = mViews.gaugePanel.getHeight();
-                        if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
-                            area.left = scaleBarOffset;
-                    }
-
-                    if (mVerticalOrientation)
-                        area.bottom = mViews.actionPanel.getTop();
-                    else
-                        area.right = mViews.actionPanel.getLeft();
-
-                    if (mPanelState != PANEL_STATE.NONE) {
-                        if (mVerticalOrientation)
-                            area.bottom = mViews.extendPanel.getTop();
-                        else
-                            area.right = mViews.extendPanel.getLeft();
-                    }
-
-                    // This part does not currently make sense as map center is not adjusted yet
-                    int count = mFragmentManager.getBackStackEntryCount();
-                    if (count > 0) {
-                        FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-                        View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
-                        if ("search".equals(bse.getName()))
-                            if (mVerticalOrientation)
-                                area.bottom = contentPanel.getTop();
-                            else
-                                area.right = contentPanel.getLeft();
-                    }
-
-                    if (mVerticalOrientation) {
-                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
-                                || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                            area.bottom = mViews.bottomSheetPanel.getTop();
-                    }
-
-                    if (!area.isEmpty()) {
-                        int centerX = mapWidth / 2;
-                        int centerY = mapHeight / 2;
-                        mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
-                        mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
-                        mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
-                        mMovingOffset -= pointerOffset;
-                        if (mMovingOffset < 0)
-                            mMovingOffset = 0;
-
-                        mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
-                    }
-
-                    BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                    renderer.setOffset(scaleBarOffset + 8 * MapTrek.density, area.top);
                 }
 
-                ViewTreeObserver ob;
-                if (vto.isAlive())
-                    ob = vto;
+                Rect area = new Rect();
+                mViews.mapView.getLocalVisibleRect(area);
+                int mapWidth = area.width();
+                int mapHeight = area.height();
+                int pointerOffset = (int) (50 * MapTrek.density);
+
+                area.top = mStatusBarHeight;
+
+                float scaleBarTopOffset = area.top;
+                float scaleBarLeftOffset = 0;
+                if (mViews.gaugePanel.getVisibility() == View.VISIBLE) {
+                    scaleBarLeftOffset = mViews.gaugePanel.getRight();
+                    int h = mViews.gaugePanel.getHeight();
+                    if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
+                        area.left = (int) scaleBarLeftOffset;
+                }
+                if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
+                    scaleBarTopOffset += mViews.routeWptDistance.getBottom();
+                }
+
+                if (mVerticalOrientation)
+                    area.bottom = mViews.actionPanel.getTop();
                 else
-                    ob = getWindow().getDecorView().getViewTreeObserver();
+                    area.right = mViews.actionPanel.getLeft();
 
-                ob.removeOnGlobalLayoutListener(this);
+                if (mPanelState != PANEL_STATE.NONE) {
+                    if (mVerticalOrientation)
+                        area.bottom = mViews.extendPanel.getTop();
+                    else
+                        area.right = mViews.extendPanel.getLeft();
+                }
+
+                // This part does not currently make sense as map center is not adjusted yet
+                int count = mFragmentManager.getBackStackEntryCount();
+                if (count > 0) {
+                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
+                    View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
+                    if ("search".equals(bse.getName()))
+                        if (mVerticalOrientation)
+                            area.bottom = contentPanel.getTop();
+                        else
+                            area.right = contentPanel.getLeft();
+                }
+
+                if (mVerticalOrientation) {
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                            || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                        area.bottom = mViews.bottomSheetPanel.getTop();
+                }
+
+                if (!area.isEmpty()) {
+                    int centerX = mapWidth / 2;
+                    int centerY = mapHeight / 2;
+                    mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
+                    mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
+                    mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
+                    mMovingOffset -= pointerOffset;
+                    if (mMovingOffset < 0)
+                        mMovingOffset = 0;
+
+                    mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
+                }
+
+                BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
+                renderer.setOffset(scaleBarLeftOffset + 8 * MapTrek.density, scaleBarTopOffset);
             }
-        });
-    }
+        }
+    };
 
-    private void askForPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    private void askForPermission(int permissionRequest) {
+        String permission = null;
+        @StringRes int title = 0;
+        @StringRes int rationale = 0;
+
+        switch (permissionRequest) {
+            case PERMISSIONS_REQUEST_FINE_LOCATION:
+                permission = Manifest.permission.ACCESS_FINE_LOCATION;
+                title = R.string.titleLocationPermissionRationale;
+                rationale = R.string.msgAccessFineLocationRationale;
+                break;
+            case PERMISSIONS_REQUEST_NOTIFICATION:
+                if (Build.VERSION.SDK_INT >= 33 && !Configuration.notificationsDenied() && !mAskedNotificationPermission) {
+                    permission = Manifest.permission.POST_NOTIFICATIONS;
+                    title = R.string.titleNotificationPermissionRationale;
+                    rationale = R.string.msgShowNotificationRationale;
+                    mAskedNotificationPermission = true;
+                }
+                break;
+        }
+        if (permission == null)
+            return;
+
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (shouldShowRequestPermissionRationale(permission) || permissionRequest == PERMISSIONS_REQUEST_NOTIFICATION) {
+                String finalPermission = permission;
                 String name;
                 try {
                     PackageManager pm = getPackageManager();
-                    PermissionInfo permissionInfo = pm.getPermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.GET_META_DATA);
+                    PermissionInfo permissionInfo = pm.getPermissionInfo(permission, PackageManager.GET_META_DATA);
                     name = permissionInfo.loadLabel(pm).toString().toLowerCase();
                 } catch (PackageManager.NameNotFoundException e) {
                     logger.error("Failed to obtain name for permission", e);
                     name = "access precise location";
                 }
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.titleLocationPermissionRationale)
-                        .setMessage(getString(R.string.msgAccessFineLocationRationale, name))
-                        .setPositiveButton(R.string.ok, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION))
+                        .setTitle(title)
+                        .setMessage(getString(rationale, name))
+                        .setPositiveButton(R.string.actionGrant, (dialog, which) -> requestPermissions(new String[]{finalPermission}, permissionRequest))
                         .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
                         .create()
                         .show();
             } else {
-               requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_FINE_LOCATION);
+                requestPermissions(new String[]{permission}, permissionRequest);
             }
-        } else {
+        } else if (permissionRequest == PERMISSIONS_REQUEST_FINE_LOCATION) {
             enableLocations();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //noinspection SwitchStatementWithTooFewBranches
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -3929,10 +4034,35 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                         startActivity(intent);
                     }, mViews.coordinatorLayout);
                 }
+                break;
             }
+            case PERMISSIONS_REQUEST_NOTIFICATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    // Save decision only if user implicitly denied notifications
+                    Configuration.setNotificationsDenied();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
+    private void showNotificationSettings() {
+        Intent intent = new Intent();
+        if (Build.VERSION.SDK_INT >= 26) {
+            intent.setAction(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName());
+        } else {
+            intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", getPackageName(), null));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        startActivity(intent);
+    }
+
+    @NonNull
     @Override
     public Loader<List<FileDataSource>> onCreateLoader(int id, Bundle args) {
         logger.debug("onCreateLoader({})", id);
@@ -3940,7 +4070,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onLoadFinished(Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
+    public void onLoadFinished(@NonNull Loader<List<FileDataSource>> loader, List<FileDataSource> data) {
         logger.debug("onLoadFinished()");
         if (data == null)
             return;
@@ -3961,7 +4091,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
     }
 
     @Override
-    public void onLoaderReset(Loader<List<FileDataSource>> loader) {
+    public void onLoaderReset(@NonNull Loader<List<FileDataSource>> loader) {
 
     }
 
@@ -4008,18 +4138,24 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
                 }
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
-                enableNavigation();
-                updateNavigationUI();
+                int state = intent.getIntExtra("state", -1);
+                if (state == BaseNavigationService.STATE_STARTED) {
+                    enableNavigation();
+                    updateNavigationUI();
+                    if (mLocationState != LocationState.DISABLED)
+                        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+                }
+                if (state == BaseNavigationService.STATE_NEXT_WPT) {
+                    updateNavigationGauges(true);
+                    if (mNavigationLayer != null && mNavigationService != null)
+                        mNavigationLayer.setDestination(mNavigationService.getWaypoint().coordinates);
+                }
+                updatePanels();
             }
-            if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action) && mNavigationService != null) {
-                mViews.gaugePanel.setValue(Gauge.TYPE_DISTANCE, mNavigationService.getDistance());
-                mViews.gaugePanel.setValue(Gauge.TYPE_BEARING, mNavigationService.getBearing());
-                mViews.gaugePanel.setValue(Gauge.TYPE_TURN, mNavigationService.getTurn());
-                mViews.gaugePanel.setValue(Gauge.TYPE_VMG, mNavigationService.getVmg());
-                mViews.gaugePanel.setValue(Gauge.TYPE_XTK, mNavigationService.getXtk());
-                mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
-                adjustNavigationArrow(mNavigationService.getTurn());
-                updateNavigationUI();
+            if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action)) {
+                updateNavigationGauges(false);
+                if (mNavigationService != null)
+                    adjustNavigationArrow(mNavigationService.getTurn());
             }
         }
     };
@@ -4030,7 +4166,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
             if (WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED.equals(action)) {
-                sendExplicitBroadcast(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
+                ContextUtils.sendExplicitBroadcast(MainActivity.this, WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
             }
             if (WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED.equals(action)) {
                 for (Waypoint waypoint : mWaypointDbDataSource.getWaypoints())
@@ -4190,7 +4326,7 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             removeSourceFromMap(source);
         }
         source.setVisible(available); // Set visibility for UI response, it does not affect other parts as source is replaced by loader
-        Loader<List<FileDataSource>> loader = getLoaderManager().getLoader(0);
+        Loader<List<FileDataSource>> loader = LoaderManager.getInstance(this).getLoader(0);
         if (loader != null)
             ((DataLoader) loader).markDataSourceLoadable(source, available);
         mMap.updateMap(true);
@@ -4198,28 +4334,47 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     @Override
     public void onDataSourceSelected(@NonNull DataSource source) {
-        Bundle args = new Bundle(3);
-        if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-            Location location = mLocationService.getLocation();
-            args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
-            args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
-            args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
+        if (source.isNativeTrack()) {
+            Track track = ((TrackDataSource) source).getTracks().get(0);
+            onTrackDetails(track, false);
+        } else if (source.isIndividual()) {
+            Cursor cursor = source.getCursor();
+            cursor.moveToPosition(0);
+            int itemType = source.getDataType(0);
+            if (itemType == DataSource.TYPE_WAYPOINT) {
+                Waypoint waypoint = ((WaypointDataSource) source).cursorToWaypoint(cursor);
+                onWaypointDetails(waypoint, true);
+            } else if (itemType == DataSource.TYPE_TRACK) {
+                Track track = ((TrackDataSource) source).cursorToTrack(cursor);
+                onTrackDetails(track);
+            } else if (itemType == DataSource.TYPE_ROUTE) {
+                Route route = ((RouteDataSource) source).cursorToRoute(cursor);
+                onRouteDetails(route);
+            }
         } else {
-            MapPosition position = mMap.getMapPosition();
-            args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
-            args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
-            args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
+            Bundle args = new Bundle(3);
+            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
+                Location location = mLocationService.getLocation();
+                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
+            } else {
+                MapPosition position = mMap.getMapPosition();
+                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
+            }
+            args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
+            fragment.setArguments(args);
+            fragment.setDataSource(source);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            fragment.setEnterTransition(new Fade());
+            ft.add(R.id.extendPanel, fragment, "dataList");
+            ft.addToBackStack("dataList");
+            ft.commit();
         }
-        args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
-        FragmentFactory factory = mFragmentManager.getFragmentFactory();
-        DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-        fragment.setArguments(args);
-        fragment.setDataSource(source);
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        fragment.setEnterTransition(new Fade());
-        ft.add(R.id.extendPanel, fragment, "dataList");
-        ft.addToBackStack("dataList");
-        ft.commit();
     }
 
     @Override
@@ -4384,10 +4539,19 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
             case Configuration.PREF_ZOOM_BUTTONS_VISIBLE: {
                 boolean visible = Configuration.getZoomButtonsVisible();
                 mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+                break;
             }
             case Configuration.PREF_ACCESSIBILITY_BADGES: {
                 Tags.accessibility = Configuration.getAccessibilityBadgesEnabled();
                 mMap.clearMap();
+                break;
+            }
+            case Configuration.PREF_CONFIRM_EXIT: {
+                if (Configuration.getConfirmExitEnabled())
+                    getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+                else
+                    mBackPressedCallback.remove();
+                break;
             }
             case Configuration.PREF_MAP_HILLSHADES: {
                 boolean enabled = Configuration.getHillshadesEnabled();
@@ -4506,7 +4670,6 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
         mStatusBarHeight = 0;
-        updateMapViewArea();
         mMap.updateMap();
     }
 
@@ -4514,14 +4677,11 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
         mMainHandler.removeMessages(R.id.msgHideSystemUI);
         Configuration.setHideSystemUI(false);
 
-        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-        if (windowInsetsController == null)
-            return;
+        WindowInsetsControllerCompat windowInsetsController =  WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         // Show the system bars.
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 
         mStatusBarHeight = getStatusBarHeight();
-        updateMapViewArea();
         mMap.updateMap();
     }
 
@@ -4561,5 +4721,10 @@ public class MainActivity extends BasePluginActivity implements ILocationListene
 
     private double movingAverage(double current, double previous) {
         return 0.2 * previous + 0.8 * current;
+    }
+
+    @Subscribe
+    public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
+        mPluginRepository.addPluginEntry(entry);
     }
 }

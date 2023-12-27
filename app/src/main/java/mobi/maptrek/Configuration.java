@@ -56,6 +56,9 @@ public class Configuration {
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
     private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
+    private static final String PREF_NAVIGATION_ROUTE = "navigation_route";
+    private static final String PREF_NAVIGATION_ROUTE_POINT = "navigation_route_point";
+    private static final String PREF_NAVIGATION_ROUTE_DIRECTION = "navigation_route_direction";
     private static final String PREF_GAUGES = "gauges";
     private static final String PREF_ADVICE_STATES = "advice_states";
     private static final String PREF_NIGHT_MODE_STATE = "night_mode_state";
@@ -69,6 +72,7 @@ public class Configuration {
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
     public static final String PREF_ACCESSIBILITY_BADGES = "accessibility_badges";
+    public static final String PREF_CONFIRM_EXIT = "confirm_exit";
     public static final String PREF_SPEED_UNIT = "speed_unit";
     public static final String PREF_DISTANCE_UNIT = "distance_unit";
     public static final String PREF_ELEVATION_UNIT = "elevation_unit";
@@ -79,13 +83,12 @@ public class Configuration {
     private static final String PREF_AUTO_TILT = "auto_tilt";
     private static final String PREF_HIDE_SYSTEM_UI = "hide_system_ui";
     private static final String PREF_ACTION_RATING = "action_rating";
+    private static final String PREF_NOTIFICATIONS_DENIED = "notifications_denied";
     private static final String LAST_SEEN_INTRODUCTION = "last_seen_introduction";
     private static final String LAST_SEEN_CHANGELOG = "last_seen_changelog";
     private static final String PREF_RUNNING_TIME = "running_time";
     private static final String PREF_TRACKING_TIME = "tracking_time";
     private static final String PREF_FULLSCREEN_TIMES = "fullscreen_times";
-    private static final String PREF_EXTERNAL_STORAGE = "external_storage";
-    private static final String PREF_NEW_EXTERNAL_STORAGE = "new_external_storage";
     private static final String PREF_HIKING_TIMES = "hiking_times";
     private static final String PREF_CYCLING_TIMES = "cycling_times";
     private static final String PREF_SKIING_TIMES = "skiing_times";
@@ -174,14 +177,13 @@ public class Configuration {
      */
     @Nullable
     public static MapObject getNavigationPoint() {
-        MapObject waypoint = null;
-        String navWpt = loadString(PREF_NAVIGATION_WAYPOINT, null);
-        if (navWpt != null) {
-            waypoint = new MapObject(mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, 0), mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, 0));
-            waypoint.name = navWpt;
-            waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
-            saveString(PREF_NAVIGATION_WAYPOINT, null);
-        }
+        float lat = mSharedPreferences.getFloat(PREF_NAVIGATION_LATITUDE, Float.NaN);
+        float lon = mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, Float.NaN);
+        if (Float.isNaN(lat) || Float.isNaN(lon))
+            return null;
+        MapObject waypoint = new MapObject(lat, lon);
+        waypoint.name = loadString(PREF_NAVIGATION_WAYPOINT, null);
+        waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
         return waypoint;
     }
 
@@ -192,8 +194,33 @@ public class Configuration {
             saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.coordinates.getLongitude());
             saveInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
         } else {
-            saveString(PREF_NAVIGATION_WAYPOINT, null);
+            remove(PREF_NAVIGATION_LATITUDE);
+            remove(PREF_NAVIGATION_LONGITUDE);
         }
+    }
+
+    public static boolean getNavigationViaRoute() {
+        return loadBoolean(PREF_NAVIGATION_ROUTE, false);
+    }
+
+    public static void setNavigationViaRoute(boolean state) {
+        saveBoolean(PREF_NAVIGATION_ROUTE, state);
+    }
+
+    public static int getNavigationRoutePoint() {
+        return loadInt(PREF_NAVIGATION_ROUTE_POINT, -1);
+    }
+
+    public static void setNavigationRoutePoint(int index) {
+        saveInt(PREF_NAVIGATION_ROUTE_POINT, index);
+    }
+
+    public static int getNavigationRouteDirection() {
+        return loadInt(PREF_NAVIGATION_ROUTE_DIRECTION, 0);
+    }
+
+    public static void setNavigationRouteDirection(int direction) {
+        saveInt(PREF_NAVIGATION_ROUTE_DIRECTION, direction);
     }
 
     public static String getGauges() {
@@ -274,7 +301,7 @@ public class Configuration {
 
     public static void setBitmapMaps(@NonNull Collection<MapFile> mapFiles) {
         if (mapFiles.isEmpty()) {
-            saveString(PREF_BITMAP_MAP, null);
+            remove(PREF_BITMAP_MAP);
         } else {
             String[] filenames = new String[mapFiles.size()];
             int i = 0;
@@ -302,7 +329,7 @@ public class Configuration {
     }
 
     public static void resetAdviceState() {
-        saveLong(PREF_ADVICE_STATES, 0L);
+        remove(PREF_ADVICE_STATES);
         mAdviceMask = 0L;
     }
 
@@ -406,6 +433,10 @@ public class Configuration {
         return loadBoolean(PREF_ACCESSIBILITY_BADGES, true);
     }
 
+    public static boolean getConfirmExitEnabled() {
+        return loadBoolean(PREF_CONFIRM_EXIT, false);
+    }
+
     public static int getCoordinatesFormat() {
         return loadInt(PREF_COORDINATES_FORMAT, 0);
     }
@@ -446,6 +477,14 @@ public class Configuration {
         saveBoolean(PREF_ACTION_RATING, true);
     }
 
+    public static boolean notificationsDenied() {
+        return loadBoolean(PREF_NOTIFICATIONS_DENIED, false);
+    }
+
+    public static void setNotificationsDenied() {
+        saveBoolean(PREF_NOTIFICATIONS_DENIED, true);
+    }
+
     public static int getLastSeenIntroduction() {
         return loadInt(LAST_SEEN_INTRODUCTION, 0);
     }
@@ -460,22 +499,6 @@ public class Configuration {
 
     public static void setLastSeenChangelog(int code) {
         saveInt(LAST_SEEN_CHANGELOG, code);
-    }
-
-    public static String getExternalStorage() {
-        return loadString(PREF_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setExternalStorage(String storage) {
-        saveString(PREF_EXTERNAL_STORAGE, storage);
-    }
-
-    public static String getNewExternalStorage() {
-        return loadString(PREF_NEW_EXTERNAL_STORAGE, null);
-    }
-
-    public static void setNewExternalStorage(String storage) {
-        saveString(PREF_NEW_EXTERNAL_STORAGE, storage);
     }
 
     public static int getHighlightedType() {
@@ -599,6 +622,15 @@ public class Configuration {
         EventBus.getDefault().post(new ChangedEvent(key));
     }
 
+    private static void remove(String key) {
+        assert mSharedPreferences != null : "Configuration not initialized";
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.remove(key);
+        editor.apply();
+        EventBus.getDefault().post(new ChangedEvent(key));
+    }
+
+    /** @noinspection UnusedReturnValue*/
     public static boolean commit() {
         assert mSharedPreferences != null : "Configuration not initialized";
         SharedPreferences.Editor editor = mSharedPreferences.edit();

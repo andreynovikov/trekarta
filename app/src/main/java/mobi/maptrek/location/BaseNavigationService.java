@@ -35,12 +35,17 @@ public abstract class BaseNavigationService extends Service
 	 * Action to initiate navigation via route. Navigation is restored if
 	 * application is restarted.
 	 */
-	public static final String NAVIGATE_ROUTE = "mobi.maptrek.location.NAVIGATE_ROUTE";
+	public static final String NAVIGATE_VIA_ROUTE = "mobi.maptrek.location.NAVIGATE_ROUTE";
 	/**
 	 * Service command to pause navigation. Is used only in background mode when service
 	 * alone.
 	 */
 	public static final String PAUSE_NAVIGATION = "mobi.maptrek.location.pauseNavigation";
+	/**
+	 * Service command to resume paused navigation.
+	 * alone.
+	 */
+	public static final String RESUME_NAVIGATION = "mobi.maptrek.location.resumeNavigation";
 	/**
 	 * Service command to stop navigation.
 	 */
@@ -77,9 +82,9 @@ public abstract class BaseNavigationService extends Service
 	 */
 	public static final String EXTRA_PROXIMITY = "proximity";
 	/**
-	 * Route index as returned by Androzic. Type: int
+	 * Route parcel. Type: Parcelable
 	 */
-	public static final String EXTRA_ROUTE_INDEX = "index";
+	public static final String EXTRA_ROUTE = "route";
 	/**
 	 * Route direction: DIRECTION_FORWARD or DIRECTION_REVERSE.
 	 */

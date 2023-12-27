@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -27,10 +27,6 @@ public interface FragmentHolder {
     FloatingActionButton enableListActionButton();
 
     void disableListActionButton();
-
-    void addBackClickListener(OnBackPressedListener listener);
-
-    void removeBackClickListener(OnBackPressedListener listener);
 
     void popCurrent();
 

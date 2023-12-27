@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -249,6 +249,7 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case KmlFile.TAG_COORDINATES:
                     coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
@@ -287,6 +288,7 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case KmlFile.TAG_COORDINATES:
                     coordinatesString = readTextElement(parser, KmlFile.TAG_COORDINATES);
@@ -400,6 +402,7 @@ public class KmlParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case KmlFile.TAG_PAIR:
                     Pair<String, String> pair = readPair(parser);

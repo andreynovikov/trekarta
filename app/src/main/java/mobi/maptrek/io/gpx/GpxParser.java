@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -91,6 +91,7 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case GpxFile.TAG_NAME:
                     metadata.name = readTextElement(parser, GpxFile.TAG_NAME);
@@ -107,7 +108,7 @@ public class GpxParser {
     @NonNull
     private static Waypoint readWaypoint(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_WPT);
-        Waypoint waypoint = new Waypoint(Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
+        Waypoint waypoint = new Waypoint(Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
         waypoint.locked = true;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -181,6 +182,7 @@ public class GpxParser {
                 continue;
             }
             String name = parser.getName();
+            //noinspection SwitchStatementWithTooFewBranches
             switch (name) {
                 case GpxFile.TAG_TRKPT:
                     readTrackPoint(parser, track, continuous);
@@ -196,8 +198,8 @@ public class GpxParser {
 
     private static void readTrackPoint(XmlPullParser parser, Track track, boolean continuous) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_TRKPT);
-        float lat = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
-        float lon = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        float lat = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
+        float lon = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
         float altitude = Float.NaN;
         long time = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -257,21 +259,38 @@ public class GpxParser {
 
     private static void readRoutePoint(XmlPullParser parser, Route route) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_RTEPT);
-        float lat = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
-        float lon = Float.valueOf(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        float lat = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT));
+        float lon = Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON));
+        String pointName = null;
+        String pointDesc = null;
+        float pointEle = Float.NaN;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             switch (name) {
+                case GpxFile.TAG_NAME:
+                    pointName = readTextElement(parser, GpxFile.TAG_NAME);
+                    break;
+                case GpxFile.TAG_DESC:
+                    pointDesc = readTextElement(parser, GpxFile.TAG_DESC);
+                    break;
+                case GpxFile.TAG_ELE:
+                    pointEle = readFloatElement(parser, GpxFile.TAG_ELE);
+                    break;
                 default:
                     skip(parser);
                     break;
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_RTEPT);
-        route.addInstruction((int) (lat * 1E6), (int) (lon * 1E6));
+        Route.Instruction instruction = route.addInstruction((int) (lat * 1E6), (int) (lon * 1E6));
+        if (pointDesc != null)
+            instruction.text = pointDesc;
+        else if (pointName != null)
+            instruction.text = pointName;
+        instruction.elevation = pointEle;
     }
 
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -310,6 +329,7 @@ public class GpxParser {
         return result;
     }
 
+    /** @noinspection SameParameterValue*/
     private static float readFloatElement(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, name);
         float result = readFloat(parser);
@@ -317,6 +337,7 @@ public class GpxParser {
         return result;
     }
 
+    /** @noinspection SameParameterValue*/
     private static int readIntegerElement(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, name);
         int result = readInteger(parser);

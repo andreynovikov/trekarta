@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Date;
 
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
@@ -38,6 +39,8 @@ public class GpxSerializer {
         int progress = 0;
         if (progressListener != null) {
             int size = source.waypoints.size();
+            for (Route route : source.routes)
+                size += route.size();
             for (Track track : source.tracks)
                 size += track.points.size();
             progressListener.onProgressStarted(size);
@@ -59,6 +62,9 @@ public class GpxSerializer {
 
         for (Waypoint waypoint : source.waypoints) {
             progress = serializeWaypoint(serializer, waypoint, progressListener, progress);
+        }
+        for (Route route : source.routes) {
+            progress = serializeRoute(serializer, route, progressListener, progress);
         }
         for (Track track : source.tracks) {
             progress = serializeTrack(serializer, track, progressListener, progress);
@@ -90,7 +96,7 @@ public class GpxSerializer {
         }
         if (waypoint.date != null) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_TIME);
-            serializer.text(String.valueOf(GpxFile.formatTime(waypoint.date)));
+            serializer.text(GpxFile.formatTime(waypoint.date));
             serializer.endTag(GpxFile.NS, GpxFile.TAG_TIME);
         }
         serializer.endTag(GpxFile.NS, GpxFile.TAG_WPT);
@@ -98,6 +104,40 @@ public class GpxSerializer {
         progress++;
         if (progressListener != null)
             progressListener.onProgressChanged(progress);
+        return progress;
+    }
+
+    private static int serializeRoute(XmlSerializer serializer, Route route, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+        serializer.startTag(GpxFile.NS, GpxFile.TAG_RTE);
+        serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
+        serializer.text(route.name);
+        serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
+        if (route.description != null) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
+            serializer.cdsect(route.description);
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+        }
+        for (Route.Instruction instruction : route.instructions) {
+            serializer.startTag(GpxFile.NS, GpxFile.TAG_RTEPT);
+            serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(instruction.latitudeE6 / 1E6));
+            serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(instruction.longitudeE6 / 1E6));
+            if (instruction.text != null) {
+                serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
+                serializer.text(instruction.text);
+                serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
+            }
+            if (!Float.isNaN(instruction.elevation)) {
+                serializer.startTag(GpxFile.NS, GpxFile.TAG_ELE);
+                serializer.text(String.valueOf(instruction.elevation));
+                serializer.endTag(GpxFile.NS, GpxFile.TAG_ELE);
+            }
+            serializer.endTag(GpxFile.NS, GpxFile.TAG_RTEPT);
+            progress++;
+            if (progressListener != null)
+                progressListener.onProgressChanged(progress);
+        }
+        serializer.endTag(GpxFile.NS, GpxFile.TAG_RTE);
+
         return progress;
     }
 

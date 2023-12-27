@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import mobi.maptrek.maps.offline.OfflineTileSource;
 import mobi.maptrek.maps.offline.OfflineTileSourceFactory;
@@ -80,7 +81,7 @@ public class MapIndex implements Serializable {
 
     private void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
-            for (File child : fileOrDirectory.listFiles())
+            for (File child : Objects.requireNonNull(fileOrDirectory.listFiles()))
                 deleteRecursive(child);
         //noinspection ResultOfMethodCallIgnored
         fileOrDirectory.delete();
@@ -149,7 +150,12 @@ public class MapIndex implements Serializable {
 
             List<OnlineTileSource> tileSources = OnlineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
             for (OnlineTileSource tileSource : tileSources) {
-                addTileSource(tileSource, tileSource.getUri());
+                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
+                mapFile.tileSource = tileSource;
+                mapFile.boundingBox = WORLD_BOUNDING_BOX;
+                //TODO Implement tile cache expiration
+                //tileProvider.tileExpiration = onlineMapTileExpiration;
+                mMaps.add(mapFile);
             }
         }
     }
@@ -180,6 +186,9 @@ public class MapIndex implements Serializable {
         MapFile mapFile = new MapFile(tileSource.getName(), id);
         mapFile.tileSource = tileSource;
         mapFile.boundingBox = WORLD_BOUNDING_BOX;
+        //TODO Implement tile cache expiration
+        //tileProvider.tileExpiration = onlineMapTileExpiration;
+
         mMaps.add(mapFile);
     }
 

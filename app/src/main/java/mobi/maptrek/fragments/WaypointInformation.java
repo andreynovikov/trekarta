@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -70,7 +72,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
 
-public class WaypointInformation extends Fragment implements OnBackPressedListener, LocationChangeListener {
+public class WaypointInformation extends Fragment implements LocationChangeListener {
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
@@ -79,7 +81,8 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     private double mLatitude;
     private double mLongitude;
 
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private BottomSheetBehavior<View> mBottomSheetBehavior;
+    private WaypointBottomSheetCallback mBottomSheetCallback;
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
@@ -193,50 +196,11 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         if (editorMode)
             setEditorMode(true);
 
-        final View dragHandle = rootView.findViewById(R.id.dragHandle);
-        dragHandle.setAlpha(mExpanded ? 0f : 1f);
+        rootView.findViewById(R.id.dragHandle).setAlpha(mExpanded ? 0f : 1f);
+        mBottomSheetCallback = new WaypointBottomSheetCallback();
         ViewParent parent = rootView.getParent();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
-                    mFragmentHolder.disableActionButton();
-                    CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
-                    p.setAnchorId(R.id.contentPanel);
-                    mFloatingButton.setLayoutParams(p);
-                    mFloatingButton.setAlpha(1f);
-                    if (mPopAll)
-                        mFragmentHolder.popAll();
-                    else
-                        mFragmentHolder.popCurrent();
-                }
-                if (newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING)
-                    mMapHolder.updateMapViewArea();
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    TextView coordsView = rootView.findViewById(R.id.coordinates);
-                    if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
-                            && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
-                        Rect r = new Rect();
-                        coordsView.getGlobalVisibleRect(r);
-                        if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
-                            r.left = r.right - coordsView.getTotalPaddingRight();
-                        } else {
-                            r.right = r.left + coordsView.getTotalPaddingLeft();
-                        }
-                        HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
-                    }
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                if (!mExpanded)
-                    dragHandle.setAlpha(1f - slideOffset);
-                mFloatingButton.setAlpha(1f + slideOffset);
-            }
-        });
+        mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
         mListener.onWaypointFocus(mWaypoint);
     }
@@ -268,20 +232,26 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackPressedCallback.remove();
         mListener.onWaypointFocus(null);
-        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
     }
 
     @Override
@@ -524,7 +494,7 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
         WebSettings settings = webView.getSettings();
         settings.setDefaultTextEncodingName("utf-8");
         settings.setAllowFileAccess(true);
-        Uri baseUrl = Uri.fromFile(MapTrek.getApplication().getExternalDir("data"));
+        Uri baseUrl = Uri.fromFile(getContext().getExternalFilesDir("data"));
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
@@ -538,17 +508,57 @@ public class WaypointInformation extends Fragment implements OnBackPressedListen
     }
 
     @Override
-    public boolean onBackClick() {
-        if (mEditorMode)
-            setEditorMode(false);
-        else
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        return true;
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         if (!mEditorMode)
             updateWaypointInformation(location.getLatitude(), location.getLongitude());
+    }
+
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (mEditorMode)
+                setEditorMode(false);
+            else
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+    };
+
+    private class WaypointBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
+                mFragmentHolder.disableActionButton();
+                CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
+                p.setAnchorId(R.id.contentPanel);
+                mFloatingButton.setLayoutParams(p);
+                mFloatingButton.setAlpha(1f);
+                if (mPopAll)
+                    mFragmentHolder.popAll();
+                else
+                    mFragmentHolder.popCurrent();
+            }
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
+                if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
+                        && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
+                    Rect r = new Rect();
+                    coordsView.getGlobalVisibleRect(r);
+                    if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                        r.left = r.right - coordsView.getTotalPaddingRight();
+                    } else {
+                        r.right = r.left + coordsView.getTotalPaddingLeft();
+                    }
+                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
+                }
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            if (!mExpanded)
+                bottomSheet.findViewById(R.id.dragHandle).setAlpha(1f - slideOffset);
+            mFloatingButton.setAlpha(1f + slideOffset);
+        }
     }
 }

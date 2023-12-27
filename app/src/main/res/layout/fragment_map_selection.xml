@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/panelSolidBackground"
     android:paddingBottom="@dimen/fragment_padding"
     android:paddingEnd="@dimen/fragment_padding"
@@ -15,12 +16,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_help"
-        android:tint="?attr/actionIconColor"
         android:layout_marginStart="@dimen/table_padding"
         android:layout_alignParentEnd="true"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_centerVertical="true"
-        android:contentDescription="@string/explain" />
+        android:contentDescription="@string/explain"
+        app:tint="?attr/actionIconColor" />
 
     <LinearLayout
         android:layout_width="match_parent"

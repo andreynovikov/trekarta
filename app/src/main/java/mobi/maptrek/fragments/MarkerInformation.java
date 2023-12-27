@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,12 +18,15 @@ package mobi.maptrek.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -36,7 +39,7 @@ import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.util.StringFormatter;
 
-public class MarkerInformation extends Fragment implements OnBackPressedListener {
+public class MarkerInformation extends Fragment {
     public static final String ARG_LATITUDE = "latitude";
     public static final String ARG_LONGITUDE = "longitude";
     public static final String ARG_NAME = "name";
@@ -116,17 +119,17 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackPressedCallback.remove();
         mMapHolder.removeMarker();
-        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
@@ -140,9 +143,12 @@ public class MarkerInformation extends Fragment implements OnBackPressedListener
         outState.putString(ARG_NAME, mName);
     }
 
-    @Override
-    public boolean onBackClick() {
-        mFragmentHolder.disableActionButton();
-        return false;
-    }
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            mFragmentHolder.disableActionButton();
+            this.remove();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        }
+    };
 }

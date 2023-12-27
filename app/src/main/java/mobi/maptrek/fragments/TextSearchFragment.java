@@ -400,7 +400,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         else
             params.height = 0;
         listView.setLayoutParams(params);
-        mMapHolder.updateMapViewArea();
     }
 
     public float getItemHeight() {

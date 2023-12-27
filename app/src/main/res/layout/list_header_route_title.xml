@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/fragment_padding"
+    android:paddingBottom="@dimen/fragment_padding"
+    tools:viewBindingIgnore="true">
+
+    <ImageButton
+        android:id="@+id/moreButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="@dimen/image_button_padding"
+        android:layout_marginStart="@dimen/image_button_padding"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_more_vert"
+        app:tint="?attr/actionIconColor" />
+
+    <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
+        android:id="@+id/colorSwatch"
+        android:layout_width="@dimen/color_swatch_smallest"
+        android:layout_height="@dimen/color_swatch_smallest"
+        android:layout_marginLeft="@dimen/color_swatch_margins_large"
+        android:layout_marginRight="@dimen/color_swatch_margins_large"
+        android:layout_toStartOf="@id/moreButton"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/namePlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/fragment_padding"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/colorSwatch">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:hint="@string/name"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:scrollHorizontally="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </FrameLayout>
+
+    <TableLayout
+        android:id="@+id/statisticsTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/namePlaceholder"
+        android:layout_marginEnd="@dimen/fragment_padding"
+        android:layout_marginStart="@dimen/fragment_padding"
+        android:layout_marginTop="16dp"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:id="@+id/sourceRow"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_folder"
+                app:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/source"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimary" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/table_padding">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_straighten"
+                app:tint="?attr/informationIconColor" />
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:textColorPrimary" />
+        </TableRow>
+
+    </TableLayout>
+
+</RelativeLayout>

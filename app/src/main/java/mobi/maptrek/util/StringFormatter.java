@@ -275,16 +275,32 @@ public class StringFormatter
 	public static String bearingSimpleH(double bearing)
 	{
 		if (bearing <  22 || bearing >= 338) return "\u2191"; // N
-		if (bearing <  67 && bearing >=  22) return "\u2197"; // NE
-		if (bearing < 112 && bearing >=  67) return "\u2192"; // E
-		if (bearing < 158 && bearing >= 112) return "\u2198"; // SE
-		if (bearing < 202 && bearing >= 158) return "\u2193"; // S
-		if (bearing < 248 && bearing >= 202) return "\u2199"; // SW
-		if (bearing < 292 && bearing >= 248) return "\u2190"; // W
-		if (bearing < 338 && bearing >= 292) return "\u2196"; // NW
+		if (bearing <  67) return "\u2197"; // NE
+		if (bearing < 112) return "\u2192"; // E
+		if (bearing < 158) return "\u2198"; // SE
+		if (bearing < 202) return "\u2193"; // S
+		if (bearing < 248) return "\u2199"; // SW
+		if (bearing < 292) return "\u2190"; // W
+		if (bearing < 338) return "\u2196"; // NW
 		return ".";
 	}
-	
+
+	/**
+	 * Formats time period in four ways:<br/>
+	 * "< 1 min" - for 1 minute<br/>
+	 * "12 min" - for period less than 1 hour<br/>
+	 * "1:53 min" - for period more than 1 hour<br/>
+	 * "> 24 h" - for period more than 1 day
+	 *
+	 * @param minutes time in minutes
+	 * @return Time period
+	 */
+	public static String timeH(int minutes)
+	{
+		String[] time = timeC(minutes);
+		return time[0] + " " + time[1];
+	}
+
 	/**
 	 * Formats time period in four ways:<br/>
 	 * "< 1 min" - for 1 minute<br/>
@@ -302,16 +318,16 @@ public class StringFormatter
 
 		if (min <= 1)
 			return new String[] {"< 1", minuteAbbr};
-		
-		if (min > 59)
-		{
-			hour = (int) Math.floor(min / 60d);
-			min = min - hour * 60;
-		}
+
+		if (min < 60)
+			return new String[] {String.format(Locale.getDefault(), "%d", min), minuteAbbr};
+
+		hour = (int) Math.floor(min / 60d);
 		if (hour > 23)
 			return new String[] {"> 24", hourAbbr};
 
-        return new String[] {String.format(Locale.getDefault(), "%02d:%02d", hour, min), minuteAbbr};
+		min = min - hour * 60;
+		return new String[] {String.format(Locale.getDefault(), "%2d:%02d", hour, min), minuteAbbr};
 	}
 
 	/**

@@ -108,17 +108,16 @@
         <item name="android:layout_marginBottom">-6dp</item>
     </style>
 
-    <style name="MapButtonHolder">
-        <item name="android:layout_gravity">top|end</item>
+    <style name="MainConstraint">
     </style>
 
-    <style name="MapZoomHolder">
-        <item name="android:layout_gravity">center_vertical|end</item>
+    <style name="MapButtonHolder">
+        <item name="layout_constraintEnd_toEndOf">parent</item>
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="GaugePanel">
-        <item name="android:layout_marginTop">@dimen/gauge_padding</item>
-        <item name="android:layout_marginBottom">@dimen/gauge_padding</item>
+    <style name="MapZoomHolder">
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="android:orientation">vertical</item>
     </style>
 </resources>

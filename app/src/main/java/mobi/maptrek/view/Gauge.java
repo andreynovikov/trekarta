@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,15 +17,17 @@
 package mobi.maptrek.view;
 
 import android.content.Context;
-import android.widget.RelativeLayout;
+import android.view.View;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.Locale;
 
 import mobi.maptrek.R;
 import mobi.maptrek.util.StringFormatter;
 
-public class Gauge extends RelativeLayout {
+public class Gauge extends ConstraintLayout {
     public static final int TYPE_SPEED = 0x00001;
     public static final int TYPE_TRACK = 0x00002;
     public static final int TYPE_ALTITUDE = 0x00004;
@@ -36,10 +38,12 @@ public class Gauge extends RelativeLayout {
     public static final int TYPE_VMG = 0x80000;
     public static final int TYPE_XTK = 0x100000;
     public static final int TYPE_ETE = 0x200000;
+    // If new gauge type is added sizes array should be adjusted in GaugePanel
 
     private int mType;
     private TextView mValueView;
     private TextView mUnitView;
+    private TextView mNameView;
 
     private float mValue;
 
@@ -53,7 +57,9 @@ public class Gauge extends RelativeLayout {
         inflate(getContext(), R.layout.gauge, this);
         mValueView = findViewById(R.id.gaugeValue);
         mUnitView = findViewById(R.id.gaugeUnit);
-        mUnitView.setText(getDefaultGaugeUnit(type));
+        mUnitView.setText(getDefaultGaugeUnit());
+        mNameView = findViewById(R.id.gaugeName);
+        mNameView.setText(getGaugeAbbr());
     }
 
     public int getType() {
@@ -61,9 +67,18 @@ public class Gauge extends RelativeLayout {
     }
 
     public void setValue(float value) {
+        if (value == mValue)
+            return;
+
         mValue = value;
+        String unit = getDefaultGaugeUnit();
+        if (Float.isNaN(value) || Float.isInfinite(value)) {
+            mValueView.setText("-");
+            mUnitView.setText(unit);
+            return;
+        }
+
         String indication;
-        String unit = null;
         switch (mType) {
             case Gauge.TYPE_SPEED:
             case Gauge.TYPE_VMG: {
@@ -92,18 +107,22 @@ public class Gauge extends RelativeLayout {
                 indication = String.format(Locale.getDefault(), StringFormatter.precisionFormat, value);
         }
 
-        mValueView.setText(indication);
-        if (unit != null)
+        if (!mValueView.getText().equals(indication))
+            mValueView.setText(indication);
+        if (!mUnitView.getText().equals(unit))
             mUnitView.setText(unit);
     }
 
     public void refresh() {
-        mUnitView.setText(getDefaultGaugeUnit(mType));
         setValue(mValue);
     }
 
-    private String getDefaultGaugeUnit(int type) {
-        switch (type) {
+    public void enableAbbr(boolean enable) {
+        mNameView.setVisibility(enable ? View.VISIBLE : View.GONE);
+    }
+
+    public String getDefaultGaugeUnit() {
+        switch (mType) {
             case Gauge.TYPE_SPEED:
             case Gauge.TYPE_VMG:
                 return StringFormatter.speedAbbr;
@@ -119,6 +138,34 @@ public class Gauge extends RelativeLayout {
             case Gauge.TYPE_ALTITUDE:
             case Gauge.TYPE_ELEVATION:
                 return StringFormatter.elevationAbbr;
+            default:
+                return "";
+        }
+    }
+
+    private String getGaugeAbbr() {
+        Context context = getContext();
+        switch (mType) {
+            case Gauge.TYPE_SPEED:
+                return context.getString(R.string.gauge_speed_abbr);
+            case Gauge.TYPE_TRACK:
+                return context.getString(R.string.gauge_track_abbr);
+            case Gauge.TYPE_ALTITUDE:
+                return context.getString(R.string.gauge_altitude_abbr);
+            case Gauge.TYPE_DISTANCE:
+                return context.getString(R.string.gauge_distance_abbr);
+            case Gauge.TYPE_ELEVATION:
+                return context.getString(R.string.gauge_elevation_abbr);
+            case Gauge.TYPE_BEARING:
+                return context.getString(R.string.gauge_bearing_abbr);
+            case Gauge.TYPE_TURN:
+                return context.getString(R.string.gauge_turn_abbr);
+            case Gauge.TYPE_VMG:
+                return context.getString(R.string.gauge_vmg_abbr);
+            case Gauge.TYPE_XTK:
+                return context.getString(R.string.gauge_xtk_abbr);
+            case Gauge.TYPE_ETE:
+                return context.getString(R.string.gauge_ete_abbr);
             default:
                 return "";
         }

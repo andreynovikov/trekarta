@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -33,8 +33,10 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
 import org.slf4j.Logger;
@@ -58,7 +60,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.util.HelperUtils;
 
-public class MapSelection extends Fragment implements OnBackPressedListener, Index.MapStateListener {
+public class MapSelection extends Fragment implements Index.MapStateListener {
     private static final Logger logger = LoggerFactory.getLogger(MapSelection.class);
 
     private static final long INDEX_CACHE_TIMEOUT = 24 * 3600 * 1000L; // One day
@@ -176,7 +178,6 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
-            mFragmentHolder.addBackClickListener(this);
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement FragmentHolder");
         }
@@ -187,13 +188,14 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         mHillshadeCacheFile = new File(cacheDir, "hillshadeIndex");
 
         mMapIndex.addMapStateListener(this);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mBackPressedCallback.remove();
         mMapIndex.removeMapStateListener(this);
-        mFragmentHolder.removeBackClickListener(this);
         mFragmentHolder = null;
         mListener = null;
         mResources = null;
@@ -204,12 +206,15 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public boolean onBackClick() {
-        mFragmentHolder.disableActionButton();
-        mListener.onFinishMapManagement();
-        return false;
-    }
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            mFragmentHolder.disableActionButton();
+            mListener.onFinishMapManagement();
+            this.remove();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        }
+    };
 
     @Override
     public void onMapSelected(final int x, final int y, Index.ACTION action, Index.IndexStats stats) {
@@ -239,8 +244,9 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
         if (!isVisible())
             return;
 
-        if (mMapIndex.isBaseMapOutdated()) {
-            mDownloadBasemap.setText(getString(R.string.downloadBasemap, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
+        if (mMapIndex.isBaseMapOutdated() || mMapIndex.getBaseMapVersion() == 0) {
+            @StringRes int msgId = mMapIndex.getBaseMapVersion() > 0 ? R.string.downloadUpdatedBasemap : R.string.downloadBasemap;
+            mDownloadBasemap.setText(getString(msgId, Formatter.formatFileSize(getContext(), mMapIndex.getBaseMapSize())));
             mDownloadCheckboxHolder.setVisibility(View.VISIBLE);
         }
 
@@ -252,7 +258,8 @@ public class MapSelection extends Fragment implements OnBackPressedListener, Ind
                 mFloatingButton.setImageResource(R.drawable.ic_file_download);
                 ((View)mFloatingButton).setVisibility(View.VISIBLE);
                 mHelpButton.setVisibility(View.INVISIBLE);
-                mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
+                if (stats.download > 0)
+                    mHillshadesCheckboxHolder.setVisibility(View.VISIBLE);
             } else if (stats.remove > 0) {
                 mFloatingButton.setImageResource(R.drawable.ic_delete);
                 ((View)mFloatingButton).setVisibility(View.VISIBLE);

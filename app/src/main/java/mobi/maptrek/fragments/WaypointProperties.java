@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,7 +34,7 @@ import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.R;
 import mobi.maptrek.data.style.MarkerStyle;
 
-public class WaypointProperties extends Fragment implements OnBackPressedListener {
+public class WaypointProperties extends Fragment {
     public static final String ARG_NAME = "name";
     public static final String ARG_COLOR = "color";
 
@@ -101,13 +102,13 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
             throw new ClassCastException(context + " must implement OnWaypointPropertiesChangedListener");
         }
         mFragmentHolder = (FragmentHolder) context;
-        mFragmentHolder.addBackClickListener(this);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mFragmentHolder.removeBackClickListener(this);
+        mBackPressedCallback.remove();
         mFragmentHolder = null;
         mListener = null;
     }
@@ -119,12 +120,6 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
         outState.putInt(ARG_COLOR, mColorSwatch.getColor());
     }
 
-    @Override
-    public boolean onBackClick() {
-        returnResult();
-        return false;
-    }
-
     private void returnResult() {
         String name = mNameEdit.getText().toString();
         int color = mColorSwatch.getColor();
@@ -134,6 +129,15 @@ public class WaypointProperties extends Fragment implements OnBackPressedListene
             mColor = color;
         }
     }
+
+    OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            returnResult();
+            this.remove();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        }
+    };
 
     public interface OnWaypointPropertiesChangedListener {
         void onWaypointPropertiesChanged(String name, int color);

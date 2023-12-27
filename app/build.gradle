@@ -1,16 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion '32.0.0'
-    ndkVersion '24.0.8215888'
+    namespace 'mobi.maptrek'
+
+    ndkVersion '25.1.8937393'
 
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
-        targetSdkVersion 31
-        versionCode 84
-        versionName "2022.05"
+        targetSdkVersion 33
+        compileSdk 34
+        versionCode 88
+        versionName "2023.12"
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }
@@ -25,7 +26,7 @@ android {
     }
 
     androidResources {
-        additionalParameters "--keep-raw-values"
+        additionalParameters = ["--keep-raw-values"]
     }
 
 
@@ -34,44 +35,6 @@ android {
             minifyEnabled false
             //shrinkResources true
         }
-    }
-
-    flavorDimensions "tier", "region"
-
-    productFlavors {
-        full {
-            dimension "tier"
-            buildConfigField "boolean", "FULL_VERSION", "true"
-        }
-        lite {
-            dimension "tier"
-            applicationIdSuffix ".lite"
-            versionNameSuffix "-lite"
-            buildConfigField "boolean", "FULL_VERSION", "false"
-        }
-        world {
-            dimension "region"
-            buildConfigField "boolean", "RUSSIAN_EDITION", "false"
-        }
-        russia {
-            dimension "region"
-            applicationIdSuffix ".re"
-            buildConfigField "boolean", "RUSSIAN_EDITION", "true"
-        }
-    }
-
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-        // To check for a certain build type, use variant.buildType.name == "<buildType>"
-        if (names.contains("full") && names.contains("russia")) {
-            // Gradle ignores any variants that satisfy the conditions above.
-            setIgnore(true)
-        }
-    }
-
-    applicationVariants.all { variant ->
-        // we need applicationId to be resolved first
-        variant.buildConfigField "String", "EXPORT_PROVIDER_AUTHORITY", "\"${applicationId}.files\""
     }
 
     externalNativeBuild {
@@ -89,6 +52,10 @@ android {
         abortOnError false
         checkReleaseBuilds true
     }
+    buildFeatures {
+        aidl true
+        buildConfig true
+    }
 }
 
 repositories {
@@ -96,25 +63,33 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+configurations {
+    configureEach {
+        // https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation 'androidx.test:rules:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation "androidx.preference:preference:1.2.0"
-    implementation "androidx.work:work-runtime:2.7.1"
-    implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    implementation "androidx.fragment:fragment:1.6.2"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation "androidx.preference:preference:1.2.1"
+    implementation "androidx.work:work-runtime:2.9.0"
+    implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'androidx.annotation:annotation:1.3.0'
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.annotation:annotation:1.7.1'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'com.github.andreynovikov:androidcolorpicker:v0.0.3'
     implementation 'com.github.andreynovikov:Geo-Coordinate-Conversion-Java:v1.0.0'
     implementation 'com.caverock:androidsvg:1.4'
-    implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation 'com.noveogroup.android:android-logger:1.3.6'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'com.github.tony19:logback-android:3.0.0'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
     implementation 'org.openstreetmap.osmosis:osmosis-osm-binary:0.48.3'

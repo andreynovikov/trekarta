@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -32,7 +32,6 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -68,6 +67,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Waypoint;
@@ -80,6 +80,7 @@ import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Tags;
+import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.LongSparseArrayIterator;
 import mobi.maptrek.util.NativeMapFilenameFilter;
 import mobi.maptrek.util.OsmcSymbolFactory;
@@ -112,10 +113,10 @@ public class MapTrek extends Application {
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
-    private File mSDCardDirectory;
     private SafeResultReceiver mResultReceiver;
     private Waypoint mEditedWaypoint;
     private List<MapFile> mBitmapLayerMaps;
+    private PluginRepository mPluginRepository;
 
     private static final LongSparseArray<MapObject> mapObjects = new LongSparseArray<>();
 
@@ -156,59 +157,23 @@ public class MapTrek extends Application {
 
         TextStyle.MAX_TEXT_WIDTH = (int) (density * 220);
 
+        // Configure work manager to execute one job at a time to import and remove maps sequentially
+        androidx.work.Configuration configuration =
+                new androidx.work.Configuration.Builder()
+                        .setExecutor(Executors.newFixedThreadPool(1))
+                        .build();
+        WorkManager.initialize(getApplicationContext(), configuration);
+
         if (Build.VERSION.SDK_INT > 25)
             createNotificationChannel();
 
-        File[] dirs = getExternalFilesDirs(null);
-        for (File dir : dirs) {
-            if (mSDCardDirectory == null && dir != null) {
-                try {
-                    if (Environment.isExternalStorageRemovable(dir) &&
-                            Environment.getExternalStorageState(dir).equals(Environment.MEDIA_MOUNTED)) {
-                        mSDCardDirectory = dir;
-                        break;
-                    }
-                } catch (IllegalArgumentException ignore) {
-                    // directory is inaccessible
-                }
-            }
-        }
-        // find removable external storage
-        logger.error("Has SD card: {}", mSDCardDirectory);
-
         mapObjects.clear();
 
-        int nightMode = BuildConfig.FULL_VERSION ? Configuration.getNightModeState() : AppCompatDelegate.MODE_NIGHT_NO;
-        AppCompatDelegate.setDefaultNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(Configuration.getNightModeState());
 
-        /*
         if (BuildConfig.DEBUG) {
-            // Look for test maps and import them
-            File dir = getExternalDir("native");
-            File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
-            for (File mapFile : mapFiles) {
-                if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
-                    Uri uri = Uri.fromFile(mapFile);
-                    logger.error("Found debug map: {}", mapFile.getAbsolutePath());
-                    Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Data data = new Data.Builder()
-                                .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
-                                .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
-                                .build();
-                        OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-                                .setInputData(data)
-                                .build();
-                        WorkManager.getInstance(this).enqueue(importWorkRequest);
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(importIntent);
-                    } else {
-                        startService(importIntent);
-                    }
-                }
-            }
+            findDebugMaps();
         }
-         */
     }
 
     private void initializeSettings() {
@@ -238,6 +203,7 @@ public class MapTrek extends Application {
         return mSelf;
     }
 
+    /** @noinspection unused*/
     public void restart(@NonNull Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -267,46 +233,9 @@ public class MapTrek extends Application {
             notificationManager.createNotificationChannel(channel);
     }
 
-    public boolean hasSDCard() {
-        return mSDCardDirectory != null && BuildConfig.FULL_VERSION;
-    }
-
-    public File getExternalDirectory() {
-        return new File(Environment.getExternalStorageDirectory(), "Trekarta");
-    }
-
-    public File getSDCardDirectory() {
-        return mSDCardDirectory;
-    }
-
-    public File getExternalDir(String type) {
-        String externalDir = Configuration.getExternalStorage();
-        if (externalDir == null) {
-            return getExternalFilesDir(type);
-        } else {
-            File dir = new File(externalDir, type);
-            if (!dir.exists())
-                //noinspection ResultOfMethodCallIgnored
-                dir.mkdirs();
-            return dir;
-        }
-    }
-
-    public static File getExternalDirForContext(Context context, String type) {
-        if (!Configuration.isInitialized()) {
-            PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
-            Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(context));
-        }
-        String externalDir = Configuration.getExternalStorage();
-        if (externalDir == null)
-            return context.getExternalFilesDir(type);
-        else
-            return new File(externalDir, type);
-    }
-
     public synchronized SQLiteDatabase getDetailedMapDatabase() throws IOException {
         if (mDetailedMapHelper == null) {
-            File dbFile = new File(getExternalDir("native"), Index.WORLDMAP_FILENAME);
+            File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
             boolean fresh = !dbFile.exists();
             if (fresh)
                 copyAsset("databases/" + Index.BASEMAP_FILENAME, dbFile);
@@ -337,7 +266,7 @@ public class MapTrek extends Application {
 
     private synchronized HillshadeDatabaseHelper getHillshadeDatabaseHelper(boolean reset) {
         if (mHillshadeHelper == null) {
-            File file = new File(getExternalDir("native"), Index.HILLSHADE_FILENAME);
+            File file = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
             if (reset)
                 logger.error("Hillshade database deleted: {}", file.delete());
             mHillshadeHelper = new HillshadeDatabaseHelper(this, file);
@@ -374,21 +303,29 @@ public class MapTrek extends Application {
             return null;
     }
 
-    public Index getMapIndex() throws IOException {
+    public Index getMapIndex() {
         if (mIndex == null)
-            mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
+            try {
+                mIndex = new Index(this, getDetailedMapDatabase(), getHillshadeDatabase());
+            } catch (IOException e) {
+                logger.error("Couldn't open map database", e);
+            }
         return mIndex;
     }
 
     public MapIndex getExtraMapIndex() {
-        if (mExtraMapIndex == null)
-            mExtraMapIndex = new MapIndex(this, getExternalDir("maps"));
+        if (mExtraMapIndex == null) {
+            mExtraMapIndex = new MapIndex(this, getExternalFilesDir("maps"));
+            mExtraMapIndex.initializeNewPluginMapProviders();
+            mExtraMapIndex.initializeOfflineMapProviders();
+            mExtraMapIndex.initializeOnlineMapProviders();
+        }
         return mExtraMapIndex;
     }
 
     public synchronized WaypointDbDataSource getWaypointDbDataSource() {
         if (mWaypointDbDataSource == null) {
-            File waypointsFile = new File(getExternalDir("databases"), "waypoints.sqlitedb");
+            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
             mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
         }
         return mWaypointDbDataSource;
@@ -406,6 +343,45 @@ public class MapTrek extends Application {
         return mOsmcSymbolFactory;
     }
 
+    public PluginRepository getPluginRepository() {
+        if (mPluginRepository == null) {
+            mPluginRepository = new PluginRepository(this);
+            mPluginRepository.initializePlugins();
+        }
+        return mPluginRepository;
+    }
+
+    private void findDebugMaps() {
+        // Look for test maps and import them
+        File dir = getExternalFilesDir("native");
+        if (dir == null)
+            return;
+        File[] mapFiles = dir.listFiles(new NativeMapFilenameFilter());
+        if (mapFiles == null)
+            return;
+        for (File mapFile : mapFiles) {
+            if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
+                Uri uri = Uri.fromFile(mapFile);
+                logger.error("Found debug map: {}", mapFile.getAbsolutePath());
+                Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Data data = new Data.Builder()
+                            .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+                            .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
+                            .build();
+                    OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                            .setInputData(data)
+                            .build();
+                    WorkManager.getInstance(this).enqueue(importWorkRequest);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(importIntent);
+                } else {
+                    startService(importIntent);
+                }
+            }
+        }
+
+    }
 
     @Nullable
     public SafeResultReceiver getResultReceiver() {
@@ -437,6 +413,7 @@ public class MapTrek extends Application {
     @SuppressWarnings("SameParameterValue")
     private void copyAsset(String asset, File outFile) throws IOException {
         InputStream in = getAssets().open(asset);
+        //noinspection IOStreamConstructor
         OutputStream out = new FileOutputStream(outFile);
         byte[] buffer = new byte[1024];
         int read;
@@ -592,7 +569,8 @@ public class MapTrek extends Application {
                         .append(thread.toString())
                         .append("\nException :\n\n");
 
-                if (mExceptionLog.getParentFile().canWrite()) {
+                File file = mExceptionLog.getParentFile();
+                if (file != null && file.canWrite()) {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(mExceptionLog, false));
                     writer.write(msg.toString());
                     ex.printStackTrace(new PrintWriter(writer));

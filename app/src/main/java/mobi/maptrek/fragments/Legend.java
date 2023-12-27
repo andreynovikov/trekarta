@@ -982,8 +982,8 @@ public class Legend extends ListFragment {
     private static final LegendSection administrative = new LegendSection(R.string.legend_administrative, new LegendItem[]{
             country,
             state,
-            country_boundary,
-            region_boundary,
+            //country_boundary,
+            //region_boundary,
             province_boundary,
             capital,
             city,

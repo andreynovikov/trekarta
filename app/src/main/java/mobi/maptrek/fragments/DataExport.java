@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 
 import android.view.View;
@@ -39,9 +40,11 @@ import java.lang.annotation.RetentionPolicy;
 
 import at.grabner.circleprogress.CircleProgressView;
 import mobi.maptrek.R;
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
+import mobi.maptrek.data.source.RouteDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.io.GPXManager;
@@ -71,6 +74,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
 
     private DataSource mDataSource;
     private Track mTrack;
+    private Route mRoute;
     @ExportFormat
     private int mFormat;
     private boolean mCanceled;
@@ -144,6 +148,8 @@ public class DataExport extends DialogFragment implements ProgressListener {
             boolean nativeFile = mFormat == FORMAT_NATIVE;
             if (mTrack != null) {
                 nativeFile = nativeFile && mTrack.source != null && mTrack.source.isNativeTrack();
+            } else if (mRoute != null) {
+                nativeFile = false;
             } else {
                 nativeFile = nativeFile && mDataSource.isNativeTrack();
             }
@@ -161,11 +167,15 @@ public class DataExport extends DialogFragment implements ProgressListener {
                 FileDataSource exportSource = new FileDataSource();
                 if (mTrack != null) {
                     exportSource.tracks.add(mTrack);
+                } else if (mRoute != null) {
+                    exportSource.routes.add(mRoute);
                 } else {
                     if (mDataSource instanceof WaypointDataSource)
                         exportSource.waypoints.addAll(((WaypointDataSource) mDataSource).getWaypoints());
                     if (mDataSource instanceof TrackDataSource)
                         exportSource.tracks.addAll(((TrackDataSource) mDataSource).getTracks());
+                    if (mDataSource instanceof RouteDataSource)
+                        exportSource.routes.addAll(((RouteDataSource) mDataSource).getRoutes());
                 }
                 File cacheDir = activity.getExternalCacheDir();
                 File exportDir = new File(cacheDir, "export");
@@ -198,6 +208,8 @@ public class DataExport extends DialogFragment implements ProgressListener {
                 String name;
                 if (mTrack != null) {
                     name = mTrack.name;
+                } else if (mRoute != null) {
+                    name = mRoute.name;
                 } else {
                     name = mDataSource.name;
                 }
@@ -226,13 +238,14 @@ public class DataExport extends DialogFragment implements ProgressListener {
                     exportFile.delete();
                 return;
             }
+            @StringRes int titleId = mTrack != null ? R.string.share_track_intent_title :
+                    mRoute != null ? R.string.share_route_intent_title : R.string.share_data_intent_title;
             Uri contentUri = ExportProvider.getUriForFile(activity, exportFile);
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
             shareIntent.setType(mime);
-            startActivity(Intent.createChooser(shareIntent,
-                    getString(mTrack != null ? R.string.share_track_intent_title : R.string.share_data_intent_title)));
+            startActivity(Intent.createChooser(shareIntent, getString(titleId)));
             dismiss();
         }
     }
@@ -240,6 +253,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
     public static class Builder {
         private DataSource mDataSource;
         private Track mTrack;
+        private Route mRoute;
         @ExportFormat
         private int mFormat;
 
@@ -253,6 +267,11 @@ public class DataExport extends DialogFragment implements ProgressListener {
             return this;
         }
 
+        public Builder setRoute(@NonNull Route route) {
+            mRoute = route;
+            return this;
+        }
+
         public Builder setFormat(@ExportFormat int format) {
             mFormat = format;
             return this;
@@ -262,6 +281,8 @@ public class DataExport extends DialogFragment implements ProgressListener {
             DataExport dialogFragment = new DataExport();
             if (mTrack != null) {
                 dialogFragment.mTrack = mTrack;
+            } else if (mRoute != null) {
+                dialogFragment.mRoute = mRoute;
             } else {
                 dialogFragment.mDataSource = mDataSource;
             }
