@@ -95,6 +95,7 @@ import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.Pair;
+import android.view.DisplayCutout;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -452,7 +453,18 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
-        mStatusBarHeight = getStatusBarHeight();
+
+        mViews.getRoot().setOnApplyWindowInsetsListener((view, insets) -> {
+            mStatusBarHeight = insets.getSystemWindowInsetTop();
+            if (Build.VERSION.SDK_INT >= 28) {
+                DisplayCutout cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    // TODO: implement for bars
+                    logger.error("DisplayCutout: {}", cutout.getSafeInsetTop());
+                }
+            }
+            return insets;
+        });
 
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
@@ -693,9 +705,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             showBitmapMap(bitmapLayerMap, false);
 
         setMapTheme();
-
-        //if (BuildConfig.DEBUG)
-        //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
         mBackToast = Toast.makeText(this, R.string.msgBackQuit, Toast.LENGTH_SHORT);
         mProgressHandler = new ProgressHandler(mViews.progressBar);
@@ -1724,17 +1733,27 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Resources resources = getResources();
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
             MenuItem item = menu.findItem(R.id.actionNightMode);
-            ((TextView) item.getActionView()).setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
+            TextView view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
             String[] mapStyles = resources.getStringArray(R.array.mapStyles);
             item = menu.findItem(R.id.actionStyle);
-            ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(mapStyles[Configuration.getMapStyle()]);
             String[] sizes = resources.getStringArray(R.array.size_array);
             item = menu.findItem(R.id.actionMapScale);
-            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapUserScale()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(sizes[Configuration.getMapUserScale()]);
             item = menu.findItem(R.id.actionFontSize);
-            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapFontSize()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(sizes[Configuration.getMapFontSize()]);
             item = menu.findItem(R.id.actionLanguage);
-            ((TextView) item.getActionView()).setText(Configuration.getLanguage());
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
@@ -4492,6 +4511,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
+    /** @noinspection unused*/
     @Subscribe
     public void onConfigurationChanged(Configuration.ChangedEvent event) {
         switch (event.key) {
@@ -4661,15 +4681,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Configuration.setHideSystemUI(true);
         Configuration.accountFullScreen();
 
-        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-        if (windowInsetsController == null)
-            return;
+        WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         // Configure the behavior of the hidden system bars
         windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         // Hide the system bars.
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
-        mStatusBarHeight = 0;
         mMap.updateMap();
     }
 
@@ -4681,16 +4698,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show the system bars.
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 
-        mStatusBarHeight = getStatusBarHeight();
         mMap.updateMap();
-    }
-
-    private int getStatusBarHeight() {
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0)
-            return getResources().getDimensionPixelSize(resourceId);
-        else
-            return 0;
     }
 
     public boolean isOnline() {
@@ -4723,6 +4731,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         return 0.2 * previous + 0.8 * current;
     }
 
+    /** @noinspection unused*/
     @Subscribe
     public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
         mPluginRepository.addPluginEntry(entry);
