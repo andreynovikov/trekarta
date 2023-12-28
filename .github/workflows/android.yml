@@ -49,6 +49,8 @@ jobs:
     runs-on: macos-latest
 
     strategy:
+      max-parallel: 1
+      fail-fast: false
       matrix:
         api-level: [23, 29, 34]
 
