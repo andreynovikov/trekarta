@@ -21,8 +21,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -31,7 +29,6 @@ import androidx.work.WorkManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.MapWorker;
 
 public class DownloadReceiver extends BroadcastReceiver
@@ -53,24 +50,16 @@ public class DownloadReceiver extends BroadcastReceiver
 					int status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
 					if (status == DownloadManager.STATUS_SUCCESSFUL) {
 						String fileUri = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI));
-						Uri uri = Uri.parse(fileUri);
 						logger.debug("Downloaded: {}", fileUri);
-						Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, context, MapService.class);
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-							Data data = new Data.Builder()
-									.putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
-									.putString(MapWorker.KEY_FILE_URI, fileUri)
-									.build();
-							OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-									.addTag(MapWorker.TAG)
-									.setInputData(data)
-									.build();
-							WorkManager.getInstance(context).enqueue(importWorkRequest);
-						} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-							context.startForegroundService(importIntent);
-						} else {
-							context.startService(importIntent);
-						}
+						Data data = new Data.Builder()
+								.putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+								.putString(MapWorker.KEY_FILE_URI, fileUri)
+								.build();
+						OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+								.addTag(MapWorker.TAG)
+								.setInputData(data)
+								.build();
+						WorkManager.getInstance(context).enqueue(importWorkRequest);
 					}
 				}
 			}

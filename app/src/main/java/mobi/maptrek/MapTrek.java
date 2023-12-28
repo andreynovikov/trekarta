@@ -29,7 +29,6 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -74,7 +73,6 @@ import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.maps.maptrek.HillshadeDatabaseHelper;
 import mobi.maptrek.maps.maptrek.Index;
@@ -360,23 +358,15 @@ public class MapTrek extends Application {
             return;
         for (File mapFile : mapFiles) {
             if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
-                Uri uri = Uri.fromFile(mapFile);
                 logger.error("Found debug map: {}", mapFile.getAbsolutePath());
-                Intent importIntent = new Intent(Intent.ACTION_INSERT, uri, this, MapService.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Data data = new Data.Builder()
-                            .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
-                            .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
-                            .build();
-                    OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-                            .setInputData(data)
-                            .build();
-                    WorkManager.getInstance(this).enqueue(importWorkRequest);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(importIntent);
-                } else {
-                    startService(importIntent);
-                }
+                Data data = new Data.Builder()
+                        .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
+                        .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
+                        .build();
+                OneTimeWorkRequest importWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                        .setInputData(data)
+                        .build();
+                WorkManager.getInstance(this).enqueue(importWorkRequest);
             }
         }
 

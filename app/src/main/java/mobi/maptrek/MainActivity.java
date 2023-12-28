@@ -235,12 +235,12 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.Themes;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
@@ -886,8 +886,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
-        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE), ContextCompat.RECEIVER_NOT_EXPORTED);
@@ -4100,7 +4100,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
+            if (MapWorker.BROADCAST_MAP_ADDED.equals(action) || MapWorker.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
             if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {
