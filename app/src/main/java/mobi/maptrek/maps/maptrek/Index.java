@@ -433,10 +433,10 @@ public class Index {
 
             int total = 2000, progress = 0, step = 0;
             if (progressListener != null) {
-                total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_NAMES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_FEATURES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_TILES));
                 step = total / 100;
                 progressListener.onProgressStarted(total);
             }
@@ -694,7 +694,7 @@ public class Index {
 
             int total = 0, progress = 0;
             if (progressListener != null) {
-                total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_TILES));
                 progressListener.onProgressStarted(total);
             }
 
