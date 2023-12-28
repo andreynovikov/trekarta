@@ -2699,11 +2699,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mDeletedWaypoints.add(waypoint);
 
         // Show undo snackbar
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2712,6 +2710,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         // If dismissed, actually remove waypoint
                         deleteWaypoints(mDeletedWaypoints);
                         mDeletedWaypoints = null;
+
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
@@ -2736,11 +2735,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show undo snackbar
         int count = waypoints.size();
         String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2944,11 +2942,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mDeletedTracks.add(track);
 
         // Show undo snackbar
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2990,11 +2987,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show undo snackbar
         int count = tracks.size();
         String msg = getResources().getQuantityString(R.plurals.tracksDeleted, count, count);
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -3691,7 +3687,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
-        final Handler mBackHandler = new Handler();
+        final Handler mBackHandler = new Handler(Looper.getMainLooper());
 
         @Override
         public void handleOnBackPressed() {
@@ -4127,12 +4123,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 boolean saved = extras != null && extras.getBoolean("saved");
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
-                    //noinspection deprecation
                     Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionCustomize, view -> onTrackProperties(extras.getString("path")))
-                            .setCallback(new Snackbar.Callback() {
+                            .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                                 @Override
-                                public void onDismissed(Snackbar transientBottomBar, int event) {
+                                public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                                     if (event != DISMISS_EVENT_ACTION)
                                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
                                 }

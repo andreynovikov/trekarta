@@ -46,6 +46,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -90,7 +91,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     // Fake locations used for test purposes
     private static final boolean enableMockLocations = false;
-    private final Handler mMockCallback = new Handler();
+    private final Handler mMockCallback = new Handler(Looper.getMainLooper());
     private int mMockLocationTicker = 0;
 
     // Real locations
@@ -711,7 +712,7 @@ public class LocationService extends BaseLocationService implements LocationList
         final Location location = mLastKnownLocation;
         final boolean continuous = mContinuous;
 
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.getMainLooper());
 
         if (mTrackingEnabled) {
             handler.post(() -> writeTrack(location, continuous));
@@ -744,7 +745,7 @@ public class LocationService extends BaseLocationService implements LocationList
         if (mGpsStatus == GPS_SEARCHING)
             logger.debug("Searching: {}/{}", mFSats, mTSats);
         updateNotification();
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.getMainLooper());
         for (final ILocationListener callback : mLocationCallbacks) {
             handler.post(callback::onGpsStatusChanged);
         }
