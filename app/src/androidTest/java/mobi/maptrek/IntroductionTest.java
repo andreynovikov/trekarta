@@ -22,15 +22,15 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
@@ -40,68 +40,100 @@ import static org.hamcrest.Matchers.allOf;
 @LargeTest
 @RunWith(AndroidJUnit4ClassRunner.class)
 public class IntroductionTest {
+    static {
+        BuildConfig.IS_TESTING.set(true); // Do not show targeted advices
+    }
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityTestRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
     public void introductionTest() {
+        // Offline maps slide
         ViewInteraction textView = onView(
-                allOf(withId(R.id.title), withText("Offline maps"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Offline maps"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView.check(matches(withText("Offline maps")));
 
         ViewInteraction appCompatImageButton = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.next),
+                        withParent(
+                                allOf(
+                                        withId(R.id.background),
+                                        withParent(withId(android.R.id.content))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         appCompatImageButton.perform(click());
 
+        // Places slide
         ViewInteraction textView2 = onView(
-                allOf(withId(R.id.title), withText("Places"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Places"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView2.check(matches(withText("Places")));
 
-        ViewInteraction appCompatImageButton2 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton2.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Tracks slide
         ViewInteraction textView3 = onView(
-                allOf(withId(R.id.title), withText("Tracks"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Tracks"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView3.check(matches(withText("Tracks")));
 
-        ViewInteraction appCompatImageButton3 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton3.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Off-road slide
         ViewInteraction textView4 = onView(
-                allOf(withId(R.id.title), withText("Off-road"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Off-road"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView4.check(matches(withText("Off-road")));
 
-        ViewInteraction appCompatImageButton4 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton4.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Hiking slide
         ViewInteraction textView5 = onView(
                 allOf(withId(R.id.title), withText("Hiking"),
                         withParent(allOf(withId(R.id.main),
@@ -109,74 +141,107 @@ public class IntroductionTest {
                         isDisplayed()));
         textView5.check(matches(withText("Hiking")));
 
-        ViewInteraction appCompatImageButton5 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton5.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Cycling slide
         ViewInteraction textView6 = onView(
-                allOf(withId(R.id.title), withText("Cycling"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Cycling"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView6.check(matches(withText("Cycling")));
 
-        ViewInteraction appCompatImageButton6 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton6.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Skiing and skating slide
         ViewInteraction textView7 = onView(
-                allOf(withId(R.id.title), withText("Skiing and skating"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Skiing and skating"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView7.check(matches(withText("Skiing and skating")));
 
-        ViewInteraction appCompatImageButton7 = onView(
-                allOf(withId(R.id.next),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
-        appCompatImageButton7.perform(click());
+        appCompatImageButton.perform(click());
 
+        // Night mode slide
         ViewInteraction textView8 = onView(
-                allOf(withId(R.id.title), withText("Night mode"),
-                        withParent(allOf(withId(R.id.main),
-                                withParent(withId(R.id.view_pager)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.title),
+                        withText("Night mode"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.main),
+                                        withParent(withId(R.id.view_pager))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         textView8.check(matches(withText("Night mode")));
 
+        // Next button is gone
+        appCompatImageButton.check(doesNotExist());
+
+        // Close introduction
         ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.done), withText("DONE"),
-                        withParent(allOf(withId(R.id.background),
-                                withParent(withId(android.R.id.content)))),
-                        isDisplayed()));
+                allOf(
+                        withId(R.id.done),
+                        withText("DONE"),
+                        withParent(
+                                allOf(
+                                        withId(R.id.background),
+                                        withParent(withId(android.R.id.content))
+                                )
+                        ),
+                        isDisplayed()
+                )
+        );
         appCompatButton.perform(click());
 
-        ViewInteraction imageButton = onView(
-                allOf(withId(R.id.actionButton),
-                        withParent(allOf(withId(R.id.coordinatorLayout),
-                                withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class)))),
-                        isDisplayed()));
-        imageButton.check(matches(isDisplayed()));
+        // World map download dialog is displayed - close it
+        ViewInteraction appCompatButton2 = onView(
+                allOf(
+                        withId(android.R.id.button2),
+                        withText("SKIP"),
+                        isDisplayed()
+                )
+        ).inRoot(isDialog());
+        appCompatButton2.perform(click());
 
-        pressBack();
-
+        // Main map view is displayed
         ViewInteraction view = onView(
-                allOf(withId(R.id.mapView),
+                allOf(
+                        withId(R.id.mapView),
                         withParent(withParent(withId(android.R.id.content))),
-                        isDisplayed()));
+                        isDisplayed()
+                )
+        );
         view.check(matches(isDisplayed()));
 
+        // Bottom action bar is displayed
         ViewInteraction linearLayout = onView(
-                allOf(withId(R.id.actionPanel),
+                allOf(
+                        withId(R.id.actionPanel),
                         withParent(withParent(withId(R.id.coordinatorLayout))),
-                        isDisplayed()));
+                        isDisplayed()
+                )
+        );
         linearLayout.check(matches(isDisplayed()));
     }
 }
