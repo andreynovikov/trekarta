@@ -38,8 +38,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 17
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
     - name: Execute unit tests
       run: ./gradlew test --stacktrace
   
@@ -65,9 +63,6 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    # - name: Make gradlew executable
-    #   run: chmod +x ./gradlew
-
     - name: Gradle cache
       uses: gradle/gradle-build-action@v2
 
@@ -88,7 +83,7 @@ jobs:
         target: ${{ matrix.target }}
         arch: x86_64
         force-avd-creation: false
-        # emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         script: echo "Generated AVD snapshot for caching"
 
@@ -99,6 +94,6 @@ jobs:
         target: ${{ matrix.target }}
         arch: x86_64
         force-avd-creation: false
-        emulator-options: -no-snapshot-save # -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
-        script: ./gradlew connectedCheck
+        script: ./gradlew connectedCheck --stacktrace
