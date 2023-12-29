@@ -51,7 +51,7 @@ jobs:
       fail-fast: false
       matrix:
         api-level: [23, 29, 34]
-        target: [google_apis]
+        target: [aosp_atd]
 
     steps:
     - name: Checkout source code
