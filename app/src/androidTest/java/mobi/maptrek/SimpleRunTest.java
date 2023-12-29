@@ -17,6 +17,7 @@
 package mobi.maptrek;
 
 
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -64,7 +65,8 @@ public class SimpleRunTest {
     public ActivityScenarioRule<MainActivity> mActivityTestRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
-    public void beforeMainActivityTest() {
+    public void beforeTest() {
+        mActivityTestRule.getScenario().onActivity(activity -> activity.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)));
         Configuration.setLastSeenIntroduction(0);
     }
 

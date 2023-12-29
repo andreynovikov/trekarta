@@ -24,6 +24,7 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -37,6 +38,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
+import android.content.Intent;
+
 @LargeTest
 @RunWith(AndroidJUnit4ClassRunner.class)
 public class IntroductionTest {
@@ -46,6 +49,11 @@ public class IntroductionTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityTestRule = new ActivityScenarioRule<>(MainActivity.class);
+
+    @Before
+    public void beforeTest() {
+        mActivityTestRule.getScenario().onActivity(activity -> activity.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)));
+    }
 
     @Test
     public void introductionTest() {
