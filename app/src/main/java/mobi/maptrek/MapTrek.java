@@ -316,9 +316,7 @@ public class MapTrek extends Application {
     public MapIndex getExtraMapIndex() {
         if (mExtraMapIndex == null) {
             mExtraMapIndex = new MapIndex(this, getExternalFilesDir("maps"));
-            mExtraMapIndex.initializeNewPluginMapProviders();
-            mExtraMapIndex.initializeOfflineMapProviders();
-            mExtraMapIndex.initializeOnlineMapProviders();
+            mExtraMapIndex.initializePluginMapProviders();
         }
         return mExtraMapIndex;
     }

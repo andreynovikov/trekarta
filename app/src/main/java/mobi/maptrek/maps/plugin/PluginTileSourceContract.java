@@ -11,8 +11,13 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedList;
 import java.util.List;
+
+import mobi.maptrek.MainActivity;
 
 /**
  * Plugins must declare a receiver accepting ONLINE_PROVIDER_INTENT or OFFLINE_PROVIDER_INTENT.

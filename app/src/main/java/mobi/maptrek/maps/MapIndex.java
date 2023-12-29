@@ -18,9 +18,7 @@ package mobi.maptrek.maps;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -43,10 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-import mobi.maptrek.maps.offline.OfflineTileSource;
-import mobi.maptrek.maps.offline.OfflineTileSourceFactory;
-import mobi.maptrek.maps.online.OnlineTileSource;
-import mobi.maptrek.maps.online.OnlineTileSourceFactory;
 import mobi.maptrek.maps.plugin.PluginOfflineTileSource;
 import mobi.maptrek.maps.plugin.PluginOnlineTileSource;
 import mobi.maptrek.maps.plugin.PluginTileSourceFactory;
@@ -123,62 +117,13 @@ public class MapIndex implements Serializable {
         mMaps.add(mapFile);
     }
 
-    public void initializeNewPluginMapProviders() {
+    public void initializePluginMapProviders() {
         for (PluginOnlineTileSource source : mPluginTileSourceFactory.getOnlineTileSources()) {
             addTileSource(source, source.getSourceId());
         }
 
         for (PluginOfflineTileSource source : mPluginTileSourceFactory.getOfflineTileSources()) {
             addTileSource(source, source.getSourceId());
-        }
-    }
-
-    public void initializeOnlineMapProviders() {
-        PackageManager packageManager = mContext.getPackageManager();
-
-        Intent initializationIntent = new Intent("mobi.maptrek.maps.online.provider.action.INITIALIZE");
-        // enumerate online map providers
-        List<ResolveInfo> providers = packageManager.queryBroadcastReceivers(initializationIntent, 0);
-        for (ResolveInfo provider : providers) {
-            // send initialization broadcast, we send it directly instead of sending
-            // one broadcast for all plugins to wake up stopped plugins:
-            // http://developer.android.com/about/versions/android-3.1.html#launchcontrols
-            Intent intent = new Intent();
-            intent.setClassName(provider.activityInfo.packageName, provider.activityInfo.name);
-            intent.setAction(initializationIntent.getAction());
-            mContext.sendBroadcast(intent);
-
-            List<OnlineTileSource> tileSources = OnlineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
-            for (OnlineTileSource tileSource : tileSources) {
-                MapFile mapFile = new MapFile(tileSource.getName(), tileSource.getUri());
-                mapFile.tileSource = tileSource;
-                mapFile.boundingBox = WORLD_BOUNDING_BOX;
-                //TODO Implement tile cache expiration
-                //tileProvider.tileExpiration = onlineMapTileExpiration;
-                mMaps.add(mapFile);
-            }
-        }
-    }
-
-    public void initializeOfflineMapProviders() {
-        PackageManager packageManager = mContext.getPackageManager();
-
-        Intent initializationIntent = new Intent("mobi.maptrek.maps.offline.provider.action.INITIALIZE");
-        // enumerate offline map providers
-        List<ResolveInfo> providers = packageManager.queryBroadcastReceivers(initializationIntent, 0);
-        for (ResolveInfo provider : providers) {
-            // send initialization broadcast, we send it directly instead of sending
-            // one broadcast for all plugins to wake up stopped plugins:
-            // http://developer.android.com/about/versions/android-3.1.html#launchcontrols
-            Intent intent = new Intent();
-            intent.setClassName(provider.activityInfo.packageName, provider.activityInfo.name);
-            intent.setAction(initializationIntent.getAction());
-            mContext.sendBroadcast(intent);
-
-            List<OfflineTileSource> tileSources = OfflineTileSourceFactory.fromPlugin(mContext, packageManager, provider);
-            for (OfflineTileSource tileSource : tileSources) {
-              addTileSource(tileSource, tileSource.getUri());
-            }
         }
     }
 
