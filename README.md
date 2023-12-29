@@ -1,4 +1,5 @@
-[![Build Status](https://github.com/andreynovikov/trekarta/workflows/Android%20CI/badge.svg)](https://github.com/andreynovikov/trekarta/actions?query=workflow%3A%22Android+CI%22)
+[![Android CI](https://github.com/andreynovikov/trekarta/actions/workflows/android.yml/badge.svg)](https://github.com/andreynovikov/trekarta/actions/workflows/android.yml)
+[![CodeQL](https://github.com/andreynovikov/trekarta/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/andreynovikov/trekarta/actions/workflows/codeql-analysis.yml)
 [![GitHub release](https://img.shields.io/github/release/andreynovikov/trekarta.svg)](https://github.com/andreynovikov/trekarta/releases/latest)
 [![F-Droid](https://img.shields.io/f-droid/v/mobi.maptrek)](https://f-droid.org/packages/mobi.maptrek/)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
