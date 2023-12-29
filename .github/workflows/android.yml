@@ -51,7 +51,13 @@ jobs:
       fail-fast: false
       matrix:
         api-level: [23, 29, 34]
-        target: [aosp_atd]
+        include:
+          - api-level: 23
+            target: default
+          - api-level: 29
+            target: google_apis
+          - api-level: 34
+            target: aosp_atd
 
     steps:
     - name: Checkout source code
