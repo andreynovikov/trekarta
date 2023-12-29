@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <permission
@@ -67,8 +68,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.App.Starting"
-        tools:node="merge">
+        android:theme="@style/Theme.App.Starting">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
@@ -95,16 +95,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="geo" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="osm.org" />
             </intent-filter>
         </activity>
         <activity
@@ -215,15 +205,19 @@
                 <action android:name="mobi.maptrek.location.ILocationRemoteService" />
             </intent-filter>
         </service>
+        <!-- TODO: If a use case in your app isn't associated with any of service types, it's strongly recommended that you migrate your logic to use WorkManager or user-initiated data transfer jobs. -->
         <service
             android:name=".location.NavigationService"
+            android:foregroundServiceType="location"
             android:exported="false" />
         <service
             android:name=".location.GraphHopperService"
+            android:foregroundServiceType="shortService"
             android:exported="false"/>
         <service
-            android:name=".maps.MapService"
-            android:exported="false" />
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="shortService"
+            tools:node="merge" />
 
         <!--
         Disable Android Startup (for custom Worker Manager initialization)
@@ -234,7 +228,6 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove">
         </provider>
-
         <provider
             android:name=".provider.ExportProvider"
             android:authorities="mobi.maptrek.files"
@@ -243,7 +236,6 @@
             android:readPermission="mobi.maptrek.permission.READ_FILES"
             android:writePermission="mobi.maptrek.permission.WRITE_FILES">
         </provider>
-
         <provider
             android:name=".provider.DataProvider"
             android:authorities="mobi.maptrek.data"
@@ -252,7 +244,8 @@
             android:writePermission="mobi.maptrek.permission.WRITE_MAP_DATA">
         </provider>
 
-        <receiver android:name=".DownloadReceiver"
+        <receiver
+            android:name=".DownloadReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />

@@ -117,7 +117,7 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                     File loadFlagFile = new File(path + DO_NOT_LOAD_FLAG);
                     boolean loadFlag = loadFlagFile.exists();
                     if (!loadFlag)
-                        maxProgress += file.length();
+                        maxProgress = (int) (maxProgress + file.length());
                     loadFiles.add(new Pair<>(file, loadFlag));
                 }
             }

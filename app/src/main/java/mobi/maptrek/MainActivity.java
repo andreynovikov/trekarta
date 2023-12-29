@@ -95,6 +95,7 @@ import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.Pair;
+import android.view.DisplayCutout;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -235,12 +236,12 @@ import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
+import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.Themes;
 import mobi.maptrek.maps.maptrek.Index;
 import mobi.maptrek.maps.maptrek.LabelTileLoaderHook;
@@ -452,7 +453,18 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
-        mStatusBarHeight = getStatusBarHeight();
+
+        mViews.getRoot().setOnApplyWindowInsetsListener((view, insets) -> {
+            mStatusBarHeight = insets.getSystemWindowInsetTop();
+            if (Build.VERSION.SDK_INT >= 28) {
+                DisplayCutout cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    // TODO: implement for bars
+                    logger.error("DisplayCutout: {}", cutout.getSafeInsetTop());
+                }
+            }
+            return insets;
+        });
 
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
@@ -694,9 +706,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         setMapTheme();
 
-        //if (BuildConfig.DEBUG)
-        //    StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
-
         mBackToast = Toast.makeText(this, R.string.msgBackQuit, Toast.LENGTH_SHORT);
         mProgressHandler = new ProgressHandler(mViews.progressBar);
 
@@ -886,8 +895,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
-        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
-        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapService.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE), ContextCompat.RECEIVER_NOT_EXPORTED);
@@ -1724,17 +1733,27 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Resources resources = getResources();
             String[] nightModes = resources.getStringArray(R.array.night_mode_array);
             MenuItem item = menu.findItem(R.id.actionNightMode);
-            ((TextView) item.getActionView()).setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
+            TextView view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
             String[] mapStyles = resources.getStringArray(R.array.mapStyles);
             item = menu.findItem(R.id.actionStyle);
-            ((TextView) item.getActionView()).setText(mapStyles[Configuration.getMapStyle()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(mapStyles[Configuration.getMapStyle()]);
             String[] sizes = resources.getStringArray(R.array.size_array);
             item = menu.findItem(R.id.actionMapScale);
-            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapUserScale()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(sizes[Configuration.getMapUserScale()]);
             item = menu.findItem(R.id.actionFontSize);
-            ((TextView) item.getActionView()).setText(sizes[Configuration.getMapFontSize()]);
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(sizes[Configuration.getMapFontSize()]);
             item = menu.findItem(R.id.actionLanguage);
-            ((TextView) item.getActionView()).setText(Configuration.getLanguage());
+            view = (TextView) item.getActionView();
+            if (view != null)
+                view.setText(Configuration.getLanguage());
             menu.findItem(R.id.actionAutoTilt).setChecked(mAutoTilt != -1f);
         });
         showExtendPanel(PANEL_STATE.MAPS, "mapMenu", fragment);
@@ -2680,11 +2699,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mDeletedWaypoints.add(waypoint);
 
         // Show undo snackbar
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2693,6 +2710,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         // If dismissed, actually remove waypoint
                         deleteWaypoints(mDeletedWaypoints);
                         mDeletedWaypoints = null;
+
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
@@ -2717,11 +2735,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show undo snackbar
         int count = waypoints.size();
         String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2925,11 +2942,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mDeletedTracks.add(track);
 
         // Show undo snackbar
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackDeleted, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -2971,11 +2987,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show undo snackbar
         int count = tracks.size();
         String msg = getResources().getQuantityString(R.plurals.tracksDeleted, count, count);
-        //noinspection deprecation
         Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                     @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
+                    public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
@@ -3672,7 +3687,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
-        final Handler mBackHandler = new Handler();
+        final Handler mBackHandler = new Handler(Looper.getMainLooper());
 
         @Override
         public void handleOnBackPressed() {
@@ -4100,7 +4115,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (MapService.BROADCAST_MAP_ADDED.equals(action) || MapService.BROADCAST_MAP_REMOVED.equals(action)) {
+            if (MapWorker.BROADCAST_MAP_ADDED.equals(action) || MapWorker.BROADCAST_MAP_REMOVED.equals(action)) {
                 mMap.clearMap();
             }
             if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {
@@ -4108,12 +4123,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 boolean saved = extras != null && extras.getBoolean("saved");
                 if (saved) {
                     logger.debug("Track saved: {}", extras.getString("path"));
-                    //noinspection deprecation
                     Snackbar.make(mViews.coordinatorLayout, R.string.msgTrackSaved, Snackbar.LENGTH_LONG)
                             .setAction(R.string.actionCustomize, view -> onTrackProperties(extras.getString("path")))
-                            .setCallback(new Snackbar.Callback() {
+                            .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
                                 @Override
-                                public void onDismissed(Snackbar transientBottomBar, int event) {
+                                public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                                     if (event != DISMISS_EVENT_ACTION)
                                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
                                 }
@@ -4492,6 +4506,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
+    /** @noinspection unused*/
     @Subscribe
     public void onConfigurationChanged(Configuration.ChangedEvent event) {
         switch (event.key) {
@@ -4661,15 +4676,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Configuration.setHideSystemUI(true);
         Configuration.accountFullScreen();
 
-        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-        if (windowInsetsController == null)
-            return;
+        WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         // Configure the behavior of the hidden system bars
         windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         // Hide the system bars.
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
-        mStatusBarHeight = 0;
         mMap.updateMap();
     }
 
@@ -4681,16 +4693,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Show the system bars.
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 
-        mStatusBarHeight = getStatusBarHeight();
         mMap.updateMap();
-    }
-
-    private int getStatusBarHeight() {
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0)
-            return getResources().getDimensionPixelSize(resourceId);
-        else
-            return 0;
     }
 
     public boolean isOnline() {
@@ -4723,6 +4726,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         return 0.2 * previous + 0.8 * current;
     }
 
+    /** @noinspection unused*/
     @Subscribe
     public void onNewPluginEntry(Pair<String, Pair<Drawable, Intent>> entry) {
         mPluginRepository.addPluginEntry(entry);

@@ -3,12 +3,12 @@ apply plugin: 'com.android.application'
 android {
     namespace 'mobi.maptrek'
 
-    ndkVersion '25.1.8937393'
+    ndkVersion '26.1.10909125'
 
     defaultConfig {
         applicationId "mobi.maptrek"
         minSdkVersion 23
-        targetSdkVersion 33
+        targetSdkVersion 34
         compileSdk 34
         versionCode 88
         versionName "2023.12"
@@ -18,7 +18,6 @@ android {
 
     testOptions {
         animationsDisabled = true
-        ndkVersion '21.3.6528147'
     }
 
     viewBinding {

@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ServiceInfo;
 import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Binder;
@@ -196,7 +197,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
         if (action.equals(ENABLE_BACKGROUND_NAVIGATION)) {
             mForeground = true;
-            startForeground(NOTIFICATION_ID, getNotification(true));
+            if (Build.VERSION.SDK_INT < 34)
+                startForeground(NOTIFICATION_ID, getNotification(true));
+            else
+                startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             editor.putBoolean(PREF_NAVIGATION_BACKGROUND, true);
             editor.apply();
@@ -758,13 +762,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void updateNavigationState(final int state) {
         if (state != STATE_STOPPED && state != STATE_REACHED)
             updateNotification();
-        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATE).putExtra("state", state));
+        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATE).putExtra("state", state).setPackage(getPackageName()));
         logger.trace("State dispatched");
     }
 
     private void updateNavigationStatus() {
         updateNotification();
-        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS));
+        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS).setPackage(getPackageName()));
         logger.trace("Status dispatched");
     }
 

@@ -98,7 +98,7 @@ public class ShieldFactory {
                 Rect rect = new Rect();
                 textPaint.getTextBounds(line, 0, line.length(), rect);
                 bounds.union(rect); // update width
-                bounds.bottom += textHeight;
+                bounds.bottom = (int) (bounds.bottom + textHeight);
                 if (textHeight == 0f)
                     textHeight = textPaint.descent() - textPaint.ascent();
             }
@@ -116,7 +116,7 @@ public class ShieldFactory {
         if (bounds.width() < cw)
             bounds.right = (int) cw;
         if (ch != 0f)
-            bounds.bottom += gap + ch;
+            bounds.bottom = (int) (bounds.bottom + gap + ch);
 
         int width = (int) ((round ? size : bounds.width()) + 2f * (gap + border));
         int height = round ? width : (int) (bounds.height() + 2f * (gap + border));

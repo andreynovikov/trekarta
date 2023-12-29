@@ -95,7 +95,7 @@ public class Track {
             mDistance = 0f;
         mLastTrackPoint = new TrackPoint(continuous, latE6, lonE6, elev, speed, bearing, accuracy, time);
         if (previous != null)
-            mDistance += previous.vincentyDistance(mLastTrackPoint);
+            mDistance = (float) (mDistance + previous.vincentyDistance(mLastTrackPoint));
         synchronized (points) {
             points.add(mLastTrackPoint);
         }
@@ -120,7 +120,7 @@ public class Track {
                 if (points.size() > 1) {
                     for (int i = points.size() - 2; i >= 0; i--) {
                         TrackPoint current = points.get(i);
-                        mDistance += previous.vincentyDistance(current);
+                        mDistance = (float) (mDistance + previous.vincentyDistance(current));
                         previous = current;
                     }
                 }

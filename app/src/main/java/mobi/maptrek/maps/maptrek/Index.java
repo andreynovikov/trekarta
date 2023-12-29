@@ -49,7 +49,6 @@ import java.util.Set;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
-import mobi.maptrek.maps.MapService;
 import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.util.ProgressListener;
 
@@ -434,10 +433,10 @@ public class Index {
 
             int total = 2000, progress = 0, step = 0;
             if (progressListener != null) {
-                total += DatabaseUtils.queryNumEntries(database, TABLE_NAMES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES);
-                total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_NAMES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_FEATURES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_FEATURE_NAMES));
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_TILES));
                 step = total / 100;
                 progressListener.onProgressStarted(total);
             }
@@ -695,7 +694,7 @@ public class Index {
 
             int total = 0, progress = 0;
             if (progressListener != null) {
-                total += DatabaseUtils.queryNumEntries(database, TABLE_TILES);
+                total = (int) (total + DatabaseUtils.queryNumEntries(database, TABLE_TILES));
                 progressListener.onProgressStarted(total);
             }
 
@@ -799,23 +798,16 @@ public class Index {
                 if (mapStatus.action == ACTION.NONE)
                     continue;
                 if (mapStatus.action == ACTION.REMOVE) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Data data = new Data.Builder()
-                                .putString(MapWorker.KEY_ACTION, Intent.ACTION_DELETE)
-                                .putInt(MapWorker.KEY_X, x)
-                                .putInt(MapWorker.KEY_Y, y)
-                                .build();
-                        OneTimeWorkRequest deleteWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
-                                .addTag(MapWorker.TAG)
-                                .setInputData(data)
-                                .build();
-                        WorkManager.getInstance(mContext).enqueue(deleteWorkRequest);
-                    } else {
-                        Intent deleteIntent = new Intent(Intent.ACTION_DELETE, null, mContext, MapService.class);
-                        deleteIntent.putExtra(MapService.EXTRA_X, x);
-                        deleteIntent.putExtra(MapService.EXTRA_Y, y);
-                        mContext.startService(deleteIntent);
-                    }
+                    Data data = new Data.Builder()
+                            .putString(MapWorker.KEY_ACTION, Intent.ACTION_DELETE)
+                            .putInt(MapWorker.KEY_X, x)
+                            .putInt(MapWorker.KEY_Y, y)
+                            .build();
+                    OneTimeWorkRequest deleteWorkRequest = new OneTimeWorkRequest.Builder(MapWorker.class)
+                            .addTag(MapWorker.TAG)
+                            .setInputData(data)
+                            .build();
+                    WorkManager.getInstance(mContext).enqueue(deleteWorkRequest);
                     mapStatus.action = ACTION.NONE;
                     continue;
                 }

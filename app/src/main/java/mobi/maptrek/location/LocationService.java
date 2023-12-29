@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -45,6 +46,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -89,7 +91,7 @@ public class LocationService extends BaseLocationService implements LocationList
 
     // Fake locations used for test purposes
     private static final boolean enableMockLocations = false;
-    private final Handler mMockCallback = new Handler();
+    private final Handler mMockCallback = new Handler(Looper.getMainLooper());
     private int mMockLocationTicker = 0;
 
     // Real locations
@@ -202,7 +204,10 @@ public class LocationService extends BaseLocationService implements LocationList
             updateDistanceTracked();
             // https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
             if (!mForegroundLocations)
-                startForeground(NOTIFICATION_ID, getNotification());
+                if (Build.VERSION.SDK_INT < 34)
+                    startForeground(NOTIFICATION_ID, getNotification());
+                else
+                    startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
@@ -224,7 +229,10 @@ public class LocationService extends BaseLocationService implements LocationList
         if (action.equals(ENABLE_BACKGROUND_LOCATIONS)) {
             mForegroundLocations = true;
             if (!mForegroundTracking)
-                startForeground(NOTIFICATION_ID, getNotification());
+                if (Build.VERSION.SDK_INT < 34)
+                    startForeground(NOTIFICATION_ID, getNotification());
+                else
+                    startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         }
         if (action.equals(DISABLE_BACKGROUND_LOCATIONS)) {
             mForegroundLocations = false;
@@ -571,7 +579,8 @@ public class LocationService extends BaseLocationService implements LocationList
         if (period < TOO_SMALL_PERIOD) {
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE)
                     .putExtra("saved", false)
-                    .putExtra("reason", "period"));
+                    .putExtra("reason", "period")
+                    .setPackage(getPackageName()));
             clearTrack();
             return;
         }
@@ -579,7 +588,8 @@ public class LocationService extends BaseLocationService implements LocationList
         if (mLastTrack.getDistance() < TOO_SMALL_DISTANCE) {
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE)
                     .putExtra("saved", false)
-                    .putExtra("reason", "distance"));
+                    .putExtra("reason", "distance")
+                    .setPackage(getPackageName()));
             clearTrack();
             return;
         }
@@ -589,7 +599,8 @@ public class LocationService extends BaseLocationService implements LocationList
     private void saveTrack() {
         if (mLastTrack == null) {
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
-                    .putExtra("reason", "missing"));
+                    .putExtra("reason", "missing")
+                    .setPackage(getPackageName()));
             return;
         }
         File dataDir = getExternalFilesDir("data");
@@ -597,7 +608,8 @@ public class LocationService extends BaseLocationService implements LocationList
             logger.error("Can not save track: application data folder missing");
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
                     .putExtra("reason", "error")
-                    .putExtra("exception", new RuntimeException("Application data folder missing")));
+                    .putExtra("exception", new RuntimeException("Application data folder missing"))
+                    .setPackage(getPackageName()));
             return;
         }
         FileDataSource source = new FileDataSource();
@@ -608,7 +620,8 @@ public class LocationService extends BaseLocationService implements LocationList
             @Override
             public void onSaved(FileDataSource source) {
                 sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", true)
-                        .putExtra("path", source.path));
+                        .putExtra("path", source.path)
+                        .setPackage(getPackageName()));
                 clearTrack();
                 mLastTrack = null;
             }
@@ -617,7 +630,8 @@ public class LocationService extends BaseLocationService implements LocationList
             public void onError(FileDataSource source, Exception e) {
                 sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
                         .putExtra("reason", "error")
-                        .putExtra("exception", e));
+                        .putExtra("exception", e)
+                        .setPackage(getPackageName()));
             }
         }, mProgressListener);
     }
@@ -698,7 +712,7 @@ public class LocationService extends BaseLocationService implements LocationList
         final Location location = mLastKnownLocation;
         final boolean continuous = mContinuous;
 
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.getMainLooper());
 
         if (mTrackingEnabled) {
             handler.post(() -> writeTrack(location, continuous));
@@ -731,7 +745,7 @@ public class LocationService extends BaseLocationService implements LocationList
         if (mGpsStatus == GPS_SEARCHING)
             logger.debug("Searching: {}/{}", mFSats, mTSats);
         updateNotification();
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.getMainLooper());
         for (final ILocationListener callback : mLocationCallbacks) {
             handler.post(callback::onGpsStatusChanged);
         }
