@@ -56,11 +56,17 @@ public class MapWorker extends Worker {
    public static final String KEY_X = "x";
    public static final String KEY_Y = "y";
 
+   public static final String BROADCAST_MAP_STARTED = "mobi.maptrek.MapStarted";
    public static final String BROADCAST_MAP_ADDED = "mobi.maptrek.MapAdded";
    public static final String BROADCAST_MAP_REMOVED = "mobi.maptrek.MapRemoved";
+   public static final String BROADCAST_MAP_FAILED = "mobi.maptrek.MapFailed";
 
    public static final String EXTRA_X = "x";
    public static final String EXTRA_Y = "y";
+   public static final String EXTRA_TITLE = "title";
+   public static final String EXTRA_UUID = "uuid";
+
+   public static final String PROGRESS = "PROGRESS";
 
    private final NotificationCompat.Builder builder;
    private final int notificationId;
@@ -95,13 +101,14 @@ public class MapWorker extends Worker {
       builder.setContentTitle(title).setTicker(title);
       setForegroundAsync(createForegroundInfo());
 
+      boolean success = true;
       try {
          MapTrek application = MapTrek.getApplication();
          Index mapIndex = application.getMapIndex();
 
          if (actionImport) {
             String fileUri = inputData.getString(KEY_FILE_URI);
-            importMap(application, mapIndex, fileUri);
+            success = importMap(application, mapIndex, fileUri);
          }
          if (actionRemoval) {
             int x = inputData.getInt(KEY_X, -1);
@@ -113,25 +120,29 @@ public class MapWorker extends Worker {
       } catch (Exception e) {
          logger.error(e.getMessage(), e);
          showErrorNotification();
-         return Result.failure();
+         success = false;
       }
 
-      return Result.success();
+      if (success)
+         return Result.success();
+      else
+         return Result.failure();
    }
 
-   private void importMap(MapTrek application, Index mapIndex, String fileUri) {
+   private boolean importMap(MapTrek application, Index mapIndex, String fileUri) {
       Uri uri = Uri.parse(fileUri);
       logger.error(uri.toString());
 
       String filename = uri.getLastPathSegment();
       if (filename == null)
-         return;
+         throw new RuntimeException("missing file name");
       boolean hillshade = false;
+      String title;
       final int x, y;
       if (Index.BASEMAP_FILENAME.equals(filename)) {
          x = -1;
          y = -1;
-         String title = application.getString(R.string.baseMapTitle);
+         title = application.getString(R.string.baseMapTitle);
          builder.setContentTitle(title).setTicker(title);
       } else {
          String[] parts = filename.split("[\\-.]");
@@ -142,19 +153,27 @@ public class MapWorker extends Worker {
          hillshade = "mbtiles".equals(parts[2]);
          if (x > 127 || y > 127)
             throw new NumberFormatException("out of range");
-         String title = application.getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y);
+         title = application.getString(hillshade ? R.string.hillshadeTitle : R.string.mapTitle, x, y);
          builder.setContentTitle(title).setTicker(title);
       }
       setForegroundAsync(createForegroundInfo());
+      Intent intent = new Intent(BROADCAST_MAP_STARTED).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_UUID, getId());
+      intent.setPackage(application.getPackageName());
+      application.sendBroadcast(intent);
 
       if (processDownload(mapIndex, x, y, hillshade, uri.getPath(), new OperationProgressListener())) {
-         Intent intent = new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y);
+         intent = new Intent(BROADCAST_MAP_ADDED).putExtra(EXTRA_X, x).putExtra(EXTRA_Y, y);
          intent.setPackage(application.getPackageName());
          application.sendBroadcast(intent);
          builder.setContentText(application.getString(R.string.complete));
          setForegroundAsync(createForegroundInfo());
+         return true;
       } else {
          showErrorNotification();
+         intent = new Intent(BROADCAST_MAP_FAILED).putExtra(EXTRA_TITLE, title);
+         intent.setPackage(application.getPackageName());
+         application.sendBroadcast(intent);
+         return false;
       }
    }
 
@@ -215,6 +234,7 @@ public class MapWorker extends Worker {
          String title = getApplicationContext().getString(R.string.processed, 0);
          builder.setContentText(title).setTicker(title).setProgress(100, 0, false);
          setForegroundAsync(createForegroundInfo());
+         setProgressAsync(new Data.Builder().putInt(PROGRESS, 0).build());
       }
 
       @Override
@@ -227,6 +247,7 @@ public class MapWorker extends Worker {
             String title = getApplicationContext().getString(R.string.processed, this.progress);
             builder.setContentText(title).setTicker(title).setProgress(100, this.progress, false);
             setForegroundAsync(createForegroundInfo());
+            setProgressAsync(new Data.Builder().putInt(PROGRESS, this.progress).build());
          }
       }
 
@@ -236,6 +257,7 @@ public class MapWorker extends Worker {
             return;
          builder.setProgress(0, 0, false);
          setForegroundAsync(createForegroundInfo());
+         setProgressAsync(new Data.Builder().putInt(PROGRESS, 100).build());
       }
 
       @Override

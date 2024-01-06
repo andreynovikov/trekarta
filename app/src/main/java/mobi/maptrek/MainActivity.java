@@ -80,9 +80,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
+import androidx.work.Data;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -165,6 +169,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import mobi.maptrek.data.MapObject;
@@ -895,8 +900,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
         loader.setProgressHandler(mProgressHandler);
 
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_STARTED), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_ADDED), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_REMOVED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(MapWorker.BROADCAST_MAP_FAILED), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(BaseLocationService.BROADCAST_TRACK_SAVE), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATUS), ContextCompat.RECEIVER_NOT_EXPORTED);
         ContextCompat.registerReceiver(this, mBroadcastReceiver, new IntentFilter(NavigationService.BROADCAST_NAVIGATION_STATE), ContextCompat.RECEIVER_NOT_EXPORTED);
@@ -4116,7 +4123,37 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
             if (MapWorker.BROADCAST_MAP_ADDED.equals(action) || MapWorker.BROADCAST_MAP_REMOVED.equals(action)) {
+                if (mProgressHandler != null && MapWorker.BROADCAST_MAP_ADDED.equals(action))
+                    mProgressHandler.onProgressFinished();
                 mMap.clearMap();
+            }
+            if (MapWorker.BROADCAST_MAP_STARTED.equals(action)) {
+                // TODO: handle rotation (ViewModel?)
+                final Bundle extras = intent.getExtras();
+                if (extras == null)
+                    return;
+                UUID id = (UUID) extras.getSerializable(MapWorker.EXTRA_UUID);
+                if (id == null)
+                    return;
+                if (mProgressHandler != null)
+                    mProgressHandler.onProgressStarted(100);
+                WorkManager.getInstance(getApplicationContext())
+                        .getWorkInfoByIdLiveData(id)
+                        .observe(MainActivity.this, (Observer<WorkInfo>) workInfo -> {
+                            if (workInfo != null) {
+                                Data progress = workInfo.getProgress();
+                                int value = progress.getInt(MapWorker.PROGRESS, 0);
+                                if (mProgressHandler != null)
+                                    mProgressHandler.onProgressChanged(value);
+                            }
+                        });
+            }
+            if (MapWorker.BROADCAST_MAP_FAILED.equals(action)) {
+                if (mProgressHandler != null)
+                    mProgressHandler.onProgressFinished();
+                final Bundle extras = intent.getExtras();
+                String title = extras != null ? extras.getString(MapWorker.EXTRA_TITLE) : getString(R.string.map);
+                HelperUtils.showError(getString(R.string.msgMapDownloadFailed, title), mViews.coordinatorLayout);
             }
             if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {
                 final Bundle extras = intent.getExtras();

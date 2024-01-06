@@ -101,6 +101,7 @@
     <string name="msgOtherFormatsExplanation">Формат GPX сохраняет всю важную информацию и широко используется, но итоговые файлы занимают очень много места. Формат KML не хранит информацию о времени, но итоговые файлы на 30% компактнее, чем в формате GPX.</string>
     <string name="msgFailedToGetFile">Не удалось получить файл</string>
     <string name="msgRestorePlacesFailed">Ошибка восстановления точек</string>
+    <string name="msgMapDownloadFailed">%s: произошёл сбой при загрузке</string>
 
     <string name="introOfflineMapsTitle">Офлайн карты</string>
     <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к интернету. Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
@@ -739,4 +740,5 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
+    <string name="map">Карта</string>
 </resources>

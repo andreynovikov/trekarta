@@ -448,7 +448,7 @@ public class MapTrek extends Application {
             e.printStackTrace();
         }
 
-        logger.error("optionallyCloseMapDatabase {} {}", mMainActivityExists, hasWorks);
+        logger.error("optionallyCloseMapDatabase activityExists: {}, hasWorks: {}", mMainActivityExists, hasWorks);
         if (!mMainActivityExists && !hasWorks) {
             // close databases
             if (mHillshadeHelper != null) {

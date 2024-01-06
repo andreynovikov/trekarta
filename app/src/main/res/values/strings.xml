@@ -43,6 +43,7 @@
     <string name="iamin">Yes, I\'m in</string>
     <string name="nameOrCoordinates">Name or coordinates</string>
     <string name="satellitesStub" translatable="false">0/0</string>
+    <string name="map">Map</string>
 
     <string name="actionSave">Save</string>
     <string name="actionStop">Stop</string>
@@ -174,6 +175,7 @@
     <string name="msgMapSelectionExplanation">Grey squares designate areas available for download. When map index is downloaded each square contains information about area map size and data age. If you check hillshades box then information about availability of hillshades for that area is also displayed and sizes are adjusted to incorporate hillshades. Bright green areas denote active (downloaded) areas, dark green are being currently downloaded. If update for specific area is available, square is yellow. If there is an update for world map special check box will appear. To mark active area for removal long press it. If area is removed space is freed not immediately, but gradually upon time. Map index is updated not more then once a day.</string>
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
     <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
+    <string name="msgMapDownloadFailed">%s failed to download</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades. You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>
