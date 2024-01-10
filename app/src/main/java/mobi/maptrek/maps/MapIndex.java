@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package mobi.maptrek.maps;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,14 +54,10 @@ public class MapIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(-85.0511d, -180d, 85.0511d, 180d);
 
-    private final Context mContext;
     private final HashSet<MapFile> mMaps;
-    private final PluginTileSourceFactory mPluginTileSourceFactory;
 
     @SuppressLint("UseSparseArrays")
-    public MapIndex(@NonNull Context context, @Nullable File root) {
-        mContext = context;
-        mPluginTileSourceFactory = new PluginTileSourceFactory(context, context.getPackageManager());
+    public MapIndex(@Nullable File root) {
         mMaps = new HashSet<>();
         if (root != null) {
             logger.debug("MapIndex({})", root.getAbsolutePath());
@@ -117,14 +114,11 @@ public class MapIndex implements Serializable {
         mMaps.add(mapFile);
     }
 
-    public void initializePluginMapProviders() {
-        for (PluginOnlineTileSource source : mPluginTileSourceFactory.getOnlineTileSources()) {
+    public void initializeMapProviders(Context context, PackageManager pm) {
+        for (PluginOnlineTileSource source : PluginTileSourceFactory.getOnlineTileSources(context, pm))
             addTileSource(source, source.getSourceId());
-        }
-
-        for (PluginOfflineTileSource source : mPluginTileSourceFactory.getOfflineTileSources()) {
+        for (PluginOfflineTileSource source : PluginTileSourceFactory.getOfflineTileSources(context, pm))
             addTileSource(source, source.getSourceId());
-        }
     }
 
     private void addTileSource(TileSource tileSource, String id) {

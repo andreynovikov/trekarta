@@ -313,8 +313,8 @@ public class MapTrek extends Application {
 
     public MapIndex getExtraMapIndex() {
         if (mExtraMapIndex == null) {
-            mExtraMapIndex = new MapIndex(this, getExternalFilesDir("maps"));
-            mExtraMapIndex.initializePluginMapProviders();
+            mExtraMapIndex = new MapIndex(getExternalFilesDir("maps"));
+            mExtraMapIndex.initializeMapProviders(this, getPackageManager());
         }
         return mExtraMapIndex;
     }

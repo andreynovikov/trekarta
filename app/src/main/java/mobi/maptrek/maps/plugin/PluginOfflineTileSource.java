@@ -20,9 +20,9 @@ public class PluginOfflineTileSource extends TileSource {
 
     public static class Builder<T extends Builder<T>> extends TileSource.Builder<T> {
         private final Context context;
-        protected String mapName;
         protected String mapId;
         protected String providerAuthority;
+        protected String license;
 
         protected Builder(Context context) {
             this.context = context;
@@ -33,12 +33,6 @@ public class PluginOfflineTileSource extends TileSource {
             return new PluginOfflineTileSource(this);
         }
 
-        @Override
-        public T name(String name) {
-            this.mapName = name;
-            return self();
-        }
-
         public T mapId(String identifier) {
             this.mapId = identifier;
             return self();
@@ -46,6 +40,11 @@ public class PluginOfflineTileSource extends TileSource {
 
         public T providerAuthority(String authority) {
             this.providerAuthority = authority;
+            return self();
+        }
+
+        public T license(String license) {
+            this.license = license;
             return self();
         }
     }
@@ -58,7 +57,6 @@ public class PluginOfflineTileSource extends TileSource {
     private final Context mContext;
     private ContentProviderClient mProviderClient;
 
-    private final String mMapName;
     private final String mMapId;
     private final String mProviderAuthority;
     private final String mSourceId;
@@ -66,7 +64,6 @@ public class PluginOfflineTileSource extends TileSource {
     protected PluginOfflineTileSource(Builder<?> builder) {
         super(builder);
         mContext = builder.context;
-        mMapName = builder.mapName;
         mMapId = builder.mapId;
         mProviderAuthority = builder.providerAuthority;
         mSourceId = "content://" + builder.providerAuthority + "/" + builder.mapId;
@@ -109,7 +106,7 @@ public class PluginOfflineTileSource extends TileSource {
 
             byte[] blob;
             try {
-                blob = PluginTileSourceContract.Tiles.getTileBlob(
+                blob = PluginTileSourceFactory.Tiles.getTileBlob(
                         mProviderClient, mProviderAuthority, mMapId, tile.zoomLevel, tile.tileX, tile.tileY);
                 if (blob != null) {
                     Bitmap bitmap = new AndroidBitmap(BitmapFactory.decodeByteArray(blob, 0, blob.length));
@@ -135,11 +132,6 @@ public class PluginOfflineTileSource extends TileSource {
         @Override
         public void cancel() {
         }
-    }
-
-    @Override
-    public String getName() {
-        return mMapName;
     }
 
     public String getMapId() {
