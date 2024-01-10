@@ -465,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 DisplayCutout cutout = insets.getDisplayCutout();
                 if (cutout != null) {
                     // TODO: implement for bars
-                    logger.error("DisplayCutout: {}", cutout.getSafeInsetTop());
+                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
                 }
             }
             return insets;
@@ -847,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     }
             }
             try {
-                logger.error(data);
+                logger.info(data);
                 String[] ll = data.split(",");
                 String marker = null;
                 double lat = Double.parseDouble(ll[0]);
@@ -1996,12 +1996,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     };
 
     private void enableNavigation() {
-        logger.error("enableNavigation");
+        logger.warn("enableNavigation");
         mIsNavigationBound = bindService(new Intent(getApplicationContext(), NavigationService.class), mNavigationConnection, BIND_AUTO_CREATE);
     }
 
     private void disableNavigation() {
-        logger.error("disableNavigation");
+        logger.warn("disableNavigation");
         if (mIsNavigationBound) {
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
@@ -2012,7 +2012,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private final ServiceConnection mNavigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            logger.error("onServiceConnected: NavigationService");
+            logger.warn("onServiceConnected: NavigationService");
             mNavigationService = (INavigationService) binder;
             updateNavigationUI();
             updatePanels();
@@ -2020,7 +2020,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            logger.error("onServiceDisconnected: NavigationService");
+            logger.warn("onServiceDisconnected: NavigationService");
             mNavigationService = null;
             updateNavigationUI();
             updatePanels();
@@ -2329,7 +2329,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void updateLocationDrawable() {
-        logger.error("updateLocationDrawable()");
+        logger.info("updateLocationDrawable()");
         if (mViews.recordButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
             mViews.recordButton.getDrawable().setTint(recordColor);
@@ -2391,7 +2391,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void updatePanels() {
-        logger.error("updatePanels()");
+        logger.info("updatePanels()");
         boolean isRouting = mNavigationService != null && mNavigationService.isNavigatingViaRoute();
 
         TransitionSet transitionSet = new TransitionSet();
@@ -3713,64 +3713,64 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private final FragmentManager.FragmentLifecycleCallbacks mFragmentLifecycleCallback = new FragmentManager.FragmentLifecycleCallbacks() {
         @Override
         public void onFragmentPreAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
-            logger.error("onFragmentPreAttached({})", f.getClass().getName());
+            logger.warn("onFragmentPreAttached({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
-            logger.error("onFragmentAttached({})", f.getClass().getName());
+            logger.warn("onFragmentAttached({})", f.getClass().getName());
             mBackPressedCallback.setEnabled(false);
         }
 
         @Override
         public void onFragmentPreCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
-            logger.error("onFragmentPreCreated({})", f.getClass().getName());
+            logger.warn("onFragmentPreCreated({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
-            logger.error("onFragmentCreated({})", f.getClass().getName());
+            logger.warn("onFragmentCreated({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull View v, @Nullable Bundle savedInstanceState) {
-            logger.error("onFragmentViewCreated({})", f.getClass().getName());
+            logger.warn("onFragmentViewCreated({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentStarted({})", f.getClass().getName());
+            logger.warn("onFragmentStarted({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentResumed({})", f.getClass().getName());
+            logger.warn("onFragmentResumed({})", f.getClass().getName());
             if (f.getClass() == Ruler.class)
                 mCrosshairLayer.lock(Color.RED);
         }
 
         @Override
         public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentPaused({})", f.getClass().getName());
+            logger.warn("onFragmentPaused({})", f.getClass().getName());
             if (f.getClass() == Ruler.class)
                 mCrosshairLayer.unlock();
         }
 
         @Override
         public void onFragmentStopped(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentStopped({})", f.getClass().getName());
+            logger.warn("onFragmentStopped({})", f.getClass().getName());
             if (mFragmentManager.getBackStackEntryCount() == 0 && mPanelState != PANEL_STATE.NONE)
                 setPanelState(PANEL_STATE.NONE);
         }
 
         @Override
         public void onFragmentSaveInstanceState(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Bundle outState) {
-            logger.error("onFragmentSaveInstanceState({})", f.getClass().getName());
+            logger.warn("onFragmentSaveInstanceState({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentViewDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentViewDestroyed({})", f.getClass().getName());
+            logger.warn("onFragmentViewDestroyed({})", f.getClass().getName());
 
             int count = mFragmentManager.getBackStackEntryCount();
             if (count == 0)
@@ -3811,12 +3811,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         @Override
         public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentDestroyed({})", f.getClass().getName());
+            logger.warn("onFragmentDestroyed({})", f.getClass().getName());
         }
 
         @Override
         public void onFragmentDetached(@NonNull FragmentManager fm, @NonNull Fragment f) {
-            logger.error("onFragmentDetached({})", f.getClass().getName());
+            logger.warn("onFragmentDetached({})", f.getClass().getName());
             mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
 
             Class<? extends Fragment> cls = f.getClass();

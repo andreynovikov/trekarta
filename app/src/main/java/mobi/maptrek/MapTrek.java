@@ -68,6 +68,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.WaypointDbDataSource;
@@ -88,7 +92,8 @@ import mobi.maptrek.util.StringFormatter;
 
 public class MapTrek extends Application {
     private static final Logger logger = LoggerFactory.getLogger(MapTrek.class);
-    public static final String EXCEPTION_PATH = "exception.txt";
+    private static final String EXCEPTION_PATH = "exception.txt";
+    private static final String DEBUG_PATH = "debug.log";
 
     private static MapTrek mSelf;
     private File mExceptionLog;
@@ -130,13 +135,9 @@ public class MapTrek extends Application {
     public void onCreate() {
         super.onCreate();
         mSelf = this;
-        registerActivityLifecycleCallbacks(new ListeningToActivityCallbacks());
 
-        try {
-            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            logger.error("Failed to get version", e);
-        }
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
 
         File cacheDir = getExternalCacheDir();
         File exportDir = new File(cacheDir, "export");
@@ -146,8 +147,16 @@ public class MapTrek extends Application {
         mExceptionLog = new File(exportDir, EXCEPTION_PATH);
         mExceptionHandler = new DefaultExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(mExceptionHandler);
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        Configuration.initialize(PreferenceManager.getDefaultSharedPreferences(this));
+        configureDebugLogging();
+
+        registerActivityLifecycleCallbacks(new ListeningToActivityCallbacks());
+
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            logger.error("Failed to get version", e);
+        }
+
         initializeSettings();
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         density = metrics.density;
@@ -347,6 +356,34 @@ public class MapTrek extends Application {
         return mPluginRepository;
     }
 
+    private void configureDebugLogging() {
+        File debugLog = new File(mExceptionLog.getParentFile(), DEBUG_PATH);
+
+        // Remove previous debug log if no exception was registered on previous run
+        long size = Configuration.getExceptionSize();
+        if (!mExceptionLog.exists() || mExceptionLog.length() == 0L || size == mExceptionLog.length()) {
+            if (debugLog.isFile())
+                //noinspection ResultOfMethodCallIgnored
+                debugLog.delete();
+        }
+
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setContext(lc);
+        encoder.setPattern("%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n");
+        encoder.start();
+
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setContext(lc);
+        fileAppender.setFile(debugLog.getAbsolutePath());
+        fileAppender.setEncoder(encoder);
+        fileAppender.start();
+
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.addAppender(fileAppender);
+    }
+
     private void findDebugMaps() {
         // Look for test maps and import them
         File dir = getExternalFilesDir("native");
@@ -357,7 +394,7 @@ public class MapTrek extends Application {
             return;
         for (File mapFile : mapFiles) {
             if (mapFile.getName().matches("\\d+-\\d+\\.mtiles")) {
-                logger.error("Found debug map: {}", mapFile.getAbsolutePath());
+                logger.debug("Found debug map: {}", mapFile.getAbsolutePath());
                 Data data = new Data.Builder()
                         .putString(MapWorker.KEY_ACTION, Intent.ACTION_INSERT)
                         .putString(MapWorker.KEY_FILE_URI, mapFile.getAbsolutePath())
@@ -448,7 +485,7 @@ public class MapTrek extends Application {
             e.printStackTrace();
         }
 
-        logger.error("optionallyCloseMapDatabase activityExists: {}, hasWorks: {}", mMainActivityExists, hasWorks);
+        logger.debug("optionallyCloseMapDatabase activityExists: {}, hasWorks: {}", mMainActivityExists, hasWorks);
         if (!mMainActivityExists && !hasWorks) {
             // close databases
             if (mHillshadeHelper != null) {
@@ -582,39 +619,39 @@ public class MapTrek extends Application {
 
         @Override
         public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
-            logger.error("{} is onActivityCreated", activity.getLocalClassName());
+            logger.warn("{} is onActivityCreated", activity.getLocalClassName());
             if (activity.getLocalClassName().equals(MainActivity.class.getSimpleName()))
                 mMainActivityExists = true;
         }
 
         @Override
         public void onActivityStarted(@NonNull Activity activity) {
-            logger.error("{} is onActivityStarted", activity.getLocalClassName());
+            logger.warn("{} is onActivityStarted", activity.getLocalClassName());
         }
 
         @Override
         public void onActivityResumed(@NonNull Activity activity) {
-            logger.error("{} is onActivityResumed", activity.getLocalClassName());
+            logger.warn("{} is onActivityResumed", activity.getLocalClassName());
         }
 
         @Override
         public void onActivityPaused(@NonNull Activity activity) {
-            logger.error("{} is onActivityPaused", activity.getLocalClassName());
+            logger.warn("{} is onActivityPaused", activity.getLocalClassName());
         }
 
         @Override
         public void onActivityStopped(@NonNull Activity activity) {
-            logger.error("{} is onActivityStopped", activity.getLocalClassName());
+            logger.warn("{} is onActivityStopped", activity.getLocalClassName());
         }
 
         @Override
         public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-            logger.error("{} is onActivitySaveInstanceState", activity.getLocalClassName());
+            logger.warn("{} is onActivitySaveInstanceState", activity.getLocalClassName());
         }
 
         @Override
         public void onActivityDestroyed(@NonNull Activity activity) {
-            logger.error("{} is onActivityDestroyed", activity.getLocalClassName());
+            logger.warn("{} is onActivityDestroyed", activity.getLocalClassName());
             if (activity.isFinishing() && activity.getLocalClassName().equals(MainActivity.class.getSimpleName())) {
                 mMainActivityExists = false;
                 onMainActivityFinishing();
