@@ -24,13 +24,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import androidx.annotation.Nullable;
 
-import com.ibm.icu.text.IDNA;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.IDN;
 import java.net.URL;
 import java.net.URLDecoder;
 
@@ -346,15 +345,6 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
     static final String PRAGMA_VACUUM = "PRAGMA main.incremental_vacuum(5000)";
     private static final String FTS_MERGE = "INSERT INTO names_fts(names_fts) VALUES('merge=300,8')";
 
-    private static IDNA idna = null;
-    static {
-        try {
-            idna = IDNA.getUTS46Instance(IDNA.DEFAULT);
-        } catch (Exception e) {
-            logger.error("Failed to initialize IDNA decoder", e);
-        }
-    }
-
     public MapTrekDatabaseHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
         if (!file.exists())
@@ -549,18 +539,12 @@ public class MapTrekDatabaseHelper extends SQLiteOpenHelper {
                 if (website != null) {
                     website = Smaz.decompress(website, Smaz.WEBSITE_DECODE);
                     URL url = new URL(website);
-                    if (website.contains("xn--") && idna != null) {
-                        StringBuilder sb = new StringBuilder();
-                        IDNA.Info info = new IDNA.Info();
-                        try {
-                            if (!website.startsWith("http://") && !website.startsWith("https://"))
-                                website = "http://" + website;
-                            String host = url.getHost();
-                            idna.nameToUnicode(host, sb, info);
-                            website = website.replace(host, sb);
-                        } catch (Exception e) {
-                            logger.error("IDNA decode error", e);
-                        }
+                    if (website.contains("xn--")) {
+                        String host = url.getHost();
+                        String decoded = IDN.toUnicode(host);
+                        website = website.replace(host, decoded);
+                        if (!website.startsWith("http://") && !website.startsWith("https://"))
+                            website = "http://" + website;
                     }
                     String qs = url.getQuery();
                     if (qs != null)
