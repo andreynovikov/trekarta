@@ -139,6 +139,8 @@ public class ExportProvider extends ContentProvider {
      */
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        logger.info("Query for {}", uri);
+
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
 
@@ -165,6 +167,7 @@ public class ExportProvider extends ContentProvider {
         cols = copyOf(cols, i);
         values = copyOf(values, i);
 
+        logger.debug("  result: {} > {}", cols, values);
         final MatrixCursor cursor = new MatrixCursor(cols, 1);
         cursor.addRow(values);
         return cursor;
@@ -227,6 +230,7 @@ public class ExportProvider extends ContentProvider {
      */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+        logger.info("Request to delete {}", uri);
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
         return file.delete() ? 1 : 0;

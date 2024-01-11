@@ -233,6 +233,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
                 }
             }
             if (mCanceled) {
+                logger.info("User canceled export");
                 if (!nativeFile && exportFile.exists())
                     //noinspection ResultOfMethodCallIgnored
                     exportFile.delete();
@@ -241,6 +242,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
             @StringRes int titleId = mTrack != null ? R.string.share_track_intent_title :
                     mRoute != null ? R.string.share_route_intent_title : R.string.share_data_intent_title;
             Uri contentUri = ExportProvider.getUriForFile(activity, exportFile);
+            logger.info("Sharing {} as {}", exportFile.getAbsolutePath(), contentUri);
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
