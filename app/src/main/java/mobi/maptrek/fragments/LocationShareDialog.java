@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,7 +71,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
         try {
             mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement DataHolder");
+            throw new ClassCastException(context + " must implement DataHolder");
         }
     }
 
@@ -91,6 +92,8 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
     @Override
     public void onClick(DialogInterface dialog, int which) {
         Bundle args = getArguments();
+        if (args == null)
+            return;
         double latitude = args.getDouble(ARG_LATITUDE);
         double longitude = args.getDouble(ARG_LONGITUDE);
         int zoom = args.getInt(ARG_ZOOM, 14);
@@ -99,7 +102,7 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
         switch (which) {
             case 0: { // copy to clipboard
                 ClipData clip = ClipData.newPlainText(getString(R.string.coordinates), StringFormatter.coordinates(" ", latitude, longitude));
-                ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
                 if (clipboard != null)
                     clipboard.setPrimaryClip(clip);
                 return;
@@ -117,10 +120,10 @@ public class LocationShareDialog extends DialogFragment implements DialogInterfa
                 return;
             }
             case 2: { // geo: url
-                Uri location = Uri.parse(String.format(Locale.getDefault(), "geo:%f,%f?z=%d", latitude, longitude, zoom));
+                Uri location = Uri.parse(String.format(Locale.US, "geo:%f,%f?z=%d", latitude, longitude, zoom));
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
-                PackageManager packageManager = getContext().getPackageManager();
-                List activities = packageManager.queryIntentActivities(mapIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                PackageManager packageManager = requireContext().getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivities(mapIntent, PackageManager.MATCH_DEFAULT_ONLY);
                 if (activities.size() > 0)
                     startActivity(mapIntent);
                 return;
