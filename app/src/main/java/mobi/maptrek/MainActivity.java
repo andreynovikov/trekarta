@@ -80,12 +80,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import android.text.Html;
@@ -264,6 +263,7 @@ import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
+import mobi.maptrek.viewmodels.MapViewModel;
 
 public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
@@ -389,11 +389,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private LocationOverlay mLocationOverlay;
     private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
+    private MarkerItem marker;
+
 
     private FragmentManager mFragmentManager;
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
+    private MapViewModel mapViewModel;
 
     private MapIndex mMapIndex;
     private Index mNativeMapIndex;
@@ -688,6 +691,25 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
+
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        // Observe marker state
+        mapViewModel.getMarkerState().observe(this, markerState -> {
+            // There can be only one marker at a time
+            if (marker != null) {
+                mMarkerLayer.removeItem(marker);
+                marker.getMarker().getBitmap().recycle();
+                marker = null;
+            }
+            if (markerState.isShown()) {
+                marker = new MarkerItem(markerState.getName(), null, markerState.getCoordinates());
+                int drawable = markerState.isAmenity() ? R.drawable.circle_marker : R.drawable.round_marker;
+                Bitmap markerBitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
+                marker.setMarker(new MarkerSymbol(markerBitmap, MarkerItem.HotspotPlace.CENTER));
+                mMarkerLayer.addItem(marker);
+            }
+            mMap.updateMap(true);
+        });
 
         // Load waypoints
         mWaypointDbDataSource = application.getWaypointDbDataSource();
@@ -1439,22 +1461,22 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
             return true;
         } else if (action == R.id.actionShareCoordinates) {
-            removeMarker();
+            mapViewModel.removeMarker();
             shareLocation(mSelectedPoint, null);
             return true;
         } else if (action == R.id.actionAddWaypointHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             String name = getString(R.string.place_name, Configuration.getPointsCounter());
             onWaypointCreate(mSelectedPoint, name, false, true);
             return true;
         } else if (action == R.id.actionNavigateHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
             mapObject.name = getString(R.string.selectedLocation);
             startNavigation(mapObject);
             return true;
         } else if (action == R.id.actionFindRouteHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             Intent routeIntent = new Intent(Intent.ACTION_PICK, null, this, GraphHopperService.class);
             double[] points = new double[]{0.0, 0.0, 0.0, 0.0};
             if (mLocationState != LocationState.DISABLED && mLocationService != null) {
@@ -1470,12 +1492,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         } else if (action == R.id.actionRememberScale) {
             HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mViews.popupAnchor, true);
-            removeMarker();
+            mapViewModel.removeMarker();
             mMap.getMapPosition(mMapPosition);
             Configuration.setRememberedScale((float) mMapPosition.getScale());
             return true;
         } else if (action == R.id.actionRememberTilt) {
-            removeMarker();
+            mapViewModel.removeMarker();
             mMap.getMapPosition(mMapPosition);
             mAutoTilt = mMapPosition.getTilt();
             Configuration.setAutoTilt(mAutoTilt);
@@ -1950,30 +1972,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
-    private MarkerItem mMarker;
-
-    @Override
-    public void showMarker(@NonNull GeoPoint point, String name, boolean amenity) {
-        // There can be only one marker at a time
-        removeMarker();
-        mMarker = new MarkerItem(name, null, point);
-        int drawable = amenity ? R.drawable.circle_marker : R.drawable.round_marker;
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
-        mMarker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER));
-        mMarkerLayer.addItem(mMarker);
-        mMap.updateMap(true);
-    }
-
-    @Override
-    public void removeMarker() {
-        if (mMarker == null)
-            return;
-        mMarkerLayer.removeItem(mMarker);
-        mMap.updateMap(true);
-        mMarker.getMarker().getBitmap().recycle();
-        mMarker = null;
-    }
-
     @Override
     public void setObjectInteractionEnabled(boolean enabled) {
         mObjectInteractionEnabled = enabled;
@@ -2278,7 +2276,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mViews.popupAnchor.setX(event.getX() + mFingerTipSize);
             mViews.popupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
-            showMarker(mSelectedPoint, null, false);
+            mapViewModel.showMarker(mSelectedPoint, null, false);
             PopupMenu popup = new PopupMenu(this, mViews.popupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu popupMenu = popup.getMenu();
@@ -2289,7 +2287,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
                 popupMenu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
-            popup.setOnDismissListener(menu -> removeMarker());
+            popup.setOnDismissListener(menu -> mapViewModel.removeMarker());
             popup.show();
             return true;
         }
@@ -2563,13 +2561,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
         }
-        Bundle args = new Bundle(3);
-        args.putDouble(MarkerInformation.ARG_LATITUDE, point.getLatitude());
-        args.putDouble(MarkerInformation.ARG_LONGITUDE, point.getLongitude());
-        args.putString(MarkerInformation.ARG_NAME, name);
+        mapViewModel.showMarker(point, name, false);
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         Fragment fragment = factory.instantiate(getClassLoader(), MarkerInformation.class.getName());
-        fragment.setArguments(args);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "markerInformation");
@@ -4139,7 +4133,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     mProgressHandler.onProgressStarted(100);
                 WorkManager.getInstance(getApplicationContext())
                         .getWorkInfoByIdLiveData(id)
-                        .observe(MainActivity.this, (Observer<WorkInfo>) workInfo -> {
+                        .observe(MainActivity.this, workInfo -> {
                             if (workInfo != null) {
                                 Data progress = workInfo.getProgress();
                                 int value = progress.getInt(MapWorker.PROGRESS, 0);
