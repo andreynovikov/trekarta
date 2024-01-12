@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -375,8 +375,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 if (cursor.getCount() == 0) {
                     try {
                         mFoundPoint = JosmCoordinatesParser.parse(mText);
+                        //noinspection resource
                         MatrixCursor pointCursor = new MatrixCursor(mColumns);
-                        pointCursor.addRow(new Object[] {0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude(), StringFormatter.coordinates(mFoundPoint)});
+                        pointCursor.addRow(new Object[] {0, StringFormatter.coordinates(mFoundPoint), 0, 0, mFoundPoint.getLatitude(), mFoundPoint.getLongitude()});
                         resultCursor = pointCursor;
                     } catch (IllegalArgumentException ignore) {
                     }
