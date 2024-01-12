@@ -2641,6 +2641,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
+        mViews.popupAnchor.setX(0);
+        mViews.popupAnchor.setY(0);
         Bundle args = new Bundle(3);
         args.putBoolean(WaypointInformation.ARG_DETAILS, fromList);
         if (fromList || mLocationState != LocationState.DISABLED) {
@@ -3118,6 +3120,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onFeatureDetails(long id, boolean fromList) {
+        // For some weird reason popupAnchor view limits height of bottom sheet
+        mViews.popupAnchor.setX(0);
+        mViews.popupAnchor.setY(0);
+
         int language = MapTrekDatabaseHelper.getLanguageId(Configuration.getLanguage());
         Amenity amenity = MapTrekDatabaseHelper.getAmenityData(language, id, mDetailedMapDatabase);
         amenityViewModel.setAmenity(amenity);
