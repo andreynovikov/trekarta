@@ -34,6 +34,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -64,6 +65,7 @@ import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.MapViewModel;
 
 public class AmenityInformation extends Fragment implements LocationChangeListener {
     public static final String ARG_LATITUDE = "lat";
@@ -83,6 +85,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
+    private MapViewModel mapViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +116,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
 
         double latitude = Double.NaN;
         double longitude = Double.NaN;
@@ -143,7 +147,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
         p.setAnchorId(R.id.bottomSheetPanel);
         mFloatingButton.setLayoutParams(p);
 
-        mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
+        mapViewModel.showMarker(mAmenity.coordinates, mAmenity.name, true);
         updateAmenityInformation(latitude, longitude);
 
         rootView.findViewById(R.id.dragHandle).setAlpha(1f);
@@ -185,7 +189,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
     public void onDetach() {
         super.onDetach();
         mBackPressedCallback.remove();
-        mMapHolder.removeMarker();
+        mapViewModel.removeMarker();
         mFragmentHolder = null;
         mMapHolder = null;
     }
@@ -210,7 +214,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
         try {
             mAmenity = MapTrekDatabaseHelper.getAmenityData(mLang, id, MapTrek.getApplication().getDetailedMapDatabase());
             if (isVisible()) {
-                mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
+                mapViewModel.showMarker(mAmenity.coordinates, mAmenity.name, true);
                 updateAmenityInformation(mLatitude, mLongitude);
                 final ViewGroup rootView = (ViewGroup) getView();
                 if (rootView != null)
