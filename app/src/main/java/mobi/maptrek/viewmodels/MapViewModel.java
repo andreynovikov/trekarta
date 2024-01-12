@@ -16,6 +16,8 @@
 
 package mobi.maptrek.viewmodels;
 
+import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -52,6 +54,14 @@ public class MapViewModel extends ViewModel {
         public boolean isShown() {
             return shown;
         }
+    }
+
+    private final MutableLiveData<Location> location = new MutableLiveData<>(new Location("unknown"));
+    public LiveData<Location> getLocation() {
+        return location;
+    }
+    public void setLocation(Location location) {
+        this.location.setValue(location);
     }
 
     public void showMarker(@NonNull GeoPoint coordinates, String name, boolean amenity) {
