@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,6 +17,8 @@
 package mobi.maptrek.layers;
 
 import android.graphics.Bitmap;
+
+import androidx.annotation.NonNull;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,9 +69,9 @@ public class MapObjectLayer extends Layer {
         private int mExtents = 100;
         private boolean mUpdate;
 
-        private ArrayList<MapObjectRenderer.InternalItem> mItems = new ArrayList<>();
-        private ArrayList<Bitmap> mUsedBitmaps = new ArrayList<>();
-        private ArrayList<Bitmap> mOldBitmaps = new ArrayList<>();
+        private final ArrayList<MapObjectRenderer.InternalItem> mItems = new ArrayList<>();
+        private final ArrayList<Bitmap> mUsedBitmaps = new ArrayList<>();
+        private final ArrayList<Bitmap> mOldBitmaps = new ArrayList<>();
 
         class InternalItem {
             private final Point mMapPoint = new Point();
@@ -88,6 +90,7 @@ public class MapObjectLayer extends Layer {
                 py = mMapPoint.y;
             }
 
+            @NonNull
             @Override
             public String toString() {
                 return px + ":" + py + " " + x + ":" + y + " / " + dy + " " + visible;
@@ -220,7 +223,7 @@ public class MapObjectLayer extends Layer {
                             .build();
                 }
                 TextItem t = TextItem.pool.get();
-                t.set(it.x, it.y - bitmap.getHeight() / 2, it.item.name, textStyle);
+                t.set(it.x, it.y - (bitmap.getHeight() >> 1), it.item.name, textStyle);
                 mTextBucket.addText(t);
             }
             buckets.set(mSymbolBucket);
@@ -250,19 +253,25 @@ public class MapObjectLayer extends Layer {
             return 0;
         };
 
+        /** @noinspection unused*/
         @Subscribe
         public void onMapObjectAdded(MapObject.AddedEvent event) {
             mUpdate = true;
+            mMap.updateMap();
         }
 
+        /** @noinspection unused*/
         @Subscribe
         public void onMapObjectRemoved(MapObject.RemovedEvent event) {
             mUpdate = true;
+            mMap.updateMap();
         }
 
+        /** @noinspection unused*/
         @Subscribe
         public void onMapObjectUpdated(MapObject.UpdatedEvent event) {
             mUpdate = true;
+            mMap.updateMap();
         }
     }
 }
