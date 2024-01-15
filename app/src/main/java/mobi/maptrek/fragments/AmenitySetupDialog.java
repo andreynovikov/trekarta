@@ -29,9 +29,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
@@ -39,6 +41,7 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;
 import mobi.maptrek.util.HelperUtils;
+import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.view.DiscreteSlider;
 
 public class AmenitySetupDialog extends DialogFragment {
@@ -142,12 +145,18 @@ public class AmenitySetupDialog extends DialogFragment {
             if (convertView == null) {
                 itemHolder = new AmenitySetupListItemHolder();
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_amenity_setup, parent, false);
+                itemHolder.icon = convertView.findViewById(R.id.icon);
                 itemHolder.name = convertView.findViewById(R.id.name);
                 itemHolder.zoom = convertView.findViewById(R.id.zoom);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (AmenitySetupListItemHolder) convertView.getTag();
             }
+
+            @DrawableRes int icon = ResUtils.getKindIcon(1 << (position + 3));
+            if (icon == 0)
+                icon = R.drawable.ic_place;
+            itemHolder.icon.setImageResource(icon);
 
             itemHolder.name.setText(group.first);
 
@@ -170,6 +179,7 @@ public class AmenitySetupDialog extends DialogFragment {
     }
 
     private static class AmenitySetupListItemHolder {
+        ImageView icon;
         TextView name;
         DiscreteSlider zoom;
     }

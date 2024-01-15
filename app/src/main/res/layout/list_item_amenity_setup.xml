@@ -9,6 +9,16 @@
     android:paddingEnd="6dp"
     tools:viewBindingIgnore="true">
 
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="@dimen/list_item_padding"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_place"
+        app:tint="@color/textColorTertiary" />
+
     <mobi.maptrek.view.DiscreteSlider
         android:id="@+id/zoom"
         android:layout_width="112dp"
@@ -30,10 +40,10 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_toStartOf="@id/zoom"
+        android:layout_toEndOf="@id/icon"
         android:ellipsize="marquee"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
