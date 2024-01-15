@@ -4205,8 +4205,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATUS.equals(action)) {
                 updateNavigationGauges(false);
-                if (mNavigationService != null)
+                if (mNavigationService != null) {
                     adjustNavigationArrow(mNavigationService.getTurn());
+                    if (intent.getBooleanExtra("moving", false) && mNavigationLayer != null)
+                        mNavigationLayer.setDestination(mNavigationService.getWaypoint().coordinates);
+                }
             }
         }
     };

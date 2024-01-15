@@ -768,14 +768,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private void updateNavigationStatus() {
         updateNotification();
-        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS).setPackage(getPackageName()));
+        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS).putExtra("moving", navWaypoint.moving).setPackage(getPackageName()));
         logger.trace("Status dispatched");
     }
 
     /** @noinspection unused*/
     @Subscribe
     public void onMapObjectUpdated(MapObject.UpdatedEvent event) {
-        logger.error("onMapObjectUpdated({})", (event.mapObject.equals(navWaypoint)));
+        logger.debug("onMapObjectUpdated({})", (event.mapObject.equals(navWaypoint)));
         if (event.mapObject.equals(navWaypoint))
             calculateNavigationStatus();
     }

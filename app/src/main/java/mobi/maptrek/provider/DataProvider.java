@@ -207,6 +207,9 @@ public class DataProvider extends ContentProvider {
         }
         if (mapObject.coordinates.getLatitude() != latitude || mapObject.coordinates.getLongitude() != longitude) {
             mapObject.setCoordinates(latitude, longitude);
+            mapObject.moving = true;
+        } else {
+            mapObject.moving = false;
         }
     }
 }
