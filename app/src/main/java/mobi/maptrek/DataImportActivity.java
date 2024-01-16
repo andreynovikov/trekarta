@@ -270,15 +270,15 @@ public class DataImportActivity extends FragmentActivity {
 
         private void processIntent(final Intent intent) {
             String action = intent.getAction();
-            String type = intent.getType();
             logger.error("Action: {}", action);
-            logger.debug("Type: {}", type);
             if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action)) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (uri == null)
                     uri = intent.getData();
-                if (uri == null)
+                if (uri == null) {
+                    requireActivity().finish();
                     return;
+                }
                 logger.debug("Uri: {}", uri);
                 logger.debug("Authority: {}", uri.getAuthority());
                 final Uri finalUri = uri;
