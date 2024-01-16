@@ -56,7 +56,7 @@
     <string name="actionHideSystemUI">Полноэкранный режим</string>
     <string name="actionResetAdvices">Сбросить подсказки</string>
     <string name="actionImport">Импорт</string>
-    <string name="actionGrant">Дать</string>
+    <string name="actionGrant">Предоставить</string>
     <string name="actionDownload">Загрузить</string>
     <string name="actionSkip">Пропустить</string>
 
@@ -132,6 +132,10 @@
     <string name="mapDownloadText">Загрузить недостающую карту</string>
     <string name="gauge_speed">Скорость</string>
     <string name="max_speed">Максимальная скорость</string>
+    <string name="max_elevation">Максимальная высота</string>
+    <string name="min_elevation">Минимальная высота</string>
+    <string name="elevation_gain">Совокупный набор высоты</string>
+    <string name="elevation_loss">Совокупная потеря высоты</string>
     <string name="transparency">Прозрачность</string>
     <string name="version">Версия: %s</string>
     <string name="gauge_distance">Расстояние</string>

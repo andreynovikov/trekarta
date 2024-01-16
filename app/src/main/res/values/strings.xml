@@ -257,6 +257,10 @@
     <string name="finish_point">Finish point</string>
     <string name="max_speed">Maximum speed</string>
     <string name="average_speed">Average speed</string>
+    <string name="max_elevation">Maximum elevation</string>
+    <string name="min_elevation">Minimum elevation</string>
+    <string name="elevation_gain">Cumulative elevation gain</string>
+    <string name="elevation_loss">Cumulative elevation loss</string>
     <string name="elevation_profile">Elevation profile</string>
     <string name="speed_profile">Speed profile</string>
     <string name="currentTrack">Current track</string>

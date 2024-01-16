@@ -77,6 +77,9 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private boolean mIsCurrent;
 
     int mSegmentCount = 0;
+    float mPrevElevation = Float.NaN;
+    float mElevationGain = 0;
+    float mElevationLoss = 0;
     float mMinElevation = Float.MAX_VALUE;
     float mMaxElevation = Float.MIN_VALUE;
     float mMaxSpeed = 0;
@@ -98,6 +101,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private TextView mFinishDateView;
     private TextView mMaxElevationView;
     private TextView mMinElevationView;
+    private TextView mElevationGainView;
+    private TextView mElevationLossView;
     private TextView mMaxSpeedView;
     private TextView mAverageSpeedView;
     private LineChart mElevationChart;
@@ -131,6 +136,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         mFinishDateView = rootView.findViewById(R.id.finishDate);
         mMaxElevationView = rootView.findViewById(R.id.maxElevation);
         mMinElevationView = rootView.findViewById(R.id.minElevation);
+        mElevationGainView = rootView.findViewById(R.id.elevationGain);
+        mElevationLossView = rootView.findViewById(R.id.elevationLoss);
         mMaxSpeedView = rootView.findViewById(R.id.maxSpeed);
         mAverageSpeedView = rootView.findViewById(R.id.averageSpeed);
         mElevationChart = rootView.findViewById(R.id.elevationChart);
@@ -316,8 +323,17 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 if (point.elevation > mMaxElevation)
                     mMaxElevation = point.elevation;
 
-                if (point.elevation != 0)
+                if (point.elevation != 0) {
                     hasElevation = true;
+                    if (!Float.isNaN(mPrevElevation)) {
+                        float diff = point.elevation - mPrevElevation;
+                        if (diff > 0)
+                            mElevationGain += diff;
+                        if (diff < 0)
+                            mElevationLoss -= diff;
+                    }
+                    mPrevElevation = point.elevation;
+                }
             }
 
             float speed = Float.NaN;
@@ -453,8 +469,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
     private void updateTrackStatistics(Resources resources) {
         mSegmentCountView.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
-        mMaxElevationView.setText(StringFormatter.elevationH(mMaxElevation));
-        mMinElevationView.setText(StringFormatter.elevationH(mMinElevation));
+        mMaxElevationView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_elevation), StringFormatter.elevationH(mMaxElevation)));
+        mElevationGainView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_gain), StringFormatter.elevationH(mElevationGain)));
+        mMinElevationView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.min_elevation), StringFormatter.elevationH(mMinElevation)));
+        mElevationLossView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_loss), StringFormatter.elevationH(mElevationLoss)));
         float averageSpeed = mSpeedMeanValue.getMeanValue();
         mMaxSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_speed), StringFormatter.speedH(mMaxSpeed)));
         mAverageSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.average_speed), StringFormatter.speedH(averageSpeed)));
