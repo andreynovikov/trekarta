@@ -258,9 +258,12 @@ public class ExportProvider extends ContentProvider {
         int fileMode = modeToMode(mode);
         if ("rwt".equals(mode) && uri.getLastPathSegment().endsWith(".sqlitedb"))
             file = new File(file.getAbsolutePath() + ".restore");
-        logger.error("openFile: {} {} {}", uri, file, mode);
+        logger.info("openFile: {} {} {} {}", uri, file, mode, fileMode);
         try {
             return ParcelFileDescriptor.open(file, fileMode, mHandler, e -> {
+                logger.info("Other party closed the file");
+                if (e != null)
+                    logger.error(e.getMessage());
                 if (!(e instanceof ParcelFileDescriptor.FileDescriptorDetachedException)) {
                     if ("rwt".equals(mode)) {
                         logger.error("saved");
@@ -276,7 +279,8 @@ public class ExportProvider extends ContentProvider {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
+            logger.error("IO Exception", e);
             return ParcelFileDescriptor.open(file, fileMode);
         }
     }
