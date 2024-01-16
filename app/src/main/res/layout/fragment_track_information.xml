@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Scrollbar"
     android:layout_width="@dimen/fragment_width"
@@ -17,25 +18,27 @@
             android:id="@+id/moreButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:layout_marginEnd="@dimen/image_button_padding"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/image_button_padding"
+            android:layout_marginEnd="@dimen/image_button_padding"
             android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_more_vert"
-            android:tint="?attr/actionIconColor" />
+            app:tint="?attr/actionIconColor" />
 
         <ImageButton
             android:id="@+id/stopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@id/moreButton"
             android:layout_marginStart="@dimen/image_button_padding"
+            android:layout_toStartOf="@id/moreButton"
             android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_record_stop"
-            android:tint="?attr/actionIconColor"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tint="?attr/actionIconColor" />
 
         <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
             android:id="@+id/colorSwatch"
@@ -50,9 +53,9 @@
             android:id="@+id/namePlaceholder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_alignParentStart="true"
             android:layout_toStartOf="@id/colorSwatch">
 
             <TextView
@@ -86,12 +89,12 @@
             android:id="@+id/statisticsTable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
             android:layout_below="@id/namePlaceholder"
-            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/fragment_padding"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/fragment_padding"
             android:stretchColumns="1">
 
             <TableRow
@@ -103,8 +106,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_folder"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/source"
@@ -123,8 +127,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_linear_scale"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -155,8 +160,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_straighten"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/distance"
@@ -176,8 +182,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_timer"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/timeSpan"
@@ -207,8 +214,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_place"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/startCoordinates"
@@ -229,8 +237,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_schedule"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/startDate"
@@ -259,8 +268,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_place"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/finishCoordinates"
@@ -281,8 +291,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_schedule"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/finishDate"
@@ -313,8 +324,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_timer"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -345,8 +357,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_trending_up"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/maxElevation"
@@ -365,8 +378,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_trending_down"
-                    android:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor" />
 
                 <TextView
                     android:id="@+id/minElevation"
@@ -381,11 +395,11 @@
             android:id="@+id/charts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
             android:layout_below="@id/statisticsTable"
-            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/fragment_padding"
+            android:layout_marginEnd="@dimen/fragment_padding"
             android:orientation="vertical"
             android:paddingBottom="@dimen/fragment_padding">
 

@@ -252,7 +252,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     private void initializeTrackInformation() {
-        Activity activity = getActivity();
+        Activity activity = requireActivity();
         Resources resources = getResources();
 
         View rootView = getView();
@@ -273,8 +273,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         String startCoords = StringFormatter.coordinates(ftp);
         mStartCoordinatesView.setText(startCoords);
-
-        updateTrackInformation(activity, resources);
 
         View startDateRow = rootView.findViewById(R.id.startDateRow);
         View finishDateRow = rootView.findViewById(R.id.finishDateRow);
@@ -345,6 +343,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             ptp = point;
             i++;
         }
+        updateTrackInformation(activity, resources);
 
         View statisticsHeader = rootView.findViewById(R.id.statisticsHeader);
         if (hasElevation || hasSpeed) {
@@ -431,6 +430,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         int pointCount = mTrack.points.size();
         mPointCountView.setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
+        mSegmentCountView.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
 
         String distance = StringFormatter.distanceHP(mTrack.getDistance());
         mDistanceView.setText(distance);
@@ -461,8 +461,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     private void setEditorMode(boolean enabled) {
-        ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
+        ViewGroup rootView = (ViewGroup) requireView();
+        Activity activity = requireActivity();
 
         final ColorPickerSwatch colorSwatch = rootView.findViewById(R.id.colorSwatch);
 
@@ -482,15 +482,15 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             editsState = View.VISIBLE;
 
             if (!mTrack.source.isNativeTrack())
-                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mMoreButton, false);
+                HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mMoreButton, false);
         } else {
             mMoreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_more_vert));
             ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
             // Hide keyboard
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
         }
         // TODO Optimize view findings
         TransitionManager.beginDelayedTransition(rootView, new Fade());
