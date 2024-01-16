@@ -406,7 +406,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         Intent iStop = new Intent(STOP_NAVIGATION, null, getApplicationContext(), NavigationService.class);
         PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel_black);
+        Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel);
 
         Intent iPause = new Intent(PAUSE_NAVIGATION, null, getApplicationContext(), NavigationService.class);
         PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);

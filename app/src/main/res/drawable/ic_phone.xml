@@ -1,21 +1,9 @@
-<!--
-  ~ Copyright 2019 Andrey Novikov
-  ~
-  ~ This program is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU Lesser General Public License as published by the Free Software
-  ~ Foundation, either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public License along with
-  ~ this program. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
-<vector android:autoMirrored="true" android:height="24dp"
-    android:viewportHeight="24.0" android:viewportWidth="24.0"
-    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#FF000000" android:pathData="M6.62,10.79c1.44,2.83 3.76,5.14 6.59,6.59l2.2,-2.2c0.27,-0.27 0.67,-0.36 1.02,-0.24 1.12,0.37 2.33,0.57 3.57,0.57 0.55,0 1,0.45 1,1V20c0,0.55 -0.45,1 -1,1 -9.39,0 -17,-7.61 -17,-17 0,-0.55 0.45,-1 1,-1h3.5c0.55,0 1,0.45 1,1 0,1.25 0.2,2.45 0.57,3.57 0.11,0.35 0.03,0.74 -0.25,1.02l-2.2,2.2z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M798,840Q673,840 551,785.5Q429,731 329,631Q229,531 174.5,409Q120,287 120,162Q120,144 132,132Q144,120 162,120L324,120Q338,120 349,129.5Q360,139 362,152L388,292Q390,308 387,319Q384,330 376,338L279,436Q299,473 326.5,507.5Q354,542 387,574Q418,605 452,631.5Q486,658 524,680L618,586Q627,577 641.5,572.5Q656,568 670,570L808,598Q822,602 831,612.5Q840,623 840,636L840,798Q840,816 828,828Q816,840 798,840ZM241,360L307,294Q307,294 307,294Q307,294 307,294L290,200Q290,200 290,200Q290,200 290,200L201,200Q201,200 201,200Q201,200 201,200Q206,241 215,281Q224,321 241,360ZM599,718Q638,735 678.5,745Q719,755 760,758Q760,758 760,758Q760,758 760,758L760,670Q760,670 760,670Q760,670 760,670L666,651Q666,651 666,651Q666,651 666,651L599,718ZM241,360Q241,360 241,360Q241,360 241,360Q241,360 241,360Q241,360 241,360L241,360Q241,360 241,360Q241,360 241,360L241,360Q241,360 241,360Q241,360 241,360L241,360ZM599,718L599,718Q599,718 599,718Q599,718 599,718L599,718Q599,718 599,718Q599,718 599,718L599,718Q599,718 599,718Q599,718 599,718Q599,718 599,718Q599,718 599,718Z"/>
 </vector>

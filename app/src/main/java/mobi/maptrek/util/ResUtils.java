@@ -34,7 +34,7 @@ public class ResUtils {
         else if (Tags.isAttraction(kind))
             return R.drawable.ic_local_see;
         else if (Tags.isHealthBeauty(kind))
-            return R.drawable.ic_spa;
+            return R.drawable.ic_health_beauty;
         else if (Tags.isEntertainment(kind))
             return R.drawable.ic_attractions;
         else if (Tags.isHikeBike(kind))
@@ -44,7 +44,7 @@ public class ResUtils {
         else if (Tags.isService(kind))
             return R.drawable.ic_dry_cleaning;
         else if (Tags.isReligion(kind))
-            return R.drawable.ic_change_history;
+            return R.drawable.ic_history;
         else if (Tags.isKids(kind))
             return R.drawable.ic_child_care;
         else if (Tags.isPets(kind))

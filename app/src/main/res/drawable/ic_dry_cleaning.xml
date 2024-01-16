@@ -1,25 +1,9 @@
-<!--
-  ~ Copyright 2021 Andrey Novikov
-  ~
-  ~ This program is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU Lesser General Public License as published by the Free Software
-  ~ Foundation, either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public License along with
-  ~ this program. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="960"
+    android:viewportHeight="960">
   <path
-      android:fillColor="@android:color/black"
-      android:pathData="M19.56,11.36L13,8.44V7c0,-0.55 -0.45,-1 -1,-1l0,0c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1s1,0.45 1,1h2c0,-1.84 -1.66,-3.3 -3.56,-2.95C10.26,2.27 9.29,3.22 9.06,4.4C8.76,5.96 9.66,7.34 11,7.82v0.63l-6.56,2.92C3.56,11.75 3,12.62 3,13.57v0.01C3,14.92 4.08,16 5.42,16H7v6h10v-6h1.58c1.34,0 2.42,-1.08 2.42,-2.42v-0.01C21,12.62 20.44,11.75 19.56,11.36zM18.58,14H17v-1H7v1H5.42C5.19,14 5,13.81 5,13.57c0,-0.17 0.1,-0.32 0.25,-0.38l6.75,-3l6.75,3C18.9,13.26 19,13.41 19,13.58C19,13.81 18.81,14 18.58,14z"/>
+      android:fillColor="@android:color/white"
+      android:pathData="M280,880L280,640L216,640Q176,640 148,612Q120,584 120,544Q120,515 136,490.5Q152,466 178,454L440,338L440,312Q404,299 382,268.5Q360,238 360,200Q360,150 395,115Q430,80 480,80Q530,80 565,115Q600,150 600,200L520,200Q520,183 508.5,171.5Q497,160 480,160Q463,160 451.5,171.5Q440,183 440,200Q440,217 451.5,228.5Q463,240 480,240Q497,240 508.5,251.5Q520,263 520,280L520,338L782,454Q808,466 824,490.5Q840,515 840,544Q840,584 812,612Q784,640 744,640L680,640L680,880L280,880ZM216,560L280,560L280,520L680,520L680,560L744,560Q751,560 755.5,555Q760,550 760,542Q760,537 757.5,533.5Q755,530 750,528L480,408L210,528Q205,530 202.5,533.5Q200,537 200,542Q200,550 204.5,555Q209,560 216,560ZM360,800L600,800L600,600L360,600L360,800ZM360,600L360,600L600,600L600,600L360,600Z"/>
 </vector>
