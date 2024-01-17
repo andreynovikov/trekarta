@@ -3304,7 +3304,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.onDetach();
-        mapIndexViewModel.nativeIndex.clearSelections();
         mMapCoverageLayer = null;
         mMap.updateMap(true);
     }

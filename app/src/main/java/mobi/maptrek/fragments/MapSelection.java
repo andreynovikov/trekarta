@@ -162,7 +162,7 @@ public class MapSelection extends Fragment {
             if (indexStats != null && indexStats.download + indexStats.remove > 0) {
                 mapIndexViewModel.nativeIndex.manageNativeMaps(viewBinding.downloadHillshades.isChecked());
             }
-            mListener.onFinishMapManagement();
+            mapIndexViewModel.nativeIndex.clearSelections();
             mFragmentHolder.popCurrent();
         });
     }
@@ -206,12 +206,13 @@ public class MapSelection extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mFragmentHolder.disableActionButton();
+        mListener.onFinishMapManagement();
     }
 
     OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
-            mListener.onFinishMapManagement();
+            mapIndexViewModel.nativeIndex.clearSelections();
             this.remove();
             requireActivity().getOnBackPressedDispatcher().onBackPressed();
         }

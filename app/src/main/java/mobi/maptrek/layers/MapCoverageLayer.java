@@ -125,7 +125,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
 
     @Override
     public void onMapEvent(Event e, MapPosition pos) {
-        super.onMapEvent(e, pos);
+        // Workaround for map scale is not yet set on first render after rotation (see processFeatures)
+
+        /* throttle worker */
+        mWorker.submit(mUpdateDelay);
     }
 
     @Override
