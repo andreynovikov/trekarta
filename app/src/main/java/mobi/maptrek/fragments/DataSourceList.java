@@ -32,8 +32,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentOnAttachListener;
 import androidx.fragment.app.ListFragment;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.io.File;
@@ -55,7 +59,9 @@ public class DataSourceList extends ListFragment {
     public static final String ARG_NATIVE_TRACKS = "nativeTracks";
 
     private DataSourceListAdapter mAdapter;
+    private FragmentHolder mFragmentHolder;
     private DataHolder mDataHolder;
+    private FloatingActionButton mFloatingButton;
     private final List<DataSource> mData = new ArrayList<>();
     private boolean mNativeTracks;
 
@@ -106,6 +112,31 @@ public class DataSourceList extends ListFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (mNativeTracks) {
+            mFloatingButton = mFragmentHolder.enableListActionButton();
+            mFloatingButton.setImageResource(R.drawable.ic_record);
+            mFloatingButton.setOnClickListener(v -> {
+                /*
+                CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
+                CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataSourceList.this)
+                        .setTitle(R.string.record_track)
+                        .create();
+                coordinatesInput.show(getParentFragmentManager(), "trackRecord");
+                 */
+            });
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mFragmentHolder.disableListActionButton();
+        mFloatingButton = null;
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
@@ -113,11 +144,15 @@ public class DataSourceList extends ListFragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement DataHolder");
         }
+        mFragmentHolder = (FragmentHolder) context;
+        getParentFragmentManager().addOnBackStackChangedListener(backStackListener);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        getParentFragmentManager().removeOnBackStackChangedListener(backStackListener);
+        mFragmentHolder = null;
         mDataHolder = null;
     }
 
@@ -129,6 +164,7 @@ public class DataSourceList extends ListFragment {
 
     @Override
     public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
+        mFragmentHolder.disableListActionButton();
         DataSource source = mAdapter.getItem(position);
         mDataHolder.onDataSourceSelected(source);
     }
@@ -158,6 +194,20 @@ public class DataSourceList extends ListFragment {
 
         mAdapter.notifyDataSetChanged();
     }
+
+    final FragmentManager.OnBackStackChangedListener backStackListener = new FragmentManager.OnBackStackChangedListener() {
+        @Override
+        public void onBackStackChanged() {
+            FragmentManager fragmentManager = getParentFragmentManager();
+            int count = fragmentManager.getBackStackEntryCount();
+            if (count == 0)
+                return;
+            FragmentManager.BackStackEntry bse = fragmentManager.getBackStackEntryAt(count - 1);
+            Fragment fr = fragmentManager.findFragmentByTag(bse.getName());
+            if (fr == DataSourceList.this)
+                mFragmentHolder.enableListActionButton();
+        }
+    };
 
     private class DataSourceListAdapter extends BaseAdapter {
         private final int mAccentColor;
