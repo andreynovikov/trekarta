@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,30 +28,25 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import mobi.maptrek.R;
-import mobi.maptrek.maps.maptrek.Index;
+import mobi.maptrek.viewmodels.MapIndexViewModel;
 
 public class BaseMapDownload extends DialogFragment {
-    @NonNull
-    private final Index mMapIndex;
-
-    public BaseMapDownload(@NonNull Index mapIndex) {
-        super();
-        mMapIndex = mapIndex;
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View dialogView = getLayoutInflater().inflate(R.layout.fragment_basemap_download, null);
 
+        MapIndexViewModel mapIndexViewModel = new ViewModelProvider(requireActivity()).get(MapIndexViewModel.class);
+
         TextView messageView = dialogView.findViewById(R.id.message);
-        long size = mMapIndex.getBaseMapSize();
+        long size = mapIndexViewModel.nativeIndex.getBaseMapSize();
         messageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        dialogBuilder.setPositiveButton(R.string.actionDownload, (dialog, which) -> mMapIndex.downloadBaseMap());
+        dialogBuilder.setPositiveButton(R.string.actionDownload, (dialog, which) -> mapIndexViewModel.nativeIndex.downloadBaseMap());
         dialogBuilder.setNegativeButton(R.string.actionSkip, (dialog, which) -> {});
         dialogBuilder.setView(dialogView);
 

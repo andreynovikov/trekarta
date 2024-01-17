@@ -267,6 +267,7 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
 import mobi.maptrek.viewmodels.AmenityViewModel;
+import mobi.maptrek.viewmodels.MapIndexViewModel;
 import mobi.maptrek.viewmodels.MapViewModel;
 
 public class MainActivity extends AppCompatActivity implements ILocationListener,
@@ -400,12 +401,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
+
     private AmenityViewModel amenityViewModel;
+    private MapIndexViewModel mapIndexViewModel;
     private MapViewModel mapViewModel;
 
     private SQLiteDatabase mDetailedMapDatabase;
     private MapIndex mMapIndex;
-    private Index mNativeMapIndex;
     private MapTrekTileSource mNativeTileSource;
     private List<MapFile> mBitmapLayerMaps;
     private WaypointDbDataSource mWaypointDbDataSource;
@@ -499,7 +501,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.registerFragmentLifecycleCallbacks(mFragmentLifecycleCallback, true);
 
-        mNativeMapIndex = application.getMapIndex();
         mMapIndex = application.getExtraMapIndex();
 
         mShieldFactory = application.getShieldFactory();
@@ -698,6 +699,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
+
+        mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
 
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         // Observe marker state
@@ -1018,8 +1021,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
-        } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
-            BaseMapDownload dialogFragment = new BaseMapDownload(mNativeMapIndex);
+        } else if (!mBaseMapWarningShown && mapIndexViewModel.nativeIndex.getBaseMapVersion() == 0) {
+            BaseMapDownload dialogFragment = new BaseMapDownload();
             dialogFragment.show(mFragmentManager, "baseMapDownload");
             mBaseMapWarningShown = true;
         } else if (WhatsNewDialog.shouldShow()) {
@@ -1438,7 +1441,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         } else if (action == R.id.actionSettings) {
             Bundle args = new Bundle(1);
-            args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mNativeMapIndex.hasHillshades());
+            args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mapIndexViewModel.nativeIndex.hasHillshades());
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Settings.class.getName());
             fragment.setArguments(args);
@@ -2106,7 +2109,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void enableTracking() {
         Intent intent = new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= 26)
             startForegroundService(intent);
         else
             startService(intent);
@@ -3192,7 +3195,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         MapSelection fragment = (MapSelection) factory.instantiate(getClassLoader(), MapSelection.class.getName());
-        fragment.setMapIndex(mNativeMapIndex);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "mapSelection");
@@ -3284,7 +3286,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, MapTrek.density);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mapIndexViewModel.nativeIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -3295,21 +3297,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         int[] xy = (int[]) mViews.mapDownloadButton.getTag(R.id.mapKey);
         if (xy != null)
-            mNativeMapIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
+            mapIndexViewModel.nativeIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
     }
 
     @Override
     public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.onDetach();
-        mNativeMapIndex.clearSelections();
+        mapIndexViewModel.nativeIndex.clearSelections();
         mMapCoverageLayer = null;
         mMap.updateMap(true);
-    }
-
-    @Override
-    public void onManageNativeMaps(boolean hillshadesEnabled) {
-        mNativeMapIndex.manageNativeMaps(hillshadesEnabled);
     }
 
     private void deleteWaypoints(@NonNull Set<Waypoint> waypoints) {
@@ -3896,8 +3893,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 if (tileData != null) {
                     int mapX = tile.tileX >> (tile.zoomLevel - 7);
                     int mapY = tile.tileY >> (tile.zoomLevel - 7);
-                    if (!mNativeMapIndex.isDownloading(mapX, mapY) && // Do not show button if this map is already downloading
-                            !(mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(mapX, mapY).downloadSize == 0L)) { // Do not show button if there is no map for that area
+                    if (!mapIndexViewModel.nativeIndex.isDownloading(mapX, mapY) && // Do not show button if this map is already downloading
+                            !(mapIndexViewModel.nativeIndex.hasDownloadSizes()
+                                    && mapIndexViewModel.nativeIndex.getNativeMap(mapX, mapY).downloadSize == 0L)) { // Do not show button if there is no map for that area
                         visibility = View.VISIBLE;
                         map = new int[]{mapX, mapY};
                     }
@@ -4762,7 +4760,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 Configuration.getTrackingTime() + "," +
                 mWaypointDbDataSource.getWaypointsCount() + "," +
                 mData.size() + "," +
-                mNativeMapIndex.getMapsCount() + "," +
+                mapIndexViewModel.nativeIndex.getMapsCount() + "," +
                 mMapIndex.getMaps().size() + "," +
                 Configuration.getFullScreenTimes() + "," +
                 Configuration.getHikingTimes() + "," +

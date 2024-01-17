@@ -256,7 +256,7 @@ public class Index {
         for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
             MapStateListener mapStateListener = weakRef.get();
             if (mapStateListener != null) {
-                mapStateListener.onMapSelected(x, y, mapStatus.action, stats);
+                mapStateListener.onMapSelected(x, y, action == ACTION.CANCEL ? action : mapStatus.action, stats);
             }
         }
     }
@@ -394,6 +394,12 @@ public class Index {
             for (int y = 0; y < 128; y++)
                 if (mMaps[x][y] != null)
                     mMaps[x][y].action = ACTION.NONE;
+        for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+            MapStateListener mapStateListener = weakRef.get();
+            if (mapStateListener != null) {
+                mapStateListener.onStatsChanged();
+            }
+        }
     }
 
     public void cancelDownload(int x, int y) {
@@ -856,6 +862,12 @@ public class Index {
         }
         if (x == -1 && y == -1) {
             mBaseMapVersion = date;
+            for (WeakReference<MapStateListener> weakRef : mMapStateListeners) {
+                MapStateListener mapStateListener = weakRef.get();
+                if (mapStateListener != null) {
+                    mapStateListener.onBaseMapChanged();
+                }
+            }
         } else if (x >= 0 && y >= 0) {
             MapStatus mapStatus = getNativeMap(x, y);
             mapStatus.created = date;
@@ -1015,6 +1027,7 @@ public class Index {
     public interface MapStateListener {
         void onHasDownloadSizes();
 
+        void onBaseMapChanged();
         void onStatsChanged();
 
         void onHillshadeAccountingChanged(boolean account);
