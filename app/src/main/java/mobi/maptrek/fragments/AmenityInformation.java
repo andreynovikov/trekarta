@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,8 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Rect;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -34,6 +32,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -44,98 +43,76 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import org.oscim.core.GeoPoint;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import mobi.maptrek.Configuration;
-import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
-import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Amenity;
 import mobi.maptrek.databinding.FragmentAmenityInformationBinding;
-import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.AmenityViewModel;
+import mobi.maptrek.viewmodels.MapViewModel;
 
-public class AmenityInformation extends Fragment implements LocationChangeListener {
-    public static final String ARG_LATITUDE = "lat";
-    public static final String ARG_LONGITUDE = "lon";
-    public static final String ARG_LANG = "lang";
-
+public class AmenityInformation extends Fragment {
     private static final String ALLOWED_URI_CHARS = " @#&=*+-_.,:!?()/~'%";
 
-    private Amenity mAmenity;
-    private double mLatitude;
-    private double mLongitude;
-    private int mLang;
-
-    private FragmentAmenityInformationBinding mViews;
     private BottomSheetBehavior<View> mBottomSheetBehavior;
     private AmenityBottomSheetCallback mBottomSheetCallback;
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+    private AmenityViewModel amenityViewModel;
+    private FragmentAmenityInformationBinding viewBinding;
+    private int panelState;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mViews = FragmentAmenityInformationBinding.inflate(inflater, container, false);
-        final ViewGroup rootView = mViews.getRoot();
-        rootView.post(() -> {
-            updatePeekHeight(rootView, false);
-            int panelState = BottomSheetBehavior.STATE_COLLAPSED;
-            if (savedInstanceState != null) {
-                panelState = savedInstanceState.getInt("panelState", panelState);
-                View dragHandle = rootView.findViewById(R.id.dragHandle);
-                dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
-            }
-            mBottomSheetBehavior.setState(panelState);
-            // Workaround for panel partially drawn on first slide
-            // TODO Try to put transparent view above map
-            if (Configuration.getHideSystemUI())
-                rootView.requestLayout();
-        });
-        return rootView;
+        viewBinding = FragmentAmenityInformationBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        double latitude = Double.NaN;
-        double longitude = Double.NaN;
-
-        if (savedInstanceState != null) {
-            latitude = savedInstanceState.getDouble(ARG_LATITUDE);
-            longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
-            mLang = savedInstanceState.getInt(ARG_LANG);
-        } else {
-            Bundle arguments = getArguments();
-            if (arguments != null) {
-                latitude = arguments.getDouble(ARG_LATITUDE, Double.NaN);
-                longitude = arguments.getDouble(ARG_LONGITUDE, Double.NaN);
+        amenityViewModel = new ViewModelProvider(requireActivity()).get(AmenityViewModel.class);
+        amenityViewModel.getAmenity().observe(getViewLifecycleOwner(), amenity -> {
+            if (amenity != null) {
+                updateAmenityInformation(amenity);
+                requireView().post(this::updatePeekHeight);
             }
-        }
+        });
 
-        final ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
+        MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+        mapViewModel.getLocation().observe(getViewLifecycleOwner(), location -> {
+            if ("unknown".equals(location.getProvider())) {
+                viewBinding.destination.setVisibility(View.GONE);
+            } else {
+                Amenity amenity = amenityViewModel.getAmenity().getValue();
+                if (amenity == null)
+                    return;
+                GeoPoint point = new GeoPoint(location.getLatitude(), location.getLongitude());
+                double dist = point.vincentyDistance(amenity.coordinates);
+                double bearing = point.bearingTo(amenity.coordinates);
+                String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
+                viewBinding.destination.setVisibility(View.VISIBLE);
+                viewBinding.destination.setTag(true);
+                viewBinding.destination.setText(distance);
+            }
+        });
 
         mFloatingButton = mFragmentHolder.enableActionButton();
         mFloatingButton.setImageResource(R.drawable.ic_navigate);
         mFloatingButton.setOnClickListener(v -> {
-            mMapHolder.navigateTo(mAmenity.coordinates, mAmenity.name);
+            Amenity amenity = amenityViewModel.getAmenity().getValue();
+            if (amenity != null)
+                mMapHolder.navigateTo(amenity.coordinates, amenity.name);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         });
 
@@ -143,26 +120,15 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
         p.setAnchorId(R.id.bottomSheetPanel);
         mFloatingButton.setLayoutParams(p);
 
-        mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
-        updateAmenityInformation(latitude, longitude);
-
-        rootView.findViewById(R.id.dragHandle).setAlpha(1f);
         mBottomSheetCallback = new AmenityBottomSheetCallback();
-        ViewParent parent = rootView.getParent();
-        mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
+        mBottomSheetBehavior = BottomSheetBehavior.from((View) view.getParent());
         mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapHolder.addLocationChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapHolder.removeLocationChangeListener(this);
+        panelState = BottomSheetBehavior.STATE_COLLAPSED;
+        if (savedInstanceState != null)
+            panelState = savedInstanceState.getInt("panelState", panelState);
+        mBottomSheetBehavior.setState(panelState);
+        viewBinding.dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
     }
 
     @Override
@@ -185,7 +151,6 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
     public void onDetach() {
         super.onDetach();
         mBackPressedCallback.remove();
-        mMapHolder.removeMarker();
         mFragmentHolder = null;
         mMapHolder = null;
     }
@@ -194,211 +159,149 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
     public void onDestroyView() {
         super.onDestroyView();
         mBottomSheetBehavior.removeBottomSheetCallback(mBottomSheetCallback);
-        mViews = null;
+        viewBinding = null;
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putDouble(ARG_LATITUDE, mLatitude);
-        outState.putDouble(ARG_LONGITUDE, mLongitude);
-        outState.putInt(ARG_LANG, mLang);
-        outState.putInt("panelState", mBottomSheetBehavior.getState());
-    }
-
-    public void setAmenity(long id) {
-        try {
-            mAmenity = MapTrekDatabaseHelper.getAmenityData(mLang, id, MapTrek.getApplication().getDetailedMapDatabase());
-            if (isVisible()) {
-                mMapHolder.showMarker(mAmenity.coordinates, mAmenity.name, true);
-                updateAmenityInformation(mLatitude, mLongitude);
-                final ViewGroup rootView = (ViewGroup) getView();
-                if (rootView != null)
-                    rootView.post(() -> updatePeekHeight(rootView, true));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outState.putInt("panelState", panelState);
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void updateAmenityInformation(double latitude, double longitude) {
+    private void updateAmenityInformation(@NonNull Amenity amenity) {
         final Activity activity = requireActivity();
-        boolean hasName = mAmenity.name != null;
-        String type = mAmenity.type != -1 ? getString(mAmenity.type) : "";
+        boolean hasName = amenity.name != null;
+        String type = amenity.type != -1 ? getString(amenity.type) : "";
 
-        mViews.name.setText(hasName ? mAmenity.name : type);
+        viewBinding.name.setText(hasName ? amenity.name : type);
 
-        if (!hasName || mAmenity.type == -1) {
-            mViews.type.setVisibility(View.GONE);
+        if (!hasName || amenity.type == -1) {
+            viewBinding.type.setVisibility(View.GONE);
         } else {
-            mViews.type.setVisibility(View.VISIBLE);
-            mViews.type.setText(type);
+            viewBinding.type.setVisibility(View.VISIBLE);
+            viewBinding.type.setText(type);
         }
 
-        if ("".equals(mAmenity.kind)) {
-            mViews.kindRow.setVisibility(View.GONE);
+        if ("".equals(amenity.kind)) {
+            viewBinding.kindRow.setVisibility(View.GONE);
         } else {
-            mViews.kindRow.setVisibility(View.VISIBLE);
+            viewBinding.kindRow.setVisibility(View.VISIBLE);
             Resources resources = getResources();
-            int id = resources.getIdentifier(mAmenity.kind, "string", activity.getPackageName());
-            mViews.kind.setText(resources.getString(id));
+            @SuppressLint("DiscouragedApi")
+            int id = resources.getIdentifier(amenity.kind, "string", activity.getPackageName());
+            viewBinding.kind.setText(resources.getString(id));
         }
-        @DrawableRes int icon = ResUtils.getKindIcon(mAmenity.kindNumber);
+        @DrawableRes int icon = ResUtils.getKindIcon(amenity.kindNumber);
         if (icon == 0)
             icon = R.drawable.ic_place;
-        mViews.kindIcon.setImageResource(icon);
+        viewBinding.kindIcon.setImageResource(icon);
 
-        if (mAmenity.fee == null) {
-            mViews.feeRow.setVisibility(View.GONE);
+        if (amenity.fee == null) {
+            viewBinding.feeRow.setVisibility(View.GONE);
         } else {
-            mViews.feeRow.setVisibility(View.VISIBLE);
-            mViews.fee.setText(R.string.fee);
+            viewBinding.feeRow.setVisibility(View.VISIBLE);
+            viewBinding.fee.setText(R.string.fee);
         }
 
-        if (mAmenity.wheelchair == null) {
-            mViews.wheelchairRow.setVisibility(View.GONE);
+        if (amenity.wheelchair == null) {
+            viewBinding.wheelchairRow.setVisibility(View.GONE);
         } else {
-            mViews.wheelchairRow.setVisibility(View.VISIBLE);
-            switch (mAmenity.wheelchair) {
+            viewBinding.wheelchairRow.setVisibility(View.VISIBLE);
+            switch (amenity.wheelchair) {
                 case YES:
-                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
-                    mViews.wheelchair.setText(R.string.full_access);
+                    viewBinding.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
+                    viewBinding.wheelchair.setText(R.string.full_access);
                     break;
                 case LIMITED:
-                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
-                    mViews.wheelchair.setText(R.string.limited_access);
+                    viewBinding.wheelchairIcon.setImageResource(R.drawable.ic_accessible);
+                    viewBinding.wheelchair.setText(R.string.limited_access);
                     break;
                 case NO:
-                    mViews.wheelchairIcon.setImageResource(R.drawable.ic_not_accessible);
-                    mViews.wheelchair.setText(R.string.no_access);
+                    viewBinding.wheelchairIcon.setImageResource(R.drawable.ic_not_accessible);
+                    viewBinding.wheelchair.setText(R.string.no_access);
                     break;
             }
         }
 
-        if (mAmenity.openingHours == null) {
-            mViews.openingHoursRow.setVisibility(View.GONE);
+        if (amenity.openingHours == null) {
+            viewBinding.openingHoursRow.setVisibility(View.GONE);
         } else {
-            mViews.openingHoursRow.setVisibility(View.VISIBLE);
-            mViews.openingHours.setText(mAmenity.openingHours);
+            viewBinding.openingHoursRow.setVisibility(View.VISIBLE);
+            viewBinding.openingHours.setText(amenity.openingHours);
         }
 
-        if (mAmenity.phone == null) {
-            mViews.phoneRow.setVisibility(View.GONE);
+        if (amenity.phone == null) {
+            viewBinding.phoneRow.setVisibility(View.GONE);
         } else {
-            mViews.phoneRow.setVisibility(View.VISIBLE);
-            mViews.phone.setText(PhoneNumberUtils.formatNumber(mAmenity.phone, Locale.getDefault().getCountry()));
+            viewBinding.phoneRow.setVisibility(View.VISIBLE);
+            viewBinding.phone.setText(PhoneNumberUtils.formatNumber(amenity.phone, Locale.getDefault().getCountry()));
         }
 
-        if (mAmenity.website == null) {
-            mViews.websiteRow.setVisibility(View.GONE);
+        if (amenity.website == null) {
+            viewBinding.websiteRow.setVisibility(View.GONE);
         } else {
-            mViews.websiteRow.setVisibility(View.VISIBLE);
-            String website = mAmenity.website;
+            viewBinding.websiteRow.setVisibility(View.VISIBLE);
+            String website = amenity.website;
             if (!website.startsWith("http"))
                 website = "http://" + website;
             String url = website;
             website = website.replaceFirst("https?://", "");
             url = "<a href=\"" + url + "\">" + website + "</a>";
-            mViews.website.setMovementMethod(LinkMovementMethod.getInstance());
-            mViews.website.setText(Html.fromHtml(url));
+            viewBinding.website.setMovementMethod(LinkMovementMethod.getInstance());
+            viewBinding.website.setText(Html.fromHtml(url));
         }
 
-        if (mAmenity.wikipedia == null) {
-            mViews.wikipediaRow.setVisibility(View.GONE);
+        if (amenity.wikipedia == null) {
+            viewBinding.wikipediaRow.setVisibility(View.GONE);
         } else {
-            mViews.wikipediaRow.setVisibility(View.VISIBLE);
-            int i = mAmenity.wikipedia.indexOf(':');
+            viewBinding.wikipediaRow.setVisibility(View.VISIBLE);
+            int i = amenity.wikipedia.indexOf(':');
             String prefix, text;
             if (i > 0) {
-                prefix = mAmenity.wikipedia.substring(0, i) + ".";
-                text = mAmenity.wikipedia.substring(i + 1);
+                prefix = amenity.wikipedia.substring(0, i) + ".";
+                text = amenity.wikipedia.substring(i + 1);
             } else {
                 prefix = "";
-                text = mAmenity.wikipedia;
+                text = amenity.wikipedia;
             }
             String url = "<a href=\"https://" + prefix + "m.wikipedia.org/wiki/" +
                     Uri.encode(text, ALLOWED_URI_CHARS) + "\">" + text + "</a>";
-            mViews.wikipedia.setMovementMethod(LinkMovementMethod.getInstance());
-            mViews.wikipedia.setText(Html.fromHtml(url));
+            viewBinding.wikipedia.setMovementMethod(LinkMovementMethod.getInstance());
+            viewBinding.wikipedia.setText(Html.fromHtml(url));
         }
 
-        if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-            mViews.destination.setVisibility(View.GONE);
-        } else {
-            GeoPoint point = new GeoPoint(latitude, longitude);
-            double dist = point.vincentyDistance(mAmenity.coordinates);
-            double bearing = point.bearingTo(mAmenity.coordinates);
-            String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            mViews.destination.setVisibility(View.VISIBLE);
-            mViews.destination.setTag(true);
-            mViews.destination.setText(distance);
-        }
-
-        mViews.coordinates.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
-
-        if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_SWITCH_COORDINATES_FORMAT)) {
-            // We need this very bulky code to wait until layout is settled and keyboard is completely hidden
-            // otherwise we get wrong position for advice
-            final View rootView = mViews.getRoot();
-            ViewTreeObserver vto = rootView.getViewTreeObserver();
-            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    rootView.postDelayed(() -> {
-                        if (isVisible()) {
-                            Rect r = new Rect();
-                            mViews.coordinates.getGlobalVisibleRect(r);
-                            HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, r);
-                        }
-                    }, 1000);
-                }
-            });
-        }
-
-        mViews.coordinates.setOnTouchListener((v, event) -> {
+        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", amenity.coordinates.getLatitude(), amenity.coordinates.getLongitude()));
+        viewBinding.coordinates.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getX() >= mViews.coordinates.getRight() - mViews.coordinates.getTotalPaddingRight()) {
-                    mMapHolder.shareLocation(mAmenity.coordinates, mAmenity.name);
+                if (event.getX() >= viewBinding.coordinates.getRight() - viewBinding.coordinates.getTotalPaddingRight()) {
+                    mMapHolder.shareLocation(amenity.coordinates, amenity.name);
                 } else {
                     StringFormatter.coordinateFormat++;
                     if (StringFormatter.coordinateFormat == 5)
                         StringFormatter.coordinateFormat = 0;
-                    mViews.coordinates.setText(StringFormatter.coordinates(" ", mAmenity.coordinates.getLatitude(), mAmenity.coordinates.getLongitude()));
+                    viewBinding.coordinates.setText(StringFormatter.coordinates(" ", amenity.coordinates.getLatitude(), amenity.coordinates.getLongitude()));
                     Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
                 }
             }
             return true;
         });
 
-        if (mAmenity.altitude != Integer.MIN_VALUE) {
-            mViews.elevation.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mAmenity.altitude)));
-            mViews.elevation.setVisibility(View.VISIBLE);
+        if (amenity.altitude != Integer.MIN_VALUE) {
+            viewBinding.elevation.setText(getString(R.string.place_altitude, StringFormatter.elevationH(amenity.altitude)));
+            viewBinding.elevation.setVisibility(View.VISIBLE);
         } else {
-            mViews.elevation.setVisibility(View.GONE);
+            viewBinding.elevation.setVisibility(View.GONE);
         }
-
-        mLatitude = latitude;
-        mLongitude = longitude;
     }
 
-    private void updatePeekHeight(ViewGroup rootView, boolean setState) {
-        View dragHandle = rootView.findViewById(R.id.dragHandle);
-        View nameView = rootView.findViewById(R.id.name);
-        View typeView = rootView.findViewById(R.id.type);
-        mBottomSheetBehavior.setPeekHeight(dragHandle.getHeight() * 2 + nameView.getHeight() + typeView.getHeight());
-        if (setState)
-            mBottomSheetBehavior.setState(mBottomSheetBehavior.getState());
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        updateAmenityInformation(location.getLatitude(), location.getLongitude());
-    }
-
-    public void setPreferredLanguage(String lang) {
-        mLang = MapTrekDatabaseHelper.getLanguageId(lang);
+    private void updatePeekHeight() {
+        int height = viewBinding.dragHandle.getHeight() * 2 + viewBinding.name.getHeight();
+        if (viewBinding.type.getVisibility() == View.VISIBLE)
+            height += viewBinding.type.getHeight();
+        mBottomSheetBehavior.setPeekHeight(height);
+        // Somehow setPeekHeight breaks state on first show
+        mBottomSheetBehavior.setState(panelState);
     }
 
     OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
@@ -412,6 +315,7 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
         @Override
         public void onStateChanged(@NonNull View bottomSheet, int newState) {
             if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                amenityViewModel.setAmenity(null);
                 mBottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
                 mFragmentHolder.disableActionButton();
                 CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) mFloatingButton.getLayoutParams();
@@ -420,9 +324,13 @@ public class AmenityInformation extends Fragment implements LocationChangeListen
                 mFloatingButton.setAlpha(1f);
                 mFragmentHolder.popCurrent();
             }
+            if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                panelState = newState;
+            }
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
-                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true);
+                panelState = newState;
+                TextView view = bottomSheet.findViewById(R.id.coordinates);
+                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, view, true);
             }
         }
 

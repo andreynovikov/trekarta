@@ -38,6 +38,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -80,12 +81,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import android.text.Html;
@@ -172,6 +172,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import mobi.maptrek.data.Amenity;
 import mobi.maptrek.data.MapObject;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
@@ -242,6 +243,7 @@ import mobi.maptrek.location.INavigationService;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapWorker;
+import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
 import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
@@ -264,6 +266,9 @@ import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
+import mobi.maptrek.viewmodels.AmenityViewModel;
+import mobi.maptrek.viewmodels.MapIndexViewModel;
+import mobi.maptrek.viewmodels.MapViewModel;
 
 public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
@@ -389,14 +394,20 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private LocationOverlay mLocationOverlay;
     private MapCoverageLayer mMapCoverageLayer;
     private MarkerItem mActiveMarker;
+    private MarkerItem marker;
+
 
     private FragmentManager mFragmentManager;
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
 
+    private AmenityViewModel amenityViewModel;
+    private MapIndexViewModel mapIndexViewModel;
+    private MapViewModel mapViewModel;
+
+    private SQLiteDatabase mDetailedMapDatabase;
     private MapIndex mMapIndex;
-    private Index mNativeMapIndex;
     private MapTrekTileSource mNativeTileSource;
     private List<MapFile> mBitmapLayerMaps;
     private WaypointDbDataSource mWaypointDbDataSource;
@@ -490,7 +501,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.registerFragmentLifecycleCallbacks(mFragmentLifecycleCallback, true);
 
-        mNativeMapIndex = application.getMapIndex();
         mMapIndex = application.getExtraMapIndex();
 
         mShieldFactory = application.getShieldFactory();
@@ -632,7 +642,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         layers.addGroup(MAP_BASE);
 
         try {
-            mNativeTileSource = new MapTrekTileSource(application.getDetailedMapDatabase());
+            mDetailedMapDatabase = application.getDetailedMapDatabase();
+            mNativeTileSource = new MapTrekTileSource(mDetailedMapDatabase);
             mNativeTileSource.setContoursEnabled(Configuration.getContoursEnabled());
             mBaseLayer = new MapTrekTileLayer(mMap, mNativeTileSource, this);
             mMap.setBaseMap(mBaseLayer); // will go to base group
@@ -688,6 +699,37 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
         layers.add(mMarkerLayer, MAP_3D_DATA);
+
+        mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
+
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        // Observe marker state
+        mapViewModel.getMarkerState().observe(this, markerState -> {
+            // There can be only one marker at a time
+            if (marker != null) {
+                mMarkerLayer.removeItem(marker);
+                marker.getMarker().getBitmap().recycle();
+                marker = null;
+            }
+            if (markerState.isShown()) {
+                marker = new MarkerItem(markerState.getName(), null, markerState.getCoordinates());
+                int drawable = markerState.isAmenity() ? R.drawable.circle_marker : R.drawable.round_marker;
+                Bitmap markerBitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
+                marker.setMarker(new MarkerSymbol(markerBitmap, MarkerItem.HotspotPlace.CENTER));
+                mMarkerLayer.addItem(marker);
+            }
+            mMap.updateMap(true);
+        });
+
+        amenityViewModel = new ViewModelProvider(this).get(AmenityViewModel.class);
+        // Observe amenity state
+        amenityViewModel.getAmenity().observe(this, amenity -> {
+            if (amenity != null) {
+                mapViewModel.showMarker(amenity.coordinates, amenity.name, true);
+            } else {
+                mapViewModel.removeMarker();
+            }
+        });
 
         // Load waypoints
         mWaypointDbDataSource = application.getWaypointDbDataSource();
@@ -979,8 +1021,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.replace(R.id.contentPanel, fragment, "crashReport");
             ft.addToBackStack("crashReport");
             ft.commit();
-        } else if (!mBaseMapWarningShown && mNativeMapIndex != null && mNativeMapIndex.getBaseMapVersion() == 0) {
-            BaseMapDownload dialogFragment = new BaseMapDownload(mNativeMapIndex);
+        } else if (!mBaseMapWarningShown && mapIndexViewModel.nativeIndex.getBaseMapVersion() == 0) {
+            BaseMapDownload dialogFragment = new BaseMapDownload();
             dialogFragment.show(mFragmentManager, "baseMapDownload");
             mBaseMapWarningShown = true;
         } else if (WhatsNewDialog.shouldShow()) {
@@ -1098,6 +1140,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mWaypointDbDataSource != null)
             mWaypointDbDataSource.close();
 
+        mDetailedMapDatabase = null;
         mProgressHandler = null;
 
         if (mBackgroundThread != null) {
@@ -1398,7 +1441,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         } else if (action == R.id.actionSettings) {
             Bundle args = new Bundle(1);
-            args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mNativeMapIndex.hasHillshades());
+            args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mapIndexViewModel.nativeIndex.hasHillshades());
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Settings.class.getName());
             fragment.setArguments(args);
@@ -1439,22 +1482,22 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
             return true;
         } else if (action == R.id.actionShareCoordinates) {
-            removeMarker();
+            mapViewModel.removeMarker();
             shareLocation(mSelectedPoint, null);
             return true;
         } else if (action == R.id.actionAddWaypointHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             String name = getString(R.string.place_name, Configuration.getPointsCounter());
             onWaypointCreate(mSelectedPoint, name, false, true);
             return true;
         } else if (action == R.id.actionNavigateHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             MapObject mapObject = new MapObject(mSelectedPoint.getLatitude(), mSelectedPoint.getLongitude());
             mapObject.name = getString(R.string.selectedLocation);
             startNavigation(mapObject);
             return true;
         } else if (action == R.id.actionFindRouteHere) {
-            removeMarker();
+            mapViewModel.removeMarker();
             Intent routeIntent = new Intent(Intent.ACTION_PICK, null, this, GraphHopperService.class);
             double[] points = new double[]{0.0, 0.0, 0.0, 0.0};
             if (mLocationState != LocationState.DISABLED && mLocationService != null) {
@@ -1470,12 +1513,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         } else if (action == R.id.actionRememberScale) {
             HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_REMEMBER_SCALE, R.string.advice_remember_scale, mViews.popupAnchor, true);
-            removeMarker();
+            mapViewModel.removeMarker();
             mMap.getMapPosition(mMapPosition);
             Configuration.setRememberedScale((float) mMapPosition.getScale());
             return true;
         } else if (action == R.id.actionRememberTilt) {
-            removeMarker();
+            mapViewModel.removeMarker();
             mMap.getMapPosition(mMapPosition);
             mAutoTilt = mMapPosition.getTilt();
             Configuration.setAutoTilt(mAutoTilt);
@@ -1558,6 +1601,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
 
+        mapViewModel.setLocation(location);
+
         // TODO: Fix lint error
         if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO)
             checkNightMode(location);
@@ -1581,6 +1626,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mLocationState = LocationState.SEARCHING;
                 mMap.getEventLayer().setFixOnCenter(false);
                 mLocationOverlay.setEnabled(false);
+                mapViewModel.setLocation(new Location("unknown"));
                 updateLocationDrawable();
             }
         }
@@ -1927,6 +1973,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             unbindService(mLocationConnection);
             mIsLocationBound = false;
             mLocationOverlay.setEnabled(false);
+            mapViewModel.setLocation(new Location("unknown"));
             mMap.updateMap(true);
         }
         mLocationState = LocationState.DISABLED;
@@ -1948,30 +1995,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         } else {
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, point, 2 << 14, false);
         }
-    }
-
-    private MarkerItem mMarker;
-
-    @Override
-    public void showMarker(@NonNull GeoPoint point, String name, boolean amenity) {
-        // There can be only one marker at a time
-        removeMarker();
-        mMarker = new MarkerItem(name, null, point);
-        int drawable = amenity ? R.drawable.circle_marker : R.drawable.round_marker;
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
-        mMarker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER));
-        mMarkerLayer.addItem(mMarker);
-        mMap.updateMap(true);
-    }
-
-    @Override
-    public void removeMarker() {
-        if (mMarker == null)
-            return;
-        mMarkerLayer.removeItem(mMarker);
-        mMap.updateMap(true);
-        mMarker.getMarker().getBitmap().recycle();
-        mMarker = null;
     }
 
     @Override
@@ -2086,7 +2109,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void enableTracking() {
         Intent intent = new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= 26)
             startForegroundService(intent);
         else
             startService(intent);
@@ -2278,7 +2301,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mViews.popupAnchor.setX(event.getX() + mFingerTipSize);
             mViews.popupAnchor.setY(event.getY() - mFingerTipSize);
             mSelectedPoint = mMap.viewport().fromScreenPoint(event.getX(), event.getY());
-            showMarker(mSelectedPoint, null, false);
+            mapViewModel.showMarker(mSelectedPoint, null, false);
             PopupMenu popup = new PopupMenu(this, mViews.popupAnchor);
             popup.inflate(R.menu.context_menu_map);
             Menu popupMenu = popup.getMenu();
@@ -2289,7 +2312,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (mLocationState != LocationState.TRACK || mAutoTilt == -1f || MathUtils.equals(mAutoTilt, mMapPosition.getTilt()))
                 popupMenu.removeItem(R.id.actionRememberTilt);
             popup.setOnMenuItemClickListener(this);
-            popup.setOnDismissListener(menu -> removeMarker());
+            popup.setOnDismissListener(menu -> mapViewModel.removeMarker());
             popup.show();
             return true;
         }
@@ -2563,13 +2586,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             popAll();
         }
-        Bundle args = new Bundle(3);
-        args.putDouble(MarkerInformation.ARG_LATITUDE, point.getLatitude());
-        args.putDouble(MarkerInformation.ARG_LONGITUDE, point.getLongitude());
-        args.putString(MarkerInformation.ARG_NAME, name);
+        mapViewModel.showMarker(point, name, false);
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         Fragment fragment = factory.instantiate(getClassLoader(), MarkerInformation.class.getName());
-        fragment.setArguments(args);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "markerInformation");
@@ -2625,6 +2644,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
+        mViews.popupAnchor.setX(0);
+        mViews.popupAnchor.setY(0);
         Bundle args = new Bundle(3);
         args.putBoolean(WaypointInformation.ARG_DETAILS, fromList);
         if (fromList || mLocationState != LocationState.DISABLED) {
@@ -3102,20 +3123,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onFeatureDetails(long id, boolean fromList) {
-        Bundle args = new Bundle(3);
-        //args.putBoolean(AmenityInformation.ARG_DETAILS, fromList);
+        // For some weird reason popupAnchor view limits height of bottom sheet
+        mViews.popupAnchor.setX(0);
+        mViews.popupAnchor.setY(0);
 
-        if (fromList || mLocationState != LocationState.DISABLED) {
-            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-                Location location = mLocationService.getLocation();
-                args.putDouble(AmenityInformation.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(AmenityInformation.ARG_LONGITUDE, location.getLongitude());
-            } else {
-                MapPosition position = mMap.getMapPosition();
-                args.putDouble(AmenityInformation.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(AmenityInformation.ARG_LONGITUDE, position.getLongitude());
-            }
-        }
+        int language = MapTrekDatabaseHelper.getLanguageId(Configuration.getLanguage());
+        Amenity amenity = MapTrekDatabaseHelper.getAmenityData(language, id, mDetailedMapDatabase);
+        amenityViewModel.setAmenity(amenity);
 
         Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
         if (fragment != null) {
@@ -3125,7 +3139,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (fragment == null) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             fragment = factory.instantiate(getClassLoader(), AmenityInformation.class.getName());
-            fragment.setArguments(args);
             Slide slide = new Slide(Gravity.BOTTOM);
             // Required to sync with FloatingActionButton
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
@@ -3135,8 +3148,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("amenityInformation");
             ft.commit();
         }
-        ((AmenityInformation) fragment).setPreferredLanguage(Configuration.getLanguage());
-        ((AmenityInformation) fragment).setAmenity(id);
         mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
         mViews.extendPanel.getForeground().setAlpha(0);
         ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
@@ -3184,7 +3195,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         MapSelection fragment = (MapSelection) factory.instantiate(getClassLoader(), MapSelection.class.getName());
-        fragment.setMapIndex(mNativeMapIndex);
         fragment.setEnterTransition(new Slide());
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         ft.replace(R.id.contentPanel, fragment, "mapSelection");
@@ -3276,7 +3286,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onBeginMapManagement() {
-        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mNativeMapIndex, MapTrek.density);
+        mMapCoverageLayer = new MapCoverageLayer(getApplicationContext(), mMap, mapIndexViewModel.nativeIndex, MapTrek.density);
         mMap.layers().add(mMapCoverageLayer, MAP_OVERLAYS);
         MapPosition mapPosition = mMap.getMapPosition();
         if (mapPosition.zoomLevel > 8) {
@@ -3287,21 +3297,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         int[] xy = (int[]) mViews.mapDownloadButton.getTag(R.id.mapKey);
         if (xy != null)
-            mNativeMapIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
+            mapIndexViewModel.nativeIndex.selectNativeMap(xy[0], xy[1], Index.ACTION.DOWNLOAD);
     }
 
     @Override
     public void onFinishMapManagement() {
         mMap.layers().remove(mMapCoverageLayer);
         mMapCoverageLayer.onDetach();
-        mNativeMapIndex.clearSelections();
+        mapIndexViewModel.nativeIndex.clearSelections();
         mMapCoverageLayer = null;
         mMap.updateMap(true);
-    }
-
-    @Override
-    public void onManageNativeMaps(boolean hillshadesEnabled) {
-        mNativeMapIndex.manageNativeMaps(hillshadesEnabled);
     }
 
     private void deleteWaypoints(@NonNull Set<Waypoint> waypoints) {
@@ -3888,8 +3893,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 if (tileData != null) {
                     int mapX = tile.tileX >> (tile.zoomLevel - 7);
                     int mapY = tile.tileY >> (tile.zoomLevel - 7);
-                    if (!mNativeMapIndex.isDownloading(mapX, mapY) && // Do not show button if this map is already downloading
-                            !(mNativeMapIndex.hasDownloadSizes() && mNativeMapIndex.getNativeMap(mapX, mapY).downloadSize == 0L)) { // Do not show button if there is no map for that area
+                    if (!mapIndexViewModel.nativeIndex.isDownloading(mapX, mapY) && // Do not show button if this map is already downloading
+                            !(mapIndexViewModel.nativeIndex.hasDownloadSizes()
+                                    && mapIndexViewModel.nativeIndex.getNativeMap(mapX, mapY).downloadSize == 0L)) { // Do not show button if there is no map for that area
                         visibility = View.VISIBLE;
                         map = new int[]{mapX, mapY};
                     }
@@ -4139,7 +4145,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     mProgressHandler.onProgressStarted(100);
                 WorkManager.getInstance(getApplicationContext())
                         .getWorkInfoByIdLiveData(id)
-                        .observe(MainActivity.this, (Observer<WorkInfo>) workInfo -> {
+                        .observe(MainActivity.this, workInfo -> {
                             if (workInfo != null) {
                                 Data progress = workInfo.getProgress();
                                 int value = progress.getInt(MapWorker.PROGRESS, 0);
@@ -4754,7 +4760,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 Configuration.getTrackingTime() + "," +
                 mWaypointDbDataSource.getWaypointsCount() + "," +
                 mData.size() + "," +
-                mNativeMapIndex.getMapsCount() + "," +
+                mapIndexViewModel.nativeIndex.getMapsCount() + "," +
                 mMapIndex.getMaps().size() + "," +
                 Configuration.getFullScreenTimes() + "," +
                 Configuration.getHikingTimes() + "," +

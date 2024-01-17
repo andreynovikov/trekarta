@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,17 +14,20 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.viewmodels;
 
-import mobi.maptrek.maps.MapFile;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
-public interface OnMapActionListener {
-    void onMapSelected(MapFile map);
-    void onExtraMapSelected(MapFile map);
-    void onMapShare(MapFile map);
-    void onMapDelete(MapFile map);
-    void onHideMapObjects(boolean hide);
-    void onTransparencyChanged(int transparency);
-    void onBeginMapManagement();
-    void onFinishMapManagement();
+import mobi.maptrek.data.Amenity;
+
+public class AmenityViewModel extends ViewModel {
+    private final MutableLiveData<Amenity> amenity = new MutableLiveData<>(null);
+    public LiveData<Amenity> getAmenity() {
+        return amenity;
+    }
+    public void setAmenity(Amenity amenity) {
+        this.amenity.setValue(amenity);
+    }
 }

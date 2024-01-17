@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -21,11 +21,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.oscim.android.canvas.AndroidBitmap;
 import org.oscim.backend.canvas.Bitmap;
@@ -40,6 +40,7 @@ import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
+import mobi.maptrek.databinding.FragmentRulerBinding;
 import mobi.maptrek.layers.RouteLayer;
 import mobi.maptrek.layers.marker.ItemizedLayer;
 import mobi.maptrek.layers.marker.MarkerItem;
@@ -50,83 +51,75 @@ import mobi.maptrek.util.StringFormatter;
 public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListener<MarkerItem> {
     private MapHolder mMapHolder;
 
-    private View mMeasurementsView;
-    private TextView mDistanceView;
-    private TextView mSizeView;
-
     private MapPosition mMapPosition;
     private RouteLayer mRouteLayer;
     private ItemizedLayer<MarkerItem> mPointLayer;
-    private Stack<GeoPoint> mPointHistory;
-    private Route mRoute;
+    private RulerViewModel viewModel;
+    private FragmentRulerBinding viewBinding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-        mRoute = new Route();
         mMapPosition = new MapPosition();
-        mPointHistory = new Stack<>();
+        viewModel = new ViewModelProvider(this).get(RulerViewModel.class);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_ruler, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = FragmentRulerBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
+    }
 
-        mMeasurementsView = rootView.findViewById(R.id.measurements);
-        mDistanceView = rootView.findViewById(R.id.distance);
-        mSizeView = rootView.findViewById(R.id.size);
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        ImageButton addButton = rootView.findViewById(R.id.addButton);
-        addButton.setOnClickListener(v -> {
+        viewBinding.addButton.setOnClickListener(v -> {
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
                 GeoPoint point = mMapPosition.getGeoPoint();
-                mRoute.addInstruction(point);
+                viewModel.route.addInstruction(point);
                 MarkerItem marker = new MarkerItem(point, null, null, point);
                 mPointLayer.addItem(marker);
-                mPointHistory.push(point);
+                viewModel.pointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
             }
         });
 
-        ImageButton insertButton = rootView.findViewById(R.id.insertButton);
-        insertButton.setOnClickListener(v -> {
+        viewBinding.insertButton.setOnClickListener(v -> {
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
                 GeoPoint point = mMapPosition.getGeoPoint();
-                mRoute.insertInstruction(point);
+                viewModel.route.insertInstruction(point);
                 MarkerItem marker = new MarkerItem(point, null, null, point);
                 mPointLayer.addItem(marker);
-                mPointHistory.push(point);
+                viewModel.pointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
             }
         });
 
-        ImageButton removeButton = rootView.findViewById(R.id.removeButton);
-        removeButton.setOnClickListener(v -> {
-            if (mRoute.length() > 0) {
+        viewBinding.removeButton.setOnClickListener(v -> {
+            if (viewModel.route.length() > 0) {
                 mMapHolder.getMap().getMapPosition(mMapPosition);
-                Route.Instruction instruction = mRoute.getNearestInstruction(mMapPosition.getGeoPoint());
-                mRoute.removeInstruction(instruction);
+                Route.Instruction instruction = viewModel.route.getNearestInstruction(mMapPosition.getGeoPoint());
+                viewModel.route.removeInstruction(instruction);
                 MarkerItem marker = mPointLayer.getByUid(instruction);
                 mPointLayer.removeItem(marker);
-                mPointHistory.remove(instruction);
+                viewModel.pointHistory.remove(instruction);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
                 updateTrackMeasurements();
             }
         });
 
-        ImageButton undoButton = rootView.findViewById(R.id.undoButton);
-        undoButton.setOnClickListener(v -> {
-            if (!mPointHistory.isEmpty()) {
-                GeoPoint point = mPointHistory.pop();
-                Route.Instruction instruction = mRoute.getNearestInstruction(point);
+        viewBinding.undoButton.setOnClickListener(v -> {
+            if (!viewModel.pointHistory.isEmpty()) {
+                GeoPoint point = viewModel.pointHistory.pop();
+                Route.Instruction instruction = viewModel.route.getNearestInstruction(point);
                 if (instruction == null) {
-                    mPointHistory.clear();
+                    viewModel.pointHistory.clear();
                     return;
                 }
-                mRoute.removeInstruction(instruction);
+                viewModel.route.removeInstruction(instruction);
                 MarkerItem marker = mPointLayer.getByUid(instruction);
                 mPointLayer.removeItem(marker);
                 mMapHolder.getMap().updateMap(true);
@@ -134,8 +127,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                 updateTrackMeasurements();
             }
         });
-
-        return rootView;
     }
 
     @Override
@@ -151,12 +142,12 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     @Override
     public void onStart() {
         super.onStart();
-        mRouteLayer = new RouteLayer(mMapHolder.getMap(), Color.RED, 5, mRoute);
+        mRouteLayer = new RouteLayer(mMapHolder.getMap(), Color.RED, 5, viewModel.route);
         mMapHolder.getMap().layers().add(mRouteLayer);
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(requireContext(), R.drawable.dot_black, Color.RED));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
-        ArrayList<MarkerItem> items = new ArrayList<>(mRoute.length());
-        for (GeoPoint point : mRoute.getCoordinates()) {
+        ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.length());
+        for (GeoPoint point : viewModel.route.getCoordinates()) {
             items.add(new MarkerItem(point, null, null, point));
         }
         mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, this);
@@ -198,14 +189,12 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     public void onDestroy() {
         super.onDestroy();
         mMapPosition = null;
-        mPointHistory = null;
-        mRoute = null;
     }
 
     private void updateTrackMeasurements() {
-        int length = Math.max(mRoute.length() - 1, 0);
-        mDistanceView.setText(StringFormatter.distanceHP(mRoute.distance));
-        mSizeView.setText(getResources().getQuantityString(R.plurals.numberOfSegments, length, length));
+        int length = Math.max(viewModel.route.length() - 1, 0);
+        viewBinding.distance.setText(StringFormatter.distanceHP(viewModel.route.distance));
+        viewBinding.size.setText(getResources().getQuantityString(R.plurals.numberOfSegments, length, length));
     }
 
     @Override
@@ -216,5 +205,10 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     @Override
     public boolean onItemLongPress(int index, MarkerItem item) {
         return false;
+    }
+
+    public static class RulerViewModel extends ViewModel {
+        private final Route route = new Route();
+        private final Stack<GeoPoint> pointHistory = new Stack<>();
     }
 }

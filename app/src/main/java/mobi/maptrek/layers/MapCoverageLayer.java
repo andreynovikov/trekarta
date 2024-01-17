@@ -93,7 +93,7 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     private final Bitmap mHillshadesBitmap;
     private final Bitmap mPresentHillshadesBitmap;
     private final java.text.DateFormat mDateFormat;
-    private Context mContext;
+    private final Context mContext;
 
     public MapCoverageLayer(Context context, Map map, Index mapIndex, float scale) {
         super(map);
@@ -340,6 +340,10 @@ public class MapCoverageLayer extends AbstractVectorLayer<MapFile> implements Ge
     @Override
     public void onHasDownloadSizes() {
         update();
+    }
+
+    @Override
+    public void onBaseMapChanged() {
     }
 
     @Override
