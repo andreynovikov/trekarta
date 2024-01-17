@@ -25,6 +25,10 @@ import android.graphics.drawable.Drawable;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -33,6 +37,7 @@ import java.util.List;
 import mobi.maptrek.util.ContextUtils;
 
 public final class PluginRepository {
+    private static final Logger logger = LoggerFactory.getLogger(PluginRepository.class);
 
     private final Context mContext;
 
@@ -66,6 +71,7 @@ public final class PluginRepository {
         // enumerate plugins with preferences
         plugins = packageManager.queryIntentActivities(new Intent("mobi.maptrek.plugins.preferences"), 0);
         for (ResolveInfo plugin : plugins) {
+            logger.debug("Plugin preferences: {}.{}", plugin.activityInfo.packageName, plugin.activityInfo.name);
             Intent intent = new Intent();
             intent.setClassName(plugin.activityInfo.packageName, plugin.activityInfo.name);
             mPluginPreferences.put(plugin.activityInfo.loadLabel(packageManager).toString(), intent);
@@ -74,15 +80,16 @@ public final class PluginRepository {
         // enumerate plugins with views
         plugins = packageManager.queryIntentActivities(new Intent("mobi.maptrek.plugins.tool"), 0);
         for (ResolveInfo plugin : plugins) {
+            logger.debug("Plugin views: {}.{}", plugin.activityInfo.packageName, plugin.activityInfo.name);
             // get menu icon
             Drawable icon = null;
             try {
                 Resources resources = packageManager.getResourcesForApplication(plugin.activityInfo.applicationInfo);
                 int id = resources.getIdentifier("ic_menu_tool", "drawable", plugin.activityInfo.packageName);
                 if (id != 0)
-                    icon = resources.getDrawable(id, mContext.getTheme());
+                    icon = ResourcesCompat.getDrawable(resources, id, mContext.getTheme());
             } catch (Resources.NotFoundException | PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                logger.error("Failed to get plugin resources", e);
             }
 
             Intent intent = new Intent();
