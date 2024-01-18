@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path name="files-data" path="data/" />
+    <external-files-path name="files-maps" path="maps/" />
+    <external-cache-path name="cache-export" path="export/" />
+</paths>
