@@ -33,9 +33,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.text.TextUtilsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
@@ -56,7 +58,16 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.github.DetectHtml;
+import org.nibor.autolink.LinkExtractor;
+import org.nibor.autolink.LinkSpan;
+import org.nibor.autolink.LinkType;
+import org.nibor.autolink.Span;
 import org.oscim.core.GeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
@@ -73,6 +84,8 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
 
 public class WaypointInformation extends Fragment implements LocationChangeListener {
+    private static final Logger logger = LoggerFactory.getLogger(WaypointInformation.class);
+
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
@@ -463,38 +476,73 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
 
     // WebView is very heavy to initialize. That's why it is used only on demand.
     private void setDescription(View rootView) {
-        View description = rootView.findViewById(R.id.description);
-        // TODO Use better approach (http://stackoverflow.com/a/22581832/488489)
-        if (description instanceof LimitedWebView) {
-            setWebViewText((LimitedWebView) description);
-        } else if (mWaypoint.description != null && mWaypoint.description.contains("<") && mWaypoint.description.contains(">")) {
-            // Replace TextView with WebView
-            ViewGroup parent = (ViewGroup) description.getParent();
-            int index = parent.indexOfChild(description);
-            parent.removeView(description);
-            LimitedWebView webView = new LimitedWebView(getContext());
-            webView.setId(R.id.description);
-            int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-            webView.setMaxHeight(px);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            webView.setLayoutParams(params);
-            parent.addView(webView, index);
-            setWebViewText(webView);
+        String text = mWaypoint.description;
+        boolean hasHTML = false;
+        if (DetectHtml.isHtml(mWaypoint.description)) {
+            hasHTML = true;
         } else {
-            ((TextView) description).setText(mWaypoint.description);
+            StringBuilder sb = extractLinks(mWaypoint.description);
+            if (sb.length() > 0) { // links found
+                text = sb.toString();
+                hasHTML = true;
+            }
+        }
+        View description = rootView.findViewById(R.id.description);
+        if (description instanceof LimitedWebView) {
+            setWebViewText((LimitedWebView) description, text);
+        } else if (hasHTML) {
+            // Replace TextView with WebView
+            convertToWebView(description, text);
+        } else {
+            ((TextView) description).setText(text);
             ((TextView) description).setMovementMethod(new ScrollingMovementMethod());
         }
     }
 
-    private void setWebViewText(LimitedWebView webView) {
+    private StringBuilder extractLinks(String input) {
+        LinkExtractor linkExtractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL, LinkType.WWW)).build();
+        Iterable<Span> spans = linkExtractor.extractSpans(input);
+
+        StringBuilder sb = new StringBuilder();
+        for (Span span : spans) {
+            String text = input.substring(span.getBeginIndex(), span.getEndIndex());
+            if (span instanceof LinkSpan) {
+                sb.append("<a href=\"");
+                sb.append(TextUtilsCompat.htmlEncode(text));
+                sb.append("\">");
+                sb.append(TextUtilsCompat.htmlEncode(text));
+                sb.append("</a>");
+            } else {
+                sb.append(TextUtilsCompat.htmlEncode(text));
+            }
+        }
+        return sb;
+    }
+
+    private void convertToWebView(View description, String text) {
+        ViewGroup parent = (ViewGroup) description.getParent();
+        int index = parent.indexOfChild(description);
+        parent.removeView(description);
+        LimitedWebView webView = new LimitedWebView(getContext());
+        webView.setId(R.id.description);
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+        webView.setMaxHeight(px);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        webView.setLayoutParams(params);
+        parent.addView(webView, index);
+        setWebViewText(webView, text);
+    }
+
+    private void setWebViewText(LimitedWebView webView, String text) {
+        logger.debug("[[[[{}]]]]", text);
         String css = "<style type=\"text/css\">html,body{margin:0}</style>\n";
-        String descriptionHtml = css + mWaypoint.description;
+        String descriptionHtml = css + text;
         webView.setBackgroundColor(Color.TRANSPARENT);
         webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // flicker workaround
         WebSettings settings = webView.getSettings();
         settings.setDefaultTextEncodingName("utf-8");
         settings.setAllowFileAccess(true);
-        Uri baseUrl = Uri.fromFile(getContext().getExternalFilesDir("data"));
+        Uri baseUrl = Uri.fromFile(requireContext().getExternalFilesDir("data"));
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
