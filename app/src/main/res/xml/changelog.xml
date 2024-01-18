@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2024.01" versioncode="89" date="18.01.2024">
+        <change>Revised file export</change>
+        <change>Revived location sharing plugin</change>
+        <change>New API for plugins</change>
+        <change>Added track elevation statistics</change>
+        <change>Added link detection in place description</change>
+        <change>Refreshed UI icons</change>
+        <change>Fixed coordinates search</change>
+    </release>
     <release version="2023.12" versioncode="88" date="27.12.2023">
         <change>Added route reverse navigation</change>
         <change>Added route sharing</change>

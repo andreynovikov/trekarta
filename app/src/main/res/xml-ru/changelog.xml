@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2024.01" versioncode="89" date="18.01.2024">
+        <change>Пересмотрен экспорт файлов</change>
+        <change>Возрождён плагин обмена положением</change>
+        <change>Новый API для плагинов</change>
+        <change>Добавлна статистика изменения высоты трека</change>
+        <change>Добавлено обнаружение ссылок в описании точки</change>
+        <change>Обновлён интерфейс</change>
+        <change>Исправлен поиск координат</change>
+    </release>
     <release version="2023.12" versioncode="88" date="27.12.2023">
         <change>Добавлена поддержка навигации по маршруту в обратную сторону</change>
         <change>Добавлена возможность поделиться маршрутом</change>
