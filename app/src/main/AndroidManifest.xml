@@ -30,17 +30,18 @@
     <permission
         android:name="mobi.maptrek.permission.RECEIVE_LOCATION"
         android:description="@string/permReceiveLocationDescription"
-        android:label="@string/permReceiveLocationLabel" />
+        android:label="@string/permReceiveLocationLabel"
+        android:protectionLevel="normal" />
     <permission
         android:name="mobi.maptrek.permission.READ_MAP_DATA"
         android:description="@string/permReadMapDataDescription"
         android:label="@string/permReadMapDataLabel"
-        android:protectionLevel="signature" />
+        android:protectionLevel="normal" />
     <permission
         android:name="mobi.maptrek.permission.WRITE_MAP_DATA"
         android:description="@string/permWriteMapDataDescription"
         android:label="@string/permWriteMapDataLabel"
-        android:protectionLevel="signature" />
+        android:protectionLevel="normal" />
     <permission
         android:name="mobi.maptrek.permission.ADD_PLUGIN_ENTRIES"
         android:description="@string/permAddPluginEntriesDescription"
@@ -204,10 +205,11 @@
         <provider
             android:name=".provider.ExportProvider"
             android:authorities="mobi.maptrek.files"
-            android:exported="true"
-            android:grantUriPermissions="true"
-            android:readPermission="mobi.maptrek.permission.READ_FILES"
-            android:writePermission="mobi.maptrek.permission.WRITE_FILES">
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/export_file_paths" />
         </provider>
         <provider
             android:name=".provider.DataProvider"
