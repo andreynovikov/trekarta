@@ -162,11 +162,11 @@ public final class PluginTileSourceFactory {
         int id = resources.getIdentifier("authority", "string", provider.activityInfo.packageName);
 
         if (id == 0) {
-            throw new PluginTileSourceContractViolatedException("Cannot find ContentProvider's authority.");
+            throw new PluginTileSourceContractViolatedException("Cannot find ContentProvider's authority for " + provider.activityInfo.packageName);
         } else try {
             authority = resources.getString(id);
         } catch (Resources.NotFoundException e) {
-            throw new IllegalStateException("Identifier no longer valid.", e);
+            throw new IllegalStateException("Identifier no longer valid", e);
         }
         return authority;
     }
