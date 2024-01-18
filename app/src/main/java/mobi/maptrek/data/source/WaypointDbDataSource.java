@@ -188,6 +188,11 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     }
 
     @Override
+    public int getFormat() {
+        return FORMAT_NONE;
+    }
+
+    @Override
     public boolean isNativeTrack() {
         return false;
     }

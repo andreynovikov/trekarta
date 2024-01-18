@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
@@ -35,8 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 import at.grabner.circleprogress.CircleProgressView;
 import mobi.maptrek.R;
@@ -58,26 +55,15 @@ import mobi.maptrek.util.ProgressListener;
 public class DataExport extends DialogFragment implements ProgressListener {
     private static final Logger logger = LoggerFactory.getLogger(DataExport.class);
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FORMAT_NATIVE, FORMAT_GPX, FORMAT_KML})
-    public @interface ExportFormat {
-    }
-
-    /**
-     * Native format is used only for single track sharing
-     */
-    public static final int FORMAT_NATIVE = 0;
-    public static final int FORMAT_GPX = 1;
-    public static final int FORMAT_KML = 2;
-
     private CircleProgressView mProgressView;
 
     private DataSource mDataSource;
     private Track mTrack;
     private Route mRoute;
-    @ExportFormat
+    @FileDataSource.Format
     private int mFormat;
     private boolean mCanceled;
+    private File exportFile;
 
     @Override
     public void dismiss() {
@@ -97,6 +83,27 @@ public class DataExport extends DialogFragment implements ProgressListener {
         mCanceled = false;
         Activity activity = requireActivity();
 
+        boolean nativeFile = mFormat == FileDataSource.FORMAT_NATIVE;
+        boolean sameFormat = false;
+        if (mTrack != null) {
+            nativeFile = nativeFile && mTrack.source != null && mTrack.source.isNativeTrack();
+        } else if (mRoute != null) {
+            nativeFile = false;
+        } else {
+            nativeFile = nativeFile && mDataSource.isNativeTrack();
+            sameFormat = mDataSource.getFormat() == mFormat;
+        }
+        if (nativeFile || sameFormat) { // no need to export data, send file directly
+            if (mTrack != null) {
+                exportFile = new File(((FileDataSource) mTrack.source).path);
+            } else {
+                exportFile = new File(((FileDataSource) mDataSource).path);
+            }
+            setShowsDialog(false);
+            sendContent();
+            return new Dialog(activity); // empty dialog is required to prevent NPE
+        }
+
         @SuppressLint("InflateParams")
         View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_progress, null);
         mProgressView = dialogView.findViewById(R.id.progress);
@@ -110,9 +117,36 @@ public class DataExport extends DialogFragment implements ProgressListener {
         return dialogBuilder.create();
     }
 
+    private void sendContent() {
+        String mime;
+        switch (mFormat) {
+            case FileDataSource.FORMAT_GPX:
+                mime = "text/xml";
+                break;
+            case FileDataSource.FORMAT_KML:
+                mime = "application/vnd.google-earth.kml+xml";
+                break;
+            case FileDataSource.FORMAT_NATIVE:
+            default:
+                mime = "application/octet-stream";
+        }
+        @StringRes int titleId =
+                mTrack != null ? R.string.share_track_intent_title :
+                mRoute != null ? R.string.share_route_intent_title : R.string.share_data_intent_title;
+        Uri contentUri = ExportProvider.getUriForFile(requireContext(), exportFile);
+        logger.info("Sharing {} as {}", exportFile.getAbsolutePath(), contentUri);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+        shareIntent.setType(mime);
+        startActivity(Intent.createChooser(shareIntent, getString(titleId)));
+        dismiss();
+    }
+
     @Override
     public void onProgressStarted(int length) {
         mProgressView.setMaxValue(length);
+        mProgressView.setValue(0f);
         mProgressView.setSeekModeEnabled(false);
     }
 
@@ -143,112 +177,77 @@ public class DataExport extends DialogFragment implements ProgressListener {
         @Override
         public void run() {
             Activity activity = requireActivity();
-            File exportFile;
-            String mime = null;
-            boolean nativeFile = mFormat == FORMAT_NATIVE;
+            FileDataSource exportSource = new FileDataSource();
             if (mTrack != null) {
-                nativeFile = nativeFile && mTrack.source != null && mTrack.source.isNativeTrack();
+                exportSource.tracks.add(mTrack);
             } else if (mRoute != null) {
-                nativeFile = false;
+                exportSource.routes.add(mRoute);
             } else {
-                nativeFile = nativeFile && mDataSource.isNativeTrack();
+                if (mDataSource instanceof WaypointDataSource)
+                    exportSource.waypoints.addAll(((WaypointDataSource) mDataSource).getWaypoints());
+                if (mDataSource instanceof TrackDataSource)
+                    exportSource.tracks.addAll(((TrackDataSource) mDataSource).getTracks());
+                if (mDataSource instanceof RouteDataSource)
+                    exportSource.routes.addAll(((RouteDataSource) mDataSource).getRoutes());
             }
-            if (nativeFile) {
-                if (mTrack != null) {
-                    exportFile = new File(((FileDataSource) mTrack.source).path);
-                } else {
-                    exportFile = new File(((FileDataSource) mDataSource).path);
-                }
-                mime = "application/octet-stream";
-                onProgressStarted(100);
-                onProgressChanged(100);
-                onProgressFinished();
+            File cacheDir = activity.getExternalCacheDir();
+            File exportDir = new File(cacheDir, "export");
+            if (!exportDir.exists() && !exportDir.mkdir()) {
+                logger.error("Failed to create export dir: {}", exportDir);
+                dismiss();
+                return;
+            }
+            String extension = null;
+            switch (mFormat) {
+                case FileDataSource.FORMAT_NATIVE:
+                    extension = TrackManager.EXTENSION;
+                    break;
+                case FileDataSource.FORMAT_GPX:
+                    extension = GPXManager.EXTENSION;
+                    break;
+                case FileDataSource.FORMAT_KML:
+                    extension = KMLManager.EXTENSION;
+                    break;
+            }
+            //TODO Notify user on this and other errors
+            if (extension == null) {
+                logger.error("Failed to determine extension for format: {}", mFormat);
+                dismiss();
+                return;
+            }
+            String name;
+            if (mTrack != null) {
+                name = mTrack.name;
+            } else if (mRoute != null) {
+                name = mRoute.name;
             } else {
-                FileDataSource exportSource = new FileDataSource();
-                if (mTrack != null) {
-                    exportSource.tracks.add(mTrack);
-                } else if (mRoute != null) {
-                    exportSource.routes.add(mRoute);
-                } else {
-                    if (mDataSource instanceof WaypointDataSource)
-                        exportSource.waypoints.addAll(((WaypointDataSource) mDataSource).getWaypoints());
-                    if (mDataSource instanceof TrackDataSource)
-                        exportSource.tracks.addAll(((TrackDataSource) mDataSource).getTracks());
-                    if (mDataSource instanceof RouteDataSource)
-                        exportSource.routes.addAll(((RouteDataSource) mDataSource).getRoutes());
-                }
-                File cacheDir = activity.getExternalCacheDir();
-                File exportDir = new File(cacheDir, "export");
-                if (!exportDir.exists() && !exportDir.mkdir()) {
-                    logger.error("Failed to create export dir: {}", exportDir);
-                    dismiss();
-                    return;
-                }
-                String extension = null;
-                switch (mFormat) {
-                    case FORMAT_NATIVE:
-                        extension = TrackManager.EXTENSION;
-                        mime = "application/octet-stream";
-                        break;
-                    case FORMAT_GPX:
-                        extension = GPXManager.EXTENSION;
-                        mime = "text/xml";
-                        break;
-                    case FORMAT_KML:
-                        extension = KMLManager.EXTENSION;
-                        mime = "application/vnd.google-earth.kml+xml";
-                        break;
-                }
-                //TODO Notify user on this and other errors
-                if (extension == null) {
-                    logger.error("Failed to determine extension for format: {}", mFormat);
-                    dismiss();
-                    return;
-                }
-                String name;
-                if (mTrack != null) {
-                    name = mTrack.name;
-                } else if (mRoute != null) {
-                    name = mRoute.name;
-                } else {
-                    name = mDataSource.name;
-                }
-                exportFile = new File(exportDir, FileUtils.sanitizeFilename(name) + extension);
-                if (exportFile.exists() && !exportFile.delete())
-                    logger.error("Failed to remove old file");
-                exportSource.name = name;
-                exportSource.path = exportFile.getAbsolutePath();
-                Manager manager = Manager.getDataManager(exportSource.path);
-                if (manager == null) {
-                    logger.error("Failed to get data manager for path: {}", exportSource.path);
-                    dismiss();
-                    return;
-                }
-                try {
-                    manager.saveData(new FileOutputStream(exportFile, false), exportSource, DataExport.this);
-                } catch (Exception e) {
-                    logger.error("Data save error", e);
-                    dismiss();
-                    return;
-                }
+                name = mDataSource.name;
+            }
+            exportFile = new File(exportDir, FileUtils.sanitizeFilename(name) + extension);
+            if (exportFile.exists() && !exportFile.delete())
+                logger.error("Failed to remove old file");
+            exportSource.name = name;
+            exportSource.path = exportFile.getAbsolutePath();
+            Manager manager = Manager.getDataManager(exportSource.path);
+            if (manager == null) {
+                logger.error("Failed to get data manager for path: {}", exportSource.path);
+                dismiss();
+                return;
+            }
+            try {
+                manager.saveData(new FileOutputStream(exportFile, false), exportSource, DataExport.this);
+            } catch (Exception e) {
+                logger.error("Data save error", e);
+                dismiss();
+                return;
             }
             if (mCanceled) {
                 logger.info("User canceled export");
-                if (!nativeFile && exportFile.exists())
+                if (exportFile.exists())
                     //noinspection ResultOfMethodCallIgnored
                     exportFile.delete();
-                return;
             }
-            @StringRes int titleId = mTrack != null ? R.string.share_track_intent_title :
-                    mRoute != null ? R.string.share_route_intent_title : R.string.share_data_intent_title;
-            Uri contentUri = ExportProvider.getUriForFile(activity, exportFile);
-            logger.info("Sharing {} as {}", exportFile.getAbsolutePath(), contentUri);
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            shareIntent.setType(mime);
-            startActivity(Intent.createChooser(shareIntent, getString(titleId)));
-            dismiss();
+            sendContent();
         }
     }
 
@@ -256,7 +255,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
         private DataSource mDataSource;
         private Track mTrack;
         private Route mRoute;
-        @ExportFormat
+        @FileDataSource.Format
         private int mFormat;
 
         public Builder setDataSource(@NonNull DataSource dataSource) {
@@ -274,7 +273,7 @@ public class DataExport extends DialogFragment implements ProgressListener {
             return this;
         }
 
-        public Builder setFormat(@ExportFormat int format) {
+        public Builder setFormat(@FileDataSource.Format int format) {
             mFormat = format;
             return this;
         }

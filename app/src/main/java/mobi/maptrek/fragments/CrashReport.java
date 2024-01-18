@@ -57,7 +57,7 @@ public class CrashReport extends Fragment {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"novikov+maptrek@gmail.com"});
             File file = MapTrek.getApplication().getExceptionLog();
-            intent.putExtra(Intent.EXTRA_STREAM, ExportProvider.getUriForFile(getContext(), file));
+            intent.putExtra(Intent.EXTRA_STREAM, ExportProvider.getUriForFile(requireContext(), file));
             intent.setType("vnd.android.cursor.dir/email");
             intent.putExtra(Intent.EXTRA_SUBJECT, "MapTrek crash report");
             StringBuilder text = new StringBuilder();

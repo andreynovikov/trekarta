@@ -2887,7 +2887,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         builder.setSingleChoiceItems(R.array.track_format_array, selected.get(), (dialog, which) -> selected.set(which));
         builder.setPositiveButton(R.string.actionContinue, (dialog, which) -> {
             DataExport.Builder builder12 = new DataExport.Builder();
-            @DataExport.ExportFormat int format = selected.get();
+            @FileDataSource.Format int format = selected.get();
             DataExport dataExport = builder12.setTrack(track).setFormat(format).create();
             dataExport.show(mFragmentManager, "trackExport");
         });
@@ -3083,7 +3083,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         final AtomicInteger selected = new AtomicInteger(0);
         final DialogInterface.OnClickListener exportAction = (dialog, which) -> {
             DataExport.Builder builder = new DataExport.Builder();
-            @DataExport.ExportFormat int format = selected.get() + 1;
+            @FileDataSource.Format int format = selected.get() + 1;
             DataExport dataExport = builder.setRoute(route).setFormat(format).create();
             dataExport.show(mFragmentManager, "dataExport");
         };
@@ -4445,7 +4445,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (askName)
                 dataSource.name = inputView.getText().toString();
             DataExport.Builder builder = new DataExport.Builder();
-            @DataExport.ExportFormat int format = dataSource.isNativeTrack() ? selected.get() : selected.get() + 1;
+            @FileDataSource.Format int format = dataSource.isNativeTrack() ? selected.get() : selected.get() + 1;
             DataExport dataExport = builder.setDataSource(dataSource).setFormat(format).create();
             dataExport.show(mFragmentManager, "dataExport");
         };

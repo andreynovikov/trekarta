@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -37,6 +37,8 @@ public abstract class DataSource {
     public static final int TYPE_TRACK = 1;
     public static final int TYPE_ROUTE = 2;
 
+    public static final int FORMAT_NONE = -1;
+
     public String name;
     int mLatitudeE6 = 0;
     int mLongitudeE6 = 0;
@@ -57,6 +59,13 @@ public abstract class DataSource {
             mLongitudeE6 = 0;
         }
     }
+
+    /**
+     * Returns file format if source is associated with file.
+     *
+     * @return <code>@FileDataSource.Format</code> or <code>-1</code> if source is not associated with file.
+     */
+    public abstract int getFormat();
 
     /**
      * Returns whether the source contains only one track and nothing more.

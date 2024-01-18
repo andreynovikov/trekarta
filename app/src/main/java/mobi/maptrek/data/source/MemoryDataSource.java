@@ -36,6 +36,11 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
     public List<Route> routes = new ArrayList<>();
 
     @Override
+    public int getFormat() {
+        return DataSource.FORMAT_NONE;
+    }
+
+    @Override
     public boolean isNativeTrack() {
         return false;
     }
