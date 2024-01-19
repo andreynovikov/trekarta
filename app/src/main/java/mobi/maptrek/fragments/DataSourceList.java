@@ -164,7 +164,7 @@ public class DataSourceList extends ListFragment {
         private final int mDisabledColor;
 
         DataSourceListAdapter(Context context) {
-            mAccentColor = context.getColor(R.color.colorAccentLight);
+            mAccentColor = context.getColor(R.color.colorAccent);
             mDisabledColor = context.getColor(R.color.colorPrimary);
         }
 

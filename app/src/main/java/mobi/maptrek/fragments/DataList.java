@@ -375,7 +375,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
 
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
-            mAccentColor = getResources().getColor(R.color.colorAccentLight, context.getTheme());
+            mAccentColor = getResources().getColor(R.color.colorAccent, context.getTheme());
             mCellStates = cursor == null ? null : new int[cursor.getCount()];
         }
 
