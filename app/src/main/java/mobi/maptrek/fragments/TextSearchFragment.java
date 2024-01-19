@@ -283,13 +283,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     @Override
     public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
-        View view = getView();
-        if (view != null) {
-            // Hide keyboard
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
+        hideKeyboard(requireView());
         if (id == 0) {
             mMapHolder.setMapLocation(mFoundPoint);
             mLocationListener.showMarkerInformation(mFoundPoint, StringFormatter.coordinates(mFoundPoint));
@@ -419,6 +413,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         return icon;
     }
 
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     private class DataListAdapter extends CursorAdapter {
         private final int imageColor;
 
@@ -460,6 +460,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             holder.name.setText(name);
             holder.distance.setText(distance);
             holder.viewButton.setOnClickListener(v -> {
+                hideKeyboard(view);
                 mMapHolder.setMapLocation(coordinates);
                 //mFragmentHolder.popAll();
             });
