@@ -158,7 +158,7 @@ public class StringFormatter
 		if (angleFactor == 1f)
 		{
 			// Special case for degrees: use symbol instead of abbreviation
-			return String.format(angleFormat, angle)+"\u00B0";
+			return String.format(angleFormat, angle)+"°";
 		}
 		else
 		{
@@ -190,7 +190,7 @@ public class StringFormatter
 				final double coord = Math.abs(coordinate);
 				final int degrees = (int) Math.floor(coord);
 				final double minutes = (coord - degrees) * 60;
-				return coordIntFormat.format(sign*degrees) + "\u00B0 "
+				return coordIntFormat.format(sign*degrees) + "° "
 						+ coordMinFormat.format(minutes) + "'";
 			}
 			case 2:
@@ -201,7 +201,7 @@ public class StringFormatter
 				final double min = (coord - degrees) * 60;
 				final int minutes = (int) Math.floor(min);
 				final double seconds = (min - minutes) * 60;
-				return coordIntFormat.format(sign*degrees) + "\u00B0 "
+				return coordIntFormat.format(sign*degrees) + "° "
 						+ coordIntFormat.format(minutes) + "' "
 						+ coordSecFormat.format(seconds) + "\"";
 			}
@@ -274,14 +274,14 @@ public class StringFormatter
 
 	public static String bearingSimpleH(double bearing)
 	{
-		if (bearing <  22 || bearing >= 338) return "\u2191"; // N
-		if (bearing <  67) return "\u2197"; // NE
-		if (bearing < 112) return "\u2192"; // E
-		if (bearing < 158) return "\u2198"; // SE
-		if (bearing < 202) return "\u2193"; // S
-		if (bearing < 248) return "\u2199"; // SW
-		if (bearing < 292) return "\u2190"; // W
-		if (bearing < 338) return "\u2196"; // NW
+		if (bearing <  22 || bearing >= 338) return "↑"; // N
+		if (bearing <  67) return "↗"; // NE
+		if (bearing < 112) return "→"; // E
+		if (bearing < 158) return "↘"; // SE
+		if (bearing < 202) return "↓"; // S
+		if (bearing < 248) return "↙"; // SW
+		if (bearing < 292) return "←"; // W
+		if (bearing < 338) return "↖"; // NW
 		return ".";
 	}
 
@@ -313,7 +313,6 @@ public class StringFormatter
 	 */
 	public static String[] timeC(int minutes)
 	{
-		int hour = 0;
 		int min = minutes;
 
 		if (min <= 1)
@@ -322,7 +321,7 @@ public class StringFormatter
 		if (min < 60)
 			return new String[] {String.format(Locale.getDefault(), "%d", min), minuteAbbr};
 
-		hour = (int) Math.floor(min / 60d);
+		int hour = (int) Math.floor(min / 60d);
 		if (hour > 23)
 			return new String[] {"> 24", hourAbbr};
 
