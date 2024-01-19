@@ -1235,8 +1235,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             builder.setTitle(R.string.actionNightMode);
             builder.setItems(R.array.night_mode_array, (dialog, which) -> {
                 Configuration.setNightModeState(which);
-                AppCompatDelegate.setDefaultNightMode(which);
-                getDelegate().setLocalNightMode(which);
+                AppCompatDelegate.setDefaultNightMode(which - 1);
+                getDelegate().setLocalNightMode(which - 1);
                 getDelegate().applyDayNight();
             });
             AlertDialog dialog = builder.create();
@@ -1603,8 +1603,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         mapViewModel.setLocation(location);
 
-        // TODO: Fix lint error
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO)
+        // we use TIME for custom sunrise/sunset theme switching
+        //noinspection deprecation
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO_TIME)
             checkNightMode(location);
 
         for (WeakReference<LocationChangeListener> weakRef : mLocationChangeListeners) {
@@ -1784,11 +1785,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         PanelMenuFragment fragment = (PanelMenuFragment) factory.instantiate(getClassLoader(), PanelMenuFragment.class.getName());
         fragment.setMenu(R.menu.menu_map, menu -> {
             Resources resources = getResources();
-            String[] nightModes = resources.getStringArray(R.array.night_mode_array);
+            String[] nightModes = resources.getStringArray(R.array.night_mode_array_short);
             MenuItem item = menu.findItem(R.id.actionNightMode);
             TextView view = (TextView) item.getActionView();
             if (view != null)
-                view.setText(nightModes[AppCompatDelegate.getDefaultNightMode()]);
+                view.setText(nightModes[AppCompatDelegate.getDefaultNightMode() + 1]);
             String[] mapStyles = resources.getStringArray(R.array.mapStyles);
             item = menu.findItem(R.id.actionStyle);
             view = (TextView) item.getActionView();
@@ -4640,6 +4641,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         if (isNightTime ^ mNightMode) {
             int nightMode = isNightTime ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+            AppCompatDelegate.setDefaultNightMode(nightMode);
             getDelegate().setLocalNightMode(nightMode);
         }
 

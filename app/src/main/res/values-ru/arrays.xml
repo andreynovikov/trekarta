@@ -6,6 +6,13 @@
         <item>KML</item>
     </string-array>
     <string-array name="night_mode_array">
+        <item>Системный</item>
+        <item>Авто (день/ночь)</item>
+        <item>Нет</item>
+        <item>Да</item>
+    </string-array>
+    <string-array name="night_mode_array_short">
+        <item>Сист.</item>
         <item>Авто</item>
         <item>Нет</item>
         <item>Да</item>
