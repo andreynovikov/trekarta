@@ -69,6 +69,7 @@
         android:layout_marginStart="@dimen/table_padding"
         android:textColor="?android:textColorPrimary"
         android:textIsSelectable="true"
+        android:textSize="11sp"
         android:textStyle="bold" />
 
     <TextView
@@ -79,6 +80,7 @@
         android:layout_marginStart="@dimen/table_padding"
         android:textColor="?android:textColorPrimary"
         android:textIsSelectable="true"
+        android:textSize="11sp"
         android:textStyle="bold" />
 
     <TextView
