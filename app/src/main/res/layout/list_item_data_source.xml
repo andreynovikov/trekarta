@@ -1,75 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
     android:padding="@dimen/list_item_vertical_padding"
-    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+    android:paddingStart="@dimen/list_item_horizontal_padding"
+    android:paddingEnd="@dimen/list_item_horizontal_padding"
     tools:viewBindingIgnore="true">
 
-    <ImageView
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_text_start"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierAllowsGoneWidgets="true"
+        app:barrierDirection="end" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_text_end"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierAllowsGoneWidgets="false"
+        app:barrierDirection="start" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/textColorPrimary"
+        app:firstBaselineToTopHeight="@dimen/list_item_headline_first_baseline_to_top"
+        app:lastBaselineToBottomHeight="@dimen/list_item_headline_last_baseline_to_bottom"
+        app:layout_constraintBottom_toTopOf="@id/description"
+        app:layout_constraintEnd_toStartOf="@id/barrier_text_end"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/barrier_text_start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Data source name" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:firstBaselineToTopHeight="@dimen/list_item_supporting_text_first_baseline_to_top"
+        app:lastBaselineToBottomHeight="@dimen/list_item_supporting_text_last_baseline_to_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/name"
+        app:layout_constraintStart_toStartOf="@id/name"
+        app:layout_constraintTop_toBottomOf="@id/name"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="3 places, 2 tracks, 1 route" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/image_button_size"
-        android:layout_height="@dimen/image_button_size"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/circle"
+        android:layout_width="@dimen/list_icon_size"
+        android:layout_height="@dimen/list_icon_size"
+        android:layout_marginEnd="@dimen/list_item_horizontal_padding"
         android:scaleType="center"
         android:src="@drawable/ic_folder"
-        app:tint="@color/colorBackground" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/barrier_text_start"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
+        app:layout_constraintHeight_min="@dimen/list_icon_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/list_icon_size"
+        app:layout_constraintWidth_min="@dimen/list_icon_size"
+        tools:ignore="ImageContrastCheck" />
 
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="@dimen/textPadding"
-        android:layout_toEndOf="@id/icon"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textColorSecondary" />
-
-    <TextView
-        android:id="@+id/filename"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@id/description"
-        android:ellipsize="marquee"
-        android:gravity="end"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textColorSecondary"
-        android:textStyle="italic" />
-
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/filename"
-        android:layout_alignParentEnd="true"
-        android:paddingStart="@dimen/textPadding"
-        android:paddingBottom="4dp"
+        android:layout_marginStart="@dimen/list_item_horizontal_padding"
         android:src="@drawable/ic_visibility"
-        app:tint="?attr/actionIconColor"
-        tools:ignore="RtlSymmetry" />
+        android:tint="?attr/actionIconColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
+        app:layout_constraintStart_toEndOf="@id/barrier_text_end"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/list_icon_size" />
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/description"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@id/action"
-        android:layout_toEndOf="@id/icon"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/textColorPrimary" />
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,29 +17,30 @@
 package mobi.maptrek.fragments;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.ListFragment;
+
+import com.google.android.material.textview.MaterialTextView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
@@ -198,7 +199,6 @@ public class DataSourceList extends ListFragment {
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_data_source, parent, false);
                 itemHolder.name = convertView.findViewById(R.id.name);
                 itemHolder.description = convertView.findViewById(R.id.description);
-                itemHolder.filename = convertView.findViewById(R.id.filename);
                 itemHolder.icon = convertView.findViewById(R.id.icon);
                 itemHolder.action = convertView.findViewById(R.id.action);
                 convertView.setTag(itemHolder);
@@ -213,13 +213,11 @@ public class DataSourceList extends ListFragment {
             if (dataSource instanceof WaypointDbDataSource) {
                 int count = ((WaypointDataSource) dataSource).getWaypointsCount();
                 itemHolder.description.setText(resources.getQuantityString(R.plurals.placesCount, count, count));
-                itemHolder.filename.setText("");
                 itemHolder.icon.setImageResource(R.drawable.ic_points);
                 itemHolder.action.setVisibility(View.GONE);
                 itemHolder.action.setOnClickListener(null);
             } else {
                 File file = new File(((FileDataSource) dataSource).path);
-                itemHolder.filename.setText(file.getName());
                 if (dataSource.isLoaded()) {
                     if (mNativeTracks) {
                         Track track = ((FileDataSource) dataSource).tracks.get(0);
@@ -255,7 +253,7 @@ public class DataSourceList extends ListFragment {
                     }
                 } else {
                     String size = Formatter.formatShortFileSize(getContext(), file.length());
-                    itemHolder.description.setText(size);
+                    itemHolder.description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
                     if (mNativeTracks)
                         itemHolder.icon.setImageResource(R.drawable.ic_track);
                     else
@@ -273,13 +271,7 @@ public class DataSourceList extends ListFragment {
                     notifyDataSetChanged();
                 });
             }
-
-            Drawable background = itemHolder.icon.getBackground().mutate();
-            if (background instanceof ShapeDrawable) {
-                ((ShapeDrawable) background).getPaint().setColor(color);
-            } else if (background instanceof GradientDrawable) {
-                ((GradientDrawable) background).setColor(color);
-            }
+            itemHolder.icon.setImageTintList(ColorStateList.valueOf(color));
 
             return convertView;
         }
@@ -291,10 +283,9 @@ public class DataSourceList extends ListFragment {
     }
 
     private static class DataSourceListItemHolder {
-        TextView name;
-        TextView description;
-        TextView filename;
-        ImageView icon;
-        ImageView action;
+        MaterialTextView name;
+        MaterialTextView description;
+        AppCompatImageView icon;
+        AppCompatImageView action;
     }
 }
