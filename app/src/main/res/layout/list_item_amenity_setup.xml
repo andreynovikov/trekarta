@@ -13,7 +13,7 @@
         android:id="@+id/icon"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:layout_marginEnd="@dimen/list_item_padding"
+        android:layout_marginEnd="@dimen/textPadding"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_place"

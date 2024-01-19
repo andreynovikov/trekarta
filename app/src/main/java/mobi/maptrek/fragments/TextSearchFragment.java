@@ -16,17 +16,17 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -36,6 +36,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.ListFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,10 +51,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.google.android.material.textview.MaterialTextView;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.theme.IRenderTheme;
@@ -197,6 +198,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         mKinds[0] = context.getString(R.string.any);
         mKinds[1] = resources.getString(R.string.kind_place);
         for (int i = 0; i < Tags.kinds.length - 2; i++) { // skip urban and barrier kinds
+            @SuppressLint("DiscouragedApi")
             int id = resources.getIdentifier(Tags.kinds[i], "string", packageName);
             mKinds[i + 2] = id != 0 ? resources.getString(id) : Tags.kinds[i];
         }
@@ -284,7 +286,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         View view = getView();
         if (view != null) {
             // Hide keyboard
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null)
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
@@ -318,7 +320,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             dialog.dismiss();
             boolean changed = which != mSelectedKind;
             mSelectedKind = which;
-            mViews.filterButton.setColorFilter(getActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
+            mViews.filterButton.setColorFilter(requireActivity().getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
             if (changed && mText != null)
                 search();
         });
@@ -327,6 +329,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     private void search() {
+        final Activity activity = requireActivity();
         String[] words = mText.split(" ");
         for (int i = 0; i < words.length; i++) {
             if (words[i].length() > 2)
@@ -354,7 +357,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 " WHERE names_fts MATCH ? AND (lat != 0 OR lon != 0)" + kindFilter + orderBy +
                 " LIMIT 200";
         mViews.filterButton.setImageResource(R.drawable.ic_hourglass_empty);
-        mViews.filterButton.setColorFilter(getActivity().getColor(R.color.colorPrimaryDark));
+        mViews.filterButton.setColorFilter(activity.getColor(R.color.colorPrimaryDark));
         mViews.filterButton.setOnClickListener(null);
         final Message m = Message.obtain(mBackgroundHandler, () -> {
             if (mCancellationSignal != null)
@@ -367,9 +370,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 return;
             }
             mCancellationSignal = null;
-            final Activity activity = getActivity();
-            if (activity == null)
-                return;
             activity.runOnUiThread(() -> {
                 Cursor resultCursor = cursor;
                 if (cursor.getCount() == 0) {
@@ -405,7 +405,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     public float getItemHeight() {
         TypedValue value = new TypedValue();
-        getActivity().getTheme().resolveAttribute(android.R.attr.listPreferredItemHeight, value, true);
+        requireActivity().getTheme().resolveAttribute(android.R.attr.listPreferredItemHeight, value, true);
         return TypedValue.complexToDimension(value.data, getResources().getDisplayMetrics());
     }
 
@@ -420,11 +420,11 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     }
 
     private class DataListAdapter extends CursorAdapter {
-        private final int mAccentColor;
+        private final int imageColor;
 
         DataListAdapter(Context context, Cursor cursor, int flags) {
             super(context, cursor, flags);
-            mAccentColor = getResources().getColor(R.color.colorAccentLight, context.getTheme());
+            imageColor = getResources().getColor(R.color.actionIconColor, context.getTheme());
         }
 
         @Override
@@ -441,6 +441,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             return view;
         }
 
+        @SuppressLint("Range")
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             ItemHolder holder = (ItemHolder) view.getTag();
@@ -463,31 +464,25 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 //mFragmentHolder.popAll();
             });
 
-            int color = mAccentColor;
-            //color = waypoint.style.color;
             Drawable drawable = getTypeDrawable(type);
             if (drawable != null) {
                 holder.icon.setImageDrawable(drawable);
+                holder.icon.setImageTintList(null);
             } else {
                 @DrawableRes int icon = ResUtils.getKindIcon(kind);
                 if (icon == 0)
                     icon = R.drawable.ic_place;
                 holder.icon.setImageResource(icon);
-            }
-            Drawable background = holder.icon.getBackground().mutate();
-            if (background instanceof ShapeDrawable) {
-                ((ShapeDrawable) background).getPaint().setColor(color);
-            } else if (background instanceof GradientDrawable) {
-                ((GradientDrawable) background).setColor(color);
+                holder.icon.setImageTintList(ColorStateList.valueOf(imageColor));
             }
         }
     }
 
     private static class ItemHolder {
-        TextView name;
-        TextView distance;
-        ImageView icon;
-        ImageView viewButton;
+        MaterialTextView name;
+        MaterialTextView distance;
+        AppCompatImageView icon;
+        AppCompatImageView viewButton;
     }
 
     public class QuickFilterAdapter extends RecyclerView.Adapter<QuickFilterAdapter.SimpleViewHolder> {
@@ -519,11 +514,12 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             return new SimpleViewHolder(view);
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onBindViewHolder(@NonNull SimpleViewHolder holder, final int position) {
             int type = elements.get(position);
             if (type >= 0)
-                holder.button.setImageDrawable(getTypeDrawable(-type)); // we need to separate caches because search result icons are tinted
+                holder.button.setImageDrawable(getTypeDrawable(type));
             else
                 holder.button.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_more_horiz));
 

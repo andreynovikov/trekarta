@@ -33,7 +33,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="0"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:paddingStart="@dimen/list_item_padding"
+            android:paddingStart="@dimen/list_item_vertical_padding"
             android:src="@drawable/ic_content_paste"
             android:tint="?attr/actionIconColor"
             android:visibility="visible"
@@ -45,7 +45,7 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/list_item_padding"
+        android:layout_marginStart="@dimen/list_item_vertical_padding"
         android:layout_marginTop="@dimen/textPadding"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />

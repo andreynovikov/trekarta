@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:padding="@dimen/list_item_padding"
+    android:padding="@dimen/list_item_vertical_padding"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     tools:viewBindingIgnore="true">

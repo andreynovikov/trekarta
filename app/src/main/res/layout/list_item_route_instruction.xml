@@ -26,7 +26,7 @@
         android:layout_toStartOf="@id/text"
         android:paddingStart="@dimen/table_padding"
         android:paddingEnd="@dimen/table_padding"
-        android:paddingBottom="@dimen/list_item_padding"
+        android:paddingBottom="@dimen/list_item_vertical_padding"
         android:textAlignment="center"
         android:textStyle="bold" />
 
