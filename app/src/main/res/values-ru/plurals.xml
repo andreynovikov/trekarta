@@ -30,6 +30,18 @@
         <item quantity="many">%d треков удалено</item>
         <item quantity="other">%d треков удалено</item>
     </plurals>
+    <plurals name="routesCount">
+        <item quantity="one">%d маршрут</item>
+        <item quantity="few">%d маршрута</item>
+        <item quantity="many">%d маршрутов</item>
+        <item quantity="other">%d маршрутов</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="one">%d маршрут удалён</item>
+        <item quantity="few">%d маршрута удалено</item>
+        <item quantity="many">%d маршрутов удалено</item>
+        <item quantity="other">%d маршрутов удалено</item>
+    </plurals>
     <plurals name="numberOfPoints">
         <item quantity="one">%d точка</item>
         <item quantity="few">%d точки</item>
