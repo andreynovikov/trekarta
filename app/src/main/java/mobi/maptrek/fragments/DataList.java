@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,20 +18,20 @@ package mobi.maptrek.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.ListFragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
+
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -43,7 +43,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -517,13 +516,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 color = mAccentColor;
             }
             holder.icon.setImageResource(icon);
-            Drawable background = holder.icon.getBackground().mutate();
-            if (background instanceof ShapeDrawable) {
-                ((ShapeDrawable) background).getPaint().setColor(color);
-            } else if (background instanceof GradientDrawable) {
-                ((GradientDrawable) background).setColor(color);
-            }
-
+            holder.icon.setImageTintList(ColorStateList.valueOf(color));
         }
 
         @DataSource.DataType
@@ -539,11 +532,11 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     }
 
     private static class ItemHolder {
-        TextView separator;
-        TextView name;
-        TextView distance;
-        ImageView icon;
-        ImageView viewButton;
+        MaterialTextView separator;
+        MaterialTextView name;
+        MaterialTextView distance;
+        AppCompatImageView icon;
+        AppCompatImageView viewButton;
     }
 
     private final AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
