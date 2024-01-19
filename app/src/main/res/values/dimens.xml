@@ -39,8 +39,7 @@
 
     <dimen name="list_item_vertical_padding">8dp</dimen>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
-    <dimen name="list_leading_icon_size">24dp</dimen>
-    <dimen name="list_trailing_icon_size">16dp</dimen>
+    <dimen name="list_icon_size">24dp</dimen>
 
     <dimen name="list_item_min_height_one_line">56dp</dimen>
     <dimen name="list_item_min_height_two_line">72dp</dimen>

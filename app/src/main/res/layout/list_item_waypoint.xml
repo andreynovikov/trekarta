@@ -41,7 +41,7 @@
         android:layout_centerVertical="true"
         android:paddingStart="16dp"
         android:paddingEnd="0dp"
-        android:src="@drawable/ic_play_arrow_black"
+        android:src="@drawable/ic_arrow_right"
         android:tint="?attr/actionIconColor" />
 
     <TextView

@@ -60,19 +60,19 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/list_leading_icon_size"
-        android:layout_height="@dimen/list_leading_icon_size"
+        android:layout_width="@dimen/list_icon_size"
+        android:layout_height="@dimen/list_icon_size"
         android:layout_marginEnd="@dimen/list_item_horizontal_padding"
         android:scaleType="center"
         android:src="@drawable/ic_place"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/barrier_text_start"
-        app:layout_constraintHeight_max="@dimen/list_leading_icon_size"
-        app:layout_constraintHeight_min="@dimen/list_leading_icon_size"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
+        app:layout_constraintHeight_min="@dimen/list_icon_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="@dimen/list_leading_icon_size"
-        app:layout_constraintWidth_min="@dimen/list_leading_icon_size"
+        app:layout_constraintWidth_max="@dimen/list_icon_size"
+        app:layout_constraintWidth_min="@dimen/list_icon_size"
         tools:ignore="ImageContrastCheck" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -80,13 +80,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/list_item_horizontal_padding"
-        android:src="@drawable/ic_play_arrow_black"
+        android:src="@drawable/ic_arrow_right"
         android:tint="?attr/actionIconColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_max="@dimen/list_trailing_icon_size"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
         app:layout_constraintStart_toEndOf="@id/barrier_text_end"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="@dimen/list_trailing_icon_size" />
+        app:layout_constraintWidth_max="@dimen/list_icon_size" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
