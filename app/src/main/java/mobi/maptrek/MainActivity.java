@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Andrey Novikov
+ * Copyright 2023 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -65,6 +65,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -72,7 +73,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
-import androidx.core.view.DisplayCutoutCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -99,6 +99,7 @@ import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.Pair;
+import android.view.DisplayCutout;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -322,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private enum PANEL_STATE {
         NONE,
         LOCATION,
-        RECORD,
+        TRACKS,
         PLACES,
         MAPS,
         MORE
@@ -448,22 +449,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         setContentView(mViews.getRoot());
 
         // Required for proper positioning of bottom action panel
-        ViewCompat.setOnApplyWindowInsetsListener(mViews.getRoot(), (v, insets) -> {
-            Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            mStatusBarHeight = systemBarsInsets.top;
+        ViewCompat.setOnApplyWindowInsetsListener(mViews.coordinatorLayout, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = systemBarsInsets.left;
-            mlp.bottomMargin = systemBarsInsets.bottom;
-            mlp.rightMargin = systemBarsInsets.right;
+            mlp.leftMargin = insets.left;
+            mlp.bottomMargin = insets.bottom;
+            mlp.rightMargin = insets.right;
             v.setLayoutParams(mlp);
-            if (Build.VERSION.SDK_INT >= 28) {
-                DisplayCutoutCompat cutout = insets.getDisplayCutout();
-                if (cutout != null) {
-                    // TODO: implement for bars
-                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
-                }
-            }
-            //return insets;
             // Return CONSUMED if you don't want the window insets to keep being
             // passed down to descendant views.
             return WindowInsetsCompat.CONSUMED;
@@ -478,6 +470,18 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
+
+        mViews.getRoot().setOnApplyWindowInsetsListener((view, insets) -> {
+            mStatusBarHeight = insets.getSystemWindowInsetTop();
+            if (Build.VERSION.SDK_INT >= 28) {
+                DisplayCutout cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    // TODO: implement for bars
+                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
+                }
+            }
+            return insets;
+        });
 
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
@@ -538,41 +542,67 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         });
 
+        mViews.extendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            int width = v.getWidth();
+            int height = v.getHeight();
+            logger.debug("onLayoutChange({}, {})", width, height);
+            if (width == 0 || height == 0) {
+                v.setTranslationX(0f);
+                v.setTranslationY(0f);
+                return;
+            }
+            int rootWidth = mViews.coordinatorLayout.getWidth();
+            int rootHeight = mViews.coordinatorLayout.getHeight();
+            switch (mPanelState) {
+                case TRACKS:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (mViews.tracksButton.getWidth() + mViews.tracksButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(cWidth - width);
+                    }
+                    break;
+                case PLACES:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (mViews.placesButton.getWidth() + mViews.placesButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(cWidth - width);
+                    }
+                    break;
+                case MAPS:
+                    if (mVerticalOrientation) {
+                        int cWidth = (int) (rootWidth - mViews.mapsButton.getX());
+                        if (width < cWidth)
+                            v.setTranslationX(mViews.mapsButton.getX());
+                        else
+                            v.setTranslationX(rootWidth - width);
+                    } else {
+                        v.setTranslationY(rootHeight - height);
+                    }
+                    break;
+                case MORE:
+                    if (mVerticalOrientation) {
+                        v.setTranslationX(rootWidth - width);
+                    } else {
+                        v.setTranslationY(rootHeight - height);
+                    }
+            }
+        });
+
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
+                if (mVerticalOrientation)
+                    return;
                 switch (mPanelState) {
-                    case RECORD:
-                        if (!mVerticalOrientation) {
-                            child.setMinimumHeight((int) (mViews.recordButton.getHeight() + mViews.recordButton.getY()));
-                            lp.gravity = Gravity.TOP;
-                            child.setLayoutParams(lp);
-                        }
+                    case TRACKS:
+                        child.setMinimumHeight((int) (mViews.tracksButton.getHeight() + mViews.tracksButton.getY()));
                         break;
                     case PLACES:
-                        if (!mVerticalOrientation) {
-                            child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
-                            lp.gravity = Gravity.TOP;
-                            child.setLayoutParams(lp);
-                        }
+                        child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
                         break;
                     case MAPS:
-                        if (mVerticalOrientation) {
-                            lp.gravity = Gravity.END;
-                        } else {
-                            child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY()));
-                            lp.gravity = Gravity.BOTTOM;
-                        }
-                        child.setLayoutParams(lp);
+                        child.setMinimumHeight((int) (mViews.coordinatorLayout.getHeight() - mViews.mapsButton.getY()));
                         break;
-                    case MORE:
-                        if (mVerticalOrientation) {
-                            lp.gravity = Gravity.END;
-                        } else {
-                            lp.gravity = Gravity.BOTTOM;
-                        }
-                        child.setLayoutParams(lp);
                 }
             }
 
@@ -733,9 +763,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             onLocationLongClicked();
             return true;
         });
-        mViews.recordButton.setOnClickListener(v -> onRecordClicked());
-        mViews.recordButton.setOnLongClickListener(v -> {
-            onRecordLongClicked();
+        mViews.tracksButton.setOnClickListener(v -> onTracksClicked());
+        mViews.tracksButton.setOnLongClickListener(v -> {
+            onTracksLongClicked();
             return true;
         });
         mViews.placesButton.setOnClickListener(v -> onPlacesClicked());
@@ -1660,7 +1690,17 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         showExtendPanel(PANEL_STATE.LOCATION, "locationInformation", fragment);
     }
 
-    private void onRecordLongClicked() {
+    private void onTracksClicked() {
+        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.tracksButton, false);
+        Bundle args = new Bundle(1);
+        args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, true);
+        FragmentFactory factory = mFragmentManager.getFragmentFactory();
+        Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
+        fragment.setArguments(args);
+        showExtendPanel(PANEL_STATE.TRACKS, "nativeTrackList", fragment);
+    }
+
+    private void onTracksLongClicked() {
         if (mLocationState == LocationState.DISABLED) {
             mTrackingState = TRACKING_STATE.PENDING;
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
@@ -1675,16 +1715,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         } else {
             enableTracking();
         }
-    }
-
-    private void onRecordClicked() {
-        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.recordButton, false);
-        Bundle args = new Bundle(1);
-        args.putBoolean(DataSourceList.ARG_NATIVE_TRACKS, true);
-        FragmentFactory factory = mFragmentManager.getFragmentFactory();
-        Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
-        fragment.setArguments(args);
-        showExtendPanel(PANEL_STATE.RECORD, "nativeTrackList", fragment);
     }
 
     private void onPlacesClicked() {
@@ -2325,10 +2355,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void updateLocationDrawable() {
         logger.info("updateLocationDrawable()");
-        if (mViews.recordButton.getTag() != mTrackingState) {
+        if (mViews.tracksButton.getTag() != mTrackingState) {
             int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
-            mViews.recordButton.getDrawable().setTint(recordColor);
-            mViews.recordButton.setTag(mTrackingState);
+            mViews.tracksButton.getDrawable().setTint(recordColor);
+            mViews.tracksButton.setTag(mTrackingState);
         }
         if (mViews.locationButton.getTag() == mLocationState)
             return;
@@ -2650,7 +2680,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((WaypointInformation) fragment).setWaypoint(waypoint);
-        dimExtendPanel();
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override
@@ -2840,7 +2874,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((TrackInformation) fragment).setTrack(track, current);
-        dimExtendPanel();
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override
@@ -3035,7 +3073,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((RouteInformation) fragment).setRoute(route);
-        dimExtendPanel();
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override
@@ -3108,7 +3150,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("amenityInformation");
             ft.commit();
         }
-        dimExtendPanel();
+        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
+        mViews.extendPanel.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
     }
 
     @Override
@@ -3405,8 +3451,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         mViews.placesButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
-                                mViews.recordButton.setVisibility(View.VISIBLE);
-                                mViews.recordButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                                mViews.tracksButton.setVisibility(View.VISIBLE);
+                                mViews.tracksButton.animate().alpha(1f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
                                         mViews.locationButton.setVisibility(View.VISIBLE);
@@ -3426,8 +3472,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mViews.mapsButton.setAlpha(1f);
                 mViews.placesButton.setVisibility(View.VISIBLE);
                 mViews.placesButton.setAlpha(1f);
-                mViews.recordButton.setVisibility(View.VISIBLE);
-                mViews.recordButton.setAlpha(1f);
+                mViews.tracksButton.setVisibility(View.VISIBLE);
+                mViews.tracksButton.setAlpha(1f);
                 mViews.locationButton.setVisibility(View.VISIBLE);
                 mViews.locationButton.setAlpha(1f);
                 mViews.extendPanel.requestLayout();
@@ -3439,10 +3485,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mViews.locationButton.setVisibility(View.INVISIBLE);
-                        mViews.recordButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                        mViews.tracksButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
-                                mViews.recordButton.setVisibility(View.INVISIBLE);
+                                mViews.tracksButton.setVisibility(View.INVISIBLE);
                                 mViews.placesButton.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
@@ -3464,8 +3510,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mAPB.setAlpha(0f);
                 mViews.locationButton.setAlpha(0f);
                 mViews.locationButton.setVisibility(View.INVISIBLE);
-                mViews.recordButton.setAlpha(0f);
-                mViews.recordButton.setVisibility(View.INVISIBLE);
+                mViews.tracksButton.setAlpha(0f);
+                mViews.tracksButton.setVisibility(View.INVISIBLE);
                 mViews.placesButton.setAlpha(0f);
                 mViews.placesButton.setVisibility(View.INVISIBLE);
                 mViews.mapsButton.setAlpha(0f);
@@ -3483,7 +3529,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (name.equals(bse.getName()))
                 return;
         }
-        //brightenExtendPanel();
+        mViews.extendPanel.setForeground(null);
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
@@ -3500,7 +3546,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }));
         ft.replace(R.id.extendPanel, fragment, name);
         ft.addToBackStack(name);
-        ft.setReorderingAllowed(true);
         ft.commit();
 
         setPanelState(panel);
@@ -3514,7 +3559,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return;
 
         View mLBB = findViewById(R.id.locationButtonBackground);
-        View mRBB = findViewById(R.id.recordButtonBackground);
+        View mRBB = findViewById(R.id.tracksButtonBackground);
         View mPBB = findViewById(R.id.placesButtonBackground);
         View mOBB = findViewById(R.id.mapsButtonBackground);
         View mMBB = findViewById(R.id.moreButtonBackground);
@@ -3535,7 +3580,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 case LOCATION:
                     otherViews.add(mLBB);
                     break;
-                case RECORD:
+                case TRACKS:
                     otherViews.add(mRBB);
                     break;
                 case PLACES:
@@ -3555,7 +3600,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case LOCATION:
                 thisView = mLBB;
                 break;
-            case RECORD:
+            case TRACKS:
                 thisView = mRBB;
                 break;
             case PLACES:
@@ -3606,26 +3651,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         s.start();
 
         mPanelState = state;
-    }
-
-    private void dimExtendPanel() {
-        int count = mViews.extendPanel.getChildCount();
-        if (count == 0)
-            return;
-        View child = mViews.extendPanel.getChildAt(count - 1);
-        child.setForeground(AppCompatResources.getDrawable(this, R.drawable.dim));
-        child.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(child.getForeground(), "alpha", 0, 255);
-        anim.setDuration(500);
-        anim.start();
-    }
-
-    private void brightenExtendPanel() {
-        int count = mViews.extendPanel.getChildCount();
-        if (count == 0)
-            return;
-        View child = mViews.extendPanel.getChildAt(count - 1);
-        child.setForeground(null);
     }
 
     @Override
@@ -3763,9 +3788,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             View fv = fr.getView();
             if (fv == null)
                 return;
-            if (fv.getForeground() == null)
+            final ViewGroup p = (ViewGroup) fv.getParent();
+            if (p == null || p.getForeground() == null)
                 return;
-            ObjectAnimator anim = ObjectAnimator.ofInt(fv.getForeground(), "alpha", 255, 0);
+            ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
             anim.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(@NonNull Animator animation) {
@@ -3773,12 +3799,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
                 @Override
                 public void onAnimationEnd(@NonNull Animator animation) {
-                    fv.setForeground(null);
+                    p.setForeground(null);
                 }
 
                 @Override
                 public void onAnimationCancel(@NonNull Animator animation) {
-                    fv.setForeground(null);
+                    p.setForeground(null);
                 }
 
                 @Override
@@ -3822,7 +3848,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         MainActivity.this,
                         Configuration.ADVICE_RECORDED_TRACKS,
                         R.string.advice_recorded_tracks,
-                        mViews.recordButton,
+                        mViews.tracksButton,
                         false
                 );
         }
@@ -3887,10 +3913,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (isFinishing())
                     return;
 
-            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.constraintLayout.getLayoutParams();
+            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
             p.topMargin = mStatusBarHeight;
 
-            BottomSheetBehavior<FrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
+            BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
 
             if (mFragmentManager != null) {
                 if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
@@ -4147,7 +4173,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                                 @Override
                                 public void onDismissed(Snackbar snackbar, @DismissEvent int event) {
                                     if (event != DISMISS_EVENT_ACTION)
-                                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.recordButton, false);
+                                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_RECORDED_TRACKS, R.string.advice_recorded_tracks, mViews.tracksButton, false);
                                 }
                             })
                             .setAnchorView(mViews.actionPanel)

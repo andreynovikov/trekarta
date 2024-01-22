@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -13,26 +12,8 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
-    <View
-        android:id="@+id/popupAnchor"
-        android:layout_width="2dp"
-        android:layout_height="2dp" />
-
-    <Button
-        android:id="@+id/mapDownloadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="96dp"
-        android:alpha="0.8"
-        android:backgroundTint="@color/colorAccentLight"
-        android:text="@string/mapDownloadText"
-        android:textColor="@color/colorPrimaryLight"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -40,6 +21,8 @@
             android:id="@+id/license"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="@dimen/image_button_size_margin"
             android:padding="2dp"
             android:rotation="-90"
             android:textColor="@color/colorPrimaryDark"
@@ -48,426 +31,409 @@
             android:transformPivotX="0px"
             android:transformPivotY="0px"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/actionPanel"
-            app:layout_constraintStart_toStartOf="parent"
             tools:ignore="SmallSp"
             tools:text="@string/copyright"
             tools:visibility="visible" />
 
-        <mobi.maptrek.view.GaugePanel
-            android:id="@+id/gaugePanel"
+        <View
+            android:id="@+id/popupAnchor"
+            android:layout_width="2dp"
+            android:layout_height="2dp" />
+
+        <Button
+            android:id="@+id/mapDownloadButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/panelBackground"
+            android:layout_gravity="center"
+            android:layout_marginTop="96dp"
+            android:alpha="0.8"
+            android:backgroundTint="@color/colorAccentLight"
+            android:text="@string/mapDownloadText"
+            android:textColor="@color/colorPrimaryLight"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/navigationPanel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/gaugePanel"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
+            style="@style/MainConstraint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/routeSignBarrier"
+            <mobi.maptrek.view.GaugePanel
+                android:id="@+id/gaugePanel"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="start"
-                app:constraint_referenced_ids="navigationSign,routeWptDistance,routeWptEte" />
-
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/routeWaypointBarrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="routeWaypoint,routeWptEte" />
-
-            <View
-                android:id="@+id/routeSignBackground"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@color/panelBackground"
-                app:layout_constraintBottom_toBottomOf="@+id/routeWaypointBarrier"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/navigationSign"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/textColorPrimary"
-                tools:ignore="ContentDescription"
-                tools:src="@drawable/instruction_turn_right" />
-
-            <TextView
-                android:id="@+id/routeWptDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/gauge_padding"
-                android:paddingTop="0dp"
-                android:paddingBottom="@dimen/gauge_padding"
-                android:textAlignment="center"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/textColorPrimary"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
-                app:layout_constraintTop_toBottomOf="@+id/navigationSign"
-                tools:text="10 km" />
-
-            <TextView
-                android:id="@+id/routeWptEte"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/gauge_padding"
-                android:paddingTop="0dp"
-                android:paddingBottom="@dimen/gauge_padding"
-                android:textAlignment="center"
-                android:textAppearance="?android:attr/textAppearance"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
-                app:layout_constraintTop_toBottomOf="@+id/routeWptDistance"
-                tools:text="12 min" />
-
-            <TextView
-                android:id="@+id/routeWaypoint"
-                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@color/panelBackground"
-                android:padding="@dimen/gauge_padding"
-                android:textAlignment="center"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/routeSignBarrier"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Route waypoint" />
+                tools:visibility="visible" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/navigationPanel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/gaugePanel"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/routeSignBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="start"
+                    app:constraint_referenced_ids="navigationSign,routeWptDistance,routeWptEte" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/routeWaypointBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="routeWaypoint,routeWptEte" />
+
+                <View
+                    android:id="@+id/routeSignBackground"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/panelBackground"
+                    app:layout_constraintBottom_toBottomOf="@+id/routeWaypointBarrier"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/navigationSign"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/textColorPrimary"
+                    tools:ignore="ContentDescription"
+                    tools:src="@drawable/instruction_turn_right" />
+
+                <TextView
+                    android:id="@+id/routeWptDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/gauge_padding"
+                    android:paddingHorizontal="@dimen/gauge_padding"
+                    android:paddingTop="0dp"
+                    android:textAlignment="center"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColorPrimary"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toBottomOf="@+id/navigationSign"
+                    tools:text="10 km" />
+
+                <TextView
+                    android:id="@+id/routeWptEte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/gauge_padding"
+                    android:paddingHorizontal="@dimen/gauge_padding"
+                    android:paddingTop="0dp"
+                    android:textAlignment="center"
+                    android:textAppearance="?android:attr/textAppearance"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/routeSignBarrier"
+                    app:layout_constraintTop_toBottomOf="@+id/routeWptDistance"
+                    tools:text="12 min" />
+
+                <TextView
+                    android:id="@+id/routeWaypoint"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@color/panelBackground"
+                    android:padding="@dimen/gauge_padding"
+                    android:textAlignment="center"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/routeSignBarrier"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Route waypoint" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/satellites"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/panelBackground"
+                android:elevation="@dimen/panel_elevation"
+                android:padding="4dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textStyle="bold"
+                android:translationY="-200dp"
+                android:text="@string/satellitesStub"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="0/6" />
+
+            <LinearLayout
+                android:id="@+id/mapButtonHolder"
+                style="@style/MapButtonHolder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/gauge_padding"
+                app:layout_constraintTop_toBottomOf="@+id/navigationPanel"
+                tools:ignore="MissingConstraints">
+
+                <ImageButton
+                    android:id="@+id/compass"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="@dimen/panel_elevation"
+                    android:onClick="onCompassClicked"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_compass"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/navigationArrow"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="@dimen/panel_elevation"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_navigation_arrow"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/highlightedType"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:background="@drawable/circle_accent"
+                    android:elevation="@dimen/panel_elevation"
+                    android:onClick="onHighlightedTypeClicked"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="centerInside"
+                    android:visibility="gone"
+                    app:tint="@color/colorPrimaryLight"
+                    tools:ignore="ContentDescription"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/mapZoomHolder"
+                style="@style/MapZoomHolder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/gauge_padding"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:visibility="visible">
+
+                <ImageButton
+                    android:id="@+id/zoomIn"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:alpha="0.2"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="@dimen/panel_elevation"
+                    android:onClick="onZoomInClicked"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_add_circle"
+                    app:tint="?attr/zoomIconColor"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/zoomOut"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:alpha="0.2"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="@dimen/panel_elevation"
+                    android:onClick="onZoomOutClicked"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_remove_circle"
+                    app:tint="?attr/zoomIconColor"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/satellites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/panelBackground"
-            android:elevation="@dimen/panel_elevation"
-            android:padding="4dp"
-            android:text="@string/satellitesStub"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textStyle="bold"
-            android:translationY="-200dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="0/6" />
+        <RelativeLayout
+            style="@style/PanelHolder"
+            android:elevation="@dimen/panel_elevation">
 
-        <LinearLayout
-            android:id="@+id/mapButtonHolder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/gauge_padding"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/navigationPanel">
+            <LinearLayout
+                android:id="@+id/actionPanelBackground"
+                style="@style/ActionPanel">
 
-            <ImageButton
-                android:id="@+id/compass"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="@dimen/panel_elevation"
-                android:onClick="onCompassClicked"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_compass"
-                android:visibility="gone"
-                tools:ignore="ContentDescription"
-                tools:visibility="visible" />
+                <View
+                    android:id="@+id/locationButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
 
-            <ImageButton
-                android:id="@+id/navigationArrow"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="@dimen/panel_elevation"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_navigation_arrow"
-                android:visibility="gone"
-                tools:ignore="ContentDescription"
-                tools:visibility="visible" />
+                <View
+                    android:id="@+id/tracksButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
 
-            <ImageButton
-                android:id="@+id/highlightedType"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:background="@drawable/circle_accent"
-                android:elevation="@dimen/panel_elevation"
-                android:onClick="onHighlightedTypeClicked"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="centerInside"
-                android:visibility="gone"
-                app:tint="@color/colorPrimaryLight"
-                tools:ignore="ContentDescription"
-                tools:visibility="visible" />
-        </LinearLayout>
+                <View
+                    android:id="@+id/placesButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
 
-        <LinearLayout
-            android:id="@+id/mapZoomHolder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/gauge_padding"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
+                <View
+                    android:id="@+id/mapsButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
 
-            <ImageButton
-                android:id="@+id/zoomIn"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:alpha="0.2"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="@dimen/panel_elevation"
-                android:onClick="onZoomInClicked"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_add_circle"
-                app:tint="?attr/zoomIconColor"
-                tools:ignore="ContentDescription" />
+                <View
+                    android:id="@+id/moreButtonBackground"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="@color/panelBackground" />
 
-            <ImageButton
-                android:id="@+id/zoomOut"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:alpha="0.2"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="@dimen/panel_elevation"
-                android:onClick="onZoomOutClicked"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_remove_circle"
-                app:tint="?attr/zoomIconColor"
-                tools:ignore="ContentDescription" />
-        </LinearLayout>
+            </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/actionPanelBackground"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="@dimen/panel_elevation"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            <LinearLayout
+                android:id="@+id/actionPanel"
+                style="@style/ActionPanel">
 
-            <View
-                android:id="@+id/locationButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
+                <ImageButton
+                    android:id="@+id/locationButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_navigation_north"
+                    tools:ignore="ContentDescription" />
 
-            <View
-                android:id="@+id/recordButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
+                <ImageButton
+                    android:id="@+id/tracksButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_gesture"
+                    app:tint="?attr/actionIconColor"
+                    tools:ignore="ContentDescription" />
 
-            <View
-                android:id="@+id/placesButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
+                <ImageButton
+                    android:id="@+id/placesButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_place"
+                    app:tint="?attr/actionIconColor"
+                    tools:ignore="ContentDescription" />
 
-            <View
-                android:id="@+id/mapsButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
+                <ImageButton
+                    android:id="@+id/mapsButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_layers"
+                    app:tint="?attr/actionIconColor"
+                    tools:ignore="ContentDescription" />
 
-            <View
-                android:id="@+id/moreButtonBackground"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="@color/panelBackground" />
+                <ImageButton
+                    android:id="@+id/moreButton"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/image_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_menu"
+                    app:tint="?attr/actionIconColor"
+                    tools:ignore="ContentDescription" />
 
-        </LinearLayout>
+            </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/actionPanel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:elevation="@dimen/panel_elevation"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            <FrameLayout
+                android:id="@+id/extendPanel"
+                style="@style/ExtendPanel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true" />
 
-            <ImageButton
-                android:id="@+id/locationButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_navigation_north"
-                app:tint="?attr/actionIconColor"
-                tools:ignore="ContentDescription" />
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="@style/ProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorAccent"
+                android:visibility="gone" />
+        </RelativeLayout>
 
-            <ImageButton
-                android:id="@+id/recordButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_gesture"
-                app:tint="?attr/actionIconColor"
-                tools:ignore="ContentDescription" />
-
-            <ImageButton
-                android:id="@+id/placesButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_place"
-                app:tint="?attr/actionIconColor"
-                tools:ignore="ContentDescription" />
-
-            <ImageButton
-                android:id="@+id/mapsButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_layers"
-                app:tint="?attr/actionIconColor"
-                tools:ignore="ContentDescription" />
-
-            <ImageButton
-                android:id="@+id/moreButton"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/image_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_menu"
-                app:tint="?attr/actionIconColor"
-                tools:ignore="ContentDescription" />
-
-        </LinearLayout>
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/extendPanel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toTopOf="@+id/actionPanel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guideline"
-            app:layout_constraintVertical_bias="1" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:maxHeight="4dp"
-            android:minHeight="4dp"
-            android:progressTint="@color/colorAccent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/actionPanel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:comment="height taken from @android:dimen/progress_bar_height_material"
-            tools:visibility="visible" />
-
-        <androidx.fragment.app.FragmentContainerView
+        <FrameLayout
             android:id="@+id/contentPanel"
-            android:layout_width="0dp"
+            style="@style/ContentPanel"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:elevation="@dimen/fragment_elevation"
-            android:focusable="true"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guideline"
-            app:layout_constraintVertical_bias="1" />
+            android:elevation="@dimen/fragment_elevation" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
+        <androidx.appcompat.widget.ContentFrameLayout
+            android:id="@+id/bottomSheetPanel"
+            style="@style/BottomSheet"
+            android:layout_width="@dimen/fragment_width"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:elevation="@dimen/bottom_sheet_elevation"
+            app:behavior_hideable="true"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/actionButton"
+            style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.25" />
+            android:layout_margin="@dimen/fragment_padding"
+            android:clickable="true"
+            android:src="@drawable/ic_done"
+            android:tint="@color/colorBackground"
+            android:visibility="gone"
+            app:layout_anchor="@id/contentPanel"
+            tools:ignore="ContentDescription" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/listActionButton"
+            style="@style/ListFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_location"
+            android:tint="@color/colorBackground"
+            android:visibility="gone"
+            app:layout_anchor="@id/extendPanel"
+            tools:ignore="ContentDescription" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/bottomSheetPanel"
-        android:layout_width="@dimen/fragment_width"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:elevation="@dimen/bottom_sheet_elevation"
-        android:focusable="true"
-        app:behavior_hideable="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/actionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fragment_padding"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_done"
-        android:tint="@color/colorBackground"
-        android:visibility="gone"
-        app:layout_anchor="@id/contentPanel"
-        app:layout_anchorGravity="top|end"
-        tools:ignore="ContentDescription" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/listActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/list_fab_margin"
-        android:src="@drawable/ic_add_location"
-        android:tint="@color/colorBackground"
-        android:visibility="gone"
-        app:layout_anchor="@id/extendPanel"
-        app:layout_anchorGravity="bottom|end"
-        tools:ignore="ContentDescription" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>
