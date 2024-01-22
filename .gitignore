@@ -36,3 +36,5 @@ proguard/
 
 /resources/
 captures/
+
+Gemfile*

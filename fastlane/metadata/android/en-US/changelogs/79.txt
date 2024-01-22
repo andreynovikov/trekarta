@@ -1,0 +1,6 @@
+• Cycling activity reveals bicycle infrastructure
+• New amenities: fort, city gate, car parts, charging station, bicycle repair station, bicycle parking
+• New map objects: mountain ridge, hunting stand, rock
+• Fee and wheelchair amenity badges
+• Added ability to import data and map files from application
+• Updated map styling

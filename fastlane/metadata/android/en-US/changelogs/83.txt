@@ -1,0 +1,3 @@
+• Restore background track writing
+• Enable double back press to exit
+• Fix extra precision for distance

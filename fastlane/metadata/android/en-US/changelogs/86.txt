@@ -1,5 +1,5 @@
-* Added support for GPX routes
-* Added basic support for route navigation
-* Discontinued Lite version
-* Fixed gauge layout
-* Fixed opening locations from other apps
+• Added support for GPX routes
+• Added basic support for route navigation
+• Discontinued Lite version
+• Fixed gauge layout
+• Fixed opening locations from other apps
