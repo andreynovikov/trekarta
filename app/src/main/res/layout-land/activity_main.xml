@@ -54,6 +54,7 @@
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            style="@style/MainConstraint"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -265,15 +266,15 @@
                     tools:ignore="ContentDescription" />
             </LinearLayout>
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <RelativeLayout
+            style="@style/PanelHolder"
+            android:elevation="@dimen/panel_elevation">
+
             <LinearLayout
                 android:id="@+id/actionPanelBackground"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:orientation="horizontal"
-                android:elevation="@dimen/panel_elevation">
+                style="@style/ActionPanel">
 
                 <View
                     android:id="@+id/locationButtonBackground"
@@ -314,14 +315,7 @@
 
             <LinearLayout
                 android:id="@+id/actionPanel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:orientation="horizontal"
-                android:elevation="@dimen/panel_elevation">
+                style="@style/ActionPanel">
 
                 <ImageButton
                     android:id="@+id/locationButton"
@@ -332,7 +326,6 @@
                     android:padding="@dimen/image_button_padding"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_navigation_north"
-                    app:tint="?attr/actionIconColor"
                     tools:ignore="ContentDescription" />
 
                 <ImageButton
@@ -387,39 +380,26 @@
 
             <FrameLayout
                 android:id="@+id/extendPanel"
-                android:layout_above="@id/actionPanel"
+                style="@style/ExtendPanel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/progressBar"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:clickable="true" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                style="@style/ProgressBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="-6dp"
-                app:layout_constraintBottom_toTopOf="@+id/actionPanel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:progressTint="@color/colorAccent"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <FrameLayout
             android:id="@+id/contentPanel"
-            android:layout_width="match_parent"
-            android:layout_gravity="bottom"
+            style="@style/ContentPanel"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:clickable="true"
             android:elevation="@dimen/fragment_elevation" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.ContentFrameLayout
             android:id="@+id/bottomSheetPanel"
