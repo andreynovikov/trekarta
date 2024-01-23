@@ -27,11 +27,11 @@ import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import org.oscim.core.GeoPoint;
@@ -59,7 +59,7 @@ public class MapList extends Fragment {
 
     private TextView mEmptyView;
     private View mMapListHeader;
-    private Switch mHideSwitch;
+    private SwitchCompat mHideSwitch;
     private SeekBar mTransparencySeekBar;
     private LinearLayout mMapList;
     private final ArrayList<MapFile> mMaps = new ArrayList<>();

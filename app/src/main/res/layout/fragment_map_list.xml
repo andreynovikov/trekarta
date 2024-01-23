@@ -40,7 +40,7 @@
                 android:text="@string/hide_map_objects"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/hideSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
