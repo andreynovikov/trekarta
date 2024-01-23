@@ -280,7 +280,7 @@
                 android:background="@color/panelBackground" />
 
             <View
-                android:id="@+id/recordButtonBackground"
+                android:id="@+id/tracksButtonBackground"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
@@ -331,7 +331,7 @@
                 tools:ignore="ContentDescription" />
 
             <ImageButton
-                android:id="@+id/recordButton"
+                android:id="@+id/tracksButton"
                 android:layout_width="@dimen/image_button_size"
                 android:layout_height="@dimen/image_button_size"
                 android:layout_weight="1"
