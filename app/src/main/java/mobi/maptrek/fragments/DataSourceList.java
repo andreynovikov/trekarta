@@ -25,24 +25,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentOnAttachListener;
-import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,80 +54,58 @@ import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.databinding.ListWithEmptyViewBinding;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.DataSourceViewModel;
 
-public class DataSourceList extends ListFragment {
-    public static final String ARG_NATIVE_TRACKS = "nativeTracks";
+public class DataSourceList extends Fragment {
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceList.class);
 
+    private int mAccentColor;
+    private int mDisabledColor;
     private DataSourceListAdapter mAdapter;
     private FragmentHolder mFragmentHolder;
     private DataHolder mDataHolder;
     private FloatingActionButton mFloatingButton;
-    private final List<DataSource> mData = new ArrayList<>();
-    private boolean mNativeTracks;
+    private DataSourceViewModel dataSourceViewModel;
+    private ListWithEmptyViewBinding viewBinding;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_with_empty_view, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = ListWithEmptyViewBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Bundle arguments = getArguments();
-        if (arguments != null)
-            mNativeTracks = arguments.getBoolean(ARG_NATIVE_TRACKS);
+        dataSourceViewModel = new ViewModelProvider(requireActivity()).get(DataSourceViewModel.class);
+        dataSourceViewModel.getNativeTracksState().observe(getViewLifecycleOwner(), nativeTracks -> {
+            logger.error("nativeTracks: {}", nativeTracks);
+            if (nativeTracks) {
+                viewBinding.empty.setText(R.string.msgEmptyTrackList);
 
-        if (mNativeTracks) {
-            TextView emptyView = (TextView) getListView().getEmptyView();
-            if (emptyView != null)
-                emptyView.setText(R.string.msgEmptyTrackList);
-        }
+                mFloatingButton = mFragmentHolder.enableListActionButton();
+                mFloatingButton.setImageResource(R.drawable.ic_record);
+                mFloatingButton.setOnClickListener(v -> {
+            /*
+            CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
+            CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataSourceList.this)
+                    .setTitle(R.string.record_track)
+                    .create();
+            coordinatesInput.show(getParentFragmentManager(), "trackRecord");
+             */
+                });
+            }
 
-        mAdapter = new DataSourceListAdapter(requireContext());
-        setListAdapter(mAdapter);
-        updateData();
-
-        getListView().setOnItemLongClickListener((parent, v, position, id) -> {
-            final DataSource dataSource = mAdapter.getItem(position);
-            PopupMenu popup = new PopupMenu(getContext(), v);
-            popup.inflate(R.menu.context_menu_data_list);
-            if (dataSource instanceof WaypointDbDataSource)
-                popup.getMenu().findItem(R.id.action_delete).setVisible(false);
-            popup.setOnMenuItemClickListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.action_share) {
-                    mDataHolder.onDataSourceShare(dataSource);
-                    return true;
-                }
-                if (itemId == R.id.action_delete) {
-                    mDataHolder.onDataSourceDelete(dataSource);
-                    return true;
-                }
-                return false;
-            });
-            popup.show();
-            return true;
         });
-    }
+        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), dataSources -> {
+            mAdapter.submitList(dataSources);
+        });
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mNativeTracks) {
-            mFloatingButton = mFragmentHolder.enableListActionButton();
-            mFloatingButton.setImageResource(R.drawable.ic_record);
-            mFloatingButton.setOnClickListener(v -> {
-                /*
-                CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
-                CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataSourceList.this)
-                        .setTitle(R.string.record_track)
-                        .create();
-                coordinatesInput.show(getParentFragmentManager(), "trackRecord");
-                 */
-            });
-        }
+        mAdapter = new DataSourceListAdapter();
+        viewBinding.list.setAdapter(mAdapter);
     }
 
     @Override
@@ -139,6 +118,8 @@ public class DataSourceList extends ListFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        mAccentColor = context.getColor(R.color.colorAccent);
+        mDisabledColor = context.getColor(R.color.colorPrimary);
         try {
             mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
@@ -159,40 +140,6 @@ public class DataSourceList extends ListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mData.clear();
-    }
-
-    @Override
-    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
-        mFragmentHolder.disableListActionButton();
-        DataSource source = mAdapter.getItem(position);
-        mDataHolder.onDataSourceSelected(source);
-    }
-
-    public void updateData() {
-        mData.clear();
-
-        if (!mNativeTracks)
-            mData.add(mDataHolder.getWaypointDataSource());
-
-        List<FileDataSource> data = mDataHolder.getData();
-        // TODO Preserve position after source is loaded and name changes
-        Collections.sort(data, (lhs, rhs) -> {
-            if (mNativeTracks) {
-                // Newer tracks first
-                File lf = new File(lhs.path);
-                File rf = new File(rhs.path);
-                return Long.compare(rf.lastModified(), lf.lastModified());
-            }
-            return lhs.name.compareTo(rhs.name);
-        });
-        for (FileDataSource source : data) {
-            if (mNativeTracks ^ !source.isNativeTrack()) {
-                mData.add(source);
-            }
-        }
-
-        mAdapter.notifyDataSetChanged();
     }
 
     final FragmentManager.OnBackStackChangedListener backStackListener = new FragmentManager.OnBackStackChangedListener() {
@@ -202,35 +149,176 @@ public class DataSourceList extends ListFragment {
             int count = fragmentManager.getBackStackEntryCount();
             if (count == 0)
                 return;
+            boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
             FragmentManager.BackStackEntry bse = fragmentManager.getBackStackEntryAt(count - 1);
             Fragment fr = fragmentManager.findFragmentByTag(bse.getName());
-            if (fr == DataSourceList.this)
+            if (fr == DataSourceList.this && nativeTracks) // listener is called on first start too
                 mFragmentHolder.enableListActionButton();
         }
     };
 
-    private class DataSourceListAdapter extends BaseAdapter {
+    public class DataSourceListAdapter extends ListAdapter<DataSource, DataSourceListAdapter.DataSourceViewHolder> {
+        protected DataSourceListAdapter() {
+            super(DIFF_CALLBACK);
+        }
+
+        @NonNull
+        @Override
+        public DataSourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_data_source, parent, false);
+            return new DataSourceViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DataSourceViewHolder holder, int position) {
+            DataSource dataSource = getItem(position);
+            holder.name.setText(dataSource.name);
+            Resources resources = getResources();
+
+            int color = mAccentColor;
+            if (dataSource instanceof WaypointDbDataSource) {
+                int count = ((WaypointDataSource) dataSource).getWaypointsCount();
+                holder.description.setText(resources.getQuantityString(R.plurals.placesCount, count, count));
+                holder.icon.setImageResource(R.drawable.ic_points);
+                holder.action.setVisibility(View.GONE);
+                holder.action.setOnClickListener(null);
+            } else {
+                boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
+                File file = new File(((FileDataSource) dataSource).path);
+                if (dataSource.isLoaded()) {
+                    if (nativeTracks) {
+                        Track track = ((FileDataSource) dataSource).tracks.get(0);
+                        String distance = StringFormatter.distanceH(track.getDistance());
+                        holder.description.setText(distance);
+                        holder.icon.setImageResource(R.drawable.ic_track);
+                        color = track.style.color;
+                    } else {
+                        int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
+                        int tracksCount = ((FileDataSource) dataSource).tracks.size();
+                        int routesCount = ((FileDataSource) dataSource).routes.size();
+                        StringBuilder sb = new StringBuilder();
+                        if (waypointsCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
+                            if (tracksCount > 0 || routesCount > 0)
+                                sb.append(", ");
+                        }
+                        if (tracksCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
+                            if (routesCount > 0)
+                                sb.append(", ");
+                        }
+                        if (routesCount > 0) {
+                            sb.append(resources.getQuantityString(R.plurals.routesCount, routesCount, routesCount));
+                        }
+                        holder.description.setText(sb);
+                        if (waypointsCount > 0 && tracksCount > 0)
+                            holder.icon.setImageResource(R.drawable.ic_dataset);
+                        else if (waypointsCount > 0)
+                            holder.icon.setImageResource(R.drawable.ic_points);
+                        else if (tracksCount > 0)
+                            holder.icon.setImageResource(R.drawable.ic_tracks);
+                    }
+                } else {
+                    String size = Formatter.formatShortFileSize(getContext(), file.length());
+                    holder.description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
+                    if (nativeTracks)
+                        holder.icon.setImageResource(R.drawable.ic_track);
+                    else
+                        holder.icon.setImageResource(R.drawable.ic_dataset);
+                    color = mDisabledColor;
+                }
+                final boolean shown = dataSource.isVisible();
+                if (shown)
+                    holder.action.setImageResource(R.drawable.ic_visibility);
+                else
+                    holder.action.setImageResource(R.drawable.ic_visibility_off);
+                holder.action.setVisibility(View.VISIBLE);
+                holder.action.setOnClickListener(v -> {
+                    mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
+                    notifyItemChanged(position);
+                });
+            }
+            holder.icon.setImageTintList(ColorStateList.valueOf(color));
+            holder.itemView.setOnClickListener(v -> {
+                mFragmentHolder.disableListActionButton();
+                mDataHolder.onDataSourceSelected(dataSource);
+            });
+            holder.itemView.setOnLongClickListener(v -> {
+                PopupMenu popup = new PopupMenu(getContext(), v);
+                popup.inflate(R.menu.context_menu_data_list);
+                if (dataSource instanceof WaypointDbDataSource)
+                    popup.getMenu().findItem(R.id.action_delete).setVisible(false);
+                popup.setOnMenuItemClickListener(item -> {
+                    int itemId = item.getItemId();
+                    if (itemId == R.id.action_share) {
+                        mDataHolder.onDataSourceShare(dataSource);
+                        return true;
+                    }
+                    if (itemId == R.id.action_delete) {
+                        mDataHolder.onDataSourceDelete(dataSource);
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
+                return true;
+            });
+        }
+
+        class DataSourceViewHolder extends RecyclerView.ViewHolder {
+            MaterialTextView name;
+            MaterialTextView description;
+            AppCompatImageView icon;
+            AppCompatImageView action;
+
+            DataSourceViewHolder(View view) {
+                super(view);
+                name = view.findViewById(R.id.name);
+                description = view.findViewById(R.id.description);
+                icon = view.findViewById(R.id.icon);
+                action = view.findViewById(R.id.action);
+            }
+        }
+    }
+
+    public static final DiffUtil.ItemCallback<DataSource> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<DataSource>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull DataSource oldSource, @NonNull DataSource newSource) {
+                    return oldSource.equals(newSource);
+                }
+
+                @Override
+                public boolean areContentsTheSame(@NonNull DataSource oldSource, @NonNull DataSource newSource) {
+                    return oldSource.equals(newSource);
+                }
+            };
+
+    private class XDataSourceListAdapter extends BaseAdapter {
         private final int mAccentColor;
         private final int mDisabledColor;
 
-        DataSourceListAdapter(Context context) {
+        XDataSourceListAdapter(Context context) {
             mAccentColor = context.getColor(R.color.colorAccent);
             mDisabledColor = context.getColor(R.color.colorPrimary);
         }
 
         @Override
         public DataSource getItem(int position) {
-            return mData.get(position);
+            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
+            return dataSources.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return mData.get(position).hashCode();
+            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
+            return dataSources.get(position).hashCode();
         }
 
         @Override
         public int getCount() {
-            return mData.size();
+            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
+            return dataSources.size();
         }
 
         @Override
@@ -267,9 +355,10 @@ public class DataSourceList extends ListFragment {
                 itemHolder.action.setVisibility(View.GONE);
                 itemHolder.action.setOnClickListener(null);
             } else {
+                boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
                 File file = new File(((FileDataSource) dataSource).path);
                 if (dataSource.isLoaded()) {
-                    if (mNativeTracks) {
+                    if (nativeTracks) {
                         Track track = ((FileDataSource) dataSource).tracks.get(0);
                         String distance = StringFormatter.distanceH(track.getDistance());
                         itemHolder.description.setText(distance);
@@ -304,7 +393,7 @@ public class DataSourceList extends ListFragment {
                 } else {
                     String size = Formatter.formatShortFileSize(getContext(), file.length());
                     itemHolder.description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
-                    if (mNativeTracks)
+                    if (nativeTracks)
                         itemHolder.icon.setImageResource(R.drawable.ic_track);
                     else
                         itemHolder.icon.setImageResource(R.drawable.ic_dataset);

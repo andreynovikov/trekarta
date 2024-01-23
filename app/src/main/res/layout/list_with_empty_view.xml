@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/panel_width"
     android:layout_height="wrap_content"
-    android:background="@color/panelSolidBackground"
-    tools:viewBindingIgnore="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/panelSolidBackground">
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@android:id/list"
         style="@style/Scrollbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@null"
-        android:dividerHeight="0dp" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <TextView
         android:id="@android:id/empty"
