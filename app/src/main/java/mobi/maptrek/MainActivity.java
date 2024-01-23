@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -65,7 +65,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -73,6 +72,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.view.DisplayCutoutCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -99,7 +99,6 @@ import android.transition.TransitionSet;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.Pair;
-import android.view.DisplayCutout;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -449,13 +448,22 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         setContentView(mViews.getRoot());
 
         // Required for proper positioning of bottom action panel
-        ViewCompat.setOnApplyWindowInsetsListener(mViews.coordinatorLayout, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+        ViewCompat.setOnApplyWindowInsetsListener(mViews.getRoot(), (v, insets) -> {
+            Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            mStatusBarHeight = systemBarsInsets.top;
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
-            mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
+            mlp.leftMargin = systemBarsInsets.left;
+            mlp.bottomMargin = systemBarsInsets.bottom;
+            mlp.rightMargin = systemBarsInsets.right;
             v.setLayoutParams(mlp);
+            if (Build.VERSION.SDK_INT >= 28) {
+                DisplayCutoutCompat cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    // TODO: implement for bars
+                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
+                }
+            }
+            //return insets;
             // Return CONSUMED if you don't want the window insets to keep being
             // passed down to descendant views.
             return WindowInsetsCompat.CONSUMED;
@@ -470,18 +478,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelBackground = resources.getColor(R.color.panelBackground, theme);
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
-
-        mViews.getRoot().setOnApplyWindowInsetsListener((view, insets) -> {
-            mStatusBarHeight = insets.getSystemWindowInsetTop();
-            if (Build.VERSION.SDK_INT >= 28) {
-                DisplayCutout cutout = insets.getDisplayCutout();
-                if (cutout != null) {
-                    // TODO: implement for bars
-                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
-                }
-            }
-            return insets;
-        });
 
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
@@ -542,67 +538,35 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         });
 
-        mViews.extendPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            int width = v.getWidth();
-            int height = v.getHeight();
-            logger.debug("onLayoutChange({}, {})", width, height);
-            if (width == 0 || height == 0) {
-                v.setTranslationX(0f);
-                v.setTranslationY(0f);
-                return;
-            }
-            int rootWidth = mViews.coordinatorLayout.getWidth();
-            int rootHeight = mViews.coordinatorLayout.getHeight();
-            switch (mPanelState) {
-                case RECORD:
-                    if (mVerticalOrientation) {
-                        int cWidth = (int) (mViews.recordButton.getWidth() + mViews.recordButton.getX());
-                        if (width < cWidth)
-                            v.setTranslationX(cWidth - width);
-                    }
-                    break;
-                case PLACES:
-                    if (mVerticalOrientation) {
-                        int cWidth = (int) (mViews.placesButton.getWidth() + mViews.placesButton.getX());
-                        if (width < cWidth)
-                            v.setTranslationX(cWidth - width);
-                    }
-                    break;
-                case MAPS:
-                    if (mVerticalOrientation) {
-                        int cWidth = (int) (rootWidth - mViews.mapsButton.getX());
-                        if (width < cWidth)
-                            v.setTranslationX(mViews.mapsButton.getX());
-                        else
-                            v.setTranslationX(rootWidth - width);
-                    } else {
-                        v.setTranslationY(rootHeight - height);
-                    }
-                    break;
-                case MORE:
-                    if (mVerticalOrientation) {
-                        v.setTranslationX(rootWidth - width);
-                    } else {
-                        v.setTranslationY(rootHeight - height);
-                    }
-            }
-        });
-
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-                if (mVerticalOrientation)
-                    return;
                 switch (mPanelState) {
                     case RECORD:
-                        child.setMinimumHeight((int) (mViews.recordButton.getHeight() + mViews.recordButton.getY()));
+                        if (!mVerticalOrientation)
+                            child.setMinimumHeight((int) (mViews.recordButton.getHeight() + mViews.recordButton.getY()));
                         break;
                     case PLACES:
-                        child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
+                        if (!mVerticalOrientation)
+                            child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
                         break;
                     case MAPS:
-                        child.setMinimumHeight((int) (mViews.coordinatorLayout.getHeight() - mViews.mapsButton.getY()));
+                        if (!mVerticalOrientation)
+                            child.setMinimumHeight((int) (mViews.coordinatorLayout.getHeight() - mViews.mapsButton.getY()));
+                        if (mVerticalOrientation) {
+                            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
+                            lp.gravity = Gravity.END;
+                            child.setLayoutParams(lp);
+                        } else {
+                        }
                         break;
+                    case MORE:
+                        if (mVerticalOrientation) {
+                            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
+                            lp.gravity = Gravity.END;
+                            child.setLayoutParams(lp);
+                        } else {
+                        }
                 }
             }
 
@@ -2680,11 +2644,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((WaypointInformation) fragment).setWaypoint(waypoint);
-        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
-        mViews.extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
-        anim.setDuration(500);
-        anim.start();
+        dimExtendPanel();
     }
 
     @Override
@@ -2874,11 +2834,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((TrackInformation) fragment).setTrack(track, current);
-        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
-        mViews.extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
-        anim.setDuration(500);
-        anim.start();
+        dimExtendPanel();
     }
 
     @Override
@@ -3073,11 +3029,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.commit();
         }
         ((RouteInformation) fragment).setRoute(route);
-        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
-        mViews.extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
-        anim.setDuration(500);
-        anim.start();
+        dimExtendPanel();
     }
 
     @Override
@@ -3150,11 +3102,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("amenityInformation");
             ft.commit();
         }
-        mViews.extendPanel.setForeground(getDrawable(R.drawable.dim));
-        mViews.extendPanel.getForeground().setAlpha(0);
-        ObjectAnimator anim = ObjectAnimator.ofInt(mViews.extendPanel.getForeground(), "alpha", 0, 255);
-        anim.setDuration(500);
-        anim.start();
+        dimExtendPanel();
     }
 
     @Override
@@ -3529,7 +3477,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (name.equals(bse.getName()))
                 return;
         }
-        mViews.extendPanel.setForeground(null);
+        //brightenExtendPanel();
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         fragment.setEnterTransition(new TransitionSet().addTransition(new Slide(mSlideGravity)).addTransition(new Visibility() {
@@ -3546,6 +3494,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }));
         ft.replace(R.id.extendPanel, fragment, name);
         ft.addToBackStack(name);
+        ft.setReorderingAllowed(true);
         ft.commit();
 
         setPanelState(panel);
@@ -3651,6 +3600,26 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         s.start();
 
         mPanelState = state;
+    }
+
+    private void dimExtendPanel() {
+        int count = mViews.extendPanel.getChildCount();
+        if (count == 0)
+            return;
+        View child = mViews.extendPanel.getChildAt(count - 1);
+        child.setForeground(AppCompatResources.getDrawable(this, R.drawable.dim));
+        child.getForeground().setAlpha(0);
+        ObjectAnimator anim = ObjectAnimator.ofInt(child.getForeground(), "alpha", 0, 255);
+        anim.setDuration(500);
+        anim.start();
+    }
+
+    private void brightenExtendPanel() {
+        int count = mViews.extendPanel.getChildCount();
+        if (count == 0)
+            return;
+        View child = mViews.extendPanel.getChildAt(count - 1);
+        child.setForeground(null);
     }
 
     @Override
@@ -3788,10 +3757,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             View fv = fr.getView();
             if (fv == null)
                 return;
-            final ViewGroup p = (ViewGroup) fv.getParent();
-            if (p == null || p.getForeground() == null)
+            if (fv.getForeground() == null)
                 return;
-            ObjectAnimator anim = ObjectAnimator.ofInt(p.getForeground(), "alpha", 255, 0);
+            ObjectAnimator anim = ObjectAnimator.ofInt(fv.getForeground(), "alpha", 255, 0);
             anim.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(@NonNull Animator animation) {
@@ -3799,12 +3767,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
                 @Override
                 public void onAnimationEnd(@NonNull Animator animation) {
-                    p.setForeground(null);
+                    fv.setForeground(null);
                 }
 
                 @Override
                 public void onAnimationCancel(@NonNull Animator animation) {
-                    p.setForeground(null);
+                    fv.setForeground(null);
                 }
 
                 @Override
@@ -3913,10 +3881,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (isFinishing())
                     return;
 
-            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.coordinatorLayout.getLayoutParams();
+            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.constraintLayout.getLayoutParams();
             p.topMargin = mStatusBarHeight;
 
-            BottomSheetBehavior<ContentFrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
+            BottomSheetBehavior<FrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
 
             if (mFragmentManager != null) {
                 if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
