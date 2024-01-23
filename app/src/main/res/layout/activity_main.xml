@@ -166,19 +166,19 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold"
             android:translationY="-200dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="0/6" />
 
         <LinearLayout
             android:id="@+id/mapButtonHolder"
-            style="@style/MapButtonHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gauge_padding"
-            app:layout_constraintTop_toBottomOf="@+id/navigationPanel"
-            tools:ignore="MissingConstraints">
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/navigationPanel">
 
             <ImageButton
                 android:id="@+id/compass"
@@ -224,13 +224,14 @@
 
         <LinearLayout
             android:id="@+id/mapZoomHolder"
-            style="@style/MapZoomHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gauge_padding"
+            android:orientation="vertical"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible">
 
             <ImageButton
@@ -384,7 +385,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/extendPanel"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
@@ -400,7 +401,6 @@
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
             android:maxHeight="4dp"
             android:minHeight="4dp"
             android:progressTint="@color/colorAccent"
@@ -436,7 +436,6 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottomSheetPanel"
-        style="@style/BottomSheet"
         android:layout_width="@dimen/fragment_width"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -447,7 +446,6 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/actionButton"
-        style="@style/FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fragment_padding"
@@ -457,17 +455,19 @@
         android:tint="@color/colorBackground"
         android:visibility="gone"
         app:layout_anchor="@id/contentPanel"
+        app:layout_anchorGravity="top|end"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/listActionButton"
-        style="@style/ListFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/list_fab_margin"
         android:src="@drawable/ic_add_location"
         android:tint="@color/colorBackground"
         android:visibility="gone"
         app:layout_anchor="@id/extendPanel"
+        app:layout_anchorGravity="bottom|end"
         tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

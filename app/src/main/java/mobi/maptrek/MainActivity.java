@@ -541,32 +541,38 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
                 switch (mPanelState) {
                     case RECORD:
-                        if (!mVerticalOrientation)
+                        if (!mVerticalOrientation) {
                             child.setMinimumHeight((int) (mViews.recordButton.getHeight() + mViews.recordButton.getY()));
+                            lp.gravity = Gravity.TOP;
+                            child.setLayoutParams(lp);
+                        }
                         break;
                     case PLACES:
-                        if (!mVerticalOrientation)
+                        if (!mVerticalOrientation) {
                             child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
+                            lp.gravity = Gravity.TOP;
+                            child.setLayoutParams(lp);
+                        }
                         break;
                     case MAPS:
-                        if (!mVerticalOrientation)
-                            child.setMinimumHeight((int) (mViews.coordinatorLayout.getHeight() - mViews.mapsButton.getY()));
                         if (mVerticalOrientation) {
-                            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
                             lp.gravity = Gravity.END;
-                            child.setLayoutParams(lp);
                         } else {
+                            child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY()));
+                            lp.gravity = Gravity.BOTTOM;
                         }
+                        child.setLayoutParams(lp);
                         break;
                     case MORE:
                         if (mVerticalOrientation) {
-                            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
                             lp.gravity = Gravity.END;
-                            child.setLayoutParams(lp);
                         } else {
+                            lp.gravity = Gravity.BOTTOM;
                         }
+                        child.setLayoutParams(lp);
                 }
             }
 

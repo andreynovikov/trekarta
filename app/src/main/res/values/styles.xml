@@ -69,47 +69,4 @@
         <item name="android:verticalScrollbarPosition">defaultPosition</item>
     </style>
 
-    <style name="FloatingActionButton">
-        <item name="layout_anchorGravity">top|end</item>
-    </style>
-
-    <style name="ListFloatingActionButton">
-        <item name="layout_anchorGravity">bottom|end</item>
-        <item name="android:layout_marginEnd">@dimen/list_fab_margin</item>
-    </style>
-
-    <style name="PanelHolder">
-    </style>
-
-    <style name="ActionPanel">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentBottom">true</item>
-        <item name="android:orientation">horizontal</item>
-    </style>
-
-    <style name="ContentPanel">
-    </style>
-
-    <style name="BottomSheet">
-    </style>
-
-    <style name="ExtendPanel">
-    </style>
-
-    <style name="ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
-    </style>
-
-    <style name="MainConstraint">
-    </style>
-
-    <style name="MapButtonHolder">
-        <item name="layout_constraintEnd_toEndOf">parent</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="MapZoomHolder">
-        <item name="layout_constraintTop_toTopOf">parent</item>
-        <item name="android:orientation">vertical</item>
-    </style>
 </resources>
