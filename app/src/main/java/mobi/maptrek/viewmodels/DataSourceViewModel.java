@@ -84,4 +84,12 @@ public class DataSourceViewModel extends ViewModel {
         }
         return hasExtraSources;
     }
+
+    private final MutableLiveData<DataSource> selectedDataSource = new MutableLiveData<>();
+    public void selectDataSource(DataSource dataSource) {
+        selectedDataSource.setValue(dataSource);
+    }
+    public LiveData<DataSource> getSelectedDataSource() {
+        return selectedDataSource;
+    }
 }

@@ -24,7 +24,6 @@ import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -44,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.List;
 import java.util.Locale;
 
 import mobi.maptrek.DataHolder;
@@ -135,11 +133,6 @@ public class DataSourceList extends Fragment {
         getParentFragmentManager().removeOnBackStackChangedListener(backStackListener);
         mFragmentHolder = null;
         mDataHolder = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 
     final FragmentManager.OnBackStackChangedListener backStackListener = new FragmentManager.OnBackStackChangedListener() {
@@ -241,7 +234,7 @@ public class DataSourceList extends Fragment {
             holder.icon.setImageTintList(ColorStateList.valueOf(color));
             holder.itemView.setOnClickListener(v -> {
                 mFragmentHolder.disableListActionButton();
-                mDataHolder.onDataSourceSelected(dataSource);
+                dataSourceViewModel.selectDataSource(dataSource);
             });
             holder.itemView.setOnLongClickListener(v -> {
                 PopupMenu popup = new PopupMenu(getContext(), v);
@@ -294,137 +287,4 @@ public class DataSourceList extends Fragment {
                 }
             };
 
-    private class XDataSourceListAdapter extends BaseAdapter {
-        private final int mAccentColor;
-        private final int mDisabledColor;
-
-        XDataSourceListAdapter(Context context) {
-            mAccentColor = context.getColor(R.color.colorAccent);
-            mDisabledColor = context.getColor(R.color.colorPrimary);
-        }
-
-        @Override
-        public DataSource getItem(int position) {
-            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
-            return dataSources.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
-            return dataSources.get(position).hashCode();
-        }
-
-        @Override
-        public int getCount() {
-            List<DataSource> dataSources = dataSourceViewModel.getDataSourcesState().getValue();
-            return dataSources.size();
-        }
-
-        @Override
-        public boolean isEnabled(int position) {
-            DataSource dataSource = getItem(position);
-            return dataSource.isLoaded();
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            DataSourceListItemHolder itemHolder;
-            final DataSource dataSource = getItem(position);
-
-            if (convertView == null) {
-                itemHolder = new DataSourceListItemHolder();
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_data_source, parent, false);
-                itemHolder.name = convertView.findViewById(R.id.name);
-                itemHolder.description = convertView.findViewById(R.id.description);
-                itemHolder.icon = convertView.findViewById(R.id.icon);
-                itemHolder.action = convertView.findViewById(R.id.action);
-                convertView.setTag(itemHolder);
-            } else {
-                itemHolder = (DataSourceListItemHolder) convertView.getTag();
-            }
-
-            itemHolder.name.setText(dataSource.name);
-            Resources resources = getResources();
-
-            int color = mAccentColor;
-            if (dataSource instanceof WaypointDbDataSource) {
-                int count = ((WaypointDataSource) dataSource).getWaypointsCount();
-                itemHolder.description.setText(resources.getQuantityString(R.plurals.placesCount, count, count));
-                itemHolder.icon.setImageResource(R.drawable.ic_points);
-                itemHolder.action.setVisibility(View.GONE);
-                itemHolder.action.setOnClickListener(null);
-            } else {
-                boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
-                File file = new File(((FileDataSource) dataSource).path);
-                if (dataSource.isLoaded()) {
-                    if (nativeTracks) {
-                        Track track = ((FileDataSource) dataSource).tracks.get(0);
-                        String distance = StringFormatter.distanceH(track.getDistance());
-                        itemHolder.description.setText(distance);
-                        itemHolder.icon.setImageResource(R.drawable.ic_track);
-                        color = track.style.color;
-                    } else {
-                        int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
-                        int tracksCount = ((FileDataSource) dataSource).tracks.size();
-                        int routesCount = ((FileDataSource) dataSource).routes.size();
-                        StringBuilder sb = new StringBuilder();
-                        if (waypointsCount > 0) {
-                            sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
-                            if (tracksCount > 0 || routesCount > 0)
-                                sb.append(", ");
-                        }
-                        if (tracksCount > 0) {
-                            sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
-                            if (routesCount > 0)
-                                sb.append(", ");
-                        }
-                        if (routesCount > 0) {
-                            sb.append(resources.getQuantityString(R.plurals.routesCount, routesCount, routesCount));
-                        }
-                        itemHolder.description.setText(sb);
-                        if (waypointsCount > 0 && tracksCount > 0)
-                            itemHolder.icon.setImageResource(R.drawable.ic_dataset);
-                        else if (waypointsCount > 0)
-                            itemHolder.icon.setImageResource(R.drawable.ic_points);
-                        else if (tracksCount > 0)
-                            itemHolder.icon.setImageResource(R.drawable.ic_tracks);
-                    }
-                } else {
-                    String size = Formatter.formatShortFileSize(getContext(), file.length());
-                    itemHolder.description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
-                    if (nativeTracks)
-                        itemHolder.icon.setImageResource(R.drawable.ic_track);
-                    else
-                        itemHolder.icon.setImageResource(R.drawable.ic_dataset);
-                    color = mDisabledColor;
-                }
-                final boolean shown = dataSource.isVisible();
-                if (shown)
-                    itemHolder.action.setImageResource(R.drawable.ic_visibility);
-                else
-                    itemHolder.action.setImageResource(R.drawable.ic_visibility_off);
-                itemHolder.action.setVisibility(View.VISIBLE);
-                itemHolder.action.setOnClickListener(v -> {
-                    mDataHolder.setDataSourceAvailability((FileDataSource) getItem(position), !shown);
-                    notifyDataSetChanged();
-                });
-            }
-            itemHolder.icon.setImageTintList(ColorStateList.valueOf(color));
-
-            return convertView;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-    }
-
-    private static class DataSourceListItemHolder {
-        MaterialTextView name;
-        MaterialTextView description;
-        AppCompatImageView icon;
-        AppCompatImageView action;
-    }
 }

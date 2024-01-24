@@ -22,31 +22,39 @@ import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.fragment.app.ListFragment;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StableIdKeyProvider;
+import androidx.recyclerview.selection.StorageStrategy;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 
-import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
-import android.widget.CursorAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.CheckBox;
 
 import org.oscim.core.GeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -64,19 +72,19 @@ import mobi.maptrek.data.source.RouteDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.databinding.ListWithEmptyViewBinding;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.DataSourceViewModel;
+import mobi.maptrek.viewmodels.MapViewModel;
 
-public class DataList extends ListFragment implements DataSourceUpdateListener, CoordinatesInputDialog.CoordinatesInputDialogCallback {
-    public static final String ARG_LATITUDE = "lat";
-    public static final String ARG_LONGITUDE = "lon";
-    public static final String ARG_NO_EXTRA_SOURCES = "msg";
+public class DataList extends Fragment implements DataSourceUpdateListener, CoordinatesInputDialog.CoordinatesInputDialogCallback {
+    private static final Logger logger = LoggerFactory.getLogger(DataList.class);
+
     public static final String ARG_HEIGHT = "hgt";
-    public static final String ARG_CURRENT_LOCATION = "cur";
 
     private DataListAdapter mAdapter;
-    private DataSource mDataSource;
     private boolean mIsMultiDataSource;
     private OnWaypointActionListener mWaypointActionListener;
     private OnTrackActionListener mTrackActionListener;
@@ -85,28 +93,96 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     private DataHolder mDataHolder;
     private FloatingActionButton mFloatingButton;
 
-    private GeoPoint mCoordinates;
+    private GeoPoint coordinates = null;
 
     private final String mLineSeparator = System.getProperty("line.separator", "\n");
 
+    private SelectionTracker<Long> selectionTracker;
+    private ActionMode actionMode;
+    private DataSourceViewModel dataSourceViewModel;
+    private ListWithEmptyViewBinding viewBinding;
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = ListWithEmptyViewBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.list_with_empty_view, container, false);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        dataSourceViewModel = new ViewModelProvider(requireActivity()).get(DataSourceViewModel.class);
+        dataSourceViewModel.getSelectedDataSource().observe(getViewLifecycleOwner(), dataSource -> {
+            logger.error("dataSource changed");
+            setDataSource(dataSource, savedInstanceState);
+            if (dataSource instanceof WaypointDbDataSource) {
+                mFloatingButton = mFragmentHolder.enableListActionButton();
+                mFloatingButton.setImageResource(R.drawable.ic_add_location);
+                mFloatingButton.setOnClickListener(v -> {
+                    CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
+                    CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
+                            .setTitle(getString(R.string.titleCoordinatesInput))
+                            .create();
+                    coordinatesInput.show(getParentFragmentManager(), "pointCoordinatesInput");
+                });
+            } else {
+                mFragmentHolder.disableListActionButton();
+                mFloatingButton = null;
+            }
+        });
+
+        MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+        mapViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> {
+            logger.error("location changed");
+            DataSource dataSource = dataSourceViewModel.getSelectedDataSource().getValue();
+            if (dataSource == null)
+                return;
+            if ("unknown".equals(location.getProvider())) {
+                coordinates = null;
+            } else {
+                coordinates = new GeoPoint(location.getLatitude(), location.getLongitude());
+            }
+            if (selectionTracker == null || !selectionTracker.hasSelection()) {
+                dataSource.setReferenceLocation(coordinates);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+
+        // selection tracker does not start without adapter
+        mAdapter = new DataList.DataListAdapter(new MemoryDataSource(), true);
+        viewBinding.list.setAdapter(mAdapter);
+
+        Bundle arguments = getArguments();
+        int minHeight = 0;
+
+        if (arguments != null) {
+            minHeight = arguments.getInt(ARG_HEIGHT, 0);
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getString(R.string.msgEmptyPlaceList));
+        /*
+        if (noExtraSources) {
+            stringBuilder.append(mLineSeparator);
+            stringBuilder.append(mLineSeparator);
+            stringBuilder.append(getString(R.string.msgNoFileDataSources));
+        }
+         */
+        viewBinding.empty.setText(stringBuilder.toString());
+
+        if (minHeight > 0)
+            view.setMinimumHeight(minHeight);
 
         if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_VIEW_DATA_ITEM)) {
-            ViewTreeObserver vto = rootView.getViewTreeObserver();
+            ViewTreeObserver vto = view.getViewTreeObserver();
             vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    if (mAdapter.getCount() > 0) {
-                        View view = getListView().getChildAt(0).findViewById(R.id.view);
+                    view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    if (dataSourceViewModel.getSelectedDataSource().getValue().getCursor().getCount() > 0) {
+                        View view = viewBinding.list.getChildAt(0).findViewById(R.id.view);
                         Rect r = new Rect();
                         view.getGlobalVisibleRect(r);
                         HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_VIEW_DATA_ITEM, R.string.advice_view_data_item, r);
@@ -114,86 +190,12 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 }
             });
         }
-
-        return rootView;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        Bundle arguments = getArguments();
-
-        double latitude = Double.NaN;
-        double longitude = Double.NaN;
-        boolean currentLocation = false;
-        boolean noExtraSources = false;
-        int minHeight = 0;
-
-        if (arguments != null) {
-            latitude = arguments.getDouble(ARG_LATITUDE);
-            longitude = arguments.getDouble(ARG_LONGITUDE);
-            currentLocation = arguments.getBoolean(ARG_CURRENT_LOCATION);
-            noExtraSources = arguments.getBoolean(ARG_NO_EXTRA_SOURCES);
-            minHeight = arguments.getInt(ARG_HEIGHT, 0);
-        }
-
-        if (savedInstanceState != null) {
-            latitude = savedInstanceState.getDouble(ARG_LATITUDE);
-            longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
-        }
-
-        mCoordinates = new GeoPoint(latitude, longitude);
-
-        if (currentLocation)
-            mDataSource.setReferenceLocation(mCoordinates);
-        else
-            mDataSource.setReferenceLocation(null);
-
-        TextView emptyView = (TextView) getListView().getEmptyView();
-        if (emptyView != null) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(getString(R.string.msgEmptyPlaceList));
-            if (noExtraSources) {
-                stringBuilder.append(mLineSeparator);
-                stringBuilder.append(mLineSeparator);
-                stringBuilder.append(getString(R.string.msgNoFileDataSources));
-            }
-            emptyView.setText(stringBuilder.toString());
-        }
-
-        mAdapter = new DataListAdapter(getActivity(), mDataSource.getCursor(), 0);
-        setListAdapter(mAdapter);
-
-        ListView listView = getListView();
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        listView.setMultiChoiceModeListener(mMultiChoiceModeListener);
-
-        View rootView = getView();
-        if (rootView != null && minHeight > 0)
-            rootView.setMinimumHeight(minHeight);
-
-        // If list contains no data footer is not displayed, so we should not worry about
-        // message being shown twice
-        if (noExtraSources) {
-            listView.addFooterView(LayoutInflater.from(view.getContext()).inflate(R.layout.list_footer_data_source, listView, false), null, false);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mDataSource instanceof WaypointDbDataSource) {
-            mFloatingButton = mFragmentHolder.enableListActionButton();
-            mFloatingButton.setImageResource(R.drawable.ic_add_location);
-            mFloatingButton.setOnClickListener(v -> {
-                CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
-                CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
-                        .setTitle(getString(R.string.titleCoordinatesInput))
-                        .create();
-                coordinatesInput.show(getParentFragmentManager(), "pointCoordinatesInput");
-            });
-        }
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        selectionTracker.onSaveInstanceState(outState);
     }
 
     @Override
@@ -227,12 +229,20 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
             throw new ClassCastException(context + " must implement DataHolder");
         }
         mFragmentHolder = (FragmentHolder) context;
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
+
+        if (selectionTracker != null && selectionTracker.hasSelection() && actionMode == null) {
+            actionMode = requireActivity().startActionMode(new ActionModeController(), ActionMode.TYPE_FLOATING);
+            int count = selectionTracker.getSelection().size();
+            actionMode.setTitle(getResources().getQuantityString(R.plurals.itemsSelected, count, count)); // not used in floating mode, left for reference
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mDataSource.removeListener(this);
+        backPressedCallback.remove();
+        //mDataSource.removeListener(this);
         mWaypointActionListener = null;
         mTrackActionListener = null;
         mRouteActionListener = null;
@@ -249,37 +259,37 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
         }
     }
 
-    @Override
-    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
-        Cursor cursor = (Cursor) mAdapter.getItem(position);
-        int itemType = mDataSource.getDataType(position);
-        if (itemType == DataSource.TYPE_WAYPOINT) {
-            Waypoint waypoint = ((WaypointDataSource) mDataSource).cursorToWaypoint(cursor);
-            mWaypointActionListener.onWaypointDetails(waypoint, true);
-        } else if (itemType == DataSource.TYPE_TRACK) {
-            Track track = ((TrackDataSource) mDataSource).cursorToTrack(cursor);
-            mTrackActionListener.onTrackDetails(track);
-        } else if (itemType == DataSource.TYPE_ROUTE) {
-            Route route = ((RouteDataSource) mDataSource).cursorToRoute(cursor);
-            mRouteActionListener.onRouteDetails(route);
-        }
-    }
-
-    public void setDataSource(DataSource dataSource) {
-        mDataSource = dataSource;
+    public void setDataSource(DataSource dataSource, Bundle savedInstanceState) {
         int sourceTypes = 0;
-        if (mDataSource instanceof WaypointDataSource && ((WaypointDataSource) mDataSource).getWaypointsCount() > 0)
+        if (dataSource instanceof WaypointDataSource && ((WaypointDataSource) dataSource).getWaypointsCount() > 0)
             sourceTypes++;
-        if (mDataSource instanceof TrackDataSource && ((TrackDataSource) mDataSource).getTracksCount() > 0)
+        if (dataSource instanceof TrackDataSource && ((TrackDataSource) dataSource).getTracksCount() > 0)
             sourceTypes++;
-        if (mDataSource instanceof RouteDataSource && ((RouteDataSource) mDataSource).getRoutesCount() > 0)
+        if (dataSource instanceof RouteDataSource && ((RouteDataSource) dataSource).getRoutesCount() > 0)
             sourceTypes++;
         mIsMultiDataSource = sourceTypes > 1;
-        mDataSource.addListener(this);
+        boolean showFooter = dataSourceViewModel.waypointDbDataSource == dataSource
+                && !dataSourceViewModel.hasExtraDataSources();
+        // If list contains no data footer is not displayed, so we should not worry about
+        // message being shown twice
+        mAdapter = new DataList.DataListAdapter(dataSource, showFooter);
+        viewBinding.list.setAdapter(mAdapter);
+
+        selectionTracker = new SelectionTracker.Builder<>(
+                "data-selection",
+                viewBinding.list,
+                new StableIdKeyProvider(viewBinding.list),
+                new DataDetailsLookup(viewBinding.list),
+                StorageStrategy.createLongStorage()
+        ).build();
+        selectionTracker.addObserver(selectionObserver);
+        if (savedInstanceState != null)
+            selectionTracker.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
     public void onDataSourceUpdated() {
+        /*
         if (mAdapter != null) {
             mAdapter.changeCursor(mDataSource.getCursor());
             int sourceTypes = 0;
@@ -291,6 +301,7 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 sourceTypes++;
             mIsMultiDataSource = sourceTypes > 1;
         }
+         */
     }
 
     private void shareSelectedItems() {
@@ -319,21 +330,25 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     }
 
     private void populateSelectedItems(HashSet<Waypoint> waypoints, HashSet<Track> tracks, HashSet<Route> routes) {
-        SparseBooleanArray positions = getListView().getCheckedItemPositions();
-        for (int position = 0; position < mAdapter.getCount(); position++) {
-            if (positions.get(position)) {
-                Cursor cursor = (Cursor) mAdapter.getItem(position);
-                int type = mDataSource.getDataType(position);
-                if (type == DataSource.TYPE_WAYPOINT) {
-                    Waypoint waypoint = ((WaypointDataSource) mDataSource).cursorToWaypoint(cursor);
+        DataSource dataSource = dataSourceViewModel.getSelectedDataSource().getValue();
+        if (dataSource == null)
+            return;
+        Cursor cursor = dataSource.getCursor();
+        for (int position = 0; position < cursor.getCount(); position++) {
+            cursor.moveToPosition(position);
+            int type = dataSource.getDataType(position);
+            if (type == DataSource.TYPE_WAYPOINT) {
+                Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
+                if (selectionTracker.isSelected(waypoint._id))
                     waypoints.add(waypoint);
-                } else if (type == DataSource.TYPE_TRACK) {
-                    Track track = ((TrackDataSource) mDataSource).cursorToTrack(cursor);
+            } else if (type == DataSource.TYPE_TRACK) {
+                Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
+                if (selectionTracker.isSelected((long) track.id))
                     tracks.add(track);
-                } else if (type == DataSource.TYPE_ROUTE) {
-                    Route route = ((RouteDataSource) mDataSource).cursorToRoute(cursor);
+            } else if (type == DataSource.TYPE_ROUTE) {
+                Route route = ((RouteDataSource) dataSource).cursorToRoute(cursor);
+                if (selectionTracker.isSelected((long) route.id))
                     routes.add(route);
-                }
             }
         }
     }
@@ -365,30 +380,96 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
     public void onTextInputNegativeClick(String id) {
     }
 
-    private class DataListAdapter extends CursorAdapter {
-        private static final int STATE_UNKNOWN = 0;
-        private static final int STATE_SECTIONED_CELL = 1;
-        private static final int STATE_REGULAR_CELL = 2;
+    private void updateListViews() {
+        LinearLayoutManager lm = (LinearLayoutManager) viewBinding.list.getLayoutManager();
+        if (lm == null)
+            return;
+        boolean hasSelection = selectionTracker.hasSelection();
+        int firstVisible = lm.findFirstVisibleItemPosition();
+        int lastVisible = lm.findLastVisibleItemPosition();
+        for (int i = firstVisible; i <= lastVisible; i++) {
+            View visibleView = lm.findViewByPosition(i);
+            if (visibleView == null)
+                continue;
+            View viewButton = visibleView.findViewById(R.id.view);
+            View checkbox = visibleView.findViewById(R.id.checkbox);
+            if (viewButton == null || checkbox == null)
+                continue;
+            if (hasSelection) {
+                viewButton.setVisibility(View.GONE);
+                checkbox.setVisibility(View.VISIBLE);
+            } else {
+                viewButton.setVisibility(View.VISIBLE);
+                checkbox.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (actionMode != null) {
+                actionMode.finish();
+                actionMode = null;
+            }
+            this.remove();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        }
+    };
+
+    SelectionTracker.SelectionObserver<Long> selectionObserver = new SelectionTracker.SelectionObserver<Long>() {
+        @Override
+        public void onSelectionRefresh() {
+            super.onSelectionRefresh();
+            if (!selectionTracker.hasSelection() && actionMode != null) {
+                actionMode.finish();
+                actionMode = null;
+            }
+        }
+
+        @Override
+        public void onSelectionChanged() {
+            super.onSelectionChanged();
+            if (selectionTracker.hasSelection()) {
+                if (actionMode == null)
+                    actionMode = requireActivity().startActionMode(new ActionModeController(), ActionMode.TYPE_FLOATING);
+                int count = selectionTracker.getSelection().size();
+                actionMode.setTitle(getResources().getQuantityString(R.plurals.itemsSelected, count, count)); // not used in floating mode, left for reference
+            } else if (actionMode != null) {
+                    actionMode.finish();
+                    actionMode = null;
+            }
+        }
+
+        @Override
+        public void onSelectionRestored() {
+            super.onSelectionRestored();
+            logger.error("onSelectionRestored {}", selectionTracker.getSelection().size());
+        }
+    };
+
+    public class DataListAdapter extends RecyclerView.Adapter<DataListAdapter.BindableViewHolder> {
+        private final static int TYPE_FOOTER = 99;
+
+        private final DataSource dataSource;
+        private final Cursor cursor;
+        private final boolean showFooter;
         @ColorInt
-        private final int mAccentColor;
-        private int[] mCellStates;
+        private final int darkColor;
 
-        DataListAdapter(Context context, Cursor cursor, int flags) {
-            super(context, cursor, flags);
-            mAccentColor = getResources().getColor(R.color.colorAccent, context.getTheme());
-            mCellStates = cursor == null ? null : new int[cursor.getCount()];
+        protected DataListAdapter(DataSource dataSource, boolean showFooter) {
+            this.dataSource = dataSource;
+            this.cursor = dataSource.getCursor();
+            this.showFooter = showFooter;
+            darkColor = getResources().getColor(R.color.colorPrimaryDark, requireContext().getTheme());
+            setHasStableIds(true);
         }
 
+        @NonNull
         @Override
-        public void changeCursor(Cursor cursor) {
-            super.changeCursor(cursor);
-            mCellStates = cursor == null ? null : new int[cursor.getCount()];
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            int viewType = getItemViewType(cursor.getPosition());
+        public DataListAdapter.BindableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             int layout = 0;
+            // https://github.com/nicbell/material-lists
             switch (viewType) {
                 case DataSource.TYPE_WAYPOINT:
                     layout = R.layout.list_item_waypoint;
@@ -399,198 +480,297 @@ public class DataList extends ListFragment implements DataSourceUpdateListener, 
                 case DataSource.TYPE_ROUTE:
                     layout = R.layout.list_item_route;
                     break;
+                case TYPE_FOOTER:
+                    layout = R.layout.list_footer_data_source;
             }
             View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-            if (view != null) {
-                ItemHolder holder = new ItemHolder();
-                holder.separator = view.findViewById(R.id.separator);
-                holder.name = view.findViewById(R.id.name);
-                holder.distance = view.findViewById(R.id.distance);
-                holder.icon = view.findViewById(R.id.icon);
-                holder.viewButton = view.findViewById(R.id.view);
-                view.setTag(holder);
-            }
-            return view;
+            if (viewType == TYPE_FOOTER)
+                return new FooterViewHolder(view);
+            else
+                return new DataViewHolder(view);
         }
 
         @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            final int position = cursor.getPosition();
-            int viewType = getItemViewType(position);
-            ItemHolder holder = (ItemHolder) view.getTag();
-
-            boolean needSeparator = false;
-
-            switch (mCellStates[position]) {
-                case STATE_SECTIONED_CELL:
-                    needSeparator = true;
-                    break;
-
-                case STATE_REGULAR_CELL:
-                    break;
-
-                case STATE_UNKNOWN:
-                default:
-                    if (mIsMultiDataSource && position == 0) {
-                        needSeparator = true;
-                    } else if (mIsMultiDataSource) {
-                        int prevViewType = getItemViewType(position - 1);
-                        if (prevViewType != viewType)
-                            needSeparator = true;
-                    }
-                    mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
-                    break;
-            }
-
-            if (needSeparator) {
-                int string = 0;
-                switch (viewType) {
-                    case DataSource.TYPE_WAYPOINT:
-                        string = R.string.places;
-                        break;
-                    case DataSource.TYPE_TRACK:
-                        string = R.string.tracks;
-                        break;
-                    case DataSource.TYPE_ROUTE:
-                        string = R.string.routes;
-                        break;
-                }
-                holder.separator.setText(getText(string));
-                holder.separator.setVisibility(View.VISIBLE);
-            } else {
-                holder.separator.setVisibility(View.GONE);
-            }
-
-            boolean isChecked = getListView().isItemChecked(position);
-            boolean hasChecked = getListView().getCheckedItemCount() > 0;
-            @DrawableRes int icon = R.drawable.ic_info_outline;
-            @SuppressLint("ResourceAsColor")
-            @ColorInt int color = R.color.colorPrimaryDark;
-
-            if (viewType == DataSource.TYPE_WAYPOINT) {
-                final Waypoint waypoint = ((WaypointDataSource) mDataSource).cursorToWaypoint(cursor);
-                double dist = mCoordinates.vincentyDistance(waypoint.coordinates);
-                double bearing = mCoordinates.bearingTo(waypoint.coordinates);
-                String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-                holder.name.setText(waypoint.name);
-                holder.distance.setText(distance);
-                holder.viewButton.setOnClickListener(v -> {
-                    mWaypointActionListener.onWaypointView(waypoint);
-                    mFragmentHolder.disableListActionButton();
-                    mFragmentHolder.popAll();
-                });
-                icon = R.drawable.ic_point;
-                color = waypoint.style.color;
-            } else if (viewType == DataSource.TYPE_TRACK) {
-                final Track track = ((TrackDataSource) mDataSource).cursorToTrack(cursor);
-                String distance = StringFormatter.distanceH(track.getDistance());
-                holder.name.setText(track.name);
-                holder.distance.setText(distance);
-                holder.viewButton.setOnClickListener(v -> {
-                    mTrackActionListener.onTrackView(track);
-                    mFragmentHolder.disableListActionButton();
-                    mFragmentHolder.popAll();
-                });
-                icon = R.drawable.ic_track;
-                color = track.style.color;
-            } else if (viewType == DataSource.TYPE_ROUTE) {
-                final Route route = ((RouteDataSource) mDataSource).cursorToRoute(cursor);
-                String distance = StringFormatter.distanceH(route.getTotalDistance());
-                holder.name.setText(route.name);
-                holder.distance.setText(distance);
-                holder.viewButton.setOnClickListener(v -> {
-                    mRouteActionListener.onRouteView(route);
-                    mFragmentHolder.disableListActionButton();
-                    mFragmentHolder.popAll();
-                });
-                icon = R.drawable.ic_route;
-                color = route.style.color;
-            }
-            if (hasChecked) {
-                holder.viewButton.setVisibility(View.GONE);
-            } else {
-                holder.viewButton.setVisibility(View.VISIBLE);
-            }
-            if (isChecked) {
-                icon = R.drawable.ic_done;
-                color = mAccentColor;
-            }
-            holder.icon.setImageResource(icon);
-            holder.icon.setImageTintList(ColorStateList.valueOf(color));
+        public void onBindViewHolder(@NonNull BindableViewHolder holder, int position) {
+            holder.bindView(position);
         }
 
-        @DataSource.DataType
         @Override
         public int getItemViewType(int position) {
-            return mDataSource.getDataType(position);
+            if (position == cursor.getCount())
+                return TYPE_FOOTER;
+            return dataSource.getDataType(position);
         }
 
         @Override
-        public int getViewTypeCount() {
-            return 3;
+        public long getItemId(int position) {
+            cursor.moveToPosition(position);
+            int viewType = getItemViewType(position);
+            if (viewType == DataSource.TYPE_WAYPOINT) {
+                final Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
+                return waypoint._id;
+            } else if (viewType == DataSource.TYPE_TRACK) {
+                final Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
+                return track.id;
+            } else if (viewType == DataSource.TYPE_ROUTE) {
+                final Route route = ((RouteDataSource) dataSource).cursorToRoute(cursor);
+                return route.id;
+            }
+            return -1;
+        }
+
+        @Override
+        public int getItemCount() {
+            int count = cursor.getCount();
+            if (showFooter)
+                count++;
+            return count;
+        }
+
+        abstract class BindableViewHolder extends RecyclerView.ViewHolder {
+            public BindableViewHolder(@NonNull View view) {
+                super(view);
+            }
+
+            abstract void bindView(int position);
+        }
+
+        class FooterViewHolder extends BindableViewHolder {
+            public FooterViewHolder(@NonNull View view) {
+                super(view);
+            }
+
+            @Override
+            void bindView(int position) {
+                // do nothing
+            }
+        }
+
+        class DataViewHolder extends BindableViewHolder {
+            long id;
+            MaterialTextView separator;
+            MaterialTextView name;
+            MaterialTextView distance;
+            AppCompatImageView icon;
+            AppCompatImageView viewButton;
+            CheckBox checkbox;
+
+            DataViewHolder(View view) {
+                super(view);
+                separator = view.findViewById(R.id.separator);
+                name = view.findViewById(R.id.name);
+                distance = view.findViewById(R.id.distance);
+                icon = view.findViewById(R.id.icon);
+                viewButton = view.findViewById(R.id.view);
+                checkbox = view.findViewById(R.id.checkbox);
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            void bindView(int position) {
+                int viewType = getItemViewType();
+                cursor.moveToPosition(position);
+
+                boolean needSeparator = false;
+
+                /*
+                switch (mCellStates[position]) {
+                    case STATE_SECTIONED_CELL:
+                        needSeparator = true;
+                        break;
+
+                    case STATE_REGULAR_CELL:
+                        break;
+
+                    case STATE_UNKNOWN:
+                    default:
+                        if (mIsMultiDataSource && position == 0) {
+                            needSeparator = true;
+                        } else if (mIsMultiDataSource) {
+                            int prevViewType = getItemViewType(position - 1);
+                            if (prevViewType != viewType)
+                                needSeparator = true;
+                        }
+                        mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
+                        break;
+                }
+                 */
+
+                if (needSeparator) {
+                    int string = 0;
+                    switch (viewType) {
+                        case DataSource.TYPE_WAYPOINT:
+                            string = R.string.places;
+                            break;
+                        case DataSource.TYPE_TRACK:
+                            string = R.string.tracks;
+                            break;
+                        case DataSource.TYPE_ROUTE:
+                            string = R.string.routes;
+                            break;
+                    }
+                    separator.setText(getText(string));
+                    separator.setVisibility(View.VISIBLE);
+                } else {
+                    separator.setVisibility(View.GONE);
+                }
+
+                @DrawableRes int iconRes = R.drawable.ic_info_outline;
+                @ColorInt int color = darkColor;
+
+                if (viewType == DataSource.TYPE_WAYPOINT) {
+                    final Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
+                    id = waypoint._id;
+                    name.setText(waypoint.name);
+                    if (coordinates != null) {
+                        double dist = coordinates.vincentyDistance(waypoint.coordinates);
+                        double bearing = coordinates.bearingTo(waypoint.coordinates);
+                        distance.setText(StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing));
+                        distance.setVisibility(View.VISIBLE);
+                    } else {
+                        distance.setVisibility(View.GONE);
+                    }
+                    viewButton.setOnClickListener(v -> {
+                        mWaypointActionListener.onWaypointView(waypoint);
+                        mFragmentHolder.disableListActionButton();
+                        mFragmentHolder.popAll();
+                    });
+                    iconRes = R.drawable.ic_point;
+                    color = waypoint.style.color;
+                    itemView.setOnClickListener(v -> {
+                        mWaypointActionListener.onWaypointDetails(waypoint, true);
+                    });
+                } else if (viewType == DataSource.TYPE_TRACK) {
+                    final Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
+                    id = track.id;
+                    name.setText(track.name);
+                    distance.setText(StringFormatter.distanceH(track.getDistance()));
+                    viewButton.setOnClickListener(v -> {
+                        mTrackActionListener.onTrackView(track);
+                        mFragmentHolder.disableListActionButton();
+                        mFragmentHolder.popAll();
+                    });
+                    iconRes = R.drawable.ic_track;
+                    color = track.style.color;
+                    itemView.setOnClickListener(v -> {
+                        mTrackActionListener.onTrackDetails(track);
+                    });
+                } else if (viewType == DataSource.TYPE_ROUTE) {
+                    final Route route = ((RouteDataSource) dataSource).cursorToRoute(cursor);
+                    id = route.id;
+                    name.setText(route.name);
+                    distance.setText(StringFormatter.distanceH(route.getTotalDistance()));
+                    viewButton.setOnClickListener(v -> {
+                        mRouteActionListener.onRouteView(route);
+                        mFragmentHolder.disableListActionButton();
+                        mFragmentHolder.popAll();
+                    });
+                    iconRes = R.drawable.ic_route;
+                    color = route.style.color;
+                    itemView.setOnClickListener(v -> {
+                        mRouteActionListener.onRouteDetails(route);
+                    });
+                }
+                icon.setImageResource(iconRes);
+                icon.setImageTintList(ColorStateList.valueOf(color));
+                if (selectionTracker.hasSelection()) {
+                    viewButton.setVisibility(View.GONE);
+                    checkbox.setVisibility(View.VISIBLE);
+                } else {
+                    viewButton.setVisibility(View.VISIBLE);
+                    checkbox.setVisibility(View.GONE);
+                }
+                checkbox.setChecked(selectionTracker.isSelected(id));
+            }
+
+            public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+                return new DataItemDetails(getBindingAdapterPosition(), id);
+            }
         }
     }
 
-    private static class ItemHolder {
-        MaterialTextView separator;
-        MaterialTextView name;
-        MaterialTextView distance;
-        AppCompatImageView icon;
-        AppCompatImageView viewButton;
-    }
+    private static class DataDetailsLookup extends ItemDetailsLookup<Long> {
+        private final RecyclerView recyclerView;
 
-    private final AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+        public DataDetailsLookup(RecyclerView recyclerView) {
+            this.recyclerView = recyclerView;
+        }
 
+        @Nullable
         @Override
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-            ListView listView = getListView();
-            int count = listView.getCheckedItemCount();
-            mode.setTitle(getResources().getQuantityString(R.plurals.itemsSelected, count, count));
-            // Update (redraw) list item view
-            int start = listView.getFirstVisiblePosition();
-            for (int i = start, j = listView.getLastVisiblePosition(); i <= j; i++) {
-                if (position == i) {
-                    View view = listView.getChildAt(i - start);
-                    listView.getAdapter().getView(i, view, listView);
-                    break;
+        public ItemDetails<Long> getItemDetails(@NonNull MotionEvent e) {
+            View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
+            if (view != null) {
+                RecyclerView.ViewHolder viewHolder = recyclerView.getChildViewHolder(view);
+                if (viewHolder instanceof DataListAdapter.DataViewHolder) {
+                    return ((DataListAdapter.DataViewHolder) viewHolder).getItemDetails();
                 }
             }
+            return null;
+        }
+    }
+
+    public static class DataItemDetails extends ItemDetailsLookup.ItemDetails<Long> {
+        private final int position;
+        private final Long key;
+
+        public DataItemDetails(int position, Long id) {
+            this.position = position;
+            this.key = id;
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_share) {
-                shareSelectedItems();
-                mode.finish();
-                return true;
-            }
-            if (itemId == R.id.action_delete) {
-                deleteSelectedItems();
-                mode.finish();
-                return true;
-            }
-            return false;
+        public int getPosition() {
+            return position;
         }
 
+        @Nullable
         @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater inflater = mode.getMenuInflater();
+        public Long getSelectionKey() {
+            return key;
+        }
+    }
+
+    private class ActionModeController implements ActionMode.Callback {
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater inflater = actionMode.getMenuInflater();
             inflater.inflate(R.menu.context_menu_waypoint_list, menu);
             if (mFloatingButton != null)
-                ((View)mFloatingButton).setVisibility(View.GONE);
+                mFloatingButton.setVisibility(View.GONE);
+            updateListViews();
+            backPressedCallback.setEnabled(true);
             return true;
         }
 
         @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            if (mFloatingButton != null)
-                ((View)mFloatingButton).setVisibility(View.VISIBLE);
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
         }
 
         @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            int itemId = menuItem.getItemId();
+            if (itemId == R.id.action_share) {
+                shareSelectedItems();
+                actionMode.finish();
+                return true;
+            }
+            if (itemId == R.id.action_delete) {
+                deleteSelectedItems();
+                actionMode.finish();
+                return true;
+            }
             return false;
         }
-    };
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            selectionTracker.clearSelection();
+            updateListViews();
+            backPressedCallback.setEnabled(false);
+            if (mFloatingButton != null)
+                mFloatingButton.setVisibility(View.VISIBLE);
+        }
+    }
 }

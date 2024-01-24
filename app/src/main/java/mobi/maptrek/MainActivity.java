@@ -81,6 +81,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
@@ -673,6 +674,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
         dataSourceViewModel = new ViewModelProvider(this).get(DataSourceViewModel.class);
+        dataSourceViewModel.getSelectedDataSource().observe(this, selectedDataSourceObserver);
 
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         // Observe marker state
@@ -791,22 +793,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         }
                     }
                 });
-        */
-
-        /*
-        mViews.coordinatorLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-                final int statusBar = insets.getSystemWindowInsetTop();
-                final int navigationBar = insets.getSystemWindowInsetBottom();
-                //mStatusBarHeight = statusBar;
-                logger.debug("setOnApplyWindowInsetsListener({}, {})", statusBar, navigationBar);
-                FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) v.getLayoutParams();
-                //p.topMargin = mStatusBarHeight;
-                //v.requestLayout();
-                return insets.consumeSystemWindowInsets();
-            }
-        });
         */
 
         mStartTime = SystemClock.uptimeMillis();
@@ -1426,12 +1412,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Bundle args = new Bundle(2);
             if (mLocationState != LocationState.DISABLED && mLocationService != null) {
                 Location location = mLocationService.getLocation();
-                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
+                args.putDouble(TextSearchFragment.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(TextSearchFragment.ARG_LONGITUDE, location.getLongitude());
             } else {
                 MapPosition position = mMap.getMapPosition();
-                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
+                args.putDouble(TextSearchFragment.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(TextSearchFragment.ARG_LONGITUDE, position.getLongitude());
             }
             if (mFragmentManager.getBackStackEntryCount() > 0) {
                 popAll();
@@ -1571,7 +1557,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
 
-        mapViewModel.setLocation(location);
+        mapViewModel.setCurrentLocation(location);
 
         // we use TIME for custom sunrise/sunset theme switching
         //noinspection deprecation
@@ -1597,7 +1583,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mLocationState = LocationState.SEARCHING;
                 mMap.getEventLayer().setFixOnCenter(false);
                 mLocationOverlay.setEnabled(false);
-                mapViewModel.setLocation(new Location("unknown"));
+                mapViewModel.setCurrentLocation(new Location("unknown"));
                 updateLocationDrawable();
             }
         }
@@ -1692,23 +1678,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
-            Bundle args = new Bundle(3);
-            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-                Location location = mLocationService.getLocation();
-                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
-                args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
-            } else {
-                MapPosition position = mMap.getMapPosition();
-                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
-                args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
-            }
-            args.putBoolean(DataList.ARG_NO_EXTRA_SOURCES, true);
+            dataSourceViewModel.selectDataSource(dataSourceViewModel.waypointDbDataSource);
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-            fragment.setArguments(args);
-            fragment.setDataSource(dataSourceViewModel.waypointDbDataSource);
             showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
         }
     }
@@ -1934,7 +1906,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             unbindService(mLocationConnection);
             mIsLocationBound = false;
             mLocationOverlay.setEnabled(false);
-            mapViewModel.setLocation(new Location("unknown"));
+            mapViewModel.setCurrentLocation(new Location("unknown"));
             mMap.updateMap(true);
         }
         mLocationState = LocationState.DISABLED;
@@ -4340,50 +4312,40 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mMap.updateMap(true);
     }
 
-    @Override
-    public void onDataSourceSelected(@NonNull DataSource source) {
-        if (source.isNativeTrack()) {
-            Track track = ((TrackDataSource) source).getTracks().get(0);
-            onTrackDetails(track, false);
-        } else if (source.isIndividual()) {
-            Cursor cursor = source.getCursor();
-            cursor.moveToPosition(0);
-            int itemType = source.getDataType(0);
-            if (itemType == DataSource.TYPE_WAYPOINT) {
-                Waypoint waypoint = ((WaypointDataSource) source).cursorToWaypoint(cursor);
-                onWaypointDetails(waypoint, true);
-            } else if (itemType == DataSource.TYPE_TRACK) {
-                Track track = ((TrackDataSource) source).cursorToTrack(cursor);
-                onTrackDetails(track);
-            } else if (itemType == DataSource.TYPE_ROUTE) {
-                Route route = ((RouteDataSource) source).cursorToRoute(cursor);
-                onRouteDetails(route);
-            }
-        } else {
-            Bundle args = new Bundle(3);
-            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-                Location location = mLocationService.getLocation();
-                args.putDouble(DataList.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, location.getLongitude());
-                args.putBoolean(DataList.ARG_CURRENT_LOCATION, true);
+    private final Observer<DataSource> selectedDataSourceObserver = new Observer<DataSource>() {
+        @Override
+        public void onChanged(DataSource dataSource) {
+            if (dataSource.isNativeTrack()) {
+                Track track = ((TrackDataSource) dataSource).getTracks().get(0);
+                onTrackDetails(track, false);
+            } else if (dataSource.isIndividual()) {
+                Cursor cursor = dataSource.getCursor();
+                cursor.moveToPosition(0);
+                int itemType = dataSource.getDataType(0);
+                if (itemType == DataSource.TYPE_WAYPOINT) {
+                    Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
+                    onWaypointDetails(waypoint, true);
+                } else if (itemType == DataSource.TYPE_TRACK) {
+                    Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
+                    onTrackDetails(track);
+                } else if (itemType == DataSource.TYPE_ROUTE) {
+                    Route route = ((RouteDataSource) dataSource).cursorToRoute(cursor);
+                    onRouteDetails(route);
+                }
             } else {
-                MapPosition position = mMap.getMapPosition();
-                args.putDouble(DataList.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(DataList.ARG_LONGITUDE, position.getLongitude());
-                args.putBoolean(DataList.ARG_CURRENT_LOCATION, false);
+                Bundle args = new Bundle(1);
+                args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
+                FragmentFactory factory = mFragmentManager.getFragmentFactory();
+                DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
+                fragment.setArguments(args);
+                FragmentTransaction ft = mFragmentManager.beginTransaction();
+                fragment.setEnterTransition(new Fade());
+                ft.add(R.id.extendPanel, fragment, "dataList");
+                ft.addToBackStack("dataList");
+                ft.commit();
             }
-            args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-            fragment.setArguments(args);
-            fragment.setDataSource(source);
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            fragment.setEnterTransition(new Fade());
-            ft.add(R.id.extendPanel, fragment, "dataList");
-            ft.addToBackStack("dataList");
-            ft.commit();
         }
-    }
+    };
 
     @Override
     public void onDataSourceShare(@NonNull final DataSource dataSource) {

@@ -26,6 +26,14 @@ import androidx.lifecycle.ViewModel;
 import org.oscim.core.GeoPoint;
 
 public class MapViewModel extends ViewModel {
+    private final MutableLiveData<Location> location = new MutableLiveData<>(new Location("unknown"));
+    public LiveData<Location> getCurrentLocation() {
+        return location;
+    }
+    public void setCurrentLocation(Location location) {
+        this.location.setValue(location);
+    }
+
     public static class MarkerState {
         private final GeoPoint coordinates;
         private final String name;
@@ -54,14 +62,6 @@ public class MapViewModel extends ViewModel {
         public boolean isShown() {
             return shown;
         }
-    }
-
-    private final MutableLiveData<Location> location = new MutableLiveData<>(new Location("unknown"));
-    public LiveData<Location> getLocation() {
-        return location;
-    }
-    public void setLocation(Location location) {
-        this.location.setValue(location);
     }
 
     public void showMarker(@NonNull GeoPoint coordinates, String name, boolean amenity) {
