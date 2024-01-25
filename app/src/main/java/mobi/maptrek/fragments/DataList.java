@@ -161,17 +161,6 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
             minHeight = arguments.getInt(ARG_HEIGHT, 0);
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getString(R.string.msgEmptyPlaceList));
-        /*
-        if (noExtraSources) {
-            stringBuilder.append(mLineSeparator);
-            stringBuilder.append(mLineSeparator);
-            stringBuilder.append(getString(R.string.msgNoFileDataSources));
-        }
-         */
-        viewBinding.empty.setText(stringBuilder.toString());
-
         if (minHeight > 0)
             view.setMinimumHeight(minHeight);
 
@@ -260,10 +249,28 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
     }
 
     public void setDataSource(DataSource dataSource, Bundle savedInstanceState) {
-        boolean showFooter = dataSourceViewModel.waypointDbDataSource == dataSource
-                && !dataSourceViewModel.hasExtraDataSources();
-        // If list contains no data footer is not displayed, so we should not worry about
-        // message being shown twice
+        Cursor cursor = dataSource.getCursor();
+        boolean extraSources = dataSourceViewModel.hasExtraDataSources();
+        boolean showFooter = false;
+        if (cursor.getCount() == 0) {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (dataSourceViewModel.waypointDbDataSource == dataSource) {
+                stringBuilder.append(getString(R.string.msgEmptyPlaceList));
+                if (!extraSources) {
+                    stringBuilder.append(mLineSeparator);
+                    stringBuilder.append(mLineSeparator);
+                    stringBuilder.append(getString(R.string.msgNoFileDataSources));
+                }
+            } else {
+                stringBuilder.append(getString(R.string.msgEmptyDataSource));
+            }
+            viewBinding.empty.setText(stringBuilder.toString());
+            viewBinding.empty.setVisibility(View.VISIBLE);
+        } else {
+            viewBinding.empty.setVisibility(View.GONE);
+            showFooter = dataSourceViewModel.waypointDbDataSource == dataSource && !extraSources;
+        }
+        cursor.close();
         mAdapter = new DataList.DataListAdapter(dataSource, showFooter);
         viewBinding.list.setAdapter(mAdapter);
 

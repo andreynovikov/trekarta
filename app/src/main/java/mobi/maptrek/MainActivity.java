@@ -1679,9 +1679,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
             dataSourceViewModel.selectDataSource(dataSourceViewModel.waypointDbDataSource);
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-            showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
         }
     }
 

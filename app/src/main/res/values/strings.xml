@@ -113,6 +113,7 @@
     <string name="msgPlaceDeleted">Place deleted</string>
     <string name="msgPlaceSaved">Place saved</string>
     <string name="msgEmptyPlaceList">Your places will appear here. You can create place by entering its coordinates or by long pressing Places button.</string>
+    <string name="msgEmptyDataSource">Data source is empty or does not contain any supported data</string>
     <string name="msgLocating">Trekarta is following your movement to support ongoing action</string>
     <string name="msgTrackDeleted">Track deleted</string>
     <string name="msgTracked">%1$s tracked since %2$s</string>

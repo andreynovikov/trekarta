@@ -175,6 +175,10 @@ public class DataSourceList extends Fragment {
                 holder.icon.setImageResource(R.drawable.ic_points);
                 holder.action.setVisibility(View.GONE);
                 holder.action.setOnClickListener(null);
+                holder.itemView.setOnClickListener(v -> {
+                    mFragmentHolder.disableListActionButton();
+                    dataSourceViewModel.selectDataSource(dataSource);
+                });
             } else {
                 boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
                 File file = new File(((FileDataSource) dataSource).path);
@@ -211,6 +215,10 @@ public class DataSourceList extends Fragment {
                         else if (tracksCount > 0)
                             holder.icon.setImageResource(R.drawable.ic_tracks);
                     }
+                    holder.itemView.setOnClickListener(v -> {
+                        mFragmentHolder.disableListActionButton();
+                        dataSourceViewModel.selectDataSource(dataSource);
+                    });
                 } else {
                     String size = Formatter.formatShortFileSize(getContext(), file.length());
                     holder.description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
@@ -219,6 +227,7 @@ public class DataSourceList extends Fragment {
                     else
                         holder.icon.setImageResource(R.drawable.ic_dataset);
                     color = mDisabledColor;
+                    holder.itemView.setOnClickListener(null);
                 }
                 final boolean shown = dataSource.isVisible();
                 if (shown)
@@ -232,10 +241,6 @@ public class DataSourceList extends Fragment {
                 });
             }
             holder.icon.setImageTintList(ColorStateList.valueOf(color));
-            holder.itemView.setOnClickListener(v -> {
-                mFragmentHolder.disableListActionButton();
-                dataSourceViewModel.selectDataSource(dataSource);
-            });
             holder.itemView.setOnLongClickListener(v -> {
                 PopupMenu popup = new PopupMenu(getContext(), v);
                 popup.inflate(R.menu.context_menu_data_list);

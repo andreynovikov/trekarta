@@ -112,6 +112,7 @@
     <string name="msgPlaceDeleted">Точка удалена</string>
     <string name="msgPlaceSaved">Точка сохранена</string>
     <string name="msgEmptyPlaceList">Здесь будут отображаться ваши точки. Вы можете создать точку с помощью долгого нажатия на кнопку Точки или ввести её координаты, нажав на кнопку добавления точек.</string>
+    <string name="msgEmptyDataSource">Источник данных пуст или не содержит поддерживаемых данных</string>
     <string name="msgLocating">Трекарта следит за вашим перемещением, чтобы поддерживать текущее действие</string>
     <string name="msgTrackDeleted">Трек удалён</string>
     <string name="msgTracked">%1$s пройдено с %2$s</string>
