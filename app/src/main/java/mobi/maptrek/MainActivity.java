@@ -65,6 +65,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -546,15 +547,24 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             public void onChildViewAdded(View parent, View child) {
                 FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
                 switch (mPanelState) {
+                    case LOCATION:
+                        if (mVerticalOrientation) {
+                            adjustGuideline(false);
+                        }
+                        break;
                     case TRACKS:
-                        if (!mVerticalOrientation) {
+                        if (mVerticalOrientation) {
+                            adjustGuideline(true);
+                        } else {
                             child.post(() -> child.setMinimumHeight((int) (mViews.tracksButton.getHeight() + mViews.tracksButton.getY())));
                             lp.gravity = Gravity.TOP;
                             child.setLayoutParams(lp);
                         }
                         break;
                     case PLACES:
-                        if (!mVerticalOrientation) {
+                        if (mVerticalOrientation) {
+                            adjustGuideline(true);
+                        } else {
                             child.post(() -> child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY())));
                             lp.gravity = Gravity.TOP;
                             child.setLayoutParams(lp);
@@ -562,6 +572,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         break;
                     case MAPS:
                         if (mVerticalOrientation) {
+                            adjustGuideline(false);
                             lp.gravity = Gravity.END;
                         } else {
                             child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY())));
@@ -571,6 +582,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         break;
                     case MORE:
                         if (mVerticalOrientation) {
+                            adjustGuideline(false);
                             lp.gravity = Gravity.END;
                         } else {
                             lp.gravity = Gravity.BOTTOM;
@@ -1391,6 +1403,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             showExtendPanel(PANEL_STATE.MAPS, "legend", fragment);
             return true;
         } else if (action == R.id.actionSettings) {
+            adjustGuideline(true);
             Bundle args = new Bundle(1);
             args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mapIndexViewModel.nativeIndex.hasHillshades());
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
@@ -1423,6 +1436,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             showExtendPanel(PANEL_STATE.MORE, "search", fragment);
             return true;
         } else if (action == R.id.actionAbout) {
+            adjustGuideline(true);
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), About.class.getName());
             fragment.setEnterTransition(new Slide(mSlideGravity));
@@ -2779,6 +2793,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void onTrackDetails(Track track, boolean current) {
+        adjustGuideline(true);
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
@@ -2974,6 +2989,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onRouteDetails(Route route) {
+        adjustGuideline(true);
         Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
         if (fragment == null) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
@@ -3579,6 +3595,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return;
         View child = mViews.extendPanel.getChildAt(count - 1);
         child.setForeground(null);
+    }
+
+    private void adjustGuideline(boolean limited) {
+        if (mVerticalOrientation) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mViews.guideline.getLayoutParams();
+            params.guidePercent = limited ? 0.25f : 0f;
+            mViews.guideline.setLayoutParams(params);
+        }
     }
 
     @Override
