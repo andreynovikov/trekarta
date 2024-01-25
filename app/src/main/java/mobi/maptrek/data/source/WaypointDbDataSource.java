@@ -134,7 +134,9 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     @Override
     public int getWaypointsCount() {
         Cursor cursor = getCursor();
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     @Override
