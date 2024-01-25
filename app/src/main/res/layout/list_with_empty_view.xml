@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/panel_width"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/panelSolidBackground">
+    android:background="@color/panelSolidBackground"
+    android:clickable="true"
+    android:focusable="true"
+    tools:comment="Clickable is required to prevent event bubbling because DataList is placed over DataSourceList">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@android:id/list"

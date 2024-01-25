@@ -25,19 +25,6 @@
         app:barrierDirection="start" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/separator"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/list_item_vertical_padding"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Routes" />
-
-    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -51,7 +38,7 @@
         app:layout_constraintEnd_toStartOf="@id/barrier_text_end"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/barrier_text_start"
-        app:layout_constraintTop_toBottomOf="@id/separator"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="Route name" />
 
@@ -83,7 +70,7 @@
         app:layout_constraintHeight_max="@dimen/list_icon_size"
         app:layout_constraintHeight_min="@dimen/list_icon_size"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="@dimen/list_icon_size"
         app:layout_constraintWidth_min="@dimen/list_icon_size"
         tools:ignore="ImageContrastCheck" />
@@ -99,7 +86,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_max="@dimen/list_icon_size"
         app:layout_constraintStart_toEndOf="@id/barrier_text_end"
-        app:layout_constraintTop_toBottomOf="@id/separator"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="@dimen/list_icon_size" />
 
     <CheckBox
@@ -111,6 +98,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_max="@dimen/list_icon_size"
         app:layout_constraintStart_toEndOf="@id/barrier_text_end"
-        app:layout_constraintTop_toBottomOf="@id/separator" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

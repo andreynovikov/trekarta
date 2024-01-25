@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.DataHolder;
@@ -85,7 +86,6 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
     public static final String ARG_HEIGHT = "hgt";
 
     private DataListAdapter mAdapter;
-    private boolean mIsMultiDataSource;
     private OnWaypointActionListener mWaypointActionListener;
     private OnTrackActionListener mTrackActionListener;
     private OnRouteActionListener mRouteActionListener;
@@ -115,7 +115,7 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
         dataSourceViewModel = new ViewModelProvider(requireActivity()).get(DataSourceViewModel.class);
         dataSourceViewModel.getSelectedDataSource().observe(getViewLifecycleOwner(), dataSource -> {
-            logger.error("dataSource changed");
+            logger.debug("dataSource changed");
             setDataSource(dataSource, savedInstanceState);
             if (dataSource instanceof WaypointDbDataSource) {
                 mFloatingButton = mFragmentHolder.enableListActionButton();
@@ -135,7 +135,7 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
         MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
         mapViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> {
-            logger.error("location changed");
+            logger.debug("location changed");
             DataSource dataSource = dataSourceViewModel.getSelectedDataSource().getValue();
             if (dataSource == null)
                 return;
@@ -260,14 +260,6 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
     }
 
     public void setDataSource(DataSource dataSource, Bundle savedInstanceState) {
-        int sourceTypes = 0;
-        if (dataSource instanceof WaypointDataSource && ((WaypointDataSource) dataSource).getWaypointsCount() > 0)
-            sourceTypes++;
-        if (dataSource instanceof TrackDataSource && ((TrackDataSource) dataSource).getTracksCount() > 0)
-            sourceTypes++;
-        if (dataSource instanceof RouteDataSource && ((RouteDataSource) dataSource).getRoutesCount() > 0)
-            sourceTypes++;
-        mIsMultiDataSource = sourceTypes > 1;
         boolean showFooter = dataSourceViewModel.waypointDbDataSource == dataSource
                 && !dataSourceViewModel.hasExtraDataSources();
         // If list contains no data footer is not displayed, so we should not worry about
@@ -281,7 +273,7 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
                 new StableIdKeyProvider(viewBinding.list),
                 new DataDetailsLookup(viewBinding.list),
                 StorageStrategy.createLongStorage()
-        ).build();
+        ).withSelectionPredicate(selectionPredicate).build();
         selectionTracker.addObserver(selectionObserver);
         if (savedInstanceState != null)
             selectionTracker.onRestoreInstanceState(savedInstanceState);
@@ -292,14 +284,6 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
         /*
         if (mAdapter != null) {
             mAdapter.changeCursor(mDataSource.getCursor());
-            int sourceTypes = 0;
-            if (mDataSource instanceof WaypointDataSource && ((WaypointDataSource) mDataSource).getWaypointsCount() > 0)
-                sourceTypes++;
-            if (mDataSource instanceof TrackDataSource && ((TrackDataSource) mDataSource).getTracksCount() > 0)
-                sourceTypes++;
-            if (mDataSource instanceof RouteDataSource && ((RouteDataSource) mDataSource).getRoutesCount() > 0)
-                sourceTypes++;
-            mIsMultiDataSource = sourceTypes > 1;
         }
          */
     }
@@ -417,6 +401,23 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
         }
     };
 
+    private final SelectionTracker.SelectionPredicate<Long> selectionPredicate = new SelectionTracker.SelectionPredicate<Long>() {
+        @Override
+        public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
+            return key > 0;
+        }
+
+        @Override
+        public boolean canSetStateAtPosition(int position, boolean nextState) {
+            return mAdapter.canSetStateForPosition(position);
+        }
+
+        @Override
+        public boolean canSelectMultiple() {
+            return true;
+        }
+    };
+
     SelectionTracker.SelectionObserver<Long> selectionObserver = new SelectionTracker.SelectionObserver<Long>() {
         @Override
         public void onSelectionRefresh() {
@@ -449,13 +450,15 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
     };
 
     public class DataListAdapter extends RecyclerView.Adapter<DataListAdapter.BindableViewHolder> {
-        private final static int TYPE_FOOTER = 99;
+        private final static int TYPE_HEADER = 99;
+        private final static int TYPE_FOOTER = 98;
 
         private final DataSource dataSource;
         private final Cursor cursor;
         private final boolean showFooter;
         @ColorInt
         private final int darkColor;
+        private final TreeMap<Integer, Integer> headers = new TreeMap<>();
 
         protected DataListAdapter(DataSource dataSource, boolean showFooter) {
             this.dataSource = dataSource;
@@ -463,6 +466,38 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
             this.showFooter = showFooter;
             darkColor = getResources().getColor(R.color.colorPrimaryDark, requireContext().getTheme());
             setHasStableIds(true);
+            calculateHeaders();
+        }
+
+        protected void calculateHeaders() {
+            headers.clear();
+            if (dataSource instanceof WaypointDbDataSource) // shortcut for no headers
+                return;
+            int wptCount = 0, trkCount = 0, rteCount = 0;
+            if (dataSource instanceof WaypointDataSource)
+                wptCount = ((WaypointDataSource) dataSource).getWaypointsCount();
+            if (dataSource instanceof TrackDataSource)
+                trkCount = ((TrackDataSource) dataSource).getTracksCount();
+            if (dataSource instanceof RouteDataSource)
+                rteCount = ((RouteDataSource) dataSource).getRoutesCount();
+            if (wptCount > 0 && (trkCount > 0 || rteCount > 0))
+                headers.put(0, DataSource.TYPE_WAYPOINT);
+            if (trkCount > 0 && (headers.size() > 0 || rteCount > 0))
+                headers.put(wptCount + headers.size(), DataSource.TYPE_TRACK);
+            if (rteCount > 0 && headers.size() > 0)
+                headers.put(wptCount + trkCount + headers.size(), DataSource.TYPE_ROUTE);
+        }
+
+        private int adjustPosition(int position) {
+            if (headers.isEmpty())
+                return position;
+            int i = 0;
+            for (int pos : headers.navigableKeySet()) {
+                if (pos > position)
+                    break;
+                i++;
+            }
+            return position - i;
         }
 
         @NonNull
@@ -480,11 +515,16 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
                 case DataSource.TYPE_ROUTE:
                     layout = R.layout.list_item_route;
                     break;
+                case TYPE_HEADER:
+                    layout = R.layout.list_item_header;
+                    break;
                 case TYPE_FOOTER:
                     layout = R.layout.list_footer_data_source;
             }
             View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-            if (viewType == TYPE_FOOTER)
+            if (viewType == TYPE_HEADER)
+                return new HeaderViewHolder(view);
+            else if (viewType == TYPE_FOOTER)
                 return new FooterViewHolder(view);
             else
                 return new DataViewHolder(view);
@@ -497,6 +537,9 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
         @Override
         public int getItemViewType(int position) {
+            if (headers.containsKey(position))
+                return TYPE_HEADER;
+            position = adjustPosition(position);
             if (position == cursor.getCount())
                 return TYPE_FOOTER;
             return dataSource.getDataType(position);
@@ -504,8 +547,13 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
         @Override
         public long getItemId(int position) {
+            if (headers.containsKey(position))
+                return -TYPE_HEADER-position;
+            position = adjustPosition(position);
+            if (position == cursor.getCount())
+                return -TYPE_FOOTER;
             cursor.moveToPosition(position);
-            int viewType = getItemViewType(position);
+            int viewType = dataSource.getDataType(position);
             if (viewType == DataSource.TYPE_WAYPOINT) {
                 final Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
                 return waypoint._id;
@@ -521,18 +569,58 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
         @Override
         public int getItemCount() {
-            int count = cursor.getCount();
+            int count = cursor.getCount() + headers.size();
             if (showFooter)
                 count++;
             return count;
+        }
+
+        public boolean canSetStateForPosition(int position) {
+            if (headers.containsKey(position))
+                return false;
+            return position != cursor.getCount() + headers.size();
         }
 
         abstract class BindableViewHolder extends RecyclerView.ViewHolder {
             public BindableViewHolder(@NonNull View view) {
                 super(view);
             }
-
             abstract void bindView(int position);
+            abstract ItemDetailsLookup.ItemDetails<Long> getItemDetails();
+        }
+
+        class HeaderViewHolder extends BindableViewHolder {
+            MaterialTextView title;
+            public HeaderViewHolder(@NonNull View view) {
+                super(view);
+                title = view.findViewById(R.id.title);
+            }
+
+            @Override
+            void bindView(int position) {
+                Integer type = headers.get(position);
+                if (type == null)
+                    return;
+                int string = 0;
+                switch (type) {
+                    case DataSource.TYPE_WAYPOINT:
+                        string = R.string.places;
+                        break;
+                    case DataSource.TYPE_TRACK:
+                        string = R.string.tracks;
+                        break;
+                    case DataSource.TYPE_ROUTE:
+                        string = R.string.routes;
+                        break;
+                }
+                title.setText(getText(string));
+            }
+
+            @Override
+            ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+                int position = getBindingAdapterPosition();
+                return new DataItemDetails(position, (long) (-TYPE_HEADER-position));
+            }
         }
 
         class FooterViewHolder extends BindableViewHolder {
@@ -544,11 +632,16 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
             void bindView(int position) {
                 // do nothing
             }
+
+            @Override
+            ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+                int position = getBindingAdapterPosition();
+                return new DataItemDetails(position, (long) (-TYPE_FOOTER));
+            }
         }
 
         class DataViewHolder extends BindableViewHolder {
             long id;
-            MaterialTextView separator;
             MaterialTextView name;
             MaterialTextView distance;
             AppCompatImageView icon;
@@ -557,7 +650,6 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
 
             DataViewHolder(View view) {
                 super(view);
-                separator = view.findViewById(R.id.separator);
                 name = view.findViewById(R.id.name);
                 distance = view.findViewById(R.id.distance);
                 icon = view.findViewById(R.id.icon);
@@ -569,51 +661,8 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
             @Override
             void bindView(int position) {
                 int viewType = getItemViewType();
+                position = adjustPosition(position);
                 cursor.moveToPosition(position);
-
-                boolean needSeparator = false;
-
-                /*
-                switch (mCellStates[position]) {
-                    case STATE_SECTIONED_CELL:
-                        needSeparator = true;
-                        break;
-
-                    case STATE_REGULAR_CELL:
-                        break;
-
-                    case STATE_UNKNOWN:
-                    default:
-                        if (mIsMultiDataSource && position == 0) {
-                            needSeparator = true;
-                        } else if (mIsMultiDataSource) {
-                            int prevViewType = getItemViewType(position - 1);
-                            if (prevViewType != viewType)
-                                needSeparator = true;
-                        }
-                        mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
-                        break;
-                }
-                 */
-
-                if (needSeparator) {
-                    int string = 0;
-                    switch (viewType) {
-                        case DataSource.TYPE_WAYPOINT:
-                            string = R.string.places;
-                            break;
-                        case DataSource.TYPE_TRACK:
-                            string = R.string.tracks;
-                            break;
-                        case DataSource.TYPE_ROUTE:
-                            string = R.string.routes;
-                            break;
-                    }
-                    separator.setText(getText(string));
-                    separator.setVisibility(View.VISIBLE);
-                } else {
-                    separator.setVisibility(View.GONE);
-                }
 
                 @DrawableRes int iconRes = R.drawable.ic_info_outline;
                 @ColorInt int color = darkColor;
@@ -702,9 +751,7 @@ public class DataList extends Fragment implements DataSourceUpdateListener, Coor
             View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
             if (view != null) {
                 RecyclerView.ViewHolder viewHolder = recyclerView.getChildViewHolder(view);
-                if (viewHolder instanceof DataListAdapter.DataViewHolder) {
-                    return ((DataListAdapter.DataViewHolder) viewHolder).getItemDetails();
-                }
+                return ((DataListAdapter.BindableViewHolder) viewHolder).getItemDetails();
             }
             return null;
         }
