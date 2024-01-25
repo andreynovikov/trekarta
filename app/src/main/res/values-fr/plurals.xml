@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="one">%d item selected</item>
+        <item quantity="many">%d items selected</item>
+        <item quantity="other">%d éléments sélectionnés</item>
+    </plurals>
+    <plurals name="placesCount">
+        <item quantity="one">%d place</item>
+        <item quantity="many">%d places</item>
+        <item quantity="other">%d lieux</item>
+    </plurals>
+    <plurals name="placesDeleted">
+        <item quantity="one">%d place deleted</item>
+        <item quantity="many">%d places deleted</item>
+        <item quantity="other">%d lieux supprimés</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="one">%d track</item>
+        <item quantity="many">%d tracks</item>
+        <item quantity="other">%d traces</item>
+    </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="one">%d track deleted</item>
+        <item quantity="many">%d tracks deleted</item>
+        <item quantity="other">%d traces supprimées</item>
+    </plurals>
+    <plurals name="routesCount">
+        <item quantity="one">%d route</item>
+        <item quantity="many">%d routes</item>
+        <item quantity="other">%d routes</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="one">%d route deleted</item>
+        <item quantity="many">%d routes deleted</item>
+        <item quantity="other">%d routes supprimées</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="one">%d point</item>
+        <item quantity="many">%d points</item>
+        <item quantity="other">%d points</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="one">%d segment</item>
+        <item quantity="many">%d segments</item>
+        <item quantity="other">%d segments</item>
+    </plurals>
+    <plurals name="loadedAreas">
+        <item quantity="one">%d area active</item>
+        <item quantity="many">%d areas active</item>
+        <item quantity="other">%d zones actives</item>
+    </plurals>
+    <plurals name="downloading">
+        <item quantity="one">%d downloading</item>
+        <item quantity="many">%d downloading</item>
+        <item quantity="other">%d chargement</item>
+    </plurals>
+    <plurals name="remaining">
+        <item quantity="one">%d remaining</item>
+        <item quantity="many">%d remaining</item>
+        <item quantity="other">%d restant</item>
+    </plurals>
+</resources>
