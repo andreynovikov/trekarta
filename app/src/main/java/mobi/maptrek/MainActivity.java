@@ -81,6 +81,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
@@ -464,7 +465,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
                 }
             }
-            //return insets;
             // Return CONSUMED if you don't want the window insets to keep being
             // passed down to descendant views.
             return WindowInsetsCompat.CONSUMED;
@@ -472,6 +472,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         MapTrek application = MapTrek.getApplication();
 
+        // Initialize cached resources
         Resources resources = getResources();
         Resources.Theme theme = getTheme();
         mColorAccent = resources.getColor(R.color.colorAccent, theme);
@@ -480,6 +481,15 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelSolidBackground = resources.getColor(R.color.panelSolidBackground, theme);
         mPanelExtendedBackground = resources.getColor(R.color.panelExtendedBackground, theme);
 
+        // Restore most important state ASAP
+        mVerticalOrientation = resources.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
+        mPanelState = PANEL_STATE.NONE;
+        if (savedInstanceState != null) {
+            setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
+        }
+
+        // Prepare handlers
         mMainHandler = new Handler(Looper.getMainLooper());
         mBackgroundThread = new HandlerThread("BackgroundThread");
         mBackgroundThread.setPriority(Thread.MIN_PRIORITY);
@@ -525,8 +535,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mLocationState = LocationState.DISABLED;
         mSavedLocationState = LocationState.DISABLED;
 
-        mPanelState = PANEL_STATE.NONE;
-
         mViews.license.setClickable(true);
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -546,14 +554,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 switch (mPanelState) {
                     case TRACKS:
                         if (!mVerticalOrientation) {
-                            child.setMinimumHeight((int) (mViews.tracksButton.getHeight() + mViews.tracksButton.getY()));
+                            child.post(() -> child.setMinimumHeight((int) (mViews.tracksButton.getHeight() + mViews.tracksButton.getY())));
                             lp.gravity = Gravity.TOP;
                             child.setLayoutParams(lp);
                         }
                         break;
                     case PLACES:
                         if (!mVerticalOrientation) {
-                            child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY()));
+                            child.post(() -> child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY())));
                             lp.gravity = Gravity.TOP;
                             child.setLayoutParams(lp);
                         }
@@ -562,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         if (mVerticalOrientation) {
                             lp.gravity = Gravity.END;
                         } else {
-                            child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY()));
+                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY())));
                             lp.gravity = Gravity.BOTTOM;
                         }
                         child.setLayoutParams(lp);
@@ -942,9 +950,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             enableNavigation();
         }
 
-        mVerticalOrientation = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
-        mSlideGravity = mVerticalOrientation ? Gravity.BOTTOM : Gravity.END;
-
         mMapEventLayer = new MapEventLayer(mMap, this);
         mMap.layers().add(mMapEventLayer, MAP_EVENTS);
         mMap.events.bind(this);
@@ -1172,7 +1177,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         mAutoTiltShouldSet = savedInstanceState.getBoolean("autoTiltShouldSet");
         mBaseMapWarningShown = savedInstanceState.getBoolean("baseMapWarningShown");
-        setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
     }
 
     ActivityResultLauncher<String> mGetContent = registerForActivityResult(
@@ -4312,6 +4316,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private final Observer<DataSource> selectedDataSourceObserver = new Observer<DataSource>() {
         @Override
         public void onChanged(DataSource dataSource) {
+            if (getLifecycle().getCurrentState() != Lifecycle.State.RESUMED)
+                return;
             if (dataSource.isNativeTrack()) {
                 Track track = ((TrackDataSource) dataSource).getTracks().get(0);
                 onTrackDetails(track, false);
@@ -4330,16 +4336,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     onRouteDetails(route);
                 }
             } else {
-                Bundle args = new Bundle(1);
-                args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
-                FragmentFactory factory = mFragmentManager.getFragmentFactory();
-                DataList fragment = (DataList) factory.instantiate(getClassLoader(), DataList.class.getName());
-                fragment.setArguments(args);
-                FragmentTransaction ft = mFragmentManager.beginTransaction();
-                fragment.setEnterTransition(new Fade());
-                ft.add(R.id.extendPanel, fragment, "dataList");
-                ft.addToBackStack("dataList");
-                ft.commit();
+                Fragment fragment = mFragmentManager.findFragmentByTag("dataList");
+                if (fragment == null) {
+                    Bundle args = new Bundle(1);
+                    if (mVerticalOrientation)
+                        args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
+                    FragmentFactory factory = mFragmentManager.getFragmentFactory();
+                    fragment = factory.instantiate(getClassLoader(), DataList.class.getName());
+                    fragment.setArguments(args);
+                }
+                showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
             }
         }
     };
