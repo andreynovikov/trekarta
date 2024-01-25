@@ -24,8 +24,24 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.oscim.core.GeoPoint;
+import org.oscim.theme.IRenderTheme;
+
+import mobi.maptrek.MapTrek;
+import mobi.maptrek.util.OsmcSymbolFactory;
+import mobi.maptrek.util.ShieldFactory;
 
 public class MapViewModel extends ViewModel {
+    public ShieldFactory shieldFactory = MapTrek.getApplication().getShieldFactory();
+    public OsmcSymbolFactory osmcSymbolFactory = MapTrek.getApplication().getOsmcSymbolFactory();
+
+    private final MutableLiveData<IRenderTheme> theme = new MutableLiveData<>();
+    public LiveData<IRenderTheme> getTheme() {
+        return theme;
+    }
+    public void setTheme(IRenderTheme theme) {
+        this.theme.setValue(theme);
+    }
+
     private final MutableLiveData<Location> location = new MutableLiveData<>(new Location("unknown"));
     public LiveData<Location> getCurrentLocation() {
         return location;
@@ -75,5 +91,12 @@ public class MapViewModel extends ViewModel {
     private final MutableLiveData<MarkerState> markerState = new MutableLiveData<>(new MarkerState(null, null, false, false));
     public LiveData<MarkerState> getMarkerState() {
         return markerState;
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        shieldFactory.dispose();
+        osmcSymbolFactory.dispose();
     }
 }

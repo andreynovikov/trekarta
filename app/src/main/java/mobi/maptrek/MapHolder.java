@@ -29,10 +29,6 @@ import mobi.maptrek.util.ShieldFactory;
 public interface MapHolder {
     Map getMap();
 
-    ShieldFactory getShieldFactory();
-
-    OsmcSymbolFactory getOsmcSymbolFactory();
-
     void disableLocations();
 
     void disableTracking();

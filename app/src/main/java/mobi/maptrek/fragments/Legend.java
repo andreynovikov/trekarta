@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,13 +16,13 @@
 
 package mobi.maptrek.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,14 +42,12 @@ import java.util.HashSet;
 import java.util.List;
 
 import mobi.maptrek.Configuration;
-import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.maps.maptrek.Tags;
-import mobi.maptrek.util.OsmcSymbolFactory;
-import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.view.LegendView;
 import mobi.maptrek.view.LegendView.LegendItem;
 import mobi.maptrek.view.LegendView.LegendAmenityItem;
+import mobi.maptrek.viewmodels.MapViewModel;
 
 // http://www.compassdude.com/map-symbols.php
 // https://support.viewranger.com/index.php?pg=kb.page&id=143
@@ -1675,23 +1673,20 @@ public class Legend extends ListFragment {
     };
 
     private Legend.LegendListAdapter mAdapter;
-    private MapHolder mMapHolder;
-    private IRenderTheme mTheme;
-    private ShieldFactory mShieldFactory;
-    private OsmcSymbolFactory mOsmcSymbolFactory;
     private int mBackground;
+
+    MapViewModel mapViewModel;
 
     private final List<LegendItem> mData = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.list_with_empty_view, container, false);
+        View rootView = inflater.inflate(R.layout.list_simple, container, false);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) rootView.getLayoutParams();
         layoutParams.width = getResources().getDimensionPixelSize(R.dimen.legendWidth);
         rootView.setLayoutParams(layoutParams);
@@ -1702,32 +1697,14 @@ public class Legend extends ListFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+        mapViewModel.getTheme().observe(getViewLifecycleOwner(), this::updateData);
+
         mAdapter = new Legend.LegendListAdapter();
         setListAdapter(mAdapter);
-        updateData();
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            mMapHolder = (MapHolder) context;
-            mTheme = mMapHolder.getMap().getTheme();
-            mShieldFactory = mMapHolder.getShieldFactory();
-            mOsmcSymbolFactory = mMapHolder.getOsmcSymbolFactory();
-
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement MapHolder");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mMapHolder = null;
-    }
-
-    public void updateData() {
+    public void updateData(IRenderTheme renderTheme) {
         mData.clear();
 
         LegendSection[] theme;
@@ -1823,7 +1800,7 @@ public class Legend extends ListFragment {
         }
 
         //noinspection rawtypes
-        for (RenderStyle style : mTheme.matchElement(land.type, land.tags, land.zoomLevel)) {
+        for (RenderStyle style : renderTheme.matchElement(land.type, land.tags, land.zoomLevel)) {
             if (style instanceof AreaStyle) {
                 mBackground = ((AreaStyle) style).color;
             }
@@ -1875,7 +1852,7 @@ public class Legend extends ListFragment {
 
             itemHolder.name.setText(legendItem.name);
             if (legendItem.type != GeometryType.NONE) {
-                itemHolder.item.setLegend(legendItem, mBackground, mTheme, mShieldFactory, mOsmcSymbolFactory);
+                itemHolder.item.setLegend(legendItem, mBackground, mapViewModel.getTheme().getValue(), mapViewModel.shieldFactory, mapViewModel.osmcSymbolFactory);
             }
             return convertView;
         }

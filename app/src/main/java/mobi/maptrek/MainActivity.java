@@ -151,6 +151,7 @@ import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.MapScaleBarLayer;
+import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.ThemeLoader;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -262,9 +263,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MarkerFactory;
 import mobi.maptrek.util.MathUtils;
 import mobi.maptrek.util.Osm;
-import mobi.maptrek.util.OsmcSymbolFactory;
 import mobi.maptrek.util.ProgressHandler;
-import mobi.maptrek.util.ShieldFactory;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.util.SunriseSunset;
 import mobi.maptrek.view.Gauge;
@@ -423,8 +422,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private boolean mBaseMapWarningShown = false;
     private boolean mObjectInteractionEnabled = true;
     private boolean mAskedNotificationPermission = false;
-    private ShieldFactory mShieldFactory;
-    private OsmcSymbolFactory mOsmcSymbolFactory;
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -511,9 +508,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         mMapIndex = application.getExtraMapIndex();
 
-        mShieldFactory = application.getShieldFactory();
-        mOsmcSymbolFactory = application.getOsmcSymbolFactory();
-
         mPluginRepository = application.getPluginRepository();
 
         if (savedInstanceState == null) {
@@ -592,6 +586,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         int lastIntroduction = Configuration.getLastSeenIntroduction();
 
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+
         mMap = mViews.mapView.map();
         if (lastIntroduction == 0) {
             // Set initial location based on device language
@@ -654,7 +650,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             layers.add(mBuildingsLayer, MAP_3D);
         }
 
-        mLabelTileLoaderHook = new LabelTileLoaderHook(mShieldFactory, mOsmcSymbolFactory);
+        mLabelTileLoaderHook = new LabelTileLoaderHook(mapViewModel.shieldFactory, mapViewModel.osmcSymbolFactory);
         String language = Configuration.getLanguage();
         if (!"none".equals(language))
             mLabelTileLoaderHook.setPreferredLanguage(language);
@@ -684,7 +680,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         dataSourceViewModel = new ViewModelProvider(this).get(DataSourceViewModel.class);
         dataSourceViewModel.getSelectedDataSource().observe(this, selectedDataSourceObserver);
 
-        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         // Observe marker state
         mapViewModel.getMarkerState().observe(this, markerState -> {
             // There can be only one marker at a time
@@ -1121,10 +1116,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     bitmapLayerMap.tileSource.close();
                 mBitmapLayerMaps.clear();
             }
-            if (mShieldFactory != null)
-                mShieldFactory.dispose();
-            if (mOsmcSymbolFactory != null)
-                mOsmcSymbolFactory.dispose();
         }
 
         //mFragmentManager = null;
@@ -4288,16 +4279,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     @Override
-    public ShieldFactory getShieldFactory() {
-        return mShieldFactory;
-    }
-
-    @Override
-    public OsmcSymbolFactory getOsmcSymbolFactory() {
-        return mOsmcSymbolFactory;
-    }
-
-    @Override
     public void setDataSourceAvailability(FileDataSource source, boolean available) {
         if (available) {
             if (source.isLoaded()) {
@@ -4565,8 +4546,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         if (level > TRIM_MEMORY_MODERATE) {
-            mShieldFactory.dispose();
-            mOsmcSymbolFactory.dispose();
+            mapViewModel.shieldFactory.dispose();
+            mapViewModel.osmcSymbolFactory.dispose();
             mMap.clearMap();
         }
     }
@@ -4626,10 +4607,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         float mapScale = Themes.MAP_SCALE_SIZES[Configuration.getMapUserScale()];
         CanvasAdapter.textScale = fontSize / mapScale;
         CanvasAdapter.userScale = mapScale;
-        mMap.setTheme(ThemeLoader.load(themeFile), true);
-        mShieldFactory.setFontSize(fontSize);
-        mShieldFactory.dispose();
-        mOsmcSymbolFactory.dispose();
+        IRenderTheme theme = ThemeLoader.load(themeFile);
+        mMap.setTheme(theme, true);
+        mapViewModel.shieldFactory.setFontSize(fontSize);
+        mapViewModel.shieldFactory.dispose();
+        mapViewModel.osmcSymbolFactory.dispose();
+        mapViewModel.setTheme(theme);
     }
 
     private void hideSystemUI() {

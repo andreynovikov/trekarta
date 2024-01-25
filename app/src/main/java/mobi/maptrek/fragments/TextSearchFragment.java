@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,7 +58,6 @@ import android.widget.ListView;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.oscim.core.GeoPoint;
-import org.oscim.theme.IRenderTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +78,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.MapViewModel;
 
 public class TextSearchFragment extends ListFragment implements View.OnClickListener {
     private static final Logger logger = LoggerFactory.getLogger(TextSearchFragment.class);
@@ -99,7 +100,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
 
     private boolean mUpdating;
     private SQLiteDatabase mDatabase;
-    private IRenderTheme mTheme;
     private CancellationSignal mCancellationSignal;
     private DataListAdapter mAdapter;
     private final MatrixCursor mEmptyCursor = new MatrixCursor(mColumns);
@@ -111,6 +111,8 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private FragmentSearchListBinding mViews;
     private String mText;
     private GeoPoint mFoundPoint;
+
+    private MapViewModel mapViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -157,6 +159,8 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
 
         double latitude = Double.NaN;
         double longitude = Double.NaN;
@@ -242,7 +246,6 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
         }
         try {
             mMapHolder = (MapHolder) context;
-            mTheme = mMapHolder.getMap().getTheme();
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement MapHolder");
         }
@@ -406,7 +409,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private Drawable getTypeDrawable(int type) {
         Drawable icon = mTypeIconCache.get(type);
         if (icon == null) {
-            icon = Tags.getTypeDrawable(getContext(), mTheme, Math.abs(type));
+            icon = Tags.getTypeDrawable(getContext(), mapViewModel.getTheme().getValue(), Math.abs(type));
             if (icon != null)
                 mTypeIconCache.put(type, icon);
         }
