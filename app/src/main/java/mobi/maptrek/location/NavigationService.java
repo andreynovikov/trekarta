@@ -285,7 +285,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         @Override
         public String getInstructionText() {
             if (isNavigatingViaRoute()) {
-                return navRoute.getInstructionText(navRouteCurrentIndex());
+                return navRoute.get(navRouteCurrentIndex()).getText();
             } else {
                 return navWaypoint.name;
             }
@@ -295,7 +295,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         public int getSign() {
             //noinspection StatementWithEmptyBody
             if (isNavigatingViaRoute()) {
-                return navRoute.getSign(navRouteCurrentIndex());
+                return navRoute.get(navRouteCurrentIndex()).getSign();
             } else {
                 // TODO: add sign for waypoint navigation?
             }
@@ -512,8 +512,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void resumeRoute() {
         connect();
 
-        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint).getCoordinates());
-        prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection).getCoordinates());
+        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
+        prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection));
         navProximity = DEFAULT_ROUTE_PROXIMITY;
         navRouteDistance = -1;
         navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
@@ -525,10 +525,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public void setRouteWaypoint(int waypoint) {
         navCurrentRoutePoint = waypoint;
-        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint).getCoordinates());
+        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
         int prev = navCurrentRoutePoint - navDirection;
         if (prev >= 0 && prev < navRoute.length())
-            prevWaypoint = new MapObject(navRoute.get(prev).getCoordinates());
+            prevWaypoint = new MapObject(navRoute.get(prev));
         else
             prevWaypoint = null;
         navRouteDistance = -1;
@@ -541,14 +541,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
     public MapObject getNextRouteWaypoint() {
         int next = navCurrentRoutePoint + navDirection;
         if (next >= 0 && next < navRoute.length())
-            return new MapObject(navRoute.get(next).getCoordinates());
+            return new MapObject(navRoute.get(next));
         return null;
     }
 
     public void nextRouteWaypoint() throws IndexOutOfBoundsException {
         navCurrentRoutePoint += navDirection;
-        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint).getCoordinates());
-        prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection).getCoordinates());
+        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
+        prevWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection));
         navRouteDistance = -1;
         navCourse = prevWaypoint.coordinates.bearingTo(navWaypoint.coordinates);
         if (avgVMG[0] < 0) avgVMG[0] = 0.0;
@@ -561,10 +561,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public void prevRouteWaypoint() throws IndexOutOfBoundsException {
         navCurrentRoutePoint -= navDirection;
-        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint).getCoordinates());
+        navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
         int prev = navCurrentRoutePoint - navDirection;
         if (prev >= 0 && prev < navRoute.length())
-            prevWaypoint = new MapObject(navRoute.get(prev).getCoordinates());
+            prevWaypoint = new MapObject(navRoute.get(prev));
         else
             prevWaypoint = null;
         navRouteDistance = -1;
@@ -651,9 +651,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avgVMG[0] > 0) {
             int i = navDirection == DIRECTION_FORWARD ? index : navRoute.length() - index - 1;
             int j = i - navDirection;
-            MapObject w1 = new MapObject(navRoute.get(i).getCoordinates());
-            MapObject w2 = new MapObject(navRoute.get(j).getCoordinates());
-            double distance = w1.coordinates.vincentyDistance(w2.coordinates);
+            double distance = navRoute.get(i).vincentyDistance(navRoute.get(j));
             ete = (int) Math.round(distance / avgVMG[0] / 60);
         }
         return ete;

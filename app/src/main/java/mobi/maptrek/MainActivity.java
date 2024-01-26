@@ -272,6 +272,7 @@ import mobi.maptrek.viewmodels.AmenityViewModel;
 import mobi.maptrek.viewmodels.DataSourceViewModel;
 import mobi.maptrek.viewmodels.MapIndexViewModel;
 import mobi.maptrek.viewmodels.MapViewModel;
+import mobi.maptrek.viewmodels.RouteViewModel;
 
 public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
@@ -409,6 +410,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private DataSourceViewModel dataSourceViewModel;
     private MapIndexViewModel mapIndexViewModel;
     private MapViewModel mapViewModel;
+    private RouteViewModel routeViewModel;
 
     private SQLiteDatabase mDetailedMapDatabase;
     private MapIndex mMapIndex;
@@ -710,6 +712,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mMap.updateMap(true);
         });
 
+        routeViewModel = new ViewModelProvider(this).get(RouteViewModel.class);
         amenityViewModel = new ViewModelProvider(this).get(AmenityViewModel.class);
         // Observe amenity state
         amenityViewModel.getAmenity().observe(this, amenity -> {
@@ -2989,6 +2992,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onRouteDetails(Route route) {
+        routeViewModel.setSelectedRoute(route);
         adjustGuideline(true);
         Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
         if (fragment == null) {
@@ -3003,7 +3007,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("routeInformation");
             ft.commit();
         }
-        ((RouteInformation) fragment).setRoute(route);
         dimExtendPanel();
     }
 

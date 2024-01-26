@@ -24,6 +24,7 @@ import org.oscim.core.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.style.RouteStyle;
@@ -44,7 +45,7 @@ public class Route implements Parcelable {
     public RouteStyle style = new RouteStyle();
     public DataSource source; // back reference to it's source
 
-    public final ArrayList<Instruction> instructions = new ArrayList<>();
+    private final ArrayList<Instruction> instructions = new ArrayList<>();
     private Instruction lastInstruction;
     private UpdateListener updateListener;
 
@@ -77,8 +78,12 @@ public class Route implements Parcelable {
 
     private void addInstruction(Instruction instruction) {
         if (lastInstruction != null) {
-            distance += lastInstruction.vincentyDistance(instruction);
+            lastInstruction.next = instruction;
+            lastInstruction.reset();
+            instruction.distance = lastInstruction.vincentyDistance(instruction);
+            distance += instruction.distance;
         }
+        instruction.previous = lastInstruction;
         lastInstruction = instruction;
         instructions.add(lastInstruction);
         notifyChanged();
@@ -112,21 +117,40 @@ public class Route implements Parcelable {
                 }
             }
         }
-        instructions.add(after + 1, instruction);
-        lastInstruction = instructions.get(instructions.size() - 1);
-        distance = distanceBetween(0, instructions.size() - 1);
-        notifyChanged();
+        insertInstruction(after, instruction);
     }
 
-    public void insertInstruction(int after, Instruction waypoint) {
-        instructions.add(after + 1, waypoint);
+    public void insertInstruction(int after, Instruction instruction) {
+        Instruction prev = instructions.get(after);
+        Instruction next = instructions.get(after + 1);
+        instructions.add(after + 1, instruction);
+        instruction.previous = prev;
+        instruction.next = next;
+        prev.next = instruction;
+        next.previous = instruction;
+        prev.reset();
+        next.reset();
+        instruction.distance = prev.vincentyDistance(instruction);
+        next.distance = instruction.vincentyDistance(next);
         lastInstruction = instructions.get(instructions.size() - 1);
         distance = distanceBetween(0, instructions.size() - 1);
         notifyChanged();
     }
 
     public void removeInstruction(Instruction instruction) {
+        Instruction prev = instruction.previous;
+        Instruction next = instruction.next;
         instructions.remove(instruction);
+        if (prev != null) {
+            prev.next = next;
+            prev.reset();
+        }
+        if (next != null) {
+            next.previous = prev;
+            next.reset();
+            if (prev != null)
+                next.distance = prev.vincentyDistance(next);
+        }
         if (instructions.size() > 0) {
             lastInstruction = instructions.get(instructions.size() - 1);
             distance = distanceBetween(0, instructions.size() - 1);
@@ -160,12 +184,6 @@ public class Route implements Parcelable {
             }
         }
         return dist;
-    }
-
-    public double course(int prev, int next) {
-        synchronized (instructions) {
-            return instructions.get(prev).bearingTo(instructions.get(next));
-        }
     }
 
     public Instruction getNearestInstruction(GeoPoint point) {
@@ -202,93 +220,8 @@ public class Route implements Parcelable {
         return instructions.get(index);
     }
 
-    public String getInstructionText(int index) {
-        Instruction instruction = instructions.get(index);
-        if (instruction.text != null)
-            return instruction.text;
-        String course = null;
-        switch (getSign(index)) {
-            case Instruction.TURN_SHARP_LEFT:
-            case Instruction.TURN_LEFT:
-            case Instruction.TURN_SLIGHT_LEFT:
-            case Instruction.TURN_SLIGHT_RIGHT:
-            case Instruction.TURN_RIGHT:
-            case Instruction.TURN_SHARP_RIGHT:
-                double nextCourse = course(index, index + 1);
-                double prevCourse = course(index - 1, index);
-                // turn
-                long turn = Math.round(nextCourse - prevCourse);
-                if (Math.abs(turn) > 180) {
-                    turn = turn - (long) (Math.signum(turn)) * 360;
-                }
-                course = StringFormatter.angleH(Math.abs(turn));
-        }
-        switch (getSign(index)) {
-            case Instruction.START:
-                return "Start";
-            case Instruction.U_TURN_UNKNOWN:
-            case Instruction.U_TURN_LEFT:
-                return "Make left U-turn";
-            case Instruction.KEEP_LEFT:
-                return "Keep left";
-            case Instruction.TURN_SHARP_LEFT:
-            case Instruction.TURN_LEFT:
-            case Instruction.TURN_SLIGHT_LEFT:
-                return "Turn left " + course;
-            case Instruction.TURN_SLIGHT_RIGHT:
-            case Instruction.TURN_RIGHT:
-            case Instruction.TURN_SHARP_RIGHT:
-                return "Turn right " + course;
-            case Instruction.FINISH:
-                return "Finish";
-            case Instruction.REACHED_VIA:
-                return "Via point";
-            case Instruction.LEAVE_ROUNDABOUT: // TODO Make separate icon
-            case Instruction.USE_ROUNDABOUT:
-                return "Use roundabout";
-            case Instruction.KEEP_RIGHT:
-                return "Keep right";
-            case Instruction.U_TURN_RIGHT:
-                return "Make right U-turn";
-            case Instruction.CONTINUE_ON_STREET:
-            case Instruction.IGNORE:
-            case Instruction.UNKNOWN:
-            default:
-                return "Continue straight";
-        }
-    }
-
-    public int getSign(int index) {
-        Instruction instruction = instructions.get(index);
-        if (instruction.sign != Instruction.UNDEFINED)
-            return instruction.sign;
-        int sign;
-        if (index == 0) {
-            sign = Instruction.START;
-        } else if (index == instructions.size() - 1) {
-            sign = Instruction.FINISH;
-        } else {
-            double nextCourse = course(index, index + 1);
-            double prevCourse = course(index - 1, index);
-            // turn
-            long turn = Math.round(nextCourse - prevCourse);
-            if (Math.abs(turn) > 180) {
-                turn = turn - (long) (Math.signum(turn)) * 360;
-            }
-            if (Math.abs(turn) < 5) {
-                sign = Instruction.CONTINUE_ON_STREET;
-            } else if (Math.abs(turn) < 60) {
-                sign = turn > 0 ? Instruction.TURN_SLIGHT_RIGHT : Instruction.TURN_SLIGHT_LEFT;
-            } else if (Math.abs(turn) < 110) {
-                sign = turn > 0 ? Instruction.TURN_RIGHT : Instruction.TURN_LEFT;
-            } else if (Math.abs(turn) < 170) {
-                sign = turn > 0 ? Instruction.TURN_SHARP_RIGHT : Instruction.TURN_SHARP_LEFT;
-            } else {
-                sign = turn > 0 ? Instruction.U_TURN_RIGHT : Instruction.U_TURN_LEFT;
-            }
-        }
-        instruction.sign = sign;
-        return sign;
+    public List<Instruction> getInstructions() {
+        return instructions;
     }
 
     public List<GeoPoint> getCoordinates() {
@@ -407,7 +340,14 @@ public class Route implements Parcelable {
         public String text;
         public int sign;
         public float elevation;
-        private int distance; // TODO Use distance if set
+        public double distance = 0.0;
+
+        private Instruction previous;
+        private Instruction next;
+
+        // cached
+        private int signInt;
+        private long turn;
 
         Instruction(GeoPoint point) {
             super(point.latitudeE6, point.longitudeE6);
@@ -421,12 +361,113 @@ public class Route implements Parcelable {
             this.sign = sign;
         }
 
-        public GeoPoint getCoordinates() {
-            return this;
+        public String getText() {
+            if (text != null)
+                return text;
+            String course = null;
+            switch (getSign()) {
+                case Instruction.TURN_SHARP_LEFT:
+                case Instruction.TURN_LEFT:
+                case Instruction.TURN_SLIGHT_LEFT:
+                case Instruction.TURN_SLIGHT_RIGHT:
+                case Instruction.TURN_RIGHT:
+                case Instruction.TURN_SHARP_RIGHT:
+                    course = StringFormatter.angleH(Math.abs(turn));
+            }
+            switch (getSign()) {
+                case Instruction.START:
+                    return "Start";
+                case Instruction.U_TURN_UNKNOWN:
+                    return "Make U-turn";
+                case Instruction.U_TURN_LEFT:
+                    return "Make left U-turn";
+                case Instruction.U_TURN_RIGHT:
+                    return "Make right U-turn";
+                case Instruction.KEEP_LEFT:
+                    return "Keep left";
+                case Instruction.KEEP_RIGHT:
+                    return "Keep right";
+                case Instruction.TURN_LEFT:
+                    return "Turn left " + course;
+                case Instruction.TURN_SHARP_LEFT:
+                    return "Turn sharp " + course;
+                case Instruction.TURN_SLIGHT_LEFT:
+                    return "Turn slight left " + course;
+                case Instruction.TURN_RIGHT:
+                    return "Turn right " + course;
+                case Instruction.TURN_SHARP_RIGHT:
+                    return "Turn sharp right " + course;
+                case Instruction.TURN_SLIGHT_RIGHT:
+                    return "Turn slight right " + course;
+                case Instruction.FINISH:
+                    return "Finish";
+                case Instruction.REACHED_VIA:
+                    return "Via point";
+                case Instruction.LEAVE_ROUNDABOUT:
+                    return "Leave roundabout";
+                case Instruction.USE_ROUNDABOUT:
+                    return "Use roundabout";
+                case Instruction.CONTINUE_ON_STREET:
+                case Instruction.IGNORE:
+                case Instruction.UNKNOWN:
+                default:
+                    return "Continue straight";
+            }
         }
 
-        public String getText() {
-            return text;
+        public int getSign() {
+            if (sign != Instruction.UNDEFINED)
+                return sign;
+            if (previous == null) {
+                signInt = Instruction.START;
+            } else if (next == null) {
+                signInt = Instruction.FINISH;
+            } else {
+                double nextCourse = this.bearingTo(next);
+                double prevCourse = previous.bearingTo(this);
+                // turn
+                turn = Math.round(nextCourse - prevCourse);
+                if (Math.abs(turn) > 180) {
+                    turn = turn - (long) (Math.signum(turn)) * 360;
+                }
+                if (Math.abs(turn) < 5) {
+                    signInt = Instruction.CONTINUE_ON_STREET;
+                } else if (Math.abs(turn) < 60) {
+                    signInt = turn > 0 ? Instruction.TURN_SLIGHT_RIGHT : Instruction.TURN_SLIGHT_LEFT;
+                } else if (Math.abs(turn) < 110) {
+                    signInt = turn > 0 ? Instruction.TURN_RIGHT : Instruction.TURN_LEFT;
+                } else if (Math.abs(turn) < 170) {
+                    signInt = turn > 0 ? Instruction.TURN_SHARP_RIGHT : Instruction.TURN_SHARP_LEFT;
+                } else {
+                    signInt = turn > 0 ? Instruction.U_TURN_RIGHT : Instruction.U_TURN_LEFT;
+                }
+            }
+            return signInt;
+        }
+
+        public int position() {
+            int pos = 0;
+            Instruction prev = previous;
+            while (prev != null) {
+                pos++;
+                prev = prev.previous;
+            }
+            return pos;
+        }
+
+        private void reset() {
+            signInt = Instruction.UNDEFINED;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            } else if (!(obj instanceof Instruction)) {
+                return false;
+            }
+            Instruction other = (Instruction) obj;
+            return sign == other.sign && Objects.equals(text, other.text) && super.equals(other);
         }
     }
 

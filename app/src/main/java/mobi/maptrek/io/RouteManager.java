@@ -151,7 +151,7 @@ public class RouteManager extends Manager {
         CodedOutputStream output = CodedOutputStream.newInstance(outputStream);
         output.writeUInt32(FIELD_VERSION, VERSION);
         int progress = 0;
-        for (Route.Instruction instruction : route.instructions) {
+        for (Route.Instruction instruction : route.getInstructions()) {
             output.writeTag(FIELD_INSTRUCTION, WireFormat.WIRETYPE_LENGTH_DELIMITED);
             output.writeRawVarint32(getSerializedInstructionSize(instruction));
             output.writeInt32(FIELD_INSTRUCTION_LATITUDE, instruction.latitudeE6);

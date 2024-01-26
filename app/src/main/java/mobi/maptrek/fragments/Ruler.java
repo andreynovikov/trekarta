@@ -102,7 +102,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                 mMapHolder.getMap().getMapPosition(mMapPosition);
                 Route.Instruction instruction = viewModel.route.getNearestInstruction(mMapPosition.getGeoPoint());
                 viewModel.route.removeInstruction(instruction);
-                MarkerItem marker = mPointLayer.getByUid(instruction);
+                MarkerItem marker = mPointLayer.getByUid(new GeoPoint(instruction.latitudeE6, instruction.longitudeE6));
                 mPointLayer.removeItem(marker);
                 viewModel.pointHistory.remove(instruction);
                 mMapHolder.getMap().updateMap(true);
@@ -120,7 +120,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                     return;
                 }
                 viewModel.route.removeInstruction(instruction);
-                MarkerItem marker = mPointLayer.getByUid(instruction);
+                MarkerItem marker = mPointLayer.getByUid(new GeoPoint(instruction.latitudeE6, instruction.longitudeE6));
                 mPointLayer.removeItem(marker);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();

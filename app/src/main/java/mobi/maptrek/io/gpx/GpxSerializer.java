@@ -117,7 +117,7 @@ public class GpxSerializer {
             serializer.cdsect(route.description);
             serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
         }
-        for (Route.Instruction instruction : route.instructions) {
+        for (Route.Instruction instruction : route.getInstructions()) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_RTEPT);
             serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(instruction.latitudeE6 / 1E6));
             serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(instruction.longitudeE6 / 1E6));

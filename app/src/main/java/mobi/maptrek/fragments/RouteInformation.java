@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,72 +16,78 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.ListFragment;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
+import mobi.maptrek.databinding.FragmentRouteInformationBinding;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.RouteViewModel;
 
-public class RouteInformation extends ListFragment implements PopupMenu.OnMenuItemClickListener {
-    private Route mRoute;
-
+public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnRouteActionListener mListener;
+    private FragmentRouteInformationBinding viewBinding;
+    private RouteViewModel routeViewModel;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = FragmentRouteInformationBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_with_empty_view, container, false);
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         InstructionListAdapter adapter = new InstructionListAdapter();
-        setListAdapter(adapter);
+        viewBinding.list.setAdapter(adapter);
 
-        ListView listView = getListView();
-        View headerView = LayoutInflater.from(view.getContext()).inflate(R.layout.list_header_route_title, listView, false);
+        routeViewModel = new ViewModelProvider(requireActivity()).get(RouteViewModel.class);
+        routeViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
+            viewBinding.name.setText(route.name);
+            if (route.source == null || route.source.isNativeTrack()) { // TODO: isNativeTrack
+                viewBinding.sourceRow.setVisibility(View.GONE);
+            } else {
+                viewBinding.source.setText(route.source.name);
+                viewBinding.sourceRow.setVisibility(View.VISIBLE);
+            }
+            String distance = StringFormatter.distanceHP(route.distance);
+            viewBinding.distance.setText(distance);
+            adapter.submitList(route.getInstructions());
+        });
 
-        ImageButton moreButton = headerView.findViewById(R.id.moreButton);
-        moreButton.setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(getContext(), moreButton);
-            moreButton.setOnTouchListener(popup.getDragToOpenListener());
+        viewBinding.moreButton.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(getContext(), viewBinding.moreButton);
+            viewBinding.moreButton.setOnTouchListener(popup.getDragToOpenListener());
             popup.inflate(R.menu.context_menu_route);
             popup.setOnMenuItemClickListener(RouteInformation.this);
             popup.show();
         });
-
-        listView.addHeaderView(headerView, null, false);
-
-        initializeRouteInformation();
     }
 
     @Override
@@ -119,7 +125,9 @@ public class RouteInformation extends ListFragment implements PopupMenu.OnMenuIt
         mFloatingButton = mFragmentHolder.enableListActionButton();
         mFloatingButton.setImageResource(R.drawable.ic_navigate);
         mFloatingButton.setOnClickListener(v -> {
-            mMapHolder.navigateVia(mRoute);
+            Route route = routeViewModel.getSelectedRoute().getValue();
+            if (route != null)
+                mMapHolder.navigateVia(route);
             mFragmentHolder.popAll();
         });
     }
@@ -132,102 +140,86 @@ public class RouteInformation extends ListFragment implements PopupMenu.OnMenuIt
     }
 
     @Override
-    public void onListItemClick(@NonNull ListView lv, @NonNull View v, int position, long id) {
-        mMapHolder.setMapLocation(mRoute.get(position));
-        mFragmentHolder.popAll();
-    }
-
-    public void setRoute(Route route) {
-        mRoute = route;
-        if (isVisible()) {
-            initializeRouteInformation();
-        }
-    }
-
-    private void initializeRouteInformation() {
-        View rootView = getView();
-        assert rootView != null;
-
-        ((TextView) rootView.findViewById(R.id.name)).setText(mRoute.name);
-
-        View sourceRow = rootView.findViewById(R.id.sourceRow);
-        if (mRoute.source == null || mRoute.source.isNativeTrack()) { // TODO: isNativeTrack
-            sourceRow.setVisibility(View.GONE);
-        } else {
-            ((TextView) rootView.findViewById(R.id.source)).setText(mRoute.source.name);
-            sourceRow.setVisibility(View.VISIBLE);
-        }
-
-        String distance = StringFormatter.distanceHP(mRoute.distance);
-        ((TextView) rootView.findViewById(R.id.distance)).setText(distance);
-    }
-
-    @Override
     public boolean onMenuItemClick(MenuItem item) {
+        Route route = routeViewModel.getSelectedRoute().getValue();
+        if (route == null)
+            return true;
         int itemId = item.getItemId();
         if (itemId == R.id.action_navigate_reversed) {
-            mMapHolder.navigateViaReversed(mRoute);
+            mMapHolder.navigateViaReversed(route);
             mFragmentHolder.popAll();
             return true;
         }
         if (itemId == R.id.action_share) {
-            mListener.onRouteShare(mRoute);
+            mListener.onRouteShare(route);
             return true;
         }
         return false;
     }
 
-    private class InstructionListAdapter extends BaseAdapter {
+    private class InstructionListAdapter extends ListAdapter<Route.Instruction, InstructionListAdapter.InstructionViewHolder> {
+        protected InstructionListAdapter() {
+            super(DIFF_CALLBACK);
+        }
 
+        @NonNull
         @Override
-        public Route.Instruction getItem(int position) {
-            return mRoute.get(position);
+        public InstructionListAdapter.InstructionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_route_instruction, parent, false);
+            return new InstructionListAdapter.InstructionViewHolder(view);
         }
 
         @Override
-        public long getItemId(int position) {
-            return position;
+        public void onBindViewHolder(@NonNull InstructionListAdapter.InstructionViewHolder holder, int position) {
+            holder.bindView(position);
         }
 
-        @Override
-        public int getCount() {
-            return mRoute.size();
-        }
+        class InstructionViewHolder extends RecyclerView.ViewHolder {
+            TextView text;
+            TextView distance;
+            ImageView sign;
 
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            InstructionListItemHolder itemHolder;
+            public InstructionViewHolder(@NonNull View view) {
+                super(view);
+                text = view.findViewById(R.id.text);
+                distance = view.findViewById(R.id.distance);
+                sign = view.findViewById(R.id.sign);
 
-            if (convertView == null) {
-                itemHolder = new InstructionListItemHolder();
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_route_instruction, parent, false);
-                itemHolder.text = convertView.findViewById(R.id.text);
-                itemHolder.distance = convertView.findViewById(R.id.distance);
-                itemHolder.sign = convertView.findViewById(R.id.sign);
-                convertView.setTag(itemHolder);
-            } else {
-                itemHolder = (InstructionListItemHolder) convertView.getTag();
             }
 
-            itemHolder.text.setText(mRoute.getInstructionText(position));
-            double distance = mRoute.distanceBetween(position - 1, position);
-            itemHolder.distance.setText(distance > 0 ? StringFormatter.distanceH(distance) : "");
-            itemHolder.sign.setImageResource(getSignDrawable(mRoute.getSign(position)));
-
-            return convertView;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
+            public void bindView(int position) {
+                Route.Instruction instruction = getItem(position);
+                text.setText(instruction.getText());
+                if (instruction.distance > 0) {
+                    distance.setText(StringFormatter.distanceH(instruction.distance));
+                    distance.setVisibility(View.VISIBLE);
+                } else {
+                    distance.setVisibility(View.GONE);
+                }
+                sign.setImageResource(getSignDrawable(instruction.getSign()));
+                itemView.setOnClickListener(v -> {
+                    mMapHolder.setMapLocation(instruction);
+                    mFragmentHolder.popAll();
+                });
+            }
         }
     }
 
-    private static class InstructionListItemHolder {
-        TextView text;
-        TextView distance;
-        ImageView sign;
-    }
+    protected final DiffUtil.ItemCallback<Route.Instruction> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Route.Instruction>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull Route.Instruction oldInstruction, @NonNull Route.Instruction newInstruction) {
+                    return oldInstruction.position() == newInstruction.position();
+                }
+
+                @Override
+                public boolean areContentsTheSame(@NonNull Route.Instruction oldInstruction, @NonNull Route.Instruction newInstruction) {
+                    return oldInstruction.sign == newInstruction.sign
+                            && oldInstruction.text.equals(newInstruction.text)
+                            && Math.abs(oldInstruction.latitudeE6 - newInstruction.latitudeE6) <= 1
+                            && Math.abs(oldInstruction.longitudeE6 - newInstruction.longitudeE6) <= 1;
+                }
+            };
 
     @DrawableRes
     public static int getSignDrawable(int sign) {
