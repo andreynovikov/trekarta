@@ -34,7 +34,7 @@
     <string name="credits">Crédits</string>
     <string name="failed">échec</string>
     <string name="complete">Compétition</string>
-    <string name="processed">%d%%Effectué</string>
+    <string name="processed">%d%% Effectué</string>
     <string name="any">Tous</string>
     <string name="baseMapTitle">Carte mondiale</string>
     <string name="downloadBasemap">Charger la carte mondiale (%s)</string>
@@ -105,7 +105,7 @@
     <string name="notifLocationWaiting">En attente de localisation</string>
 
     <string name="msgNavigationProgress">%1$s gauche, suivre un parcours de %2$s</string>
-    <string name="msgNavigating">Navigation vers%s</string>
+    <string name="msgNavigating">Navigation vers %s</string>
     <string name="msgNavigatingPoint">Point d\'itinéraire</string>
     <string name="msgNavigationActions">Vous pouvez arrêter complètement la navigation ou la mettre en pause jusqu’au prochain démarrage de l’application</string>
     <string name="msgBackQuit">Appuyer sur Retour une fois de plus pour quitter</string>
@@ -123,7 +123,7 @@
     <string name="msgEmptyTrackList">Vos pistes enregistrées apparaîtront ici.</string>
     <string name="msgNoFileDataSources">Vous pouvez aussi importer des fichiers GPX et KML.</string>
     <string name="msgDataImported">Le fichier est enregistré dans le dossier de l’application.</string>
-    <string name="msgSaveFailed">Échec de l’enregistrement : %s</string>
+    <string name="msgSaveFailed">Échec de l’enregistrement : %s</string>
     <string name="msgAccessFineLocationRationale">Trekarta doit pouvoir %s pour afficher votre position sur la carte en temps réel et enregistrer le suivi de votre mouvement sur votre demande</string>
     <string name="msgReadExternalStorageRationale">Trekarta doit pouvoir %s pour accéder au fichier que vous souhaitez ouvrir</string>
     <string name="msgShowNotificationRationale">Trekarta doit pouvoir %s pour être capable d’écrire la piste ou de naviguer en arrière-plan, sinon il sera arrêté à la sortie</string>
@@ -133,7 +133,7 @@
     <string name="msgCrashOccurred">Il semble que l’application se soit bloquée lors de la dernière exécution. Vous aiderez grandement en envoyant le rapport d’accident au développeur.</string>
     <string name="msgIndexDownloadFailed">Taille de chargement non disponible</string>
     <string name="msgEstimateDownloadSize">Estimation de la taille du chargement</string>
-    <string name="msgDownloadSize">Taille du chargement %s</string>
+    <string name="msgDownloadSize">Taille du chargement : %s</string>
     <string name="msgAdvicesReset">Les conseils seront affichés dès le début</string>
     <string name="msgParseCoordinatesFailed">Echec obtention des coordonnées de la chaîne</string>
     <string name="msgParseMultipleCoordinatesFailed">Impossible d’obtenir certaines coordonnées</string>
@@ -228,7 +228,7 @@
     <string name="gauge_speed">Vitesse</string>
     <string name="gauge_bearing">Relèvement</string>
     <string name="gauge_distance">Distance</string>
-    <string name="gauge_track">Trace</string>
+    <string name="gauge_track">Piste</string>
     <string name="gauge_altitude">Altitude</string>
     <string name="gauge_turn">Tournant</string>
     <string name="gauge_vmg">VMG</string>
@@ -236,8 +236,8 @@
     <string name="gauge_ete">ETE</string>
     <string name="gauge_elevation">Altitude</string>
     <string name="placeStoreName">Mes lieux</string>
-    <string name="version">Version: %s</string>
-    <string name="about">Trekarta est conçu pour la randonnée, le géocaching, le tout-terrain, le vélo, la navigation de plaisance et toutes les autres activités de plein air. Il utilise des cartes hors ligne de sorte que vous n’avez pas besoin d’avoir une connexion Internet. Vous pouvez facilement importer des lieux et des pistes à partir de formats de données GPX et KML ou créer des lieux dans l’application et les partager avec d’autres. Il vous permet d’écrire la trace de votre voyage, même en arrière-plan, de sorte que vous ne serez jamais perdu et être en mesure de voir plus tard où vous avez été.</string>
+    <string name="version">Version : %s</string>
+    <string name="about">Trekarta est conçu pour la randonnée, le géocaching, le tout-terrain, le vélo, la navigation de plaisance et toutes les autres activités de plein air. Il utilise des cartes hors ligne de sorte que vous n’avez pas besoin d’avoir une connexion Internet. Vous pouvez facilement importer des lieux et des pistes à partir de formats de données GPX et KML ou créer des lieux dans l’application et les partager avec d’autres. Il vous permet d’écrire la piste de votre voyage, même en arrière-plan, de sorte que vous ne serez jamais perdu et être en mesure de voir plus tard où vous avez été.</string>
     <string name="intentCopyMap">Installer carte</string>
     <string name="intentImportData">Trekarta import</string>
     <string name="mapDownloadText">Charger la carte manquante</string>
@@ -257,9 +257,9 @@
     <string name="elevation_loss">Perte d\'altitude cumulée</string>
     <string name="elevation_profile">Profil d\'altitude</string>
     <string name="speed_profile">Profil de vitesse</string>
-    <string name="currentTrack">Trace actuelle</string>
+    <string name="currentTrack">Piste actuelle</string>
     <string name="title_delete_permanently">Supprimer définitivement?</string>
-    <string name="share_track_intent_title">Partager la trace avec :</string>
+    <string name="share_track_intent_title">Partager la piste avec :</string>
     <string name="share_route_intent_title">Partager l\'itinéraire avec :</string>
     <string name="never_rises">Soleil ne se lève jamais</string>
     <string name="never_sets">Soleil ne se couche jamais</string>
@@ -276,9 +276,9 @@
     <string name="fee">Frais habituellement facturés</string>
 
     <string name="permReadFilesLabel">lire les fichiers utilisateur</string>
-    <string name="permReadFilesDescription">Permet à l’application de lire les fichiers de données utilisateur Trekarta tels que les lieux et les traces.</string>
+    <string name="permReadFilesDescription">Permet à l’application de lire les fichiers de données utilisateur Trekarta tels que les lieux et les pistes.</string>
     <string name="permWriteFilesLabel">écrire les fichiers utilisateur</string>
-    <string name="permWriteFilesDescription">Permet à l’application d’ajouter ou de remplacer des fichiers de données utilisateur Trekarta tels que des lieux et des traces
+    <string name="permWriteFilesDescription">Permet à l’application d’ajouter ou de remplacer des fichiers de données utilisateur Trekarta tels que des lieux et les pistes
 .</string>
     <string name="permReceiveLocationLabel">Obtenir la localisation</string>
     <string name="permReceiveLocationDescription">Permet à l’application d’obtenir l’emplacement actuel de Trekarta.</string>
@@ -411,6 +411,7 @@
     <string name="legend_monorail">Monorail</string>
     <string name="legend_railway_platform">Quai de gare</string>
     <string name="legend_railway_station">Gare ferroviaire</string>
+    <string name="legend_railway_station_name">King\'s cross</string>
     <string name="legend_railway_halt">Halte ferroviaire</string>
     <string name="legend_railway_halt_name">Toksovo</string>
     <string name="legend_level_crossing">Passage à niveau</string>
@@ -610,11 +611,11 @@
     <string name="legend_path_visibility_bad">Chemin peu visible</string>
     <string name="legend_steps">Marches</string>
     <string name="legend_pedestrian_area">Place</string>
-    <string name="legend_tracks">Trace forestière et champêtre</string>
-    <string name="legend_track">Trace générale</string>
+    <string name="legend_tracks">Piste forestière et champêtre</string>
+    <string name="legend_track">Piste générale</string>
     <string name="legend_track_ford">Gué</string>
-    <string name="legend_ice_track">Trace glacée</string>
-    <string name="legend_winter_track">Trace hivernale</string>
+    <string name="legend_ice_track">Piste glacée</string>
+    <string name="legend_winter_track">Piste hivernale</string>
     <string name="legend_bridleway">Piste cavalière</string>
     <string name="legend_good_track">Utilisable par véhicule normal</string>
     <string name="legend_very_bad_track">Uniquement pour les véhicules à grand dégagement</string>
@@ -679,7 +680,7 @@
     <string name="legend_cycleway_bridge">Pont cyclable</string>
     <string name="legend_cycleway_tunnel">Tunnel cyclable</string>
     <string name="legend_cycling_road_with_tracks">Route avec pistes cyclables ou allées</string>
-    <string name="legend_cycling_road_with_track">Route avec une piste cyclable ou allée</string>
+    <string name="legend_cycling_road_with_track">Route avec une piste cyclable ou une allée</string>
     <string name="legend_cycling_road_doubleway">Piste cyclable à double sens</string>
     <string name="legend_cycling_path_designated">Sentiers pédestres pour vélos</string>
     <string name="legend_cycling_path_yes">Sentiers pédestres autorisés pour les vélos</string>
