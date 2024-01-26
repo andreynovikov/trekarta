@@ -308,7 +308,7 @@
     <string name="kind_road">Routes</string>
     <string name="kind_building">Immeubles</string>
     <string name="kind_accommodation">Hébergement</string>
-    <string name="kind_food">Nourriture & boissons</string>
+    <string name="kind_food">Nourriture et boissons</string>
     <string name="kind_barrier">Barrières</string>
     <string name="kind_entertainment">Divertissement</string>
     <string name="kind_emergency">Urgence</string>
@@ -316,7 +316,7 @@
     <string name="kind_pets">Animaux de compagnie</string>
     <string name="kind_shopping">Commerce</string>
     <string name="kind_attraction">Attractions</string>
-    <string name="kind_healthbeauty">Santé & beauté</string>
+    <string name="kind_healthbeauty">Santé et beauté</string>
     <string name="kind_vehicles">Véhicules</string>
     <string name="kind_transportation">Transport</string>
     <string name="kind_religion">Religion</string>
