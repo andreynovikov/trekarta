@@ -378,15 +378,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             }
         }
 
-        final ViewGroup row = rootView.findViewById(R.id.descriptionRow);
-        if (row != null) {
-            if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
-                row.setVisibility(View.GONE);
-            } else {
-                setDescription(rootView);
-                row.setVisibility(View.VISIBLE);
-            }
-        }
+        setDescription(rootView);
 
         mLatitude = latitude;
         mLongitude = longitude;
@@ -476,6 +468,13 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
 
     // WebView is very heavy to initialize. That's why it is used only on demand.
     private void setDescription(View rootView) {
+        final ViewGroup row = rootView.findViewById(R.id.descriptionRow);
+        if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
+            row.setVisibility(View.GONE);
+            return;
+        }
+        row.setVisibility(View.VISIBLE);
+
         String text = mWaypoint.description;
         boolean hasHTML = false;
         if (DetectHtml.isHtml(mWaypoint.description)) {
