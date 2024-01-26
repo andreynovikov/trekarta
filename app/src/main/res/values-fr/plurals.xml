@@ -18,12 +18,12 @@
     <plurals name="tracksCount">
         <item quantity="one">%d track</item>
         <item quantity="many">%d tracks</item>
-        <item quantity="other">%d traces</item>
+        <item quantity="other">%d pistes</item>
     </plurals>
     <plurals name="tracksDeleted">
         <item quantity="one">%d track deleted</item>
         <item quantity="many">%d tracks deleted</item>
-        <item quantity="other">%d traces supprimées</item>
+        <item quantity="other">%d pistes supprimées</item>
     </plurals>
     <plurals name="routesCount">
         <item quantity="one">%d route</item>
