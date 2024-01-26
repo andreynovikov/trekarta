@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Trekarta</string>
     <string name="title_select_format">Sélectionner le format</string>
-    <string name="title_export_track">Exporter une trace</string>
+    <string name="title_export_track">Exporter une piste</string>
     <string name="title_map_import">Importer une carte</string>
     <string name="title_map_removal">Effacer une carte</string>
     <string name="title_input_name">Nom</string>
@@ -25,7 +25,7 @@
     <string name="unknown">Inconnu</string>
     <string name="description">Description</string>
     <string name="places">Lieux</string>
-    <string name="tracks">Traces</string>
+    <string name="tracks">Pistes</string>
     <string name="routes">Itinérarires</string>
     <string name="explain">Explication</string>
     <string name="copyright">Copyright</string>
@@ -33,6 +33,7 @@
     <string name="no">Non</string>
     <string name="credits">Crédits</string>
     <string name="failed">échec</string>
+    <string name="complete">Compétition</string>
     <string name="processed">%d%%Effectué</string>
     <string name="any">Tous</string>
     <string name="baseMapTitle">Carte mondiale</string>
@@ -70,7 +71,7 @@
     <string name="actionOverviewRoute">Vue d\'ensemble de l\'itinéraire</string>
     <string name="actionNextRouteWaypoint">Point d\'itinéraire suivant</string>
     <string name="actionPrevRouteWaypoint">Point d\'itinéraire précédent</string>
-    <string name="actionAutoTilt">Inclinaison de la trace vers le haut</string>
+    <string name="actionAutoTilt">Inclinaison de la piste vers le haut</string>
     <string name="actionRememberTilt">Se souvenir de l\'inclinaison</string>
     <string name="actionHideSystemUI">Plein écran</string>
     <string name="actionResetAdvices">Ré-initialiser les avis</string>
@@ -90,6 +91,7 @@
     <string name="actionLegend">Légende</string>
     <string name="actionMapScale">Echelle cartographique</string>
     <string name="actionImport">Import</string>
+    <string name="actionGrant">Accéder</string>
     <string name="actionDownload">Chargement</string>
     <string name="actionSkip">Ignorer</string>
 
@@ -98,8 +100,8 @@
     <string name="share_map_intent_title">Partager le fichier carte avec :</string>
 
     <string name="notifLocating">Acquisition d’une position</string>
-    <string name="notifTracking">Enregistrement de la trace</string>
-    <string name="notifTrackingFailure">Erreur d\'écriture de la trace</string>
+    <string name="notifTracking">Enregistrement de la piste</string>
+    <string name="notifTrackingFailure">Erreur d\'écriture de la piste</string>
     <string name="notifLocationWaiting">En attente de localisation</string>
 
     <string name="msgNavigationProgress">%1$s gauche, suivre un parcours de %2$s</string>
@@ -111,13 +113,13 @@
     <string name="msgPlaceSaved">Lieu sauvegardé</string>
     <string name="msgEmptyPlaceList">Vos lieux apparaîtront ici. Vous pouvez créer un lieu en entrant ses coordonnées ou en appuyant longuement sur le bouton Lieux.</string>
     <string name="msgLocating">Trekarta suit votre mouvement pour soutenir l’action en cours</string>
-    <string name="msgTrackDeleted">Trace supprimée</string>
+    <string name="msgTrackDeleted">piste supprimée</string>
     <string name="msgTracked">%1$s tracés depuis %2$s</string>
     <string name="msgTracking">Trekarta enregistre votre mouvement</string>
-    <string name="msgTrackingActions">Vous pouvez arrêter l’enregistrement pour enregistrer la trace ou la suspendre pour la reprendre au prochain démarrage de l’application</string>
-    <string name="msgTrackSaved">Trace sauvegardée</string>
-    <string name="msgTrackNotSavedPeriod">Trace non sauvegardée : trop peu de temps</string>
-    <string name="msgTrackNotSavedDistance">Trace non sauvegardée : trop petite distance</string>
+    <string name="msgTrackingActions">Vous pouvez arrêter l’enregistrement pour enregistrer la piste ou la suspendre pour la reprendre au prochain démarrage de l’application</string>
+    <string name="msgTrackSaved">piste sauvegardée</string>
+    <string name="msgTrackNotSavedPeriod">Piste non sauvegardée : trop peu de temps</string>
+    <string name="msgTrackNotSavedDistance">Piste non sauvegardée : trop petite distance</string>
     <string name="msgEmptyTrackList">Vos pistes enregistrées apparaîtront ici.</string>
     <string name="msgNoFileDataSources">Vous pouvez aussi importer des fichiers GPX et KML.</string>
     <string name="msgDataImported">Le fichier est enregistré dans le dossier de l’application.</string>
@@ -157,8 +159,7 @@
     &#183; N 49 29.918; E 19 15.88\n
     &#183; 15N 363936 4328605\n
     &#183; 15SUD 639 286\n
-    &#183; 15SUD6393628605
-</string>
+    &#183; 15SUD6393628605</string>
     <string name="msgFailedToGetFile">Impossible d’obtenir le fichier</string>
     <string name="msgUnsupportedFileFormat">Format de fichier non pris en charge</string>
     <string name="msgPlaceLocked">Lieu verrouillé</string>
@@ -177,8 +178,8 @@
     <string name="introOfflineMaps">Les cartes vectorielles hors ligne légères contiennent des données topologiques détaillées avec des contours d’altitude et supportent l\'ombrage. Vous pouvez ajouter des cartes personnalisées pour couvrir votre zone d’intérêt. Les cartes personnalisées seront également ombrées.</string>
     <string name="introPlacesTitle">Lieux</string>
     <string name="introPlaces">Les lieux peuvent être facilement importés à partir de fichiers GPX et KML ou peuvent être créés dans l’application. Vous pouvez naviguer vers des points et les partager avec d’autres.</string>
-    <string name="introTracksTitle">Traces</string>
-    <string name="introTracks">Vous pouvez enregistrer les traces de votre voyage. Appuyez simplement sur un bouton lorsque vous démarrez et appuyez une fois de plus lorsque vous avez terminé. Vous pouvez quitter l’application si vous n’avez pas besoin de regarder la carte, la piste sera enregistrée en arrière-plan.</string>
+    <string name="introTracksTitle">Pistes</string>
+    <string name="introTracks">Vous pouvez enregistrer les pistes de votre voyage. Appuyez simplement sur un bouton lorsque vous démarrez et appuyez une fois de plus lorsque vous avez terminé. Vous pouvez quitter l’application si vous n’avez pas besoin de regarder la carte, la piste sera enregistrée en arrière-plan.</string>
     <string name="introOffroadTitle">Tout-terrain</string>
     <string name="introOffroad">Les routes non pavées, les routes de terre, les routes d’hiver et les routes de glace sont spécialement visualisées. Les routes à 4 roues motrices ont un marquage spécifique. Des gués sont affichés sur toutes les routes, même primaires.</string>
     <string name="introHikingTitle">A pieds</string>
@@ -347,6 +348,8 @@
     <string name="legend_unpopulated_location_name">Välivaara</string>
     <string name="legend_glacier">Glacier</string>
     <string name="legend_pond">Etang</string>
+    <string name="legend_pond_name">Vselug</string>
+    <string name="legend_intermittent_pond">Étang intermittent</string>
     <string name="legend_river">Rivière, canal</string>
     <string name="legend_stream">Courant</string>
     <string name="legend_waterfall">Chute d\'eau</string>
@@ -368,6 +371,7 @@
     <string name="legend_wall">Mur</string>
     <string name="legend_building">Immeuble</string>
     <string name="legend_sports_centre">Centre sportif</string>
+    <string name="legend_sports_centre_name">Snegny</string>
     <string name="legend_fountain">Fontaine</string>
     <string name="legend_motorway">Autoroute</string>
     <string name="legend_trunk_road">Route nationale</string>
@@ -442,7 +446,8 @@
     <string name="legend_ski_jump">Tremplin de saut à ski</string>
     <string name="legend_ski_jump_landing_zone">Aire de réception de saut à ski</string>
     <string name="legend_ski_tour">Ski de randonnée</string>
-    <string name="legend_cable_car">Télécabine</string>
+    <string name="legend_cable_car">Téléphérique</string>
+    <string name="legend_gondola">Télécabine</string>
     <string name="legend_chair_lift">Télésiège</string>
     <string name="legend_drag_lift">Téléski</string>
     <string name="legend_zip_line">Tyrolienne</string>
@@ -452,6 +457,7 @@
     <string name="legend_alpine_hut">Refuge</string>
     <string name="legend_guest_house">Chambre d\'hôtes</string>
     <string name="legend_motel">Motel</string>
+    <string name="legend_hostel">Auberge de jeunesse</string>
     <string name="legend_hotel">Hotel</string>
     <string name="legend_camp_site">Camping</string>
     <string name="legend_caravan_site">Emplacement de caravanes</string>
@@ -729,10 +735,12 @@
     <string name="legend_chalet">Gîte de vacances</string>
     <string name="legend_noaccess_path">Chemin sans accès</string>
     <string name="legend_kissing_gate">Porte d\'embarquement</string>
+    <string name="legend_stile">Passage pour franchir un fossé, une haie. Uniquement pour humain</string>
     <string name="legend_firepit">Cheminée</string>
     <string name="legend_hunting_stand">Poste de chasse</string>
     <string name="legend_intermittent_river">Cours d\'eau intermittent</string>
     <string name="legend_marina">Marina</string>
+    <string name="legend_marina_name">Woolwich</string>
     <string name="legend_weir">Enceinte de pêche</string>
     <string name="legend_rest_area">Aire de repos</string>
     <string name="legend_highway_services">Place de voyage</string>
