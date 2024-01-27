@@ -650,7 +650,7 @@
     <string name="legend_hiking_sac_scale_t3">Sentiers exigeants, SAC T3</string>
     <string name="legend_hiking_sac_scale_t4">Sentiers difficiles, SAC T4</string>
     <string name="legend_hiking_sac_scale_t5">Sentiers alpins exigeants, SAC T5</string>
-    <string name="legend_hiking_sac_scale_t6">Mature alpine trails, SAC T6</string>
+    <string name="legend_hiking_sac_scale_t6">Sentiers alpins très exigeants, SAC T6</string>
     <string name="legend_hiking_route_iwn">Itinéraire internationale</string>
     <string name="legend_hiking_route_nwn">Itinéraire national</string>
     <string name="legend_hiking_route_rwn">Itinéraire régional</string>
@@ -691,7 +691,7 @@
     <string name="legend_cycling_mtb_scale1">L’équitation nécessite des soins et de l’attention, mais aucune compétence particulière</string>
     <string name="legend_cycling_mtb_scale2">Nécessite quelques compétences équestre avancées</string>
     <string name="legend_cycling_mtb_scale3">De très bonnes compétences en équitation sont nécessaires</string>
-    <string name="legend_cycling_mtb_scale4">Des techniques d\'essai seront nécessaires</string>
+    <string name="legend_cycling_mtb_scale4">Des essais techniques seront nécessaires</string>
     <string name="legend_cycling_mtb_scale5">Très difficile avec de grands champs de blocs et des débris.</string>
     <string name="legend_cycling_mtb_scale6">Le chemin n\'est pas du tout praticable</string>
     <string name="legend_cycling_mtb_scale_imba0">IMBA Le plus facile</string>
