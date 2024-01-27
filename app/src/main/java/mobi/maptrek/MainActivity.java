@@ -36,6 +36,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -56,6 +57,7 @@ import android.os.SystemClock;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -239,6 +241,7 @@ import mobi.maptrek.layers.marker.MarkerItem;
 import mobi.maptrek.layers.marker.MarkerLayer;
 import mobi.maptrek.layers.marker.MarkerSymbol;
 import mobi.maptrek.location.BaseLocationService;
+import mobi.maptrek.location.BaseLocationService.TRACKING_STATE;
 import mobi.maptrek.location.BaseNavigationService;
 import mobi.maptrek.location.GraphHopperService;
 import mobi.maptrek.location.ILocationListener;
@@ -273,6 +276,7 @@ import mobi.maptrek.viewmodels.DataSourceViewModel;
 import mobi.maptrek.viewmodels.MapIndexViewModel;
 import mobi.maptrek.viewmodels.MapViewModel;
 import mobi.maptrek.viewmodels.RouteViewModel;
+import mobi.maptrek.viewmodels.TrackViewModel;
 
 public class MainActivity extends AppCompatActivity implements ILocationListener,
         DataHolder,
@@ -317,12 +321,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private static final int NIGHT_CHECK_PERIOD = 180000; // 3 minutes
     private static final int TRACK_ROTATION_DELAY = 1000; // 1 second
 
-    public enum TRACKING_STATE {
-        DISABLED,
-        PENDING,
-        TRACKING
-    }
-
     private enum PANEL_STATE {
         NONE,
         LOCATION,
@@ -349,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private LocationState mLocationState;
     private LocationState mSavedLocationState;
     private LocationState mPreviousLocationState;
-    private TRACKING_STATE mTrackingState;
     private final MapPosition mMapPosition = new MapPosition();
     private GeoPoint mSelectedPoint;
     private boolean mPositionLocked = false;
@@ -411,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private MapIndexViewModel mapIndexViewModel;
     private MapViewModel mapViewModel;
     private RouteViewModel routeViewModel;
+    private TrackViewModel trackViewModel;
 
     private SQLiteDatabase mDetailedMapDatabase;
     private MapIndex mMapIndex;
@@ -712,6 +710,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mMap.updateMap(true);
         });
 
+        trackViewModel = new ViewModelProvider(this).get(TrackViewModel.class);
         routeViewModel = new ViewModelProvider(this).get(RouteViewModel.class);
         amenityViewModel = new ViewModelProvider(this).get(AmenityViewModel.class);
         // Observe amenity state
@@ -783,9 +782,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mSavedLocationState = LocationState.values()[state];
         state = Configuration.getPreviousLocationState();
         mPreviousLocationState = LocationState.values()[state];
-        state = Configuration.getTrackingState();
-        mTrackingState = TRACKING_STATE.values()[state];
-
         mViews.gaugePanel.initializeGauges(Configuration.getGauges());
         showActionPanel(Configuration.getActionPanelState(), false);
 
@@ -947,12 +943,61 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     protected void onResume() {
         super.onResume();
-        logger.debug("onResume()");
-
         if (mSavedLocationState != LocationState.DISABLED)
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
-        if (mTrackingState == TRACKING_STATE.TRACKING)
-            enableTracking();
+
+        TRACKING_STATE savedState = TRACKING_STATE.values()[Configuration.getTrackingState()];
+        if (savedState != trackViewModel.trackingState.getValue()) {
+            if (savedState == TRACKING_STATE.TRACKING)
+                enableTracking();
+            else if (savedState == TRACKING_STATE.PAUSED)
+                trackViewModel.trackingState.setValue(savedState);
+        }
+
+        trackViewModel.trackingState.observe(this, trackingState -> {
+            logger.error("trackingState changed: {}", trackingState);
+            int recordColor = trackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
+            mViews.tracksButton.getDrawable().setTint(recordColor);
+
+            if (trackingState == TRACKING_STATE.TRACKING || trackingState == TRACKING_STATE.PAUSED && mCurrentTrackLayer == null) {
+                mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext(), this);
+                mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
+                mMap.updateMap(true);
+                Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
+                if (fragment != null && ((TrackInformation) fragment).hasCurrentTrack()) {
+                    ((TrackInformation) fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
+                }
+                if (trackingState == TRACKING_STATE.TRACKING)
+                    askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+            }
+            if (trackingState == TRACKING_STATE.DISABLED && mCurrentTrackLayer != null) {
+                mMap.layers().remove(mCurrentTrackLayer);
+                mCurrentTrackLayer.onDetach();
+                mCurrentTrackLayer = null;
+                trackViewModel.currentTrack.setValue(null);
+                mMap.updateMap(true);
+            }
+            trackViewModel.trackingCommand.setValue(trackingState); // reset command
+        });
+        trackViewModel.trackingCommand.observe(this, trackingCommand -> {
+            TRACKING_STATE trackingState = trackViewModel.trackingState.getValue();
+            logger.error("trackingCommand received: {}, state: {}", trackingCommand, trackingState);
+            if (trackingState == trackingCommand)
+                return;
+            if (trackingCommand == TRACKING_STATE.PENDING && trackingState != TRACKING_STATE.TRACKING) {
+                if (mLocationState == LocationState.DISABLED) {
+                    trackViewModel.trackingState.setValue(TRACKING_STATE.PENDING);
+                    askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
+                } else {
+                    enableTracking();
+                }
+
+            }
+            if (trackingCommand == TRACKING_STATE.PAUSED)
+                pauseTracking();
+            if (trackingCommand == TRACKING_STATE.DISABLED)
+                disableTracking();
+        });
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences.getBoolean(NavigationService.PREF_NAVIGATION_BACKGROUND, false)) {
@@ -1037,11 +1082,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Configuration.setBitmapMaps(mBitmapLayerMaps);
         Configuration.setLocationState(mSavedLocationState.ordinal());
         Configuration.setPreviousLocationState(mPreviousLocationState.ordinal());
-        Configuration.setTrackingState(mTrackingState.ordinal());
         Configuration.setGauges(mViews.gaugePanel.getGaugeSettings());
 
         if (!isChangingConfigurations()) {
-            if (mTrackingState != TRACKING_STATE.TRACKING)
+            if (trackViewModel.trackingState.getValue() != TRACKING_STATE.TRACKING)
                 stopService(new Intent(getApplicationContext(), LocationService.class));
 
             if (mNavigationService != null) {
@@ -1666,19 +1710,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void onTracksLongClicked() {
-        if (mLocationState == LocationState.DISABLED) {
-            mTrackingState = TRACKING_STATE.PENDING;
-            askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
-            return;
-        }
-        if (mTrackingState == TRACKING_STATE.TRACKING) {
+        if (trackViewModel.trackingState.getValue() == TRACKING_STATE.TRACKING) {
             Track currentTrack = mCurrentTrackLayer.getTrack();
             if (currentTrack.points.size() == 0)
-                disableTracking();
+                trackViewModel.trackingCommand.setValue(TRACKING_STATE.DISABLED);
             else
                 onTrackDetails(currentTrack, true);
         } else {
-            enableTracking();
+            trackViewModel.trackingCommand.setValue(TRACKING_STATE.PENDING);
         }
     }
 
@@ -1898,7 +1937,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mSavedLocationState = mPreviousLocationState;
             mPreviousLocationState = LocationState.NORTH;
         }
-        if (mTrackingState == TRACKING_STATE.PENDING)
+        if (trackViewModel.trackingState.getValue() == TRACKING_STATE.PENDING)
             enableTracking();
         if (mNavigationService != null && mNavigationService.isNavigating())
             askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
@@ -2055,30 +2094,15 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             startForegroundService(intent);
         else
             startService(intent);
-        if (mCurrentTrackLayer == null) {
-            mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext());
-            mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
-            mMap.updateMap(true);
-            Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
-            if (fragment != null && ((TrackInformation) fragment).hasCurrentTrack()) {
-                ((TrackInformation) fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
-            }
-        }
-        mTrackingState = TRACKING_STATE.TRACKING;
-        updateLocationDrawable();
-        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+    }
+
+    public void pauseTracking() {
+        startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.PAUSE_TRACK));
     }
 
     @Override
     public void disableTracking() {
         startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_TRACK));
-        mMap.layers().remove(mCurrentTrackLayer);
-        if (mCurrentTrackLayer != null) // Can be null if called by intent
-            mCurrentTrackLayer.onDetach();
-        mCurrentTrackLayer = null;
-        mMap.updateMap(true);
-        mTrackingState = TRACKING_STATE.DISABLED;
-        updateLocationDrawable();
     }
 
     @Override
@@ -2295,11 +2319,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void updateLocationDrawable() {
         logger.info("updateLocationDrawable()");
-        if (mViews.tracksButton.getTag() != mTrackingState) {
-            int recordColor = mTrackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
-            mViews.tracksButton.getDrawable().setTint(recordColor);
-            mViews.tracksButton.setTag(mTrackingState);
-        }
         if (mViews.locationButton.getTag() == mLocationState)
             return;
         if (mViews.locationButton.getTag() == LocationState.SEARCHING) {
@@ -2307,15 +2326,15 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mViews.satellites.animate().translationY(-200);
         }
 
+        @ColorInt int color = mColorActionIcon;
         switch (mLocationState) {
             case DISABLED:
-                mNavigationNorthDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(true);
                 updatePanels();
                 break;
             case SEARCHING:
-                mLocationSearchingDrawable.setTint(mColorAccent);
+                color = mColorAccent;
                 mViews.locationButton.setImageDrawable(mLocationSearchingDrawable);
                 Animation rotation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotation.setInterpolator(new LinearInterpolator());
@@ -2329,23 +2348,23 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 }
                 break;
             case ENABLED:
-                mMyLocationDrawable.setTint(mColorActionIcon);
                 mViews.locationButton.setImageDrawable(mMyLocationDrawable);
                 mCrosshairLayer.setEnabled(true);
                 updatePanels();
                 break;
             case NORTH:
-                mNavigationNorthDrawable.setTint(mColorAccent);
+                color = mColorAccent;
                 mViews.locationButton.setImageDrawable(mNavigationNorthDrawable);
                 mCrosshairLayer.setEnabled(false);
                 updatePanels();
                 break;
             case TRACK:
-                mNavigationTrackDrawable.setTint(mColorAccent);
+                color = mColorAccent;
                 mViews.locationButton.setImageDrawable(mNavigationTrackDrawable);
                 mCrosshairLayer.setEnabled(false);
                 updatePanels();
         }
+        mViews.locationButton.setImageTintList(ColorStateList.valueOf(color));
         mViews.locationButton.setTag(mLocationState);
         for (WeakReference<LocationStateChangeListener> weakRef : mLocationStateChangeListeners) {
             LocationStateChangeListener locationStateChangeListener = weakRef.get();
@@ -4548,6 +4567,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 int transparency = Configuration.getHillshadesTransparency();
                 if (mHillshadeLayer != null)
                     mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f);
+                break;
+            }
+            case Configuration.PREF_TRACKING_STATE: {
+                int state = Configuration.getTrackingState();
+                trackViewModel.trackingState.setValue(TRACKING_STATE.values()[state]);
                 break;
             }
         }

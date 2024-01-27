@@ -50,7 +50,7 @@ public class Configuration {
     private static final String PREF_UID = "uid";
     private static final String PREF_LOCATION_STATE = "location_state";
     private static final String PREF_PREVIOUS_LOCATION_STATE = "previous_location_state";
-    private static final String PREF_TRACKING_STATE = "tracking_state";
+    public static final String PREF_TRACKING_STATE = "tracking_state";
     private static final String PREF_ACTION_PANEL_STATE = "action_panel_state";
     private static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
     private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";

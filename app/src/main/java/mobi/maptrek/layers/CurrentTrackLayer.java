@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,6 +16,8 @@
 
 package mobi.maptrek.layers;
 
+import static android.content.Context.BIND_AUTO_CREATE;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,22 +25,33 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.IBinder;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
+
 import org.oscim.map.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mobi.maptrek.data.Track;
 import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.ITrackingListener;
 import mobi.maptrek.location.LocationService;
+import mobi.maptrek.viewmodels.TrackViewModel;
 
 public class CurrentTrackLayer extends TrackLayer {
-    private boolean mBound;
-    private ILocationService mTrackingService;
-    private Context mContext;
+    private static final Logger logger = LoggerFactory.getLogger(CurrentTrackLayer.class);
 
-    public CurrentTrackLayer(Map map, Context context) {
+    private boolean isBound;
+    private ILocationService trackingService;
+    private final Context context;
+    private TrackViewModel trackViewModel;
+
+    public CurrentTrackLayer(Map map, Context context, ViewModelStoreOwner owner) {
         super(map, new Track());
-        mContext = context;
-        mBound = mContext.bindService(new Intent(mContext, LocationService.class), mTrackingConnection, 0);
+        logger.error("CurrentTrackLayer created");
+        this.context = context;
+        trackViewModel = new ViewModelProvider(owner).get(TrackViewModel.class);
+        isBound = context.bindService(new Intent(context, LocationService.class), trackingConnection, BIND_AUTO_CREATE);
         setColor(org.oscim.backend.canvas.Color.fade(mLineStyle.color, 0.7));
     }
 
@@ -49,39 +62,40 @@ public class CurrentTrackLayer extends TrackLayer {
     }
 
     private void unbind() {
-        if (!mBound)
+        if (!isBound)
             return;
 
-        if (mTrackingService != null) {
-            mTrackingService.unregisterTrackingCallback(mTrackingListener);
+        if (trackingService != null) {
+            trackingService.unregisterTrackingCallback(trackingListener);
         }
 
-        mContext.unbindService(mTrackingConnection);
-        mBound = false;
+        context.unbindService(trackingConnection);
+        isBound = false;
     }
 
-    private ServiceConnection mTrackingConnection = new ServiceConnection() {
+    private final ServiceConnection trackingConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            mTrackingService = (ILocationService) service;
+            logger.error("tracking service created");
+            trackingService = (ILocationService) service;
             AsyncTask.execute(() -> {
-                mTrack.copyFrom(mTrackingService.getTrack());
-                mTrackingService.registerTrackingCallback(mTrackingListener);
+                mTrack.copyFrom(trackingService.getTrack());
+                logger.error("track loaded");
+                if (mTrack.points.size() > 1)
+                    updatePoints();
+                trackViewModel.currentTrack.postValue(mTrack);
+                trackingService.registerTrackingCallback(trackingListener);
             });
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            mTrackingService = null;
+            trackingService = null;
         }
     };
 
-    //FIXME Ugly hack
-    private Track.TrackPoint point = null;
-
-    private ITrackingListener mTrackingListener = (continuous, lat, lon, elev, speed, trk, accuracy, time) -> {
-        if (point != null) {
-            mTrack.addPoint(point.continuous, point.latitudeE6, point.longitudeE6, point.elevation, point.speed, point.bearing, point.accuracy, point.time);
-            updatePoints();
-        }
-        point = mTrack.new TrackPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
+    private final ITrackingListener trackingListener = (continuous, lat, lon, elev, speed, trk, accuracy, time) -> {
+            mTrack.addPoint(continuous, (int) (lat * 1E6), (int) (lon * 1E6), elev, speed, trk, accuracy, time);
+            if (mTrack.points.size() > 1)
+                updatePoints();
+            trackViewModel.currentTrack.postValue(mTrack);
     };
 }

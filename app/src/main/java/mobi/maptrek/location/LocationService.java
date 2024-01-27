@@ -208,6 +208,7 @@ public class LocationService extends BaseLocationService implements LocationList
                     startForeground(NOTIFICATION_ID, getNotification());
                 else
                     startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            Configuration.setTrackingState(TRACKING_STATE.TRACKING.ordinal());
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
             mTrackingEnabled = false;
@@ -217,9 +218,11 @@ public class LocationService extends BaseLocationService implements LocationList
             long trackedTime = (SystemClock.uptimeMillis() - mTrackingStarted) / 60000;
             Configuration.updateTrackingTime(trackedTime);
             if (action.equals(DISABLE_TRACK)) {
-                if (intent.getBooleanExtra("self", false)) // Preference is normally updated by Activity but not in this case
-                    Configuration.setTrackingState(MainActivity.TRACKING_STATE.DISABLED.ordinal());
+                Configuration.setTrackingState(TRACKING_STATE.DISABLED.ordinal());
                 tryToSaveTrack();
+            }
+            if (action.equals(PAUSE_TRACK)) {
+                Configuration.setTrackingState(TRACKING_STATE.PAUSED.ordinal());
             }
             if (!mForegroundLocations) {
                 stopForeground(true);
@@ -376,7 +379,6 @@ public class LocationService extends BaseLocationService implements LocationList
             builder.setStyle(new Notification.BigTextStyle().setBigContentTitle(getText(titleId)).bigText(bigText));
 
             Intent iStop = new Intent(DISABLE_TRACK, null, getApplicationContext(), LocationService.class);
-            iStop.putExtra("self", true);
             PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_stop);
 

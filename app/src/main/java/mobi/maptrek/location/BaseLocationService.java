@@ -63,4 +63,11 @@ public abstract class BaseLocationService extends Service {
     public static final int GPS_OK = 3;
 
     public static final int LOCATION_DELAY = 300;
+
+    public enum TRACKING_STATE {
+        DISABLED,
+        PENDING,
+        TRACKING,
+        PAUSED
+    }
 }

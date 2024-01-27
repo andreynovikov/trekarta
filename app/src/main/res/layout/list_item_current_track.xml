@@ -4,9 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
-    android:paddingVertical="@dimen/list_item_vertical_padding"
-    android:paddingHorizontal="@dimen/list_item_horizontal_padding"
+    android:layout_marginHorizontal="@dimen/list_item_horizontal_padding_half"
+    android:layout_marginVertical="@dimen/list_item_vertical_padding_half"
+    android:background="@drawable/border"
+    android:paddingHorizontal="@dimen/list_item_horizontal_padding_half"
+    android:paddingVertical="@dimen/list_item_vertical_padding_half"
     tools:viewBindingIgnore="true">
 
     <androidx.constraintlayout.widget.Barrier
@@ -20,7 +22,7 @@
         android:id="@+id/barrier_text_end"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:barrierAllowsGoneWidgets="false"
+        app:barrierAllowsGoneWidgets="true"
         app:barrierDirection="start" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -29,6 +31,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
+        android:text="@string/currentTrack"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/textColorPrimary"
         app:firstBaselineToTopHeight="@dimen/list_item_headline_first_baseline_to_top"
@@ -38,8 +41,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/barrier_text_start"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Data source name" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/description"
@@ -55,7 +57,7 @@
         app:layout_constraintStart_toStartOf="@id/name"
         app:layout_constraintTop_toBottomOf="@id/name"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="3 places, 2 tracks, 1 route" />
+        tools:text="1234 m since 14:56" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
@@ -63,7 +65,7 @@
         android:layout_height="@dimen/list_icon_size"
         android:layout_marginEnd="@dimen/list_item_horizontal_padding"
         android:scaleType="center"
-        android:src="@drawable/ic_dataset"
+        android:src="@drawable/ic_record_circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/barrier_text_start"
         app:layout_constraintHeight_max="@dimen/list_icon_size"
@@ -75,14 +77,43 @@
         tools:ignore="ImageContrastCheck" />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/action"
+        android:id="@+id/stop_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/list_item_horizontal_padding"
-        android:src="@drawable/ic_visibility"
+        android:src="@drawable/ic_stop"
         android:tint="?attr/actionIconColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/pause_action"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/list_icon_size" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pause_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/list_item_horizontal_padding"
+        android:src="@drawable/ic_pause"
+        android:tint="?attr/actionIconColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/stop_action"
+        app:layout_constraintHeight_max="@dimen/list_icon_size"
+        app:layout_constraintStart_toEndOf="@id/resume_action"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/list_icon_size" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/resume_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/list_item_horizontal_padding"
+        android:src="@drawable/ic_resume"
+        android:tint="?attr/actionIconColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/pause_action"
         app:layout_constraintHeight_max="@dimen/list_icon_size"
         app:layout_constraintStart_toEndOf="@id/barrier_text_end"
         app:layout_constraintTop_toTopOf="parent"

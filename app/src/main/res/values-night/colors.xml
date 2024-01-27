@@ -34,6 +34,7 @@
     <color name="textColorSecondaryDisabled">#80525252</color>
     <color name="textColorTertiary">#626262</color>
     <color name="textColorTertiaryDisabled">#80626262</color>
+    <color name="accentBackground">#33e96238</color>
     <color name="panelBackground">#99333333</color>
     <color name="panelAccentBackground">#99e96238</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
