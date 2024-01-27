@@ -476,7 +476,7 @@
     <string name="legend_fast_food">Restauration rapide</string>
     <string name="legend_restaurant">Restaurant</string>
     <string name="legend_zoo">Zoo</string>
-    <string name="legend_picnic_site">Aire de picnic</string>
+    <string name="legend_picnic_site">Aire de pique-nique</string>
     <string name="legend_theatre">Théatre</string>
     <string name="legend_cinema">Cinéma</string>
     <string name="legend_water_park">Parc aquatique</string>
@@ -528,7 +528,7 @@
     <string name="legend_car_rental">Location de voitures</string>
     <string name="legend_fuel_station">Station-service</string>
     <string name="legend_charging_station">Borne de recharge</string>
-    <string name="legend_slipway">Cale de lancement</string>
+    <string name="legend_slipway">Rampe de mise à l\'eau</string>
     <string name="legend_parking">Parking</string>
     <string name="legend_paid_parking">Parking payant</string>
     <string name="legend_private_parking">Parking privé</string>
@@ -651,7 +651,7 @@
     <string name="legend_hiking_sac_scale_t4">Sentiers difficiles, SAC T4</string>
     <string name="legend_hiking_sac_scale_t5">Sentiers alpins exigeants, SAC T5</string>
     <string name="legend_hiking_sac_scale_t6">Sentiers alpins très exigeants, SAC T6</string>
-    <string name="legend_hiking_route_iwn">Itinéraire internationale</string>
+    <string name="legend_hiking_route_iwn">Itinéraire international</string>
     <string name="legend_hiking_route_nwn">Itinéraire national</string>
     <string name="legend_hiking_route_rwn">Itinéraire régional</string>
     <string name="legend_hiking_route_lwn">Itinéraire local</string>
@@ -754,7 +754,7 @@
     <string name="legend_oil_pipeline">Canalisation d\'huile</string>
     <string name="legend_general_pipeline">Canalisation générale</string>
     <string name="legend_watermill">Moulin à eau</string>
-    <string name="legend_water_well">Puits de forage</string>
+    <string name="legend_water_well">Puits</string>
     <string name="legend_water_pump">Pompe à eau</string>
     <string name="legend_motorcycle_shop">Magasin de motos</string>
     <string name="legend_bicycle_repair_station">Station de réparation de vélos</string>
