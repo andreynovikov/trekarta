@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="one">%d Einträge selektiert</item>
+        <item quantity="other">%d Elemente</item>
+    </plurals>
+    <plurals name="placesCount">
+        <item quantity="one">%d Punkte</item>
+        <item quantity="other">%d Orte</item>
+    </plurals>
+    <plurals name="placesDeleted">
+        <item quantity="one">%d Punkte gelöscht</item>
+        <item quantity="other">%d places deleted</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="one">%d Pfade</item>
+        <item quantity="other">%d Pfade</item>
+    </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="one">%d track deleted</item>
+        <item quantity="other">%d Pfade gelöscht</item>
+    </plurals>
+    <plurals name="routesCount">
+        <item quantity="one">%d Strecken</item>
+        <item quantity="other">%d Strecken</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="one">%d Strecken gelöscht</item>
+        <item quantity="other">%d Strecken gelöscht</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="one">%d Punkte</item>
+        <item quantity="other">%d Punkte</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="one">%d Segmente</item>
+        <item quantity="other">%d Segmente</item>
+    </plurals>
+    <plurals name="loadedAreas">
+        <item quantity="one">%d aktive Bereiche</item>
+        <item quantity="other">%d aktive Bereiche</item>
+    </plurals>
+    <plurals name="downloading">
+        <item quantity="one">%d downloading</item>
+        <item quantity="other">%d herunterladen</item>
+    </plurals>
+    <plurals name="remaining">
+        <item quantity="one">%d remaining</item>
+        <item quantity="other">%d verbleibend</item>
+    </plurals>
+</resources>
