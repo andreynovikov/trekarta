@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="data_format_array">
+        <item>GPX</item>
+        <item>KML</item>
+    </string-array>
+    <string-array name="track_format_array">
+        <item>Nativ</item>
+        <item>GPX</item>
+        <item>KML</item>
+    </string-array>
+    <string-array name="night_mode_array">
+        <item>Folgesystem</item>
+        <item>Auto (Tag/Nacht)</item>
+        <item>Aus</item>
+        <item>An</item>
+    </string-array>
+    <string-array name="night_mode_array_short">
+        <item>System</item>
+        <item>Auto</item>
+        <item>Aus</item>
+        <item>An</item>
+    </string-array>
+    <string-array name="size_array">
+        <item>Winzig</item>
+        <item>Klein</item>
+        <item>Normal</item>
+        <item>Groß</item>
+        <item>Riesig</item>
+    </string-array>
+    <string-array name="language_array">
+        <item>Karte standard</item>
+        <item>Englisch</item>
+        <item>Deutsch</item>
+        <item>Russisch</item>
+    </string-array>
+    <string-array name="speed_units">
+        <item>Kilometer pro Stunde</item>
+        <item>Meilen pro Stunde</item>
+        <item>Knoten</item>
+        <item>Meter pro Sekunde</item>
+    </string-array>
+    <string-array name="speed_abbreviations">
+        <item>km/h</item>
+        <item>mph</item>
+        <item>kts</item>
+        <item>m/s</item>
+    </string-array>
+    <string-array name="distance_units">
+        <item>Kilometer/Meter</item>
+        <item>Meilen/Yards</item>
+        <item>Meilen/Fuß</item>
+        <item>Seemeilen</item>
+    </string-array>
+    <string-array name="distance_short">
+        <item>Meter</item>
+        <item>Yards</item>
+        <item>Fuß</item>
+        <item>(Seemeilen)ˉ³</item>
+    </string-array>
+    <string-array name="distance_abbreviations">
+        <item>km</item>
+        <item>mi</item>
+        <item>mi</item>
+        <item>nm</item>
+    </string-array>
+    <string-array name="distance_abbreviations_short">
+        <item>m</item>
+        <item>yd</item>
+        <item>ft</item>
+        <item>nmˉ³</item>
+    </string-array>
+    <string-array name="elevation_units">
+        <item>Meter</item>
+        <item>Fuß</item>
+    </string-array>
+    <string-array name="elevation_abbreviations">
+        <item>m</item>
+        <item>ft</item>
+    </string-array>
+    <string-array name="angle_units">
+        <item>Grad</item>
+        <item>NATO millis</item>
+        <item>Soviet millis</item>
+        <item>Grad</item>
+    </string-array>
+    <string-array name="angle_abbreviations">
+        <item>deg</item>
+        <item>deg</item>
+        <item>mil</item>
+        <item>s.mil</item>
+        <item>gon</item>
+    </string-array>
+    <string-array name="mapStyles">
+        <item>Straßen</item>
+        <item>Städtisch</item>
+        <item>Topo</item>
+    </string-array>
+    <string-array name="activities">
+        <item>Keine</item>
+        <item>Wandern</item>
+        <item>Radfahren</item>
+        <item>Skifahren</item>
+    </string-array>
+</resources>
