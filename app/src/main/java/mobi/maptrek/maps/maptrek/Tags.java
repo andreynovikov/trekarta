@@ -1168,7 +1168,8 @@ public class Tags {
             "mtb:scale",
             "mtb:scale:uphill",
             "mtb:scale:imba",
-            "artwork_type"
+            "artwork_type",
+            "disputed"
     };
     final static int MAX_KEY = keys.length - 1;
 
@@ -1808,7 +1809,9 @@ public class Tags {
             "turntable",
             "aboriginal_lands",
             "ridge",
-            "arete"
+            "arete",
+            "goods",
+            "square"
     };
     public final static int MAX_VALUE = values.length - 1;
 }
