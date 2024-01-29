@@ -43,4 +43,5 @@
 
     <style-text id="road-name" fill="color:road-text" priority="720" size="14" stroke="color:road-text-outline" stroke-width="2.0" />
     <style-text id="major-road-name" priority="750" size="16" use="road-name" />
+    <style-text id="square-name" priority="780" size="18" caption="true" use="road-name" />
 </rendertheme>

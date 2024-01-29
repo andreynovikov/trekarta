@@ -1049,6 +1049,10 @@
             </m> <!-- tunnel: no -->
         </m>
     </m>
+    <!-- town square -->
+    <m cat="roads" k="place" v="square">
+        <text use="square-name" />
+    </m>
     <!-- ford symbol -->
     <m cat="fords" k="ford" v="yes" zoom-min="14">
         <!-- a node -->
