@@ -589,6 +589,8 @@ public class Legend extends ListFragment {
             .addTag("aerialway", "chair_lift");
     private static final LegendItem drag_lift = new LegendItem(GeometryType.LINE, R.string.legend_drag_lift, 17)
             .addTag("aerialway", "drag_lift");
+    private static final LegendItem goods_lift = new LegendItem(GeometryType.LINE, R.string.legend_goods_lift, 17)
+            .addTag("aerialway", "goods");
     private static final LegendItem zip_line = new LegendItem(GeometryType.LINE, R.string.legend_zip_line, 17)
             .addTag("aerialway", "zip_line");
     private static final LegendItem magic_carpet = new LegendItem(GeometryType.LINE, R.string.legend_magic_carpet, 17)
@@ -1194,6 +1196,7 @@ public class Legend extends ListFragment {
             gondola,
             chair_lift,
             drag_lift,
+            goods_lift,
             zip_line,
             magic_carpet,
             aerialway_station

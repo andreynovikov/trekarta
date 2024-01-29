@@ -456,6 +456,7 @@
     <string name="legend_gondola">Gondola</string>
     <string name="legend_chair_lift">Chair lift</string>
     <string name="legend_drag_lift">Drag lift</string>
+    <string name="legend_goods_lift">Goods lift</string>
     <string name="legend_zip_line">Zipline</string>
     <string name="legend_magic_carpet">Magic carpet</string>
     <string name="legend_station">Station</string>
