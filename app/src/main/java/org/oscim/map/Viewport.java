@@ -20,6 +20,8 @@
  */
 package org.oscim.map;
 
+import static org.oscim.utils.FastMath.clamp;
+
 import org.oscim.core.BoundingBox;
 import org.oscim.core.Box;
 import org.oscim.core.GeoPoint;
@@ -97,66 +99,19 @@ public class Viewport {
     }
 
     public double limitScale(double scale) {
-        if (scale > mMaxScale)
-            return mMaxScale;
-        else if (scale < mMinScale)
-            return mMinScale;
-
-        return scale;
+        return clamp(scale, mMinScale, mMaxScale);
     }
 
     public float limitTilt(float tilt) {
-        if (tilt > mMaxTilt)
-            return mMaxTilt;
-        else if (tilt < mMinTilt)
-            return mMinTilt;
-
-        return tilt;
+        return clamp(tilt, mMinTilt, mMaxTilt);
     }
 
-    public boolean limitPosition(MapPosition pos) {
-        boolean changed = false;
-        if (pos.scale > mMaxScale) {
-            pos.scale = mMaxScale;
-            changed = true;
-        } else if (pos.scale < mMinScale) {
-            pos.scale = mMinScale;
-            changed = true;
-        }
-
-        if (pos.tilt > mMaxTilt) {
-            pos.tilt = mMaxTilt;
-            changed = true;
-        } else if (pos.tilt < mMinTilt) {
-            pos.tilt = mMinTilt;
-            changed = true;
-        }
-
-        if (pos.bearing > mMaxBearing) {
-            pos.bearing = mMaxBearing;
-            changed = true;
-        } else if (pos.bearing < mMinBearing) {
-            pos.bearing = mMinBearing;
-            changed = true;
-        }
-
-        if (pos.x > mMaxX) {
-            pos.x = mMaxX;
-            changed = true;
-        } else if (pos.x < mMinX) {
-            pos.x = mMinX;
-            changed = true;
-        }
-
-        if (pos.y > mMaxY) {
-            pos.y = mMaxY;
-            changed = true;
-        } else if (pos.y < mMinY) {
-            pos.y = mMinY;
-            changed = true;
-        }
-
-        return changed;
+    public void limitPosition(MapPosition pos) {
+        pos.scale = clamp(pos.scale, mMinScale, mMaxScale);
+        pos.tilt = clamp(pos.tilt, mMinTilt, mMaxTilt);
+        pos.bearing = clamp(pos.bearing, mMinBearing, mMaxBearing);
+        pos.x = clamp(pos.x, mMinX, mMaxX);
+        pos.y = clamp(pos.y, mMinY, mMaxY);
     }
 
     /**
