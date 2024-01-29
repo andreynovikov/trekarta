@@ -35,6 +35,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,6 +68,7 @@ public class DataSourceList extends Fragment {
 
     private int accentColor;
     private int disabledColor;
+    private OnTrackActionListener mTrackActionListener;
     private FragmentHolder mFragmentHolder;
     private DataHolder mDataHolder;
     private FloatingActionButton mFloatingButton;
@@ -84,6 +86,7 @@ public class DataSourceList extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        DefaultItemAnimator animator = ((DefaultItemAnimator) viewBinding.list.getItemAnimator());
         DataSourceListAdapter adapter = new DataSourceListAdapter();
         viewBinding.list.setAdapter(adapter);
 
@@ -94,9 +97,7 @@ public class DataSourceList extends Fragment {
                 viewBinding.empty.setText(R.string.msgEmptyTrackList);
             updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
         });
-        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), dataSources -> {
-            adapter.submitList(dataSources);
-        });
+        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), adapter::submitList);
 
         trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
         trackViewModel.currentTrack.observe(getViewLifecycleOwner(), currentTrack -> {
@@ -104,8 +105,11 @@ public class DataSourceList extends Fragment {
             updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
         });
         trackViewModel.trackingState.observe(getViewLifecycleOwner(), trackingState -> {
+            logger.debug("current track state: {}", trackingState);
             adapter.notifyItemChanged(0);
             updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
+            if (animator != null)
+                animator.setSupportsChangeAnimations(trackingState != TRACKING_STATE.TRACKING); // remove list item blinking
         });
     }
 
@@ -134,6 +138,11 @@ public class DataSourceList extends Fragment {
         accentColor = context.getColor(R.color.colorAccent);
         disabledColor = context.getColor(R.color.colorPrimary);
         try {
+            mTrackActionListener = (OnTrackActionListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context + " must implement OnTrackActionListener");
+        }
+        try {
             mDataHolder = (DataHolder) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement DataHolder");
@@ -146,6 +155,7 @@ public class DataSourceList extends Fragment {
     public void onDetach() {
         super.onDetach();
         getParentFragmentManager().removeOnBackStackChangedListener(backStackListener);
+        mTrackActionListener = null;
         mFragmentHolder = null;
         mDataHolder = null;
     }
@@ -404,6 +414,10 @@ public class DataSourceList extends Fragment {
                 } else {
                     description.setVisibility(View.GONE);
                 }
+                itemView.setOnClickListener(v -> {
+                    mFragmentHolder.disableListActionButton();
+                    mTrackActionListener.onTrackDetails(track);
+                });
 
                 TRACKING_STATE trackingState = trackViewModel.trackingState.getValue();
                 @ColorInt int color = disabledColor;
@@ -432,7 +446,7 @@ public class DataSourceList extends Fragment {
 
                 @Override
                 public boolean areContentsTheSame(@NonNull DataSource oldSource, @NonNull DataSource newSource) {
-                    return oldSource.equals(newSource);
+                    return false; // TODO: define proper comparison respecting visible and loaded states
                 }
             };
 

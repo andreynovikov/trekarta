@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,6 +24,7 @@ import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.Editable;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.transition.Fade;
@@ -34,18 +35,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -58,24 +56,21 @@ import java.util.Date;
 import java.util.Locale;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
-import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.Configuration;
-import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.databinding.FragmentTrackInformationBinding;
 import mobi.maptrek.location.ILocationService;
 import mobi.maptrek.location.ITrackingListener;
 import mobi.maptrek.location.LocationService;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
 import mobi.maptrek.util.StringFormatter;
+import mobi.maptrek.viewmodels.TrackViewModel;
 
 public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
-    private Track mTrack;
-    private boolean mIsCurrent;
-
     int mSegmentCount = 0;
     float mPrevElevation = Float.NaN;
     float mElevationGain = 0;
@@ -89,94 +84,72 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private LineData mSpeedData;
 
     private FragmentHolder mFragmentHolder;
-    private MapHolder mMapHolder;
     private OnTrackActionListener mListener;
-    private TextView mPointCountView;
-    private TextView mSegmentCountView;
-    private TextView mDistanceView;
-    private TextView mStartCoordinatesView;
-    private TextView mFinishCoordinatesView;
-    private TextView mTimeSpanView;
-    private TextView mStartDateView;
-    private TextView mFinishDateView;
-    private TextView mMaxElevationView;
-    private TextView mMinElevationView;
-    private TextView mElevationGainView;
-    private TextView mElevationLossView;
-    private TextView mMaxSpeedView;
-    private TextView mAverageSpeedView;
-    private LineChart mElevationChart;
-    private LineChart mSpeedChart;
-    private ImageButton mMoreButton;
     private boolean mEditorMode;
     private boolean mBound;
     private ILocationService mTrackingService;
+    private TrackViewModel trackViewModel;
+    private FragmentTrackInformationBinding viewBinding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        setHasOptionsMenu(true);
-        if (mIsCurrent) {
-            Context context = MapTrek.getApplication();
-            mBound = context.bindService(new Intent(context, LocationService.class), mTrackingConnection, 0);
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_track_information, container, false);
-        mPointCountView = rootView.findViewById(R.id.pointCount);
-        mSegmentCountView = rootView.findViewById(R.id.segmentCount);
-        mDistanceView = rootView.findViewById(R.id.distance);
-        mStartCoordinatesView = rootView.findViewById(R.id.startCoordinates);
-        mFinishCoordinatesView = rootView.findViewById(R.id.finishCoordinates);
-        mTimeSpanView = rootView.findViewById(R.id.timeSpan);
-        mStartDateView = rootView.findViewById(R.id.startDate);
-        mFinishDateView = rootView.findViewById(R.id.finishDate);
-        mMaxElevationView = rootView.findViewById(R.id.maxElevation);
-        mMinElevationView = rootView.findViewById(R.id.minElevation);
-        mElevationGainView = rootView.findViewById(R.id.elevationGain);
-        mElevationLossView = rootView.findViewById(R.id.elevationLoss);
-        mMaxSpeedView = rootView.findViewById(R.id.maxSpeed);
-        mAverageSpeedView = rootView.findViewById(R.id.averageSpeed);
-        mElevationChart = rootView.findViewById(R.id.elevationChart);
-        mSpeedChart = rootView.findViewById(R.id.speedChart);
-        mMoreButton = rootView.findViewById(R.id.moreButton);
-        mMoreButton.setOnClickListener(v -> {
-            if (mEditorMode) {
-                mTrack.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                mTrack.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
-                mListener.onTrackSave(mTrack);
-                setEditorMode(false);
-            } else {
-                PopupMenu popup = new PopupMenu(getContext(), mMoreButton);
-                mMoreButton.setOnTouchListener(popup.getDragToOpenListener());
-                popup.inflate(R.menu.context_menu_track);
-                Menu menu = popup.getMenu();
-                menu.findItem(R.id.action_edit).setVisible(!mIsCurrent);
-                menu.findItem(R.id.action_delete).setVisible(mTrack.source != null && !mTrack.source.isNativeTrack());
-                popup.setOnMenuItemClickListener(TrackInformation.this);
-                popup.show();
-            }
-        });
-        if (mIsCurrent) {
-            ImageButton stopButton = rootView.findViewById(R.id.stopButton);
-            stopButton.setVisibility(View.VISIBLE);
-            stopButton.setOnClickListener(v -> {
-                mMapHolder.disableTracking();
-                mFragmentHolder.popCurrent();
-            });
-        }
-        mEditorMode = false;
-        return rootView;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = FragmentTrackInformationBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initializeTrackInformation();
+        trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
+        trackViewModel.selectedTrack.observe(getViewLifecycleOwner(), selectedTrack -> {
+            boolean isCurrent = selectedTrack == trackViewModel.currentTrack.getValue();
+            initializeTrackInformation(selectedTrack);
+
+            if (isCurrent && !mBound) {
+                Context context = MapTrek.getApplication();
+                mBound = context.bindService(new Intent(context, LocationService.class), mTrackingConnection, 0);
+            } else if (mBound && !isCurrent) {
+                if (mTrackingService != null) {
+                    mTrackingService.unregisterTrackingCallback(mTrackingListener);
+                }
+                Context context = MapTrek.getApplication();
+                context.unbindService(mTrackingConnection);
+                mBound = false;
+            }
+        });
+
+        viewBinding.moreButton.setOnClickListener(v -> {
+            Track track = trackViewModel.selectedTrack.getValue();
+            if (track == null)
+                return;
+            boolean isCurrent = track == trackViewModel.currentTrack.getValue();
+            if (mEditorMode) {
+                Editable text = viewBinding.nameEdit.getText();
+                if (text != null)
+                    track.name = text.toString();
+                track.style.color = viewBinding.colorSwatch.getColor();
+                mListener.onTrackSave(track);
+                setEditorMode(false);
+            } else {
+                PopupMenu popup = new PopupMenu(getContext(), viewBinding.moreButton);
+                viewBinding.moreButton.setOnTouchListener(popup.getDragToOpenListener());
+                popup.inflate(R.menu.context_menu_track);
+                Menu menu = popup.getMenu();
+                menu.findItem(R.id.action_edit).setVisible(!isCurrent);
+                menu.findItem(R.id.action_delete).setVisible(track.source != null && !track.source.isNativeTrack());
+                popup.setOnMenuItemClickListener(TrackInformation.this);
+                popup.show();
+            }
+        });
+
+        mEditorMode = false;
     }
 
     @Override
@@ -186,11 +159,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             mListener = (OnTrackActionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement OnTrackActionListener");
-        }
-        try {
-            mMapHolder = (MapHolder) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement MapHolder");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;
@@ -218,15 +186,17 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         super.onDetach();
         mBackPressedCallback.remove();
         mFragmentHolder = null;
-        mMapHolder = null;
         mListener = null;
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        Track track = trackViewModel.selectedTrack.getValue();
+        if (track == null)
+            return true;
         int itemId = item.getItemId();
         if (itemId == R.id.action_view) {
-            mListener.onTrackView(mTrack);
+            mListener.onTrackView(track);
             mFragmentHolder.popAll();
             return true;
         }
@@ -235,65 +205,46 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             return true;
         }
         if (itemId == R.id.action_share) {
-            mListener.onTrackShare(mTrack);
+            mListener.onTrackShare(track);
             return true;
         }
         if (itemId == R.id.action_delete) {
-            mListener.onTrackDelete(mTrack);
+            mListener.onTrackDelete(track);
             mFragmentHolder.popCurrent();
             return true;
         }
         return false;
     }
 
-    public void setTrack(Track track, boolean current) {
-        mTrack = track;
-        mIsCurrent = current;
-        if (isVisible()) {
-            initializeTrackInformation();
-        }
-    }
-
-    public boolean hasCurrentTrack() {
-        return mIsCurrent;
-    }
-
-    private void initializeTrackInformation() {
+    private void initializeTrackInformation(Track track) {
         Activity activity = requireActivity();
         Resources resources = getResources();
 
-        View rootView = getView();
-        assert rootView != null;
-
-        ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
-        View sourceRow = rootView.findViewById(R.id.sourceRow);
-        if (mTrack.source == null || mTrack.source.isNativeTrack()) {
-            sourceRow.setVisibility(View.GONE);
+        viewBinding.name.setText(track.name);
+        if (track.source == null || track.source.isNativeTrack()) {
+            viewBinding.sourceRow.setVisibility(View.GONE);
         } else {
-            ((TextView) rootView.findViewById(R.id.source)).setText(mTrack.source.name);
-            sourceRow.setVisibility(View.VISIBLE);
+            viewBinding.source.setText(track.source.name);
+            viewBinding.sourceRow.setVisibility(View.VISIBLE);
         }
 
-        Track.TrackPoint ftp = mTrack.points.get(0);
-        Track.TrackPoint ltp = mTrack.getLastPoint();
+        Track.TrackPoint ftp = track.points.get(0);
+        Track.TrackPoint ltp = track.getLastPoint();
         boolean hasTime = ftp.time > 0 && ltp.time > 0;
 
         String startCoords = StringFormatter.coordinates(ftp);
-        mStartCoordinatesView.setText(startCoords);
+        viewBinding.startCoordinates.setText(startCoords);
 
-        View startDateRow = rootView.findViewById(R.id.startDateRow);
-        View finishDateRow = rootView.findViewById(R.id.finishDateRow);
-        View timeRow = rootView.findViewById(R.id.timeRow);
         if (hasTime) {
             Date startDate = new Date(ftp.time);
-            mStartDateView.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
-            startDateRow.setVisibility(View.VISIBLE);
-            finishDateRow.setVisibility(View.VISIBLE);
-            timeRow.setVisibility(View.VISIBLE);
+            viewBinding.startDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
+            viewBinding.startDateRow.setVisibility(View.VISIBLE);
+            viewBinding.finishDateRow.setVisibility(View.VISIBLE);
+            viewBinding.timeRow.setVisibility(View.VISIBLE);
         } else {
-            startDateRow.setVisibility(View.GONE);
-            finishDateRow.setVisibility(View.GONE);
-            timeRow.setVisibility(View.GONE);
+            viewBinding.startDateRow.setVisibility(View.GONE);
+            viewBinding.finishDateRow.setVisibility(View.GONE);
+            viewBinding.timeRow.setVisibility(View.GONE);
         }
 
         // Gather statistics
@@ -308,7 +259,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         long startTime = ftp.time;
         int i = 0;
         mSegmentCount = 1;
-        for (Track.TrackPoint point : mTrack.points) {
+        for (Track.TrackPoint point : track.points) {
             if (!point.continuous)
                 mSegmentCount++;
 
@@ -359,25 +310,20 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             ptp = point;
             i++;
         }
-        updateTrackInformation(activity, resources);
+        updateTrackInformation(track, activity, resources);
 
-        View statisticsHeader = rootView.findViewById(R.id.statisticsHeader);
         if (hasElevation || hasSpeed) {
             updateTrackStatistics(resources);
-            statisticsHeader.setVisibility(View.VISIBLE);
+            viewBinding.statisticsHeader.setVisibility(View.VISIBLE);
         } else {
-            statisticsHeader.setVisibility(View.GONE);
+            viewBinding.statisticsHeader.setVisibility(View.GONE);
         }
 
-        View elevationUpRow = rootView.findViewById(R.id.elevationUpRow);
-        View elevationDownRow = rootView.findViewById(R.id.elevationDownRow);
-        elevationUpRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
-        elevationDownRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
+        viewBinding.elevationUpRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
+        viewBinding.elevationDownRow.setVisibility(hasElevation ? View.VISIBLE : View.GONE);
 
-        View speedRow = rootView.findViewById(R.id.speedRow);
-        speedRow.setVisibility(hasSpeed ? View.VISIBLE : View.GONE);
+        viewBinding.speedRow.setVisibility(hasSpeed ? View.VISIBLE : View.GONE);
 
-        View elevationHeader = rootView.findViewById(R.id.elevationHeader);
         if (hasElevation) {
             LineDataSet elevationLine = new LineDataSet(elevationValues, "Elevation");
             elevationLine.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -391,25 +337,24 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
             mElevationData = new LineData(xValues, elevationDataSets);
 
-            mElevationChart.setData(mElevationData);
+            viewBinding.elevationChart.setData(mElevationData);
 
-            mElevationChart.getLegend().setEnabled(false);
-            mElevationChart.setDescription("");
+            viewBinding.elevationChart.getLegend().setEnabled(false);
+            viewBinding.elevationChart.setDescription("");
 
-            XAxis xAxis = mElevationChart.getXAxis();
+            XAxis xAxis = viewBinding.elevationChart.getXAxis();
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(true);
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-            elevationHeader.setVisibility(View.VISIBLE);
-            mElevationChart.setVisibility(View.VISIBLE);
-            mElevationChart.invalidate();
+            viewBinding.elevationHeader.setVisibility(View.VISIBLE);
+            viewBinding.elevationChart.setVisibility(View.VISIBLE);
+            viewBinding.elevationChart.invalidate();
         } else {
-            elevationHeader.setVisibility(View.GONE);
-            mElevationChart.setVisibility(View.GONE);
+            viewBinding.elevationHeader.setVisibility(View.GONE);
+            viewBinding.elevationChart.setVisibility(View.GONE);
         }
 
-        View speedHeader = rootView.findViewById(R.id.speedHeader);
         if (hasSpeed) {
             LineDataSet speedLine = new LineDataSet(speedValues, "Speed");
             speedLine.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -421,41 +366,41 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
             mSpeedData = new LineData(xValues, speedDataSets);
 
-            mSpeedChart.setData(mSpeedData);
+            viewBinding.speedChart.setData(mSpeedData);
 
-            mSpeedChart.getLegend().setEnabled(false);
-            mSpeedChart.setDescription("");
+            viewBinding.speedChart.getLegend().setEnabled(false);
+            viewBinding.speedChart.setDescription("");
 
-            XAxis xAxis = mSpeedChart.getXAxis();
+            XAxis xAxis = viewBinding.speedChart.getXAxis();
             xAxis.setDrawGridLines(false);
             xAxis.setDrawAxisLine(true);
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-            speedHeader.setVisibility(View.VISIBLE);
-            mSpeedChart.setVisibility(View.VISIBLE);
-            mSpeedChart.invalidate();
+            viewBinding.speedHeader.setVisibility(View.VISIBLE);
+            viewBinding.speedChart.setVisibility(View.VISIBLE);
+            viewBinding.speedChart.invalidate();
         } else {
-            speedHeader.setVisibility(View.GONE);
-            mSpeedChart.setVisibility(View.GONE);
+            viewBinding.speedHeader.setVisibility(View.GONE);
+            viewBinding.speedChart.setVisibility(View.GONE);
         }
     }
 
-    private void updateTrackInformation(Activity activity, Resources resources) {
-        Track.TrackPoint ftp = mTrack.points.get(0);
-        Track.TrackPoint ltp = mTrack.getLastPoint();
+    private void updateTrackInformation(Track track, Activity activity, Resources resources) {
+        Track.TrackPoint ftp = track.points.get(0);
+        Track.TrackPoint ltp = track.getLastPoint();
 
-        int pointCount = mTrack.points.size();
-        mPointCountView.setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
-        mSegmentCountView.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
+        int pointCount = track.points.size();
+        viewBinding.pointCount.setText(resources.getQuantityString(R.plurals.numberOfPoints, pointCount, pointCount));
+        viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
 
-        String distance = StringFormatter.distanceHP(mTrack.getDistance());
-        mDistanceView.setText(distance);
+        String distance = StringFormatter.distanceHP(track.getDistance());
+        viewBinding.distance.setText(distance);
 
         String finish_coords = StringFormatter.coordinates(ltp);
-        mFinishCoordinatesView.setText(finish_coords);
+        viewBinding.finishCoordinates.setText(finish_coords);
 
         Date finishDate = new Date(ltp.time);
-        mFinishDateView.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
+        viewBinding.finishDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
 
         long elapsed = (ltp.time - ftp.time) / 1000;
         String timeSpan;
@@ -464,57 +409,57 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         } else {
             timeSpan = DateUtils.formatDateRange(activity, ftp.time, ltp.time, DateUtils.FORMAT_ABBREV_MONTH);
         }
-        mTimeSpanView.setText(timeSpan);
+        viewBinding.timeSpan.setText(timeSpan);
     }
 
     private void updateTrackStatistics(Resources resources) {
-        mSegmentCountView.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
-        mMaxElevationView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_elevation), StringFormatter.elevationH(mMaxElevation)));
-        mElevationGainView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_gain), StringFormatter.elevationH(mElevationGain)));
-        mMinElevationView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.min_elevation), StringFormatter.elevationH(mMinElevation)));
-        mElevationLossView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_loss), StringFormatter.elevationH(mElevationLoss)));
+        viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, mSegmentCount, mSegmentCount));
+        viewBinding.maxElevation.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_elevation), StringFormatter.elevationH(mMaxElevation)));
+        viewBinding.elevationGain.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_gain), StringFormatter.elevationH(mElevationGain)));
+        viewBinding.minElevation.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.min_elevation), StringFormatter.elevationH(mMinElevation)));
+        viewBinding.elevationLoss.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_loss), StringFormatter.elevationH(mElevationLoss)));
         float averageSpeed = mSpeedMeanValue.getMeanValue();
-        mMaxSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_speed), StringFormatter.speedH(mMaxSpeed)));
-        mAverageSpeedView.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.average_speed), StringFormatter.speedH(averageSpeed)));
+        viewBinding.maxSpeed.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_speed), StringFormatter.speedH(mMaxSpeed)));
+        viewBinding.averageSpeed.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.average_speed), StringFormatter.speedH(averageSpeed)));
     }
 
     private void setEditorMode(boolean enabled) {
-        ViewGroup rootView = (ViewGroup) requireView();
-        Activity activity = requireActivity();
+        Track track = trackViewModel.selectedTrack.getValue();
+        if (track == null)
+            return;
 
-        final ColorPickerSwatch colorSwatch = rootView.findViewById(R.id.colorSwatch);
+        Activity activity = requireActivity();
 
         int viewsState, editsState;
         if (enabled) {
-            mMoreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_done));
-            ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mTrack.name);
-            colorSwatch.setColor(mTrack.style.color);
-            colorSwatch.setOnClickListener(v -> {
+            viewBinding.moreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_done));
+            viewBinding.nameEdit.setText(track.name);
+            viewBinding.colorSwatch.setColor(track.style.color);
+            viewBinding.colorSwatch.setOnClickListener(v -> {
                 ColorPickerDialog dialog = new ColorPickerDialog();
-                dialog.setColors(MarkerStyle.DEFAULT_COLORS, mTrack.style.color);
+                dialog.setColors(MarkerStyle.DEFAULT_COLORS, track.style.color);
                 dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                dialog.setOnColorSelectedListener(colorSwatch::setColor);
+                dialog.setOnColorSelectedListener(viewBinding.colorSwatch::setColor);
                 dialog.show(getParentFragmentManager(), "ColorPickerDialog");
             });
             viewsState = View.GONE;
             editsState = View.VISIBLE;
 
-            if (!mTrack.source.isNativeTrack())
-                HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mMoreButton, false);
+            if (!track.source.isNativeTrack())
+                HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, viewBinding.moreButton, false);
         } else {
-            mMoreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_more_vert));
-            ((TextView) rootView.findViewById(R.id.name)).setText(mTrack.name);
+            viewBinding.moreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_more_vert));
+            viewBinding.name.setText(track.name);
             viewsState = View.VISIBLE;
             editsState = View.GONE;
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(viewBinding.getRoot().getWindowToken(), 0);
         }
-        // TODO Optimize view findings
-        TransitionManager.beginDelayedTransition(rootView, new Fade());
-        rootView.findViewById(R.id.name).setVisibility(viewsState);
-        rootView.findViewById(R.id.nameWrapper).setVisibility(editsState);
-        colorSwatch.setVisibility(editsState);
+        TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
+        viewBinding.name.setVisibility(viewsState);
+        viewBinding.nameWrapper.setVisibility(editsState);
+        viewBinding.colorSwatch.setVisibility(editsState);
 
         mEditorMode = enabled;
         mBackPressedCallback.setEnabled(enabled);
@@ -538,8 +483,12 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
     };
 
-    private final ITrackingListener mTrackingListener = new ITrackingListener() {
+    private final ITrackingListener mTrackingListener = new ITrackingListener() { // TODO: refactor for optimization
         public void onNewPoint(boolean continuous, double lat, double lon, float elev, float speed, float trk, float accuracy, long time) {
+            Track track = trackViewModel.selectedTrack.getValue();
+            if (track == null)
+                return;
+
             if (!continuous)
                 mSegmentCount++;
             if (elev < mMinElevation && elev != 0)
@@ -550,7 +499,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (speed > mMaxSpeed)
                 mMaxSpeed = speed;
 
-            int offset = (int) (time - mTrack.points.get(0).time) / 1000;
+            int offset = (int) (time - track.points.get(0).time) / 1000;
             String xValue = "+" + DateUtils.formatElapsedTime(offset);
             if (mElevationData != null) {
                 int count = mElevationData.getDataSets().get(0).getEntryCount();
@@ -566,12 +515,12 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (isVisible()) {
                 Activity activity = getActivity();
                 Resources resources = getResources();
-                updateTrackInformation(activity, resources);
+                updateTrackInformation(track, activity, resources);
                 updateTrackStatistics(resources);
-                mElevationChart.notifyDataSetChanged();
-                mElevationChart.invalidate();
-                mSpeedChart.notifyDataSetChanged();
-                mSpeedChart.invalidate();
+                viewBinding.elevationChart.notifyDataSetChanged();
+                viewBinding.elevationChart.invalidate();
+                viewBinding.speedChart.notifyDataSetChanged();
+                viewBinding.speedChart.invalidate();
             }
         }
     };

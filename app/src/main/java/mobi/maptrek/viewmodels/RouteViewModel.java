@@ -23,11 +23,5 @@ import androidx.lifecycle.ViewModel;
 import mobi.maptrek.data.Route;
 
 public class RouteViewModel extends ViewModel {
-    private final MutableLiveData<Route> selectedRoute = new MutableLiveData<>();
-    public void setSelectedRoute(Route route) {
-        selectedRoute.setValue(route);
-    }
-    public LiveData<Route> getSelectedRoute() {
-        return selectedRoute;
-    }
+    public final MutableLiveData<Route> selectedRoute = new MutableLiveData<>();
 }

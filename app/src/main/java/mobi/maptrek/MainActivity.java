@@ -963,10 +963,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext(), this);
                 mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
                 mMap.updateMap(true);
-                Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
-                if (fragment != null && ((TrackInformation) fragment).hasCurrentTrack()) {
-                    ((TrackInformation) fragment).setTrack(mCurrentTrackLayer.getTrack(), true);
-                }
                 if (trackingState == TRACKING_STATE.TRACKING)
                     askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
             }
@@ -1715,7 +1711,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (currentTrack.points.size() == 0)
                 trackViewModel.trackingCommand.setValue(TRACKING_STATE.DISABLED);
             else
-                onTrackDetails(currentTrack, true);
+                onTrackDetails(currentTrack);
         } else {
             trackViewModel.trackingCommand.setValue(TRACKING_STATE.PENDING);
         }
@@ -2810,11 +2806,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onTrackDetails(Track track) {
-        onTrackDetails(track, false);
-    }
-
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void onTrackDetails(Track track, boolean current) {
+        trackViewModel.selectedTrack.setValue(track);
         adjustGuideline(true);
         Fragment fragment = mFragmentManager.findFragmentByTag("trackInformation");
         if (fragment == null) {
@@ -2829,7 +2821,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("trackInformation");
             ft.commit();
         }
-        ((TrackInformation) fragment).setTrack(track, current);
         dimExtendPanel();
     }
 
@@ -3011,7 +3002,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onRouteDetails(Route route) {
-        routeViewModel.setSelectedRoute(route);
+        routeViewModel.selectedRoute.setValue(route);
         adjustGuideline(true);
         Fragment fragment = mFragmentManager.findFragmentByTag("routeInformation");
         if (fragment == null) {
@@ -4347,7 +4338,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 return;
             if (dataSource.isNativeTrack()) {
                 Track track = ((TrackDataSource) dataSource).getTracks().get(0);
-                onTrackDetails(track, false);
+                onTrackDetails(track);
             } else if (dataSource.isIndividual()) {
                 Cursor cursor = dataSource.getCursor();
                 cursor.moveToPosition(0);

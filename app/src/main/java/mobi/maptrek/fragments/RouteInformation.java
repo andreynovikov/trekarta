@@ -68,7 +68,7 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
         viewBinding.list.setAdapter(adapter);
 
         routeViewModel = new ViewModelProvider(requireActivity()).get(RouteViewModel.class);
-        routeViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
+        routeViewModel.selectedRoute.observe(getViewLifecycleOwner(), route -> {
             viewBinding.name.setText(route.name);
             if (route.source == null || route.source.isNativeTrack()) { // TODO: isNativeTrack
                 viewBinding.sourceRow.setVisibility(View.GONE);
@@ -125,7 +125,7 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
         mFloatingButton = mFragmentHolder.enableListActionButton();
         mFloatingButton.setImageResource(R.drawable.ic_navigate);
         mFloatingButton.setOnClickListener(v -> {
-            Route route = routeViewModel.getSelectedRoute().getValue();
+            Route route = routeViewModel.selectedRoute.getValue();
             if (route != null)
                 mMapHolder.navigateVia(route);
             mFragmentHolder.popAll();
@@ -141,7 +141,7 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        Route route = routeViewModel.getSelectedRoute().getValue();
+        Route route = routeViewModel.selectedRoute.getValue();
         if (route == null)
             return true;
         int itemId = item.getItemId();

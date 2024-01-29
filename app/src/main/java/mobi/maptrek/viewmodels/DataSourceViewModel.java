@@ -56,7 +56,7 @@ public class DataSourceViewModel extends ViewModel {
         if (!nativeTracks)
             dataSources.add(waypointDbDataSource);
 
-        // TODO Preserve position after source is loaded and name changes
+        // TODO: Preserve position after source is loaded and name changes
         Collections.sort(fileDataSources, (lhs, rhs) -> {
             if (nativeTracks) {
                 // Newer tracks first
