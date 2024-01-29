@@ -879,7 +879,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             // geo:0,0?q=lat, lng - buggy Instagram (with space)
             int zoom = 0;
             if (queryIdx >= 0) {
-                query = data.substring(queryIdx + 1, data.length() - 1);
+                query = data.substring(queryIdx + 1);
                 data = data.substring(0, queryIdx);
                 if (query.startsWith("z="))
                     try {
