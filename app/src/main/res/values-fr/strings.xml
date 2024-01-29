@@ -451,6 +451,7 @@
     <string name="legend_gondola">Télécabine</string>
     <string name="legend_chair_lift">Télésiège</string>
     <string name="legend_drag_lift">Téléski</string>
+    <string name="legend_goods_lift">Monte-charge</string>
     <string name="legend_zip_line">Tyrolienne</string>
     <string name="legend_magic_carpet">Tapis roulant</string>
     <string name="legend_station">Gare</string>
