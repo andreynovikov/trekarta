@@ -1234,7 +1234,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.actionNightMode);
             builder.setItems(R.array.night_mode_array, (dialog, which) -> {
-                Configuration.setNightModeState(which);
+                Configuration.setNightModeState(which - 1);
                 AppCompatDelegate.setDefaultNightMode(which - 1);
                 getDelegate().setLocalNightMode(which - 1);
                 getDelegate().applyDayNight();
