@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.format.DateFormat;
@@ -29,6 +30,7 @@ import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -46,11 +48,16 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.viewmodel.ViewModelInitializer;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import java.util.Date;
 import java.util.ListIterator;
@@ -100,6 +107,11 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         viewModel.statisticsState.observe(getViewLifecycleOwner(), statisticsObserver);
         viewModel.chartState.observe(getViewLifecycleOwner(), chartObserver);
         viewModel.editorMode.observe(getViewLifecycleOwner(), editorModeObserver);
+
+        viewBinding.elevationChart.setOnChartValueSelectedListener(new ChartSelectionListener(viewBinding.speedChart));
+        viewBinding.elevationChart.setOnChartGestureListener(new ChartGestureListener(viewBinding.elevationChart, viewBinding.speedChart));
+        viewBinding.speedChart.setOnChartValueSelectedListener(new ChartSelectionListener(viewBinding.elevationChart));
+        viewBinding.speedChart.setOnChartGestureListener(new ChartGestureListener(viewBinding.speedChart, viewBinding.elevationChart));
 
         viewBinding.moreButton.setOnClickListener(v -> {
             Track track = trackViewModel.selectedTrack.getValue();
@@ -289,6 +301,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         int offset = (int) (point.time - viewModel.startTime) / 1000;
         String xValue = "+" + DateUtils.formatElapsedTime(offset);
 
+        // TODO: resolve data inconsistency between charts
         if (!Float.isNaN(point.elevation)) {
             int count = viewModel.elevationData.getDataSetByIndex(0).getEntryCount();
             viewModel.elevationData.addEntry(new Entry(point.elevation, count), 0);
@@ -299,7 +312,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             int count = viewModel.speedData.getDataSetByIndex(0).getEntryCount();
             viewModel.speedData.addEntry(new Entry(speed * StringFormatter.speedFactor, count), 0);
             viewModel.speedData.addXValue(xValue);
-            //viewModel.speedData.addXValue(xValue); they appear to share the same array
         }
 
         viewModel.prevPoint = point;
@@ -525,5 +537,82 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                     return new TrackInformationViewModel(color);
                 }
         );
+    }
+
+    private static class ChartSelectionListener implements OnChartValueSelectedListener {
+        private final LineChart other;
+
+        public ChartSelectionListener(LineChart other) {
+            this.other = other;
+        }
+
+        @Override
+        public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+            other.highlightValue(e.getXIndex(), 0, false);
+        }
+
+        @Override
+        public void onNothingSelected() {
+        }
+    }
+
+    private static class ChartGestureListener implements OnChartGestureListener {
+        private final LineChart self;
+        private final LineChart other;
+
+        public ChartGestureListener(LineChart me, LineChart other) {
+            this.self = me;
+            this.other = other;
+        }
+
+        private void syncCharts() {
+            float[] myValues = new float[9];
+            Matrix otherMatrix;
+            float[] otherValues = new float[9];
+            self.getViewPortHandler().getMatrixTouch().getValues(myValues);
+            otherMatrix = other.getViewPortHandler().getMatrixTouch();
+            otherMatrix.getValues(otherValues);
+            otherValues[Matrix.MSCALE_X] = myValues[Matrix.MSCALE_X];
+            otherValues[Matrix.MTRANS_X] = myValues[Matrix.MTRANS_X];
+            otherValues[Matrix.MSKEW_X] = myValues[Matrix.MSKEW_X];
+            otherMatrix.setValues(otherValues);
+            other.getViewPortHandler().refresh(otherMatrix, other, true);
+        }
+
+        @Override
+        public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        }
+
+        @Override
+        public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        }
+
+        @Override
+        public void onChartLongPressed(MotionEvent me) {
+        }
+
+        @Override
+        public void onChartDoubleTapped(MotionEvent me) {
+            self.post(this::syncCharts);
+        }
+
+        @Override
+        public void onChartSingleTapped(MotionEvent me) {
+        }
+
+        @Override
+        public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+            syncCharts();
+        }
+
+        @Override
+        public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+            syncCharts();
+        }
+
+        @Override
+        public void onChartTranslate(MotionEvent me, float dX, float dY) {
+            syncCharts();
+        }
     }
 }
