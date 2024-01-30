@@ -48,8 +48,9 @@ public class ProgressHandler extends Handler implements ProgressListener {
             case BEGIN_PROGRESS:
                 mStep = msg.arg1 > 255 ? msg.arg1 >> 8 : 1;
                 mProgress = 0;
-                mProgressBar.setVisibility(View.VISIBLE);
                 mProgressBar.setMax(mStep > 1 ? 256 : msg.arg1);
+                mProgressBar.setProgress(0);
+                mProgressBar.setVisibility(View.VISIBLE);
                 break;
             case UPDATE_PROGRESS:
                 int progress = mStep > 1 ? msg.arg1 / mStep : msg.arg1;
