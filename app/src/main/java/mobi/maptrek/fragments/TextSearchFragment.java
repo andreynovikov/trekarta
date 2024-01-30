@@ -489,6 +489,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     public class QuickFilterAdapter extends RecyclerView.Adapter<QuickFilterAdapter.SimpleViewHolder> {
         private final Context context;
         private final List<Integer> elements;
+        private final Drawable moreImage;
 
         QuickFilterAdapter(Context context) {
             this.context = context;
@@ -506,6 +507,9 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             this.elements.add(136); // veterinary
             this.elements.add(238); // fuel
             this.elements.add(-1); // more...
+            moreImage = AppCompatResources.getDrawable(context, R.drawable.ic_more_horiz);
+            if (moreImage != null)
+                moreImage.setTint(context.getColor(R.color.textColorPrimary));
         }
 
         @NonNull
@@ -522,7 +526,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
             if (type >= 0)
                 holder.button.setImageDrawable(getTypeDrawable(type));
             else
-                holder.button.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_more_horiz));
+                holder.button.setImageDrawable(moreImage);
 
             holder.button.setOnClickListener(view -> {
                 if (type >= 0) {
