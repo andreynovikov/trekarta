@@ -218,6 +218,7 @@ import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
 import mobi.maptrek.fragments.WaypointProperties;
 import mobi.maptrek.fragments.WhatsNewDialog;
+import mobi.maptrek.fragments.preferences.BasePreferences;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
 import mobi.maptrek.layers.CrosshairLayer;
@@ -1443,7 +1444,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Bundle args = new Bundle(1);
             args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mapIndexViewModel.nativeIndex.hasHillshades());
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            Fragment fragment = factory.instantiate(getClassLoader(), Settings.class.getName());
+            Fragment fragment = factory.instantiate(getClassLoader(), BasePreferences.class.getName());
             fragment.setArguments(args);
             fragment.setEnterTransition(new Slide(mSlideGravity));
             fragment.setReturnTransition(new Slide(mSlideGravity));
@@ -3834,7 +3835,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                             mViews.locationButton,
                             false
                     );
-            } else if (cls == Settings.class)
+            } else if (cls == BasePreferences.class)
                 HelperUtils.showTargetedAdvice(
                         MainActivity.this,
                         Configuration.ADVICE_MAP_SETTINGS,

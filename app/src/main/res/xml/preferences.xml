@@ -1,75 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory
-        android:key="category_general"
+    <Preference
+        android:key="preferences_general"
         android:title="@string/pref_general"
-        app:iconSpaceReserved="false">
-        <mobi.maptrek.ui.FormattedSeekBarPreference
-            android:defaultValue="50"
-            android:key="hillshades_transparency"
-            android:max="70"
-            android:title="@string/pref_hillshades_transparency"
-            app:format="%d%%"
-            app:iconSpaceReserved="false"
-            app:min="30"
-            app:seekBarIncrement="10"
-            app:showSeekBarValue="true" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/def_zoom_buttons_visible"
-            android:key="zoom_buttons_visible"
-            android:title="@string/pref_zoom_buttons_visible_title"
-            app:iconSpaceReserved="false" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/def_accessibility_badges"
-            android:key="accessibility_badges"
-            android:title="@string/pref_accessibility_badges_title"
-            app:iconSpaceReserved="false" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/def_confirm_exit"
-            android:key="confirm_exit"
-            android:title="@string/pref_confirm_exit_title"
-            app:iconSpaceReserved="false" />
-    </PreferenceCategory>
-    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        android:fragment="mobi.maptrek.fragments.preferences.General" />
+    <Preference
+        android:key="preferences_units"
         android:title="@string/pref_units"
-        app:iconSpaceReserved="false">
-        <ListPreference
-            android:defaultValue="@integer/default_speed_unit"
-            android:dialogTitle="@string/pref_unit_speed_title"
-            android:entries="@array/speed_units"
-            android:entryValues="@array/speed_values"
-            android:key="speed_unit"
-            android:title="@string/pref_unit_speed_title"
-            app:iconSpaceReserved="false" />
-        <ListPreference
-            android:defaultValue="@integer/default_distance_unit"
-            android:dialogTitle="@string/pref_unit_distance_title"
-            android:entries="@array/distance_units"
-            android:entryValues="@array/distance_values"
-            android:key="distance_unit"
-            android:title="@string/pref_unit_distance_title"
-            app:iconSpaceReserved="false" />
-        <ListPreference
-            android:defaultValue="@integer/default_elevation_unit"
-            android:dialogTitle="@string/pref_unit_elevation_title"
-            android:entries="@array/elevation_units"
-            android:entryValues="@array/elevation_values"
-            android:key="elevation_unit"
-            android:title="@string/pref_unit_elevation_title"
-            app:iconSpaceReserved="false" />
-        <ListPreference
-            android:defaultValue="0"
-            android:dialogTitle="@string/pref_unit_angle_title"
-            android:entries="@array/angle_units"
-            android:entryValues="@array/angle_values"
-            android:key="angle_unit"
-            android:title="@string/pref_unit_angle_title"
-            app:iconSpaceReserved="false" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/def_unit_precision"
-            android:key="unit_precision"
-            android:title="@string/pref_unit_precision_title"
-            app:iconSpaceReserved="false" />
-    </PreferenceCategory>
+        app:iconSpaceReserved="false"
+        android:fragment="mobi.maptrek.fragments.preferences.Units" />
 </PreferenceScreen>

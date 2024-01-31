@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:defaultValue="@integer/default_speed_unit"
+        android:dialogTitle="@string/pref_unit_speed_title"
+        android:entries="@array/speed_units"
+        android:entryValues="@array/speed_values"
+        android:key="speed_unit"
+        android:title="@string/pref_unit_speed_title"
+        app:iconSpaceReserved="false" />
+    <ListPreference
+        android:defaultValue="@integer/default_distance_unit"
+        android:dialogTitle="@string/pref_unit_distance_title"
+        android:entries="@array/distance_units"
+        android:entryValues="@array/distance_values"
+        android:key="distance_unit"
+        android:title="@string/pref_unit_distance_title"
+        app:iconSpaceReserved="false" />
+    <ListPreference
+        android:defaultValue="@integer/default_elevation_unit"
+        android:dialogTitle="@string/pref_unit_elevation_title"
+        android:entries="@array/elevation_units"
+        android:entryValues="@array/elevation_values"
+        android:key="elevation_unit"
+        android:title="@string/pref_unit_elevation_title"
+        app:iconSpaceReserved="false" />
+    <ListPreference
+        android:defaultValue="0"
+        android:dialogTitle="@string/pref_unit_angle_title"
+        android:entries="@array/angle_units"
+        android:entryValues="@array/angle_values"
+        android:key="angle_unit"
+        android:title="@string/pref_unit_angle_title"
+        app:iconSpaceReserved="false" />
+    <CheckBoxPreference
+        android:defaultValue="@bool/def_unit_precision"
+        android:key="unit_precision"
+        android:title="@string/pref_unit_precision_title"
+        app:iconSpaceReserved="false" />
+</PreferenceScreen>
