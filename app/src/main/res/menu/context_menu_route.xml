@@ -9,6 +9,12 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
+        android:id="@+id/action_view"
+        android:icon="@drawable/ic_route"
+        android:title="@string/actionView"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/actionShare"

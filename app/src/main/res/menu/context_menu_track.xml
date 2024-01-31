@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_view"
-        android:icon="@drawable/ic_arrow_right"
+        android:icon="@drawable/ic_gesture"
         android:title="@string/actionView"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
@@ -12,12 +12,6 @@
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_mode_edit"
         android:title="@string/actionEdit"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
-    <item
-        android:id="@+id/action_share"
-        android:icon="@drawable/ic_share"
-        android:title="@string/actionShare"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item

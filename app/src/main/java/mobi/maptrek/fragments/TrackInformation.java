@@ -16,6 +16,7 @@
 
 package mobi.maptrek.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -58,6 +59,7 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Date;
 import java.util.ListIterator;
@@ -77,6 +79,7 @@ import mobi.maptrek.viewmodels.TrackViewModel;
 import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY;
 
 public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemClickListener {
+    private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private OnTrackActionListener mListener;
     private TrackViewModel trackViewModel;
@@ -89,6 +92,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         return viewBinding.getRoot();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -163,6 +167,24 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_share, v -> {
+            mListener.onTrackShare(trackViewModel.selectedTrack.getValue());
+            mFragmentHolder.popCurrent();
+        });
+        viewBinding.getRoot().setOnScrollChangeListener(scrollChangeListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        viewBinding.getRoot().setOnScrollChangeListener(null);
+        mFragmentHolder.disableListActionButton();
+        mFloatingButton = null;
+    }
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         Track track = trackViewModel.selectedTrack.getValue();
         if (track == null)
@@ -175,10 +197,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
         if (itemId == R.id.action_edit) {
             viewModel.editorMode.setValue(true);
-            return true;
-        }
-        if (itemId == R.id.action_share) {
-            mListener.onTrackShare(track);
             return true;
         }
         if (itemId == R.id.action_delete) {
@@ -454,6 +472,17 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             viewBinding.nameWrapper.setVisibility(editsState);
             viewBinding.colorSwatch.setVisibility(editsState);
             mBackPressedCallback.setEnabled(enabled);
+        }
+    };
+
+    View.OnScrollChangeListener scrollChangeListener = new View.OnScrollChangeListener() {
+        @Override
+        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            int dy = scrollY - oldScrollY;
+            if (scrollY < 10 || dy < -15 && !mFloatingButton.isShown())
+                mFloatingButton.show();
+            else if (dy > 10 && mFloatingButton.isShown())
+                mFloatingButton.hide();
         }
     };
 

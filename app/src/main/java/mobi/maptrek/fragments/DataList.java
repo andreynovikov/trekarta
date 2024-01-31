@@ -116,9 +116,7 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
             logger.debug("dataSource changed");
             setDataSource(dataSource, savedInstanceState);
             if (dataSource instanceof WaypointDbDataSource) {
-                mFloatingButton = mFragmentHolder.enableListActionButton();
-                mFloatingButton.setImageResource(R.drawable.ic_add_location);
-                mFloatingButton.setOnClickListener(v -> {
+                mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_add_location, v -> {
                     CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
                     CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
                             .setTitle(getString(R.string.titleCoordinatesInput))

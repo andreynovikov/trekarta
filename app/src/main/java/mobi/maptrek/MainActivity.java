@@ -174,6 +174,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -402,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private PANEL_STATE mPanelState;
     private boolean secondBack;
     private Toast mBackToast;
+    private final Stack<Pair<Integer, View.OnClickListener>> listFabStack = new Stack<>();
 
     private AmenityViewModel amenityViewModel;
     private DataSourceViewModel dataSourceViewModel;
@@ -438,7 +440,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        logger.debug("onCreate()");
         EventBus.getDefault().register(this);
 
         // Required for transparent status bar
@@ -907,7 +908,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     protected void onStart() {
         super.onStart();
-        logger.debug("onStart()");
 
         // Start loading user data
         DataLoader loader = (DataLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
@@ -1059,7 +1059,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     protected void onPause() {
         super.onPause();
-        logger.debug("onPause()");
 
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
@@ -1105,10 +1104,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     protected void onStop() {
         super.onStop();
-        logger.debug("onStop()");
 
         MapTrek.isMainActivityRunning = false;
         mBackPressedCallback.remove();
+        listFabStack.clear();
 
         mResultReceiver.get().setCallback(null);
 
@@ -1123,7 +1122,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        logger.debug("onDestroy()");
+
         EventBus.getDefault().unregister(this);
 
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
@@ -3635,15 +3634,26 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     @Override
-    public FloatingActionButton enableListActionButton() {
+    public FloatingActionButton enableListActionButton(@DrawableRes int drawable, View.OnClickListener listener) {
+        listFabStack.push(new Pair<>(drawable, listener));
         TransitionManager.beginDelayedTransition(mViews.coordinatorLayout, new Fade());
+        mViews.listActionButton.setImageResource(drawable);
+        mViews.listActionButton.setOnClickListener(listener);
         mViews.listActionButton.setVisibility(View.VISIBLE);
         return mViews.listActionButton;
     }
 
     @Override
     public void disableListActionButton() {
-        mViews.listActionButton.setVisibility(View.GONE);
+        if (! listFabStack.empty()) // it may be not enabled by logic
+            listFabStack.pop();
+        if (listFabStack.empty()) {
+            mViews.listActionButton.setVisibility(View.GONE);
+        } else {
+            Pair<Integer, View.OnClickListener> peeked = listFabStack.peek();
+            mViews.listActionButton.setImageResource(peeked.first);
+            mViews.listActionButton.setOnClickListener(peeked.second);
+        }
     }
 
     @Override

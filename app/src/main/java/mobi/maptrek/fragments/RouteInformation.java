@@ -70,7 +70,7 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
         routeViewModel = new ViewModelProvider(requireActivity()).get(RouteViewModel.class);
         routeViewModel.selectedRoute.observe(getViewLifecycleOwner(), route -> {
             viewBinding.name.setText(route.name);
-            if (route.source == null || route.source.isNativeTrack()) { // TODO: isNativeTrack
+            if (route.source == null || route.source.isNativeTrack()) { // TODO: isNativeTrack - should be route
                 viewBinding.sourceRow.setVisibility(View.GONE);
             } else {
                 viewBinding.source.setText(route.source.name);
@@ -122,19 +122,19 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public void onStart() {
         super.onStart();
-        mFloatingButton = mFragmentHolder.enableListActionButton();
-        mFloatingButton.setImageResource(R.drawable.ic_navigate);
-        mFloatingButton.setOnClickListener(v -> {
+        mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_navigate, v -> {
             Route route = routeViewModel.selectedRoute.getValue();
             if (route != null)
                 mMapHolder.navigateVia(route);
             mFragmentHolder.popAll();
         });
+        viewBinding.list.addOnScrollListener(scrollListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        viewBinding.list.removeOnScrollListener(scrollListener);
         mFragmentHolder.disableListActionButton();
         mFloatingButton = null;
     }
@@ -150,12 +150,27 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
             mFragmentHolder.popAll();
             return true;
         }
+        if (itemId == R.id.action_view) {
+            mListener.onRouteView(route);
+            mFragmentHolder.popAll();
+            return true;
+        }
         if (itemId == R.id.action_share) {
             mListener.onRouteShare(route);
             return true;
         }
         return false;
     }
+
+    RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            if (recyclerView.computeVerticalScrollOffset() < 10 || dy < -15 && !mFloatingButton.isShown())
+                mFloatingButton.show();
+            else if (dy > 10 && mFloatingButton.isShown())
+                mFloatingButton.hide();
+        }
+    };
 
     private class InstructionListAdapter extends ListAdapter<Route.Instruction, InstructionListAdapter.InstructionViewHolder> {
         protected InstructionListAdapter() {

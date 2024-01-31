@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,6 +16,9 @@
 
 package mobi.maptrek.fragments;
 
+import android.view.View;
+
+import androidx.annotation.DrawableRes;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -24,7 +27,7 @@ public interface FragmentHolder {
 
     void disableActionButton();
 
-    FloatingActionButton enableListActionButton();
+    FloatingActionButton enableListActionButton(@DrawableRes int drawable, View.OnClickListener listener);
 
     void disableListActionButton();
 

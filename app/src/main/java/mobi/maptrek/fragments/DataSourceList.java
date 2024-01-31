@@ -33,14 +33,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.slf4j.Logger;
@@ -66,12 +64,12 @@ import mobi.maptrek.viewmodels.TrackViewModel;
 public class DataSourceList extends Fragment {
     private static final Logger logger = LoggerFactory.getLogger(DataSourceList.class);
 
+    private boolean fabShown;
     private int accentColor;
     private int disabledColor;
     private OnTrackActionListener mTrackActionListener;
     private FragmentHolder mFragmentHolder;
     private DataHolder mDataHolder;
-    private FloatingActionButton mFloatingButton;
     private DataSourceViewModel dataSourceViewModel;
     private TrackViewModel trackViewModel;
     private ListWithEmptyViewBinding viewBinding;
@@ -114,14 +112,12 @@ public class DataSourceList extends Fragment {
     }
 
     private void updateFloatingButtonState(boolean show) {
-        if (show) {
-            mFloatingButton = mFragmentHolder.enableListActionButton();
-            mFloatingButton.setImageResource(R.drawable.ic_record);
-            mFloatingButton.setOnClickListener(v -> {
-                trackViewModel.trackingCommand.setValue(TRACKING_STATE.PENDING);
-            });
-        } else {
+        if (show && !fabShown) {
+            mFragmentHolder.enableListActionButton(R.drawable.ic_record, v -> trackViewModel.trackingCommand.setValue(TRACKING_STATE.PENDING));
+            fabShown = true;
+        } else  if (!show && fabShown) {
             mFragmentHolder.disableListActionButton();
+            fabShown = false;
         }
     }
 
@@ -129,7 +125,6 @@ public class DataSourceList extends Fragment {
     public void onStop() {
         super.onStop();
         mFragmentHolder.disableListActionButton();
-        mFloatingButton = null;
     }
 
     @Override
@@ -148,37 +143,15 @@ public class DataSourceList extends Fragment {
             throw new ClassCastException(context + " must implement DataHolder");
         }
         mFragmentHolder = (FragmentHolder) context;
-        getParentFragmentManager().addOnBackStackChangedListener(backStackListener);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        getParentFragmentManager().removeOnBackStackChangedListener(backStackListener);
         mTrackActionListener = null;
         mFragmentHolder = null;
         mDataHolder = null;
     }
-
-    final FragmentManager.OnBackStackChangedListener backStackListener = new FragmentManager.OnBackStackChangedListener() {
-        @Override
-        public void onBackStackChanged() {
-            FragmentManager fragmentManager = getParentFragmentManager();
-            int count = fragmentManager.getBackStackEntryCount();
-            if (count == 0)
-                return;
-            boolean nativeTracks = Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue());
-            boolean currentTrack = trackViewModel.currentTrack.getValue() != null;
-            FragmentManager.BackStackEntry bse = fragmentManager.getBackStackEntryAt(count - 1);
-            Fragment fr = fragmentManager.findFragmentByTag(bse.getName());
-            if (fr == DataSourceList.this) {
-                if (nativeTracks && !currentTrack) // listener is called on first start too
-                    mFragmentHolder.enableListActionButton();
-            } else {
-                mFragmentHolder.disableListActionButton();
-            }
-        }
-    };
 
     public class DataSourceListAdapter extends ListAdapter<DataSource, DataSourceListAdapter.BindableViewHolder> {
         private final Resources resources;
@@ -293,7 +266,7 @@ public class DataSourceList extends Fragment {
                     action.setVisibility(View.GONE);
                     action.setOnClickListener(null);
                     itemView.setOnClickListener(v -> {
-                        mFragmentHolder.disableListActionButton();
+                        // mFragmentHolder.disableListActionButton();
                         dataSourceViewModel.selectDataSource(dataSource);
                     });
                 } else {
@@ -334,7 +307,7 @@ public class DataSourceList extends Fragment {
                                 icon.setImageResource(R.drawable.ic_dataset);
                         }
                         itemView.setOnClickListener(v -> {
-                            mFragmentHolder.disableListActionButton();
+                            // mFragmentHolder.disableListActionButton();
                             dataSourceViewModel.selectDataSource(dataSource);
                         });
                     } else {
@@ -383,7 +356,7 @@ public class DataSourceList extends Fragment {
         }
 
         class CurrentTrackViewHolder extends BindableViewHolder {
-            long time = 0;
+            long time;
             MaterialTextView description;
             AppCompatImageView icon;
             AppCompatImageView resumeAction;
@@ -415,7 +388,7 @@ public class DataSourceList extends Fragment {
                     description.setVisibility(View.GONE);
                 }
                 itemView.setOnClickListener(v -> {
-                    mFragmentHolder.disableListActionButton();
+                    // mFragmentHolder.disableListActionButton();
                     mTrackActionListener.onTrackDetails(track);
                 });
 
