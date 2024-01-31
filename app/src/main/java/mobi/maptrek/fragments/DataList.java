@@ -409,8 +409,6 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
                 actionMode.finish();
                 actionMode = null;
             }
-            this.remove();
-            requireActivity().getOnBackPressedDispatcher().onBackPressed();
         }
     };
 
