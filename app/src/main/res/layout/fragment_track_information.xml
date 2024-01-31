@@ -15,7 +15,7 @@
         android:layout_marginTop="@dimen/fragment_padding">
 
         <ImageButton
-            android:id="@+id/moreButton"
+            android:id="@+id/more_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -28,22 +28,22 @@
             app:tint="?attr/actionIconColor" />
 
         <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
-            android:id="@+id/colorSwatch"
+            android:id="@+id/color_swatch"
             android:layout_width="@dimen/color_swatch_smallest"
             android:layout_height="@dimen/color_swatch_smallest"
             android:layout_marginLeft="@dimen/color_swatch_margins_large"
             android:layout_marginRight="@dimen/color_swatch_margins_large"
-            android:layout_toStartOf="@id/moreButton"
+            android:layout_toStartOf="@id/more_button"
             android:visibility="gone" />
 
         <FrameLayout
-            android:id="@+id/namePlaceholder"
+            android:id="@+id/name_placeholder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_toStartOf="@id/colorSwatch">
+            android:layout_toStartOf="@id/color_swatch">
 
             <TextView
                 android:id="@+id/name"
@@ -53,13 +53,13 @@
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/nameWrapper"
+                android:id="@+id/name_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/nameEdit"
+                    android:id="@+id/name_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -73,10 +73,10 @@
         </FrameLayout>
 
         <TableLayout
-            android:id="@+id/statisticsTable"
+            android:id="@+id/statistics_table"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/namePlaceholder"
+            android:layout_below="@id/name_placeholder"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/fragment_padding"
@@ -85,9 +85,11 @@
             android:stretchColumns="1">
 
             <TableRow
-                android:id="@+id/sourceRow"
+                android:id="@+id/source_row"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -106,9 +108,12 @@
             </TableRow>
 
             <TableRow
+                android:id="@+id/points_count_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -124,14 +129,14 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/pointCount"
+                        android:id="@+id/point_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="?android:textColorPrimary" />
 
                     <TextView
-                        android:id="@+id/segmentCount"
+                        android:id="@+id/segment_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
@@ -139,9 +144,12 @@
             </TableRow>
 
             <TableRow
+                android:id="@+id/distance_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -160,7 +168,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/timeRow"
+                android:id="@+id/time_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/table_padding">
@@ -174,7 +182,7 @@
                     app:tint="?attr/informationIconColor" />
 
                 <TextView
-                    android:id="@+id/timeSpan"
+                    android:id="@+id/time_span"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
@@ -206,7 +214,7 @@
                     app:tint="?attr/informationIconColor" />
 
                 <TextView
-                    android:id="@+id/startCoordinates"
+                    android:id="@+id/start_coordinates"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
@@ -215,7 +223,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/startDateRow"
+                android:id="@+id/start_date_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/table_padding">
@@ -229,7 +237,7 @@
                     app:tint="?attr/informationIconColor" />
 
                 <TextView
-                    android:id="@+id/startDate"
+                    android:id="@+id/start_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="?android:textColorPrimary" />
@@ -260,7 +268,7 @@
                     app:tint="?attr/informationIconColor" />
 
                 <TextView
-                    android:id="@+id/finishCoordinates"
+                    android:id="@+id/finish_coordinates"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
@@ -269,7 +277,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/finishDateRow"
+                android:id="@+id/finish_date_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/table_padding">
@@ -283,14 +291,14 @@
                     app:tint="?attr/informationIconColor" />
 
                 <TextView
-                    android:id="@+id/finishDate"
+                    android:id="@+id/finish_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
             <TableRow
-                android:id="@+id/statisticsHeader"
+                android:id="@+id/statistics_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -303,7 +311,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/speedRow"
+                android:id="@+id/speed_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -321,13 +329,13 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/averageSpeed"
+                        android:id="@+id/average_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
 
                     <TextView
-                        android:id="@+id/maxSpeed"
+                        android:id="@+id/max_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
@@ -335,7 +343,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/elevationUpRow"
+                android:id="@+id/elevation_up_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/table_padding">
@@ -354,13 +362,13 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/maxElevation"
+                        android:id="@+id/max_elevation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
 
                     <TextView
-                        android:id="@+id/elevationGain"
+                        android:id="@+id/elevation_gain"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
@@ -368,7 +376,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/elevationDownRow"
+                android:id="@+id/elevation_down_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/table_padding">
@@ -387,13 +395,13 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/minElevation"
+                        android:id="@+id/min_elevation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
 
                     <TextView
-                        android:id="@+id/elevationLoss"
+                        android:id="@+id/elevation_loss"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="?android:textColorPrimary" />
@@ -406,7 +414,7 @@
             android:id="@+id/charts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/statisticsTable"
+            android:layout_below="@id/statistics_table"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/fragment_padding"
@@ -415,33 +423,44 @@
             android:paddingBottom="@dimen/fragment_padding">
 
             <TextView
-                android:id="@+id/elevationHeader"
+                android:id="@+id/elevation_header"
                 style="@style/SubHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/elevation_profile" />
 
             <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/elevationChart"
+                android:id="@+id/elevation_chart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginTop="-8dp" />
 
             <TextView
-                android:id="@+id/speedHeader"
+                android:id="@+id/speed_header"
                 style="@style/SubHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/speed_profile" />
 
             <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/speedChart"
+                android:id="@+id/speed_chart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginTop="-8dp" />
 
         </LinearLayout>
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fragment_padding"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_below="@id/charts"
+            android:indeterminate="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            />
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/fragment_padding"
