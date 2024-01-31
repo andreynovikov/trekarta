@@ -387,15 +387,15 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.progressBar.setVisibility(View.GONE);
                 viewBinding.pointCount.setText(resources.getQuantityString(R.plurals.numberOfPoints, lastSize - 1, lastSize - 1));
                 viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, viewModel.segmentCount, viewModel.segmentCount));
-                viewBinding.pointsCountRow.setVisibility(View.VISIBLE);
                 String distance = StringFormatter.distanceHP(viewModel.distance);
                 viewBinding.distance.setText(distance);
-                viewBinding.distanceRow.setVisibility(View.VISIBLE);
+                TransitionManager.beginDelayedTransition(viewBinding.getRoot()); // otherwise skeleton sometimes does not show original views
+                viewBinding.pointCountSkeleton.showOriginal();
+                viewBinding.distanceSkeleton.showOriginal();
             } else {
                 viewBinding.progressBar.setVisibility(View.VISIBLE);
-                viewBinding.pointsCountRow.setVisibility(View.GONE); // TODO: implement via placeholder
-                viewBinding.distanceRow.setVisibility(View.GONE);
-
+                viewBinding.pointCountSkeleton.showSkeleton();
+                viewBinding.distanceSkeleton.showSkeleton();
             }
 
             if (viewModel.hasElevation || viewModel.hasSpeed) {

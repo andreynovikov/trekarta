@@ -108,12 +108,9 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/points_count_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:layout_marginTop="@dimen/table_padding">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -123,33 +120,44 @@
                     android:src="@drawable/ic_linear_scale"
                     app:tint="?attr/informationIconColor" />
 
-                <LinearLayout
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/point_count_skeleton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    app:maskColor="@color/colorSplashBackground"
+                    app:maskCornerRadius="1dp">
 
-                    <TextView
-                        android:id="@+id/point_count"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="?android:textColorPrimary" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/segment_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="?android:textColorPrimary" />
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/point_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3000 points"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="?android:textColorPrimary"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/segment_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="10 segments"
+                            android:textColor="?android:textColorPrimary"
+                            tools:comment="Top margin is introduced for skeleton"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
             </TableRow>
 
             <TableRow
-                android:id="@+id/distance_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:layout_marginTop="@dimen/table_padding">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -159,12 +167,22 @@
                     android:src="@drawable/ic_straighten"
                     app:tint="?attr/informationIconColor" />
 
-                <TextView
-                    android:id="@+id/distance"
-                    android:layout_width="wrap_content"
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/distance_skeleton"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:textColorPrimary" />
+                    app:maskColor="@color/colorSplashBackground"
+                    app:maskCornerRadius="1dp">
+
+                    <TextView
+                        android:id="@+id/distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12 mi 154 ft"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="?android:textColorPrimary"
+                        tools:ignore="HardcodedText" />
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
             </TableRow>
 
             <TableRow
@@ -452,15 +470,15 @@
 
         <ProgressBar
             android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/fragment_padding"
-            style="?android:attr/progressBarStyleLarge"
             android:layout_below="@id/charts"
-            android:indeterminate="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            />
+            android:indeterminate="true"
+            android:padding="@dimen/fragment_padding" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/fragment_padding"
