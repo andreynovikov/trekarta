@@ -34,7 +34,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:elevation="@dimen/fragment_elevation">
 
         <TextView
             android:id="@+id/license"
@@ -166,8 +167,8 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold"
             android:translationY="-200dp"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="0/6" />
 
@@ -280,12 +281,12 @@
                 android:layout_weight="1"
                 android:background="@color/panelBackground" />
 
-                <View
-                    android:id="@+id/tracksButtonBackground"
-                    android:layout_width="@dimen/image_button_size"
-                    android:layout_height="@dimen/image_button_size"
-                    android:layout_weight="1"
-                    android:background="@color/panelBackground" />
+            <View
+                android:id="@+id/tracksButtonBackground"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="@color/panelBackground" />
 
             <View
                 android:id="@+id/placesButtonBackground"
@@ -333,17 +334,17 @@
                 app:tint="?attr/actionIconColor"
                 tools:ignore="ContentDescription" />
 
-                <ImageButton
-                    android:id="@+id/tracksButton"
-                    android:layout_width="@dimen/image_button_size"
-                    android:layout_height="@dimen/image_button_size"
-                    android:layout_weight="1"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:padding="@dimen/image_button_padding"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_gesture"
-                    app:tint="?attr/actionIconColor"
-                    tools:ignore="ContentDescription" />
+            <ImageButton
+                android:id="@+id/tracksButton"
+                android:layout_width="@dimen/image_button_size"
+                android:layout_height="@dimen/image_button_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/image_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gesture"
+                app:tint="?attr/actionIconColor"
+                tools:ignore="ContentDescription" />
 
             <ImageButton
                 android:id="@+id/placesButton"
