@@ -1,25 +1,9 @@
-<!--
-  ~ Copyright 2019 Andrey Novikov
-  ~
-  ~ This program is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU Lesser General Public License as published by the Free Software
-  ~ Foundation, either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public License along with
-  ~ this program. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="24dp"
-        android:height="24dp"
-        android:viewportWidth="24.0"
-        android:viewportHeight="24.0">
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M23,8c0,1.1 -0.9,2 -2,2 -0.18,0 -0.35,-0.02 -0.51,-0.07l-3.56,3.55c0.05,0.16 0.07,0.34 0.07,0.52 0,1.1 -0.9,2 -2,2s-2,-0.9 -2,-2c0,-0.18 0.02,-0.36 0.07,-0.52l-2.55,-2.55c-0.16,0.05 -0.34,0.07 -0.52,0.07s-0.36,-0.02 -0.52,-0.07l-4.55,4.56c0.05,0.16 0.07,0.33 0.07,0.51 0,1.1 -0.9,2 -2,2s-2,-0.9 -2,-2 0.9,-2 2,-2c0.18,0 0.35,0.02 0.51,0.07l4.56,-4.55C8.02,9.36 8,9.18 8,9c0,-1.1 0.9,-2 2,-2s2,0.9 2,2c0,0.18 -0.02,0.36 -0.07,0.52l2.55,2.55c0.16,-0.05 0.34,-0.07 0.52,-0.07s0.36,0.02 0.52,0.07l3.55,-3.56C19.02,8.35 19,8.18 19,8c0,-1.1 0.9,-2 2,-2s2,0.9 2,2z"/>
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="m21.27,8.629c0,0.927 -0.758,1.685 -1.685,1.685 -0.152,0 -0.295,-0.017 -0.43,-0.059l-3,2.992C16.197,13.382 16.214,13.534 16.214,13.685c0,0.927 -0.758,1.685 -1.685,1.685 -0.927,0 -1.685,-0.758 -1.685,-1.685 0,-0.152 0.017,-0.303 0.059,-0.438L10.753,11.098C10.618,11.14 10.466,11.157 10.315,11.157 10.163,11.157 10.011,11.14 9.876,11.098L6.042,14.941C6.084,15.076 6.101,15.219 6.101,15.371 6.101,16.298 5.343,17.056 4.416,17.056 3.489,17.056 2.73,16.298 2.73,15.371c0,-0.927 0.758,-1.685 1.685,-1.685 0.152,0 0.295,0.017 0.43,0.059L8.688,9.91C8.646,9.775 8.629,9.624 8.629,9.472 8.629,8.545 9.388,7.786 10.315,7.786c0.927,0 1.685,0.758 1.685,1.685 0,0.152 -0.017,0.303 -0.059,0.438l2.149,2.149C14.225,12.017 14.376,12 14.528,12c0.152,0 0.303,0.017 0.438,0.059L17.958,9.059C17.916,8.924 17.899,8.781 17.899,8.629c0,-0.927 0.758,-1.685 1.685,-1.685 0.927,0 1.685,0.758 1.685,1.685z"
+      android:fillColor="#000000"/>
 </vector>
