@@ -16,21 +16,30 @@
 
 package mobi.maptrek.fragments.preferences;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceScreen;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.greenrobot.eventbus.EventBus;
 
 import mobi.maptrek.Configuration;
+import mobi.maptrek.MainActivity;
 import mobi.maptrek.R;
 
 public class BasePreferences extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -46,6 +55,37 @@ public class BasePreferences extends PreferenceFragmentCompat implements SharedP
    @Override
    public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
       addPreferencesFromResource(R.xml.preferences);
+
+      Preference rate = (Preference) findPreference("preferences_rate");
+      if (rate != null) {
+         if (Configuration.ratingActionPerformed() || (Configuration.getRunningTime() < 240)) {
+            getPreferenceScreen().removePreference(rate);
+         } else {
+            rate.setOnPreferenceClickListener(preference -> {
+               CoordinatorLayout coordinatorLayout = ((MainActivity) requireActivity()).getCoordinatorLayout();
+               Snackbar snackbar = Snackbar
+                       .make(coordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
+                       .setAction(R.string.iamin, view -> {
+                          String packageName = requireContext().getPackageName();
+                          try {
+                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
+                          } catch (ActivityNotFoundException ignore) {
+                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+                          }
+                       }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                          @Override
+                          public void onDismissed(Snackbar transientBottomBar, int event) {
+                             Configuration.setRatingActionPerformed();
+                             getPreferenceScreen().removePreference(rate);
+                          }
+                       });
+               TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+               snackbarTextView.setMaxLines(99);
+               snackbar.show();
+               return true;
+            });
+         }
+      }
    }
 
    @Override

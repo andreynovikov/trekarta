@@ -25,7 +25,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -192,7 +191,6 @@ import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.databinding.ActivityMainBinding;
-import mobi.maptrek.fragments.About;
 import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.fragments.AmenitySetupDialog;
 import mobi.maptrek.fragments.BaseMapDownload;
@@ -217,7 +215,6 @@ import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.RouteInformation;
 import mobi.maptrek.fragments.Ruler;
-import mobi.maptrek.fragments.Settings;
 import mobi.maptrek.fragments.TextSearchFragment;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
@@ -1419,26 +1416,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         } else if (action == R.id.actionAddGauge) {
             mViews.gaugePanel.onLongClick(mViews.gaugePanel);
             return true;
-        } else if (action == R.id.actionRate) {
-            Snackbar snackbar = Snackbar
-                    .make(mViews.coordinatorLayout, R.string.msgRateApplication, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.iamin, view -> {
-                        String packageName = getPackageName();
-                        try {
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
-                        } catch (ActivityNotFoundException ignore) {
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
-                        }
-                    }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            Configuration.setRatingActionPerformed();
-                        }
-                    });
-            TextView snackbarTextView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
-            snackbarTextView.setMaxLines(99);
-            snackbar.show();
-            return true;
         } else if (action == R.id.actionLegend) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Legend.class.getName());
@@ -1446,11 +1423,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         } else if (action == R.id.actionSettings) {
             adjustGuideline(true);
-            Bundle args = new Bundle(1);
-            args.putBoolean(Settings.ARG_HILLSHADES_AVAILABLE, mapIndexViewModel.nativeIndex.hasHillshades());
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), BasePreferences.class.getName());
-            fragment.setArguments(args);
             fragment.setEnterTransition(new Slide(mSlideGravity));
             fragment.setReturnTransition(new Slide(mSlideGravity));
             FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -1476,17 +1450,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Fragment fragment = factory.instantiate(getClassLoader(), TextSearchFragment.class.getName());
             fragment.setArguments(args);
             showExtendPanel(PANEL_STATE.MORE, "search", fragment);
-            return true;
-        } else if (action == R.id.actionAbout) {
-            adjustGuideline(true);
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            Fragment fragment = factory.instantiate(getClassLoader(), About.class.getName());
-            fragment.setEnterTransition(new Slide(mSlideGravity));
-            fragment.setReturnTransition(new Slide(mSlideGravity));
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "about");
-            ft.addToBackStack("about");
-            ft.commit();
             return true;
         } else if (action == R.id.actionShareCoordinates) {
             mapViewModel.removeMarker();
@@ -1811,13 +1774,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     menu.findItem(R.id.actionHideSystemUI).setChecked(Configuration.getHideSystemUI());
                 } else {
                     menu.removeItem(R.id.actionHideSystemUI);
-                }
-                if (Configuration.ratingActionPerformed() ||
-                        (Configuration.getRunningTime() < 120 &&
-                                dataSourceViewModel.waypointDbDataSource.getWaypointsCount() < 3 &&
-                                dataSourceViewModel.fileDataSources.size() == 0 &&
-                                mMapIndex.getMaps().size() == 0)) {
-                    menu.removeItem(R.id.actionRate);
                 }
                 if (mViews.gaugePanel.hasVisibleGauges() || (mLocationState != LocationState.NORTH && mLocationState != LocationState.TRACK))
                     menu.removeItem(R.id.actionAddGauge);

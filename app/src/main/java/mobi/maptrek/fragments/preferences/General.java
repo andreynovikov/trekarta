@@ -19,21 +19,23 @@ package mobi.maptrek.fragments.preferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
 
 import mobi.maptrek.R;
+import mobi.maptrek.viewmodels.MapIndexViewModel;
 
 public class General extends BasePreferences {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         addPreferencesFromResource(R.xml.preferences_general);
-        Bundle args = getArguments();
-        if (args != null && !args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
-            PreferenceCategory category = (PreferenceCategory) findPreference("category_general");
+
+        MapIndexViewModel mapIndexViewModel = new ViewModelProvider(requireActivity()).get(MapIndexViewModel.class);
+
+        if (!mapIndexViewModel.nativeIndex.hasHillshades()) {
             Preference preference = findPreference("hillshades_transparency");
-            if (category != null && preference != null)
-                category.removePreference(preference);
+            if (preference != null)
+                getPreferenceScreen().removePreference(preference);
         }
     }
 }

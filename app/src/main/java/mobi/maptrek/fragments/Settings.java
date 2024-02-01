@@ -37,20 +37,10 @@ import mobi.maptrek.R;
 
 @SuppressWarnings({"unused", "CommentedOutCode"})
 public class Settings extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
-    public static final String ARG_HILLSHADES_AVAILABLE = "hillshades_available";
-
     private FragmentHolder mFragmentHolder;
 
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
-
-        Bundle args = getArguments();
-        if (args != null && !args.getBoolean(ARG_HILLSHADES_AVAILABLE, false)) {
-            PreferenceCategory category = (PreferenceCategory) findPreference("category_general");
-            Preference preference = findPreference("hillshades_transparency");
-            if (category != null && preference != null)
-                category.removePreference(preference);
-        }
 
         /*
         Preference sdcardPref = findPreference("move_data");

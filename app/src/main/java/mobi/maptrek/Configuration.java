@@ -509,6 +509,9 @@ public class Configuration {
         saveInt(PREF_HIGHLIGHTED_TYPE, type);
     }
 
+    /**
+    Returns total running time in minutes
+     */
     public static long getRunningTime() {
         return loadLong(PREF_RUNNING_TIME, 0L);
     }
