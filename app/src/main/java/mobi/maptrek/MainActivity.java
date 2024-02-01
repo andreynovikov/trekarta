@@ -691,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
         dataSourceViewModel = new ViewModelProvider(this).get(DataSourceViewModel.class);
-        dataSourceViewModel.getSelectedDataSource().observe(this, selectedDataSourceObserver);
+        dataSourceViewModel.selectedDataSource.observe(this, selectedDataSourceObserver);
 
         // Observe marker state
         mapViewModel.getMarkerState().observe(this, markerState -> {
@@ -1724,7 +1724,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
-            dataSourceViewModel.selectDataSource(dataSourceViewModel.waypointDbDataSource);
+            dataSourceViewModel.selectedDataSource.setValue(
+                    new DataSourceViewModel.SelectedDataSourceState(
+                            dataSourceViewModel.waypointDbDataSource,
+                            DataSourceViewModel.MODE_PANEL
+                    )
+            );
         }
     }
 
@@ -4341,26 +4346,26 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mMap.updateMap(true);
     }
 
-    private final Observer<DataSource> selectedDataSourceObserver = new Observer<DataSource>() {
+    private final Observer<DataSourceViewModel.SelectedDataSourceState> selectedDataSourceObserver = new Observer<DataSourceViewModel.SelectedDataSourceState>() {
         @Override
-        public void onChanged(DataSource dataSource) {
+        public void onChanged(DataSourceViewModel.SelectedDataSourceState dataSourceState) {
             if (getLifecycle().getCurrentState() != Lifecycle.State.RESUMED)
                 return;
-            if (dataSource.isNativeTrack()) {
-                Track track = ((TrackDataSource) dataSource).getTracks().get(0);
+            if (dataSourceState.dataSource.isNativeTrack()) {
+                Track track = ((TrackDataSource) dataSourceState.dataSource).getTracks().get(0);
                 onTrackDetails(track);
-            } else if (dataSource.isIndividual()) {
-                Cursor cursor = dataSource.getCursor();
+            } else if (dataSourceState.dataSource.isIndividual()) {
+                Cursor cursor = dataSourceState.dataSource.getCursor();
                 cursor.moveToPosition(0);
-                int itemType = dataSource.getDataType(0);
+                int itemType = dataSourceState.dataSource.getDataType(0);
                 if (itemType == DataSource.TYPE_WAYPOINT) {
-                    Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
+                    Waypoint waypoint = ((WaypointDataSource) dataSourceState.dataSource).cursorToWaypoint(cursor);
                     onWaypointDetails(waypoint, true);
                 } else if (itemType == DataSource.TYPE_TRACK) {
-                    Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
+                    Track track = ((TrackDataSource) dataSourceState.dataSource).cursorToTrack(cursor);
                     onTrackDetails(track);
                 } else if (itemType == DataSource.TYPE_ROUTE) {
-                    Route route = ((RouteDataSource) dataSource).cursorToRoute(cursor);
+                    Route route = ((RouteDataSource) dataSourceState.dataSource).cursorToRoute(cursor);
                     onRouteDetails(route);
                 }
             } else {
@@ -4372,8 +4377,17 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     FragmentFactory factory = mFragmentManager.getFragmentFactory();
                     fragment = factory.instantiate(getClassLoader(), DataList.class.getName());
                     fragment.setArguments(args);
+                    if (dataSourceState.mode == DataSourceViewModel.MODE_SELECTOR) {
+                        FragmentTransaction ft = mFragmentManager.beginTransaction();
+                        fragment.setEnterTransition(new Fade());
+                        ft.add(R.id.extendPanel, fragment, "dataList");
+                        ft.addToBackStack("dataList");
+                        ft.commit();
+                    }
                 }
-                showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
+                if (dataSourceState.mode == DataSourceViewModel.MODE_PANEL) {
+                    showExtendPanel(PANEL_STATE.PLACES, "dataList", fragment);
+                }
             }
         }
     };

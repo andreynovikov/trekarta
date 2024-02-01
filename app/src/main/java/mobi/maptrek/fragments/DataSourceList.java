@@ -267,7 +267,12 @@ public class DataSourceList extends Fragment {
                     action.setOnClickListener(null);
                     itemView.setOnClickListener(v -> {
                         // mFragmentHolder.disableListActionButton();
-                        dataSourceViewModel.selectDataSource(dataSource);
+                        dataSourceViewModel.selectedDataSource.setValue(
+                                new DataSourceViewModel.SelectedDataSourceState(
+                                        dataSource,
+                                        DataSourceViewModel.MODE_SELECTOR
+                                )
+                        );
                     });
                 } else {
                     File file = new File(((FileDataSource) dataSource).path);
@@ -308,7 +313,12 @@ public class DataSourceList extends Fragment {
                         }
                         itemView.setOnClickListener(v -> {
                             // mFragmentHolder.disableListActionButton();
-                            dataSourceViewModel.selectDataSource(dataSource);
+                            dataSourceViewModel.selectedDataSource.setValue(
+                                    new DataSourceViewModel.SelectedDataSourceState(
+                                            dataSource,
+                                            DataSourceViewModel.MODE_SELECTOR
+                                    )
+                            );
                         });
                     } else {
                         String size = Formatter.formatShortFileSize(getContext(), file.length());
