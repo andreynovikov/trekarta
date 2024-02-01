@@ -599,7 +599,7 @@ public class LocationService extends BaseLocationService implements LocationList
     }
 
     private void saveTrack() {
-        if (mLastTrack == null) {
+        if (mLastTrack == null || mLastTrack.points.isEmpty()) {
             sendBroadcast(new Intent(BROADCAST_TRACK_SAVE).putExtra("saved", false)
                     .putExtra("reason", "missing")
                     .setPackage(getPackageName()));
