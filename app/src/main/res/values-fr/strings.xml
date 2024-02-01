@@ -199,8 +199,6 @@
     <string name="advice_map_settings">Vous pouvez appuyer longuement sur le bouton Cartes pour accéder à des paramètres de carte supplémentaires</string>
     <string name="advice_map_legend">Vous pouvez appuyer longuement sur le bouton Cartes pour voir la légende de la carte</string>
     <string name="advice_adding_place">Vous pouvez rapidement créer un lieu dans la position actuelle de la carte en appuyant longuement sur le bouton Lieux</string>
-    <string name="advice_record_track">Appuyez longuement sur le bouton Enregistrer pour démarrer l’enregistrement de la piste, pendant l’enregistrement appuyez longuement pour voir les statistiques de la piste en cours ou pour arrêter l’enregistrement. Vous pouvez fermer l’application pendant l’enregistrement, la piste sera enregistrée en arrière-plan.</string>
-    <string name="advice_recorded_tracks">Appuyez sur le bouton Enregistrer pour accéder à vos pistes enregistrées</string>
     <string name="advice_view_data_item">Appuyez sur la flèche droite pour positionner la carte sur l’élément correspondant</string>
     <string name="advice_switch_coordinates_format">Appuyez sur les coordonnées pour parcourir différents formats</string>
     <string name="advice_locked_coordinates">Vous pouvez verrouiller les coordonnées d\'un lieu pour éviter le glissement accidentel de son marqueur. Tous les lieux qui proviennent de sources externes sont considérés comme positionnés avec précision et sont verrouillés par défaut tandis que les lieux que vous créez sur la carte sont traités comme approximatifs et sont initialement déverrouillés.</string>
