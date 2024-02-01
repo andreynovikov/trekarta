@@ -389,7 +389,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, viewModel.segmentCount, viewModel.segmentCount));
                 String distance = StringFormatter.distanceHP(viewModel.distance);
                 viewBinding.distance.setText(distance);
-                TransitionManager.beginDelayedTransition(viewBinding.getRoot()); // otherwise skeleton sometimes does not show original views
+                TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade()); // otherwise skeleton sometimes does not show original views
                 viewBinding.pointCountSkeleton.showOriginal();
                 viewBinding.distanceSkeleton.showOriginal();
             } else {
