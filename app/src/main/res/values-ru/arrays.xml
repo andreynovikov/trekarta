@@ -21,6 +21,13 @@
         <item>Нет</item>
         <item>Да</item>
     </string-array>
+    <string-array name="size_array">
+        <item>Крошечный</item>
+        <item>Маленький</item>
+        <item>Средний</item>
+        <item>Большой</item>
+        <item>Огромный</item>
+    </string-array>
     <string-array name="language_array">
         <item>По-умолчанию карты</item>
         <item>Английский</item>
