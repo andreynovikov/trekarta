@@ -56,7 +56,7 @@ public class BasePreferences extends PreferenceFragmentCompat implements SharedP
    public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
       addPreferencesFromResource(R.xml.preferences);
 
-      Preference rate = (Preference) findPreference("preferences_rate");
+      Preference rate = (Preference) findPreference("rate");
       if (rate != null) {
          if (Configuration.ratingActionPerformed() || (Configuration.getRunningTime() < 240)) {
             getPreferenceScreen().removePreference(rate);

@@ -76,6 +76,8 @@
     <string name="actionRememberTilt">Remember tilt</string>
     <string name="actionHideSystemUI">Fullscreen</string>
     <string name="actionResetAdvices">Reset advices</string>
+    <string name="actionResetMap">Reset map state</string>
+    <string name="actionPurgeMaps">Purge native maps</string>
     <string name="actionAddGauge">Add gauge</string>
     <string name="actionContours">Contours</string>
     <string name="actionOtherFeatures">Features</string>
@@ -138,6 +140,8 @@
     <string name="msgEstimateDownloadSizePlaceholder" translatable="false">%1$s (%2$d%%)</string>
     <string name="msgDownloadSize">Download size: %s</string>
     <string name="msgAdvicesReset">Advices will be shown from the very beginning</string>
+    <string name="msgMapReset">Map state will be reset after application restart, which will be performed now</string>
+    <string name="msgPurgeMaps">All downloaded maps will be removed as if application is run for the first time, requiring application restart, which will be performed now</string>
     <string name="msgParseCoordinatesFailed">Failed to get coordinates from string</string>
     <string name="msgParseMultipleCoordinatesFailed">Failed to get some of coordinates</string>
     <string name="msgEmptyMapList">Your installed custom tile maps will appear here.</string>

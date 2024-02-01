@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference
+        android:key="purge_maps"
+        android:title="@string/actionPurgeMaps"
+        app:iconSpaceReserved="false" />
+    <Preference
+        android:key="reset_map"
+        android:title="@string/actionResetMap"
+        app:iconSpaceReserved="false" />
+    <Preference
+        android:key="reset_advices"
+        android:title="@string/actionResetAdvices"
+        app:iconSpaceReserved="false" />
+</PreferenceScreen>

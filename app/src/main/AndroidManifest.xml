@@ -86,7 +86,6 @@
                 <action android:name="mobi.maptrek.action.CENTER_ON_COORDINATES" />
                 <action android:name="mobi.maptrek.action.NAVIGATE_TO_OBJECT" />
                 <action android:name="mobi.maptrek.action.NAVIGATE_TO_POINT" />
-                <action android:name="mobi.maptrek.action.RESET_ADVICES" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />

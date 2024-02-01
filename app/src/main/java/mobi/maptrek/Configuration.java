@@ -509,6 +509,43 @@ public class Configuration {
         saveInt(PREF_HIGHLIGHTED_TYPE, type);
     }
 
+    public static void resetMapState() {
+        remove(PREF_LATITUDE);
+        remove(PREF_LONGITUDE);
+        remove(PREF_MAP_SCALE);
+        remove(PREF_MAP_BEARING);
+        remove(PREF_MAP_TILT);
+        remove(PREF_MAP_3D_BUILDINGS);
+        remove(PREF_MAP_CONTOURS);
+        remove(PREF_MAP_HILLSHADES);
+        remove(PREF_MAP_GRID);
+        remove(PREF_BITMAP_MAP);
+        remove(PREF_LOCATION_STATE);
+        remove(PREF_PREVIOUS_LOCATION_STATE);
+        remove(PREF_TRACKING_STATE);
+        remove(PREF_ACTION_PANEL_STATE);
+        remove(PREF_NAVIGATION_WAYPOINT);
+        remove(PREF_NAVIGATION_LATITUDE);
+        remove(PREF_NAVIGATION_LONGITUDE);
+        remove(PREF_NAVIGATION_PROXIMITY);
+        remove(PREF_NAVIGATION_ROUTE);
+        remove(PREF_NAVIGATION_ROUTE_POINT);
+        remove(PREF_NAVIGATION_ROUTE_DIRECTION);
+        remove(PREF_GAUGES);
+        remove(PREF_NIGHT_MODE_STATE);
+        remove(PREF_MAP_STYLE);
+        remove(PREF_ACTIVITY);
+        remove(PREF_MAP_FONT_SIZE);
+        remove(PREF_MAP_USER_SCALE);
+        remove(PREF_LANGUAGE);
+        remove(PREF_HIDE_MAP_OBJECTS);
+        remove(PREF_BITMAP_MAP_TRANSPARENCY);
+        remove(PREF_REMEMBERED_SCALE);
+        remove(PREF_AUTO_TILT);
+        remove(PREF_HIDE_SYSTEM_UI);
+        remove(PREF_HIGHLIGHTED_TYPE);
+    }
+
     /**
     Returns total running time in minutes
      */

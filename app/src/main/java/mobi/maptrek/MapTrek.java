@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -134,6 +133,7 @@ public class MapTrek extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        logger.info("Trekarta application starting");
         mSelf = this;
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -211,22 +211,17 @@ public class MapTrek extends Application {
     }
 
     /** @noinspection unused*/
-    public void restart(@NonNull Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        /*
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (mgr != null)
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
-         */
-        if (context instanceof Activity)
-            ((Activity) context).finish();
-        startActivity(intent);
-        /*
+    public void restart() {
+        logger.info("Application restart initiated");
         Configuration.commit();
+        //Context ctx = getApplicationContext();
+        PackageManager pm = getPackageManager();
+        Intent intent = pm.getLaunchIntentForPackage(getPackageName());
+        if (intent != null) {
+            Intent mainIntent = Intent.makeRestartActivityTask(intent.getComponent());
+            startActivity(mainIntent);
+        }
         Runtime.getRuntime().exit(0);
-         */
     }
 
     @TargetApi(26)
@@ -437,6 +432,7 @@ public class MapTrek extends Application {
 
     @SuppressWarnings("SameParameterValue")
     private void copyAsset(String asset, File outFile) throws IOException {
+        logger.debug("copyAsset({})", asset);
         InputStream in = getAssets().open(asset);
         //noinspection IOStreamConstructor
         OutputStream out = new FileOutputStream(outFile);
@@ -468,6 +464,24 @@ public class MapTrek extends Application {
         String notification = mUserNotification;
         mUserNotification = null;
         return notification;
+    }
+
+    synchronized public void removeMapDatabase() {
+        // close databases
+        if (mHillshadeHelper != null) {
+            mHillshadeHelper.close();
+            mHillshadeHelper = null;
+            mHillshadeDatabase = null;
+        }
+        if (mDetailedMapHelper != null) {
+            mDetailedMapHelper.close();
+            mDetailedMapHelper = null;
+            mDetailedMapDatabase = null;
+        }
+        File dbFile = new File(getExternalFilesDir("native"), Index.WORLDMAP_FILENAME);
+        logger.info("Detailed map database deleted: {}", dbFile.delete());
+        File hsFile = new File(getExternalFilesDir("native"), Index.HILLSHADE_FILENAME);
+        logger.info("Hillshade database deleted: {}", hsFile.delete());
     }
 
     synchronized public void optionallyCloseMapDatabase(UUID id) {

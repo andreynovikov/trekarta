@@ -10,16 +10,21 @@
         android:fragment="mobi.maptrek.fragments.preferences.Units"
         android:key="preferences_units"
         android:title="@string/pref_units"
+        app:iconSpaceReserved="false" />
+    <Preference
+        android:fragment="mobi.maptrek.fragments.preferences.Advanced"
+        android:key="preferences_advanced"
+        android:title="@string/pref_advanced"
         app:allowDividerBelow="true"
         app:iconSpaceReserved="false" />
     <Preference
         android:fragment="mobi.maptrek.fragments.About"
-        android:key="preferences_about"
+        android:key="about"
         android:title="@string/actionAbout"
         app:allowDividerAbove="true"
         app:iconSpaceReserved="false" />
     <Preference
-        android:key="preferences_rate"
+        android:key="rate"
         android:title="@string/actionRate"
         app:iconSpaceReserved="false" />
 </PreferenceScreen>

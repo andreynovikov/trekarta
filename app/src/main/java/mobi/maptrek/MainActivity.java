@@ -828,11 +828,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             setMapLocation(position.getGeoPoint());
         } else if ("mobi.maptrek.action.NAVIGATE_TO_OBJECT".equals(action)) {
             startNavigation(intent.getLongExtra(NavigationService.EXTRA_ID, 0L));
-        } else if ("mobi.maptrek.action.RESET_ADVICES".equals(action)) {
-            mBackgroundHandler.postDelayed(Configuration::resetAdviceState, 10000); // Delay reset so that advices are not shown immediately after reset
-            Snackbar.make(mViews.coordinatorLayout, R.string.msgAdvicesReset, Snackbar.LENGTH_LONG)
-                    .setAnchorView(mViews.actionPanel)
-                    .show();
         } else if ("geo".equals(scheme)) {
             Uri uri = intent.getData();
             if (uri == null)
