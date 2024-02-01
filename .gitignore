@@ -34,7 +34,6 @@ proguard/
 
 *.iml
 
-/resources/
 captures/
 
 Gemfile*

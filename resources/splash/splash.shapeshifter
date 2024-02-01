@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "541",
+      "name": "vector",
+      "type": "vector",
+      "width": 135,
+      "height": 135,
+      "children": [
+        {
+          "id": "548",
+          "name": "group",
+          "type": "group",
+          "scaleX": 0,
+          "scaleY": 0,
+          "pivotX": 68,
+          "pivotY": 68,
+          "children": [
+            {
+              "id": "487",
+              "name": "path_2",
+              "type": "path",
+              "pathData": "M 36.15 39.991 L 82.982 30.194 L 98.431 86.339 L 48.854 97.805 Z",
+              "fillColor": "#d9fbc3"
+            }
+          ]
+        },
+        {
+          "id": "550",
+          "name": "group_1",
+          "type": "group",
+          "children": [
+            {
+              "id": "471",
+              "name": "path_1",
+              "type": "path",
+              "pathData": "M 41.896 78.498 L 29.368 57.916 L 36.205 53.923 Z M 57.951 105.718 L 54.697 99.493 L 75.375 94.718 Z",
+              "fillColor": "#ff8a65",
+              "fillAlpha": 0
+            }
+          ]
+        },
+        {
+          "id": "551",
+          "name": "group_2",
+          "type": "group",
+          "children": [
+            {
+              "id": "522",
+              "name": "path_3",
+              "type": "path",
+              "pathData": "M 86.092 60.402 C 74.802 60.402 65.641 69.761 65.641 81.189 C 65.641 92.617 74.802 101.976 86.092 101.976 C 97.383 101.976 106.544 92.617 106.544 81.189 C 106.544 69.761 97.383 60.402 86.092 60.402 Z M 86.092 65.247 C 94.716 65.247 101.699 72.332 101.699 81.189 C 101.699 90.047 94.716 97.131 86.092 97.131 C 77.469 97.131 70.486 90.047 70.486 81.189 C 70.486 72.332 77.469 65.247 86.092 65.247 Z",
+              "fillColor": "#ffffff",
+              "fillAlpha": 0
+            }
+          ]
+        },
+        {
+          "id": "552",
+          "name": "group_3",
+          "type": "group",
+          "scaleX": 0,
+          "scaleY": 0,
+          "pivotX": 86,
+          "pivotY": 81,
+          "children": [
+            {
+              "id": "538",
+              "name": "path_4",
+              "type": "path",
+              "pathData": "M 77.479 89.273 L 89.32 69.166 L 90.775 92.314 C 88.322 88.917 81.541 86.907 77.479 89.273 Z",
+              "fillColor": "#ec1c24",
+              "fillAlpha": 0,
+              "strokeColor": "#ec1c24",
+              "strokeAlpha": 0,
+              "strokeWidth": 1,
+              "strokeLinecap": "round",
+              "strokeLinejoin": "round"
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "378",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "553",
+          "layerId": "548",
+          "propertyName": "scaleX",
+          "startTime": 200,
+          "endTime": 600,
+          "interpolator": "LINEAR_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "554",
+          "layerId": "548",
+          "propertyName": "scaleY",
+          "startTime": 200,
+          "endTime": 600,
+          "interpolator": "LINEAR_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "555",
+          "layerId": "471",
+          "propertyName": "fillAlpha",
+          "startTime": 600,
+          "endTime": 900,
+          "interpolator": "LINEAR",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "556",
+          "layerId": "522",
+          "propertyName": "fillAlpha",
+          "startTime": 300,
+          "endTime": 800,
+          "interpolator": "LINEAR",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "557",
+          "layerId": "552",
+          "propertyName": "scaleX",
+          "startTime": 600,
+          "endTime": 900,
+          "interpolator": "LINEAR_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "558",
+          "layerId": "552",
+          "propertyName": "scaleY",
+          "startTime": 600,
+          "endTime": 900,
+          "interpolator": "LINEAR_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "559",
+          "layerId": "538",
+          "propertyName": "strokeAlpha",
+          "startTime": 650,
+          "endTime": 700,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "560",
+          "layerId": "538",
+          "propertyName": "fillAlpha",
+          "startTime": 600,
+          "endTime": 650,
+          "interpolator": "LINEAR",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}
