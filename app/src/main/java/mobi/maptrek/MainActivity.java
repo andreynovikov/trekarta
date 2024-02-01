@@ -1608,7 +1608,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mNavigationLayer.setPosition(lat, lon);
         mLastLocationMilliseconds = SystemClock.uptimeMillis();
 
-        mapViewModel.setCurrentLocation(location);
+        mapViewModel.currentLocation.setValue(location);
 
         // we use TIME for custom sunrise/sunset theme switching
         //noinspection deprecation
@@ -1634,7 +1634,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mLocationState = LocationState.SEARCHING;
                 mMap.getEventLayer().setFixOnCenter(false);
                 mLocationOverlay.setEnabled(false);
-                mapViewModel.setCurrentLocation(new Location("unknown"));
+                mapViewModel.clearCurrentLocation();
                 updateLocationDrawable();
             }
         }
@@ -1954,7 +1954,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             unbindService(mLocationConnection);
             mIsLocationBound = false;
             mLocationOverlay.setEnabled(false);
-            mapViewModel.setCurrentLocation(new Location("unknown"));
+            mapViewModel.clearCurrentLocation();
             mMap.updateMap(true);
         }
         mLocationState = LocationState.DISABLED;
@@ -4678,7 +4678,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mapViewModel.shieldFactory.setFontSize(fontSize);
         mapViewModel.shieldFactory.dispose();
         mapViewModel.osmcSymbolFactory.dispose();
-        mapViewModel.setTheme(theme);
+        mapViewModel.theme.postValue(theme);
     }
 
     private void hideSystemUI() {

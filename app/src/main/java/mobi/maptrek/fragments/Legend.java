@@ -1698,7 +1698,7 @@ public class Legend extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
 
         mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-        mapViewModel.getTheme().observe(getViewLifecycleOwner(), this::updateData);
+        mapViewModel.theme.observe(getViewLifecycleOwner(), this::updateData);
 
         mAdapter = new Legend.LegendListAdapter();
         setListAdapter(mAdapter);
@@ -1852,7 +1852,7 @@ public class Legend extends ListFragment {
 
             itemHolder.name.setText(legendItem.name);
             if (legendItem.type != GeometryType.NONE) {
-                itemHolder.item.setLegend(legendItem, mBackground, mapViewModel.getTheme().getValue(), mapViewModel.shieldFactory, mapViewModel.osmcSymbolFactory);
+                itemHolder.item.setLegend(legendItem, mBackground, mapViewModel.theme.getValue(), mapViewModel.shieldFactory, mapViewModel.osmcSymbolFactory);
             }
             return convertView;
         }

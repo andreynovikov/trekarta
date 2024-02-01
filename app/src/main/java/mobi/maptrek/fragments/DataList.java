@@ -130,7 +130,7 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
         });
 
         MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-        mapViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> {
+        mapViewModel.currentLocation.observe(getViewLifecycleOwner(), location -> {
             logger.debug("location changed");
             DataSourceViewModel.SelectedDataSourceState state = dataSourceViewModel.selectedDataSource.getValue();
             if (state == null)

@@ -90,7 +90,7 @@ public class AmenityInformation extends Fragment {
         });
 
         MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
-        mapViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), location -> {
+        mapViewModel.currentLocation.observe(getViewLifecycleOwner(), location -> {
             if ("unknown".equals(location.getProvider())) {
                 viewBinding.destination.setVisibility(View.GONE);
             } else {

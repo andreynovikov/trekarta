@@ -409,7 +409,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
     private Drawable getTypeDrawable(int type) {
         Drawable icon = mTypeIconCache.get(type);
         if (icon == null) {
-            icon = Tags.getTypeDrawable(getContext(), mapViewModel.getTheme().getValue(), Math.abs(type));
+            icon = Tags.getTypeDrawable(getContext(), mapViewModel.theme.getValue(), Math.abs(type));
             if (icon != null)
                 mTypeIconCache.put(type, icon);
         }

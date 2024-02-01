@@ -34,20 +34,12 @@ public class MapViewModel extends ViewModel {
     public ShieldFactory shieldFactory = MapTrek.getApplication().getShieldFactory();
     public OsmcSymbolFactory osmcSymbolFactory = MapTrek.getApplication().getOsmcSymbolFactory();
 
-    private final MutableLiveData<IRenderTheme> theme = new MutableLiveData<>();
-    public LiveData<IRenderTheme> getTheme() {
-        return theme;
-    }
-    public void setTheme(IRenderTheme theme) {
-        this.theme.setValue(theme);
-    }
+    public final MutableLiveData<IRenderTheme> theme = new MutableLiveData<>();
 
-    private final MutableLiveData<Location> location = new MutableLiveData<>(new Location("unknown"));
-    public LiveData<Location> getCurrentLocation() {
-        return location;
-    }
-    public void setCurrentLocation(Location location) {
-        this.location.setValue(location);
+    private static final Location unknownLocation = new Location("unknown");
+    public final MutableLiveData<Location> currentLocation = new MutableLiveData<>(unknownLocation);
+    public void clearCurrentLocation() {
+        currentLocation.setValue(unknownLocation);
     }
 
     public static class MarkerState {
