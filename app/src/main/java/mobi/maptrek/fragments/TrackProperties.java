@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,83 +16,92 @@
 
 package mobi.maptrek.fragments;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 
 import mobi.maptrek.R;
+import mobi.maptrek.data.Track;
 import mobi.maptrek.data.style.MarkerStyle;
 
-public class TrackProperties extends Fragment {
-    public static final String ARG_NAME = "name";
-    public static final String ARG_COLOR = "color";
-
+public class TrackProperties extends DialogFragment {
     private EditText mNameEdit;
     private ColorPickerSwatch mColorSwatch;
     private String mName;
     private int mColor;
 
     private OnTrackPropertiesChangedListener mListener;
-    private FragmentHolder mFragmentHolder;
 
     public TrackProperties() {
+        super();
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_track_properties, container, false);
-        mNameEdit = rootView.findViewById(R.id.nameEdit);
-        mColorSwatch = rootView.findViewById(R.id.colorSwatch);
-        return rootView;
+    public TrackProperties(Track track) {
+        super();
+        mName = track.name;
+        mColor = track.style.color;
     }
 
+    @NonNull
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_properties, null);
+
+        mNameEdit = dialogView.findViewById(R.id.nameEdit);
+        mColorSwatch = dialogView.findViewById(R.id.colorSwatch);
+
+        String name = mName;
+        int color = mColor;
 
         if (savedInstanceState != null) {
-            mNameEdit.setText(savedInstanceState.getString(ARG_NAME));
-            mColorSwatch.setColor(savedInstanceState.getInt(ARG_COLOR));
-        } else {
-            Bundle arguments = getArguments();
-            if (arguments != null) {
-                mName = getArguments().getString(ARG_NAME);
-                mColor = getArguments().getInt(ARG_COLOR);
-            }
+            name = savedInstanceState.getString("name");
+            color = savedInstanceState.getInt("color");
         }
 
-        mNameEdit.setText(mName);
-        mColorSwatch.setColor(mColor);
-
+        mNameEdit.setText(name);
         mNameEdit.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 returnResult();
-                mFragmentHolder.popCurrent();
+                dismiss();
             }
             return false;
         });
-        mColorSwatch.setColor(mColor);
 
+        mColorSwatch.setColor(color);
         mColorSwatch.setOnClickListener(v -> {
             ColorPickerDialog dialog = new ColorPickerDialog();
             dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
             dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-            dialog.setOnColorSelectedListener(color -> {
-                mColorSwatch.setColor(color);
-                mColor = color;
-            });
+            dialog.setOnColorSelectedListener(color1 -> mColorSwatch.setColor(color1));
             dialog.show(getParentFragmentManager(), "ColorPickerDialog");
         });
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        dialogBuilder.setPositiveButton(R.string.actionSave, (dialog, which) -> returnResult());
+        dialogBuilder.setView(dialogView);
+
+        Dialog dialog = dialogBuilder.create();
+
+        Window window = dialog.getWindow();
+        assert window != null;
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.gravity = Gravity.BOTTOM;
+        window.setAttributes(lp);
+
+        return dialog;
     }
 
     @Override
@@ -103,27 +112,19 @@ public class TrackProperties extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement OnTrackPropertiesChangedListener");
         }
-        mFragmentHolder = (FragmentHolder) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mFragmentHolder = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        returnResult();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(ARG_NAME, mNameEdit.getText().toString());
-        outState.putInt(ARG_COLOR, mColorSwatch.getColor());
+        outState.putString("name", mNameEdit.getText().toString());
+        outState.putInt("color", mColorSwatch.getColor());
     }
 
     private void returnResult() {

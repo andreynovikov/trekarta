@@ -219,7 +219,7 @@ import mobi.maptrek.fragments.TextSearchFragment;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.fragments.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
-import mobi.maptrek.fragments.WaypointProperties;
+import mobi.maptrek.fragments.WaypointPropertiesDialog;
 import mobi.maptrek.fragments.WhatsNewDialog;
 import mobi.maptrek.fragments.preferences.BasePreferences;
 import mobi.maptrek.io.Manager;
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Map.UpdateListener,
         GestureListener,
         FragmentHolder,
-        WaypointProperties.OnWaypointPropertiesChangedListener,
+        WaypointPropertiesDialog.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnLocationListener,
         OnWaypointActionListener,
@@ -1140,7 +1140,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             unregisterReceiver(mWaypointBroadcastReceiver);
             mWaypointBroadcastReceiver = null;
         }
-        dataSourceViewModel.waypointDbDataSource.close();
 
         mDetailedMapDatabase = null;
         mProgressHandler = null;
@@ -2510,17 +2509,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void onWaypointProperties(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
-        Bundle args = new Bundle(2);
-        args.putString(WaypointProperties.ARG_NAME, mEditedWaypoint.name);
-        args.putInt(WaypointProperties.ARG_COLOR, mEditedWaypoint.style.color);
-        FragmentFactory factory = mFragmentManager.getFragmentFactory();
-        Fragment fragment = factory.instantiate(getClassLoader(), WaypointProperties.class.getName());
-        fragment.setArguments(args);
-        fragment.setEnterTransition(new Fade());
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.replace(R.id.contentPanel, fragment, "waypointProperties");
-        ft.addToBackStack("waypointProperties");
-        ft.commit();
+        WaypointPropertiesDialog dialogFragment = new WaypointPropertiesDialog(waypoint);
+        dialogFragment.show(mFragmentManager, "waypointProperties");
     }
 
     @Override
@@ -2727,17 +2717,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mEditedTrack == null)
             return;
 
-        Bundle args = new Bundle(2);
-        args.putString(TrackProperties.ARG_NAME, mEditedTrack.name);
-        args.putInt(TrackProperties.ARG_COLOR, mEditedTrack.style.color);
-        FragmentFactory factory = mFragmentManager.getFragmentFactory();
-        Fragment fragment = factory.instantiate(getClassLoader(), TrackProperties.class.getName());
-        fragment.setArguments(args);
-        fragment.setEnterTransition(new Fade());
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.replace(R.id.contentPanel, fragment, "trackProperties");
-        ft.addToBackStack("trackProperties");
-        ft.commit();
+        TrackProperties dialogFragment = new TrackProperties(mEditedTrack);
+        dialogFragment.show(mFragmentManager, "trackProperties");
     }
 
     @Override
