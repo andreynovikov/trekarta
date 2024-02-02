@@ -2195,7 +2195,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (mFirstMove) {
                 mFirstMove = false;
                 mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                mViews.popupAnchor.setY(mStatusBarHeight + 64 * MapTrek.density);
                 HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mViews.popupAnchor, R.drawable.ic_volume_down);
             }
         }
@@ -3836,7 +3836,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
                     } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
                         mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                        mViews.popupAnchor.setY(mStatusBarHeight + 8 * MapTrek.density);
+                        mViews.popupAnchor.setY(mStatusBarHeight + 64 * MapTrek.density);
                         HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
                     }
                 }
