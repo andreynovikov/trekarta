@@ -515,7 +515,8 @@ public class MapTrek extends Application {
         }
     }
 
-    public void onMainActivityFinishing() {
+    public void onMainActivityFinished() {
+        logger.info("MainActivity finished");
         optionallyCloseMapDatabase(null);
         if (mWaypointDbDataSource != null) {
             mWaypointDbDataSource.close();
@@ -630,7 +631,6 @@ public class MapTrek extends Application {
     }
 
     class ListeningToActivityCallbacks implements Application.ActivityLifecycleCallbacks {
-
         @Override
         public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
             logger.warn("{} is onActivityCreated", activity.getLocalClassName());
@@ -666,10 +666,14 @@ public class MapTrek extends Application {
         @Override
         public void onActivityDestroyed(@NonNull Activity activity) {
             logger.warn("{} is onActivityDestroyed", activity.getLocalClassName());
-            if (activity.isFinishing() && activity.getLocalClassName().equals(MainActivity.class.getSimpleName())) {
+            if (activity.isFinishing() && activity.getLocalClassName().equals(MainActivity.class.getSimpleName()))
                 mMainActivityExists = false;
-                onMainActivityFinishing();
-            }
+        }
+
+        @Override
+        public void onActivityPostDestroyed(@NonNull Activity activity) {
+            if (!mMainActivityExists && activity.getLocalClassName().equals(MainActivity.class.getSimpleName()))
+                onMainActivityFinished();
         }
     }
 }
