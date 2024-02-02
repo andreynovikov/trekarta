@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:paddingStart="@dimen/dialogContentMargin"
     android:paddingEnd="@dimen/dialogContentMargin"
-    android:paddingBottom="@dimen/dialogContentMargin"
     tools:context=".fragments.CoordinatesInputDialog">
 
         <EditText
