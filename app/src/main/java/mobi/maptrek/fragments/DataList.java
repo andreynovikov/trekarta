@@ -74,13 +74,14 @@ import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.databinding.ListWithEmptyViewBinding;
+import mobi.maptrek.dialogs.CoordinatesInput;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.JosmCoordinatesParser;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.viewmodels.DataSourceViewModel;
 import mobi.maptrek.viewmodels.MapViewModel;
 
-public class DataList extends Fragment implements CoordinatesInputDialog.CoordinatesInputDialogCallback {
+public class DataList extends Fragment implements CoordinatesInput.CoordinatesInputDialogCallback {
     private static final Logger logger = LoggerFactory.getLogger(DataList.class);
     private static final String lineSeparator = System.getProperty("line.separator", "\n");
 
@@ -115,8 +116,8 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
             setDataSource(dataSourceState.dataSource, savedInstanceState);
             if (dataSourceState.dataSource instanceof WaypointDbDataSource) {
                 mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_add_location, v -> {
-                    CoordinatesInputDialog.Builder builder = new CoordinatesInputDialog.Builder();
-                    CoordinatesInputDialog coordinatesInput = builder.setCallbacks(DataList.this)
+                    CoordinatesInput.Builder builder = new CoordinatesInput.Builder();
+                    CoordinatesInput coordinatesInput = builder.setCallbacks(DataList.this)
                             .setTitle(getString(R.string.titleCoordinatesInput))
                             .create();
                     coordinatesInput.show(getParentFragmentManager(), "pointCoordinatesInput");
@@ -264,7 +265,7 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
     @Override
     public void onResume() {
         super.onResume();
-        CoordinatesInputDialog coordinatesInput = (CoordinatesInputDialog) getParentFragmentManager().findFragmentByTag("pointCoordinatesInput");
+        CoordinatesInput coordinatesInput = (CoordinatesInput) getParentFragmentManager().findFragmentByTag("pointCoordinatesInput");
         if (coordinatesInput != null) {
             coordinatesInput.setCallback(this);
         }

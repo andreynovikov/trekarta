@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="@color/panelSolidBackground"
     android:orientation="vertical"
-    tools:context=".fragments.TextSearchFragment">
+    tools:context=".fragments.TextSearch">
 
     <at.grabner.circleprogress.CircleProgressView
         android:id="@+id/ftsWait"

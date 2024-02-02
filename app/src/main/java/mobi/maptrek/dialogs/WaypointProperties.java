@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,7 +36,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;
 
-public class WaypointPropertiesDialog extends DialogFragment {
+public class WaypointProperties extends DialogFragment {
     private EditText mNameEdit;
     private ColorPickerSwatch mColorSwatch;
     private String mName;
@@ -44,11 +44,11 @@ public class WaypointPropertiesDialog extends DialogFragment {
 
     private OnWaypointPropertiesChangedListener mListener;
 
-    public WaypointPropertiesDialog() {
+    public WaypointProperties() {
         super();
     }
 
-    public WaypointPropertiesDialog(Waypoint waypoint) {
+    public WaypointProperties(Waypoint waypoint) {
         super();
         mName = waypoint.name;
         mColor = waypoint.style.color;

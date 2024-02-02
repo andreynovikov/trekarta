@@ -24,7 +24,7 @@ import androidx.fragment.app.Fragment;
 import com.github.appintro.AppIntro;
 import com.github.appintro.model.SliderPage;
 
-import mobi.maptrek.fragments.IntroductionFragment;
+import mobi.maptrek.fragments.Introduction;
 
 public class IntroductionActivity extends AppIntro {
     public static final int CURRENT_INTRODUCTION = 6;
@@ -48,22 +48,22 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setTitle(getString(R.string.introOfflineMapsTitle));
             sliderPage.setDescription(getString(R.string.introOfflineMaps));
             sliderPage.setImageDrawable(R.mipmap.maps);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
 
             sliderPage.setTitle(getString(R.string.introPlacesTitle));
             sliderPage.setDescription(getString(R.string.introPlaces));
             sliderPage.setImageDrawable(R.mipmap.places);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
 
             sliderPage.setTitle(getString(R.string.introTracksTitle));
             sliderPage.setDescription(getString(R.string.introTracks));
             sliderPage.setImageDrawable(R.mipmap.tracking);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
 
             sliderPage.setTitle(getString(R.string.introOffroadTitle));
             sliderPage.setDescription(getString(R.string.introOffroad));
             sliderPage.setImageDrawable(R.mipmap.offroad);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
         }
 
         if (lastSeenIntroduction < 3) {
@@ -71,7 +71,7 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setTitle(getString(R.string.introHikingTitle));
             sliderPage.setDescription(getString(R.string.introHiking));
             sliderPage.setImageDrawable(R.mipmap.hiking);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
         }
 
         if (lastSeenIntroduction < 6) {
@@ -79,7 +79,7 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setTitle(getString(R.string.introCyclingTitle));
             sliderPage.setDescription(getString(R.string.introCycling));
             sliderPage.setImageDrawable(R.mipmap.cycling);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
         }
 
         if (lastSeenIntroduction < 3) {
@@ -87,7 +87,7 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setTitle(getString(R.string.introSkiingTitle));
             sliderPage.setDescription(getString(R.string.introSkiing));
             sliderPage.setImageDrawable(R.mipmap.skiing);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
         }
 
         if (lastSeenIntroduction < 5) {
@@ -95,7 +95,7 @@ public class IntroductionActivity extends AppIntro {
             sliderPage.setTitle(getString(R.string.introNightModeTitle));
             sliderPage.setDescription(getString(R.string.introNightMode));
             sliderPage.setImageDrawable(R.mipmap.night);
-            addSlide(IntroductionFragment.newInstance(sliderPage));
+            addSlide(Introduction.newInstance(sliderPage));
         }
 
         // TODO Do not show more then N slides at once

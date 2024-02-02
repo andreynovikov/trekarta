@@ -192,16 +192,16 @@ import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.databinding.ActivityMainBinding;
 import mobi.maptrek.fragments.AmenityInformation;
-import mobi.maptrek.fragments.AmenitySetupDialog;
-import mobi.maptrek.fragments.BaseMapDownload;
+import mobi.maptrek.dialogs.AmenitySetup;
+import mobi.maptrek.dialogs.BaseMapDownload;
 import mobi.maptrek.fragments.CrashReport;
-import mobi.maptrek.fragments.DataExport;
+import mobi.maptrek.dialogs.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
 import mobi.maptrek.fragments.FragmentHolder;
 import mobi.maptrek.fragments.Legend;
 import mobi.maptrek.fragments.LocationInformation;
-import mobi.maptrek.fragments.LocationShareDialog;
+import mobi.maptrek.dialogs.LocationShare;
 import mobi.maptrek.fragments.MapList;
 import mobi.maptrek.fragments.MapSelection;
 import mobi.maptrek.fragments.MarkerInformation;
@@ -215,12 +215,12 @@ import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.RouteInformation;
 import mobi.maptrek.fragments.Ruler;
-import mobi.maptrek.fragments.TextSearchFragment;
+import mobi.maptrek.fragments.TextSearch;
 import mobi.maptrek.fragments.TrackInformation;
-import mobi.maptrek.fragments.TrackProperties;
+import mobi.maptrek.dialogs.TrackProperties;
 import mobi.maptrek.fragments.WaypointInformation;
-import mobi.maptrek.fragments.WaypointPropertiesDialog;
-import mobi.maptrek.fragments.WhatsNewDialog;
+import mobi.maptrek.dialogs.WaypointProperties;
+import mobi.maptrek.dialogs.WhatsNew;
 import mobi.maptrek.fragments.preferences.BasePreferences;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.TrackManager;
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Map.UpdateListener,
         GestureListener,
         FragmentHolder,
-        WaypointPropertiesDialog.OnWaypointPropertiesChangedListener,
+        WaypointProperties.OnWaypointPropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnLocationListener,
         OnWaypointActionListener,
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         MapTrekTileLayer.OnAmenityGestureListener,
         PopupMenu.OnMenuItemClickListener,
         LoaderManager.LoaderCallbacks<List<FileDataSource>>,
-        AmenitySetupDialog.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
+        AmenitySetup.AmenitySetupDialogCallback, SafeResultReceiver.Callback {
     private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
@@ -1030,8 +1030,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             BaseMapDownload dialogFragment = new BaseMapDownload();
             dialogFragment.show(mFragmentManager, "baseMapDownload");
             mBaseMapWarningShown = true;
-        } else if (WhatsNewDialog.shouldShow()) {
-            WhatsNewDialog dialogFragment = new WhatsNewDialog();
+        } else if (WhatsNew.shouldShow()) {
+            WhatsNew dialogFragment = new WhatsNew();
             dialogFragment.show(mFragmentManager, "whatsNew");
         }
 
@@ -1292,8 +1292,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             dialog.show();
             return true;
         } else if (action == R.id.actionAmenityZooms) {
-            AmenitySetupDialog.Builder builder = new AmenitySetupDialog.Builder();
-            AmenitySetupDialog dialog = builder.setCallback(this).create();
+            AmenitySetup.Builder builder = new AmenitySetup.Builder();
+            AmenitySetup dialog = builder.setCallback(this).create();
             dialog.show(mFragmentManager, "amenitySetup");
             return true;
         } else if (action == R.id.actionOtherFeatures) {
@@ -1430,18 +1430,18 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Bundle args = new Bundle(2);
             if (mLocationState != LocationState.DISABLED && mLocationService != null) {
                 Location location = mLocationService.getLocation();
-                args.putDouble(TextSearchFragment.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(TextSearchFragment.ARG_LONGITUDE, location.getLongitude());
+                args.putDouble(TextSearch.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(TextSearch.ARG_LONGITUDE, location.getLongitude());
             } else {
                 MapPosition position = mMap.getMapPosition();
-                args.putDouble(TextSearchFragment.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(TextSearchFragment.ARG_LONGITUDE, position.getLongitude());
+                args.putDouble(TextSearch.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(TextSearch.ARG_LONGITUDE, position.getLongitude());
             }
             if (mFragmentManager.getBackStackEntryCount() > 0) {
                 popAll();
             }
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            Fragment fragment = factory.instantiate(getClassLoader(), TextSearchFragment.class.getName());
+            Fragment fragment = factory.instantiate(getClassLoader(), TextSearch.class.getName());
             fragment.setArguments(args);
             showExtendPanel(PANEL_STATE.MORE, "search", fragment);
             return true;
@@ -2509,7 +2509,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void onWaypointProperties(Waypoint waypoint) {
         mEditedWaypoint = waypoint;
-        WaypointPropertiesDialog dialogFragment = new WaypointPropertiesDialog(waypoint);
+        WaypointProperties dialogFragment = new WaypointProperties(waypoint);
         dialogFragment.show(mFragmentManager, "waypointProperties");
     }
 
@@ -3031,13 +3031,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void shareLocation(@NonNull GeoPoint coordinates, @Nullable String name) {
-        LocationShareDialog dialogFragment = new LocationShareDialog();
+        LocationShare dialogFragment = new LocationShare();
         Bundle args = new Bundle();
-        args.putDouble(LocationShareDialog.ARG_LATITUDE, coordinates.getLatitude());
-        args.putDouble(LocationShareDialog.ARG_LONGITUDE, coordinates.getLongitude());
-        args.putInt(LocationShareDialog.ARG_ZOOM, mMap.getMapPosition().getZoomLevel());
+        args.putDouble(LocationShare.ARG_LATITUDE, coordinates.getLatitude());
+        args.putDouble(LocationShare.ARG_LONGITUDE, coordinates.getLongitude());
+        args.putInt(LocationShare.ARG_ZOOM, mMap.getMapPosition().getZoomLevel());
         if (name != null)
-            args.putString(LocationShareDialog.ARG_NAME, name);
+            args.putString(LocationShare.ARG_NAME, name);
         dialogFragment.setArguments(args);
         dialogFragment.show(mFragmentManager, "locationShare");
     }

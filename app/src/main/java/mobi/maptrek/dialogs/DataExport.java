@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

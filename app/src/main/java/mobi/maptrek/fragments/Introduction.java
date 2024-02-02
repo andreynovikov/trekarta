@@ -34,12 +34,12 @@ import com.github.appintro.model.SliderPage;
 import de.hdodenhof.circleimageview.CircleImageView;
 import mobi.maptrek.R;
 
-public class IntroductionFragment extends AppIntroBaseFragment {
+public class Introduction extends AppIntroBaseFragment {
     private static final String ARG_DRAWABLE = "drawable";
     private CircleImageView mImageView;
 
-    public static IntroductionFragment newInstance(SliderPage sliderPage) {
-        IntroductionFragment slide = new IntroductionFragment();
+    public static Introduction newInstance(SliderPage sliderPage) {
+        Introduction slide = new Introduction();
         slide.setArguments(sliderPage.toBundle());
         return slide;
     }

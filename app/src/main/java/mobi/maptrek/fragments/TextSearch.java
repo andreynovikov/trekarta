@@ -80,8 +80,8 @@ import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.viewmodels.MapViewModel;
 
-public class TextSearchFragment extends ListFragment implements View.OnClickListener {
-    private static final Logger logger = LoggerFactory.getLogger(TextSearchFragment.class);
+public class TextSearch extends ListFragment implements View.OnClickListener {
+    private static final Logger logger = LoggerFactory.getLogger(TextSearch.class);
 
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
@@ -382,7 +382,7 @@ public class TextSearchFragment extends ListFragment implements View.OnClickList
                 mAdapter.changeCursor(resultCursor);
                 mViews.filterButton.setImageResource(R.drawable.ic_filter);
                 mViews.filterButton.setColorFilter(activity.getColor(mSelectedKind > 0 ? R.color.colorAccent : R.color.colorPrimaryDark));
-                mViews.filterButton.setOnClickListener(TextSearchFragment.this);
+                mViews.filterButton.setOnClickListener(TextSearch.this);
                 updateListHeight();
             });
         });

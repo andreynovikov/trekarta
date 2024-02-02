@@ -6,7 +6,7 @@
     android:paddingEnd="@dimen/dialogContentMargin"
     android:paddingStart="@dimen/dialogContentMargin"
     android:paddingTop="@dimen/dialogContentMargin"
-    tools:context=".fragments.BaseMapDownload">
+    tools:context=".dialogs.BaseMapDownload">
 
     <TextView
         android:id="@+id/message"

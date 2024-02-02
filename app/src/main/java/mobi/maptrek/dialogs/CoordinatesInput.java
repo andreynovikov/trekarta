@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -39,7 +39,7 @@ import androidx.fragment.app.DialogFragment;
 import mobi.maptrek.R;
 import mobi.maptrek.util.JosmCoordinatesParser;
 
-public class CoordinatesInputDialog extends DialogFragment {
+public class CoordinatesInput extends DialogFragment {
     private int mColorTextPrimary;
     private int mColorDarkBlue;
     private int mColorRed;
@@ -172,8 +172,8 @@ public class CoordinatesInputDialog extends DialogFragment {
             return this;
         }
 
-        public CoordinatesInputDialog create() {
-            CoordinatesInputDialog dialogFragment = new CoordinatesInputDialog();
+        public CoordinatesInput create() {
+            CoordinatesInput dialogFragment = new CoordinatesInput();
             Bundle args = new Bundle();
 
             if (mTitle != null)

@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,7 +49,7 @@ import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.util.Osm;
 import mobi.maptrek.util.StringFormatter;
 
-public class LocationShareDialog extends DialogFragment implements DialogInterface.OnClickListener {
+public class LocationShare extends DialogFragment implements DialogInterface.OnClickListener {
 
     public static final String ARG_LATITUDE = "latitude";
     public static final String ARG_LONGITUDE = "longitude";

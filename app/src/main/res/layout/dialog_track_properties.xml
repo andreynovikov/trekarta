@@ -7,7 +7,7 @@
     android:paddingStart="@dimen/dialogContentMargin"
     android:paddingTop="@dimen/dialogContentMargin"
     android:paddingEnd="@dimen/dialogContentMargin"
-    tools:context=".fragments.TrackProperties">
+    tools:context=".dialogs.TrackProperties">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameWrapper"

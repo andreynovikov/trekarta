@@ -7,7 +7,7 @@
     android:paddingTop="@dimen/dialogContentMargin"
     android:paddingStart="@dimen/dialogContentMargin"
     android:paddingEnd="@dimen/dialogContentMargin"
-    tools:context=".fragments.AmenitySetupDialog">
+    tools:context=".dialogs.AmenitySetup">
 
     <ListView
         android:id="@android:id/list"

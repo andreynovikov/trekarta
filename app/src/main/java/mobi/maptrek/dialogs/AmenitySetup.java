@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -44,7 +44,7 @@ import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.ResUtils;
 import mobi.maptrek.view.DiscreteSlider;
 
-public class AmenitySetupDialog extends DialogFragment {
+public class AmenitySetup extends DialogFragment {
     private AmenitySetupDialogCallback mCallback;
 
     public interface AmenitySetupDialogCallback {
@@ -105,8 +105,8 @@ public class AmenitySetupDialog extends DialogFragment {
             return this;
         }
 
-        public AmenitySetupDialog create() {
-            AmenitySetupDialog dialogFragment = new AmenitySetupDialog();
+        public AmenitySetup create() {
+            AmenitySetup dialogFragment = new AmenitySetup();
             Bundle args = new Bundle();
 
             if (mTitle != null)

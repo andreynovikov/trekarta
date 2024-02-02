@@ -14,7 +14,7 @@
  *
  */
 
-package mobi.maptrek.fragments;
+package mobi.maptrek.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,7 +46,7 @@ import mobi.maptrek.Configuration;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 
-public class WhatsNewDialog extends DialogFragment {
+public class WhatsNew extends DialogFragment {
     private static final String TAG_CHANGELOG = "changelog";
     private static final String TAG_RELEASE = "release";
     private static final String TAG_CHANGE = "change";
@@ -62,7 +62,7 @@ public class WhatsNewDialog extends DialogFragment {
         final View dialogView = getLayoutInflater().inflate(R.layout.dialog_list, null);
 
         final ListView listView = dialogView.findViewById(android.R.id.list);
-        WhatsNewDialog.ChangeListAdapter listAdapter = new WhatsNewDialog.ChangeListAdapter();
+        WhatsNew.ChangeListAdapter listAdapter = new WhatsNew.ChangeListAdapter();
         listView.setAdapter(listAdapter);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
@@ -204,11 +204,11 @@ public class WhatsNewDialog extends DialogFragment {
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            WhatsNewDialog.ChangeListItemHolder itemHolder;
+            WhatsNew.ChangeListItemHolder itemHolder;
             final ChangeListItem item = getItem(position);
 
             if (convertView == null) {
-                itemHolder = new WhatsNewDialog.ChangeListItemHolder();
+                itemHolder = new WhatsNew.ChangeListItemHolder();
                 if (item.version != null) {
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change_title, parent, false);
                     itemHolder.divider = convertView.findViewById(R.id.group_divider);
@@ -220,7 +220,7 @@ public class WhatsNewDialog extends DialogFragment {
                 }
                 convertView.setTag(itemHolder);
             } else {
-                itemHolder = (WhatsNewDialog.ChangeListItemHolder) convertView.getTag();
+                itemHolder = (WhatsNew.ChangeListItemHolder) convertView.getTag();
             }
 
             if (item.version != null) {
