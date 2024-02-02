@@ -4322,12 +4322,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             } else {
                 Fragment fragment = mFragmentManager.findFragmentByTag("dataList");
                 if (fragment == null) {
-                    Bundle args = new Bundle(1);
-                    if (mVerticalOrientation)
-                        args.putInt(DataList.ARG_HEIGHT, mViews.extendPanel.getHeight());
                     FragmentFactory factory = mFragmentManager.getFragmentFactory();
                     fragment = factory.instantiate(getClassLoader(), DataList.class.getName());
-                    fragment.setArguments(args);
                     if (dataSourceState.mode == DataSourceViewModel.MODE_SELECTOR) {
                         FragmentTransaction ft = mFragmentManager.beginTransaction();
                         fragment.setEnterTransition(new Fade());

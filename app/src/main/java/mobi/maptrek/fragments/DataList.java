@@ -84,8 +84,6 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
     private static final Logger logger = LoggerFactory.getLogger(DataList.class);
     private static final String lineSeparator = System.getProperty("line.separator", "\n");
 
-    public static final String ARG_HEIGHT = "hgt";
-
     private OnWaypointActionListener mWaypointActionListener;
     private OnTrackActionListener mTrackActionListener;
     private OnRouteActionListener mRouteActionListener;
@@ -156,15 +154,20 @@ public class DataList extends Fragment implements CoordinatesInputDialog.Coordin
         DataList.DataListAdapter adapter = new DataList.DataListAdapter(new MemoryDataSource(), true);
         viewBinding.list.setAdapter(adapter);
 
-        Bundle arguments = getArguments();
-        int minHeight = 0;
-
-        if (arguments != null) {
-            minHeight = arguments.getInt(ARG_HEIGHT, 0);
+        // check if we are open above another fragment and make us fully overlap it
+        ViewGroup parent = (ViewGroup) view.getParent();
+        if (parent.getChildCount() > 1) {
+            int height = 0;
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                View child = parent.getChildAt(i);
+                if (child != view) {
+                    int childHeight = child.getHeight();
+                    if (height < childHeight)
+                        height = childHeight;
+                }
+            }
+            view.setMinimumHeight(height);
         }
-
-        if (minHeight > 0)
-            view.setMinimumHeight(minHeight);
 
         if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_VIEW_DATA_ITEM)) {
             ViewTreeObserver vto = view.getViewTreeObserver();
