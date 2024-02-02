@@ -21,10 +21,11 @@ import androidx.lifecycle.ViewModel;
 
 import mobi.maptrek.data.Track;
 import mobi.maptrek.location.BaseLocationService.TRACKING_STATE;
+import mobi.maptrek.util.SingleLiveEvent;
 
 public class TrackViewModel extends ViewModel {
     public final MutableLiveData<Track> selectedTrack = new MutableLiveData<>();
     public final MutableLiveData<Track> currentTrack = new MutableLiveData<>();
     public final MutableLiveData<TRACKING_STATE> trackingState = new MutableLiveData<>(TRACKING_STATE.DISABLED);
-    public final MutableLiveData<TRACKING_STATE> trackingCommand = new MutableLiveData<>(TRACKING_STATE.DISABLED);
+    public final SingleLiveEvent<TRACKING_STATE> trackingCommand = new SingleLiveEvent<>();
 }

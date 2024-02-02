@@ -103,6 +103,7 @@ public class Configuration {
     public static final long ADVICE_MAP_SETTINGS = 0x0000000000000020L;
     public static final long ADVICE_ADDING_PLACE = 0x0000000000000040L;
     public static final long ADVICE_RECORD_TRACK = 0x0000000000000080L;
+    /** @noinspection unused*/
     public static final long ADVICE_RECORDED_TRACKS = 0x0000000000000100L;
     public static final long ADVICE_VIEW_DATA_ITEM = 0x0000000000000200L;
     public static final long ADVICE_SWITCH_COORDINATES_FORMAT = 0x0000000000000400L;

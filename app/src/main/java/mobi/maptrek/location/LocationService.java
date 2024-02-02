@@ -190,24 +190,29 @@ public class LocationService extends BaseLocationService implements LocationList
             return START_NOT_STICKY;
 
         String action = intent.getAction();
-        logger.debug("Command: {}", action);
-        if (action.equals(ENABLE_TRACK) && !mTrackingEnabled) {
-            mErrorMsg = "";
-            mErrorTime = 0;
-            mTrackingEnabled = true;
-            mContinuous = false;
-            mDistanceNotified = 0f;
-            openDatabase();
-            mTrackingStarted = SystemClock.uptimeMillis();
-            mTrackStarted = System.currentTimeMillis();
-            mForegroundTracking = true;
-            updateDistanceTracked();
-            // https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
-            if (!mForegroundLocations)
-                if (Build.VERSION.SDK_INT < 34)
-                    startForeground(NOTIFICATION_ID, getNotification());
-                else
-                    startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        logger.error("Command: {}", action);
+        if (action.equals(ENABLE_TRACK)) {
+            if (!mTrackingEnabled) { // Command can be sent on activity restart, while service already is running
+                mErrorMsg = "";
+                mErrorTime = 0;
+                mTrackingEnabled = true;
+                mContinuous = false;
+                mDistanceNotified = 0f;
+                openDatabase();
+                mTrackingStarted = SystemClock.uptimeMillis();
+                mTrackStarted = System.currentTimeMillis();
+                mForegroundTracking = true;
+                updateDistanceTracked();
+                // https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
+                if (!mForegroundLocations)
+                    if (Build.VERSION.SDK_INT < 34)
+                        startForeground(NOTIFICATION_ID, getNotification());
+                    else
+                        startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            }
+            sendBroadcast(new Intent(BROADCAST_TRACK_STATE)
+                    .putExtra("state", TRACKING_STATE.TRACKING.ordinal())
+                    .setPackage(getPackageName()));
             Configuration.setTrackingState(TRACKING_STATE.TRACKING.ordinal());
         }
         if (action.equals(DISABLE_TRACK) || action.equals(PAUSE_TRACK) && mTrackingEnabled) {
@@ -218,10 +223,16 @@ public class LocationService extends BaseLocationService implements LocationList
             long trackedTime = (SystemClock.uptimeMillis() - mTrackingStarted) / 60000;
             Configuration.updateTrackingTime(trackedTime);
             if (action.equals(DISABLE_TRACK)) {
-                Configuration.setTrackingState(TRACKING_STATE.DISABLED.ordinal());
+                sendBroadcast(new Intent(BROADCAST_TRACK_STATE)
+                        .putExtra("state", TRACKING_STATE.DISABLED.ordinal())
+                        .setPackage(getPackageName()));
+                Configuration.setTrackingState(TRACKING_STATE.PAUSED.ordinal());
                 tryToSaveTrack();
             }
             if (action.equals(PAUSE_TRACK)) {
+                sendBroadcast(new Intent(BROADCAST_TRACK_STATE)
+                        .putExtra("state", TRACKING_STATE.PAUSED.ordinal())
+                        .setPackage(getPackageName()));
                 Configuration.setTrackingState(TRACKING_STATE.PAUSED.ordinal());
             }
             if (!mForegroundLocations) {
@@ -399,7 +410,7 @@ public class LocationService extends BaseLocationService implements LocationList
         iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
         iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
         iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         builder.setWhen(mErrorTime);
         builder.setSmallIcon(ntfId);

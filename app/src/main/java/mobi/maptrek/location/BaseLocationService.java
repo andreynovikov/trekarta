@@ -46,6 +46,10 @@ public abstract class BaseLocationService extends Service {
      */
     public static final String DISABLE_BACKGROUND_LOCATIONS = "mobi.maptrek.location.disableBackgroundLocations";
     /**
+     * Broadcast sent when track recording state changes
+     */
+    public static final String BROADCAST_TRACK_STATE = "mobi.maptrek.location.TrackState";
+    /**
      * Broadcast sent when track is about to be saved (or not)
      */
     public static final String BROADCAST_TRACK_SAVE = "mobi.maptrek.location.TrackSave";
