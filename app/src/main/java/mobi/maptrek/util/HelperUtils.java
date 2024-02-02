@@ -23,6 +23,8 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.snackbar.Snackbar;
@@ -84,11 +86,15 @@ public class HelperUtils {
                 .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white)
                 .icon(drawable);
-        showTargetedAdvice(activity, advice, target);
+        showTargetedAdvice(activity, advice, target, null);
         return true;
     }
 
-    public static boolean showTargetedAdvice(Activity activity, final long advice, @StringRes int messageResId, View focusOn, boolean transparent) {
+    public static boolean showTargetedAdvice(@NonNull Activity activity, final long advice, @StringRes int messageResId, @NonNull View focusOn, boolean transparent) {
+        return showTargetedAdvice(activity, advice, messageResId, focusOn, transparent, null);
+    }
+
+    public static boolean showTargetedAdvice(@NonNull Activity activity, final long advice, @StringRes int messageResId, @NonNull View focusOn, boolean transparent, @Nullable TapTargetView.Listener listener) {
         if (isShowingTargetedAdvice || !Configuration.getAdviceState(advice))
             return false;
 
@@ -104,7 +110,7 @@ public class HelperUtils {
                 .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white);
 
-        showTargetedAdvice(activity, advice, target);
+        showTargetedAdvice(activity, advice, target, listener);
         return true;
     }
 
@@ -117,7 +123,7 @@ public class HelperUtils {
                 .targetCircleColor(R.color.colorBackground)
                 .textColor(android.R.color.white)
                 .transparentTarget(true);
-        showTargetedAdvice(activity, advice, target);
+        showTargetedAdvice(activity, advice, target, null);
         return true;
     }
 
@@ -135,7 +141,7 @@ public class HelperUtils {
         return true;
     }
 
-    private static void showTargetedAdvice(Activity activity, final long advice, TapTarget target) {
+    private static void showTargetedAdvice(@NonNull Activity activity, final long advice, @NonNull TapTarget target, @Nullable TapTargetView.Listener listener) {
         if (BuildConfig.IS_TESTING.get())
             return;
         isShowingTargetedAdvice = true;
@@ -145,12 +151,16 @@ public class HelperUtils {
                     @Override
                     public void onOuterCircleClick(TapTargetView view) {
                         view.dismiss(false);
+                        if (listener != null)
+                            listener.onOuterCircleClick(view);
                     }
 
                     @Override
                     public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
                         Configuration.setAdviceState(advice);
                         isShowingTargetedAdvice = false;
+                        if (listener != null)
+                            listener.onTargetDismissed(view, userInitiated);
                     }
                 });
     }

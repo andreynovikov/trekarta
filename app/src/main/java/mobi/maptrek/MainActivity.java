@@ -60,6 +60,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -958,8 +960,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext(), this);
                 mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
                 mMap.updateMap(true);
-                if (trackingState == TRACKING_STATE.TRACKING)
-                    askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+                if (trackingState == TRACKING_STATE.TRACKING) {
+                    if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_RECORD_TRACK))
+                        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.tracksButton, false, new TapTargetView.Listener() {
+                            public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+                                askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+                            }
+                        });
+                    else
+                        askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
+                }
             }
             if (trackingState == TRACKING_STATE.DISABLED && mCurrentTrackLayer != null) {
                 mMap.layers().remove(mCurrentTrackLayer);
@@ -1656,7 +1666,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void onTracksClicked() {
-        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_RECORD_TRACK, R.string.advice_record_track, mViews.tracksButton, false);
         dataSourceViewModel.showNativeTracks(true);
         FragmentFactory factory = mFragmentManager.getFragmentFactory();
         Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
@@ -4068,6 +4077,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (BaseLocationService.BROADCAST_TRACK_STATE.equals(action)) {
                 int stateOrdinal = intent.getIntExtra("state", TRACKING_STATE.DISABLED.ordinal());
                 TRACKING_STATE state = TRACKING_STATE.values()[stateOrdinal];
+                logger.error("{}: {}", action, state);
                 trackViewModel.trackingState.setValue(state);
             }
             if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {
