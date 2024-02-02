@@ -18,6 +18,7 @@ package mobi.maptrek.util;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.CallSuper;
 import android.view.View;
@@ -32,12 +33,12 @@ public class ProgressHandler extends Handler implements ProgressListener {
     private final static int UPDATE_PROGRESS = 2;
     protected final static int STOP_PROGRESS = 3;
 
-    private ProgressBar mProgressBar;
+    private final ProgressBar mProgressBar;
     private int mStep;
     private int mProgress;
 
     public ProgressHandler(ProgressBar progressBar) {
-        super();
+        super(Looper.getMainLooper());
         mProgressBar = progressBar;
     }
 
