@@ -600,9 +600,6 @@
     <m cat="forest" k="natural" v="tree_row" zoom-min="15">
         <line use="trees" />
     </m>
-    <m cat="forest" k="natural" v="tree" zoom-min="15">
-        <area fade="15" fill="color:trees" mesh="true" />
-    </m>
 
     <xi:include href="inc_ground_objects.xml" />
 
@@ -627,6 +624,11 @@
     <xi:include href="inc_cycling_routes.xml" />
 
     <xi:include href="inc_cycling_symbols.xml" />
+
+    <!-- Trees are simulated as areas, they should be above all ground areas -->
+    <m cat="forest" k="natural" v="tree" zoom-min="15">
+        <area fade="15" fill="color:trees" mesh="true" />
+    </m>
 
     <!-- Topological (orientational) lines on ground -->
     <m cat="topo" k="man_made">
