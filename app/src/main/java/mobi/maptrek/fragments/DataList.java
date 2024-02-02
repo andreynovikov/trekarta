@@ -111,10 +111,10 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         super.onViewCreated(view, savedInstanceState);
 
         dataSourceViewModel = new ViewModelProvider(requireActivity()).get(DataSourceViewModel.class);
-        dataSourceViewModel.selectedDataSource.observe(getViewLifecycleOwner(), dataSourceState -> {
+        dataSourceViewModel.selectedDataSource.observe(getViewLifecycleOwner(), dataSource -> {
             logger.debug("dataSource changed");
-            setDataSource(dataSourceState.dataSource, savedInstanceState);
-            if (dataSourceState.dataSource instanceof WaypointDbDataSource) {
+            setDataSource(dataSource, savedInstanceState);
+            if (dataSource instanceof WaypointDbDataSource) {
                 mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_add_location, v -> {
                     CoordinatesInput.Builder builder = new CoordinatesInput.Builder();
                     CoordinatesInput coordinatesInput = builder.setCallbacks(DataList.this)
@@ -131,10 +131,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
         mapViewModel.currentLocation.observe(getViewLifecycleOwner(), location -> {
             logger.debug("location changed");
-            DataSourceViewModel.SelectedDataSourceState state = dataSourceViewModel.selectedDataSource.getValue();
-            if (state == null)
-                return;
-            DataSource dataSource = state.dataSource;
+            DataSource dataSource = dataSourceViewModel.selectedDataSource.getValue();
             if (dataSource == null)
                 return;
             if ("unknown".equals(location.getProvider())) {
@@ -176,10 +173,9 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
                 @Override
                 public void onGlobalLayout() {
                     view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    DataSourceViewModel.SelectedDataSourceState state = dataSourceViewModel.selectedDataSource.getValue();
-                    if (state == null)
+                    DataSource dataSource = dataSourceViewModel.selectedDataSource.getValue();
+                    if (dataSource == null)
                         return;
-                    DataSource dataSource = state.dataSource;
                     Cursor cursor = dataSource.getCursor();
                     if (cursor.getCount() > 0) {
                         View view = viewBinding.list.getChildAt(0).findViewById(R.id.view);
@@ -334,10 +330,9 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     }
 
     private void populateSelectedItems(HashSet<Waypoint> waypoints, HashSet<Track> tracks, HashSet<Route> routes) {
-        DataSourceViewModel.SelectedDataSourceState state = dataSourceViewModel.selectedDataSource.getValue();
-        if (state == null)
+        DataSource dataSource = dataSourceViewModel.selectedDataSource.getValue();
+        if (dataSource == null)
             return;
-        DataSource dataSource = state.dataSource;
         Cursor cursor = dataSource.getCursor();
         for (int position = 0; position < cursor.getCount(); position++) {
             cursor.moveToPosition(position);

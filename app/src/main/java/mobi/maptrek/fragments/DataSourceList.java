@@ -265,15 +265,7 @@ public class DataSourceList extends Fragment {
                     icon.setImageResource(R.drawable.ic_points);
                     action.setVisibility(View.GONE);
                     action.setOnClickListener(null);
-                    itemView.setOnClickListener(v -> {
-                        // mFragmentHolder.disableListActionButton();
-                        dataSourceViewModel.selectedDataSource.setValue(
-                                new DataSourceViewModel.SelectedDataSourceState(
-                                        dataSource,
-                                        DataSourceViewModel.MODE_SELECTOR
-                                )
-                        );
-                    });
+                    itemView.setOnClickListener(v -> dataSourceViewModel.selectDataSource(dataSource, DataSourceViewModel.MODE_SELECTOR));
                 } else {
                     File file = new File(((FileDataSource) dataSource).path);
                     if (dataSource.isLoaded()) {
@@ -311,15 +303,7 @@ public class DataSourceList extends Fragment {
                             else
                                 icon.setImageResource(R.drawable.ic_dataset);
                         }
-                        itemView.setOnClickListener(v -> {
-                            // mFragmentHolder.disableListActionButton();
-                            dataSourceViewModel.selectedDataSource.setValue(
-                                    new DataSourceViewModel.SelectedDataSourceState(
-                                            dataSource,
-                                            DataSourceViewModel.MODE_SELECTOR
-                                    )
-                            );
-                        });
+                        itemView.setOnClickListener(v -> dataSourceViewModel.selectDataSource(dataSource, DataSourceViewModel.MODE_SELECTOR));
                     } else {
                         String size = Formatter.formatShortFileSize(getContext(), file.length());
                         description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));

@@ -29,6 +29,7 @@ import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.util.SingleLiveEvent;
 
 public class DataSourceViewModel extends ViewModel {
     public final WaypointDbDataSource waypointDbDataSource = MapTrek.getApplication().getWaypointDbDataSource();
@@ -98,5 +99,11 @@ public class DataSourceViewModel extends ViewModel {
         }
     }
 
-    public final MutableLiveData<SelectedDataSourceState> selectedDataSource = new MutableLiveData<>();
+    public final MutableLiveData<DataSource> selectedDataSource = new MutableLiveData<>();
+    public final SingleLiveEvent<SelectedDataSourceState> dataSourceCommand = new SingleLiveEvent<>();
+
+    public void selectDataSource(DataSource dataSource, int mode) {
+        selectedDataSource.setValue(dataSource);
+        dataSourceCommand.setValue(new DataSourceViewModel.SelectedDataSourceState(dataSource, mode));
+    }
 }

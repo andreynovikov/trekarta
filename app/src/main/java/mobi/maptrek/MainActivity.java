@@ -85,7 +85,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
@@ -690,7 +689,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
         dataSourceViewModel = new ViewModelProvider(this).get(DataSourceViewModel.class);
-        dataSourceViewModel.selectedDataSource.observe(this, selectedDataSourceObserver);
+        if (savedInstanceState != null) {
+            dataSourceViewModel.showNativeTracks(savedInstanceState.getBoolean("nativeTracks"));
+        }
+        dataSourceViewModel.dataSourceCommand.observe(this, dataSourceCommandObserver);
 
         // Observe marker state
         mapViewModel.getMarkerState().observe(this, markerState -> {
@@ -1183,8 +1185,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-        logger.debug("onSaveInstanceState()");
-
         MapTrek application = MapTrek.getApplication();
         application.setEditedWaypoint(mEditedWaypoint);
         application.setBitmapLayerMaps(mBitmapLayerMaps);
@@ -1202,6 +1202,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         savedInstanceState.putBoolean("savedNavigationState", mNavigationService != null);
         if (mViews.progressBar.getVisibility() == View.VISIBLE)
             savedInstanceState.putInt("progressBar", mViews.progressBar.getMax());
+        savedInstanceState.putBoolean("nativeTracks", Boolean.TRUE.equals(dataSourceViewModel.getNativeTracksState().getValue()));
         savedInstanceState.putSerializable("panelState", mPanelState);
         savedInstanceState.putBoolean("autoTiltShouldSet", mAutoTiltShouldSet);
         savedInstanceState.putBoolean("baseMapWarningShown", mBaseMapWarningShown);
@@ -1692,12 +1693,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
-            dataSourceViewModel.selectedDataSource.setValue(
-                    new DataSourceViewModel.SelectedDataSourceState(
-                            dataSourceViewModel.waypointDbDataSource,
-                            DataSourceViewModel.MODE_PANEL
-                    )
-            );
+            dataSourceViewModel.selectDataSource(dataSourceViewModel.waypointDbDataSource, DataSourceViewModel.MODE_PANEL);
         }
     }
 
@@ -4282,11 +4278,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mMap.updateMap(true);
     }
 
-    private final Observer<DataSourceViewModel.SelectedDataSourceState> selectedDataSourceObserver = new Observer<DataSourceViewModel.SelectedDataSourceState>() {
+    private final Observer<DataSourceViewModel.SelectedDataSourceState> dataSourceCommandObserver = new Observer<DataSourceViewModel.SelectedDataSourceState>() {
         @Override
         public void onChanged(DataSourceViewModel.SelectedDataSourceState dataSourceState) {
-            if (getLifecycle().getCurrentState() != Lifecycle.State.RESUMED)
-                return;
             if (dataSourceState.dataSource.isNativeTrack()) {
                 Track track = ((TrackDataSource) dataSourceState.dataSource).getTracks().get(0);
                 onTrackDetails(track);
