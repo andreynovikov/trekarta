@@ -226,7 +226,7 @@ public class LocationService extends BaseLocationService implements LocationList
                 sendBroadcast(new Intent(BROADCAST_TRACK_STATE)
                         .putExtra("state", TRACKING_STATE.DISABLED.ordinal())
                         .setPackage(getPackageName()));
-                Configuration.setTrackingState(TRACKING_STATE.PAUSED.ordinal());
+                Configuration.setTrackingState(TRACKING_STATE.DISABLED.ordinal());
                 tryToSaveTrack();
             }
             if (action.equals(PAUSE_TRACK)) {
