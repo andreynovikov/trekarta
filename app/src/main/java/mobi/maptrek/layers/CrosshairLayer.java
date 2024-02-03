@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -33,12 +33,14 @@ import org.oscim.renderer.MapRenderer;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class CrosshairLayer extends Layer implements Map.UpdateListener {
-    private int mColor;
+    private final Runnable mOnHide;
+    private final int mColor;
 
-    public CrosshairLayer(Map map, float scale, int color) {
+    public CrosshairLayer(Map map, float scale, int color, Runnable onHide) {
         super(map);
         mColor = color;
         mRenderer = new CrosshairRenderer(scale, color);
+        mOnHide = onHide;
     }
 
     @Override
@@ -174,6 +176,7 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
                 float alpha = 1f - animPhase();
                 if (alpha > mAlpha || alpha < 0.01f) {
                     mAlpha = 0f;
+                    mMap.post(mOnHide);
                     animate(false);
                 } else {
                     mAlpha = alpha;
