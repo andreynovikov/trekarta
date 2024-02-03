@@ -128,6 +128,7 @@ public class MapTrek extends Application {
         Parameters.MAP_EVENT_LAYER2 = true;
         //Parameters.TEXTURE_ATLAS = true;
         Parameters.POT_TEXTURES = true;
+        Parameters.TRANSPARENT_LINES = false;
     }
 
     @Override
