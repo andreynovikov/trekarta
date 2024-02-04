@@ -2750,6 +2750,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             updateLocationDrawable();
         }
         BoundingBox box = track.getBoundingBox();
+        if (box == null)
+            return;
         box.extendBy(0.05);
         mMap.animator().animateTo(box);
     }

@@ -39,7 +39,8 @@ public class Track {
     private BoundingBox mBox = null;
 
     public BoundingBox getBoundingBox() {
-        //TODO Honor empty track
+        if (points.isEmpty())
+            return null;
         if (mBox == null) {
             mBox = new BoundingBox();
             synchronized (points) {
@@ -50,7 +51,7 @@ public class Track {
         return mBox;
     }
 
-    public class TrackPoint extends GeoPoint {
+    public static class TrackPoint extends GeoPoint {
         public final boolean continuous;
         public final float elevation;
         public final float speed;
