@@ -116,6 +116,8 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
             setDataSource(dataSource, savedInstanceState);
             if (dataSource instanceof WaypointDbDataSource) {
                 mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_add_location, v -> {
+                    if (!isAdded()) // automated testing presses buttons too quickly
+                        return;
                     CoordinatesInput.Builder builder = new CoordinatesInput.Builder();
                     CoordinatesInput coordinatesInput = builder.setCallbacks(DataList.this)
                             .setTitle(getString(R.string.titleCoordinatesInput))
