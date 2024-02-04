@@ -157,6 +157,8 @@ public class DataSourceList extends Fragment {
         private final Resources resources;
         private boolean nativeTracksMode;
         private MemoryDataSource currentTrack;
+        private long since = 0;
+        private boolean fromFirstPoint = false;
 
         protected DataSourceListAdapter() {
             super(DIFF_CALLBACK);
@@ -217,13 +219,25 @@ public class DataSourceList extends Fragment {
                 if (currentTrack == null) {
                     currentTrack = new MemoryDataSource();
                     currentTrack.tracks.add(track);
+                    if (track.points.isEmpty()) {
+                        since = System.currentTimeMillis();
+                        fromFirstPoint = false;
+                    } else {
+                        since = track.points.get(0).time;
+                        fromFirstPoint = true;
+                    }
                     if (nativeTracksMode)
                         notifyItemInserted(0);
                 } else {
                     if (currentTrack.tracks.get(0) != track)
                         currentTrack.tracks.set(0, track);
-                    if (nativeTracksMode)
+                    if (nativeTracksMode) {
+                        if (!fromFirstPoint && !track.points.isEmpty()) {
+                            since = track.points.get(0).time;
+                            fromFirstPoint = true;
+                        }
                         notifyItemChanged(0);
+                    }
                 }
             } else if (currentTrack != null) {
                 currentTrack.tracks.clear();
@@ -350,7 +364,6 @@ public class DataSourceList extends Fragment {
         }
 
         class CurrentTrackViewHolder extends BindableViewHolder {
-            long time;
             MaterialTextView description;
             AppCompatImageView icon;
             AppCompatImageView resumeAction;
@@ -359,7 +372,6 @@ public class DataSourceList extends Fragment {
 
             CurrentTrackViewHolder(View view) {
                 super(view);
-                time = 0;
                 description = view.findViewById(R.id.description);
                 icon = view.findViewById(R.id.icon);
                 resumeAction = view.findViewById(R.id.resume_action);
@@ -370,21 +382,11 @@ public class DataSourceList extends Fragment {
             @Override
             void bindView(DataSource dataSource, int position) {
                 Track track = ((MemoryDataSource) dataSource).tracks.get(0);
-                if (time == 0 && track.points.size() > 0)
-                    time = track.points.get(0).time;
-
-                if (time > 0) {
-                    String timeTracked = (String) DateUtils.getRelativeTimeSpanString(itemView.getContext(), time);
-                    String distanceTracked = StringFormatter.distanceH(track.getDistance());
-                    description.setText(getString(R.string.msgTracked, distanceTracked, timeTracked));
-                    description.setVisibility(View.VISIBLE);
-                } else {
-                    description.setVisibility(View.GONE);
-                }
-                itemView.setOnClickListener(v -> {
-                    // mFragmentHolder.disableListActionButton();
-                    mTrackActionListener.onTrackDetails(track);
-                });
+                String timeTracked = (String) DateUtils.getRelativeTimeSpanString(itemView.getContext(), since);
+                String distanceTracked = StringFormatter.distanceH(track.getDistance());
+                description.setText(getString(R.string.msgTracked, distanceTracked, timeTracked));
+                description.setVisibility(View.VISIBLE);
+                itemView.setOnClickListener(v -> mTrackActionListener.onTrackDetails(track));
 
                 TRACKING_STATE trackingState = trackViewModel.trackingState.getValue();
                 @ColorInt int color = disabledColor;
