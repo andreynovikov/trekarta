@@ -125,6 +125,7 @@
     <string name="msgTrackNotSavedPeriod">Track was not saved: too short period of time</string>
     <string name="msgTrackNotSavedDistance">Track was not saved: too small distance passed</string>
     <string name="msgEmptyTrackList">Your recorded tracks will appear here.</string>
+    <string name="msgEmptyTrack">Track has no points</string>
     <string name="msgNoFileDataSources">You can also import GPX and KML files.</string>
     <string name="msgDataImported">File is saved in application folder.</string>
     <string name="msgSaveFailed">Failed to save: %s</string>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Scrollbar"
     android:layout_width="@dimen/fragment_width"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
     android:background="@color/panelSolidBackground"
     tools:context=".fragments.TrackInformation">
@@ -72,11 +72,26 @@
 
         </FrameLayout>
 
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name_placeholder"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="@dimen/fragment_padding"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/fragment_padding"
+            android:text="@string/msgEmptyTrack"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:textColorPrimary"
+            android:visibility="gone" />
+
         <TableLayout
             android:id="@+id/statistics_table"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/name_placeholder"
+            android:layout_below="@android:id/empty"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/fragment_padding"
@@ -477,6 +492,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:indeterminate="true"
+            android:visibility="gone"
             android:padding="@dimen/fragment_padding" />
 
         <View

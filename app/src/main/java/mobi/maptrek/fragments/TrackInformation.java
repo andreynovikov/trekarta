@@ -113,14 +113,31 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (!selectedTrack.equals(viewModel.track.getValue())) {
                 initializeTrackInformation(selectedTrack);
                 viewModel.track.setValue(selectedTrack);
-                viewModel.doInBackground(() -> initializeTrackStatistics(selectedTrack));
+                if (!viewModel.isEmpty) {
+                    viewBinding.progressBar.setVisibility(View.VISIBLE);
+                    viewModel.doInBackground(() -> initializeTrackStatistics(selectedTrack));
+                }
             }
         });
         trackViewModel.currentTrack.observe(getViewLifecycleOwner(), currentTrack -> { // new points were added to current track
-            viewModel.doInBackground(() -> updateTrackStatistics(currentTrack));
+            Track track = trackViewModel.selectedTrack.getValue();
+            if (track == null || track != currentTrack)
+                return;
+            if (viewModel.isEmpty) {
+                initializeTrackInformation(track);
+                if (!viewModel.isEmpty)
+                    viewModel.doInBackground(() -> {
+                        viewBinding.progressBar.setVisibility(View.VISIBLE);
+                        initializeTrackStatistics(track);
+                        updateTrackStatistics(currentTrack);
+                    });
+            } else {
+                viewModel.doInBackground(() -> updateTrackStatistics(currentTrack));
+            }
         });
 
         viewModel.track.observe(getViewLifecycleOwner(), trackObserver);
+        viewModel.firstPoint.observe(getViewLifecycleOwner(), firstPointObserver);
         viewModel.lastPoint.observe(getViewLifecycleOwner(), lastPointObserver);
         viewModel.statisticsState.observe(getViewLifecycleOwner(), statisticsObserver);
         viewModel.chartState.observe(getViewLifecycleOwner(), chartObserver);
@@ -187,6 +204,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             mListener.onTrackShare(trackViewModel.selectedTrack.getValue());
             mFragmentHolder.popCurrent();
         });
+        mFloatingButton.setVisibility(View.INVISIBLE);
         viewBinding.getRoot().setOnScrollChangeListener(scrollChangeListener);
     }
 
@@ -223,16 +241,20 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
     private void initializeTrackInformation(Track track) {
         viewModel.reset();
-        Track.TrackPoint ftp = track.points.get(0);
-        Track.TrackPoint ltp = track.getLastPoint();
-        viewModel.hasTime = ftp.time > 0 && ltp.time > 0;
-        viewModel.startTime = ftp.time;
-        viewModel.lastPoint.setValue(ltp);
+        viewModel.isEmpty = track.points.isEmpty();
+        if (!viewModel.isEmpty) {
+            Track.TrackPoint ftp = track.points.get(0);
+            Track.TrackPoint ltp = track.getLastPoint();
+            viewModel.hasTime = ftp.time > 0 && ltp.time > 0;
+            viewModel.startTime = ftp.time;
+            viewModel.firstPoint.setValue(ftp);
+            viewModel.lastPoint.setValue(ltp);
+            viewModel.segmentCount = 1;
+        }
     }
 
     private void initializeTrackStatistics(Track track) {
         logger.debug("initializeTrackStatistics");
-        viewModel.segmentCount = 1;
         for (Track.TrackPoint point : track.points) {
             if (Thread.currentThread().isInterrupted())
                 return;
@@ -247,9 +269,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     private void updateTrackStatistics(Track currentTrack) {
-        Track track = trackViewModel.selectedTrack.getValue();
-        if (track == null || track != currentTrack)
-            return;
         if (viewModel.lastKnownSize >= currentTrack.points.size())
             return;
 
@@ -265,13 +284,12 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     }
 
     private void processTrackPoint(Track.TrackPoint point) {
-        if (!point.continuous)
-            viewModel.segmentCount++;
-
         double distance = Double.NaN;
         if (viewModel.prevPoint != null) {
             distance = point.vincentyDistance(viewModel.prevPoint);
             viewModel.distance += distance;
+            if (!viewModel.prevPoint.continuous)
+                viewModel.segmentCount++;
         }
 
         if (!Float.isNaN(point.elevation) && point.elevation != 0) {
@@ -334,7 +352,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private final Observer<Track> trackObserver = new Observer<Track>() {
         @Override
         public void onChanged(Track track) {
-            Activity activity = requireActivity();
             viewBinding.name.setText(track.name);
             if (track.source == null || track.source.isNativeTrack()) {
                 viewBinding.sourceRow.setVisibility(View.GONE);
@@ -342,18 +359,37 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.source.setText(track.source.name);
                 viewBinding.sourceRow.setVisibility(View.VISIBLE);
             }
-            Track.TrackPoint ftp = track.points.get(0);
-            viewBinding.startCoordinates.setText(StringFormatter.coordinates(ftp));
-            if (viewModel.hasTime) {
-                Date startDate = new Date(ftp.time);
-                viewBinding.startDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
-                viewBinding.startDateRow.setVisibility(View.VISIBLE);
-                viewBinding.finishDateRow.setVisibility(View.VISIBLE);
-                viewBinding.timeRow.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private final Observer<Track.TrackPoint> firstPointObserver = new Observer<Track.TrackPoint>() {
+        @Override
+        public void onChanged(Track.TrackPoint firstPoint) {
+            if (firstPoint == null) {
+                viewBinding.moreButton.setVisibility(View.GONE);
+                viewBinding.statisticsTable.setVisibility(View.GONE);
+                viewBinding.charts.setVisibility(View.GONE);
+                viewBinding.empty.setVisibility(View.VISIBLE);
             } else {
-                viewBinding.startDateRow.setVisibility(View.GONE);
-                viewBinding.finishDateRow.setVisibility(View.GONE);
-                viewBinding.timeRow.setVisibility(View.GONE);
+                logger.error("firstPoint changed");
+                Activity activity = requireActivity();
+                viewBinding.startCoordinates.setText(StringFormatter.coordinates(firstPoint));
+                if (viewModel.hasTime) {
+                    Date startDate = new Date(firstPoint.time);
+                    viewBinding.startDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(startDate), DateFormat.getTimeFormat(activity).format(startDate)));
+                    viewBinding.startDateRow.setVisibility(View.VISIBLE);
+                    viewBinding.finishDateRow.setVisibility(View.VISIBLE);
+                    viewBinding.timeRow.setVisibility(View.VISIBLE);
+                } else {
+                    viewBinding.startDateRow.setVisibility(View.GONE);
+                    viewBinding.finishDateRow.setVisibility(View.GONE);
+                    viewBinding.timeRow.setVisibility(View.GONE);
+                }
+                viewBinding.moreButton.setVisibility(View.VISIBLE);
+                viewBinding.statisticsTable.setVisibility(View.VISIBLE);
+                viewBinding.charts.setVisibility(View.VISIBLE);
+                viewBinding.empty.setVisibility(View.GONE);
+                mFloatingButton.show();
             }
         }
     };
@@ -361,21 +397,23 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private final Observer<Track.TrackPoint> lastPointObserver = new Observer<Track.TrackPoint>() {
         @Override
         public void onChanged(Track.TrackPoint lastPoint) {
+            if (lastPoint == null)
+                return;
+            logger.error("lastPoint changed");
             Activity activity = requireActivity();
-
             viewBinding.finishCoordinates.setText(StringFormatter.coordinates(lastPoint));
-
-            Date finishDate = new Date(lastPoint.time);
-            viewBinding.finishDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
-
-            long elapsed = (lastPoint.time - viewModel.startTime) / 1000;
-            String timeSpan;
-            if (elapsed < 24 * 3600 * 3) { // 3 days
-                timeSpan = DateUtils.formatElapsedTime(elapsed);
-            } else {
-                timeSpan = DateUtils.formatDateRange(activity, viewModel.startTime, lastPoint.time, DateUtils.FORMAT_ABBREV_MONTH);
+            if (viewModel.hasTime) {
+                Date finishDate = new Date(lastPoint.time);
+                viewBinding.finishDate.setText(String.format("%s %s", DateFormat.getDateFormat(activity).format(finishDate), DateFormat.getTimeFormat(activity).format(finishDate)));
+                long elapsed = (lastPoint.time - viewModel.startTime) / 1000;
+                String timeSpan;
+                if (elapsed < 24 * 3600 * 3) { // 3 days
+                    timeSpan = DateUtils.formatElapsedTime(elapsed);
+                } else {
+                    timeSpan = DateUtils.formatDateRange(activity, viewModel.startTime, lastPoint.time, DateUtils.FORMAT_ABBREV_MONTH);
+                }
+                viewBinding.timeSpan.setText(timeSpan);
             }
-            viewBinding.timeSpan.setText(timeSpan);
         }
     };
 
@@ -385,7 +423,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             Resources resources = getResources();
             if (lastSize > 0) {
                 viewBinding.progressBar.setVisibility(View.GONE);
-                viewBinding.pointCount.setText(resources.getQuantityString(R.plurals.numberOfPoints, lastSize - 1, lastSize - 1));
+                viewBinding.pointCount.setText(resources.getQuantityString(R.plurals.numberOfPoints, lastSize, lastSize));
                 viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, viewModel.segmentCount, viewModel.segmentCount));
                 String distance = StringFormatter.distanceHP(viewModel.distance);
                 viewBinding.distance.setText(distance);
@@ -393,7 +431,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.pointCountSkeleton.showOriginal();
                 viewBinding.distanceSkeleton.showOriginal();
             } else {
-                viewBinding.progressBar.setVisibility(View.VISIBLE);
                 viewBinding.pointCountSkeleton.showSkeleton();
                 viewBinding.distanceSkeleton.showSkeleton();
             }
@@ -511,6 +548,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     View.OnScrollChangeListener scrollChangeListener = new View.OnScrollChangeListener() {
         @Override
         public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            if (viewModel.isEmpty)
+                return;
             int dy = scrollY - oldScrollY;
             if (scrollY < 10 || dy < -15 && !mFloatingButton.isShown())
                 mFloatingButton.show();
@@ -527,6 +566,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     };
 
     private static class TrackInformationViewModel extends ViewModel {
+        private boolean isEmpty = true;
         private boolean hasTime;
         private boolean hasElevation;
         private boolean hasSpeed;
@@ -547,6 +587,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         private final LineData speedData;
 
         private final MutableLiveData<Track> track = new MutableLiveData<>(null);
+        private final MutableLiveData<Track.TrackPoint> firstPoint = new MutableLiveData<>(null);
         private final MutableLiveData<Track.TrackPoint> lastPoint = new MutableLiveData<>(null);
         private final MutableLiveData<Integer> statisticsState = new MutableLiveData<>(0);
         private final MutableLiveData<Integer> chartState = new MutableLiveData<>(0);
@@ -571,6 +612,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
 
         public void reset() {
+            isEmpty = true;
             hasTime = false;
             hasElevation = false;
             hasSpeed = false;
@@ -591,6 +633,9 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             elevationData.setXVals(new ArrayList<>());
             speedData.getDataSetByIndex(0).clear();
             speedData.setXVals(new ArrayList<>());
+
+            firstPoint.setValue(null);
+            lastPoint.setValue(null);
         }
 
         static final ViewModelInitializer<TrackInformationViewModel> initializer = new ViewModelInitializer<>(
