@@ -92,13 +92,13 @@ public class Animator {
 
         double zx = mMap.getWidth() / (dx * Tile.SIZE);
         double zy = mMap.getHeight() / (dy * Tile.SIZE);
-        double newScale = Math.min(zx, zy);
+        double scale = mMap.viewport().limitScale(Math.min(zx, zy));
 
         GeoPoint p = bbox.getCenterPoint();
 
         mDeltaPos.set(longitudeToX(p.getLongitude()) - mStartPos.x,
                 latitudeToY(p.getLatitude()) - mStartPos.y,
-                newScale - mStartPos.scale,
+                scale - mStartPos.scale,
                 -mStartPos.bearing,
                 -mStartPos.tilt);
 
