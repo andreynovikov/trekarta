@@ -41,7 +41,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -77,6 +76,7 @@ import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.databinding.FragmentTrackInformationBinding;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.MeanValue;
+import mobi.maptrek.util.SingleLiveEvent;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.viewmodels.TrackViewModel;
 
@@ -153,23 +153,14 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
             if (track == null)
                 return;
             boolean isCurrent = track == trackViewModel.currentTrack.getValue();
-            if (Boolean.TRUE.equals(viewModel.editorMode.getValue())) {
-                Editable text = viewBinding.nameEdit.getText();
-                if (text != null)
-                    track.name = text.toString();
-                track.style.color = viewBinding.colorSwatch.getColor();
-                mListener.onTrackSave(track);
-                viewModel.editorMode.setValue(false);
-            } else {
-                PopupMenu popup = new PopupMenu(getContext(), viewBinding.moreButton);
-                viewBinding.moreButton.setOnTouchListener(popup.getDragToOpenListener());
-                popup.inflate(R.menu.context_menu_track);
-                Menu menu = popup.getMenu();
-                menu.findItem(R.id.action_edit).setVisible(!isCurrent);
-                menu.findItem(R.id.action_delete).setVisible(track.source != null && !track.source.isNativeTrack());
-                popup.setOnMenuItemClickListener(TrackInformation.this);
-                popup.show();
-            }
+            PopupMenu popup = new PopupMenu(getContext(), viewBinding.moreButton);
+            viewBinding.moreButton.setOnTouchListener(popup.getDragToOpenListener());
+            popup.inflate(R.menu.context_menu_track);
+            Menu menu = popup.getMenu();
+            menu.findItem(R.id.action_edit).setVisible(!isCurrent);
+            menu.findItem(R.id.action_delete).setVisible(track.source != null && !track.source.isNativeTrack());
+            popup.setOnMenuItemClickListener(TrackInformation.this);
+            popup.show();
         });
     }
 
@@ -513,7 +504,6 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
             int viewsState, editsState;
             if (enabled) {
-                viewBinding.moreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_done));
                 viewBinding.nameEdit.setText(track.name);
                 viewBinding.colorSwatch.setColor(track.style.color);
                 viewBinding.colorSwatch.setOnClickListener(v -> {
@@ -526,10 +516,19 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewsState = View.GONE;
                 editsState = View.VISIBLE;
 
+                mFragmentHolder.enableListActionButton(R.drawable.ic_done, v -> {
+                    Editable text = viewBinding.nameEdit.getText();
+                    if (text != null)
+                        track.name = text.toString();
+                    track.style.color = viewBinding.colorSwatch.getColor();
+                    mListener.onTrackSave(track);
+                    viewModel.editorMode.setValue(false);
+                });
+
                 if (!track.source.isNativeTrack())
                     HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, viewBinding.moreButton, false);
             } else {
-                viewBinding.moreButton.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_more_vert));
+                mFragmentHolder.disableListActionButton(); // return FAB to previous state
                 viewBinding.name.setText(track.name);
                 viewsState = View.VISIBLE;
                 editsState = View.GONE;
@@ -537,8 +536,10 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(viewBinding.getRoot().getWindowToken(), 0);
             }
-            TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
+            if (!enabled) // when enabled, delayed transition is initiated by list FAB
+                TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
             viewBinding.name.setVisibility(viewsState);
+            viewBinding.moreButton.setVisibility(viewsState);
             viewBinding.nameWrapper.setVisibility(editsState);
             viewBinding.colorSwatch.setVisibility(editsState);
             mBackPressedCallback.setEnabled(enabled);
@@ -548,7 +549,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     View.OnScrollChangeListener scrollChangeListener = new View.OnScrollChangeListener() {
         @Override
         public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            if (viewModel.isEmpty)
+            if (viewModel.isEmpty || Boolean.TRUE.equals(viewModel.editorMode.getValue()))
                 return;
             int dy = scrollY - oldScrollY;
             if (scrollY < 10 || dy < -15 && !mFloatingButton.isShown())
@@ -591,7 +592,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         private final MutableLiveData<Track.TrackPoint> lastPoint = new MutableLiveData<>(null);
         private final MutableLiveData<Integer> statisticsState = new MutableLiveData<>(0);
         private final MutableLiveData<Integer> chartState = new MutableLiveData<>(0);
-        private final MutableLiveData<Boolean> editorMode = new MutableLiveData<>(false);
+        private final SingleLiveEvent<Boolean> editorMode = new SingleLiveEvent<>();
 
         public TrackInformationViewModel(int color) {
             LineDataSet elevationLine = new LineDataSet(null, "Elevation");
@@ -641,7 +642,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         static final ViewModelInitializer<TrackInformationViewModel> initializer = new ViewModelInitializer<>(
                 TrackInformationViewModel.class,
                 creationExtras -> {
-                    Application app = (Application) creationExtras.get(APPLICATION_KEY);
+                    Application app = creationExtras.get(APPLICATION_KEY);
                     assert app != null;
                     @ColorInt int color = app.getResources().getColor(R.color.colorAccentLight, app.getTheme());
                     return new TrackInformationViewModel(color);
