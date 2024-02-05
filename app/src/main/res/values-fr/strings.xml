@@ -272,7 +272,6 @@
     <string name="limited_access">Partiellement accessible</string>
     <string name="no_access">Non accessible</string>
     <string name="fee">Frais habituellement facturés</string>
-
     <string name="permReadFilesLabel">lire les fichiers utilisateur</string>
     <string name="permReadFilesDescription">Permet à l’application de lire les fichiers de données utilisateur Trekarta tels que les lieux et les pistes.</string>
     <string name="permWriteFilesLabel">écrire les fichiers utilisateur</string>
