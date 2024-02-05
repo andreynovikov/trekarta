@@ -94,8 +94,13 @@ public class DataSourceList extends Fragment {
             adapter.setNativeTracksMode(nativeTracks);
             if (nativeTracks)
                 viewBinding.empty.setText(R.string.msgEmptyTrackList);
+            else
+                viewBinding.empty.setText(null);
         });
-        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), adapter::submitList);
+        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), dataSources -> {
+            adapter.submitList(dataSources);
+            viewBinding.empty.setVisibility(dataSources.isEmpty() ? View.VISIBLE : View.GONE);
+        });
 
         trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
         trackViewModel.currentTrack.observe(getViewLifecycleOwner(), adapter::setCurrentTrack);
