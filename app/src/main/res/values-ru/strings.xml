@@ -270,7 +270,6 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
-
     <string name="permReadFilesLabel">читать пользовательские файлы</string>
     <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы Трекарты, такие как точки и треки.</string>
     <string name="permWriteFilesLabel">писать пользовательские файлы</string>
