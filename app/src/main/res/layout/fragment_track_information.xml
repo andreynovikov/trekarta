@@ -132,7 +132,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_folder"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/source"
@@ -153,40 +154,27 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_linear_scale"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
-                <com.faltenreich.skeletonlayout.SkeletonLayout
-                    android:id="@+id/point_count_skeleton"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:maskColor="@color/colorSplashBackground"
-                    app:maskCornerRadius="1dp">
+                    android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/point_count"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="?android:textColorPrimary" />
 
-                        <TextView
-                            android:id="@+id/point_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="3000 points"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColor="?android:textColorPrimary"
-                            tools:ignore="HardcodedText" />
-
-                        <TextView
-                            android:id="@+id/segment_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="10 segments"
-                            android:textColor="?android:textColorPrimary"
-                            tools:comment="Top margin is introduced for skeleton"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
-                </com.faltenreich.skeletonlayout.SkeletonLayout>
+                    <TextView
+                        android:id="@+id/segment_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:textColorPrimary" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
@@ -200,31 +188,24 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_straighten"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
-                <com.faltenreich.skeletonlayout.SkeletonLayout
-                    android:id="@+id/distance_skeleton"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:maskColor="@color/colorSplashBackground"
-                    app:maskCornerRadius="1dp">
-
-                    <TextView
-                        android:id="@+id/distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="12 mi 154 ft"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="?android:textColorPrimary"
-                        tools:ignore="HardcodedText" />
-                </com.faltenreich.skeletonlayout.SkeletonLayout>
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:textColorPrimary" />
             </TableRow>
 
             <TableRow
                 android:id="@+id/time_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -232,7 +213,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_timer"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/time_span"
@@ -264,7 +246,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_place"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/start_coordinates"
@@ -279,7 +262,9 @@
                 android:id="@+id/start_date_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -287,7 +272,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_schedule"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/start_date"
@@ -318,7 +304,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_place"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/finish_coordinates"
@@ -333,7 +320,9 @@
                 android:id="@+id/finish_date_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -341,7 +330,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_schedule"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <TextView
                     android:id="@+id/finish_date"
@@ -353,7 +343,9 @@
             <TableRow
                 android:id="@+id/statistics_header"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView
                     style="@style/SubHeader"
@@ -366,7 +358,9 @@
             <TableRow
                 android:id="@+id/speed_row"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -374,7 +368,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_timer"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -399,7 +394,9 @@
                 android:id="@+id/elevation_up_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -407,7 +404,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_trending_up"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -432,7 +430,9 @@
                 android:id="@+id/elevation_down_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/table_padding">
+                android:layout_marginTop="@dimen/table_padding"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -440,7 +440,8 @@
                     android:layout_marginEnd="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_trending_down"
-                    app:tint="?attr/informationIconColor" />
+                    app:tint="?attr/informationIconColor"
+                    tools:ignore="ImageContrastCheck" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -469,9 +470,11 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/fragment_padding"
             android:orientation="vertical"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/statistics_table">
+            app:layout_constraintTop_toBottomOf="@id/statistics_table"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/elevation_header"
@@ -506,12 +509,16 @@
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/fragment_padding"
+            android:background="@color/panelBackground"
             android:indeterminate="true"
             android:padding="@dimen/fragment_padding"
             android:visibility="gone"
+            android:elevation="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/charts" />
+            app:layout_constraintTop_toBottomOf="@id/barrier_name_bottom"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

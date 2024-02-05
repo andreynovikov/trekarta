@@ -418,14 +418,11 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.segmentCount.setText(resources.getQuantityString(R.plurals.numberOfSegments, viewModel.segmentCount, viewModel.segmentCount));
                 String distance = StringFormatter.distanceHP(viewModel.distance);
                 viewBinding.distance.setText(distance);
-                TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade()); // otherwise skeleton sometimes does not show original views
-                viewBinding.pointCountSkeleton.showOriginal();
-                viewBinding.distanceSkeleton.showOriginal();
             } else {
-                viewBinding.pointCountSkeleton.showSkeleton();
-                viewBinding.distanceSkeleton.showSkeleton();
+                viewBinding.pointCount.setText(R.string.calculating);
+                viewBinding.segmentCount.setText(null);
+                viewBinding.distance.setText(R.string.calculating);
             }
-
             if (viewModel.hasElevation || viewModel.hasSpeed) {
                 viewBinding.maxElevation.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.max_elevation), StringFormatter.elevationH(viewModel.maxElevation)));
                 viewBinding.elevationGain.setText(String.format(Locale.getDefault(), "%s: %s", resources.getString(R.string.elevation_gain), StringFormatter.elevationH(viewModel.elevationGain)));
@@ -676,7 +673,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
 
         @Override
         public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-            other.highlightValue(e.getXIndex(), 0, false);
+            if (!other.isEmpty())
+                other.highlightValue(e.getXIndex(), 0, false);
         }
 
         @Override
@@ -694,6 +692,8 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         }
 
         private void syncCharts() {
+            if (other.isEmpty())
+                return;
             float[] myValues = new float[9];
             Matrix otherMatrix;
             float[] otherValues = new float[9];

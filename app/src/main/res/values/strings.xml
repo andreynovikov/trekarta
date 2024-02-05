@@ -286,6 +286,7 @@
     <string name="limited_access">Partially accessible</string>
     <string name="no_access">Not accessible</string>
     <string name="fee">Fee usually charged</string>
+    <string name="calculating">calculating…</string>
 
     <string name="permReadFilesLabel">read user files</string>
     <string name="permReadFilesDescription">Allows the app to read Trekarta user data files such as places and tracks.</string>

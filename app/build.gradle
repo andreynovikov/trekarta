@@ -97,5 +97,4 @@ dependencies {
     implementation 'com.github.AppIntro:AppIntro:6.1.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.github.robinst:autolink-java:autolink-0.10.1'
-    implementation 'com.faltenreich:skeletonlayout:5.0.0'
 }
