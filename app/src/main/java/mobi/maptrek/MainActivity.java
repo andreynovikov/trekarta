@@ -555,8 +555,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         if (mVerticalOrientation) {
                             adjustGuideline(true);
                         } else {
-                            child.post(() -> child.setMinimumHeight((int) (mViews.tracksButton.getHeight() + mViews.tracksButton.getY())));
-                            lp.gravity = Gravity.TOP;
+                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.tracksButton.getY())));
+                            lp.gravity = Gravity.BOTTOM;
                             child.setLayoutParams(lp);
                         }
                         break;
@@ -564,8 +564,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         if (mVerticalOrientation) {
                             adjustGuideline(true);
                         } else {
-                            child.post(() -> child.setMinimumHeight((int) (mViews.placesButton.getHeight() + mViews.placesButton.getY())));
-                            lp.gravity = Gravity.TOP;
+                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.placesButton.getY())));
+                            lp.gravity = Gravity.BOTTOM;
                             child.setLayoutParams(lp);
                         }
                         break;

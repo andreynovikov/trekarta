@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="48dp"
+        android:maxWidth="@dimen/menuListWidth"
         android:text="@string/msgEmptyMapList"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />

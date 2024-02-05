@@ -48,8 +48,8 @@
             android:transformPivotX="0px"
             android:transformPivotY="0px"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/mapButtonHolder"
+            app:layout_constraintStart_toStartOf="parent"
             tools:ignore="SmallSp"
             tools:text="@string/copyright"
             tools:visibility="visible" />
@@ -166,8 +166,8 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold"
             android:translationY="-200dp"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="0/6" />
 
@@ -176,9 +176,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gauge_padding"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:orientation="horizontal">
+            app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
                 android:id="@+id/compass"
@@ -227,11 +227,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gauge_padding"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             tools:visibility="visible">
 
             <ImageButton
@@ -268,9 +268,9 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <View
                 android:id="@+id/locationButtonBackground"
@@ -314,9 +314,9 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
                 android:id="@+id/locationButton"
@@ -386,30 +386,30 @@
             android:layout_height="0dp"
             android:clickable="true"
             android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/actionPanel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:maxHeight="4dp"
-            android:minHeight="4dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:maxHeight="4dp"
+            android:minHeight="4dp"
             android:progressTint="@color/colorAccent"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:visibility="visible" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/contentPanel"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:elevation="@dimen/fragment_elevation"
-            android:layout_width="wrap_content"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -427,37 +427,37 @@
         android:id="@+id/bottomSheetPanel"
         android:layout_width="@dimen/fragment_width"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:layout_gravity="end"
+        android:clickable="true"
         android:elevation="@dimen/bottom_sheet_elevation"
+        android:focusable="true"
         app:behavior_hideable="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        android:focusable="true" />
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/actionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fragment_padding"
-        app:layout_anchorGravity="top|start"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_done"
         android:tint="@color/colorBackground"
         android:visibility="gone"
         app:layout_anchor="@id/contentPanel"
-        tools:ignore="ContentDescription"
-        android:focusable="true" />
+        app:layout_anchorGravity="top|end"
+        tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/listActionButton"
-        app:layout_anchorGravity="bottom|end"
-        android:layout_marginBottom="@dimen/list_fab_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/list_fab_margin"
         android:src="@drawable/ic_add_location"
         android:tint="@color/colorBackground"
         android:visibility="gone"
         app:layout_anchor="@id/extendPanel"
+        app:layout_anchorGravity="bottom|end"
         tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
