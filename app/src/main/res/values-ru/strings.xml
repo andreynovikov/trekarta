@@ -124,6 +124,7 @@
     <string name="msgTrackNotSavedPeriod">Трек не был сохранён: слишком короткий период времени</string>
     <string name="msgTrackNotSavedDistance">Трек не был сохранён: пройдено слишком короткое расстояние</string>
     <string name="msgEmptyTrackList">Здесь будут отображаться записанные вами треки.</string>
+    <string name="msgEmptyTrack">Трек не содержит точек</string>
     <string name="msgNoFileDataSources">Вы также можете импортировать GPX и KML файлы.</string>
     <string name="msgDataImported">Файл сохранён в папку приложения.</string>
     <string name="msgSaveFailed">Ошибка сохранения: %s</string>
@@ -270,6 +271,8 @@
     <string name="limited_access">Частично доступен</string>
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
+    <string name="calculating">вычисляется…</string>
+
     <string name="permReadFilesLabel">читать пользовательские файлы</string>
     <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы Трекарты, такие как точки и треки.</string>
     <string name="permWriteFilesLabel">писать пользовательские файлы</string>
