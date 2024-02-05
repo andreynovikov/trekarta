@@ -94,19 +94,14 @@ public class DataSourceList extends Fragment {
             adapter.setNativeTracksMode(nativeTracks);
             if (nativeTracks)
                 viewBinding.empty.setText(R.string.msgEmptyTrackList);
-            updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
         });
         dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), adapter::submitList);
 
         trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
-        trackViewModel.currentTrack.observe(getViewLifecycleOwner(), currentTrack -> {
-            adapter.setCurrentTrack(currentTrack);
-            updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
-        });
+        trackViewModel.currentTrack.observe(getViewLifecycleOwner(), adapter::setCurrentTrack);
         trackViewModel.trackingState.observe(getViewLifecycleOwner(), trackingState -> {
             logger.debug("current track state: {}", trackingState);
             adapter.notifyItemChanged(0);
-            updateFloatingButtonState(adapter.nativeTracksMode && adapter.currentTrack == null);
             if (animator != null)
                 animator.setSupportsChangeAnimations(trackingState != TRACKING_STATE.TRACKING); // remove list item blinking
         });
@@ -215,10 +210,16 @@ public class DataSourceList extends Fragment {
 
         public void setNativeTracksMode(boolean nativeTracks) {
             if (currentTrack != null) {
-                if (nativeTracks && !nativeTracksMode)
+                if (nativeTracks && !nativeTracksMode) {
                     notifyItemInserted(0);
-                if (!nativeTracks && nativeTracksMode)
+                    updateFloatingButtonState(false);
+                }
+                if (!nativeTracks && nativeTracksMode) {
                     notifyItemRemoved(0);
+                    updateFloatingButtonState(true);
+                }
+            } else if (nativeTracks) {
+                updateFloatingButtonState(true);
             }
             nativeTracksMode = nativeTracks;
         }
@@ -235,8 +236,10 @@ public class DataSourceList extends Fragment {
                         since = track.points.get(0).time;
                         fromFirstPoint = true;
                     }
-                    if (nativeTracksMode)
+                    if (nativeTracksMode) {
                         notifyItemInserted(0);
+                        updateFloatingButtonState(false);
+                    }
                 } else {
                     if (currentTrack.tracks.get(0) != track)
                         currentTrack.tracks.set(0, track);
@@ -251,8 +254,10 @@ public class DataSourceList extends Fragment {
             } else if (currentTrack != null) {
                 currentTrack.tracks.clear();
                 currentTrack = null;
-                if (nativeTracksMode)
+                if (nativeTracksMode) {
                     notifyItemRemoved(0);
+                    updateFloatingButtonState(true);
+                }
             }
         }
 
