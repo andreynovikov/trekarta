@@ -7,7 +7,8 @@
     android:paddingStart="@dimen/fragment_with_fab_start_padding"
     android:paddingEnd="@dimen/fragment_padding"
     android:paddingBottom="@dimen/fragment_padding"
-    tools:context=".fragments.AmenityInformation">
+    tools:context=".fragments.AmenityInformation"
+    tools:layout_width="match_parent">
 
     <View
         android:id="@+id/topLine"

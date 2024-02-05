@@ -8,7 +8,8 @@
     android:paddingEnd="@dimen/fragment_padding"
     android:paddingStart="@dimen/fragment_with_fab_start_padding"
     android:paddingTop="@dimen/fragment_padding"
-    tools:context=".fragments.MarkerInformation">
+    tools:context=".fragments.MarkerInformation"
+    tools:layout_width="match_parent">
 
     <TextView
         android:id="@+id/name"

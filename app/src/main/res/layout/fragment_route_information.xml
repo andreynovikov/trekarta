@@ -5,7 +5,8 @@
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
     android:background="@color/panelSolidBackground"
-    android:paddingTop="@dimen/fragment_padding">
+    android:paddingTop="@dimen/fragment_padding"
+    tools:layout_width="match_parent">
 
     <ImageButton
         android:id="@+id/moreButton"

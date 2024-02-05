@@ -428,7 +428,7 @@
         android:layout_width="@dimen/fragment_width"
         android:layout_height="wrap_content"
         android:clickable="true"
-    android:layout_gravity="end"
+        android:layout_gravity="end"
         android:elevation="@dimen/bottom_sheet_elevation"
         app:behavior_hideable="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
