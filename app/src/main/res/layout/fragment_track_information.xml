@@ -5,52 +5,74 @@
     style="@style/Scrollbar"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
-    android:background="@color/panelSolidBackground"
-    tools:context=".fragments.TrackInformation">
+    tools:context=".fragments.TrackInformation"
+    tools:layout_width="match_parent">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_padding">
+        android:background="@color/panelSolidBackground"
+        android:padding="@dimen/fragment_padding">
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_name_end"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="@dimen/fragment_padding"
+            app:barrierAllowsGoneWidgets="true"
+            app:barrierDirection="start" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_name_bottom"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/fragment_padding"
+            app:barrierAllowsGoneWidgets="true"
+            app:barrierDirection="top" />
 
         <ImageButton
             android:id="@+id/more_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="@dimen/image_button_padding"
-            android:layout_marginEnd="@dimen/image_button_padding"
+            android:layout_marginStart="@dimen/fragment_padding"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_more_vert"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/barrier_name_end"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="?attr/actionIconColor" />
 
         <info.andreynovikov.androidcolorpicker.ColorPickerSwatch
             android:id="@+id/color_swatch"
             android:layout_width="@dimen/color_swatch_smallest"
             android:layout_height="@dimen/color_swatch_smallest"
-            android:layout_marginLeft="@dimen/color_swatch_margins_large"
-            android:layout_marginRight="@dimen/color_swatch_margins_large"
-            android:layout_toStartOf="@id/more_button"
-            android:visibility="gone" />
+            android:layout_marginStart="@dimen/fragment_padding"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/barrier_name_bottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/barrier_name_end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            tools:visibility="visible" />
 
         <FrameLayout
             android:id="@+id/name_placeholder"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_toStartOf="@id/color_swatch">
+            app:layout_constraintBottom_toTopOf="@id/barrier_name_bottom"
+            app:layout_constraintEnd_toStartOf="@id/barrier_name_end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5">
 
             <TextView
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Long track name that sometimes has two lines" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/name_wrapper"
@@ -74,30 +96,28 @@
 
         <TextView
             android:id="@android:id/empty"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/name_placeholder"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_marginVertical="@dimen/fragment_padding"
             android:text="@string/msgEmptyTrack"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:textColorPrimary"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_name_bottom" />
 
         <TableLayout
             android:id="@+id/statistics_table"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@android:id/empty"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="@dimen/fragment_padding"
-            android:stretchColumns="1">
+            android:layout_marginVertical="@dimen/fragment_padding"
+            android:stretchColumns="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@android:id/empty">
 
             <TableRow
                 android:id="@+id/source_row"
@@ -445,15 +465,13 @@
 
         <LinearLayout
             android:id="@+id/charts"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/statistics_table"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="@dimen/fragment_padding"
-            android:layout_marginEnd="@dimen/fragment_padding"
+            android:layout_marginVertical="@dimen/fragment_padding"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/fragment_padding">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/statistics_table">
 
             <TextView
                 android:id="@+id/elevation_header"
@@ -488,17 +506,12 @@
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/charts"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:indeterminate="true"
+            android:padding="@dimen/fragment_padding"
             android:visibility="gone"
-            android:padding="@dimen/fragment_padding" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/charts" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/fragment_padding"
-            android:layout_below="@id/charts" />
-    </RelativeLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
