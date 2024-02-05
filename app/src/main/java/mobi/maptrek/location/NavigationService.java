@@ -402,14 +402,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
         iLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
         iLaunch.setComponent(new ComponentName(getApplicationContext(), MainActivity.class));
         iLaunch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent piResult = PendingIntent.getActivity(this, 0, iLaunch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Intent iStop = new Intent(STOP_NAVIGATION, null, getApplicationContext(), NavigationService.class);
-        PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_cancel);
 
         Intent iPause = new Intent(PAUSE_NAVIGATION, null, getApplicationContext(), NavigationService.class);
-        PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
         Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.actionStop), piStop).build();
@@ -427,7 +427,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         builder.addAction(actionPause);
         builder.addAction(actionStop);
         builder.setGroup("maptrek");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        if (Build.VERSION.SDK_INT >= 28)
             builder.setCategory(Notification.CATEGORY_NAVIGATION);
         else
             builder.setCategory(Notification.CATEGORY_PROGRESS);
@@ -440,10 +440,11 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private void updateNotification() {
         if (mForeground) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             Notification notification = getNotification(false);
-            if (notification != null)
+            if (notification != null) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.notify(NOTIFICATION_ID, notification);
+            }
         }
     }
 

@@ -128,13 +128,15 @@ public class LocationService extends BaseLocationService implements LocationList
      * Start time of tracking in milliseconds, for internal use
      */
     private long mTrackingStarted;
-    private float mDistanceNotified;
     private Track mLastTrack;
 
     private long mMinTime = 2000; // 2 seconds (default)
     @SuppressWarnings("FieldCanBeLocal")
     private long mMaxTime = 300000; // 5 minutes
     private int mMinDistance = 3; // 3 meters (default)
+
+    private int ntTitleId;
+    private String ntProgress;
 
     private final Binder mBinder = new LocalBinder();
     private final Set<ILocationListener> mLocationCallbacks = new HashSet<>();
@@ -149,7 +151,7 @@ public class LocationService extends BaseLocationService implements LocationList
     public void onCreate() {
         mLastKnownLocation = new Location("unknown");
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
             mGnssStatusCallback = new GnssStatus.Callback() {
                 public void onFirstFix(int ttffMillis) {
                     onGpsFirstFix();
@@ -197,7 +199,6 @@ public class LocationService extends BaseLocationService implements LocationList
                 mErrorTime = 0;
                 mTrackingEnabled = true;
                 mContinuous = false;
-                mDistanceNotified = 0f;
                 openDatabase();
                 mTrackingStarted = SystemClock.uptimeMillis();
                 mTrackStarted = System.currentTimeMillis();
@@ -206,9 +207,10 @@ public class LocationService extends BaseLocationService implements LocationList
                 // https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
                 if (!mForegroundLocations)
                     if (Build.VERSION.SDK_INT < 34)
-                        startForeground(NOTIFICATION_ID, getNotification());
+                        startForeground(NOTIFICATION_ID, getNotification(true));
                     else
-                        startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+                        //noinspection DataFlowIssue - notification can not be null because force is set
+                        startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
             }
             sendBroadcast(new Intent(BROADCAST_TRACK_STATE)
                     .putExtra("state", TRACKING_STATE.TRACKING.ordinal())
@@ -244,9 +246,10 @@ public class LocationService extends BaseLocationService implements LocationList
             mForegroundLocations = true;
             if (!mForegroundTracking)
                 if (Build.VERSION.SDK_INT < 34)
-                    startForeground(NOTIFICATION_ID, getNotification());
+                    startForeground(NOTIFICATION_ID, getNotification(true));
                 else
-                    startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+                    //noinspection DataFlowIssue - notification can not be null because force is set
+                    startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         }
         if (action.equals(DISABLE_BACKGROUND_LOCATIONS)) {
             mForegroundLocations = false;
@@ -302,7 +305,7 @@ public class LocationService extends BaseLocationService implements LocationList
             mContinuous = false;
             mJustStarted = true;
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (Build.VERSION.SDK_INT >= 24) {
                     mLocationManager.registerGnssStatusCallback(mGnssStatusCallback);
                 } else {
                     mLocationManager.addGpsStatusListener(this);
@@ -336,7 +339,7 @@ public class LocationService extends BaseLocationService implements LocationList
             } catch (SecurityException e) {
                 logger.error("Failed to remove updates", e);
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (Build.VERSION.SDK_INT >= 24) {
                 mLocationManager.unregisterGnssStatusCallback(mGnssStatusCallback);
             } else {
                 mLocationManager.removeGpsStatusListener(this);
@@ -349,7 +352,7 @@ public class LocationService extends BaseLocationService implements LocationList
         }
     }
 
-    private Notification getNotification() {
+    private Notification getNotification(boolean force) {
         int titleId = R.string.notifLocating;
         int ntfId = R.mipmap.ic_stat_locating;
         if (mForegroundTracking) {
@@ -367,18 +370,32 @@ public class LocationService extends BaseLocationService implements LocationList
             titleId = R.string.notifTrackingFailure;
             ntfId = R.mipmap.ic_stat_failure;
         }
+        String progress;
+        if (mForegroundTracking) {
+            String timeTracked = (String) DateUtils.getRelativeTimeSpanString(getApplicationContext(), mTrackStarted);
+            String distanceTracked = StringFormatter.distanceH(mDistanceTracked);
+            progress = getString(R.string.msgTracked, distanceTracked, timeTracked);
+        } else {
+            progress = "";
+        }
+
+        if (!force && titleId == ntTitleId && progress.equals(ntProgress))
+            return null; // not changed
+
+        ntTitleId = titleId;
+        ntProgress = progress;
 
         Notification.Builder builder = new Notification.Builder(this);
         if (Build.VERSION.SDK_INT > 25)
             builder.setChannelId("ongoing");
 
-        String message = null;
+        String message;
         if (mForegroundTracking) {
             String timeTracked = (String) DateUtils.getRelativeTimeSpanString(getApplicationContext(), mTrackStarted);
             String distanceTracked = StringFormatter.distanceH(mDistanceTracked);
 
             StringBuilder sb = new StringBuilder(40);
-            sb.append(getString(R.string.msgTracked, distanceTracked, timeTracked));
+            sb.append(progress);
             message = sb.toString();
             sb.insert(0, ". ");
             sb.insert(0, getString(R.string.msgTracking));
@@ -390,11 +407,11 @@ public class LocationService extends BaseLocationService implements LocationList
             builder.setStyle(new Notification.BigTextStyle().setBigContentTitle(getText(titleId)).bigText(bigText));
 
             Intent iStop = new Intent(DISABLE_TRACK, null, getApplicationContext(), LocationService.class);
-            PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent piStop = PendingIntent.getService(this, 0, iStop, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_stop);
 
             Intent iPause = new Intent(PAUSE_TRACK, null, getApplicationContext(), LocationService.class);
-            PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent piPause = PendingIntent.getService(this, 0, iPause, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             Icon pauseIcon = Icon.createWithResource(this, R.drawable.ic_pause);
 
             Notification.Action actionStop = new Notification.Action.Builder(stopIcon, getString(R.string.actionStop), piStop).build();
@@ -417,7 +434,7 @@ public class LocationService extends BaseLocationService implements LocationList
         builder.setContentIntent(piResult);
         builder.setContentTitle(getText(titleId));
         builder.setGroup("maptrek");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        if (Build.VERSION.SDK_INT >= 28)
             builder.setCategory(Notification.CATEGORY_NAVIGATION);
         else
             builder.setCategory(Notification.CATEGORY_PROGRESS);
@@ -435,9 +452,11 @@ public class LocationService extends BaseLocationService implements LocationList
     private void updateNotification() {
         if (mForegroundTracking || mForegroundLocations) {
             logger.debug("updateNotification()");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (notificationManager != null)
-                notificationManager.notify(NOTIFICATION_ID, getNotification());
+            Notification notification = getNotification(false);
+            if (notification != null) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(NOTIFICATION_ID, notification);
+            }
         }
     }
 
@@ -689,11 +708,7 @@ public class LocationService extends BaseLocationService implements LocationList
     private void writeTrackPoint(final Location loc, final float distance, final boolean continuous) {
         addPoint(continuous, loc.getLatitude(), loc.getLongitude(), (float) loc.getAltitude(), loc.getSpeed(), loc.getBearing(), loc.getAccuracy(), loc.getTime());
         mDistanceTracked += distance;
-        mDistanceNotified += distance;
-        if (mDistanceNotified > mDistanceTracked / 100) {
-            updateNotification();
-            mDistanceNotified = 0f;
-        }
+        updateNotification();
         mLastWrittenLocation = loc;
 
         for (ITrackingListener callback : mTrackingCallbacks) {
