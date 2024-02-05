@@ -199,7 +199,11 @@ public final class PluginTileSourceFactory {
             if (cursor == null)
                 return maps;
 
-            cursor.moveToFirst();
+            if (!cursor.moveToFirst()) {
+                cursor.close();
+                return maps;
+            }
+
             do {
                 // map name
                 int nameIdx = cursor.getColumnIndex(PluginTileSourceContract.COLUMN_NAME);
