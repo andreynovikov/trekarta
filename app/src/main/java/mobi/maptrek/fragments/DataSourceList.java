@@ -87,6 +87,7 @@ public class DataSourceList extends Fragment {
         DefaultItemAnimator animator = ((DefaultItemAnimator) viewBinding.list.getItemAnimator());
         DataSourceListAdapter adapter = new DataSourceListAdapter();
         viewBinding.list.setAdapter(adapter);
+        adapter.registerAdapterDataObserver(adapterDataObserver);
 
         dataSourceViewModel = new ViewModelProvider(requireActivity()).get(DataSourceViewModel.class);
         dataSourceViewModel.getNativeTracksState().observe(getViewLifecycleOwner(), nativeTracks -> {
@@ -109,6 +110,14 @@ public class DataSourceList extends Fragment {
             if (animator != null)
                 animator.setSupportsChangeAnimations(trackingState != TRACKING_STATE.TRACKING); // remove list item blinking
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        RecyclerView.Adapter<?> adapter = viewBinding.list.getAdapter();
+        if (adapter != null)
+            adapter.unregisterAdapterDataObserver(adapterDataObserver);
     }
 
     private void updateFloatingButtonState(boolean show) {
@@ -405,6 +414,14 @@ public class DataSourceList extends Fragment {
             }
         }
     }
+
+    private final RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            if (positionStart == 0)
+                viewBinding.list.smoothScrollToPosition(positionStart);
+        }
+    };
 
     public static final DiffUtil.ItemCallback<DataSource> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<DataSource>() {
