@@ -418,8 +418,8 @@ public class DataSourceList extends Fragment {
     private final RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            if (positionStart == 0)
-                viewBinding.list.smoothScrollToPosition(positionStart);
+            if (positionStart == 0 && itemCount == 1)
+                viewBinding.list.scrollToPosition(positionStart);
         }
     };
 
