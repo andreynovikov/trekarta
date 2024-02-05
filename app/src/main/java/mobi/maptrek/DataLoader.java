@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -203,6 +205,8 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
                 mData = newData;
             }
 
+            Collections.sort(mData, fileDataSourceComparator);
+
             for (FileDataSource source : data) {
                 mFiles.add(source.path);
             }
@@ -309,4 +313,14 @@ class DataLoader extends AsyncTaskLoader<List<FileDataSource>> {
         // Attempt to cancel the current asynchronous load.
         super.onCanceled(data);
     }
+
+    private final Comparator<? super FileDataSource> fileDataSourceComparator = (Comparator<FileDataSource>) (o1, o2) -> {
+        if (o1.isNativeTrack() && o2.isNativeTrack()) {
+            File o1f = new File(o1.path);
+            File o2f = new File(o2.path);
+            return Long.compare(o1f.lastModified(), o2f.lastModified());
+        } else {
+            return o1.path.compareTo(o2.path);
+        }
+    };
 }
