@@ -3,20 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/panel_width"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/panel_height"
     android:background="@color/panelSolidBackground"
     android:clickable="true"
     android:focusable="true"
     tools:comment="Clickable is required to prevent event bubbling because DataList is placed over DataSourceList"
+    tools:layout_height="wrap_content"
     tools:layout_width="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@android:id/list"
-        style="@style/Scrollbar"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        tools:comment="Without it recyclerview doesn't work with wrap_content parent (FragmentContainerView)">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@android:id/list"
+            style="@style/Scrollbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+    </RelativeLayout>
 
     <TextView
         android:id="@android:id/empty"

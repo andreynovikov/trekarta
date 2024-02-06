@@ -484,6 +484,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mPanelState = PANEL_STATE.NONE;
         if (savedInstanceState != null) {
             setPanelState((PANEL_STATE) savedInstanceState.getSerializable("panelState"));
+            if (mPanelState != PANEL_STATE.NONE)
+                mViews.extendPanel.post(this::adjustPanelViews);
         }
 
         // Prepare handlers
@@ -544,50 +546,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) child.getLayoutParams();
-                switch (mPanelState) {
-                    case LOCATION:
-                        if (mVerticalOrientation) {
-                            adjustGuideline(false);
-                        }
-                        break;
-                    case TRACKS:
-                        if (mVerticalOrientation) {
-                            adjustGuideline(true);
-                        } else {
-                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.tracksButton.getY())));
-                            lp.gravity = Gravity.BOTTOM;
-                            child.setLayoutParams(lp);
-                        }
-                        break;
-                    case PLACES:
-                        if (mVerticalOrientation) {
-                            adjustGuideline(true);
-                        } else {
-                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.placesButton.getY())));
-                            lp.gravity = Gravity.BOTTOM;
-                            child.setLayoutParams(lp);
-                        }
-                        break;
-                    case MAPS:
-                        if (mVerticalOrientation) {
-                            adjustGuideline(false);
-                            lp.gravity = Gravity.END;
-                        } else {
-                            child.post(() -> child.setMinimumHeight((int) (mViews.constraintLayout.getHeight() - mViews.mapsButton.getY())));
-                            lp.gravity = Gravity.BOTTOM;
-                        }
-                        child.setLayoutParams(lp);
-                        break;
-                    case MORE:
-                        if (mVerticalOrientation) {
-                            adjustGuideline(false);
-                            lp.gravity = Gravity.END;
-                        } else {
-                            lp.gravity = Gravity.BOTTOM;
-                        }
-                        child.setLayoutParams(lp);
-                }
+                adjustPanelViews();
             }
 
             @Override
@@ -674,12 +633,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         int strokeColor = resources.getColor(R.color.colorBackground, theme);
         DefaultMapScaleBar mapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f, paintColor, strokeColor);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mapScaleBar);
-        mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density, paintColor, new Runnable() {
-            @Override
-            public void run() {
-                Configuration.setPosition(mMap.getMapPosition());
-            }
-        });
+        mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density, paintColor, () -> Configuration.setPosition(mMap.getMapPosition()));
         mLocationOverlay = new LocationOverlay(mMap, MapTrek.density);
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mCrosshairLayer, MAP_OVERLAYS);
@@ -3562,12 +3516,94 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         child.setForeground(null);
     }
 
+    private void adjustPanelViews() {
+        switch (mPanelState) {
+            case LOCATION:
+                if (mVerticalOrientation)
+                    adjustGuideline(false);
+                adjustPanelConstraint(Gravity.START, null);
+                break;
+            case TRACKS:
+                if (mVerticalOrientation) {
+                    adjustGuideline(true);
+                    adjustPanelConstraint(Gravity.FILL, null);
+                } else {
+                    adjustPanelConstraint(Gravity.END, mViews.tracksButton);
+                }
+                break;
+            case PLACES:
+                if (mVerticalOrientation) {
+                    adjustGuideline(true);
+                    adjustPanelConstraint(Gravity.FILL, null);
+                } else {
+                    adjustPanelConstraint(Gravity.END, mViews.placesButton);
+                }
+                break;
+            case MAPS:
+                if (mVerticalOrientation) {
+                    adjustGuideline(false);
+                    adjustPanelConstraint(Gravity.END, null);
+                } else {
+                    adjustPanelConstraint(Gravity.END, mViews.mapsButton);
+                }
+                break;
+            case MORE:
+                if (mVerticalOrientation)
+                    adjustGuideline(false);
+                adjustPanelConstraint(Gravity.END, null);
+        }
+    }
+
     private void adjustGuideline(boolean limited) {
         if (mVerticalOrientation) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mViews.guideline.getLayoutParams();
             params.guidePercent = limited ? 0.25f : 0f;
             mViews.guideline.setLayoutParams(params);
         }
+    }
+
+    private void adjustPanelConstraint(int gravity, View ref) {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mViews.extendPanel.getLayoutParams();
+        if (mVerticalOrientation) {
+            switch (gravity) {
+                case Gravity.START:
+                    params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.endToEnd = ConstraintLayout.LayoutParams.UNSET;
+                    break;
+                case Gravity.FILL:
+                    params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+                    break;
+                case Gravity.END:
+                    params.startToStart = ConstraintLayout.LayoutParams.UNSET;
+                    params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+                    break;
+            }
+        } else {
+            params.matchConstraintMinHeight = 0;
+            switch (gravity) {
+                case Gravity.START:
+                    params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET;
+                    if (ref != null)
+                        params.matchConstraintMinHeight = (int) (ref.getHeight() + ref.getY());
+                    break;
+                case Gravity.FILL:
+                    params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                    break;
+                case Gravity.END:
+                    params.topToTop = ConstraintLayout.LayoutParams.UNSET;
+                    params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                    if (ref != null)
+                        logger.error("{} {}", mViews.constraintLayout.getHeight(), ref.getY());
+                    if (ref != null)
+                        params.matchConstraintMinHeight = (int) (mViews.constraintLayout.getHeight() - ref.getY());
+                    break;
+            }
+        }
+        mViews.extendPanel.setLayoutParams(params);
+        mViews.extendPanel.requestLayout();
     }
 
     @Override

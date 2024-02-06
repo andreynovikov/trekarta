@@ -14,6 +14,7 @@
     <dimen name="image_button_size_margin">52dp</dimen>
 
     <dimen name="panel_width">-1px</dimen> <!-- match_parent -->
+    <dimen name="panel_height">-2px</dimen> <!-- wrap_content -->
     <dimen name="panel_elevation">2dp</dimen>
     <dimen name="panel_padding">16dp</dimen>
     <dimen name="fragment_width">-1px</dimen> <!-- match_parent -->

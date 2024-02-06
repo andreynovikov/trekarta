@@ -385,10 +385,11 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:clickable="true"
-            android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/actionPanel"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintHeight="match_constraint"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="KeyboardInaccessibleWidget" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -399,9 +400,9 @@
             android:minHeight="4dp"
             android:progressTint="@color/colorAccent"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             tools:visibility="visible" />
 
         <androidx.fragment.app.FragmentContainerView
@@ -410,9 +411,9 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:elevation="@dimen/fragment_elevation"
-            android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="KeyboardInaccessibleWidget" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
@@ -430,17 +431,16 @@
         android:layout_gravity="end"
         android:clickable="true"
         android:elevation="@dimen/bottom_sheet_elevation"
-        android:focusable="true"
         app:behavior_hideable="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:comment="Without clickable clicks are propagated to underlying map"
+        tools:ignore="KeyboardInaccessibleWidget" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/actionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fragment_padding"
-        android:clickable="true"
-        android:focusable="true"
         android:src="@drawable/ic_done"
         android:tint="@color/colorBackground"
         android:visibility="gone"
