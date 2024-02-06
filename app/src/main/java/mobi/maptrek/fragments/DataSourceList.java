@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 
 import mobi.maptrek.DataHolder;
@@ -97,10 +98,7 @@ public class DataSourceList extends Fragment {
             else
                 viewBinding.empty.setText(null);
         });
-        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), dataSources -> {
-            adapter.submitList(dataSources);
-            viewBinding.empty.setVisibility(dataSources.isEmpty() ? View.VISIBLE : View.GONE);
-        });
+        dataSourceViewModel.getDataSourcesState().observe(getViewLifecycleOwner(), adapter::submitList);
 
         trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
         trackViewModel.currentTrack.observe(getViewLifecycleOwner(), adapter::setCurrentTrack);
@@ -199,6 +197,11 @@ public class DataSourceList extends Fragment {
             return 0;
         }
 
+        @Override
+        public void onCurrentListChanged(@NonNull List<DataSource> previousList, @NonNull List<DataSource> currentList) {
+            updateEmptyView();
+        }
+
         @NonNull
         @Override
         public BindableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -227,6 +230,7 @@ public class DataSourceList extends Fragment {
                 updateFloatingButtonState(true);
             }
             nativeTracksMode = nativeTracks;
+            updateEmptyView();
         }
 
         public void setCurrentTrack(Track track) {
@@ -264,6 +268,11 @@ public class DataSourceList extends Fragment {
                     updateFloatingButtonState(true);
                 }
             }
+            updateEmptyView();
+        }
+
+        private void updateEmptyView() {
+            viewBinding.empty.setVisibility(this.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         }
 
         abstract class BindableViewHolder extends RecyclerView.ViewHolder {
