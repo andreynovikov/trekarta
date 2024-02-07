@@ -913,8 +913,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             askForPermission(PERMISSIONS_REQUEST_FINE_LOCATION);
 
         TRACKING_STATE savedState = TRACKING_STATE.values()[Configuration.getTrackingState()];
-        logger.error("Saved tracking state: {}", savedState);
-        logger.error("Current tracking state: {}", trackViewModel.trackingState.getValue());
+        logger.info("Saved tracking state: {}", savedState);
+        logger.info("Current tracking state: {}", trackViewModel.trackingState.getValue());
         if (savedState != trackViewModel.trackingState.getValue()) {
             if (savedState == TRACKING_STATE.TRACKING)
                 enableTracking();
@@ -923,7 +923,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
 
         trackViewModel.trackingState.observe(this, trackingState -> {
-            logger.error("trackingState changed: {}", trackingState);
+            logger.info("trackingState changed: {}", trackingState);
             int recordColor = trackingState == TRACKING_STATE.TRACKING ? mColorAccent : mColorActionIcon;
             mViews.tracksButton.getDrawable().setTint(recordColor);
 
@@ -952,7 +952,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         });
         trackViewModel.trackingCommand.observe(this, trackingCommand -> {
             TRACKING_STATE trackingState = trackViewModel.trackingState.getValue();
-            logger.error("trackingCommand received: {}, state: {}", trackingCommand, trackingState);
+            logger.info("trackingCommand received: {}, state: {}", trackingCommand, trackingState);
             if (trackingState == trackingCommand)
                 return;
             if (trackingCommand == TRACKING_STATE.PENDING && trackingState != TRACKING_STATE.TRACKING) {
@@ -2016,7 +2016,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void enableTracking() {
-        logger.error("enableTracking");
+        logger.info("enableTracking");
         Intent intent = new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_TRACK);
         if (Build.VERSION.SDK_INT >= 26)
             startForegroundService(intent);
@@ -3634,8 +3634,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     params.topToTop = ConstraintLayout.LayoutParams.UNSET;
                     params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
                     if (ref != null)
-                        logger.error("{} {}", mViews.constraintLayout.getHeight(), ref.getY());
-                    if (ref != null)
                         params.matchConstraintMinHeight = (int) (mViews.constraintLayout.getHeight() - ref.getY());
                     break;
             }
@@ -4136,7 +4134,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (BaseLocationService.BROADCAST_TRACK_STATE.equals(action)) {
                 int stateOrdinal = intent.getIntExtra("state", TRACKING_STATE.DISABLED.ordinal());
                 TRACKING_STATE state = TRACKING_STATE.values()[stateOrdinal];
-                logger.error("{}: {}", action, state);
+                logger.info("{}: {}", action, state);
                 trackViewModel.trackingState.setValue(state);
             }
             if (BaseLocationService.BROADCAST_TRACK_SAVE.equals(action)) {

@@ -362,7 +362,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 viewBinding.charts.setVisibility(View.GONE);
                 viewBinding.empty.setVisibility(View.VISIBLE);
             } else {
-                logger.error("firstPoint changed");
+                logger.debug("firstPoint changed");
                 Activity activity = requireActivity();
                 viewBinding.startCoordinates.setText(StringFormatter.coordinates(firstPoint));
                 if (viewModel.hasTime) {
@@ -390,7 +390,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
         public void onChanged(Track.TrackPoint lastPoint) {
             if (lastPoint == null)
                 return;
-            logger.error("lastPoint changed");
+            logger.debug("lastPoint changed");
             Activity activity = requireActivity();
             viewBinding.finishCoordinates.setText(StringFormatter.coordinates(lastPoint));
             if (viewModel.hasTime) {

@@ -466,7 +466,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         @Override
         public void onSelectionRestored() {
             super.onSelectionRestored();
-            logger.error("onSelectionRestored {}", selectionTracker.getSelection().size());
+            logger.debug("onSelectionRestored {}", selectionTracker.getSelection().size());
         }
     };
 
@@ -608,7 +608,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onDataSourceUpdated() {
-            logger.error("onDataSourceUpdated");
+            logger.debug("onDataSourceUpdated");
             cursor.close();
             cursor = dataSource.getCursor();
             calculateHeaders();
