@@ -42,9 +42,8 @@ import java.util.List;
 import mobi.maptrek.R;
 
 /**
- * Wrapping is based on https://github.com/blazsolar/FlowLayout
+ * Wrapping is based on <a href="https://github.com/blazsolar/FlowLayout">blazsolar/FlowLayout</a>
  */
-//TODO Redesign to balance gauge quantity in columns
 public class GaugePanel extends ViewGroup implements View.OnLongClickListener, PopupMenu.OnMenuItemClickListener, SensorEventListener {
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(GaugePanel.class);
@@ -74,6 +73,11 @@ public class GaugePanel extends ViewGroup implements View.OnLongClickListener, P
 
     public GaugePanel(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        logger.debug("onSizeChanged {} {}", w, h);
     }
 
     @Override

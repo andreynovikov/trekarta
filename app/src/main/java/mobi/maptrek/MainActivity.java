@@ -63,7 +63,6 @@ import androidx.annotation.Nullable;
 
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.StringRes;
@@ -330,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private float mFingerTipSize;
-    private int mStatusBarHeight;
     private int mColorAccent;
     private int mColorActionIcon;
     private int mPanelSolidBackground;
@@ -449,19 +447,31 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Required for proper positioning of bottom action panel
         ViewCompat.setOnApplyWindowInsetsListener(mViews.getRoot(), (v, insets) -> {
             Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            mStatusBarHeight = systemBarsInsets.top;
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
             mlp.leftMargin = systemBarsInsets.left;
             mlp.bottomMargin = systemBarsInsets.bottom;
             mlp.rightMargin = systemBarsInsets.right;
             v.setLayoutParams(mlp);
+
+            int left = 0;
+            int top = systemBarsInsets.top;
+
             if (Build.VERSION.SDK_INT >= 28) {
                 DisplayCutoutCompat cutout = insets.getDisplayCutout();
                 if (cutout != null) {
-                    // TODO: implement for bars
-                    logger.info("DisplayCutout: {}", cutout.getSafeInsetTop());
+                    logger.info("Top DisplayCutout: {}", cutout.getSafeInsetTop());
+                    logger.info("Left DisplayCutout: {}", cutout.getSafeInsetLeft());
+                    // TODO: implement for gauge panel
+                    // left = cutout.getSafeInsetLeft();
+                    top = Math.max(top, cutout.getSafeInsetTop());
                 }
             }
+
+            FrameLayout.MarginLayoutParams flp = (FrameLayout.MarginLayoutParams) mViews.constraintLayout.getLayoutParams();
+            flp.topMargin = top;
+            flp.leftMargin = left;
+            mViews.constraintLayout.setLayoutParams(flp);
+
             // Return CONSUMED if you don't want the window insets to keep being
             // passed down to descendant views.
             return WindowInsetsCompat.CONSUMED;
@@ -985,7 +995,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     }
                 }));
         m.what = R.id.msgRemoveLicense;
-        mMainHandler.sendMessageDelayed(m, 10000);
+        mMainHandler.sendMessageDelayed(m, 120000);
 
         String userNotification = MapTrek.getApplication().getUserNotification();
         if (userNotification != null)
@@ -2154,7 +2164,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (mFirstMove) {
                 mFirstMove = false;
                 mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                mViews.popupAnchor.setY(mStatusBarHeight + 64 * MapTrek.density);
+                mViews.popupAnchor.setY(mViews.constraintLayout.getTop() + 64 * MapTrek.density);
                 HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_LOCK_MAP_POSITION, R.string.advice_lock_map_position, mViews.popupAnchor, R.drawable.ic_volume_down);
             }
         }
@@ -3491,6 +3501,34 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         });
         AnimatorSet s = new AnimatorSet();
         s.play(thisColorAnimation).with(otherColorAnimation);
+        if (state == PANEL_STATE.NONE) {
+            s.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(@NonNull Animator animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(@NonNull Animator animation) {
+                    if (mFragmentManager.getBackStackEntryCount() > 0)
+                        return;
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
+                    } else if (mTotalDataItems > 5) {
+                        mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
+                        mViews.popupAnchor.setY(mViews.constraintLayout.getTop() + 64 * MapTrek.density);
+                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
+                    }
+                }
+
+                @Override
+                public void onAnimationCancel(@NonNull Animator animation) {
+                }
+
+                @Override
+                public void onAnimationRepeat(@NonNull Animator animation) {
+                }
+            });
+        }
         s.start();
 
         mPanelState = state;
@@ -3866,31 +3904,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         public void onGlobalLayout() {
             logger.debug("onGlobalLayout()");
             if (isFinishing())
-                    return;
-
-            FrameLayout.MarginLayoutParams p = (FrameLayout.MarginLayoutParams) mViews.constraintLayout.getLayoutParams();
-            p.topMargin = mStatusBarHeight;
-
-            BottomSheetBehavior<FrameLayout> bottomSheetBehavior = BottomSheetBehavior.from(mViews.bottomSheetPanel);
+                return;
 
             if (mFragmentManager != null) {
-                if (mFragmentManager.getBackStackEntryCount() == 0 && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
-                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_ENABLE_LOCATIONS, R.string.advice_enable_locations, mViews.locationButton, false);
-                    } else if (mTotalDataItems > 5 && mPanelState == PANEL_STATE.NONE) {
-                        mViews.popupAnchor.setX(mMap.getWidth() - 32 * MapTrek.density);
-                        mViews.popupAnchor.setY(mStatusBarHeight + 64 * MapTrek.density);
-                        HelperUtils.showTargetedAdvice(MainActivity.this, Configuration.ADVICE_HIDE_MAP_OBJECTS, R.string.advice_hide_map_objects, mViews.popupAnchor, R.drawable.ic_volume_up);
-                    }
-                }
-
                 Rect area = new Rect();
                 mViews.mapView.getLocalVisibleRect(area);
                 int mapWidth = area.width();
                 int mapHeight = area.height();
                 int pointerOffset = (int) (50 * MapTrek.density);
 
-                area.top = mStatusBarHeight;
+                area.top = mViews.constraintLayout.getTop();
 
                 float scaleBarTopOffset = area.top;
                 float scaleBarLeftOffset = 0;
@@ -3917,22 +3940,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 }
 
                 // This part does not currently make sense as map center is not adjusted yet
-                int count = mFragmentManager.getBackStackEntryCount();
-                if (count > 0) {
-                    FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(count - 1);
-                    View contentPanel = mViews.coordinatorLayout.findViewById(R.id.contentPanel);
-                    if ("search".equals(bse.getName()))
-                        if (mVerticalOrientation)
-                            area.bottom = contentPanel.getTop();
-                        else
-                            area.right = contentPanel.getLeft();
-                }
+                // if (mVerticalOrientation)
+                //     area.bottom = Math.min(area.bottom, mViews.contentPanel.getTop());
+                // else
+                //     area.right = Math.min(area.right, mViews.contentPanel.getLeft());
 
-                if (mVerticalOrientation) {
-                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
-                            || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                        area.bottom = mViews.bottomSheetPanel.getTop();
-                }
+                // if (mVerticalOrientation) {
+                //     if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                //             || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                //         area.bottom = Math.min(area.bottom, mViews.bottomSheetPanel.getTop());
+                // }
 
                 if (!area.isEmpty()) {
                     int centerX = mapWidth / 2;
@@ -3945,6 +3962,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         mMovingOffset = 0;
 
                     mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
+
+                    // float shiftedCenterY = (area.bottom - (area.height() >> 1)) * 2f / mapHeight - 1;
+                    // mMap.viewport().setMapViewCenter(shiftedCenterY);
                 }
 
                 BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
