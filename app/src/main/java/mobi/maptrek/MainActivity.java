@@ -109,7 +109,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -733,9 +732,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             onPlacesLongClicked();
             return true;
         });
-        mViews.mapsButton.setOnClickListener(v -> {
-            onMapsClicked();
-        });
+        mViews.mapsButton.setOnClickListener(v -> onMapsClicked());
         mViews.mapsButton.setOnLongClickListener(v -> {
             onMapsLongClicked();
             return true;
@@ -1025,8 +1022,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (type >= 0 && mViews.highlightedType.getVisibility() != View.VISIBLE)
             setHighlightedType(type);
 
-        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(globalLayoutListener);
+        mViews.routeWaypointBarrier.addOnLayoutChangeListener(layoutChangeListener);
+        mViews.gaugesRightBarrier.addOnLayoutChangeListener(layoutChangeListener);
+        mViews.gaugesBottomBarrier.addOnLayoutChangeListener(layoutChangeListener);
+        mViews.contentBarrier.addOnLayoutChangeListener(layoutChangeListener);
 
         mMap.updateMap(true);
     }
@@ -1038,8 +1037,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
 
-        final ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
-        vto.removeOnGlobalLayoutListener(globalLayoutListener);
+        mViews.routeWaypointBarrier.removeOnLayoutChangeListener(layoutChangeListener);
+        mViews.gaugesRightBarrier.removeOnLayoutChangeListener(layoutChangeListener);
+        mViews.gaugesBottomBarrier.removeOnLayoutChangeListener(layoutChangeListener);
+        mViews.contentBarrier.removeOnLayoutChangeListener(layoutChangeListener);
 
         mViews.mapView.onPause();
         mMap.events.unbind(this);
@@ -3898,78 +3899,56 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
-    private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        public void onGlobalLayout() {
-            logger.debug("onGlobalLayout()");
-            if (isFinishing())
-                return;
+    private final View.OnLayoutChangeListener layoutChangeListener = (v, l, t, r, b, ol, ot, or, ob) -> updateMapArea();
 
-            if (mFragmentManager != null) {
-                Rect area = new Rect();
-                mViews.mapView.getLocalVisibleRect(area);
-                int mapWidth = area.width();
-                int mapHeight = area.height();
-                int pointerOffset = (int) (50 * MapTrek.density);
+    private void updateMapArea() {
+        logger.info("updateMapArea");
 
-                area.top = mViews.constraintLayout.getTop();
+        Rect area = new Rect();
+        mViews.mapView.getLocalVisibleRect(area);
+        int mapWidth = area.width();
+        int mapHeight = area.height();
 
-                float scaleBarTopOffset = area.top;
-                float scaleBarLeftOffset = 0;
-                if (mViews.gaugePanel.getVisibility() == View.VISIBLE) {
-                    scaleBarLeftOffset = mViews.gaugePanel.getRight();
-                    int h = mViews.gaugePanel.getHeight();
-                    if ((mapHeight >> 1) - h + pointerOffset < mapWidth >> 1)
-                        area.left = (int) scaleBarLeftOffset;
-                }
-                if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
-                    scaleBarTopOffset += mViews.routeWptDistance.getBottom();
-                }
+        area.top = mViews.constraintLayout.getTop() + mViews.routeWaypointBarrier.getBottom();
 
-                if (mVerticalOrientation)
-                    area.bottom = mViews.actionPanel.getTop();
-                else
-                    area.right = mViews.actionPanel.getLeft();
-
-                if (mPanelState != PANEL_STATE.NONE) {
-                    if (mVerticalOrientation)
-                        area.bottom = mViews.extendPanel.getTop();
-                    else
-                        area.right = mViews.extendPanel.getLeft();
-                }
-
-                // This part does not currently make sense as map center is not adjusted yet
-                // if (mVerticalOrientation)
-                //     area.bottom = Math.min(area.bottom, mViews.contentPanel.getTop());
-                // else
-                //     area.right = Math.min(area.right, mViews.contentPanel.getLeft());
-
-                // if (mVerticalOrientation) {
-                //     if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
-                //             || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                //         area.bottom = Math.min(area.bottom, mViews.bottomSheetPanel.getTop());
-                // }
-
-                if (!area.isEmpty()) {
-                    int centerX = mapWidth / 2;
-                    int centerY = mapHeight / 2;
-                    mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
-                    mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
-                    mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
-                    mMovingOffset -= pointerOffset;
-                    if (mMovingOffset < 0)
-                        mMovingOffset = 0;
-
-                    mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
-
-                    // float shiftedCenterY = (area.bottom - (area.height() >> 1)) * 2f / mapHeight - 1;
-                    // mMap.viewport().setMapViewCenter(shiftedCenterY);
-                }
-
-                BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
-                renderer.setOffset(scaleBarLeftOffset + 8 * MapTrek.density, scaleBarTopOffset);
-            }
+        int left = mViews.gaugesRightBarrier.getRight();
+        if (left > 0) { // gauge panel is visible
+            if (mapHeight / 3 < mViews.gaugesBottomBarrier.getBottom())
+                area.left = left;
         }
-    };
+
+        if (mVerticalOrientation)
+            area.bottom = mViews.contentBarrier.getTop();
+        else
+            area.right = mViews.contentBarrier.getLeft();
+
+        // if (mVerticalOrientation) {
+        //     if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+        //             || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+        //         area.bottom = Math.min(area.bottom, mViews.bottomSheetPanel.getTop());
+        // }
+
+        if (!area.isEmpty()) {
+            int pointerOffset = (int) (50 * MapTrek.density);
+
+            int centerX = mapWidth / 2;
+            int centerY = mapHeight / 2;
+            mMovingOffset = Math.min(centerX - area.left, area.right - centerX);
+            mMovingOffset = Math.min(mMovingOffset, centerY - area.top);
+            mMovingOffset = Math.min(mMovingOffset, area.bottom - centerY);
+            mMovingOffset -= pointerOffset;
+            if (mMovingOffset < 0)
+                mMovingOffset = 0;
+
+            mTrackingOffset = area.bottom - mapHeight / 2 - 2 * pointerOffset;
+
+            // float shiftedCenterY = (area.bottom - (area.height() >> 1)) * 2f / mapHeight - 1;
+            // mMap.viewport().setMapViewCenter(shiftedCenterY);
+        }
+
+        BitmapRenderer renderer = mMapScaleBarLayer.getRenderer();
+        renderer.setOffset(left + 8 * MapTrek.density, area.top);
+    }
 
     private void askForPermission(int permissionRequest) {
         String permission = null;
