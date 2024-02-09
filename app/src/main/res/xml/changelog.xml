@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2024.02" versioncode="95" date="07.02.2024">
+        <change>New map objects: town square, goods lift</change>
+        <change>New track recording interface</change>
+        <change>Added ability to pause track recording</change>
+        <change>Added troubleshooting options in settings</change>
+        <change>Added support for system controlled night theme</change>
+        <change>Added French translation</change>
+        <change>Fixed opening long tracks</change>
+        <change>Fixed map over-scale when viewing some tracks</change>
+        <change>Fixed showing trees on some ground surfaces</change>
+    </release>
     <release version="2024.01" versioncode="89" date="18.01.2024">
         <change>Revised file export</change>
         <change>Revived location sharing plugin</change>
