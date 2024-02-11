@@ -75,6 +75,8 @@
     <string name="actionRememberTilt">Se souvenir de l\'inclinaison</string>
     <string name="actionHideSystemUI">Plein écran</string>
     <string name="actionResetAdvices">Ré-initialiser les avis</string>
+    <string name="actionResetMap">Réinitialiser l\'état de la carte</string>
+    <string name="actionPurgeMaps">Purger les cartes natives</string>
     <string name="actionAddGauge">Ajouter une jauge</string>
     <string name="actionContours">Contours</string>
     <string name="actionOtherFeatures">Fonctionnalités</string>
@@ -112,6 +114,7 @@
     <string name="msgPlaceDeleted">Lieu supprimé</string>
     <string name="msgPlaceSaved">Lieu sauvegardé</string>
     <string name="msgEmptyPlaceList">Vos lieux apparaîtront ici. Vous pouvez créer un lieu en entrant ses coordonnées ou en appuyant longuement sur le bouton Lieux.</string>
+    <string name="msgEmptyDataSource">La source de données est vide ou ne contient pas de données prises en charge.</string>
     <string name="msgLocating">Trekarta suit votre mouvement pour soutenir l’action en cours</string>
     <string name="msgTrackDeleted">piste supprimée</string>
     <string name="msgTracked">%1$s tracés depuis %2$s</string>
@@ -121,6 +124,7 @@
     <string name="msgTrackNotSavedPeriod">Piste non sauvegardée : trop peu de temps</string>
     <string name="msgTrackNotSavedDistance">Piste non sauvegardée : trop petite distance</string>
     <string name="msgEmptyTrackList">Vos pistes enregistrées apparaîtront ici.</string>
+    <string name="msgEmptyTrack">La piste n\'a pas de points</string>
     <string name="msgNoFileDataSources">Vous pouvez aussi importer des fichiers GPX et KML.</string>
     <string name="msgDataImported">Le fichier est enregistré dans le dossier de l’application.</string>
     <string name="msgSaveFailed">Échec de l’enregistrement : %s</string>
@@ -135,6 +139,8 @@
     <string name="msgEstimateDownloadSize">Estimation de la taille du chargement</string>
     <string name="msgDownloadSize">Taille du chargement : %s</string>
     <string name="msgAdvicesReset">Les conseils seront affichés dès le début</string>
+    <string name="msgMapReset">L\'état de la carte sera réinitialisé après le redémarrage de l\'application, qui sera effectué maintenant.</string>
+    <string name="msgPurgeMaps">Toutes les cartes téléchargées seront supprimées comme si l’application était exécutée pour la première fois, nécessitant un redémarrage de l’application, qui sera effectué maintenant</string>
     <string name="msgParseCoordinatesFailed">Echec obtention des coordonnées de la chaîne</string>
     <string name="msgParseMultipleCoordinatesFailed">Impossible d’obtenir certaines coordonnées</string>
     <string name="msgEmptyMapList">Vos cartes installées de tuiles personnalisées apparaîtront ici.</string>
@@ -199,6 +205,8 @@
     <string name="advice_map_settings">Vous pouvez appuyer longuement sur le bouton Cartes pour accéder à des paramètres de carte supplémentaires</string>
     <string name="advice_map_legend">Vous pouvez appuyer longuement sur le bouton Cartes pour voir la légende de la carte</string>
     <string name="advice_adding_place">Vous pouvez rapidement créer un lieu dans la position actuelle de la carte en appuyant longuement sur le bouton Lieux</string>
+    <string name="advice_record_track">Vous pouvez appuyer longuement sur le bouton Pistes pour voir les statistiques de piste actuellement enregistrées. Vous pouvez fermer l’application pendant l’enregistrement, la piste sera enregistrée en arrière-plan.</string>
+    <string name="advice_recorded_tracks">Appuyez sur le bouton Pistes pour accéder à vos pistes enregistrées</string>
     <string name="advice_view_data_item">Appuyez sur la flèche droite pour positionner la carte sur l’élément correspondant</string>
     <string name="advice_switch_coordinates_format">Appuyez sur les coordonnées pour parcourir différents formats</string>
     <string name="advice_locked_coordinates">Vous pouvez verrouiller les coordonnées d\'un lieu pour éviter le glissement accidentel de son marqueur. Tous les lieux qui proviennent de sources externes sont considérés comme positionnés avec précision et sont verrouillés par défaut tandis que les lieux que vous créez sur la carte sont traités comme approximatifs et sont initialement déverrouillés.</string>
@@ -272,11 +280,12 @@
     <string name="limited_access">Partiellement accessible</string>
     <string name="no_access">Non accessible</string>
     <string name="fee">Frais habituellement facturés</string>
+    <string name="calculating">Calcul en cours...</string>
+
     <string name="permReadFilesLabel">lire les fichiers utilisateur</string>
     <string name="permReadFilesDescription">Permet à l’application de lire les fichiers de données utilisateur Trekarta tels que les lieux et les pistes.</string>
     <string name="permWriteFilesLabel">écrire les fichiers utilisateur</string>
-    <string name="permWriteFilesDescription">Permet à l’application d’ajouter ou de remplacer des fichiers de données utilisateur Trekarta tels que des lieux et les pistes
-.</string>
+    <string name="permWriteFilesDescription">Permet à l’application d’ajouter ou de remplacer des fichiers de données utilisateur Trekarta tels que des lieux et les pistes.</string>
     <string name="permReceiveLocationLabel">Obtenir la localisation</string>
     <string name="permReceiveLocationDescription">Permet à l’application d’obtenir l’emplacement actuel de Trekarta.</string>
     <string name="permReadPreferencesLabel">lire les préférences utilisateur</string>
@@ -566,7 +575,7 @@
     <string name="legend_transportation">Transport</string>
     <string name="legend_land_use">Utilisation des sols</string>
     <string name="legend_residental">Résidentiel</string>
-    <string name="legend_industrial">Indusrtriel</string>
+    <string name="legend_industrial">Industriel</string>
     <string name="legend_construction">Construction</string>
     <string name="legend_quarry">Carrière</string>
     <string name="legend_farmland">Terres agricoles</string>
@@ -633,7 +642,7 @@
     <string name="legend_power_generator_wind">Eolienne</string>
     <string name="legend_rock">Roche caractéristique</string>
     <string name="legend_cave_entrance">Entrée de grotte</string>
-    <string name="legend_island">Isle</string>
+    <string name="legend_island">Île</string>
     <string name="legend_island_name">Tahiti</string>
     <string name="legend_ferry_terminal">Gare maritime</string>
     <string name="legend_subway_entrance">Bouche de métro</string>
@@ -748,7 +757,7 @@
     <string name="legend_house_numbers">Numéros de maison</string>
     <string name="legend_water_pipeline">Canalisation d\'eau</string>
     <string name="legend_steam_pipeline">Canalisation de vapeur</string>
-    <string name="legend_gas_pipeline">Canalisation de gaze</string>
+    <string name="legend_gas_pipeline">Canalisation de gaz</string>
     <string name="legend_oil_pipeline">Canalisation d\'huile</string>
     <string name="legend_general_pipeline">Canalisation générale</string>
     <string name="legend_watermill">Moulin à eau</string>
