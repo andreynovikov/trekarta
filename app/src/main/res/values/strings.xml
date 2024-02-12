@@ -97,6 +97,7 @@
     <string name="actionGrant">Grant</string>
     <string name="actionDownload">Download</string>
     <string name="actionSkip">Skip</string>
+    <string name="actionEnable">Enable</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -182,6 +183,7 @@
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
     <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
     <string name="msgMapDownloadFailed">%s failed to download</string>
+    <string name="msgDataSourceNotLoaded">Data source is disabled</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>
     <string name="introOfflineMaps">Lightweight offline vector maps contain detailed topological data with elevation contours and support hillshades. You can add custom maps to cover your area of interest. Custom maps will be shaded as well.</string>

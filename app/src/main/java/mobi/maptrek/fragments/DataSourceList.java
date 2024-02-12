@@ -39,6 +39,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.slf4j.Logger;
@@ -354,7 +355,13 @@ public class DataSourceList extends Fragment {
                         else
                             icon.setImageResource(R.drawable.ic_dataset);
                         color = disabledColor;
-                        itemView.setOnClickListener(null);
+                        itemView.setOnClickListener(v -> Snackbar.make(viewBinding.getRoot(), R.string.msgDataSourceNotLoaded, Snackbar.LENGTH_SHORT)
+                                .setAction(R.string.actionEnable, view -> {
+                                    mDataHolder.setDataSourceAvailability((FileDataSource) dataSource, true);
+                                    notifyItemChanged(position);
+                                })
+                                .setAnchorView(v)
+                                .show());
                     }
                     final boolean shown = dataSource.isVisible();
                     if (shown)
