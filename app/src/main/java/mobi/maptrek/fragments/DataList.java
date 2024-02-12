@@ -837,6 +837,9 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
 
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            if (!isAdded())
+                return false;
+
             int itemId = menuItem.getItemId();
             if (itemId == R.id.action_share) {
                 shareSelectedItems();
