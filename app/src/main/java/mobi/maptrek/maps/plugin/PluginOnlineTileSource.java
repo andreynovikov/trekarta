@@ -57,12 +57,15 @@ public class PluginOnlineTileSource extends BitmapTileSource {
     private final String mProviderAuthority;
     private final String mSourceId;
 
+    private final String mLicense;
+
     protected PluginOnlineTileSource(Builder<?> builder) {
         super(builder);
         mContext = builder.context;
         mMapId = builder.mapId;
         mProviderAuthority = builder.providerAuthority;
         mSourceId = "content://" + builder.providerAuthority + "/" + builder.mapId;
+        mLicense = builder.license;
     }
 
     @Override
@@ -104,5 +107,9 @@ public class PluginOnlineTileSource extends BitmapTileSource {
 
     public String getSourceId() {
         return mSourceId;
+    }
+
+    public String getLicense() {
+        return mLicense;
     }
 }

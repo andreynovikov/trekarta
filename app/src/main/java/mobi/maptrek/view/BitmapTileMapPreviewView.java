@@ -51,6 +51,8 @@ import static org.oscim.layers.tile.MapTile.State.NEW_DATA;
 import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
+import androidx.annotation.NonNull;
+
 public class BitmapTileMapPreviewView extends TextureView implements SurfaceTextureListener {
     private static final Logger logger = LoggerFactory.getLogger(BitmapTileMapPreviewView.class);
 
@@ -111,7 +113,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      * Listener tells us when the texture has been created and is ready to be drawn on.
      */
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+    public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
         logger.debug("onSurfaceTextureAvailable({},{})", width, height);
         if (!mActive)
             mTileSource.open();
@@ -172,7 +174,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      * is called.
      */
     @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+    public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
         logger.debug("onSurfaceTextureDestroyed()");
 
         // Stop tile loader
@@ -221,7 +223,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      * Listener calls when the texture changes buffer size.
      */
     @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+    public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
         logger.debug("onSurfaceTextureSizeChanged({},{})", width, height);
         //TODO Handle view resize
     }
@@ -230,7 +232,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
      * Listener calls when the texture is updated by updateTexImage()
      */
     @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
         logger.debug("onSurfaceTextureUpdated");
         //Do nothing.
     }
@@ -395,14 +397,8 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
             THREAD_NAME = "BitmapTileLoader";
         }
 
-        boolean loadTile(MapTile tile) {
-            try {
-                mTileSource.getDataSource().query(tile, this);
-            } catch (Exception e) {
-                logger.error("{}: {}", tile, e.getMessage());
-                return false;
-            }
-            return true;
+        void loadTile(MapTile tile) {
+            mTileSource.getDataSource().query(tile, this);
         }
 
         void go() {
@@ -422,7 +418,7 @@ public class BitmapTileMapPreviewView extends TextureView implements SurfaceText
                 logger.debug("{} : {} {}", mTileSource.getOption("path"), mTile, mTile.state());
                 loadTile(mTile);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to load tile {}: ", mTile, e);
                 completed(FAILED);
             }
         }

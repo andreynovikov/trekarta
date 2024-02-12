@@ -93,6 +93,7 @@ import androidx.work.Data;
 import androidx.work.WorkManager;
 
 import android.text.Html;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.transition.AutoTransition;
 import android.transition.Fade;
@@ -248,6 +249,7 @@ import mobi.maptrek.location.LocationService;
 import mobi.maptrek.location.NavigationService;
 import mobi.maptrek.maps.MapWorker;
 import mobi.maptrek.maps.maptrek.MapTrekDatabaseHelper;
+import mobi.maptrek.maps.plugin.PluginOnlineTileSource;
 import mobi.maptrek.plugin.PluginRepository;
 import mobi.maptrek.util.ContextUtils;
 import mobi.maptrek.util.SafeResultReceiver;
@@ -989,18 +991,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         updateLocationDrawable();
         adjustCompass(mMap.getMapPosition().bearing);
 
-        mViews.license.setText(Html.fromHtml(getString(R.string.osmLicense)));
-        mViews.license.setVisibility(View.VISIBLE);
-        final Message m = Message.obtain(mMainHandler,
-                () -> mViews.license.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mViews.license.setVisibility(View.GONE);
-                        mViews.license.animate().setListener(null);
-                    }
-                }));
-        m.what = R.id.msgRemoveLicense;
-        mMainHandler.sendMessageDelayed(m, 120000);
+        if ("".contentEquals(mViews.license.getText()))
+            showLicense(null);
 
         String userNotification = MapTrek.getApplication().getUserNotification();
         if (userNotification != null)
@@ -3078,6 +3070,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (current) {
                 showHideMapObjects(false);
                 mMap.updateMap(true);
+                showLicense(null);
                 return;
             }
         }
@@ -3091,8 +3084,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mMap.layers().remove(mapFile.tileLayer);
             mapFile.tileSource.close();
             mBitmapLayerMaps.remove(mapFile);
-            if (mBitmapLayerMaps.isEmpty())
+            if (mBitmapLayerMaps.isEmpty()) {
                 showHideMapObjects(false);
+                showLicense(null);
+            }
             mMap.updateMap(true);
         } else {
             showBitmapMap(mapFile, mBitmapLayerMaps.isEmpty());
@@ -3251,6 +3246,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mapFile.tileLayer = new BitmapTileLayer(mMap, mapFile.tileSource, 1 - mBitmapMapTransparency * 0.01f);
         }
         mMap.layers().add(mapFile.tileLayer, MAP_MAPS);
+        if (mapFile.tileSource instanceof PluginOnlineTileSource) {
+            PluginOnlineTileSource tileSource = (PluginOnlineTileSource) mapFile.tileSource;
+            String license = tileSource.getLicense();
+            if (license != null)
+                showLicense(license);
+        }
         if (!reposition)
             return;
 
@@ -4672,6 +4673,22 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 
         mMap.updateMap();
+    }
+
+    private void showLicense(String license) {
+        Spanned html = Html.fromHtml(license != null ? license : getString(R.string.osmLicense));
+        mViews.license.setText(html);
+        mViews.license.setVisibility(View.VISIBLE);
+        final Message m = Message.obtain(mMainHandler,
+                () -> mViews.license.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mViews.license.setVisibility(View.GONE);
+                        mViews.license.animate().setListener(null);
+                    }
+                }));
+        m.what = R.id.msgRemoveLicense;
+        mMainHandler.sendMessageDelayed(m, 120000);
     }
 
     public boolean isOnline() {
