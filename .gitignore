@@ -1,6 +1,7 @@
 # Built application files
 *.apk
 *.ap_
+*.aab
 
 # Files for the Dalvik VM
 *.dex
@@ -36,4 +37,7 @@ proguard/
 
 captures/
 
+# Fastlane
 Gemfile*
+/fastlane/report.xml
+/fastlane/README.md
