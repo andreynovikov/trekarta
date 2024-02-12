@@ -551,6 +551,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             showNavigationMenu();
             return true;
         });
+        mViews.navigationSign.setOnClickListener(v -> {
+            MapObject mapObject = mNavigationService.getWaypoint();
+            setMapLocation(mapObject.coordinates);
+        });
 
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
@@ -743,6 +747,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         });
         mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
+        mViews.navigationSign.setOnClickListener(v -> {
+            MapObject mapObject = mNavigationService.getWaypoint();
+            setMapLocation(mapObject.coordinates);
+        });
 
         // Resume state
         int state = Configuration.getLocationState();
