@@ -659,6 +659,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
         mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
+        mMarkerLayer.setTitlesEnabled(Configuration.getPlaceTitlesEnabled());
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
         mapIndexViewModel = new ViewModelProvider(this).get(MapIndexViewModel.class);
@@ -4530,6 +4531,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case Configuration.PREF_ZOOM_BUTTONS_VISIBLE: {
                 boolean visible = Configuration.getZoomButtonsVisible();
                 mViews.coordinatorLayout.findViewById(R.id.mapZoomHolder).setVisibility(visible ? View.VISIBLE : View.GONE);
+                break;
+            }
+            case Configuration.PREF_PLACE_TITLES: {
+                mMarkerLayer.setTitlesEnabled(Configuration.getPlaceTitlesEnabled());
+                mMarkerLayer.updateItems();
+                mMap.updateMap();
                 break;
             }
             case Configuration.PREF_ACCESSIBILITY_BADGES: {

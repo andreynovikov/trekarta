@@ -104,4 +104,7 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 		return mFocusedItem;
 	}
 
+	public void setTitlesEnabled(boolean titlesEnabled) {
+		mMarkerRenderer.setTitlesEnabled(titlesEnabled);
+	}
 }

@@ -55,6 +55,7 @@ class MarkerRenderer extends BucketRenderer {
     private final MarkerLayer<MarkerItem> mMarkerLayer;
     private final Point mMapPoint = new Point();
     private final float mScale;
+    private boolean mTitlesEnabled;
 
     private int mShaderProgram;
     private int hVertexPosition;
@@ -99,6 +100,11 @@ class MarkerRenderer extends BucketRenderer {
         mMarkerLayer = markerLayer;
         mDefaultMarker = defaultSymbol;
         mScale = scale;
+        mTitlesEnabled = true;
+    }
+
+    public void setTitlesEnabled(boolean titlesEnabled) {
+        mTitlesEnabled = titlesEnabled;
     }
 
     @Override
@@ -210,7 +216,7 @@ class MarkerRenderer extends BucketRenderer {
             s.billboard = marker.isBillboard();
             mSymbolBucket.pushSymbol(s);
 
-            if (it.item.title != null) {
+            if (mTitlesEnabled && it.item.title != null) {
                 float dy = -s.offset.y * bitmap.getHeight() - 10 * mScale * CanvasAdapter.textScale;
                 long k = (((long) dy) << 32) | (it.item.color & 0xffffffffL);
                 TextStyle textStyle = textStyles.get(k);

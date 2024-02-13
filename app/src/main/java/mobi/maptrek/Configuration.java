@@ -71,6 +71,7 @@ public class Configuration {
     private static final String PREF_BITMAP_MAP_TRANSPARENCY = "bitmap_map_transparency";
     private static final String PREF_EXCEPTION_SIZE = "exception_size";
     public static final String PREF_ZOOM_BUTTONS_VISIBLE = "zoom_buttons_visible";
+    public static final String PREF_PLACE_TITLES = "place_titles";
     public static final String PREF_ACCESSIBILITY_BADGES = "accessibility_badges";
     public static final String PREF_CONFIRM_EXIT = "confirm_exit";
     public static final String PREF_SPEED_UNIT = "speed_unit";
@@ -428,6 +429,10 @@ public class Configuration {
 
     public static boolean getZoomButtonsVisible() {
         return loadBoolean(PREF_ZOOM_BUTTONS_VISIBLE, false);
+    }
+
+    public static boolean getPlaceTitlesEnabled() {
+        return loadBoolean(PREF_PLACE_TITLES, true);
     }
 
     public static boolean getAccessibilityBadgesEnabled() {

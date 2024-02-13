@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="def_place_titles">true</bool>
     <bool name="def_zoom_buttons_visible">false</bool>
     <bool name="def_accessibility_badges">true</bool>
     <bool name="def_confirm_exit">false</bool>
