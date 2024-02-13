@@ -22,6 +22,8 @@
 
 package mobi.maptrek.layers.marker;
 
+import android.graphics.Color;
+
 import org.oscim.core.GeoPoint;
 
 /**
@@ -49,6 +51,7 @@ public class MarkerItem {
 	public String title;
 	public String description;
 	public GeoPoint geoPoint;
+	public int color;
 	protected MarkerSymbol mMarker;
 
 	/**
@@ -62,10 +65,15 @@ public class MarkerItem {
 	}
 
 	public MarkerItem(Object uid, String title, String description, GeoPoint geoPoint) {
+		this(uid, title, description, geoPoint, Color.BLACK);
+	}
+
+	public MarkerItem(Object uid, String title, String description, GeoPoint geoPoint, int color) {
 		this.title = title;
 		this.description = description;
 		this.geoPoint = geoPoint;
 		this.uid = uid;
+		this.color = color;
 	}
 
 	public Object getUid() {

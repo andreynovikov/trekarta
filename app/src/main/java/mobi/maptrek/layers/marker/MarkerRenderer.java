@@ -17,7 +17,10 @@
 
 package mobi.maptrek.layers.marker;
 
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.GL;
+import org.oscim.backend.canvas.Bitmap;
+import org.oscim.backend.canvas.Color;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
 import org.oscim.core.Tile;
@@ -28,19 +31,26 @@ import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.renderer.bucket.SymbolBucket;
 import org.oscim.renderer.bucket.SymbolItem;
+import org.oscim.renderer.bucket.TextBucket;
+import org.oscim.renderer.bucket.TextItem;
+import org.oscim.theme.styles.TextStyle;
 import org.oscim.utils.TimSort;
 import org.oscim.utils.geom.GeometryUtils;
 
 import java.util.Comparator;
+import java.util.HashMap;
 
 import static org.oscim.backend.GLAdapter.gl;
+
+import androidx.annotation.NonNull;
 
 class MarkerRenderer extends BucketRenderer {
     private static final float FOCUS_CIRCLE_SIZE = 8;
 
     final MarkerSymbol mDefaultMarker;
 
-    private final SymbolBucket mSymbolLayer;
+    private final SymbolBucket mSymbolBucket;
+    private final TextBucket mTextBucket;
     private final float[] mBox = new float[8];
     private final MarkerLayer<MarkerItem> mMarkerLayer;
     private final Point mMapPoint = new Point();
@@ -75,6 +85,7 @@ class MarkerRenderer extends BucketRenderer {
         double px, py;
         float dy;
 
+        @NonNull
         @Override
         public String toString() {
             return "\n" + x + ":" + y + " / " + dy + " " + visible;
@@ -82,7 +93,9 @@ class MarkerRenderer extends BucketRenderer {
     }
 
     MarkerRenderer(MarkerLayer<MarkerItem> markerLayer, MarkerSymbol defaultSymbol, float scale) {
-        mSymbolLayer = new SymbolBucket();
+        mSymbolBucket = new SymbolBucket();
+        mTextBucket = new TextBucket();
+        mSymbolBucket.next = mTextBucket;
         mMarkerLayer = markerLayer;
         mDefaultMarker = defaultSymbol;
         mScale = scale;
@@ -91,8 +104,7 @@ class MarkerRenderer extends BucketRenderer {
     @Override
     public synchronized void update(GLViewport v) {
         if (!mInitialized) {
-            init();
-            mInitialized = true;
+            mInitialized = init();
         }
 
         if (!v.changed() && !mUpdate)
@@ -176,7 +188,7 @@ class MarkerRenderer extends BucketRenderer {
         mMapPosition.bearing = -mMapPosition.bearing;
 
         sort(mItems, 0, mItems.length);
-        //log.debug(Arrays.toString(mItems));
+        HashMap<Long, TextStyle> textStyles = new HashMap<>();
         for (InternalItem it : mItems) {
             if (!it.visible)
                 continue;
@@ -190,14 +202,35 @@ class MarkerRenderer extends BucketRenderer {
             if (marker == null)
                 marker = mDefaultMarker;
 
+            Bitmap bitmap = marker.getBitmap();
+
             SymbolItem s = SymbolItem.pool.get();
-            s.set(it.x, it.y, marker.getBitmap(), true);
+            s.set(it.x, it.y, bitmap, true);
             s.offset = marker.getHotspot();
             s.billboard = marker.isBillboard();
-            mSymbolLayer.pushSymbol(s);
+            mSymbolBucket.pushSymbol(s);
+
+            if (it.item.title != null) {
+                float dy = -s.offset.y * bitmap.getHeight() - 10 * mScale * CanvasAdapter.textScale;
+                long k = (((long) dy) << 32) | (it.item.color & 0xffffffffL);
+                TextStyle textStyle = textStyles.get(k);
+                if (textStyle == null) {
+                    textStyle = TextStyle.builder()
+                            .fontSize(20 * mScale * CanvasAdapter.textScale)
+                            .color(it.item.color)
+                            .outline(Color.WHITE, 3f * mScale * CanvasAdapter.textScale)
+                            .isCaption(true)
+                            .offsetY(dy)
+                            .build();
+                    textStyles.put(k, textStyle);
+                }
+                TextItem t = TextItem.pool.get();
+                t.set(it.x, it.y, it.item.title, textStyle);
+                mTextBucket.addText(t);
+            }
         }
 
-        buckets.set(mSymbolLayer);
+        buckets.set(mSymbolBucket);
         buckets.prepare();
 
         compile();
@@ -257,7 +290,7 @@ class MarkerRenderer extends BucketRenderer {
         mUpdate = true;
     }
 
-    private static TimSort<InternalItem> ZSORT = new TimSort<>();
+    private static final TimSort<InternalItem> ZSORT = new TimSort<>();
 
     private static void sort(InternalItem[] a, int lo, int hi) {
         int nRemaining = hi - lo;

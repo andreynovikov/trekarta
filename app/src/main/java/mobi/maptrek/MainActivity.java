@@ -677,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 marker = null;
             }
             if (markerState.isShown()) {
-                marker = new MarkerItem(markerState.getName(), null, markerState.getCoordinates());
+                marker = new MarkerItem(null, null, markerState.getCoordinates());
                 int drawable = markerState.isAmenity() ? R.drawable.circle_marker : R.drawable.round_marker;
                 Bitmap markerBitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, drawable, mColorAccent));
                 marker.setMarker(new MarkerSymbol(markerBitmap, MarkerItem.HotspotPlace.CENTER));
@@ -2498,7 +2498,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         waypoint.date = new Date();
         waypoint.locked = locked;
         dataSourceViewModel.waypointDbDataSource.saveWaypoint(waypoint);
-        MarkerItem marker = new MarkerItem(waypoint, name, null, point);
+        MarkerItem marker = new MarkerItem(waypoint, name, null, point, waypoint.style.color);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
         if (!customize)
@@ -4243,7 +4243,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void addWaypointMarker(Waypoint waypoint) {
-        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, waypoint.coordinates);
+        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, waypoint.coordinates, waypoint.style.color);
         if (waypoint.style.color != 0 && waypoint.style.color != MarkerStyle.DEFAULT_COLOR) {
             Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.style.color));
             marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
@@ -4645,6 +4645,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         CanvasAdapter.userScale = mapScale;
         IRenderTheme theme = ThemeLoader.load(themeFile);
         mMap.setTheme(theme, true);
+        mMarkerLayer.updateItems();
         mapViewModel.shieldFactory.setFontSize(fontSize);
         mapViewModel.shieldFactory.dispose();
         mapViewModel.osmcSymbolFactory.dispose();
