@@ -17,7 +17,7 @@
 package mobi.maptrek.data.style;
 
 public class RouteStyle extends Style<RouteStyle> {
-    public static int DEFAULT_COLOR = android.graphics.Color.DKGRAY;
+    public static int DEFAULT_COLOR = android.graphics.Color.rgb(177, 94, 255);
     public static float DEFAULT_WIDTH = 8;
 
     public int color = DEFAULT_COLOR;
