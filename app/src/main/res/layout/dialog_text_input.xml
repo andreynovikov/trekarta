@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/dialogContentMargin"
+    android:paddingTop="@dimen/dialogTitleMargin"
+    android:paddingStart="@dimen/dialogContentMargin"
+    android:paddingEnd="@dimen/dialogContentMargin"
     tools:context=".ui.TextInputDialogFragment">
 
     <LinearLayout

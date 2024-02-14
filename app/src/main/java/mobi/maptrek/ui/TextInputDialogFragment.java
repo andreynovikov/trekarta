@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 
 package mobi.maptrek.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,24 +27,21 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import mobi.maptrek.R;
+import mobi.maptrek.databinding.DialogTextInputBinding;
 
 public class TextInputDialogFragment extends DialogFragment implements ClipboardManager.OnPrimaryClipChangedListener {
     private boolean mShowPasteButton;
     private TextInputDialogCallback mCallback;
     private ClipboardManager mClipboard;
-    private ImageButton mPasteButton;
-    private TextView mDescription;
+    private DialogTextInputBinding viewBinding;
 
     public interface TextInputDialogCallback {
         void beforeTextChanged(CharSequence s, int start, int count, int after);
@@ -96,19 +92,27 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         String hint = args.getString("hint", null);
         final String id = args.getString("id", null);
 
-        final Activity activity = getActivity();
+        final Activity activity = requireActivity();
 
-        @SuppressLint("InflateParams")
-        View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_text_input, null);
-        final EditText textEdit = dialogView.findViewById(R.id.textEdit);
+        viewBinding = DialogTextInputBinding.inflate(getLayoutInflater());
+        View rootView = viewBinding.getRoot();
 
-        textEdit.setInputType(inputType);
+        if (!"".equals(title)) {
+            rootView.setPadding(
+                    rootView.getPaddingLeft(),
+                    0,
+                    rootView.getPaddingRight(),
+                    rootView.getPaddingBottom()
+            );
+        }
+
+        viewBinding.textEdit.setInputType(inputType);
         if (!"".equals(oldValue))
-            textEdit.setText(oldValue);
-        textEdit.setSelectAllOnFocus(selectAllOnFocus);
-        textEdit.requestFocus();
+            viewBinding.textEdit.setText(oldValue);
+        viewBinding.textEdit.setSelectAllOnFocus(selectAllOnFocus);
+        viewBinding.textEdit.requestFocus();
 
-        textEdit.addTextChangedListener(new TextWatcher() {
+        viewBinding.textEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if (mCallback != null)
@@ -128,33 +132,32 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
             }
         });
 
-        if (hint != null) {
-            TextInputLayout textInputLayout = dialogView.findViewById(R.id.textWrapper);
-            textInputLayout.setHint(hint);
-        }
+        if (hint != null)
+            viewBinding.textWrapper.setHint(hint);
 
         if (mShowPasteButton) {
-            mPasteButton = dialogView.findViewById(R.id.pasteButton);
-            mPasteButton.setOnClickListener(v -> {
+            viewBinding.pasteButton.setOnClickListener(v -> {
                 if (mClipboard == null)
                     return;
                 ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
                 CharSequence pasteData = item.getText();
                 if (pasteData != null)
-                    textEdit.setText(pasteData);
+                    viewBinding.textEdit.setText(pasteData);
             });
             onPrimaryClipChanged();
+        } else {
+            viewBinding.pasteButton.setVisibility(View.GONE);
         }
-
-        mDescription = dialogView.findViewById(R.id.description);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> mCallback.onTextInputPositiveClick(id, textEdit.getText().toString()));
+        dialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> mCallback.onTextInputPositiveClick(id, viewBinding.textEdit.getText().toString()));
         dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> mCallback.onTextInputNegativeClick(id));
-        dialogBuilder.setView(dialogView);
+        dialogBuilder.setView(rootView);
         final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        Window window = alertDialog.getWindow();
+        if (window != null)
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         return alertDialog;
     }
 
@@ -165,12 +168,12 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         int visibility = View.GONE;
         if (mClipboard.hasPrimaryClip() && mClipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
             visibility = View.VISIBLE;
-        mPasteButton.setVisibility(visibility);
+        viewBinding.pasteButton.setVisibility(visibility);
     }
 
     public void setDescription(@NonNull CharSequence text) {
-        mDescription.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
-        mDescription.setText(text);
+        viewBinding.description.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
+        viewBinding.description.setText(text);
     }
 
     public void setCallback(TextInputDialogCallback callback) {
