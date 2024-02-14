@@ -64,6 +64,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         viewModel = new ViewModelProvider(this).get(RulerViewModel.class);
     }
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewBinding = FragmentRulerBinding.inflate(inflater, container, false);
         return viewBinding.getRoot();
@@ -98,7 +99,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         });
 
         viewBinding.removeButton.setOnClickListener(v -> {
-            if (viewModel.route.length() > 0) {
+            if (viewModel.route.size() > 0) {
                 mMapHolder.getMap().getMapPosition(mMapPosition);
                 Route.Instruction instruction = viewModel.route.getNearestInstruction(mMapPosition.getGeoPoint());
                 viewModel.route.removeInstruction(instruction);
@@ -146,7 +147,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         mMapHolder.getMap().layers().add(mRouteLayer);
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(requireContext(), R.drawable.dot_black, Color.RED));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
-        ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.length());
+        ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.size());
         for (GeoPoint point : viewModel.route.getCoordinates()) {
             items.add(new MarkerItem(point, null, null, point));
         }
@@ -158,13 +159,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     public void onResume() {
         super.onResume();
         updateTrackMeasurements();
-        mMapHolder.setObjectInteractionEnabled(false);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapHolder.setObjectInteractionEnabled(true);
     }
 
     @Override
@@ -192,7 +186,7 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     }
 
     private void updateTrackMeasurements() {
-        int length = Math.max(viewModel.route.length() - 1, 0);
+        int length = Math.max(viewModel.route.size() - 1, 0);
         viewBinding.distance.setText(StringFormatter.distanceHP(viewModel.route.distance));
         viewBinding.size.setText(getResources().getQuantityString(R.plurals.numberOfSegments, length, length));
     }

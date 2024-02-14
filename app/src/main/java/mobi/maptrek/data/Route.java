@@ -89,9 +89,10 @@ public class Route implements Parcelable {
         notifyChanged();
     }
 
-    public void insertInstruction(GeoPoint point) {
+    public Instruction insertInstruction(GeoPoint point) {
         Instruction instruction = new Instruction(point);
         insertInstruction(instruction);
+        return instruction;
     }
 
     private void insertInstruction(Instruction instruction) {
@@ -161,10 +162,6 @@ public class Route implements Parcelable {
         notifyChanged();
     }
 
-    public int length() {
-        return instructions.size();
-    }
-
     public void clear() {
         synchronized (instructions) {
             instructions.clear();
@@ -217,6 +214,8 @@ public class Route implements Parcelable {
     }
 
     public Instruction get(int index) {
+        if (index < 0)
+            index = instructions.size() + index;
         return instructions.get(index);
     }
 
@@ -443,6 +442,14 @@ public class Route implements Parcelable {
                 }
             }
             return signInt;
+        }
+
+        public Instruction getPrevious() {
+            return previous;
+        }
+
+        public Instruction getNext() {
+            return next;
         }
 
         public int position() {

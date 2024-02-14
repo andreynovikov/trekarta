@@ -143,7 +143,7 @@ public class RouteManager extends Manager {
             throw new Exception("Only single route can be saved in mroute format");
         Route route = source.routes.get(0);
         if (progressListener != null) {
-            int length = route.length();
+            int length = route.size();
             if (source.tracks.size() > 0)
                 length += source.tracks.get(0).points.size();
             progressListener.onProgressStarted(length);
