@@ -97,7 +97,6 @@
     <string name="actionDownload">Chargement</string>
     <string name="actionSkip">Ignorer</string>
     <string name="actionEnable">Activer</string>
-
     <string name="share_location_intent_title">Partager la localisation via :</string>
     <string name="share_data_intent_title">Partager les datas avec :</string>
     <string name="share_map_intent_title">Partager le fichier carte avec :</string>
@@ -181,7 +180,6 @@
     <string name="msgEnableGps">Vous devez activer la localisation précise (GPS) dans les paramètres Android afin d’utiliser le positionnement en temps réel</string>
     <string name="msgMapDownloadFailed">%s échec de chargement</string>
     <string name="msgDataSourceNotLoaded">La source de données est désactivée</string>
-
     <string name="introOfflineMapsTitle">Cartes hors ligne</string>
     <string name="introOfflineMaps">Les cartes vectorielles hors ligne légères contiennent des données topologiques détaillées avec des contours d’altitude et supportent l\'ombrage. Vous pouvez ajouter des cartes personnalisées pour couvrir votre zone d’intérêt. Les cartes personnalisées seront également ombrées.</string>
     <string name="introPlacesTitle">Lieux</string>
@@ -283,7 +281,6 @@
     <string name="no_access">Non accessible</string>
     <string name="fee">Frais habituellement facturés</string>
     <string name="calculating">Calcul en cours...</string>
-
     <string name="permReadFilesLabel">lire les fichiers utilisateur</string>
     <string name="permReadFilesDescription">Permet à l’application de lire les fichiers de données utilisateur Trekarta tels que les lieux et les pistes.</string>
     <string name="permWriteFilesLabel">écrire les fichiers utilisateur</string>
