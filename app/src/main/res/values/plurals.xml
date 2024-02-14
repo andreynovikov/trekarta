@@ -36,6 +36,10 @@
         <item quantity="one">%d segment</item>
         <item quantity="other">%d segments</item>
     </plurals>
+    <plurals name="numberOfLegs">
+        <item quantity="one">%d leg</item>
+        <item quantity="other">%d legs</item>
+    </plurals>
     <plurals name="loadedAreas">
         <item quantity="one">%d area active</item>
         <item quantity="other">%d areas active</item>

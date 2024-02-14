@@ -213,6 +213,7 @@ import mobi.maptrek.fragments.OnTrackActionListener;
 import mobi.maptrek.fragments.OnWaypointActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
+import mobi.maptrek.fragments.RouteEdit;
 import mobi.maptrek.fragments.RouteInformation;
 import mobi.maptrek.fragments.Ruler;
 import mobi.maptrek.fragments.TextSearch;
@@ -1383,6 +1384,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             else
                 hideSystemUI();
             return true;
+        } else if (action == R.id.actionCreateRoute) {
+            FragmentFactory factory = mFragmentManager.getFragmentFactory();
+            Fragment fragment = factory.instantiate(getClassLoader(), RouteEdit.class.getName());
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            ft.replace(R.id.contentPanel, fragment, "routeEdit");
+            ft.addToBackStack("routeEdit");
+            ft.commit();
+            return true;
         } else if (action == R.id.actionRuler) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             Fragment fragment = factory.instantiate(getClassLoader(), Ruler.class.getName());
@@ -1905,11 +1914,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         } else {
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, point, 2 << 14, false);
         }
-    }
-
-    @Override
-    public void setObjectInteractionEnabled(boolean enabled) {
-        mObjectInteractionEnabled = enabled;
     }
 
     private final ServiceConnection mLocationConnection = new ServiceConnection() {
@@ -2987,6 +2991,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.popupAnchor.setX(0);
         mViews.popupAnchor.setY(0);
 
+        if (!mObjectInteractionEnabled)
+            return;
+
         int language = MapTrekDatabaseHelper.getLanguageId(Configuration.getLanguage());
         Amenity amenity = MapTrekDatabaseHelper.getAmenityData(language, id, mDetailedMapDatabase);
         amenityViewModel.setAmenity(amenity);
@@ -3762,15 +3769,21 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         @Override
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
             logger.warn("onFragmentResumed({})", f.getClass().getName());
-            if (f.getClass() == Ruler.class)
+            Class<?> cls = f.getClass();
+            if (cls == Ruler.class || cls == RouteEdit.class) {
                 mCrosshairLayer.lock(Color.RED);
+                mObjectInteractionEnabled = false;
+            }
         }
 
         @Override
         public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {
             logger.warn("onFragmentPaused({})", f.getClass().getName());
-            if (f.getClass() == Ruler.class)
+            Class<?> cls = f.getClass();
+            if (cls == Ruler.class || cls == RouteEdit.class) {
                 mCrosshairLayer.unlock();
+                mObjectInteractionEnabled = true;
+            }
         }
 
         @Override
@@ -4334,6 +4347,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (dataSourceState.dataSource.isNativeTrack()) {
                 Track track = ((TrackDataSource) dataSourceState.dataSource).getTracks().get(0);
                 onTrackDetails(track);
+            } else if (dataSourceState.dataSource.isNativeRoute()) {
+                Route route = ((RouteDataSource) dataSourceState.dataSource).getRoutes().get(0);
+                onRouteDetails(route);
             } else if (dataSourceState.dataSource.isIndividual()) {
                 Cursor cursor = dataSourceState.dataSource.getCursor();
                 cursor.moveToPosition(0);

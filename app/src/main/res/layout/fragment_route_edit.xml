@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/fragment_width"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@color/panelSolidBackground"
+    android:paddingStart="@dimen/fragment_padding"
+    android:paddingTop="@dimen/fragment_padding"
+    android:paddingEnd="@dimen/fragment_padding"
+    tools:context=".fragments.RouteEdit"
+    tools:layout_width="match_parent">
+
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/table_padding"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorPrimary"
+        app:drawableStartCompat="@drawable/ic_straighten"
+        app:drawableTint="?attr/informationIconColor"
+        app:layout_constraintEnd_toStartOf="@id/size"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1256 m" />
+
+    <TextView
+        android:id="@+id/size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/table_padding"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorPrimary"
+        app:drawableStartCompat="@drawable/ic_linear_scale"
+        app:drawableTint="?attr/informationIconColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/distance"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="3 segments" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/measurements_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:barrierMargin="@dimen/panel_padding"
+        app:constraint_referenced_ids="distance,size" />
+
+    <ImageButton
+        android:id="@+id/add_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionAdd"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_add"
+        app:layout_constraintEnd_toStartOf="@id/insert_button"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/measurements_barrier"
+        app:tint="?attr/actionIconColor" />
+
+    <ImageButton
+        android:id="@+id/insert_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionInsert"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_insert"
+        app:layout_constraintBottom_toBottomOf="@+id/add_button"
+        app:layout_constraintEnd_toStartOf="@id/remove_button"
+        app:layout_constraintStart_toEndOf="@id/add_button"
+        app:layout_constraintTop_toTopOf="@+id/add_button"
+        app:tint="?attr/actionIconColor" />
+
+    <ImageButton
+        android:id="@+id/remove_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionRemove"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_delete"
+        app:layout_constraintBottom_toBottomOf="@+id/insert_button"
+        app:layout_constraintEnd_toStartOf="@id/undo_button"
+        app:layout_constraintStart_toEndOf="@id/insert_button"
+        app:layout_constraintTop_toTopOf="@+id/insert_button"
+        app:tint="?attr/actionIconColor" />
+
+    <ImageButton
+        android:id="@+id/undo_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionUndo"
+        android:scaleType="center"
+        android:src="@drawable/ic_undo"
+        app:layout_constraintBottom_toBottomOf="@+id/remove_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/remove_button"
+        app:layout_constraintTop_toTopOf="@+id/remove_button"
+        app:tint="?attr/actionIconColor" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/actions_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:barrierMargin="@dimen/panel_padding"
+        app:constraint_referenced_ids="add_button,insert_button,remove_button,undo_button" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/action_divider"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/actions_barrier" />
+
+    <Button
+        android:id="@+id/save_button"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_done"
+        android:drawablePadding="@dimen/image_button_padding"
+        android:drawableTint="?attr/actionIconColor"
+        android:text="@string/actionSave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/action_divider" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -59,6 +59,4 @@ public interface MapHolder {
     void removeLocationChangeListener(LocationChangeListener listener);
 
     void setMapLocation(@NonNull GeoPoint point);
-
-    void setObjectInteractionEnabled(boolean enabled);
 }
