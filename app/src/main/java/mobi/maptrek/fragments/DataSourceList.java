@@ -19,12 +19,14 @@ package mobi.maptrek.fragments;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.PopupMenu;
 
 import androidx.annotation.ColorInt;
@@ -51,6 +53,7 @@ import java.util.Locale;
 
 import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
+import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
@@ -58,6 +61,7 @@ import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.data.source.WaypointDataSource;
 import mobi.maptrek.data.source.WaypointDbDataSource;
 import mobi.maptrek.databinding.ListWithEmptyViewBinding;
+import mobi.maptrek.io.RouteManager;
 import mobi.maptrek.location.BaseLocationService.TRACKING_STATE;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.viewmodels.DataSourceViewModel;
@@ -319,41 +323,60 @@ public class DataSourceList extends Fragment {
                             icon.setImageResource(R.drawable.ic_track);
                             color = track.style.color;
                         } else {
-                            int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
-                            int tracksCount = ((FileDataSource) dataSource).tracks.size();
-                            int routesCount = ((FileDataSource) dataSource).routes.size();
-                            StringBuilder sb = new StringBuilder();
-                            if (waypointsCount > 0) {
-                                sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
-                                if (tracksCount > 0 || routesCount > 0)
-                                    sb.append(", ");
+                            if (dataSource.isNativeRoute()) {
+                                Route route = ((FileDataSource) dataSource).routes.get(0);
+                                String distance = StringFormatter.distanceH(route.distance);
+                                description.setText(distance);
+                                icon.setImageResource(R.drawable.ic_route);
+                                color = route.style.color;
+                            } else {
+                                int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
+                                int tracksCount = ((FileDataSource) dataSource).tracks.size();
+                                int routesCount = ((FileDataSource) dataSource).routes.size();
+                                StringBuilder sb = new StringBuilder();
+                                if (waypointsCount > 0) {
+                                    sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
+                                    if (tracksCount > 0 || routesCount > 0)
+                                        sb.append(", ");
+                                }
+                                if (tracksCount > 0) {
+                                    sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
+                                    if (routesCount > 0)
+                                        sb.append(", ");
+                                }
+                                if (routesCount > 0) {
+                                    sb.append(resources.getQuantityString(R.plurals.routesCount, routesCount, routesCount));
+                                }
+                                if (sb.length() == 0) {
+                                    sb.append(getString(R.string.empty));
+                                }
+                                description.setText(sb);
+                                if (waypointsCount == 0 && tracksCount == 0 && routesCount == 0)
+                                    icon.setImageResource(R.drawable.ic_empty);
+                                else if (waypointsCount > 0 && tracksCount == 0 && routesCount == 0)
+                                    icon.setImageResource(R.drawable.ic_points);
+                                else if (tracksCount > 0 && waypointsCount == 0 && routesCount == 0)
+                                    icon.setImageResource(R.drawable.ic_tracks);
+                                else if (routesCount > 0 && waypointsCount == 0 && tracksCount == 0)
+                                    icon.setImageResource(R.drawable.ic_routes);
+                                else
+                                    icon.setImageResource(R.drawable.ic_dataset);
                             }
-                            if (tracksCount > 0) {
-                                sb.append(resources.getQuantityString(R.plurals.tracksCount, tracksCount, tracksCount));
-                                if (routesCount > 0)
-                                    sb.append(", ");
-                            }
-                            if (routesCount > 0) {
-                                sb.append(resources.getQuantityString(R.plurals.routesCount, routesCount, routesCount));
-                            }
-                            description.setText(sb);
-                            if (waypointsCount > 0 && tracksCount == 0 && routesCount == 0)
-                                icon.setImageResource(R.drawable.ic_points);
-                            else if (tracksCount > 0 && waypointsCount == 0 && routesCount == 0)
-                                icon.setImageResource(R.drawable.ic_tracks);
-                            else if (routesCount > 0 && waypointsCount == 0 && tracksCount == 0)
-                                icon.setImageResource(R.drawable.ic_routes);
-                            else
-                                icon.setImageResource(R.drawable.ic_dataset);
                         }
                         itemView.setOnClickListener(v -> dataSourceViewModel.selectDataSource(dataSource, DataSourceViewModel.MODE_SELECTOR));
                     } else {
                         String size = Formatter.formatShortFileSize(getContext(), file.length());
-                        description.setText(String.format(Locale.ENGLISH, "%s – %s", size, file.getName()));
-                        if (nativeTracksMode)
+                        if (nativeTracksMode) {
+                            description.setText(String.format(Locale.ENGLISH, "%s", size));
                             icon.setImageResource(R.drawable.ic_track);
-                        else
+                        } else if (file.getName().endsWith(RouteManager.EXTENSION)) {
+                            description.setText(String.format(Locale.ENGLISH, "%s", size));
+                            icon.setImageResource(R.drawable.ic_route);
+                        } else {
+                            String ext = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString().toUpperCase(Locale.ROOT));
+                            description.setText(String.format(Locale.ENGLISH, "%s – %s", size, ext));
                             icon.setImageResource(R.drawable.ic_dataset);
+                        }
                         color = disabledColor;
                         itemView.setOnClickListener(v -> Snackbar.make(viewBinding.getRoot(), R.string.msgDataSourceNotLoaded, Snackbar.LENGTH_SHORT)
                                 .setAction(R.string.actionEnable, view -> {
