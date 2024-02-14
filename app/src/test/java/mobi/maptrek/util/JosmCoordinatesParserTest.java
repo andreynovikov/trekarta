@@ -1,9 +1,7 @@
 package mobi.maptrek.util;
 
-
 import org.junit.Test;
 import org.oscim.core.GeoPoint;
-
 
 import static org.junit.Assert.assertEquals;
 

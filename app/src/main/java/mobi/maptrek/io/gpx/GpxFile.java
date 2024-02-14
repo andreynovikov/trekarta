@@ -16,6 +16,8 @@
 
 package mobi.maptrek.io.gpx;
 
+import android.annotation.SuppressLint;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,18 +44,32 @@ public class GpxFile {
     public static final String ATTRIBUTE_LON = "lon";
     public static final String ATTRIBUTE_CREATOR = "creator";
 
-    static final DateFormat TRKTIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
-    static final DateFormat TRKTIME_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT);
+    @SuppressLint("NewApi") // X is supported since API 24
+    static final DateFormat[] TRKTIME_FORMATS = {
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ROOT),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.ROOT)
+    };
 
     public static long parseTime(String timeString) throws ParseException {
-        if (timeString.length() > 20)
-            return Objects.requireNonNull(GpxFile.TRKTIME_MS.parse(timeString)).getTime();
-        else
-            return Objects.requireNonNull(GpxFile.TRKTIME.parse(timeString)).getTime();
+        long time = -1;
+        for (DateFormat format : TRKTIME_FORMATS) {
+            try {
+                Date date = format.parse(timeString);
+                if (date == null)
+                    continue;
+                time = date.getTime();
+            } catch (ParseException ignore) {
+            }
+        }
+        if (time < 0)
+            throw new ParseException("Unparseable date: \"" + timeString + "\"", 0);
+        return time;
     }
 
     public static String formatTime(Date date) {
-        return TRKTIME.format(date);
+        return TRKTIME_FORMATS[0].format(date);
     }
 
     // http://www.topografix.com/GPX/1/1/#type_metadataType
