@@ -55,7 +55,6 @@ import mobi.maptrek.data.Route;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.io.Manager;
 import mobi.maptrek.io.RouteManager;
-import mobi.maptrek.util.FileUtils;
 import mobi.maptrek.util.Geo;
 import mobi.maptrek.util.StringFormatter;
 
@@ -66,6 +65,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private static final int DEFAULT_WAYPOINT_PROXIMITY = 3;
     private static final int DEFAULT_ROUTE_PROXIMITY = 20; // TODO: implement dynamic proximity
+    private static final String CURRENT_ROUTE_FILE_NAME = "CurrentRoute" + RouteManager.EXTENSION;
 
     private ILocationService mLocationService = null;
     private Location mLastKnownLocation;
@@ -332,7 +332,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
         @Override
         public int getEte() {
-            if (isNavigatingViaRoute() && navRouteCurrentIndex() < navRoute.length() - 1)
+            if (isNavigatingViaRoute() && navRouteCurrentIndex() < navRoute.size() - 1)
                 return navRouteETE(navRouteDistanceLeft() + navDistance);
             else
                 return navETE;
@@ -504,7 +504,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             stopNavigation();
         navRoute = route;
         navDirection = direction;
-        navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.length() - 2;
+        navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.size() - 2;
 
         saveRoute();
         resumeRoute();
@@ -528,7 +528,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navCurrentRoutePoint = waypoint;
         navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
         int prev = navCurrentRoutePoint - navDirection;
-        if (prev >= 0 && prev < navRoute.length())
+        if (prev >= 0 && prev < navRoute.size())
             prevWaypoint = new MapObject(navRoute.get(prev));
         else
             prevWaypoint = null;
@@ -541,7 +541,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     public MapObject getNextRouteWaypoint() {
         int next = navCurrentRoutePoint + navDirection;
-        if (next >= 0 && next < navRoute.length())
+        if (next >= 0 && next < navRoute.size())
             return new MapObject(navRoute.get(next));
         return null;
     }
@@ -564,7 +564,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navCurrentRoutePoint -= navDirection;
         navWaypoint = new MapObject(navRoute.get(navCurrentRoutePoint));
         int prev = navCurrentRoutePoint - navDirection;
-        if (prev >= 0 && prev < navRoute.length())
+        if (prev >= 0 && prev < navRoute.size())
             prevWaypoint = new MapObject(navRoute.get(prev));
         else
             prevWaypoint = null;
@@ -583,7 +583,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             return false;
         boolean hasNext = false;
         if (navDirection == DIRECTION_FORWARD)
-            hasNext = (navCurrentRoutePoint + navDirection) < navRoute.length();
+            hasNext = (navCurrentRoutePoint + navDirection) < navRoute.size();
         if (navDirection == DIRECTION_REVERSE)
             hasNext = (navCurrentRoutePoint + navDirection) >= 0;
         return hasNext;
@@ -596,12 +596,12 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (navDirection == DIRECTION_FORWARD)
             hasPrev = (navCurrentRoutePoint - navDirection) >= 0;
         if (navDirection == DIRECTION_REVERSE)
-            hasPrev = (navCurrentRoutePoint - navDirection) < navRoute.length();
+            hasPrev = (navCurrentRoutePoint - navDirection) < navRoute.size();
         return hasPrev;
     }
 
     public int navRouteCurrentIndex() {
-        return navDirection == DIRECTION_FORWARD ? navCurrentRoutePoint : navRoute.length() - navCurrentRoutePoint - 1;
+        return navDirection == DIRECTION_FORWARD ? navCurrentRoutePoint : navRoute.size() - navCurrentRoutePoint - 1;
     }
 
     /**
@@ -611,7 +611,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
      */
     public double navRouteDistanceLeft() {
         if (navRouteDistance < 0) {
-            navRouteDistance = navRouteDistanceLeftTo(navRoute.length() - 1);
+            navRouteDistance = navRouteDistanceLeftTo(navRoute.size() - 1);
         }
         return navRouteDistance;
     }
@@ -634,7 +634,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (navDirection == DIRECTION_FORWARD)
             distance = navRoute.distanceBetween(navCurrentRoutePoint, index);
         if (navDirection == DIRECTION_REVERSE)
-            distance = navRoute.distanceBetween(navRoute.length() - index - 1, navCurrentRoutePoint);
+            distance = navRoute.distanceBetween(navRoute.size() - index - 1, navCurrentRoutePoint);
 
         return distance;
     }
@@ -650,7 +650,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             return 0;
         int ete = Integer.MAX_VALUE;
         if (avgVMG[0] > 0) {
-            int i = navDirection == DIRECTION_FORWARD ? index : navRoute.length() - index - 1;
+            int i = navDirection == DIRECTION_FORWARD ? index : navRoute.size() - index - 1;
             int j = i - navDirection;
             double distance = navRoute.get(i).vincentyDistance(navRoute.get(j));
             ete = (int) Math.round(distance / avgVMG[0] / 60);
@@ -780,14 +780,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void saveRoute() {
-        File dataDir = getExternalFilesDir("data");
-        if (dataDir == null) {
-            logger.error("Can not save route: application data folder missing");
-            return; // TODO: what to do?
-        }
+        File cacheDir = getCacheDir();
         FileDataSource source = new FileDataSource();
         source.name = "CurrentRoute";
-        File file = new File(dataDir, FileUtils.sanitizeFilename(source.name) + RouteManager.EXTENSION);
+        File file = new File(cacheDir, CURRENT_ROUTE_FILE_NAME);
         source.path = file.getAbsolutePath();
         source.routes.add(navRoute);
         Manager.save(source, new Manager.OnSaveListener() {
@@ -804,12 +800,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void loadRoute() {
-        File dataDir = getExternalFilesDir("data");
-        if (dataDir == null) {
-            logger.error("Can not load route: application data folder missing");
-            return; // TODO: what to do?
-        }
-        File file = new File(dataDir, FileUtils.sanitizeFilename("CurrentRoute") + RouteManager.EXTENSION);
+        File cacheDir = getCacheDir();
+        File file = new File(cacheDir, CURRENT_ROUTE_FILE_NAME);
         Manager manager = Manager.getDataManager(file.getName());
         if (manager != null) {
             try {
