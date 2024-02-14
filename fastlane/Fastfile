@@ -21,13 +21,22 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
+  desc "Deploy a new version to the Google Play for testing"
   lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
+    gradle(task: "clean")
+
+    gradle(
+      task: "bundle",
+      build_type: "Release"
+    )
+
+    upload_to_play_store(
+      track: 'beta',
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
   end
 
   desc "Deploy a new version to the Google Play"
@@ -40,7 +49,6 @@ platform :android do
     )
 
     upload_to_play_store(
-      changes_not_sent_for_review: true,
       skip_upload_apk: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
