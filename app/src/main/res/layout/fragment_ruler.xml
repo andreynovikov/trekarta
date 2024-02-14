@@ -1,132 +1,106 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2018 Andrey Novikov
-  ~
-  ~ This program is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU Lesser General Public License as published by the Free Software
-  ~ Foundation, either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public License along with
-  ~ this program. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/fragment_width"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:animateLayoutChanges="true"
     android:background="@color/panelSolidBackground"
-    android:paddingStart="@dimen/fragment_padding"
-    android:paddingEnd="@dimen/fragment_padding"
+    android:padding="@dimen/fragment_padding"
     tools:context=".fragments.Ruler"
     tools:layout_width="match_parent">
 
-    <LinearLayout
-        android:id="@+id/measurements"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:paddingTop="@dimen/fragment_padding">
+        android:drawablePadding="@dimen/table_padding"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorPrimary"
+        app:drawableStartCompat="@drawable/ic_straighten"
+        app:drawableTint="?attr/informationIconColor"
+        app:layout_constraintEnd_toStartOf="@id/size"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1256 m" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_straighten"
-            android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="?attr/informationIconColor"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:textColorPrimary" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_linear_scale"
-            android:drawablePadding="@dimen/table_padding"
-            android:drawableTint="?attr/informationIconColor"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:textColorPrimary" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/actionButtons"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/size"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/measurements"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/panel_padding"
-        android:paddingBottom="@dimen/image_button_padding">
+        android:drawablePadding="@dimen/table_padding"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorPrimary"
+        app:drawableStartCompat="@drawable/ic_linear_scale"
+        app:drawableTint="?attr/informationIconColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/distance"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="3 segments" />
 
-        <ImageButton
-            android:id="@+id/addButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/image_button_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_linear_scale_add"
-            android:tint="?attr/actionIconColor" />
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/measurements_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:barrierMargin="@dimen/panel_padding"
+        app:constraint_referenced_ids="distance,size" />
 
-        <ImageButton
-            android:id="@+id/insertButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/image_button_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_linear_scale_insert"
-            android:tint="?attr/actionIconColor" />
+    <ImageButton
+        android:id="@+id/add_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionAdd"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_add"
+        app:layout_constraintEnd_toStartOf="@id/insert_button"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/measurements_barrier"
+        app:tint="?attr/actionIconColor" />
 
-        <ImageButton
-            android:id="@+id/removeButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/image_button_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_linear_scale_delete"
-            android:tint="?attr/actionIconColor" />
+    <ImageButton
+        android:id="@+id/insert_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionInsert"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_insert"
+        app:layout_constraintBottom_toBottomOf="@+id/add_button"
+        app:layout_constraintEnd_toStartOf="@id/remove_button"
+        app:layout_constraintStart_toEndOf="@id/add_button"
+        app:layout_constraintTop_toTopOf="@+id/add_button"
+        app:tint="?attr/actionIconColor" />
 
-        <ImageButton
-            android:id="@+id/undoButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/image_button_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_undo"
-            android:tint="?attr/actionIconColor" />
+    <ImageButton
+        android:id="@+id/remove_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionRemove"
+        android:scaleType="center"
+        android:src="@drawable/ic_linear_scale_delete"
+        app:layout_constraintBottom_toBottomOf="@+id/insert_button"
+        app:layout_constraintEnd_toStartOf="@id/undo_button"
+        app:layout_constraintStart_toEndOf="@id/insert_button"
+        app:layout_constraintTop_toTopOf="@+id/insert_button"
+        app:tint="?attr/actionIconColor" />
 
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/undo_button"
+        android:layout_width="@dimen/image_button_size"
+        android:layout_height="@dimen/image_button_size"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/actionUndo"
+        android:scaleType="center"
+        android:src="@drawable/ic_undo"
+        app:layout_constraintBottom_toBottomOf="@+id/remove_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/remove_button"
+        app:layout_constraintTop_toTopOf="@+id/remove_button"
+        app:tint="?attr/actionIconColor" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
