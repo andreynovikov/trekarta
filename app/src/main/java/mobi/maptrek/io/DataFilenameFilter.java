@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,12 +20,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class DataFilenameFilter implements FilenameFilter {
-
     @Override
     public boolean accept(final File dir, final String filename) {
         String lc = filename.toLowerCase();
-        return lc.endsWith(TrackManager.EXTENSION) || lc.endsWith(GPXManager.EXTENSION)
+        return lc.endsWith(TrackManager.EXTENSION) || lc.endsWith(RouteManager.EXTENSION)
+                || lc.endsWith(GPXManager.EXTENSION)
                 || lc.endsWith(KMLManager.EXTENSION) || lc.endsWith(KMLManager.ZIP_EXTENSION);
     }
-
 }

@@ -70,7 +70,7 @@ public class RouteInformation extends Fragment implements PopupMenu.OnMenuItemCl
         routeViewModel = new ViewModelProvider(requireActivity()).get(RouteViewModel.class);
         routeViewModel.selectedRoute.observe(getViewLifecycleOwner(), route -> {
             viewBinding.name.setText(route.name);
-            if (route.source == null || route.source.isNativeTrack()) { // TODO: isNativeTrack - should be route
+            if (route.source == null || route.source.isNativeRoute()) {
                 viewBinding.sourceRow.setVisibility(View.GONE);
             } else {
                 viewBinding.source.setText(route.source.name);

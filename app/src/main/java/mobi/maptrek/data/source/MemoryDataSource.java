@@ -46,6 +46,11 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
     }
 
     @Override
+    public boolean isNativeRoute() {
+        return false;
+    }
+
+    @Override
     public boolean isIndividual() {
         return (waypoints.size() + tracks.size() + routes.size()) == 1;
     }

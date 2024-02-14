@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import mobi.maptrek.io.GPXManager;
 import mobi.maptrek.io.KMLManager;
+import mobi.maptrek.io.RouteManager;
 import mobi.maptrek.io.TrackManager;
 
 public class FileDataSource extends MemoryDataSource {
@@ -59,5 +60,10 @@ public class FileDataSource extends MemoryDataSource {
     @Override
     public boolean isNativeTrack() {
         return path != null && path.endsWith(TrackManager.EXTENSION);
+    }
+
+    @Override
+    public boolean isNativeRoute() {
+        return path != null && path.endsWith(RouteManager.EXTENSION);
     }
 }

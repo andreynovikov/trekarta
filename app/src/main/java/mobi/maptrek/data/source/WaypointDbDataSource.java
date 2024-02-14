@@ -200,6 +200,11 @@ public class WaypointDbDataSource extends DataSource implements WaypointDataSour
     }
 
     @Override
+    public boolean isNativeRoute() {
+        return false;
+    }
+
+    @Override
     public boolean isIndividual() {
         return false; // we want to show data source even when there is only one waypoint
     }

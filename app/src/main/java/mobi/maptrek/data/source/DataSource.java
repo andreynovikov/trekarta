@@ -68,11 +68,18 @@ public abstract class DataSource {
     public abstract int getFormat();
 
     /**
-     * Returns whether the source contains only one track and nothing more.
+     * Returns whether the source contains only one track and it is loaded from native format.
      *
      * @return <code>true</code> if this is single track source, <code>false</code> otherwise.
      */
     public abstract boolean isNativeTrack();
+
+    /**
+     * Returns whether the source contains only one route and it is loaded from native format.
+     *
+     * @return <code>true</code> if this is single track source, <code>false</code> otherwise.
+     */
+    public abstract boolean isNativeRoute();
 
     /**
      * Returns whether the source contains only one item and nothing more.
