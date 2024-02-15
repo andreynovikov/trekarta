@@ -80,6 +80,10 @@ public interface IRenderTheme {
             super(string);
         }
 
+        public ThemeException(String string, Throwable e) {
+            super(string, e);
+        }
+
         private static final long serialVersionUID = 1L;
     }
 }
