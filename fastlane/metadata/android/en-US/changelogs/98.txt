@@ -1,0 +1,2 @@
+• Added simple route creation
+• Fixed GPX file reading error
