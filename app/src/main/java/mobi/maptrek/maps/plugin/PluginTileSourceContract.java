@@ -19,17 +19,17 @@ package mobi.maptrek.maps.plugin;
  */
 final class PluginTileSourceContract {
 
-    final static String ONLINE_PROVIDER_INTENT  = "mobi.maptrek.maps.online.provider.action.INITIALIZE";
+    static final String ONLINE_PROVIDER_INTENT  = "mobi.maptrek.maps.online.provider.action.INITIALIZE";
 
-    final static String OFFLINE_PROVIDER_INTENT = "mobi.maptrek.maps.offline.provider.action.INITIALIZE";
+    static final String OFFLINE_PROVIDER_INTENT = "mobi.maptrek.maps.offline.provider.action.INITIALIZE";
 
-    final static String COLUMN_IDENTIFIER = "IDENTIFIER";
-    final static String COLUMN_NAME = "NAME";
-    final static String COLUMN_LICENSE = "LICENSE";
-    final static String COLUMN_MIN_ZOOM = "MIN_ZOOM";
-    final static String COLUMN_MAX_ZOOM = "MAX_ZOOM";
+    static final String COLUMN_IDENTIFIER = "IDENTIFIER";
+    static final String COLUMN_NAME = "NAME";
+    static final String COLUMN_LICENSE = "LICENSE";
+    static final String COLUMN_MIN_ZOOM = "MIN_ZOOM";
+    static final String COLUMN_MAX_ZOOM = "MAX_ZOOM";
 
-    final static String[] MAP_COLUMNS = new String[]{COLUMN_IDENTIFIER, COLUMN_NAME, COLUMN_MIN_ZOOM, COLUMN_MAX_ZOOM, COLUMN_LICENSE};
+    static final String[] MAP_COLUMNS = new String[]{COLUMN_IDENTIFIER, COLUMN_NAME, COLUMN_MIN_ZOOM, COLUMN_MAX_ZOOM, COLUMN_LICENSE};
 
-    final static String[] TILE_COLUMNS = new String[]{"TILE"};
+    static final String[] TILE_COLUMNS = new String[]{"TILE"};
 }

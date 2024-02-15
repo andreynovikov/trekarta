@@ -63,7 +63,7 @@ public class LabelTileLoaderHook implements VectorTileLayer.TileLoaderThemeHook 
         mSquareTile = Tile.SIZE * Tile.SIZE; // we can't use static as it's recalculated based on dpi
     }
 
-    //public final static LabelTileData EMPTY = new LabelTileData();
+    //public static final LabelTileData EMPTY = new LabelTileData();
 
     private LabelTileData get(MapTile tile) {
         // FIXME could be 'this'..

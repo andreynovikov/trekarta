@@ -471,8 +471,8 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     };
 
     public class DataListAdapter extends RecyclerView.Adapter<DataListAdapter.BindableViewHolder> implements DataSourceUpdateListener {
-        private final static int TYPE_HEADER = 99;
-        private final static int TYPE_FOOTER = 98;
+        private static final int TYPE_HEADER = 99;
+        private static final int TYPE_FOOTER = 98;
 
         private final DataSource dataSource;
         private Cursor cursor;

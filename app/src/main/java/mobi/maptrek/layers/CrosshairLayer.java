@@ -81,9 +81,9 @@ public class CrosshairLayer extends Layer implements Map.UpdateListener {
         private int hScale;
         private int hColor;
 
-        private final static long ANIM_RATE = 50;
-        private final static long FADE_DURATION = 1000;
-        private final static long FADE_TIMEOUT = 3000;
+        private static final long ANIM_RATE = 50;
+        private static final long FADE_DURATION = 1000;
+        private static final long FADE_TIMEOUT = 3000;
 
         private boolean mInitialized;
 

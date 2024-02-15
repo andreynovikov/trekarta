@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractVectorLayer<T> extends Layer implements UpdateListener {
     public static final Logger log = LoggerFactory.getLogger(AbstractVectorLayer.class);
 
-    protected final static double UNSCALE_COORD = 4;
+    protected static final double UNSCALE_COORD = 4;
 
     protected final GeometryBuffer mGeom = new GeometryBuffer(128, 4);
     protected final TileClipper mClipper = new TileClipper(-1024, -1024, 1024, 1024);

@@ -63,8 +63,8 @@ import mobi.maptrek.MapTrek;
 public class OsmcSymbolFactory {
     private static final Logger logger = LoggerFactory.getLogger(OsmcSymbolFactory.class);
 
-    private final static HashSet<String> VALID_BACKGROUNDS;
-    private final static HashSet<String> VALID_FOREGROUNDS;
+    private static final HashSet<String> VALID_BACKGROUNDS;
+    private static final HashSet<String> VALID_FOREGROUNDS;
 
     static {
         VALID_BACKGROUNDS = new HashSet<>(3);

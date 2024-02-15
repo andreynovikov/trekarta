@@ -126,7 +126,7 @@ public class TrackLayer extends Layer {
         }
     }
 
-    final static class Task {
+    static final class Task {
         final RenderBuckets buckets = new RenderBuckets();
         final MapPosition position = new MapPosition();
     }
