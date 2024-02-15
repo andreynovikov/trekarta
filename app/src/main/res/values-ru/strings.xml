@@ -48,6 +48,9 @@
     <string name="actionStop">Закончить</string>
     <string name="actionPause">Остановить</string>
     <string name="actionCustomize">Настроить</string>
+    <string name="actionAdd">Добавить</string>
+    <string name="actionInsert">Вставить</string>
+    <string name="actionRemove">Удалить</string>
     <string name="actionUndo">Отменить</string>
     <string name="actionDismiss">Убрать</string>
     <string name="actionDelete">Удалить</string>
@@ -96,6 +99,8 @@
     <string name="actionGrant">Предоставить</string>
     <string name="actionDownload">Загрузить</string>
     <string name="actionSkip">Пропустить</string>
+    <string name="actionCreateRoute">Создать маршрут</string>
+
     <string name="share_location_intent_title">Поделиться местоположением через:</string>
     <string name="share_data_intent_title">Поделиться данными через:</string>
     <string name="share_map_intent_title">Поделиться файлом карты через:</string>
@@ -179,6 +184,8 @@
     <string name="msgMultipleMapsMode">Активирован режим нескольких карт. Используйте двойное нажатие, чтобы отобразить или спрятать карту.</string>
     <string name="msgEnableGps">Вам необходимо включить точную геолокацию (GPS) в настройках Android, чтобы использовать определение местоположения в реальном времени</string>
     <string name="msgMapDownloadFailed">%s: произошёл сбой при загрузке</string>
+    <string name="msgTooFewRouteLegs">Маршрут должен содержать как минимум один этап</string>
+
     <string name="introOfflineMapsTitle">Офлайн карты</string>
     <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к интернету. Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
     <string name="introPlacesTitle">Точки</string>
@@ -270,6 +277,8 @@
     <string name="no_access">Недоступен</string>
     <string name="fee">Обычно взимается комиссия</string>
     <string name="calculating">вычисляется…</string>
+    <string name="empty">пусто</string>
+
     <string name="permReadFilesLabel">читать пользовательские файлы</string>
     <string name="permReadFilesDescription">Позволяет приложению читать пользовательские файлы Трекарты, такие как точки и треки.</string>
     <string name="permWriteFilesLabel">писать пользовательские файлы</string>
@@ -295,6 +304,7 @@
     <string name="pref_unit_precision_title">Повышенная точность</string>
     <string name="pref_advanced">Дополнительно</string>
     <string name="pref_hillshades_transparency">Прозрачность затенения рельефа</string>
+    <string name="pref_place_titles_title">Названия точек</string>
     <string name="pref_accessibility_badges_title">Значки доступности</string>
     <string name="pref_confirm_exit_title">Подтверждение выхода</string>
 
