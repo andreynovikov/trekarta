@@ -83,7 +83,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Bundle args = getArguments();
+        Bundle args = requireArguments();
         String title = args.getString("title", "");
         String oldValue = args.getString("oldValue", "");
         boolean selectAllOnFocus = args.getBoolean("selectAllOnFocus", false);
@@ -107,8 +107,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         }
 
         viewBinding.textEdit.setInputType(inputType);
-        if (!"".equals(oldValue))
-            viewBinding.textEdit.setText(oldValue);
+        viewBinding.textEdit.setText(oldValue);
         viewBinding.textEdit.setSelectAllOnFocus(selectAllOnFocus);
         viewBinding.textEdit.requestFocus();
 
@@ -139,7 +138,10 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
             viewBinding.pasteButton.setOnClickListener(v -> {
                 if (mClipboard == null)
                     return;
-                ClipData.Item item = mClipboard.getPrimaryClip().getItemAt(0);
+                ClipData clipData = mClipboard.getPrimaryClip();
+                if (clipData == null)
+                    return;
+                ClipData.Item item = clipData.getItemAt(0);
                 CharSequence pasteData = item.getText();
                 if (pasteData != null)
                     viewBinding.textEdit.setText(pasteData);
@@ -166,8 +168,11 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         if (!mShowPasteButton)
             return;
         int visibility = View.GONE;
-        if (mClipboard.hasPrimaryClip() && mClipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
-            visibility = View.VISIBLE;
+        if (mClipboard.hasPrimaryClip()) {
+            ClipDescription description = mClipboard.getPrimaryClipDescription();
+            if (description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+                visibility = View.VISIBLE;
+        }
         viewBinding.pasteButton.setVisibility(visibility);
     }
 
@@ -180,6 +185,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         mCallback = callback;
     }
 
+    /** @noinspection UnusedReturnValue, unused */
     public static class Builder {
         private String mTitle;
         private String mOldValue;
@@ -188,7 +194,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
         private Integer mInputType;
         private Boolean mShowPasteButton;
         private String mId;
-        private TextInputDialogCallback mCallbacks;
+        private TextInputDialogCallback mCallback;
 
         public Builder setTitle(String title) {
             mTitle = title;
@@ -225,8 +231,8 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
             return this;
         }
 
-        public Builder setCallbacks(TextInputDialogCallback callbacks) {
-            mCallbacks = callbacks;
+        public Builder setCallback(TextInputDialogCallback callback) {
+            mCallback = callback;
             return this;
         }
 
@@ -248,7 +254,7 @@ public class TextInputDialogFragment extends DialogFragment implements Clipboard
                 args.putBoolean("showPasteButton", mShowPasteButton);
             if (mId != null)
                 args.putString("id", mId);
-            dialogFragment.setCallback(mCallbacks);
+            dialogFragment.setCallback(mCallback);
             dialogFragment.setArguments(args);
             return dialogFragment;
         }

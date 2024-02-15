@@ -102,7 +102,7 @@ public class LocationInformation extends Fragment implements Map.UpdateListener,
         ImageButton inputButton = mRootView.findViewById(R.id.inputButton);
         inputButton.setOnClickListener(v -> {
             TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder();
-            mTextInputDialog = builder.setCallbacks(LocationInformation.this)
+            mTextInputDialog = builder.setCallback(LocationInformation.this)
                     .setHint(container.getContext().getString(R.string.coordinates))
                     .setShowPasteButton(true)
                     .create();
