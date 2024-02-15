@@ -72,6 +72,7 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
     private MapPosition mMapPosition;
     private RouteLayer mRouteLayer;
     private ItemizedLayer<MarkerItem> mPointLayer;
+    private TextInputDialogFragment textInputDialog;
     private RouteEditViewModel viewModel;
     private FragmentRouteEditBinding viewBinding;
 
@@ -154,14 +155,18 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
                 HelperUtils.showError(getString(R.string.msgTooFewRouteLegs), mFragmentHolder.getCoordinatorLayout());
                 return;
             }
-            TextInputDialogFragment textInputDialog = new TextInputDialogFragment.Builder()
+            textInputDialog = new TextInputDialogFragment.Builder()
                     .setId(ROUTE_NAME)
-                    .setCallbacks(this)
+                    .setCallback(this)
                     .setTitle(getString(R.string.title_input_name))
                     .setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
                     .create();
             textInputDialog.show(getParentFragmentManager(), "titleInput");
         });
+
+        textInputDialog = (TextInputDialogFragment) getParentFragmentManager().findFragmentByTag("titleInput");
+        if (textInputDialog != null)
+            textInputDialog.setCallback(this);
     }
 
     @Override
@@ -183,8 +188,8 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(requireContext(), R.drawable.dot_black, RouteStyle.DEFAULT_COLOR));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
         ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.size());
-        for (GeoPoint point : viewModel.route.getCoordinates()) {
-            items.add(new MarkerItem(point, null, null, point));
+        for (Route.Instruction instruction : viewModel.route.getInstructions()) {
+            items.add(new MarkerItem(instruction, instruction.text, null, instruction));
         }
         mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, this);
         mMapHolder.getMap().layers().add(mPointLayer);
@@ -261,6 +266,18 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
         mMapHolder.getMap().updateMap(true);
     }
 
+    private void saveDescription(String text) {
+        text = text.trim();
+        if (text.isEmpty())
+            text = null;
+        if (Objects.equals(text, viewModel.editedInstruction.text))
+            return;
+        viewModel.editedInstruction.text = text;
+        mPointLayer.getByUid(viewModel.editedInstruction).title = text;
+        mPointLayer.updateItems();
+        mMapHolder.getMap().updateMap(true);
+    }
+
     private void saveRoute(String name) {
         if (name.trim().isEmpty())
             return;
@@ -292,43 +309,13 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
 
     @Override
     public boolean onItemSingleTapUp(int index, MarkerItem item) {
+        viewModel.editedInstruction = (Route.Instruction) item.getUid();
         TextInputDialogFragment.Builder builder = new TextInputDialogFragment.Builder()
                 .setId(POINT_NAME)
+                .setOldValue(item.title)
                 .setTitle(getString(R.string.description))
-                .setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-
-        if (item.title != null)
-            builder.setOldValue(item.title);
-
-        builder.setCallbacks(new TextInputDialogFragment.TextInputDialogCallback() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-            @Override
-            public void onTextInputPositiveClick(String id, String inputText) {
-                String title = inputText.trim();
-                if (title.isEmpty())
-                    title = null;
-                if (Objects.equals(title, item.title))
-                    return;
-                Route.Instruction instruction = (Route.Instruction) item.getUid();
-                instruction.text = title;
-                item.title = title;
-                mPointLayer.updateItems();
-                mMapHolder.getMap().updateMap(true);
-            }
-
-            @Override
-            public void onTextInputNegativeClick(String id) {
-            }
-        });
-
+                .setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
+                .setCallback(this);
         TextInputDialogFragment textInputDialog = builder.create();
         textInputDialog.show(getParentFragmentManager(), "titleInput");
         return true;
@@ -355,14 +342,21 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
     public void onTextInputPositiveClick(String id, String inputText) {
         if (ROUTE_NAME.equals(id))
             saveRoute(inputText);
+        if (POINT_NAME.equals(id)) {
+            saveDescription(inputText);
+            viewModel.editedInstruction = null;
+        }
     }
 
     @Override
     public void onTextInputNegativeClick(String id) {
+        if (POINT_NAME.equals(id))
+            viewModel.editedInstruction = null;
     }
 
     public static class RouteEditViewModel extends ViewModel {
         private final Route route = new Route();
         private final Stack<Route.Instruction> pointHistory = new Stack<>();
+        private Route.Instruction editedInstruction;
     }
 }
