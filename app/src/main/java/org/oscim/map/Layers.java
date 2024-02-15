@@ -1,8 +1,9 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Andrey Novikov
  * Copyright 2017 Longri
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -24,9 +25,12 @@ import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.GroupLayer;
 import org.oscim.layers.Layer;
+import org.oscim.layers.tile.ZoomLimiter;
 import org.oscim.map.Map.InputListener;
 import org.oscim.map.Map.UpdateListener;
 import org.oscim.renderer.LayerRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -35,6 +39,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class Layers extends AbstractList<Layer> {
+
+    private static final Logger log = LoggerFactory.getLogger(Layers.class);
 
     private final Map mMap;
     private final Layer.EnableHandler mEnableHandler;
@@ -78,6 +84,9 @@ public final class Layers extends AbstractList<Layer> {
             mMap.events.bind((UpdateListener) layer);
         if (layer instanceof InputListener)
             mMap.input.bind((InputListener) layer);
+        // add zoom limit to tile manager
+        if (layer instanceof ZoomLimiter.IZoomLimiter)
+            ((ZoomLimiter.IZoomLimiter) layer).addZoomLimit();
 
         // bind added group layer
         if (layer instanceof GroupLayer) {
@@ -87,6 +96,8 @@ public final class Layers extends AbstractList<Layer> {
                     mMap.events.bind((UpdateListener) gl);
                 if (gl instanceof InputListener)
                     mMap.input.bind((InputListener) gl);
+                if (gl instanceof ZoomLimiter.IZoomLimiter)
+                    ((ZoomLimiter.IZoomLimiter) gl).addZoomLimit();
             }
         }
 
@@ -128,6 +139,9 @@ public final class Layers extends AbstractList<Layer> {
             mMap.events.unbind((UpdateListener) remove);
         if (remove instanceof InputListener)
             mMap.input.unbind((InputListener) remove);
+        // remove zoom limit from tile manager
+        if (remove instanceof ZoomLimiter.IZoomLimiter)
+            ((ZoomLimiter.IZoomLimiter) remove).removeZoomLimit();
 
         // unbind removed group layer
         if (remove instanceof GroupLayer) {
@@ -137,6 +151,8 @@ public final class Layers extends AbstractList<Layer> {
                     mMap.events.unbind((UpdateListener) gl);
                 if (gl instanceof InputListener)
                     mMap.input.unbind((InputListener) gl);
+                if (gl instanceof ZoomLimiter.IZoomLimiter)
+                    ((ZoomLimiter.IZoomLimiter) gl).removeZoomLimit();
             }
         }
 
@@ -164,6 +180,9 @@ public final class Layers extends AbstractList<Layer> {
             mMap.events.unbind((UpdateListener) remove);
         if (remove instanceof InputListener)
             mMap.input.unbind((InputListener) remove);
+        // remove zoom limit from tile manager
+        if (remove instanceof ZoomLimiter.IZoomLimiter)
+            ((ZoomLimiter.IZoomLimiter) remove).removeZoomLimit();
 
         // unbind replaced group layer
         if (remove instanceof GroupLayer) {
@@ -173,6 +192,8 @@ public final class Layers extends AbstractList<Layer> {
                     mMap.events.unbind((UpdateListener) gl);
                 if (gl instanceof InputListener)
                     mMap.input.unbind((InputListener) gl);
+                if (gl instanceof ZoomLimiter.IZoomLimiter)
+                    ((ZoomLimiter.IZoomLimiter) gl).removeZoomLimit();
             }
         }
 
@@ -193,14 +214,14 @@ public final class Layers extends AbstractList<Layer> {
      *
      * @return the current LayerRenderer as array.
      */
-    public LayerRenderer[] getLayerRenderer() {
+    public synchronized LayerRenderer[] getLayerRenderer() {
         if (mDirtyLayers)
             updateLayers();
 
         return mLayerRenderer;
     }
 
-    void destroy() {
+    synchronized void destroy() {
         if (mDirtyLayers)
             updateLayers();
 
@@ -208,7 +229,7 @@ public final class Layers extends AbstractList<Layer> {
             o.onDetach();
     }
 
-    boolean handleGesture(Gesture g, MotionEvent e) {
+    synchronized boolean handleGesture(Gesture g, MotionEvent e) {
         if (mDirtyLayers)
             updateLayers();
 
@@ -231,44 +252,48 @@ public final class Layers extends AbstractList<Layer> {
     }
 
     private synchronized void updateLayers() {
-        mLayers = new Layer[mLayerList.size()];
-        int numRenderLayers = 0;
+        try {
+            mLayers = new Layer[mLayerList.size()];
+            int numRenderLayers = 0;
 
-        for (int i = 0, n = mLayerList.size(); i < n; i++) {
-            Layer o = mLayerList.get(i);
+            for (int i = 0, n = mLayerList.size(); i < n; i++) {
+                Layer o = mLayerList.get(i);
 
-            if (o.isEnabled() && o.getRenderer() != null)
-                numRenderLayers++;
+                if (o.isEnabled() && o.getRenderer() != null)
+                    numRenderLayers++;
 
-            if (o instanceof GroupLayer) {
-                GroupLayer groupLayer = (GroupLayer) o;
-                for (Layer gl : groupLayer.layers) {
-                    if (gl.isEnabled() && gl.getRenderer() != null)
-                        numRenderLayers++;
+                if (o instanceof GroupLayer) {
+                    GroupLayer groupLayer = (GroupLayer) o;
+                    for (Layer gl : groupLayer.layers) {
+                        if (gl.isEnabled() && gl.getRenderer() != null)
+                            numRenderLayers++;
+                    }
+                }
+
+                mLayers[n - i - 1] = o;
+            }
+
+            mLayerRenderer = new LayerRenderer[numRenderLayers];
+
+            for (int i = 0, cnt = 0, n = mLayerList.size(); i < n; i++) {
+                Layer o = mLayerList.get(i);
+                LayerRenderer l = o.getRenderer();
+                if (o.isEnabled() && l != null)
+                    mLayerRenderer[cnt++] = l;
+
+                if (o instanceof GroupLayer) {
+                    GroupLayer groupLayer = (GroupLayer) o;
+                    for (Layer gl : groupLayer.layers) {
+                        l = gl.getRenderer();
+                        if (gl.isEnabled() && l != null)
+                            mLayerRenderer[cnt++] = l;
+                    }
                 }
             }
 
-            mLayers[n - i - 1] = o;
+            mDirtyLayers = false;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
-
-        mLayerRenderer = new LayerRenderer[numRenderLayers];
-
-        for (int i = 0, cnt = 0, n = mLayerList.size(); i < n; i++) {
-            Layer o = mLayerList.get(i);
-            LayerRenderer l = o.getRenderer();
-            if (o.isEnabled() && l != null)
-                mLayerRenderer[cnt++] = l;
-
-            if (o instanceof GroupLayer) {
-                GroupLayer groupLayer = (GroupLayer) o;
-                for (Layer gl : groupLayer.layers) {
-                    l = gl.getRenderer();
-                    if (gl.isEnabled() && l != null)
-                        mLayerRenderer[cnt++] = l;
-                }
-            }
-        }
-
-        mDirtyLayers = false;
     }
 }
