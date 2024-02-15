@@ -212,7 +212,7 @@ public class Tags {
             16  // barrier
     };
 
-    public final static Tag[] typeTags = {
+    public static final Tag[] typeTags = {
             null,
             new Tag("tourism", "wilderness_hut"), // 1
             null, null,
@@ -445,7 +445,7 @@ public class Tags {
             new Tag("amenity", "place_of_worship") // 420
     };
 
-    final static Tag[] typeAliasTags = new Tag[] {
+    static final Tag[] typeAliasTags = new Tag[] {
             new Tag("shop", "farm"), // 40
             new Tag("shop", "convenience"), // 43
             new Tag("shop", "hardware"), // 172
@@ -456,7 +456,7 @@ public class Tags {
             new ExtendedTag("tourism", "artwork").addTag("artwork_type", "stone") // 186
     };
 
-    public final static int[] typeNames = {
+    public static final int[] typeNames = {
             -1,
             R.string.legend_wilderness_hut, // 1
             -1, -1,
@@ -689,7 +689,7 @@ public class Tags {
             R.string.legend_place_of_worship // 420
     };
 
-    public final static boolean[] typeSelectable = {
+    public static final boolean[] typeSelectable = {
             false,
             true, // 1
             false, false,
@@ -941,9 +941,9 @@ public class Tags {
             new int[] {64, 67, 68, 70, 73, 74, 76}  // barrier
     };
 
-    private final static int[] typeZooms = new int[typeTags.length];
+    private static final int[] typeZooms = new int[typeTags.length];
 
-    final static String[] typeSelectors = new String[4];
+    static final String[] typeSelectors = new String[4];
 
     static int highlightedType = -1;
 
@@ -1069,7 +1069,7 @@ public class Tags {
         typeSelectors[3] = lists[3].toString();
     }
 
-    final static String[] roofShapes = {
+    static final String[] roofShapes = {
             "flat",
             "skillion",
             "gabled",
@@ -1084,9 +1084,9 @@ public class Tags {
             "saltbox"
     };
 
-    final static int ATTRIB_OFFSET = 1024;
+    static final int ATTRIB_OFFSET = 1024;
 
-    final static String[] keys = {
+    static final String[] keys = {
             "building",
             "highway",
             "natural",
@@ -1171,10 +1171,10 @@ public class Tags {
             "artwork_type",
             "disputed"
     };
-    final static int MAX_KEY = keys.length - 1;
+    static final int MAX_KEY = keys.length - 1;
 
     // most popular values for the selected keys
-    public final static String[] values = {
+    public static final String[] values = {
             "elevation_major",
             "elevation_medium",
             "elevation_minor",
@@ -1813,5 +1813,5 @@ public class Tags {
             "goods",
             "square"
     };
-    public final static int MAX_VALUE = values.length - 1;
+    public static final int MAX_VALUE = values.length - 1;
 }

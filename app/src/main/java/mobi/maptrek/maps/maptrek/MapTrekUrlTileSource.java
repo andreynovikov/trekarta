@@ -22,8 +22,8 @@ import org.oscim.tiling.source.UrlTileSource;
 
 public class MapTrekUrlTileSource extends UrlTileSource {
 
-    private final static String DEFAULT_URL = "http://maptrek.mobi:3579/all";
-    private final static String DEFAULT_PATH = "/{Z}/{X}/{Y}.mvt";
+    private static final String DEFAULT_URL = "http://maptrek.mobi:3579/all";
+    private static final String DEFAULT_PATH = "/{Z}/{X}/{Y}.mvt";
 
     public static class Builder<T extends Builder<T>> extends UrlTileSource.Builder<T> {
 

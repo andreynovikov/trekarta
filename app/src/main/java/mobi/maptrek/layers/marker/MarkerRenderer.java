@@ -318,7 +318,7 @@ class MarkerRenderer extends BucketRenderer {
         ZSORT.doSort(a, zComparator, lo, hi);
     }
 
-    private final static Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
+    private static final Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
         @Override
         public int compare(InternalItem a, InternalItem b) {
             if (a.visible && b.visible) {
@@ -352,7 +352,7 @@ class MarkerRenderer extends BucketRenderer {
         return true;
     }
 
-    private final static String vShaderStr = ""
+    private static final String vShaderStr = ""
             + "precision mediump float;"
             + "uniform mat4 u_mvp;"
             + "uniform float u_scale;"
@@ -363,7 +363,7 @@ class MarkerRenderer extends BucketRenderer {
             + "  v_tex = a_pos;"
             + "}";
 
-    private final static String fShaderStr = ""
+    private static final String fShaderStr = ""
             + "precision mediump float;"
             + "varying vec2 v_tex;"
             + "uniform float u_scale;"

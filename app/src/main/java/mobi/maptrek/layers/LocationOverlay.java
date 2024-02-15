@@ -108,7 +108,7 @@ public class LocationOverlay extends Layer {
         private int hType;
         private int hColor;
 
-        private static final int COLOR = 0xffff5722;
+        private final static int COLOR = 0xffff5722;
         private final static long ANIM_RATE = 50;
         private final static long INTERVAL = 8000;
 

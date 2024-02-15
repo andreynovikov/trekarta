@@ -29,9 +29,9 @@ import android.widget.ProgressBar;
  * ProgressBar.
  */
 public class ProgressHandler extends Handler implements ProgressListener {
-    private final static int BEGIN_PROGRESS = 1;
-    private final static int UPDATE_PROGRESS = 2;
-    protected final static int STOP_PROGRESS = 3;
+    private static final int BEGIN_PROGRESS = 1;
+    private static final int UPDATE_PROGRESS = 2;
+    protected static final int STOP_PROGRESS = 3;
 
     private final ProgressBar mProgressBar;
     private int mStep;

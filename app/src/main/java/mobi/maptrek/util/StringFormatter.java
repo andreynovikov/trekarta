@@ -32,12 +32,12 @@ import gov.nasa.worldwind.geom.coords.UTMCoord;
 public class StringFormatter
 {
 	// http://code.google.com/p/android/issues/detail?id=2626
-	final static DecimalFormat coordDegFormat = new DecimalFormat("#0.000000", new DecimalFormatSymbols(Locale.ENGLISH));
-	final static DecimalFormat coordIntFormat = new DecimalFormat("00", new DecimalFormatSymbols(Locale.ENGLISH));
-	final static DecimalFormat coordMinFormat = new DecimalFormat("00.0000", new DecimalFormatSymbols(Locale.ENGLISH));
-	final static DecimalFormat coordSecFormat = new DecimalFormat("00.000", new DecimalFormatSymbols(Locale.ENGLISH));
+	static final DecimalFormat coordDegFormat = new DecimalFormat("#0.000000", new DecimalFormatSymbols(Locale.ENGLISH));
+	static final DecimalFormat coordIntFormat = new DecimalFormat("00", new DecimalFormatSymbols(Locale.ENGLISH));
+	static final DecimalFormat coordMinFormat = new DecimalFormat("00.0000", new DecimalFormatSymbols(Locale.ENGLISH));
+	static final DecimalFormat coordSecFormat = new DecimalFormat("00.000", new DecimalFormatSymbols(Locale.ENGLISH));
 	
-	final static DecimalFormat timeFormat = new DecimalFormat("00");
+	static final DecimalFormat timeFormat = new DecimalFormat("00");
 
 	public static int coordinateFormat = 0;
 	
