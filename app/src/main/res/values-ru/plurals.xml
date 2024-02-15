@@ -54,6 +54,12 @@
         <item quantity="many">%d сегментов</item>
         <item quantity="other">%d сегментов</item>
     </plurals>
+    <plurals name="numberOfLegs">
+        <item quantity="one">%d участок</item>
+        <item quantity="few">%d участка</item>
+        <item quantity="many">%d участков</item>
+        <item quantity="other"> %d участков</item>
+    </plurals>
     <plurals name="loadedAreas">
         <item quantity="one">%d область активна</item>
         <item quantity="few">%d области активны</item>
