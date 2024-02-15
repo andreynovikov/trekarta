@@ -4273,7 +4273,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (mMap.getEventLayer().moveEnabled()) {
+            if (mObjectInteractionEnabled && mMap.getEventLayer().moveEnabled()) {
                 AbstractMapEventLayer eventLayer = mMap.getEventLayer();
                 eventLayer.enableMove(false);
                 eventLayer.enableRotation(false);
@@ -4299,13 +4299,15 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            AbstractMapEventLayer eventLayer = mMap.getEventLayer();
-            eventLayer.enableMove(true);
-            eventLayer.enableRotation(true);
-            eventLayer.enableTilt(true);
-            eventLayer.enableZoom(true);
-            mCrosshairLayer.unlock();
-            mPositionLocked = false;
+            if (mObjectInteractionEnabled) {
+                AbstractMapEventLayer eventLayer = mMap.getEventLayer();
+                eventLayer.enableMove(true);
+                eventLayer.enableRotation(true);
+                eventLayer.enableTilt(true);
+                eventLayer.enableZoom(true);
+                mCrosshairLayer.unlock();
+                mPositionLocked = false;
+            }
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {

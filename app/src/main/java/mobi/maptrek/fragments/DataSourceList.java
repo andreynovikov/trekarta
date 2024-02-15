@@ -26,6 +26,8 @@ import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.PopupMenu;
 
@@ -41,7 +43,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.slf4j.Logger;
@@ -303,6 +304,8 @@ public class DataSourceList extends Fragment {
 
             @Override
             void bindView(DataSource dataSource, int position) {
+                Context context = getContext();
+
                 name.setText(dataSource.name);
 
                 @ColorInt int color = accentColor;
@@ -365,7 +368,7 @@ public class DataSourceList extends Fragment {
                         }
                         itemView.setOnClickListener(v -> dataSourceViewModel.selectDataSource(dataSource, DataSourceViewModel.MODE_SELECTOR));
                     } else {
-                        String size = Formatter.formatShortFileSize(getContext(), file.length());
+                        String size = Formatter.formatShortFileSize(context, file.length());
                         if (nativeTracksMode) {
                             description.setText(String.format(Locale.ENGLISH, "%s", size));
                             icon.setImageResource(R.drawable.ic_track);
@@ -378,13 +381,10 @@ public class DataSourceList extends Fragment {
                             icon.setImageResource(R.drawable.ic_dataset);
                         }
                         color = disabledColor;
-                        itemView.setOnClickListener(v -> Snackbar.make(viewBinding.getRoot(), R.string.msgDataSourceNotLoaded, Snackbar.LENGTH_SHORT)
-                                .setAction(R.string.actionEnable, view -> {
-                                    mDataHolder.setDataSourceAvailability((FileDataSource) dataSource, true);
-                                    notifyItemChanged(position);
-                                })
-                                .setAnchorView(v)
-                                .show());
+                        itemView.setOnClickListener(v -> {
+                            Animation shake = AnimationUtils.loadAnimation(context, R.anim.shake);
+                            action.startAnimation(shake);
+                        });
                     }
                     final boolean shown = dataSource.isVisible();
                     if (shown)
@@ -399,7 +399,7 @@ public class DataSourceList extends Fragment {
                 }
                 icon.setImageTintList(ColorStateList.valueOf(color));
                 itemView.setOnLongClickListener(v -> {
-                    PopupMenu popup = new PopupMenu(getContext(), v);
+                    PopupMenu popup = new PopupMenu(context, v);
                     popup.inflate(R.menu.context_menu_data_list);
                     if (dataSource instanceof WaypointDbDataSource)
                         popup.getMenu().findItem(R.id.action_delete).setVisible(false);

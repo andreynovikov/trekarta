@@ -44,6 +44,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
@@ -72,8 +73,9 @@ public class SimpleRunTest {
 
     @Test
     public void mainActivityTest() {
+        // Close Introduction panel if test is running separately
+
         try {
-            // Close Introduction panel if test is running separately
             ViewInteraction appCompatButton = onView(
                     allOf(
                             withId(R.id.skip),
@@ -87,6 +89,7 @@ public class SimpleRunTest {
         }
 
         // World map download dialog is displayed - close it
+
         ViewInteraction appCompatButton2 = onView(
                 allOf(
                         withId(android.R.id.button2),
@@ -102,13 +105,7 @@ public class SimpleRunTest {
                 allOf(
                         withId(R.id.moreButton),
                         childAtPosition(
-                                allOf(
-                                        withId(R.id.actionPanel),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.RelativeLayout")),
-                                                1
-                                        )
-                                ),
+                                withId(R.id.actionPanel),
                                 4
                         ),
                         isDisplayed()
@@ -116,39 +113,68 @@ public class SimpleRunTest {
         );
         appCompatImageButton.perform(click());
 
-        // Press 'About' menu item
+        // Press 'Settings' menu item
 
         DataInteraction linearLayout = onData(anything())
                 .inAdapterView(
                         allOf(
                                 withId(android.R.id.list),
                                 childAtPosition(
-                                    withClassName(is("android.widget.FrameLayout")),
-                                    0
+                                        withClassName(is("android.widget.FrameLayout")),
+                                        0
                                 )
                         )
                 )
-                .atPosition(0);
+                .atPosition(1);
         linearLayout.perform(click());
 
-        // Check for 'Trekarta' title
+        // Check for 'About' preference item
 
         ViewInteraction textView = onView(
                 allOf(
-                        withId(R.id.title),
-                        withContentDescription("Trekarta"),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
-                                        0
-                                ),
-                                1
-                        ),
+                        withId(android.R.id.title),
+                        withText("About"),
                         isDisplayed()
                 )
         );
-        textView.check(matches(withContentDescription("Trekarta")));
+        textView.check(matches(withText("About")));
 
+        // Press 'About' preference item
+
+        ViewInteraction recyclerView = onView(
+                allOf(
+                        withId(androidx.preference.R.id.recycler_view),
+                        childAtPosition(
+                                withId(android.R.id.list_container),
+                                0
+                        )
+                )
+        );
+        recyclerView.perform(actionOnItemAtPosition(3, click()));
+
+        // Check for 'Trekarta' title
+
+        ViewInteraction imageView = onView(
+                allOf(
+                        withId(R.id.title),
+                        withContentDescription("Trekarta"),
+                        isDisplayed()
+                )
+        );
+        imageView.check(matches(isDisplayed()));
+
+        // Check for 'trekarta.info' link
+
+        ViewInteraction textView2 = onView(
+                allOf(
+                        withId(R.id.links),
+                        withText("https://trekarta.info/"),
+                        isDisplayed()
+                )
+        );
+        textView2.check(matches(withText("https://trekarta.info/")));
+
+        pressBack();
         pressBack();
 
         // Press 'Places' button
@@ -157,13 +183,7 @@ public class SimpleRunTest {
                 allOf(
                         withId(R.id.placesButton),
                         childAtPosition(
-                                allOf(
-                                        withId(R.id.actionPanel),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.RelativeLayout")),
-                                                1
-                                        )
-                                ),
+                                withId(R.id.actionPanel),
                                 2
                         ),
                         isDisplayed()
@@ -179,13 +199,7 @@ public class SimpleRunTest {
                 allOf(
                         withId(R.id.mapsButton),
                         childAtPosition(
-                                allOf(
-                                        withId(R.id.actionPanel),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.RelativeLayout")),
-                                                1
-                                        )
-                                ),
+                                withId(R.id.actionPanel),
                                 3
                         ),
                         isDisplayed()
@@ -200,8 +214,8 @@ public class SimpleRunTest {
                         allOf(
                                 withId(android.R.id.list),
                                 childAtPosition(
-                                    withClassName(is("android.widget.FrameLayout")),
-                                    0
+                                        withClassName(is("android.widget.FrameLayout")),
+                                        0
                                 )
                         )
                 )
@@ -210,7 +224,7 @@ public class SimpleRunTest {
 
         // Find first legend title
 
-        ViewInteraction textView2 = onView(
+        ViewInteraction textView3 = onView(
                 allOf(
                         withId(R.id.name),
                         withText("Administrative"),
@@ -224,7 +238,7 @@ public class SimpleRunTest {
                         isDisplayed()
                 )
         );
-        textView2.check(matches(withText("Administrative")));
+        textView3.check(matches(withText("Administrative")));
 
         pressBack();
 
@@ -234,13 +248,7 @@ public class SimpleRunTest {
                 allOf(
                         withId(R.id.locationButton),
                         childAtPosition(
-                                allOf(
-                                        withId(R.id.actionPanel),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.RelativeLayout")),
-                                                1
-                                        )
-                                ),
+                                withId(R.id.actionPanel),
                                 0
                         ),
                         isDisplayed()
