@@ -100,7 +100,6 @@
     <string name="actionGrant">Grant</string>
     <string name="actionDownload">Download</string>
     <string name="actionSkip">Skip</string>
-    <string name="actionEnable">Enable</string>
     <string name="actionCreateRoute">Create route</string>
 
     <string name="share_location_intent_title">Share location via:</string>
@@ -187,7 +186,6 @@
     <string name="msgMultipleMapsMode">Multi-maps mode enabled. Use double tap to show and hide maps.</string>
     <string name="msgEnableGps">You should enable precise location (GPS) in Android settings in order to use real time positioning</string>
     <string name="msgMapDownloadFailed">%s failed to download</string>
-    <string name="msgDataSourceNotLoaded">Data source is disabled</string>
     <string name="msgTooFewRouteLegs">Route should contain at least one leg</string>
 
     <string name="introOfflineMapsTitle">Offline maps</string>

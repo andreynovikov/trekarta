@@ -96,7 +96,6 @@
     <string name="actionGrant">Предоставить</string>
     <string name="actionDownload">Загрузить</string>
     <string name="actionSkip">Пропустить</string>
-    <string name="actionEnable">Включить</string>
 
     <string name="share_location_intent_title">Поделиться местоположением через:</string>
     <string name="share_data_intent_title">Поделиться данными через:</string>
@@ -181,7 +180,6 @@
     <string name="msgMultipleMapsMode">Активирован режим нескольких карт. Используйте двойное нажатие, чтобы отобразить или спрятать карту.</string>
     <string name="msgEnableGps">Вам необходимо включить точную геолокацию (GPS) в настройках Android, чтобы использовать определение местоположения в реальном времени</string>
     <string name="msgMapDownloadFailed">%s: произошёл сбой при загрузке</string>
-    <string name="msgDataSourceNotLoaded">Источник данных выключен</string>
 
     <string name="introOfflineMapsTitle">Офлайн карты</string>
     <string name="introOfflineMaps">Векторные карты содержат подробные топографические данные с изолиниями высот и поддержкой затенений рельефа и не требуют подключения к интернету. Вы также можете добавлять собственные карты для покрытия интересующих вас областей. Ваши карты тоже будут затеняться.</string>
