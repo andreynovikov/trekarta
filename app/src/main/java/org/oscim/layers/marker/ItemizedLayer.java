@@ -1,9 +1,9 @@
 /*
  * Copyright 2012 osmdroid authors: Nicolas Gramlich, Theodore Hong, Fred Eisele
- * 
+ *
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
- * Copyright 2016 Stephan Leuschner 
+ * Copyright 2016-2018 devemux86
+ * Copyright 2016 Stephan Leuschner
  * Copyright 2016 Pedinel
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -24,6 +24,7 @@ package org.oscim.layers.marker;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.core.Box;
 import org.oscim.core.Point;
+import org.oscim.core.Tile;
 import org.oscim.event.Gesture;
 import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
@@ -81,53 +82,53 @@ public class ItemizedLayer<Item extends MarkerInterface> extends MarkerLayer<Ite
     }
 
     @Override
-    protected Item createItem(int index) {
+    protected synchronized Item createItem(int index) {
         return mItemList.get(index);
     }
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return Math.min(mItemList.size(), mDrawnItemsLimit);
     }
 
-    public boolean addItem(Item item) {
+    public synchronized boolean addItem(Item item) {
         final boolean result = mItemList.add(item);
         populate();
         return result;
     }
 
-    public void addItem(int location, Item item) {
+    public synchronized void addItem(int location, Item item) {
         mItemList.add(location, item);
     }
 
-    public boolean addItems(Collection<Item> items) {
+    public synchronized boolean addItems(Collection<Item> items) {
         final boolean result = mItemList.addAll(items);
         populate();
         return result;
     }
 
-    public List<Item> getItemList() {
+    public synchronized List<Item> getItemList() {
         return mItemList;
     }
 
-    public void removeAllItems() {
+    public synchronized void removeAllItems() {
         removeAllItems(true);
     }
 
-    public void removeAllItems(boolean withPopulate) {
+    public synchronized void removeAllItems(boolean withPopulate) {
         mItemList.clear();
         if (withPopulate) {
             populate();
         }
     }
 
-    public boolean removeItem(Item item) {
+    public synchronized boolean removeItem(Item item) {
         final boolean result = mItemList.remove(item);
         populate();
         return result;
     }
 
-    public Item removeItem(int position) {
+    public synchronized Item removeItem(int position) {
         final Item result = mItemList.remove(position);
         populate();
         return result;
@@ -190,7 +191,7 @@ public class ItemizedLayer<Item extends MarkerInterface> extends MarkerLayer<Ite
         int eventY = (int) event.getY() - mMap.getHeight() / 2;
         Viewport mapPosition = mMap.viewport();
 
-        Box box = mapPosition.getBBox(null, 128);
+        Box box = mapPosition.getBBox(null, Tile.SIZE / 2);
         box.map2mercator();
         box.scale(1E6);
 
@@ -200,7 +201,7 @@ public class ItemizedLayer<Item extends MarkerInterface> extends MarkerLayer<Ite
 
         // squared dist: 50x50 px ~ 2mm on 400dpi
         // 20x20 px on baseline mdpi (160dpi)
-        double dist = 20 * 20 * CanvasAdapter.getScale();
+        double dist = (20 * CanvasAdapter.getScale()) * (20 * CanvasAdapter.getScale());
 
         for (int i = 0; i < size; i++) {
             Item item = mItemList.get(i);
