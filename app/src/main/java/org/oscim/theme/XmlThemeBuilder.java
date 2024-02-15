@@ -4,6 +4,7 @@
  * Copyright 2016-2017 devemux86
  * Copyright 2016-2017 Longri
  * Copyright 2016 Andrey Novikov
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -28,6 +29,7 @@ import org.oscim.backend.canvas.Color;
 import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.backend.canvas.Paint.FontFamily;
 import org.oscim.backend.canvas.Paint.FontStyle;
+import org.oscim.core.Tag;
 import org.oscim.renderer.atlas.TextureAtlas;
 import org.oscim.renderer.atlas.TextureAtlas.Rect;
 import org.oscim.renderer.atlas.TextureRegion;
@@ -51,6 +53,7 @@ import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.SymbolStyle.SymbolBuilder;
 import org.oscim.theme.styles.TextStyle;
 import org.oscim.theme.styles.TextStyle.TextBuilder;
+import org.oscim.utils.FastMath;
 import org.oscim.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +66,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -74,7 +78,8 @@ public class XmlThemeBuilder extends DefaultHandler {
 
     private static final Logger log = LoggerFactory.getLogger(XmlThemeBuilder.class);
 
-    private static final int RENDER_THEME_VERSION = 1;
+    private static final int RENDER_THEME_VERSION_MAPSFORGE = 6;
+    private static final int RENDER_THEME_VERSION_VTM = 1;
     public static final String PREFIX_GEN = "gen:";
 
     private enum Element {
@@ -89,6 +94,8 @@ public class XmlThemeBuilder extends DefaultHandler {
     private static final String LINE_STYLE = "L";
     private static final String OUTLINE_STYLE = "O";
     private static final String AREA_STYLE = "A";
+
+    private static final int DEFAULT_PRIORITY = Integer.MAX_VALUE / 2;
 
     /**
      * @param theme an input theme containing valid render theme XML data.
@@ -158,11 +165,15 @@ public class XmlThemeBuilder extends DefaultHandler {
     private final ThemeCallback mThemeCallback;
     RenderTheme mRenderTheme;
 
+    final boolean mMapsforgeTheme;
     private final float mScale, mScale2;
 
     private Set<String> mCategories;
     private XmlRenderThemeStyleLayer mCurrentLayer;
     private XmlRenderThemeStyleMenu mRenderThemeStyleMenu;
+
+    private Map<String, String> mTransformKeyMap = new HashMap<>();
+    private Map<Tag, Tag> mTransformTagMap = new HashMap<>();
 
     public XmlThemeBuilder(ThemeFile theme) {
         this(theme, null);
@@ -171,15 +182,21 @@ public class XmlThemeBuilder extends DefaultHandler {
     public XmlThemeBuilder(ThemeFile theme, ThemeCallback themeCallback) {
         mTheme = theme;
         mThemeCallback = themeCallback;
+        mMapsforgeTheme = theme.isMapsforgeTheme();
         mScale = CanvasAdapter.getScale();
         mScale2 = CanvasAdapter.getScale() * 0.5f;
     }
 
     @Override
     public void endDocument() {
+        if (mMapsforgeTheme) {
+            // Building rule for Mapsforge themes
+            mRulesList.add(buildingRule());
+        }
+
         Rule[] rules = new Rule[mRulesList.size()];
         for (int i = 0, n = rules.length; i < n; i++)
-            rules[i] = mRulesList.get(i).onComplete(null);
+            rules[i] = mRulesList.get(i).onComplete(mMapsforgeTheme ? new int[1] : null);
 
         mRenderTheme = createTheme(rules);
 
@@ -194,7 +211,7 @@ public class XmlThemeBuilder extends DefaultHandler {
     }
 
     RenderTheme createTheme(Rule[] rules) {
-        return new RenderTheme(mMapBackground, mTextScale, rules, mLevels);
+        return new RenderTheme(mMapBackground, mTextScale, rules, mLevels, mTransformKeyMap, mTransformTagMap, mMapsforgeTheme);
     }
 
     @Override
@@ -367,6 +384,10 @@ public class XmlThemeBuilder extends DefaultHandler {
                 mRenderThemeStyleMenu = new XmlRenderThemeStyleMenu(getStringAttribute(attributes, "id"),
                         getStringAttribute(attributes, "defaultlang"), getStringAttribute(attributes, "defaultvalue"));
 
+            } else if ("tag-transform".equals(localName)) {
+                checkState(qName, Element.RENDERING_STYLE);
+                tagTransform(localName, attributes);
+
             } else {
                 log.error("unknown element: {}", localName);
                 throw new SAXException("unknown element: " + localName);
@@ -401,9 +422,17 @@ public class XmlThemeBuilder extends DefaultHandler {
                 else if ("NODE".equals(val))
                     element = Rule.Element.NODE;
             } else if ("k".equals(name)) {
-                keys = value;
+                if (mMapsforgeTheme) {
+                    if (!"*".equals(value))
+                        keys = value;
+                } else
+                    keys = value;
             } else if ("v".equals(name)) {
-                values = value;
+                if (mMapsforgeTheme) {
+                    if (!"*".equals(value))
+                        values = value;
+                } else
+                    values = value;
             } else if ("cat".equals(name)) {
                 cat = value;
             } else if ("closed".equals(name)) {
@@ -925,7 +954,8 @@ public class XmlThemeBuilder extends DefaultHandler {
 
         validateExists("version", version, elementName);
 
-        if (version > RENDER_THEME_VERSION)
+        int renderThemeVersion = mMapsforgeTheme ? RENDER_THEME_VERSION_MAPSFORGE : RENDER_THEME_VERSION_VTM;
+        if (version > renderThemeVersion)
             throw new ThemeException("invalid render theme version:" + version);
 
         validateNonNegative("base-stroke-width", baseStrokeWidth);
@@ -1001,6 +1031,11 @@ public class XmlThemeBuilder extends DefaultHandler {
         b.themeCallback(mThemeCallback);
         String symbol = null;
 
+        if (mMapsforgeTheme) {
+            // Reset default priority
+            b.priority = DEFAULT_PRIORITY;
+        }
+
         for (int i = 0; i < attributes.getLength(); i++) {
             String name = attributes.getLocalName(i);
             String value = attributes.getValue(i);
@@ -1035,10 +1070,16 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("caption".equals(name))
                 b.caption = Boolean.parseBoolean(value);
 
-            else if ("priority".equals(name))
+            else if ("priority".equals(name)) {
                 b.priority = Integer.parseInt(value);
 
-            else if ("area-size".equals(name))
+                if (mMapsforgeTheme) {
+                    // Mapsforge: higher priorities are drawn first (0 = default priority)
+                    // VTM: lower priorities are drawn first (0 = highest priority)
+                    b.priority = FastMath.clamp(DEFAULT_PRIORITY - b.priority, 0, Integer.MAX_VALUE);
+                }
+
+            } else if ("area-size".equals(name))
                 b.areaSize = Float.parseFloat(value);
 
             else if ("dy".equals(name))
@@ -1351,6 +1392,44 @@ public class XmlThemeBuilder extends DefaultHandler {
         return color;
     }
 
+    private void tagTransform(String localName, Attributes attributes) {
+        String k, v, matchKey, matchValue;
+        k = v = matchKey = matchValue = null;
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            String name = attributes.getLocalName(i);
+            String value = attributes.getValue(i);
+
+            switch (name) {
+                case "k":
+                    k = value;
+                    break;
+                case "v":
+                    v = value;
+                    break;
+                case "k-match":
+                    matchKey = value;
+                    break;
+                case "v-match":
+                    matchValue = value;
+                    break;
+                default:
+                    logUnknownAttribute(localName, name, value, i);
+            }
+        }
+
+        if (k == null || k.isEmpty() || matchKey == null || matchKey.isEmpty()) {
+            log.debug("empty key in element " + localName);
+            return;
+        }
+
+        if (v == null && matchValue == null) {
+            mTransformKeyMap.put(matchKey, k);
+        } else {
+            mTransformTagMap.put(new Tag(matchKey, matchValue), new Tag(k, v));
+        }
+    }
+
     private static void validateNonNegative(String name, float value) {
         if (value < 0)
             throw new ThemeException(name + " must not be negative: "
@@ -1361,5 +1440,20 @@ public class XmlThemeBuilder extends DefaultHandler {
         if (obj == null)
             throw new ThemeException("missing attribute " + name
                     + " for element: " + elementName);
+    }
+
+    /**
+     * Building rule for Mapsforge themes.
+     */
+    private RuleBuilder buildingRule() {
+        ExtrusionBuilder<?> b = mExtrusionBuilder.reset();
+        b.level(mLevels++);
+        b.themeCallback(mThemeCallback);
+        b.colorLine(0xffd9d8d6);
+        b.colorSide(0xeaecebe9);
+        b.colorTop(0xeaf9f8f6);
+        RuleBuilder rule = new RuleBuilder(RuleBuilder.RuleType.POSITIVE, new String[]{Tag.KEY_BUILDING, Tag.KEY_BUILDING_PART}, new String[]{});
+        rule.element(Rule.Element.WAY).zoom((byte) 17, Byte.MAX_VALUE).style(b);
+        return rule;
     }
 }
