@@ -2,6 +2,7 @@
  * Copyright 2016-2018 devemux86
  * Copyright 2017 Luca Osten
  * Copyright 2018 Izumi Kawashima
+ * Copyright 2018 Mathieu De Brito
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -29,6 +30,7 @@ import static org.oscim.utils.FastMath.clamp;
 
 public class ViewController extends Viewport {
 
+    protected float mPivotX = 0.0f;
     protected float mPivotY = 0.0f;
 
     private final float[] mat = new float[16];
@@ -72,11 +74,21 @@ public class ViewController extends Viewport {
     }
 
     /**
-     * Set pivot height relative to view center. E.g. 0.5 is usually preferred
-     * for navigation, moving the center to 25% of the view height.
+     * Get pivot horizontal / vertical relative to view center.
+     * e.g. pivotY 0.5 is usually preferred for navigation, moving center to 25% of view height.
      * Range is [-1, 1].
      */
-    public void setMapViewCenter(float pivotY) {
+    public float[] getMapViewCenter() {
+        return new float[]{mPivotX, mPivotY};
+    }
+
+    /**
+     * Set pivot horizontal / vertical relative to view center.
+     * e.g. pivotY 0.5 is usually preferred for navigation, moving center to 25% of view height.
+     * Range is [-1, 1].
+     */
+    public void setMapViewCenter(float pivotX, float pivotY) {
+        mPivotX = FastMath.clamp(pivotX, -1, 1) * 0.5f;
         mPivotY = FastMath.clamp(pivotY, -1, 1) * 0.5f;
     }
 
@@ -168,6 +180,7 @@ public class ViewController extends Viewport {
         mPos.scale = newScale;
 
         if (pivotX != 0 || pivotY != 0) {
+            pivotX -= mWidth * mPivotX;
             pivotY -= mHeight * mPivotY;
 
             moveMap(pivotX * (1.0f - scale),
@@ -186,6 +199,7 @@ public class ViewController extends Viewport {
         double rsin = Math.sin(radians);
         double rcos = Math.cos(radians);
 
+        pivotX -= mWidth * mPivotX;
         pivotY -= mHeight * mPivotY;
 
         float x = (float) (pivotX - pivotX * rcos + pivotY * rsin);
@@ -202,6 +216,20 @@ public class ViewController extends Viewport {
         degree = FastMath.clampDegree(degree);
 
         mPos.bearing = (float) degree;
+
+        updateMatrices();
+    }
+
+    public void rollMap(float move) {
+        setRoll(mPos.roll + move);
+    }
+
+    public void setRoll(double degree) {
+        ThreadUtils.assertMainThread();
+
+        degree = FastMath.clampDegree(degree);
+
+        mPos.roll = (float) degree;
 
         updateMatrices();
     }
@@ -240,15 +268,20 @@ public class ViewController extends Viewport {
     private void updateMatrices() {
         /* - view matrix:
          * 0. apply yaw
-         * 1. apply pitch */
+         * 1. apply roll
+         * 2. apply pitch */
 
         mRotationMatrix.setRotation(mPos.bearing, 0, 0, 1);
+
+        mTmpMatrix.setRotation(mPos.roll, 0, 1, 0);
+        mRotationMatrix.multiplyLhs(mTmpMatrix);
+
         mTmpMatrix.setRotation(mPos.tilt, 1, 0, 0);
         mRotationMatrix.multiplyLhs(mTmpMatrix);
 
         mViewMatrix.copy(mRotationMatrix);
 
-        mTmpMatrix.setTranslation(0, mPivotY * mHeight, 0);
+        mTmpMatrix.setTranslation(mPivotX * mWidth, mPivotY * mHeight, 0);
         mViewMatrix.multiplyLhs(mTmpMatrix);
 
         mViewProjMatrix.multiplyMM(mProjMatrix, mViewMatrix);

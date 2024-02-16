@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
+ * Copyright 2018 Izumi Kawashima
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -48,6 +49,11 @@ public class MapPosition {
     public float tilt;
 
     /**
+     * Perspective roll
+     */
+    public float roll;
+
+    /**
      * Zoom-level for current scale.
      * - To be removed: FastMath.log2(scale)
      * - use setZoomLevel() to modify
@@ -58,8 +64,10 @@ public class MapPosition {
         this.scale = 1;
         this.x = 0.5;
         this.y = 0.5;
-        this.zoomLevel = 1;
+        this.zoomLevel = 0;
         this.bearing = 0;
+        this.tilt = 0;
+        this.roll = 0;
     }
 
     public MapPosition(double latitude, double longitude, double scale) {
@@ -90,7 +98,16 @@ public class MapPosition {
     }
 
     public MapPosition setBearing(float bearing) {
-        this.bearing = clampBearing(bearing);
+        this.bearing = (float) FastMath.clampDegree(bearing);
+        return this;
+    }
+
+    public float getRoll() {
+        return roll;
+    }
+
+    public MapPosition setRoll(float roll) {
+        this.roll = (float) FastMath.clampDegree(roll);
         return this;
     }
 
@@ -156,6 +173,7 @@ public class MapPosition {
         this.scale = other.scale;
         this.tilt = other.tilt;
         this.zoomLevel = other.zoomLevel;
+        this.roll = other.roll;
     }
 
     public void set(double x, double y, double scale, float bearing, float tilt) {
@@ -163,17 +181,14 @@ public class MapPosition {
         this.y = y;
         this.scale = scale;
 
-        this.bearing = clampBearing(bearing);
+        this.bearing = (float) FastMath.clampDegree(bearing);
         this.tilt = tilt;
         this.zoomLevel = FastMath.log2((int) scale);
     }
 
-    private static float clampBearing(float bearing) {
-        while (bearing > 180)
-            bearing -= 360;
-        while (bearing < -180)
-            bearing += 360;
-        return bearing;
+    public void set(double x, double y, double scale, float bearing, float tilt, float roll) {
+        set(x, y, scale, bearing, tilt);
+        this.roll = (float) FastMath.clampDegree(roll);
     }
 
     /**
@@ -211,6 +226,7 @@ public class MapPosition {
         y = miny + dy / 2;
         bearing = 0;
         tilt = 0;
+        roll = 0;
     }
 
     @Override
