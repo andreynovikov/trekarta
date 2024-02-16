@@ -183,15 +183,17 @@ public class RouteEdit extends Fragment implements ItemizedLayer.OnItemGestureLi
     @Override
     public void onStart() {
         super.onStart();
+        Context context = requireContext();
         mRouteLayer = new RouteLayer(mMapHolder.getMap(), RouteStyle.DEFAULT_COLOR, 5, viewModel.route);
         mMapHolder.getMap().layers().add(mRouteLayer);
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(requireContext(), R.drawable.dot_black, RouteStyle.DEFAULT_COLOR));
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(context, R.drawable.dot_black, RouteStyle.DEFAULT_COLOR));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
         ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.size());
         for (Route.Instruction instruction : viewModel.route.getInstructions()) {
             items.add(new MarkerItem(instruction, instruction.text, null, instruction));
         }
-        mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, this);
+        int strokeColor = getResources().getColor(R.color.colorBackground, context.getTheme());
+        mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, strokeColor, this);
         mMapHolder.getMap().layers().add(mPointLayer);
     }
 

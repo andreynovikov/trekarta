@@ -659,7 +659,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
-        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, this);
+        mMarkerLayer = new ItemizedLayer<>(mMap, new ArrayList<>(), symbol, MapTrek.density, strokeColor, this);
         mMarkerLayer.setTitlesEnabled(Configuration.getPlaceTitlesEnabled());
         layers.add(mMarkerLayer, MAP_3D_DATA);
 
@@ -4670,6 +4670,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         CanvasAdapter.userScale = mapScale;
         IRenderTheme theme = ThemeLoader.load(themeFile);
         mMap.setTheme(theme, true);
+        int color = getResources().getColor(R.color.colorBackground, getTheme());
+        mMarkerLayer.setOutlineColor(color); // this is redundant as activity is recreated on night mode change
         mMarkerLayer.updateItems();
         mapViewModel.shieldFactory.setFontSize(fontSize);
         mapViewModel.shieldFactory.dispose();

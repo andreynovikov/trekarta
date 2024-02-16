@@ -50,11 +50,15 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 	public abstract int size();
 
 	@SuppressWarnings("unchecked")
-	public MarkerLayer(Map map, MarkerSymbol defaultSymbol, float scale) {
+	public MarkerLayer(Map map, MarkerSymbol defaultSymbol, float scale, int outlineColor) {
 		super(map);
 
-		mMarkerRenderer = new MarkerRenderer((MarkerLayer<MarkerItem>) this, defaultSymbol, scale);
+		mMarkerRenderer = new MarkerRenderer((MarkerLayer<MarkerItem>) this, defaultSymbol, scale, outlineColor);
 		mRenderer = mMarkerRenderer;
+	}
+
+	public void setOutlineColor(int color) {
+		mMarkerRenderer.setOutlineColor(color);
 	}
 
 	@Override

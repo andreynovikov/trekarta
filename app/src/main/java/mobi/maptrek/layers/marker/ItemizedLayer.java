@@ -37,15 +37,15 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
     private OnItemGestureListener<Item> mOnItemGestureListener;
     private int mDrawnItemsLimit = Integer.MAX_VALUE;
 
-    public ItemizedLayer(Map map, MarkerSymbol defaultMarker, float scale) {
-        this(map, new ArrayList<Item>(), defaultMarker, scale, null);
+    public ItemizedLayer(Map map, MarkerSymbol defaultMarker, float scale, int outlineColor) {
+        this(map, new ArrayList<Item>(), defaultMarker, scale, outlineColor, null);
     }
 
     public ItemizedLayer(Map map, List<Item> list,
-                         MarkerSymbol defaultMarker, float scale,
+                         MarkerSymbol defaultMarker, float scale, int outlineColor,
                          OnItemGestureListener<Item> listener) {
 
-        super(map, defaultMarker, scale);
+        super(map, defaultMarker, scale, outlineColor);
 
         mItemList = list;
         mOnItemGestureListener = listener;

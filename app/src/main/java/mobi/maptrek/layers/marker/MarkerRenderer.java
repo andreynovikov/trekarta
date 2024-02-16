@@ -20,7 +20,6 @@ package mobi.maptrek.layers.marker;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.GL;
 import org.oscim.backend.canvas.Bitmap;
-import org.oscim.backend.canvas.Color;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
 import org.oscim.core.Tile;
@@ -77,6 +76,7 @@ class MarkerRenderer extends BucketRenderer {
     private boolean mUpdate;
 
     private InternalItem[] mItems;
+    private int mOutlineColor;
 
     private static class InternalItem {
         MarkerItem item;
@@ -93,7 +93,7 @@ class MarkerRenderer extends BucketRenderer {
         }
     }
 
-    MarkerRenderer(MarkerLayer<MarkerItem> markerLayer, MarkerSymbol defaultSymbol, float scale) {
+    MarkerRenderer(MarkerLayer<MarkerItem> markerLayer, MarkerSymbol defaultSymbol, float scale, int outlineColor) {
         mSymbolBucket = new SymbolBucket();
         mTextBucket = new TextBucket();
         mSymbolBucket.next = mTextBucket;
@@ -101,12 +101,17 @@ class MarkerRenderer extends BucketRenderer {
         mDefaultMarker = defaultSymbol;
         mScale = scale;
         mTitlesEnabled = true;
+        mOutlineColor = outlineColor;
     }
 
     public void setTitlesEnabled(boolean titlesEnabled) {
         mTitlesEnabled = titlesEnabled;
     }
 
+    public void setOutlineColor(int color) {
+        mOutlineColor = color;
+        update();
+    }
     @Override
     public synchronized void update(GLViewport v) {
         if (!mInitialized) {
@@ -224,7 +229,7 @@ class MarkerRenderer extends BucketRenderer {
                     textStyle = TextStyle.builder()
                             .fontSize(20 * mScale * CanvasAdapter.textScale)
                             .color(it.item.color)
-                            .outline(Color.WHITE, 3f * mScale * CanvasAdapter.textScale)
+                            .outline(mOutlineColor, 3f * mScale * CanvasAdapter.textScale)
                             .isCaption(true)
                             .offsetY(dy)
                             .build();
