@@ -300,6 +300,7 @@ public class AreaStyle extends RenderStyle<AreaStyle> {
             return self();
         }
 
+        @Override
         public AreaStyle build() {
             return new AreaStyle(this);
         }
