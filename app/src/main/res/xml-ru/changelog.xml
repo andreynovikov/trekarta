@@ -1,105 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2024.02" versioncode="95" date="07.02.2024">
-        <change>Новые объекты карты: городская площадь, грузовой лифт</change>
-        <change>Новый интерфейс записи треков</change>
-        <change>Добавлена возможность приостанавливать запись трека</change>
-        <change>Добавлено устранение неполадок в настройки</change>
-        <change>Добавлена поддержка ночной темы, управляемой системой</change>
-        <change>Добавлен перевод на французский</change>
-        <change>Исправлено открытие длинных треков</change>
-        <change>Исправлено чрезмерное масштабирование карты при просмотре некоторых треков</change>
-        <change>Исправлено отображение деревьев на некоторых поверхностях</change>
-    </release>
-    <release version="2024.01" versioncode="89" date="18.01.2024">
-        <change>Пересмотрен экспорт файлов</change>
-        <change>Возрождён плагин обмена положением</change>
-        <change>Новый API для плагинов</change>
-        <change>Добавлна статистика изменения высоты трека</change>
-        <change>Добавлено обнаружение ссылок в описании точки</change>
-        <change>Обновлён интерфейс</change>
-        <change>Исправлен поиск координат</change>
-    </release>
-    <release version="2023.12" versioncode="88" date="27.12.2023">
-        <change>Добавлена поддержка навигации по маршруту в обратную сторону</change>
-        <change>Добавлена возможность поделиться маршрутом</change>
-        <change>Добавлена возможность сохранения данных при удалении приложения</change>
-        <change>Исправлено обнаружение плагинов</change>
-        <change>Исправлена навигация в фоновом режиме</change>
-        <change>Исправлено возобнавление навигации после постановки на паузу</change>
-    </release>
-    <release version="2023.11" versioncode="86" date="11.11.2023">
-        <change>Добавлена поддержка GPX маршрутов</change>
-        <change>Добавлена базовая поддержка навигации по маршруту</change>
-        <change>Прекращена поддержка Lite версии</change>
-        <change>Исправлено отображение приборов</change>
-        <change>Исправлено открытие местоположения из других приложений</change>
-    </release>
-    <release version="2022.05" versioncode="84" date="01.05.2022">
-        <change>Исправлена загрузка карт на Android 12</change>
-        <change variant="full">Исправлена обработка пользовательских карт при вращении устройства</change>
-    </release>
-    <release version="2022.04" versioncode="83" date="25.04.2022">
-        <change>Восстановлена запись трека в фоновом режиме</change>
-        <change>Включён выход по двойному нажатию назад</change>
-        <change>Исправлена повышенная точность для расстояния</change>
-    </release>
-    <release version="2022.03" versioncode="82" date="21.03.2022">
-        <change>Исправлен белый экран при старте на современных устройствах</change>
-        <change>Исправлена невозможность запуска на современных устройствах</change>
-        <change>Удалена возможность переноса файлов на внешние файловые хранилища</change>
-        <change variant="full">Удалена поддержка полноэкранного режима на старых устройствах</change>
-    </release>
-    <release version="2021.04" versioncode="80" date="30.04.2021">
-        <change>Новый элемент: пересыхающий водоём</change>
-        <change>Исправлено неудаление устаревших объектов из базы карт</change>
-    </release>
-    <release version="2021.03" versioncode="79" date="11.03.2021">
-        <change>Велосипедный режим отображает велосипедную инфраструктуру</change>
-        <change>Новые объекты: форт, городские ворота, автомобильные запчасти, зарядная станция, место ремонта велосипеда, велопарковка</change>
-        <change>Новые элементы: горный хребет, охотничья вышка, значительный камень</change>
-        <change>Значки платности и доступности объектов</change>
-        <change variant="full">Добавлена возможность импорта файлов данных и карт из приложения</change>
-        <change>Обновленый стиль карты</change>
-    </release>
-    <release version="2020.09" versioncode="78" date="18.09.2020">
-        <change>Новые объекты: мотомагазины, водяные мельницы</change>
-        <change>Новые элементы: земли аборигенов, колодцы, водяные колонки, трубопроводы</change>
-        <change>Настраиваемый пользовательский масштаб карты</change>
-        <change>Названия приоритизируются по площади объекта карты</change>
-        <change>Обновленый стиль карты</change>
-        <change>Поведение кнопки 'Запись трека' поменялось местами</change>
-        <change>Исправлен цвет панели навигации в ночном режиме</change>
-        <change variant="full">Поддержка плагинов оффлайн-карт</change>
-    </release>
-    <release version="2020.04" versioncode="77" date="08.04.2020">
-        <change>Поиск безымянных и конкретных объектов</change>
-        <change variant="full">Возможность отображать несколько пользовательских карт</change>
-        <change variant="full">Исправлено пропадание пользовательских карт</change>
-        <change variant="full">Исправлены некоторые проблемы при работе с SD-картами</change>
-    </release>
-    <release version="2019.11" versioncode="75" date="27.11.2019">
-        <change>Новая категория - Красота и здоровье</change>
-        <change>Новые объекты: художественная галерея, котедж, посольство, стоматология, массажный салон, конюшня</change>
-        <change>Новые элементы: марина, область сервиса и отдыха, насыпь, место для разведения костра, перекат, высыхающие реки и ручьи, второстепенные железные дороги</change>
-        <change>Добавлена базовая поддержка файлов KMZ</change>
-        <change>Исправлена ошибка чтения некоторых файлов KML</change>
-        <change>Адаптивная иконка приложения</change>
-    </release>
-    <release version="2019.10" versioncode="74" date="31.10.2019">
-        <change>Расширенная информация об объектах на карте, требует обновления карт</change>
-        <change>Новые объекты: статуя, бюст, табличка, камень, придорожная часовня</change>
-        <change>Переработано отображения сложности и видимости пеших маршрутов</change>
-        <change>Исправлена невозможность импорта треков и карт на некоторых устройствах</change>
-    </release>
-    <release version="2019.09" versioncode="71" date="15.09.2019">
-        <change variant="full">Упрощённая ночная тема карты для облегчения долгих ночных поездок</change>
-        <change>Условные обозначения, подстраивающиеся под выбранную активность и тип карты</change>
-        <change>Лесные и полевые дороги теперь классифицируются по степени проходимости</change>
-        <change>Новые объекты: прокат лодок, центр развлечений, археологические раскопки, пляжный курорт, баня, душ, пристань</change>
-        <change>Много изменений в теме карты</change>
-    </release>
-    <release version="2019.07" versioncode="68" date="26.07.2019">
-        <change>Многострочные названия</change>
-    </release>
+    <change versioncode="98" priority="3">Добавлено создание простых маршрутов</change>
+    <change versioncode="98" priority="7">Исправлена ошибка чтения GPX файлов</change>
+    <change versioncode="97" priority="5">Отображение названий мест</change>
+    <change versioncode="96" priority="5">Отображение лицензии выбранной онлайн карты</change>
+    <change versioncode="95" priority="5">Новые объекты карты: городская площадь, грузовой лифт</change>
+    <change versioncode="95" priority="3">Новый интерфейс записи треков</change>
+    <change versioncode="95" priority="3">Добавлена возможность приостанавливать запись трека</change>
+    <change versioncode="95" priority="5">Добавлено устранение неполадок в настройки</change>
+    <change versioncode="95" priority="5">Добавлена поддержка ночной темы, управляемой системой</change>
+    <change versioncode="95" priority="3">Добавлен перевод на французский</change>
+    <change versioncode="95" priority="7">Исправлено открытие длинных треков</change>
+    <change versioncode="95" priority="7">Исправлено чрезмерное масштабирование карты при просмотре некоторых треков</change>
+    <change versioncode="95" priority="7">Исправлено отображение деревьев на некоторых поверхностях</change>
+    <change versioncode="89" priority="5">Пересмотрен экспорт файлов</change>
+    <change versioncode="89" priority="3">Возрождён плагин обмена положением</change>
+    <change versioncode="89" priority="5">Новый API для плагинов</change>
+    <change versioncode="89" priority="5">Добавлна статистика изменения высоты трека</change>
+    <change versioncode="89" priority="5">Добавлено обнаружение ссылок в описании точки</change>
+    <change versioncode="89" priority="5">Обновлён интерфейс</change>
+    <change versioncode="89" priority="7">Исправлен поиск координат</change>
+    <change versioncode="88" priority="3">Добавлена поддержка навигации по маршруту в обратную сторону</change>
+    <change versioncode="88" priority="3">Добавлена возможность поделиться маршрутом</change>
+    <change versioncode="88" priority="5">Добавлена возможность сохранения данных при удалении приложения</change>
+    <change versioncode="88" priority="7">Исправлено обнаружение плагинов</change>
+    <change versioncode="88" priority="7">Исправлена навигация в фоновом режиме</change>
+    <change versioncode="88" priority="7">Исправлено возобнавление навигации после постановки на паузу</change>
+    <change versioncode="86" priority="3">Добавлена поддержка GPX маршрутов</change>
+    <change versioncode="86" priority="3">Добавлена базовая поддержка навигации по маршруту</change>
+    <change versioncode="86" priority="7">Исправлено отображение приборов</change>
+    <change versioncode="86" priority="7">Исправлено открытие местоположения из других приложений</change>
+    <change versioncode="84" priority="7">Исправлена загрузка карт на Android 12</change>
+    <change versioncode="84" priority="7">Исправлена обработка пользовательских карт при вращении устройства</change>
+    <change versioncode="83" priority="7">Восстановлена запись трека в фоновом режиме</change>
+    <change versioncode="83" priority="5">Включён выход по двойному нажатию назад</change>
+    <change versioncode="83" priority="7">Исправлена повышенная точность для расстояния</change>
+    <change versioncode="82" priority="7">Исправлен белый экран при старте на современных устройствах</change>
+    <change versioncode="82" priority="7">Исправлена невозможность запуска на современных устройствах</change>
+    <change versioncode="82" priority="5">Удалена возможность переноса файлов на внешние файловые хранилища</change>
+    <change versioncode="82" priority="5">Удалена поддержка полноэкранного режима на старых устройствах</change>
+    <change versioncode="80" priority="5">Новый элемент: пересыхающий водоём</change>
+    <change versioncode="80" priority="7">Исправлено неудаление устаревших объектов из базы карт</change>
+    <change versioncode="79" priority="3">Велосипедный режим отображает велосипедную инфраструктуру</change>
+    <change versioncode="79" priority="3">Новые объекты: форт, городские ворота, автомобильные запчасти, зарядная станция, место ремонта велосипеда, велопарковка</change>
+    <change versioncode="79" priority="3">Новые элементы: горный хребет, охотничья вышка, значительный камень</change>
+    <change versioncode="79" priority="3">Значки платности и доступности объектов</change>
+    <change versioncode="79" priority="5">Добавлена возможность импорта файлов данных и карт из приложения</change>
+    <change versioncode="79" priority="5">Обновленый стиль карты</change>
+    <change versioncode="78" priority="3">Новые объекты: мотомагазины, водяные мельницы</change>
+    <change versioncode="78" priority="3">Новые элементы: земли аборигенов, колодцы, водяные колонки, трубопроводы</change>
+    <change versioncode="78" priority="3">Настраиваемый пользовательский масштаб карты</change>
+    <change versioncode="78" priority="5">Названия приоритизируются по площади объекта карты</change>
+    <change versioncode="78" priority="5">Обновленый стиль карты</change>
+    <change versioncode="78" priority="5">Поведение кнопки 'Запись трека' поменялось местами</change>
+    <change versioncode="78" priority="7">Исправлен цвет панели навигации в ночном режиме</change>
+    <change versioncode="78" priority="3">Поддержка плагинов оффлайн-карт</change>
+    <change versioncode="77" priority="3">Поиск безымянных и конкретных объектов</change>
+    <change versioncode="77" priority="3">Возможность отображать несколько пользовательских карт</change>
+    <change versioncode="77" priority="7">Исправлено пропадание пользовательских карт</change>
+    <change versioncode="77" priority="7">Исправлены некоторые проблемы при работе с SD-картами</change>
+    <change versioncode="75" priority="5">Новая категория - Красота и здоровье</change>
+    <change versioncode="75" priority="3">Новые объекты: художественная галерея, котедж, посольство, стоматология, массажный салон, конюшня</change>
+    <change versioncode="75" priority="3">Новые элементы: марина, область сервиса и отдыха, насыпь, место для разведения костра, перекат, высыхающие реки и ручьи, второстепенные железные дороги</change>
+    <change versioncode="75" priority="3">Добавлена базовая поддержка файлов KMZ</change>
+    <change versioncode="75" priority="7">Исправлена ошибка чтения некоторых файлов KML</change>
+    <change versioncode="75" priority="5">Адаптивная иконка приложения</change>
+    <change versioncode="74" priority="3">Расширенная информация об объектах на карте, требует обновления карт</change>
+    <change versioncode="74" priority="3">Новые объекты: статуя, бюст, табличка, камень, придорожная часовня</change>
+    <change versioncode="74" priority="5">Переработано отображения сложности и видимости пеших маршрутов</change>
+    <change versioncode="74" priority="7">Исправлена невозможность импорта треков и карт на некоторых устройствах</change>
+    <change versioncode="71" priority="3">Упрощённая ночная тема карты для облегчения долгих ночных поездок</change>
+    <change versioncode="71" priority="3">Условные обозначения, подстраивающиеся под выбранную активность и тип карты</change>
+    <change versioncode="71" priority="5">Лесные и полевые дороги теперь классифицируются по степени проходимости</change>
+    <change versioncode="71" priority="3">Новые объекты: прокат лодок, центр развлечений, археологические раскопки, пляжный курорт, баня, душ, пристань</change>
+    <change versioncode="71" priority="5">Много изменений в теме карты</change>
+    <change versioncode="68" priority="3">Многострочные названия</change>
 </changelog>

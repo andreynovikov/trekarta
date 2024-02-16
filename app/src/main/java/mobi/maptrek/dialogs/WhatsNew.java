@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,7 +20,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,11 +35,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Collections;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MapTrek;
@@ -48,11 +44,9 @@ import mobi.maptrek.R;
 
 public class WhatsNew extends DialogFragment {
     private static final String TAG_CHANGELOG = "changelog";
-    private static final String TAG_RELEASE = "release";
     private static final String TAG_CHANGE = "change";
     private static final String ATTRIBUTE_VERSION_CODE = "versioncode";
-    private static final String ATTRIBUTE_VERSION = "version";
-    private static final String ATTRIBUTE_DATE = "date";
+    private static final String ATTRIBUTE_PRIORITY = "priority";
 
     private final ArrayList<ChangeListItem> mChangelog = new ArrayList<>();
 
@@ -78,8 +72,15 @@ public class WhatsNew extends DialogFragment {
         MapTrek application = MapTrek.getApplication();
         int lastCode = Configuration.getLastSeenChangelog();
         getChangelog(application, lastCode);
-        if (mChangelog.size() > 0)
-           super.show(manager, tag);
+        if (mChangelog.size() > 0) {
+            Collections.sort(mChangelog, (o1, o2) -> {
+                int result = Integer.compare(o1.priority, o2.priority);
+                if (result == 0)
+                    result = Integer.compare(o2.version, o1.version);
+                return result;
+            });
+            super.show(manager, tag);
+        }
     }
 
     public static boolean shouldShow() {
@@ -103,17 +104,19 @@ public class WhatsNew extends DialogFragment {
                     continue;
                 }
                 String name = parser.getName();
-                if (name.equals(TAG_RELEASE)) {
+                if (name.equals(TAG_CHANGE)) {
+                    parser.require(XmlPullParser.START_TAG, null, TAG_CHANGE);
                     int code = Integer.parseInt(parser.getAttributeValue(null, ATTRIBUTE_VERSION_CODE));
                     if (code > version) {
                         ChangeListItem changeItem = new ChangeListItem();
-                        changeItem.version = parser.getAttributeValue(null, ATTRIBUTE_VERSION);
-                        changeItem.date = parser.getAttributeValue(null, ATTRIBUTE_DATE);
+                        changeItem.version = code;
+                        changeItem.priority = Integer.parseInt(parser.getAttributeValue(null, ATTRIBUTE_PRIORITY));
+                        changeItem.change = readText(parser);
                         mChangelog.add(changeItem);
-                        readRelease(parser);
                     } else {
                         skip(parser);
                     }
+                    parser.require(XmlPullParser.END_TAG, null, TAG_CHANGE);
                 } else {
                     skip(parser);
                 }
@@ -121,26 +124,6 @@ public class WhatsNew extends DialogFragment {
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void readRelease(XmlResourceParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, null, TAG_RELEASE);
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            if (name.equals(TAG_CHANGE)) {
-                parser.require(XmlPullParser.START_TAG, null, TAG_CHANGE);
-                ChangeListItem changeItem = new ChangeListItem();
-                changeItem.change = readText(parser);
-                mChangelog.add(changeItem);
-                parser.require(XmlPullParser.END_TAG, null, TAG_CHANGE);
-            } else {
-                skip(parser);
-            }
-        }
-        parser.require(XmlPullParser.END_TAG, null, TAG_RELEASE);
     }
 
     @NonNull
@@ -168,17 +151,6 @@ public class WhatsNew extends DialogFragment {
                     break;
             }
         }
-    }
-
-    private String parseDate(final String dateString) {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        try {
-            final Date parsedDate = dateFormat.parse(dateString);
-            if (parsedDate != null)
-                return DateFormat.getDateFormat(getContext()).format(parsedDate);
-        } catch (ParseException ignored) {
-        }
-        return dateString;
     }
 
     private class ChangeListAdapter extends BaseAdapter {
@@ -209,28 +181,14 @@ public class WhatsNew extends DialogFragment {
 
             if (convertView == null) {
                 itemHolder = new WhatsNew.ChangeListItemHolder();
-                if (item.version != null) {
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change_title, parent, false);
-                    itemHolder.divider = convertView.findViewById(R.id.group_divider);
-                    itemHolder.version = convertView.findViewById(R.id.version);
-                    itemHolder.date = convertView.findViewById(R.id.date);
-                } else {
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change, parent, false);
-                    itemHolder.change = convertView.findViewById(R.id.change);
-                }
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_change, parent, false);
+                itemHolder.change = convertView.findViewById(R.id.change);
                 convertView.setTag(itemHolder);
             } else {
                 itemHolder = (WhatsNew.ChangeListItemHolder) convertView.getTag();
             }
 
-            if (item.version != null) {
-                itemHolder.divider.setVisibility(position > 0 ? View.VISIBLE : View.GONE);
-                itemHolder.version.setText(item.version);
-                if (item.date != null)
-                    itemHolder.date.setText(parseDate(item.date));
-            } else {
-                itemHolder.change.setText(item.change);
-            }
+            itemHolder.change.setText(item.change);
 
             return convertView;
         }
@@ -239,28 +197,15 @@ public class WhatsNew extends DialogFragment {
         public boolean hasStableIds() {
             return true;
         }
-
-        @Override
-        public int getItemViewType(int position) {
-            return mChangelog.get(position).version != null ? 0 : 1;
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return 2;
-        }
     }
 
     private static class ChangeListItem {
-        String version;
-        String date;
+        int version;
+        int priority;
         String change;
     }
 
     private static class ChangeListItemHolder {
-        View divider;
-        TextView version;
-        TextView date;
         TextView change;
     }
 }
