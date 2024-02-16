@@ -325,15 +325,14 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             setLockDrawable(coordsView);
 
             coordsView.setOnTouchListener((v, event) -> {
-                if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                    if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
-                        // your action for drawable click event
+                if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
+                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
                         mWaypoint.locked = !mWaypoint.locked;
                         mListener.onWaypointSave(mWaypoint);
                         mListener.onWaypointFocus(mWaypoint);
                         setLockDrawable(coordsView);
-                        return true;
                     }
+                    return true;
                 }
                 return false;
             });
