@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -35,6 +35,10 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.text.TextUtilsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -47,15 +51,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.github.DetectHtml;
@@ -70,7 +71,6 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
-import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
@@ -79,6 +79,7 @@ import mobi.maptrek.R;
 import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.databinding.FragmentWaypointInformationBinding;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
@@ -101,8 +102,9 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     private MapHolder mMapHolder;
     private OnWaypointActionListener mListener;
     private boolean mExpanded;
-    private boolean mEditorMode;
     private boolean mPopAll;
+    private WaypointInformationViewModel viewModel;
+    private FragmentWaypointInformationBinding viewBinding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,62 +112,58 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         setRetainInstance(true);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_waypoint_information, container, false);
-        final ImageButton editButton = rootView.findViewById(R.id.editButton);
-        final ImageButton shareButton = rootView.findViewById(R.id.shareButton);
-        final ImageButton deleteButton = rootView.findViewById(R.id.deleteButton);
-
-        editButton.setOnClickListener(v -> setEditorMode(true));
-        shareButton.setOnClickListener(v -> {
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onWaypointShare(mWaypoint);
-        });
-        deleteButton.setOnClickListener(v -> {
-            Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
-            v.startAnimation(shake);
-        });
-        deleteButton.setOnLongClickListener(v -> {
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onWaypointDelete(mWaypoint);
-            return true;
-        });
-
-        mEditorMode = false;
-        mPopAll = false;
-
-        rootView.post(() -> {
-            updatePeekHeight(rootView, false);
-            mBottomSheetBehavior.setSkipCollapsed(mExpanded);
-            int panelState = mExpanded ? BottomSheetBehavior.STATE_EXPANDED : BottomSheetBehavior.STATE_COLLAPSED;
-            if (savedInstanceState != null) {
-                panelState = savedInstanceState.getInt("panelState", panelState);
-                View dragHandle = rootView.findViewById(R.id.dragHandle);
-                dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
-            }
-            mBottomSheetBehavior.setState(panelState);
-            // Workaround for panel partially drawn on first slide
-            // TODO Try to put transparent view above map
-            if (Configuration.getHideSystemUI())
-                rootView.requestLayout();
-        });
-
-        return rootView;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        viewBinding = FragmentWaypointInformationBinding.inflate(inflater, container, false);
+        return viewBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        viewModel = new ViewModelProvider(this).get(WaypointInformationViewModel.class);
+        viewModel.editorMode.observe(getViewLifecycleOwner(), editorModeObserver);
+
+        viewBinding.editButton.setOnClickListener(v -> viewModel.editorMode.setValue(true));
+        viewBinding.shareButton.setOnClickListener(v -> {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            mListener.onWaypointShare(mWaypoint);
+        });
+        viewBinding.deleteButton.setOnClickListener(v -> {
+            Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+            v.startAnimation(shake);
+        });
+        viewBinding.deleteButton.setOnLongClickListener(v -> {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            mListener.onWaypointDelete(mWaypoint);
+            return true;
+        });
+
+        mPopAll = false;
+
+        view.post(() -> {
+            updatePeekHeight(false);
+            mBottomSheetBehavior.setSkipCollapsed(mExpanded);
+            int panelState = mExpanded ? BottomSheetBehavior.STATE_EXPANDED : BottomSheetBehavior.STATE_COLLAPSED;
+            if (savedInstanceState != null) {
+                panelState = savedInstanceState.getInt("panelState", panelState);
+                View dragHandle = view.findViewById(R.id.dragHandle);
+                dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
+            }
+            mBottomSheetBehavior.setState(panelState);
+            // Workaround for panel partially drawn on first slide
+            // TODO Try to put transparent view above map
+            if (Configuration.getHideSystemUI())
+                view.requestLayout();
+        });
+
         double latitude = Double.NaN;
         double longitude = Double.NaN;
 
-        boolean editorMode = false;
         if (savedInstanceState != null) {
             latitude = savedInstanceState.getDouble(ARG_LATITUDE);
             longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
             mExpanded = savedInstanceState.getBoolean(ARG_DETAILS);
-            editorMode = savedInstanceState.getBoolean("editorMode");
         } else {
             Bundle arguments = getArguments();
             if (arguments != null) {
@@ -175,22 +173,19 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             }
         }
 
-        final ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
-
         mFloatingButton = mFragmentHolder.enableActionButton();
         setFloatingPointDrawable();
         mFloatingButton.setOnClickListener(v -> {
             if (!isVisible())
                 return;
-            if (mEditorMode) {
-                mWaypoint.name = ((EditText) rootView.findViewById(R.id.nameEdit)).getText().toString();
-                mWaypoint.description = ((EditText) rootView.findViewById(R.id.descriptionEdit)).getText().toString();
-                mWaypoint.style.color = ((ColorPickerSwatch) rootView.findViewById(R.id.colorSwatch)).getColor();
+            if (Boolean.TRUE.equals(viewModel.editorMode.getValue())) {
+                mWaypoint.name = viewBinding.nameEdit.getText().toString();
+                mWaypoint.description = viewBinding.descriptionEdit.getText().toString();
+                mWaypoint.style.color = viewBinding.colorSwatch.getColor();
 
                 mListener.onWaypointSave(mWaypoint);
                 mListener.onWaypointFocus(mWaypoint);
-                setEditorMode(false);
+                viewModel.editorMode.setValue(false);
             } else {
                 if (mMapHolder.isNavigatingTo(mWaypoint.coordinates))
                     mMapHolder.stopNavigation();
@@ -206,13 +201,10 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         mFloatingButton.setLayoutParams(p);
 
         updateWaypointInformation(latitude, longitude);
-        if (editorMode)
-            setEditorMode(true);
 
-        rootView.findViewById(R.id.dragHandle).setAlpha(mExpanded ? 0f : 1f);
+        viewBinding.dragHandle.setAlpha(mExpanded ? 0f : 1f);
         mBottomSheetCallback = new WaypointBottomSheetCallback();
-        ViewParent parent = rootView.getParent();
-        mBottomSheetBehavior = BottomSheetBehavior.from((View) parent);
+        mBottomSheetBehavior = BottomSheetBehavior.from((View) viewBinding.getRoot().getParent());
         mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
         mListener.onWaypointFocus(mWaypoint);
@@ -274,175 +266,150 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         outState.putDouble(ARG_LONGITUDE, mLongitude);
         outState.putBoolean(ARG_DETAILS, mExpanded);
         outState.putInt("panelState", mBottomSheetBehavior.getState());
-        outState.putBoolean("editorMode", mEditorMode);
     }
 
     public void setWaypoint(Waypoint waypoint) {
         mWaypoint = waypoint;
         if (isVisible()) {
-            if (mEditorMode)
-                setEditorMode(false);
+            if (Boolean.TRUE.equals(viewModel.editorMode.getValue()))
+                viewModel.editorMode.setValue(false);
             mListener.onWaypointFocus(mWaypoint);
             updateWaypointInformation(mLatitude, mLongitude);
-            final ViewGroup rootView = (ViewGroup) getView();
-            if (rootView != null)
-                rootView.post(() -> updatePeekHeight(rootView, true));
+            viewBinding.getRoot().post(() -> updatePeekHeight(true));
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void updateWaypointInformation(double latitude, double longitude) {
-        Activity activity = getActivity();
-        final View rootView = getView();
-        assert rootView != null;
+        Activity activity = requireActivity();
 
-        TextView nameView = rootView.findViewById(R.id.name);
-        if (nameView != null)
-            nameView.setText(mWaypoint.name);
+        viewBinding.name.setText(mWaypoint.name);
+        viewBinding.source.setText(mWaypoint.source.name);
 
-        TextView sourceView = rootView.findViewById(R.id.source);
-        if (sourceView != null)
-            sourceView.setText(mWaypoint.source.name);
-
-        TextView destinationView = rootView.findViewById(R.id.destination);
-        if (destinationView != null) {
-            if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-                destinationView.setVisibility(View.GONE);
-            } else {
-                GeoPoint point = new GeoPoint(latitude, longitude);
-                double dist = point.vincentyDistance(mWaypoint.coordinates);
-                double bearing = point.bearingTo(mWaypoint.coordinates);
-                String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-                destinationView.setVisibility(View.VISIBLE);
-                destinationView.setText(distance);
-            }
+        if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
+            viewBinding.destination.setVisibility(View.GONE);
+        } else {
+            GeoPoint point = new GeoPoint(latitude, longitude);
+            double dist = point.vincentyDistance(mWaypoint.coordinates);
+            double bearing = point.bearingTo(mWaypoint.coordinates);
+            String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
+            viewBinding.destination.setVisibility(View.VISIBLE);
+            viewBinding.destination.setText(distance);
         }
 
-        final TextView coordsView = rootView.findViewById(R.id.coordinates);
-        if (coordsView != null) {
-            coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+        setLockDrawable();
 
-            setLockDrawable(coordsView);
-
-            coordsView.setOnTouchListener((v, event) -> {
-                if (event.getX() >= coordsView.getRight() - coordsView.getTotalPaddingRight()) {
-                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                        mWaypoint.locked = !mWaypoint.locked;
-                        mListener.onWaypointSave(mWaypoint);
-                        mListener.onWaypointFocus(mWaypoint);
-                        setLockDrawable(coordsView);
-                    }
-                    return true;
+        viewBinding.coordinates.setOnTouchListener((v, event) -> {
+            if (event.getX() >= viewBinding.coordinates.getRight() - viewBinding.coordinates.getTotalPaddingRight()) {
+                if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+                    mWaypoint.locked = !mWaypoint.locked;
+                    mListener.onWaypointSave(mWaypoint);
+                    mListener.onWaypointFocus(mWaypoint);
+                    setLockDrawable();
                 }
-                return false;
-            });
-            coordsView.setOnClickListener(v -> {
-                StringFormatter.coordinateFormat++;
-                if (StringFormatter.coordinateFormat == 5)
-                    StringFormatter.coordinateFormat = 0;
-                coordsView.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
-                Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
-            });
-        }
-
-        TextView altitudeView = rootView.findViewById(R.id.altitude);
-        if (altitudeView != null) {
-            if (mWaypoint.altitude != Integer.MIN_VALUE) {
-                altitudeView.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
-                altitudeView.setVisibility(View.VISIBLE);
-            } else {
-                altitudeView.setVisibility(View.GONE);
+                return true;
             }
+            return false;
+        });
+        viewBinding.coordinates.setOnClickListener(v -> {
+            StringFormatter.coordinateFormat++;
+            if (StringFormatter.coordinateFormat == 5)
+                StringFormatter.coordinateFormat = 0;
+            viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+            Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
+        });
+
+        if (mWaypoint.altitude != Integer.MIN_VALUE) {
+            viewBinding.altitude.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
+            viewBinding.altitude.setVisibility(View.VISIBLE);
+        } else {
+            viewBinding.altitude.setVisibility(View.GONE);
         }
 
-        TextView proximityView = rootView.findViewById(R.id.proximity);
-        if (proximityView != null) {
-            if (mWaypoint.proximity > 0) {
-                proximityView.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
-                proximityView.setVisibility(View.VISIBLE);
-            } else {
-                proximityView.setVisibility(View.GONE);
-            }
+        if (mWaypoint.proximity > 0) {
+            viewBinding.proximity.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
+            viewBinding.proximity.setVisibility(View.VISIBLE);
+        } else {
+            viewBinding.proximity.setVisibility(View.GONE);
         }
 
-        TextView dateView = rootView.findViewById(R.id.date);
-        if (dateView != null) {
-            if (mWaypoint.date != null) {
-                String date = DateFormat.getDateFormat(activity).format(mWaypoint.date);
-                String time = DateFormat.getTimeFormat(activity).format(mWaypoint.date);
-                dateView.setText(getString(R.string.datetime, date, time));
-                rootView.findViewById(R.id.dateRow).setVisibility(View.VISIBLE);
-            } else {
-                rootView.findViewById(R.id.dateRow).setVisibility(View.GONE);
-            }
+        if (mWaypoint.date != null) {
+            String date = DateFormat.getDateFormat(activity).format(mWaypoint.date);
+            String time = DateFormat.getTimeFormat(activity).format(mWaypoint.date);
+            viewBinding.date.setText(getString(R.string.datetime, date, time));
+            viewBinding.dateRow.setVisibility(View.VISIBLE);
+        } else {
+            viewBinding.dateRow.setVisibility(View.GONE);
         }
 
-        setDescription(rootView);
+        setDescription();
 
         mLatitude = latitude;
         mLongitude = longitude;
     }
 
-    private void setEditorMode(boolean enabled) {
-        ViewGroup rootView = (ViewGroup) getView();
-        assert rootView != null;
+    private final Observer<Boolean> editorModeObserver = new Observer<Boolean>() {
+        @Override
+        public void onChanged(Boolean enabled) {
+            Activity activity = requireActivity();
 
-        final ColorPickerSwatch colorSwatch = rootView.findViewById(R.id.colorSwatch);
+            int viewsState, editsState;
+            if (enabled) {
+                mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(activity, R.drawable.ic_done));
+                viewBinding.nameEdit.setText(mWaypoint.name);
+                viewBinding.descriptionEdit.setText(mWaypoint.description);
+                viewBinding.colorSwatch.setColor(mWaypoint.style.color);
+                viewBinding.colorSwatch.setOnClickListener(v -> {
+                    // TODO Implement class that hides this behaviour
+                    ColorPickerDialog dialog = new ColorPickerDialog();
+                    dialog.setColors(MarkerStyle.DEFAULT_COLORS, viewBinding.colorSwatch.getColor());
+                    dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
+                    dialog.setOnColorSelectedListener(viewBinding.colorSwatch::setColor);
+                    dialog.show(getParentFragmentManager(), "ColorPickerDialog");
+                });
+                viewsState = View.GONE;
+                editsState = View.VISIBLE;
 
-        int viewsState, editsState;
-        if (enabled) {
-            mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(rootView.getContext(), R.drawable.ic_done));
-            ((EditText) rootView.findViewById(R.id.nameEdit)).setText(mWaypoint.name);
-            ((EditText) rootView.findViewById(R.id.descriptionEdit)).setText(mWaypoint.description);
-            colorSwatch.setColor(mWaypoint.style.color);
-            colorSwatch.setOnClickListener(v -> {
-                // TODO Implement class that hides this behaviour
-                ColorPickerDialog dialog = new ColorPickerDialog();
-                dialog.setColors(MarkerStyle.DEFAULT_COLORS, colorSwatch.getColor());
-                dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-                dialog.setOnColorSelectedListener(colorSwatch::setColor);
-                dialog.show(getParentFragmentManager(), "ColorPickerDialog");
-            });
-            viewsState = View.GONE;
-            editsState = View.VISIBLE;
+                if (mWaypoint.source instanceof FileDataSource)
+                    HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFloatingButton, false);
+            } else {
+                setFloatingPointDrawable();
+                viewBinding.name.setText(mWaypoint.name);
+                setDescription();
+                viewsState = View.VISIBLE;
+                editsState = View.GONE;
+                // Hide keyboard
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(viewBinding.getRoot().getWindowToken(), 0);
+                viewBinding.getRoot().post(() -> updatePeekHeight(false));
+            }
+            if (!enabled) // when enabled, delayed transition is initiated by list FAB
+                TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
+            viewBinding.name.setVisibility(viewsState);
+            viewBinding.nameWrapper.setVisibility(editsState);
+            if (enabled || mWaypoint.description != null && !"".equals(mWaypoint.description))
+                viewBinding.descriptionRow.setVisibility(View.VISIBLE);
+            else
+                viewBinding.descriptionRow.setVisibility(View.GONE);
+            viewBinding.description.setVisibility(viewsState);
+            viewBinding.descriptionWrapper.setVisibility(editsState);
+            viewBinding.colorSwatch.setVisibility(editsState);
 
-            if (mWaypoint.source instanceof FileDataSource)
-                HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFloatingButton, false);
-        } else {
-            setFloatingPointDrawable();
-            ((TextView) rootView.findViewById(R.id.name)).setText(mWaypoint.name);
-            setDescription(rootView);
-            viewsState = View.VISIBLE;
-            editsState = View.GONE;
-            // Hide keyboard
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-                imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-            rootView.post(() -> updatePeekHeight(rootView, false));
+            if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
+                viewBinding.destination.setVisibility(viewsState);
+            }
+            if (mWaypoint.date != null) {
+                viewBinding.dateRow.setVisibility(viewsState);
+            }
+            viewBinding.source.setVisibility(viewsState);
+            viewBinding.coordinatesRow.setVisibility(viewsState);
+            viewBinding.descriptionIcon.setVisibility(viewsState);
+            viewBinding.editButton.setVisibility(viewsState);
+            viewBinding.shareButton.setVisibility(viewsState);
         }
-        // TODO Optimize view findings
-        TransitionManager.beginDelayedTransition(rootView, new Fade());
-        rootView.findViewById(R.id.name).setVisibility(viewsState);
-        rootView.findViewById(R.id.nameWrapper).setVisibility(editsState);
-        if (enabled || mWaypoint.description != null && !"".equals(mWaypoint.description))
-            rootView.findViewById(R.id.descriptionRow).setVisibility(View.VISIBLE);
-        else
-            rootView.findViewById(R.id.descriptionRow).setVisibility(View.GONE);
-        rootView.findViewById(R.id.description).setVisibility(viewsState);
-        rootView.findViewById(R.id.descriptionWrapper).setVisibility(editsState);
-        colorSwatch.setVisibility(editsState);
-
-        if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
-            rootView.findViewById(R.id.destination).setVisibility(viewsState);
-        }
-        if (mWaypoint.date != null) {
-            rootView.findViewById(R.id.dateRow).setVisibility(viewsState);
-        }
-        rootView.findViewById(R.id.editButton).setVisibility(viewsState);
-        rootView.findViewById(R.id.shareButton).setVisibility(viewsState);
-
-        mEditorMode = enabled;
-    }
+    };
 
     private void setFloatingPointDrawable() {
         if (mMapHolder.isNavigatingTo(mWaypoint.coordinates)) {
@@ -452,27 +419,26 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         }
     }
 
-    private void setLockDrawable(TextView coordsView) {
+    private void setLockDrawable() {
         int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
-        Drawable drawable = AppCompatResources.getDrawable(coordsView.getContext(), imageResource);
+        Drawable drawable = AppCompatResources.getDrawable(viewBinding.coordinates.getContext(), imageResource);
         if (drawable != null) {
-            int drawableSize = (int) Math.round(coordsView.getLineHeight() * 0.7);
+            int drawableSize = (int) Math.round(viewBinding.coordinates.getLineHeight() * 0.7);
             int drawablePadding = (int) (MapTrek.density * 1.5f);
             drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
             int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
-            drawable.setTint(coordsView.getContext().getColor(tintColor));
-            coordsView.setCompoundDrawables(null, null, drawable, null);
+            drawable.setTint(viewBinding.coordinates.getContext().getColor(tintColor));
+            viewBinding.coordinates.setCompoundDrawables(null, null, drawable, null);
         }
     }
 
     // WebView is very heavy to initialize. That's why it is used only on demand.
-    private void setDescription(View rootView) {
-        final ViewGroup row = rootView.findViewById(R.id.descriptionRow);
+    private void setDescription() {
         if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
-            row.setVisibility(View.GONE);
+            viewBinding.descriptionRow.setVisibility(View.GONE);
             return;
         }
-        row.setVisibility(View.VISIBLE);
+        viewBinding.descriptionRow.setVisibility(View.VISIBLE);
 
         String text = mWaypoint.description;
         boolean hasHTML = false;
@@ -485,15 +451,14 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                 hasHTML = true;
             }
         }
-        View description = rootView.findViewById(R.id.description);
-        if (description instanceof LimitedWebView) {
-            setWebViewText((LimitedWebView) description, text);
+        if (viewBinding.description instanceof LimitedWebView) {
+            setWebViewText((LimitedWebView) viewBinding.description, text);
         } else if (hasHTML) {
             // Replace TextView with WebView
-            convertToWebView(description, text);
+            convertToWebView(viewBinding.description, text);
         } else {
-            ((TextView) description).setText(text);
-            ((TextView) description).setMovementMethod(new ScrollingMovementMethod());
+            ((TextView) viewBinding.description).setText(text);
+            ((TextView) viewBinding.description).setMovementMethod(new ScrollingMovementMethod());
         }
     }
 
@@ -544,26 +509,23 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
-    private void updatePeekHeight(ViewGroup rootView, boolean setState) {
-        View dragHandle = rootView.findViewById(R.id.dragHandle);
-        View nameView = rootView.findViewById(R.id.name);
-        View sourceView = rootView.findViewById(R.id.source);
-        mBottomSheetBehavior.setPeekHeight(dragHandle.getHeight() * 2 + nameView.getHeight() + sourceView.getHeight());
+    private void updatePeekHeight(boolean setState) {
+        mBottomSheetBehavior.setPeekHeight(viewBinding.dragHandle.getHeight() * 2 + viewBinding.name.getHeight() + viewBinding.source.getHeight());
         if (setState)
             mBottomSheetBehavior.setState(mBottomSheetBehavior.getState());
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        if (!mEditorMode)
+        if (Boolean.FALSE.equals(viewModel.editorMode.getValue()))
             updateWaypointInformation(location.getLatitude(), location.getLongitude());
     }
 
     OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
-            if (mEditorMode)
-                setEditorMode(false);
+            if (Boolean.TRUE.equals(viewModel.editorMode.getValue()))
+                viewModel.editorMode.setValue(false);
             else
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
@@ -585,17 +547,17 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                     mFragmentHolder.popCurrent();
             }
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                TextView coordsView = bottomSheet.findViewById(R.id.coordinates);
-                if (!HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, coordsView, true)
+                Activity activity = requireActivity();
+                if (!HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, viewBinding.coordinates, true)
                         && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
                     Rect r = new Rect();
-                    coordsView.getGlobalVisibleRect(r);
-                    if (coordsView.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
-                        r.left = r.right - coordsView.getTotalPaddingRight();
+                    viewBinding.coordinates.getGlobalVisibleRect(r);
+                    if (viewBinding.coordinates.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                        r.left = r.right - viewBinding.coordinates.getTotalPaddingRight();
                     } else {
-                        r.right = r.left + coordsView.getTotalPaddingLeft();
+                        r.right = r.left + viewBinding.coordinates.getTotalPaddingLeft();
                     }
-                    HelperUtils.showTargetedAdvice(getActivity(), Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
+                    HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_LOCKED_COORDINATES, R.string.advice_locked_coordinates, r);
                 }
             }
         }
@@ -606,5 +568,9 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                 bottomSheet.findViewById(R.id.dragHandle).setAlpha(1f - slideOffset);
             mFloatingButton.setAlpha(1f + slideOffset);
         }
+    }
+
+    public static class WaypointInformationViewModel extends ViewModel {
+        private final MutableLiveData<Boolean> editorMode = new MutableLiveData<>(false);
     }
 }

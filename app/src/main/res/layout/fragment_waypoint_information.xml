@@ -95,6 +95,7 @@
         android:stretchColumns="1">
 
         <TableRow
+            android:id="@+id/coordinatesRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -142,6 +143,7 @@
             android:visibility="gone">
 
             <ImageView
+                android:id="@+id/descriptionIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -160,7 +162,8 @@
                     android:layout_height="wrap_content"
                     android:maxLines="10"
                     android:scrollbars="vertical"
-                    android:textColor="?android:textColorPrimary" />
+                    android:textColor="?android:textColorPrimary"
+                    tools:viewBindingType="android.view.View" />
 
                 <LinearLayout
                     android:id="@+id/descriptionWrapper"
