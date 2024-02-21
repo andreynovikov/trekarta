@@ -100,10 +100,10 @@ public class Route implements Parcelable {
             addInstruction(instruction);
             return;
         }
-        int after = instructions.size() - 1;
+        int after = -1;
         double xtk = Double.MAX_VALUE;
         synchronized (instructions) {
-            for (int i = 0; i < instructions.size() - 1; i++) {
+            for (int i = instructions.size() - 2; i >= 0; i--) {
                 double distance = instruction.vincentyDistance(instructions.get(i + 1));
                 double bearing1 = instruction.bearingTo(instructions.get(i + 1));
                 double dtk1 = instructions.get(i).bearingTo(instructions.get(i + 1));
@@ -118,7 +118,10 @@ public class Route implements Parcelable {
                 }
             }
         }
-        insertInstruction(after, instruction);
+        if (after < 0)
+            addInstruction(instruction);
+        else
+            insertInstruction(after, instruction);
     }
 
     public void insertInstruction(int after, Instruction instruction) {
