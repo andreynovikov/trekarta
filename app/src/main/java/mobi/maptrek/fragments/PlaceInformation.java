@@ -22,7 +22,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -42,6 +41,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import android.text.Editable;
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
@@ -72,7 +72,6 @@ import java.util.EnumSet;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import mobi.maptrek.Configuration;
-import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
@@ -83,17 +82,11 @@ import mobi.maptrek.databinding.FragmentPlaceInformationBinding;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
+import mobi.maptrek.viewmodels.MapViewModel;
+import mobi.maptrek.viewmodels.PlaceViewModel;
 
-public class PlaceInformation extends Fragment implements LocationChangeListener {
+public class PlaceInformation extends Fragment {
     private static final Logger logger = LoggerFactory.getLogger(PlaceInformation.class);
-
-    public static final String ARG_LATITUDE = "lat";
-    public static final String ARG_LONGITUDE = "lon";
-    public static final String ARG_DETAILS = "details";
-
-    private Place mPlace;
-    private double mLatitude;
-    private double mLongitude;
 
     private BottomSheetBehavior<View> mBottomSheetBehavior;
     private PlaceBottomSheetCallback mBottomSheetCallback;
@@ -101,16 +94,11 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
     private OnPlaceActionListener mListener;
-    private boolean mExpanded;
-    private boolean mPopAll;
+    private boolean popAll;
+    private PlaceViewModel placeViewModel;
     private PlaceInformationViewModel viewModel;
     private FragmentPlaceInformationBinding viewBinding;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+    private int panelState;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewBinding = FragmentPlaceInformationBinding.inflate(inflater, container, false);
@@ -121,13 +109,44 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        placeViewModel = new ViewModelProvider(requireActivity()).get(PlaceViewModel.class);
+        placeViewModel.selectedPlace.observe(getViewLifecycleOwner(), place -> {
+            if (place != null) {
+                updatePlaceInformation(place);
+                mListener.onPlaceFocus(place);
+                requireView().post(this::updatePeekHeight);
+            }
+        });
+
+        MapViewModel mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+        mapViewModel.currentLocation.observe(getViewLifecycleOwner(), location -> {
+            if ("unknown".equals(location.getProvider())) {
+                viewBinding.destination.setVisibility(View.GONE);
+                viewModel.showDestination = false;
+            } else {
+                Place place = placeViewModel.selectedPlace.getValue();
+                if (place == null)
+                    return;
+                GeoPoint point = new GeoPoint(location.getLatitude(), location.getLongitude());
+                double dist = point.vincentyDistance(place.coordinates);
+                double bearing = point.bearingTo(place.coordinates);
+                String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
+                viewBinding.destination.setVisibility(View.VISIBLE);
+                viewBinding.destination.setTag(true);
+                viewBinding.destination.setText(distance);
+                viewModel.showDestination = true;
+            }
+        });
+
         viewModel = new ViewModelProvider(this).get(PlaceInformationViewModel.class);
         viewModel.editorMode.observe(getViewLifecycleOwner(), editorModeObserver);
 
         viewBinding.editButton.setOnClickListener(v -> viewModel.editorMode.setValue(true));
         viewBinding.shareButton.setOnClickListener(v -> {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onPlaceShare(mPlace);
+            Place place = placeViewModel.selectedPlace.getValue();
+            if (place != null)
+                mListener.onPlaceShare(place);
         });
         viewBinding.deleteButton.setOnClickListener(v -> {
             Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
@@ -135,63 +154,37 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
         });
         viewBinding.deleteButton.setOnLongClickListener(v -> {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onPlaceDelete(mPlace);
+            Place place = placeViewModel.selectedPlace.getValue();
+            if (place != null)
+                mListener.onPlaceDelete(place);
             return true;
         });
 
-        mPopAll = false;
-
-        view.post(() -> {
-            updatePeekHeight(false);
-            mBottomSheetBehavior.setSkipCollapsed(mExpanded);
-            int panelState = mExpanded ? BottomSheetBehavior.STATE_EXPANDED : BottomSheetBehavior.STATE_COLLAPSED;
-            if (savedInstanceState != null) {
-                panelState = savedInstanceState.getInt("panelState", panelState);
-                View dragHandle = view.findViewById(R.id.dragHandle);
-                dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
-            }
-            mBottomSheetBehavior.setState(panelState);
-            // Workaround for panel partially drawn on first slide
-            // TODO Try to put transparent view above map
-            if (Configuration.getHideSystemUI())
-                view.requestLayout();
-        });
-
-        double latitude = Double.NaN;
-        double longitude = Double.NaN;
-
-        if (savedInstanceState != null) {
-            latitude = savedInstanceState.getDouble(ARG_LATITUDE);
-            longitude = savedInstanceState.getDouble(ARG_LONGITUDE);
-            mExpanded = savedInstanceState.getBoolean(ARG_DETAILS);
-        } else {
-            Bundle arguments = getArguments();
-            if (arguments != null) {
-                latitude = arguments.getDouble(ARG_LATITUDE, Double.NaN);
-                longitude = arguments.getDouble(ARG_LONGITUDE, Double.NaN);
-                mExpanded = arguments.getBoolean(ARG_DETAILS);
-            }
-        }
+        popAll = false;
 
         mFloatingButton = mFragmentHolder.enableActionButton();
-        setFloatingPointDrawable();
         mFloatingButton.setOnClickListener(v -> {
-            if (!isVisible())
+            Place place = placeViewModel.selectedPlace.getValue();
+            if (place == null)
                 return;
             if (Boolean.TRUE.equals(viewModel.editorMode.getValue())) {
-                mPlace.name = viewBinding.nameEdit.getText().toString();
-                mPlace.description = viewBinding.descriptionEdit.getText().toString();
-                mPlace.style.color = viewBinding.colorSwatch.getColor();
+                Editable text = viewBinding.nameEdit.getText();
+                if (text != null)
+                    place.name = text.toString();
+                text = viewBinding.descriptionEdit.getText();
+                if (text != null)
+                    place.description = text.toString();
+                place.style.color = viewBinding.colorSwatch.getColor();
 
-                mListener.onPlaceSave(mPlace);
-                mListener.onPlaceFocus(mPlace);
+                mListener.onPlaceSave(place);
+                mListener.onPlaceFocus(place);
                 viewModel.editorMode.setValue(false);
             } else {
-                if (mMapHolder.isNavigatingTo(mPlace.coordinates))
+                if (mMapHolder.isNavigatingTo(place.coordinates))
                     mMapHolder.stopNavigation();
                 else
-                    mListener.onPlaceNavigate(mPlace);
-                mPopAll = true;
+                    mListener.onPlaceNavigate(place);
+                popAll = true;
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             }
         });
@@ -200,26 +193,16 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
         p.setAnchorId(R.id.bottomSheetPanel);
         mFloatingButton.setLayoutParams(p);
 
-        updatePlaceInformation(latitude, longitude);
-
-        viewBinding.dragHandle.setAlpha(mExpanded ? 0f : 1f);
         mBottomSheetCallback = new PlaceBottomSheetCallback();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) viewBinding.getRoot().getParent());
+        mBottomSheetBehavior.setSkipCollapsed(placeViewModel.expanded);
         mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
-        mListener.onPlaceFocus(mPlace);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapHolder.addLocationChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapHolder.removeLocationChangeListener(this);
+        panelState = placeViewModel.expanded ? BottomSheetBehavior.STATE_EXPANDED : BottomSheetBehavior.STATE_COLLAPSED;
+        if (savedInstanceState != null)
+            panelState = savedInstanceState.getInt("panelState", panelState);
+        mBottomSheetBehavior.setState(panelState);
+        viewBinding.dragHandle.setAlpha(panelState == BottomSheetBehavior.STATE_EXPANDED ? 0f : 1f);
     }
 
     @Override
@@ -262,51 +245,26 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putDouble(ARG_LATITUDE, mLatitude);
-        outState.putDouble(ARG_LONGITUDE, mLongitude);
-        outState.putBoolean(ARG_DETAILS, mExpanded);
-        outState.putInt("panelState", mBottomSheetBehavior.getState());
-    }
-
-    public void setPlace(Place place) {
-        mPlace = place;
-        if (isVisible()) {
-            if (Boolean.TRUE.equals(viewModel.editorMode.getValue()))
-                viewModel.editorMode.setValue(false);
-            mListener.onPlaceFocus(mPlace);
-            updatePlaceInformation(mLatitude, mLongitude);
-            viewBinding.getRoot().post(() -> updatePeekHeight(true));
-        }
+        outState.putInt("panelState", panelState);
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void updatePlaceInformation(double latitude, double longitude) {
+    private void updatePlaceInformation(@NonNull Place place) {
         Activity activity = requireActivity();
 
-        viewBinding.name.setText(mPlace.name);
-        viewBinding.source.setText(mPlace.source.name);
+        viewBinding.name.setText(place.name);
+        viewBinding.source.setText(place.source.name);
 
-        if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
-            viewBinding.destination.setVisibility(View.GONE);
-        } else {
-            GeoPoint point = new GeoPoint(latitude, longitude);
-            double dist = point.vincentyDistance(mPlace.coordinates);
-            double bearing = point.bearingTo(mPlace.coordinates);
-            String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
-            viewBinding.destination.setVisibility(View.VISIBLE);
-            viewBinding.destination.setText(distance);
-        }
-
-        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mPlace.coordinates.getLatitude(), mPlace.coordinates.getLongitude()));
-        setLockDrawable();
+        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", place.coordinates.getLatitude(), place.coordinates.getLongitude()));
+        setLockDrawable(place.locked);
 
         viewBinding.coordinates.setOnTouchListener((v, event) -> {
             if (event.getX() >= viewBinding.coordinates.getRight() - viewBinding.coordinates.getTotalPaddingRight()) {
                 if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                    mPlace.locked = !mPlace.locked;
-                    mListener.onPlaceSave(mPlace);
-                    mListener.onPlaceFocus(mPlace);
-                    setLockDrawable();
+                    place.locked = !place.locked;
+                    mListener.onPlaceSave(place);
+                    mListener.onPlaceFocus(place);
+                    setLockDrawable(place.locked);
                 }
                 return true;
             }
@@ -316,50 +274,51 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
             StringFormatter.coordinateFormat++;
             if (StringFormatter.coordinateFormat == 5)
                 StringFormatter.coordinateFormat = 0;
-            viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mPlace.coordinates.getLatitude(), mPlace.coordinates.getLongitude()));
+            viewBinding.coordinates.setText(StringFormatter.coordinates(" ", place.coordinates.getLatitude(), place.coordinates.getLongitude()));
             Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
         });
 
-        if (mPlace.altitude != Integer.MIN_VALUE) {
-            viewBinding.altitude.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mPlace.altitude)));
+        if (place.altitude != Integer.MIN_VALUE) {
+            viewBinding.altitude.setText(getString(R.string.place_altitude, StringFormatter.elevationH(place.altitude)));
             viewBinding.altitude.setVisibility(View.VISIBLE);
         } else {
             viewBinding.altitude.setVisibility(View.GONE);
         }
 
-        if (mPlace.proximity > 0) {
-            viewBinding.proximity.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mPlace.proximity)));
+        if (place.proximity > 0) {
+            viewBinding.proximity.setText(getString(R.string.place_proximity, StringFormatter.distanceH(place.proximity)));
             viewBinding.proximity.setVisibility(View.VISIBLE);
         } else {
             viewBinding.proximity.setVisibility(View.GONE);
         }
 
-        if (mPlace.date != null) {
-            String date = DateFormat.getDateFormat(activity).format(mPlace.date);
-            String time = DateFormat.getTimeFormat(activity).format(mPlace.date);
+        if (place.date != null) {
+            String date = DateFormat.getDateFormat(activity).format(place.date);
+            String time = DateFormat.getTimeFormat(activity).format(place.date);
             viewBinding.date.setText(getString(R.string.datetime, date, time));
             viewBinding.dateRow.setVisibility(View.VISIBLE);
         } else {
             viewBinding.dateRow.setVisibility(View.GONE);
         }
 
-        setDescription();
-
-        mLatitude = latitude;
-        mLongitude = longitude;
+        setDescription(place);
     }
 
     private final Observer<Boolean> editorModeObserver = new Observer<Boolean>() {
         @Override
         public void onChanged(Boolean enabled) {
+            Place place = placeViewModel.selectedPlace.getValue();
+            if (place == null)
+                return;
+
             Activity activity = requireActivity();
 
             int viewsState, editsState;
             if (enabled) {
                 mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(activity, R.drawable.ic_done));
-                viewBinding.nameEdit.setText(mPlace.name);
-                viewBinding.descriptionEdit.setText(mPlace.description);
-                viewBinding.colorSwatch.setColor(mPlace.style.color);
+                viewBinding.nameEdit.setText(place.name);
+                viewBinding.descriptionEdit.setText(place.description);
+                viewBinding.colorSwatch.setColor(place.style.color);
                 viewBinding.colorSwatch.setOnClickListener(v -> {
                     // TODO Implement class that hides this behaviour
                     ColorPickerDialog dialog = new ColorPickerDialog();
@@ -371,25 +330,25 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
                 viewsState = View.GONE;
                 editsState = View.VISIBLE;
 
-                if (mPlace.source instanceof FileDataSource)
+                if (place.source instanceof FileDataSource)
                     HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFloatingButton, false);
             } else {
-                setFloatingPointDrawable();
-                viewBinding.name.setText(mPlace.name);
-                setDescription();
+                setFloatingPointDrawable(place);
+                viewBinding.name.setText(place.name);
+                setDescription(place);
                 viewsState = View.VISIBLE;
                 editsState = View.GONE;
                 // Hide keyboard
                 InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null)
                     imm.hideSoftInputFromWindow(viewBinding.getRoot().getWindowToken(), 0);
-                viewBinding.getRoot().post(() -> updatePeekHeight(false));
+                viewBinding.getRoot().post(() -> updatePeekHeight());
             }
             if (!enabled) // when enabled, delayed transition is initiated by list FAB
                 TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
             viewBinding.name.setVisibility(viewsState);
             viewBinding.nameWrapper.setVisibility(editsState);
-            if (enabled || mPlace.description != null && !"".equals(mPlace.description))
+            if (enabled || place.description != null && !"".equals(place.description))
                 viewBinding.descriptionRow.setVisibility(View.VISIBLE);
             else
                 viewBinding.descriptionRow.setVisibility(View.GONE);
@@ -397,10 +356,10 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
             viewBinding.descriptionWrapper.setVisibility(editsState);
             viewBinding.colorSwatch.setVisibility(editsState);
 
-            if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
+            if (viewModel.showDestination) {
                 viewBinding.destination.setVisibility(viewsState);
             }
-            if (mPlace.date != null) {
+            if (place.date != null) {
                 viewBinding.dateRow.setVisibility(viewsState);
             }
             viewBinding.source.setVisibility(viewsState);
@@ -411,41 +370,41 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
         }
     };
 
-    private void setFloatingPointDrawable() {
-        if (mMapHolder.isNavigatingTo(mPlace.coordinates)) {
+    private void setFloatingPointDrawable(Place place) {
+        if (mMapHolder.isNavigatingTo(place.coordinates)) {
             mFloatingButton.setImageResource(R.drawable.ic_navigation_off);
         } else {
             mFloatingButton.setImageResource(R.drawable.ic_navigate);
         }
     }
 
-    private void setLockDrawable() {
-        int imageResource = mPlace.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
+    private void setLockDrawable(boolean locked) {
+        int imageResource = locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
         Drawable drawable = AppCompatResources.getDrawable(viewBinding.coordinates.getContext(), imageResource);
         if (drawable != null) {
             int drawableSize = (int) Math.round(viewBinding.coordinates.getLineHeight() * 0.7);
             int drawablePadding = (int) (MapTrek.density * 1.5f);
             drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
-            int tintColor = mPlace.locked ? R.color.red : R.color.colorPrimaryDark;
+            int tintColor = locked ? R.color.red : R.color.colorPrimaryDark;
             drawable.setTint(viewBinding.coordinates.getContext().getColor(tintColor));
             viewBinding.coordinates.setCompoundDrawables(null, null, drawable, null);
         }
     }
 
     // WebView is very heavy to initialize. That's why it is used only on demand.
-    private void setDescription() {
-        if (mPlace.description == null || "".equals(mPlace.description)) {
+    private void setDescription(Place place) {
+        if (place.description == null || "".equals(place.description)) {
             viewBinding.descriptionRow.setVisibility(View.GONE);
             return;
         }
         viewBinding.descriptionRow.setVisibility(View.VISIBLE);
 
-        String text = mPlace.description;
+        String text = place.description;
         boolean hasHTML = false;
-        if (DetectHtml.isHtml(mPlace.description)) {
+        if (DetectHtml.isHtml(place.description)) {
             hasHTML = true;
         } else {
-            String marked = extractLinks(mPlace.description);
+            String marked = extractLinks(place.description);
             if (marked != null) { // links found
                 text = marked;
                 hasHTML = true;
@@ -512,16 +471,10 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
         webView.loadDataWithBaseURL(baseUrl.toString() + "/", descriptionHtml, "text/html", "utf-8", null);
     }
 
-    private void updatePeekHeight(boolean setState) {
+    private void updatePeekHeight() {
         mBottomSheetBehavior.setPeekHeight(viewBinding.dragHandle.getHeight() * 2 + viewBinding.name.getHeight() + viewBinding.source.getHeight());
-        if (setState)
-            mBottomSheetBehavior.setState(mBottomSheetBehavior.getState());
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (Boolean.FALSE.equals(viewModel.editorMode.getValue()))
-            updatePlaceInformation(location.getLatitude(), location.getLongitude());
+        // Somehow setPeekHeight breaks state on first show
+        mBottomSheetBehavior.setState(panelState);
     }
 
     OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
@@ -544,12 +497,16 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
                 p.setAnchorId(R.id.contentPanel);
                 mFloatingButton.setLayoutParams(p);
                 mFloatingButton.setAlpha(1f);
-                if (mPopAll)
+                if (popAll)
                     mFragmentHolder.popAll();
                 else
                     mFragmentHolder.popCurrent();
             }
+            if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                panelState = newState;
+            }
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                panelState = newState;
                 Activity activity = requireActivity();
                 if (!HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_SWITCH_COORDINATES_FORMAT, R.string.advice_switch_coordinates_format, viewBinding.coordinates, true)
                         && HelperUtils.needsTargetedAdvice(Configuration.ADVICE_LOCKED_COORDINATES)) {
@@ -567,13 +524,14 @@ public class PlaceInformation extends Fragment implements LocationChangeListener
 
         @Override
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            if (!mExpanded)
+            if (!placeViewModel.expanded)
                 bottomSheet.findViewById(R.id.dragHandle).setAlpha(1f - slideOffset);
             mFloatingButton.setAlpha(1f + slideOffset);
         }
     }
 
     public static class PlaceInformationViewModel extends ViewModel {
+        public boolean showDestination = false;
         private final MutableLiveData<Boolean> editorMode = new MutableLiveData<>(false);
     }
 }

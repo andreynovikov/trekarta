@@ -54,9 +54,5 @@ public interface MapHolder {
 
     void removeLocationStateChangeListener(LocationStateChangeListener listener);
 
-    void addLocationChangeListener(LocationChangeListener listener);
-
-    void removeLocationChangeListener(LocationChangeListener listener);
-
     void setMapLocation(@NonNull GeoPoint point);
 }

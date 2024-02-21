@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,10 +14,14 @@
  *
  */
 
-package mobi.maptrek;
+package mobi.maptrek.viewmodels;
 
-import android.location.Location;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
-public interface LocationChangeListener {
-    void onLocationChanged(Location location);
+import mobi.maptrek.data.Place;
+
+public class PlaceViewModel extends ViewModel {
+    public final MutableLiveData<Place> selectedPlace = new MutableLiveData<>();
+    public boolean expanded = false;
 }

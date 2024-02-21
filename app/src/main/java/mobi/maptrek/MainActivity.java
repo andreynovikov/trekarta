@@ -275,6 +275,7 @@ import mobi.maptrek.viewmodels.AmenityViewModel;
 import mobi.maptrek.viewmodels.DataSourceViewModel;
 import mobi.maptrek.viewmodels.MapIndexViewModel;
 import mobi.maptrek.viewmodels.MapViewModel;
+import mobi.maptrek.viewmodels.PlaceViewModel;
 import mobi.maptrek.viewmodels.RouteViewModel;
 import mobi.maptrek.viewmodels.TrackViewModel;
 
@@ -407,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private DataSourceViewModel dataSourceViewModel;
     private MapIndexViewModel mapIndexViewModel;
     private MapViewModel mapViewModel;
+    private PlaceViewModel placeViewModel;
     private RouteViewModel routeViewModel;
     private TrackViewModel trackViewModel;
 
@@ -688,6 +690,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mMap.updateMap(true);
         });
 
+        placeViewModel = new ViewModelProvider(this).get(PlaceViewModel.class);
         trackViewModel = new ViewModelProvider(this).get(TrackViewModel.class);
         routeViewModel = new ViewModelProvider(this).get(RouteViewModel.class);
         amenityViewModel = new ViewModelProvider(this).get(AmenityViewModel.class);
@@ -1564,13 +1567,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         //noinspection deprecation
         if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_AUTO_TIME)
             checkNightMode(location);
-
-        for (WeakReference<LocationChangeListener> weakRef : mLocationChangeListeners) {
-            LocationChangeListener locationChangeListener = weakRef.get();
-            if (locationChangeListener != null) {
-                locationChangeListener.onLocationChanged(location);
-            }
-        }
     }
 
     @Override
@@ -2081,24 +2077,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
-    private final Set<WeakReference<LocationChangeListener>> mLocationChangeListeners = new HashSet<>();
-
-    @Override
-    public void addLocationChangeListener(LocationChangeListener listener) {
-        mLocationChangeListeners.add(new WeakReference<>(listener));
-    }
-
-    @Override
-    public void removeLocationChangeListener(LocationChangeListener listener) {
-        for (Iterator<WeakReference<LocationChangeListener>> iterator = mLocationChangeListeners.iterator();
-             iterator.hasNext(); ) {
-            WeakReference<LocationChangeListener> weakRef = iterator.next();
-            if (weakRef.get() == listener) {
-                iterator.remove();
-            }
-        }
-    }
-
     private float downX, downY, deltaX, deltaY;
 
     @Override
@@ -2532,19 +2510,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     public void onPlaceDetails(Place place, boolean fromList) {
         mViews.popupAnchor.setX(0);
         mViews.popupAnchor.setY(0);
-        Bundle args = new Bundle(3);
-        args.putBoolean(PlaceInformation.ARG_DETAILS, fromList);
-        if (fromList || mLocationState != LocationState.DISABLED) {
-            if (mLocationState != LocationState.DISABLED && mLocationService != null) {
-                Location location = mLocationService.getLocation();
-                args.putDouble(PlaceInformation.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(PlaceInformation.ARG_LONGITUDE, location.getLongitude());
-            } else {
-                MapPosition position = mMap.getMapPosition();
-                args.putDouble(PlaceInformation.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(PlaceInformation.ARG_LONGITUDE, position.getLongitude());
-            }
-        }
+
+        placeViewModel.expanded = fromList;
+        placeViewModel.selectedPlace.setValue(place);
 
         Fragment fragment = mFragmentManager.findFragmentByTag("amenityInformation");
         if (fragment != null) {
@@ -2554,7 +2522,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (fragment == null) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
             fragment = factory.instantiate(getClassLoader(), PlaceInformation.class.getName());
-            fragment.setArguments(args);
             Slide slide = new Slide(Gravity.BOTTOM);
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
@@ -2563,7 +2530,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             ft.addToBackStack("placeInformation");
             ft.commit();
         }
-        ((PlaceInformation) fragment).setPlace(place);
         dimExtendPanel();
     }
 
