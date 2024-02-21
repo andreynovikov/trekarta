@@ -72,8 +72,6 @@
     <string name="actionFindRouteHere">Найти маршрут сюда</string>
     <string name="actionRememberScale">Запомнить масштаб</string>
     <string name="actionOverviewRoute">Просмотреть маршрут</string>
-    <string name="actionNextRoutePoint">Следующая точка маршрута</string>
-    <string name="actionPrevRoutePoint">Предыдущая точка маршрута</string>
     <string name="actionAutoTilt">Наклонять при вращении по курсу</string>
     <string name="actionRememberTilt">Запомнить наклон</string>
     <string name="actionHideSystemUI">Полноэкранный режим</string>
