@@ -27,9 +27,9 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
 
 public class GpxParser {
@@ -63,8 +63,8 @@ public class GpxParser {
                     dataSource.name = metadata.name;
                     break;
                 case GpxFile.TAG_WPT:
-                    Waypoint waypoint = readWaypoint(parser);
-                    dataSource.waypoints.add(waypoint);
+                    Place place = readPlace(parser);
+                    dataSource.places.add(place);
                     break;
                 case GpxFile.TAG_TRK:
                     Track track = readTrack(parser);
@@ -106,10 +106,10 @@ public class GpxParser {
     }
 
     @NonNull
-    private static Waypoint readWaypoint(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static Place readPlace(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NS, GpxFile.TAG_WPT);
-        Waypoint waypoint = new Waypoint(Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
-        waypoint.locked = true;
+        Place place = new Place(Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LAT)), Float.parseFloat(parser.getAttributeValue(null, GpxFile.ATTRIBUTE_LON)));
+        place.locked = true;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -117,19 +117,19 @@ public class GpxParser {
             String name = parser.getName();
             switch (name) {
                 case GpxFile.TAG_NAME:
-                    waypoint.name = readTextElement(parser, GpxFile.TAG_NAME);
+                    place.name = readTextElement(parser, GpxFile.TAG_NAME);
                     break;
                 case GpxFile.TAG_DESC:
-                    waypoint.description = readTextElement(parser, GpxFile.TAG_DESC);
+                    place.description = readTextElement(parser, GpxFile.TAG_DESC);
                     // Default XMLSerializer puts line break after CDATA, so we will remove
                     // trailing spaces here
-                    waypoint.description = waypoint.description.trim();
+                    place.description = place.description.trim();
                     break;
                 case GpxFile.TAG_ELE:
-                    waypoint.altitude = (int) readFloatElement(parser, GpxFile.TAG_ELE);
+                    place.altitude = (int) readFloatElement(parser, GpxFile.TAG_ELE);
                     break;
                 case GpxFile.TAG_TIME:
-                    waypoint.date = new Date(readTime(parser));
+                    place.date = new Date(readTime(parser));
                     break;
                 default:
                     skip(parser);
@@ -137,7 +137,7 @@ public class GpxParser {
             }
         }
         parser.require(XmlPullParser.END_TAG, NS, GpxFile.TAG_WPT);
-        return waypoint;
+        return place;
     }
 
     @NonNull

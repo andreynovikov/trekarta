@@ -18,11 +18,8 @@ package mobi.maptrek;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
-
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
-import mobi.maptrek.data.source.WaypointDbDataSource;
 
 public interface DataHolder {
     void setDataSourceAvailability(FileDataSource source, boolean available);

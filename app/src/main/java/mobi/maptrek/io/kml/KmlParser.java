@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
 
 public class KmlParser {
@@ -115,7 +115,7 @@ public class KmlParser {
         for (KmlFile.Placemark placemark : placemarks) {
             applyStyles(placemark, styles);
             if (placemark.point != null)
-                dataSource.waypoints.add(placemark.point);
+                dataSource.places.add(placemark.point);
             if (placemark.track != null)
                 dataSource.tracks.add(placemark.track);
         }
@@ -124,7 +124,7 @@ public class KmlParser {
             for (KmlFile.Placemark placemark : folder.placemarks) {
                 applyStyles(placemark, styles);
                 if (placemark.point != null)
-                    dataSource.waypoints.add(placemark.point);
+                    dataSource.places.add(placemark.point);
                 if (placemark.track != null)
                     dataSource.tracks.add(placemark.track);
             }
@@ -241,7 +241,7 @@ public class KmlParser {
     }
 
     @NonNull
-    private static Waypoint readPoint(XmlPullParser parser) throws IOException, XmlPullParserException {
+    private static Place readPoint(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, NS, KmlFile.TAG_POINT);
         String coordinatesString = null;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -262,20 +262,20 @@ public class KmlParser {
         parser.require(XmlPullParser.END_TAG, NS, KmlFile.TAG_POINT);
         if (coordinatesString == null)
             throw new XmlPullParserException(KmlFile.TAG_POINT + " must have coordinates", parser, null);
-        Waypoint waypoint;
+        Place place;
         try {
             String[] coordinates = coordinatesString.split(",");
-            waypoint = new Waypoint(Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[0]));
+            place = new Place(Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[0]));
             if (coordinates.length == 3) {
                 double altitude = Double.parseDouble(coordinates[2]);
                 if (altitude != 0d)
-                    waypoint.altitude = (int) altitude;
+                    place.altitude = (int) altitude;
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             throw new XmlPullParserException("Wrong coordinates format", parser, e);
         }
-        waypoint.locked = true;
-        return waypoint;
+        place.locked = true;
+        return place;
     }
 
     @NonNull

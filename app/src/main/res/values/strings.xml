@@ -73,8 +73,8 @@
     <string name="actionFindRouteHere">Find route here</string>
     <string name="actionRememberScale">Remember zoom</string>
     <string name="actionOverviewRoute">Overview route</string>
-    <string name="actionNextRouteWaypoint">Next route point</string>
-    <string name="actionPrevRouteWaypoint">Previous route point</string>
+    <string name="actionNextRoutePoint">Next route point</string>
+    <string name="actionPrevRoutePoint">Previous route point</string>
     <string name="actionAutoTilt">Tilt on track up</string>
     <string name="actionRememberTilt">Remember tilt</string>
     <string name="actionHideSystemUI">Fullscreen</string>

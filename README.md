@@ -4,7 +4,7 @@
 [![F-Droid](https://img.shields.io/f-droid/v/mobi.maptrek)](https://f-droid.org/packages/mobi.maptrek/)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 
-__Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create waypoints in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you've been.
+__Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you've been.
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"

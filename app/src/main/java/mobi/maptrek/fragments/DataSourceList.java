@@ -59,8 +59,8 @@ import mobi.maptrek.data.Track;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.MemoryDataSource;
-import mobi.maptrek.data.source.WaypointDataSource;
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.source.PlaceDataSource;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.databinding.ListWithEmptyViewBinding;
 import mobi.maptrek.io.RouteManager;
 import mobi.maptrek.location.BaseLocationService.TRACKING_STATE;
@@ -309,8 +309,8 @@ public class DataSourceList extends Fragment {
                 name.setText(dataSource.name);
 
                 @ColorInt int color = accentColor;
-                if (dataSource instanceof WaypointDbDataSource) {
-                    int count = ((WaypointDataSource) dataSource).getWaypointsCount();
+                if (dataSource instanceof PlaceDbDataSource) {
+                    int count = ((PlaceDataSource) dataSource).getPlacesCount();
                     description.setText(resources.getQuantityString(R.plurals.placesCount, count, count));
                     icon.setImageResource(R.drawable.ic_points);
                     action.setVisibility(View.GONE);
@@ -333,12 +333,12 @@ public class DataSourceList extends Fragment {
                                 icon.setImageResource(R.drawable.ic_route);
                                 color = route.style.color;
                             } else {
-                                int waypointsCount = ((FileDataSource) dataSource).waypoints.size();
+                                int placesCount = ((FileDataSource) dataSource).places.size();
                                 int tracksCount = ((FileDataSource) dataSource).tracks.size();
                                 int routesCount = ((FileDataSource) dataSource).routes.size();
                                 StringBuilder sb = new StringBuilder();
-                                if (waypointsCount > 0) {
-                                    sb.append(resources.getQuantityString(R.plurals.placesCount, waypointsCount, waypointsCount));
+                                if (placesCount > 0) {
+                                    sb.append(resources.getQuantityString(R.plurals.placesCount, placesCount, placesCount));
                                     if (tracksCount > 0 || routesCount > 0)
                                         sb.append(", ");
                                 }
@@ -354,13 +354,13 @@ public class DataSourceList extends Fragment {
                                     sb.append(getString(R.string.empty));
                                 }
                                 description.setText(sb);
-                                if (waypointsCount == 0 && tracksCount == 0 && routesCount == 0)
+                                if (placesCount == 0 && tracksCount == 0 && routesCount == 0)
                                     icon.setImageResource(R.drawable.ic_empty);
-                                else if (waypointsCount > 0 && tracksCount == 0 && routesCount == 0)
+                                else if (placesCount > 0 && tracksCount == 0 && routesCount == 0)
                                     icon.setImageResource(R.drawable.ic_points);
-                                else if (tracksCount > 0 && waypointsCount == 0 && routesCount == 0)
+                                else if (tracksCount > 0 && placesCount == 0 && routesCount == 0)
                                     icon.setImageResource(R.drawable.ic_tracks);
-                                else if (routesCount > 0 && waypointsCount == 0 && tracksCount == 0)
+                                else if (routesCount > 0 && placesCount == 0 && tracksCount == 0)
                                     icon.setImageResource(R.drawable.ic_routes);
                                 else
                                     icon.setImageResource(R.drawable.ic_dataset);
@@ -401,7 +401,7 @@ public class DataSourceList extends Fragment {
                 itemView.setOnLongClickListener(v -> {
                     PopupMenu popup = new PopupMenu(context, v);
                     popup.inflate(R.menu.context_menu_data_list);
-                    if (dataSource instanceof WaypointDbDataSource)
+                    if (dataSource instanceof PlaceDbDataSource)
                         popup.getMenu().findItem(R.id.action_delete).setVisible(false);
                     popup.setOnMenuItemClickListener(item -> {
                         int itemId = item.getItemId();

@@ -23,11 +23,11 @@ import mobi.maptrek.data.MapObject;
 public interface INavigationService {
     boolean isNavigating();
     boolean isNavigatingViaRoute();
-    MapObject getWaypoint();
-    boolean hasNextRouteWaypoint();
-    boolean hasPrevRouteWaypoint();
-    void nextRouteWaypoint();
-    void prevRouteWaypoint();
+    MapObject getCurrentPoint();
+    boolean hasNextRoutePoint();
+    boolean hasPrevRoutePoint();
+    void nextRoutePoint();
+    void prevRoutePoint();
     BoundingBox getRouteBoundingBox();
     String getInstructionText();
     int getSign();
@@ -37,6 +37,6 @@ public interface INavigationService {
     float getVmg();
     float getXtk();
     int getEte();
-    float getWptDistance();
-    int getWptEte();
+    float getPointDistance();
+    int getPointEte();
 }

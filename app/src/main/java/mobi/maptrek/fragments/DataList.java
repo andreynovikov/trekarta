@@ -63,16 +63,16 @@ import java.util.TreeMap;
 import mobi.maptrek.Configuration;
 import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.DataSourceUpdateListener;
 import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.data.source.RouteDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
-import mobi.maptrek.data.source.WaypointDataSource;
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.source.PlaceDataSource;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.databinding.ListWithEmptyViewBinding;
 import mobi.maptrek.dialogs.CoordinatesInput;
 import mobi.maptrek.util.HelperUtils;
@@ -85,7 +85,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     private static final Logger logger = LoggerFactory.getLogger(DataList.class);
     private static final String lineSeparator = System.getProperty("line.separator", "\n");
 
-    private OnWaypointActionListener mWaypointActionListener;
+    private OnPlaceActionListener mPlaceActionListener;
     private OnTrackActionListener mTrackActionListener;
     private OnRouteActionListener mRouteActionListener;
     private FragmentHolder mFragmentHolder;
@@ -114,7 +114,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         dataSourceViewModel.selectedDataSource.observe(getViewLifecycleOwner(), dataSource -> {
             logger.debug("dataSource changed");
             setDataSource(dataSource, savedInstanceState);
-            if (dataSource instanceof WaypointDbDataSource) {
+            if (dataSource instanceof PlaceDbDataSource) {
                 mFloatingButton = mFragmentHolder.enableListActionButton(R.drawable.ic_add_location, v -> {
                     if (!isAdded()) // automated testing presses buttons too quickly
                         return;
@@ -214,9 +214,9 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mWaypointActionListener = (OnWaypointActionListener) context;
+            mPlaceActionListener = (OnPlaceActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnPlaceActionListener");
         }
         try {
             mTrackActionListener = (OnTrackActionListener) context;
@@ -247,7 +247,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     public void onDetach() {
         super.onDetach();
         backPressedCallback.remove();
-        mWaypointActionListener = null;
+        mPlaceActionListener = null;
         mTrackActionListener = null;
         mRouteActionListener = null;
         mFragmentHolder = null;
@@ -272,7 +272,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     public void setDataSource(DataSource dataSource, Bundle savedInstanceState) {
         boolean extraSources = dataSourceViewModel.hasExtraDataSources();
         StringBuilder stringBuilder = new StringBuilder();
-        if (dataSourceViewModel.waypointDbDataSource == dataSource) {
+        if (dataSourceViewModel.placeDbDataSource == dataSource) {
             stringBuilder.append(getString(R.string.msgEmptyPlaceList));
             if (!extraSources) {
                 stringBuilder.append(lineSeparator);
@@ -284,7 +284,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         }
         viewBinding.empty.setText(stringBuilder.toString());
         closeAdapterCursor();
-        boolean showFooter = dataSourceViewModel.waypointDbDataSource == dataSource && !extraSources;
+        boolean showFooter = dataSourceViewModel.placeDbDataSource == dataSource && !extraSources;
         DataListAdapter adapter = new DataListAdapter(dataSource, showFooter);
         viewBinding.list.setAdapter(adapter);
 
@@ -307,31 +307,31 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
     }
 
     private void shareSelectedItems() {
-        HashSet<Waypoint> waypoints = new HashSet<>();
+        HashSet<Place> places = new HashSet<>();
         HashSet<Track> tracks = new HashSet<>();
         HashSet<Route> routes = new HashSet<>();
-        populateSelectedItems(waypoints, tracks, routes);
+        populateSelectedItems(places, tracks, routes);
         MemoryDataSource dataSource = new MemoryDataSource();
-        dataSource.waypoints.addAll(waypoints);
+        dataSource.places.addAll(places);
         dataSource.tracks.addAll(tracks);
         dataSource.routes.addAll(routes);
         mDataHolder.onDataSourceShare(dataSource);
     }
 
     private void deleteSelectedItems() {
-        HashSet<Waypoint> waypoints = new HashSet<>();
+        HashSet<Place> places = new HashSet<>();
         HashSet<Track> tracks = new HashSet<>();
         HashSet<Route> routes = new HashSet<>();
-        populateSelectedItems(waypoints, tracks, routes);
-        if (waypoints.size() > 0)
-            mWaypointActionListener.onWaypointsDelete(waypoints);
+        populateSelectedItems(places, tracks, routes);
+        if (places.size() > 0)
+            mPlaceActionListener.onPlacesDelete(places);
         if (tracks.size() > 0)
             mTrackActionListener.onTracksDelete(tracks);
         if (routes.size() > 0)
             mRouteActionListener.onRoutesDelete(routes);
     }
 
-    private void populateSelectedItems(HashSet<Waypoint> waypoints, HashSet<Track> tracks, HashSet<Route> routes) {
+    private void populateSelectedItems(HashSet<Place> places, HashSet<Track> tracks, HashSet<Route> routes) {
         DataSource dataSource = dataSourceViewModel.selectedDataSource.getValue();
         if (dataSource == null)
             return;
@@ -339,10 +339,10 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         for (int position = 0; position < cursor.getCount(); position++) {
             cursor.moveToPosition(position);
             int type = dataSource.getDataType(position);
-            if (type == DataSource.TYPE_WAYPOINT) {
-                Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
-                if (selectionTracker.isSelected(waypoint._id))
-                    waypoints.add(waypoint);
+            if (type == DataSource.TYPE_PLACE) {
+                Place place = ((PlaceDataSource) dataSource).cursorToPlace(cursor);
+                if (selectionTracker.isSelected(place._id))
+                    places.add(place);
             } else if (type == DataSource.TYPE_TRACK) {
                 Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
                 if (selectionTracker.isSelected((long) track.id))
@@ -370,7 +370,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
                     name = line.substring(result.offset).trim();
                 if (name == null || "".equals(name))
                     name = getString(R.string.place_name, Configuration.getPointsCounter());
-                mWaypointActionListener.onWaypointCreate(result.coordinates, name, true, false);
+                mPlaceActionListener.onPlaceCreate(result.coordinates, name, true, false);
             } catch (IllegalArgumentException e) {
                 errors = true;
             }
@@ -494,21 +494,21 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
 
         protected void calculateHeaders() {
             headers.clear();
-            if (dataSource instanceof WaypointDbDataSource) // shortcut for no headers
+            if (dataSource instanceof PlaceDbDataSource) // shortcut for no headers
                 return;
-            int wptCount = 0, trkCount = 0, rteCount = 0;
-            if (dataSource instanceof WaypointDataSource)
-                wptCount = ((WaypointDataSource) dataSource).getWaypointsCount();
+            int plcCount = 0, trkCount = 0, rteCount = 0;
+            if (dataSource instanceof PlaceDataSource)
+                plcCount = ((PlaceDataSource) dataSource).getPlacesCount();
             if (dataSource instanceof TrackDataSource)
                 trkCount = ((TrackDataSource) dataSource).getTracksCount();
             if (dataSource instanceof RouteDataSource)
                 rteCount = ((RouteDataSource) dataSource).getRoutesCount();
-            if (wptCount > 0 && (trkCount > 0 || rteCount > 0))
-                headers.put(0, DataSource.TYPE_WAYPOINT);
+            if (plcCount > 0 && (trkCount > 0 || rteCount > 0))
+                headers.put(0, DataSource.TYPE_PLACE);
             if (trkCount > 0 && (headers.size() > 0 || rteCount > 0))
-                headers.put(wptCount + headers.size(), DataSource.TYPE_TRACK);
+                headers.put(plcCount + headers.size(), DataSource.TYPE_TRACK);
             if (rteCount > 0 && headers.size() > 0)
-                headers.put(wptCount + trkCount + headers.size(), DataSource.TYPE_ROUTE);
+                headers.put(plcCount + trkCount + headers.size(), DataSource.TYPE_ROUTE);
         }
 
         private void setEmptyView() {
@@ -536,8 +536,8 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
             int layout = 0;
             // https://github.com/nicbell/material-lists
             switch (viewType) {
-                case DataSource.TYPE_WAYPOINT:
-                    layout = R.layout.list_item_waypoint;
+                case DataSource.TYPE_PLACE:
+                    layout = R.layout.list_item_place;
                     break;
                 case DataSource.TYPE_TRACK:
                     layout = R.layout.list_item_track;
@@ -584,9 +584,9 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
                 return -TYPE_FOOTER;
             cursor.moveToPosition(position);
             int viewType = dataSource.getDataType(position);
-            if (viewType == DataSource.TYPE_WAYPOINT) {
-                final Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
-                return waypoint._id;
+            if (viewType == DataSource.TYPE_PLACE) {
+                final Place place = ((PlaceDataSource) dataSource).cursorToPlace(cursor);
+                return place._id;
             } else if (viewType == DataSource.TYPE_TRACK) {
                 final Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
                 return track.id;
@@ -649,7 +649,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
                     return;
                 int string = 0;
                 switch (type) {
-                    case DataSource.TYPE_WAYPOINT:
+                    case DataSource.TYPE_PLACE:
                         string = R.string.places;
                         break;
                     case DataSource.TYPE_TRACK:
@@ -713,26 +713,26 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
                 @DrawableRes int iconRes = R.drawable.ic_info_outline;
                 @ColorInt int color = darkColor;
 
-                if (viewType == DataSource.TYPE_WAYPOINT) {
-                    final Waypoint waypoint = ((WaypointDataSource) dataSource).cursorToWaypoint(cursor);
-                    id = waypoint._id;
-                    name.setText(waypoint.name);
+                if (viewType == DataSource.TYPE_PLACE) {
+                    final Place place = ((PlaceDataSource) dataSource).cursorToPlace(cursor);
+                    id = place._id;
+                    name.setText(place.name);
                     if (coordinates != null) {
-                        double dist = coordinates.vincentyDistance(waypoint.coordinates);
-                        double bearing = coordinates.bearingTo(waypoint.coordinates);
+                        double dist = coordinates.vincentyDistance(place.coordinates);
+                        double bearing = coordinates.bearingTo(place.coordinates);
                         distance.setText(StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing));
                         distance.setVisibility(View.VISIBLE);
                     } else {
                         distance.setVisibility(View.GONE);
                     }
                     viewButton.setOnClickListener(v -> {
-                        mWaypointActionListener.onWaypointView(waypoint);
+                        mPlaceActionListener.onPlaceView(place);
                         mFragmentHolder.disableListActionButton();
                         mFragmentHolder.popAll();
                     });
                     iconRes = R.drawable.ic_point;
-                    color = waypoint.style.color;
-                    itemView.setOnClickListener(v -> mWaypointActionListener.onWaypointDetails(waypoint, true));
+                    color = place.style.color;
+                    itemView.setOnClickListener(v -> mPlaceActionListener.onPlaceDetails(place, true));
                 } else if (viewType == DataSource.TYPE_TRACK) {
                     final Track track = ((TrackDataSource) dataSource).cursorToTrack(cursor);
                     id = track.id;
@@ -822,7 +822,7 @@ public class DataList extends Fragment implements CoordinatesInput.CoordinatesIn
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             MenuInflater inflater = actionMode.getMenuInflater();
-            inflater.inflate(R.menu.context_menu_waypoint_list, menu);
+            inflater.inflate(R.menu.context_menu_place_list, menu);
             if (mFloatingButton != null)
                 mFloatingButton.setVisibility(View.GONE);
             updateListViews();

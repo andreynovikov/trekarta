@@ -43,7 +43,7 @@ import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.RouteDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
-import mobi.maptrek.data.source.WaypointDataSource;
+import mobi.maptrek.data.source.PlaceDataSource;
 import mobi.maptrek.io.GPXManager;
 import mobi.maptrek.io.KMLManager;
 import mobi.maptrek.io.Manager;
@@ -183,8 +183,8 @@ public class DataExport extends DialogFragment implements ProgressListener {
             } else if (mRoute != null) {
                 exportSource.routes.add(mRoute);
             } else {
-                if (mDataSource instanceof WaypointDataSource)
-                    exportSource.waypoints.addAll(((WaypointDataSource) mDataSource).getWaypoints());
+                if (mDataSource instanceof PlaceDataSource)
+                    exportSource.places.addAll(((PlaceDataSource) mDataSource).getPlaces());
                 if (mDataSource instanceof TrackDataSource)
                     exportSource.tracks.addAll(((TrackDataSource) mDataSource).getTracks());
                 if (mDataSource instanceof RouteDataSource)

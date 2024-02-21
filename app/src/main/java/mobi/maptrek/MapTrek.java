@@ -72,8 +72,8 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import mobi.maptrek.data.MapObject;
-import mobi.maptrek.data.Waypoint;
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.Place;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
 import mobi.maptrek.maps.MapWorker;
@@ -111,12 +111,12 @@ public class MapTrek extends Application {
     private SQLiteDatabase mDetailedMapDatabase;
     private HillshadeDatabaseHelper mHillshadeHelper;
     private SQLiteDatabase mHillshadeDatabase;
-    private WaypointDbDataSource mWaypointDbDataSource;
+    private PlaceDbDataSource mPlaceDbDataSource;
     private ShieldFactory mShieldFactory;
     private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
     private SafeResultReceiver mResultReceiver;
-    private Waypoint mEditedWaypoint;
+    private Place mEditedPlace;
     private List<MapFile> mBitmapLayerMaps;
     private PluginRepository mPluginRepository;
 
@@ -324,12 +324,12 @@ public class MapTrek extends Application {
         return mExtraMapIndex;
     }
 
-    public synchronized WaypointDbDataSource getWaypointDbDataSource() {
-        if (mWaypointDbDataSource == null) {
-            File waypointsFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
-            mWaypointDbDataSource = new WaypointDbDataSource(this, waypointsFile);
+    public synchronized PlaceDbDataSource getPlaceDbDataSource() {
+        if (mPlaceDbDataSource == null) {
+            File placesFile = new File(getExternalFilesDir("databases"), "waypoints.sqlitedb");
+            mPlaceDbDataSource = new PlaceDbDataSource(this, placesFile);
         }
-        return mWaypointDbDataSource;
+        return mPlaceDbDataSource;
     }
 
     public ShieldFactory getShieldFactory() {
@@ -414,12 +414,12 @@ public class MapTrek extends Application {
     }
 
     // TODO Introduce State subclass for state saving
-    public Waypoint getEditedWaypoint() {
-        return mEditedWaypoint;
+    public Place getEditedPlace() {
+        return mEditedPlace;
     }
 
-    public void setEditedWaypoint(Waypoint waypoint) {
-        mEditedWaypoint = waypoint;
+    public void setEditedPlace(Place place) {
+        mEditedPlace = place;
     }
 
     @Nullable
@@ -519,16 +519,16 @@ public class MapTrek extends Application {
     public void onMainActivityFinished() {
         logger.info("MainActivity finished");
         optionallyCloseMapDatabase(null);
-        if (mWaypointDbDataSource != null) {
-            mWaypointDbDataSource.close();
-            mWaypointDbDataSource = null;
+        if (mPlaceDbDataSource != null) {
+            mPlaceDbDataSource.close();
+            mPlaceDbDataSource = null;
         }
         // free indexes
         if (mExtraMapIndex != null) {
             mExtraMapIndex.clear();
             mExtraMapIndex = null;
         }
-        mEditedWaypoint = null;
+        mEditedPlace = null;
         mBitmapLayerMaps = null;
         mIndex = null;
     }

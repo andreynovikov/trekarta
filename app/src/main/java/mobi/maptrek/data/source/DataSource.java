@@ -29,11 +29,11 @@ import java.util.Set;
  * A set of map data objects.
  */
 public abstract class DataSource {
-    @IntDef({TYPE_WAYPOINT, TYPE_TRACK, TYPE_ROUTE})
+    @IntDef({TYPE_PLACE, TYPE_TRACK, TYPE_ROUTE})
     public @interface DataType {
     }
 
-    public static final int TYPE_WAYPOINT = 0;
+    public static final int TYPE_PLACE = 0;
     public static final int TYPE_TRACK = 1;
     public static final int TYPE_ROUTE = 2;
 

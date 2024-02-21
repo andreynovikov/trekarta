@@ -73,7 +73,7 @@
             android:id="@+id/kindRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:id="@+id/kindIcon"
@@ -95,7 +95,7 @@
             android:id="@+id/feeRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -118,7 +118,7 @@
             android:id="@+id/wheelchairRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:id="@+id/wheelchairIcon"
@@ -142,7 +142,7 @@
             android:id="@+id/openingHoursRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -163,7 +163,7 @@
             android:id="@+id/phoneRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -187,7 +187,7 @@
             android:id="@+id/websiteRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -211,7 +211,7 @@
             android:id="@+id/wikipediaRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -233,7 +233,7 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"

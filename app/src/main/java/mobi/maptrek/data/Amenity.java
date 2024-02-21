@@ -18,7 +18,7 @@ package mobi.maptrek.data;
 
 import mobi.maptrek.maps.maptrek.Tags;
 
-public class Amenity extends Waypoint {
+public class Amenity extends Place {
     public enum Fee {
         YES, NO
     }

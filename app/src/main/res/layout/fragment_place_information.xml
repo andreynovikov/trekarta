@@ -6,7 +6,7 @@
     android:background="@color/panelSolidBackground"
     android:paddingStart="@dimen/fragment_with_fab_start_padding"
     android:paddingEnd="@dimen/fragment_padding"
-    tools:context=".fragments.WaypointInformation"
+    tools:context=".fragments.PlaceInformation"
     tools:layout_width="match_parent">
 
     <View
@@ -139,7 +139,7 @@
             android:id="@+id/descriptionRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding"
+            android:layout_marginTop="@dimen/place_table_padding"
             android:visibility="gone">
 
             <ImageView
@@ -162,8 +162,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="10"
                     android:scrollbars="vertical"
-                    android:textColor="?android:textColorPrimary"
-                    tools:viewBindingType="android.view.View" />
+                    android:textColor="?android:textColorPrimary" />
 
                 <LinearLayout
                     android:id="@+id/descriptionWrapper"
@@ -203,7 +202,7 @@
             android:id="@+id/dateRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/waypoint_table_padding">
+            android:layout_marginTop="@dimen/place_table_padding">
 
             <ImageView
                 android:layout_width="wrap_content"

@@ -23,7 +23,7 @@ import java.util.Date;
 import mobi.maptrek.data.source.DataSource;
 
 //TODO Refactor
-public class Waypoint extends MapObject
+public class Place extends MapObject
 {
     /**
      * Date and time in GMT
@@ -32,21 +32,21 @@ public class Waypoint extends MapObject
 	public DataSource source;
 	public boolean locked;
 
-    public Waypoint(double latitude, double longitude)
+    public Place(double latitude, double longitude)
 	{
 		super(latitude, longitude);
 	}
 
-	public Waypoint(int latitudeE6, int longitudeE6)
+	public Place(int latitudeE6, int longitudeE6)
 	{
 		super(latitudeE6, longitudeE6);
 	}
 
-	public Waypoint(GeoPoint coordinates) {
+	public Place(GeoPoint coordinates) {
 		super(coordinates);
 	}
 
-	public Waypoint(String name, double lat, double lon)
+	public Place(String name, double lat, double lon)
 	{
 		super(lat, lon);
 		this.name = name;

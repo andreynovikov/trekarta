@@ -23,13 +23,13 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 
-public class MemoryDataSource extends DataSource implements WaypointDataSource, TrackDataSource, RouteDataSource {
+public class MemoryDataSource extends DataSource implements PlaceDataSource, TrackDataSource, RouteDataSource {
     @NonNull
-    public List<Waypoint> waypoints = new ArrayList<>();
+    public List<Place> places = new ArrayList<>();
     @NonNull
     public List<Track> tracks = new ArrayList<>();
     @NonNull
@@ -52,18 +52,18 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
 
     @Override
     public boolean isIndividual() {
-        return (waypoints.size() + tracks.size() + routes.size()) == 1;
+        return (places.size() + tracks.size() + routes.size()) == 1;
     }
 
     @NonNull
     @Override
-    public List<Waypoint> getWaypoints() {
-        return waypoints;
+    public List<Place> getPlaces() {
+        return places;
     }
 
     @Override
-    public int getWaypointsCount() {
-        return waypoints.size();
+    public int getPlacesCount() {
+        return places.size();
     }
 
     @Override
@@ -76,18 +76,18 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
     public int getDataType(int position) {
         if (position < 0)
             throw new IndexOutOfBoundsException("Wrong index: " + position);
-        if (position < waypoints.size())
-            return TYPE_WAYPOINT;
-        if (position < waypoints.size() + tracks.size())
+        if (position < places.size())
+            return TYPE_PLACE;
+        if (position < places.size() + tracks.size())
             return TYPE_TRACK;
-        if (position < waypoints.size() + tracks.size() + routes.size())
+        if (position < places.size() + tracks.size() + routes.size())
             return TYPE_ROUTE;
         throw new IndexOutOfBoundsException("Wrong index: " + position);
     }
 
     @Override
-    public Waypoint cursorToWaypoint(Cursor cursor) {
-        return waypoints.get(cursor.getInt(1));
+    public Place cursorToPlace(Cursor cursor) {
+        return places.get(cursor.getInt(1));
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
 
         @Override
         public int getCount() {
-            return waypoints.size() + tracks.size() + routes.size();
+            return places.size() + tracks.size() + routes.size();
         }
 
         @Override
@@ -153,11 +153,11 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
             if (column != 1)
                 return 0;
             int position = getPosition();
-            if (position < waypoints.size())
+            if (position < places.size())
                 return position;
-            if (position < waypoints.size() + tracks.size())
-                return position - waypoints.size();
-            return position - waypoints.size() - tracks.size();
+            if (position < places.size() + tracks.size())
+                return position - places.size();
+            return position - places.size() - tracks.size();
         }
 
         @Override
@@ -166,11 +166,11 @@ public class MemoryDataSource extends DataSource implements WaypointDataSource, 
             if (column != 0)
                 return 0;
             int position = getPosition();
-            if (position < waypoints.size())
-                return waypoints.get(position)._id;
-            if (position < waypoints.size() + tracks.size())
-                return tracks.get(position - waypoints.size()).id;
-            return routes.get(position - waypoints.size() - tracks.size()).id;
+            if (position < places.size())
+                return places.get(position)._id;
+            if (position < places.size() + tracks.size())
+                return tracks.get(position - places.size()).id;
+            return routes.get(position - places.size() - tracks.size()).id;
         }
 
         @Override

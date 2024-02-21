@@ -20,12 +20,12 @@ import android.database.Cursor;
 
 import java.util.List;
 
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 
-public interface WaypointDataSource {
-    List<Waypoint> getWaypoints();
+public interface PlaceDataSource {
+    List<Place> getPlaces();
 
-    int getWaypointsCount();
+    int getPlacesCount();
 
-    Waypoint cursorToWaypoint(Cursor cursor);
+    Place cursorToPlace(Cursor cursor);
 }

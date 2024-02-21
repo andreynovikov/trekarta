@@ -44,7 +44,7 @@ import java.util.Locale;
 
 import mobi.maptrek.DataHolder;
 import mobi.maptrek.R;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.source.MemoryDataSource;
 import mobi.maptrek.util.Osm;
 import mobi.maptrek.util.StringFormatter;
@@ -131,9 +131,9 @@ public class LocationShare extends DialogFragment implements DialogInterface.OnC
             case 3: { // share as file
                 MemoryDataSource dataSource = new MemoryDataSource();
                 dataSource.name = name;
-                if (name == null) // waypoint name can not be null for export
+                if (name == null) // place name can not be null for export
                     name = StringFormatter.coordinates(" ", latitude, longitude);
-                dataSource.waypoints.add(new Waypoint(name, latitude, longitude));
+                dataSource.places.add(new Place(name, latitude, longitude));
                 mDataHolder.onDataSourceShare(dataSource);
                 return;
             }

@@ -179,15 +179,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import mobi.maptrek.data.Amenity;
 import mobi.maptrek.data.MapObject;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.source.RouteDataSource;
 import mobi.maptrek.data.source.TrackDataSource;
-import mobi.maptrek.data.source.WaypointDataSource;
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.source.PlaceDataSource;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.databinding.ActivityMainBinding;
@@ -210,7 +210,7 @@ import mobi.maptrek.fragments.OnLocationListener;
 import mobi.maptrek.fragments.OnMapActionListener;
 import mobi.maptrek.fragments.OnRouteActionListener;
 import mobi.maptrek.fragments.OnTrackActionListener;
-import mobi.maptrek.fragments.OnWaypointActionListener;
+import mobi.maptrek.fragments.OnPlaceActionListener;
 import mobi.maptrek.fragments.PanelMenuFragment;
 import mobi.maptrek.fragments.PanelMenuItem;
 import mobi.maptrek.fragments.RouteEdit;
@@ -219,8 +219,8 @@ import mobi.maptrek.fragments.Ruler;
 import mobi.maptrek.fragments.TextSearch;
 import mobi.maptrek.fragments.TrackInformation;
 import mobi.maptrek.dialogs.TrackProperties;
-import mobi.maptrek.fragments.WaypointInformation;
-import mobi.maptrek.dialogs.WaypointProperties;
+import mobi.maptrek.fragments.PlaceInformation;
+import mobi.maptrek.dialogs.PlaceProperties;
 import mobi.maptrek.dialogs.WhatsNew;
 import mobi.maptrek.fragments.preferences.BasePreferences;
 import mobi.maptrek.io.Manager;
@@ -285,10 +285,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Map.UpdateListener,
         GestureListener,
         FragmentHolder,
-        WaypointProperties.OnWaypointPropertiesChangedListener,
+        PlaceProperties.OnPlacePropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnLocationListener,
-        OnWaypointActionListener,
+        OnPlaceActionListener,
         OnTrackActionListener,
         OnRouteActionListener,
         OnMapActionListener,
@@ -414,8 +414,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private MapIndex mMapIndex;
     private MapTrekTileSource mNativeTileSource;
     private List<MapFile> mBitmapLayerMaps;
-    private Waypoint mEditedWaypoint;
-    private Set<Waypoint> mDeletedWaypoints;
+    private Place mEditedPlace;
+    private Set<Place> mDeletedPlaces;
     private Track mEditedTrack;
     private Set<Track> mDeletedTracks;
     private int mTotalDataItems = 0;
@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private Handler mMainHandler;
     private WeakReference<SafeResultReceiver> mResultReceiver;
 
-    private WaypointBroadcastReceiver mWaypointBroadcastReceiver;
+    private PlaceBroadcastReceiver mPlaceBroadcastReceiver;
     private PluginRepository mPluginRepository;
 
     @SuppressLint({"ShowToast", "UseCompatLoadingForDrawables"})
@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             }
         }
 
-        mEditedWaypoint = application.getEditedWaypoint();
+        mEditedPlace = application.getEditedPlace();
 
         mBitmapLayerMaps = application.getBitmapLayerMaps();
         if (mBitmapLayerMaps == null)
@@ -547,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
         mViews.navigationArrow.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getWaypoint();
+            MapObject mapObject = mNavigationService.getCurrentPoint();
             setMapLocation(mapObject.coordinates);
         });
         mViews.navigationArrow.setOnLongClickListener(v -> {
@@ -555,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         });
         mViews.navigationSign.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getWaypoint();
+            MapObject mapObject = mNavigationService.getCurrentPoint();
             setMapLocation(mapObject.coordinates);
         });
 
@@ -700,19 +700,19 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             }
         });
 
-        // Load waypoints
-        dataSourceViewModel.waypointDbDataSource.open();
-        for (Waypoint waypoint : dataSourceViewModel.waypointDbDataSource.getWaypoints()) {
-            if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
-                mEditedWaypoint = waypoint;
-            addWaypointMarker(waypoint);
+        // Load places
+        dataSourceViewModel.placeDbDataSource.open();
+        for (Place place : dataSourceViewModel.placeDbDataSource.getPlaces()) {
+            if (mEditedPlace != null && mEditedPlace._id == place._id)
+                mEditedPlace = place;
+            addPlaceMarker(place);
             mTotalDataItems++;
         }
 
-        mWaypointBroadcastReceiver = new WaypointBroadcastReceiver();
-        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED), ContextCompat.RECEIVER_NOT_EXPORTED);
-        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED), ContextCompat.RECEIVER_NOT_EXPORTED);
-        ContextCompat.registerReceiver(this, mWaypointBroadcastReceiver, new IntentFilter(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN), ContextCompat.RECEIVER_NOT_EXPORTED);
+        mPlaceBroadcastReceiver = new PlaceBroadcastReceiver();
+        ContextCompat.registerReceiver(this, mPlaceBroadcastReceiver, new IntentFilter(PlaceDbDataSource.BROADCAST_PLACES_MODIFIED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mPlaceBroadcastReceiver, new IntentFilter(PlaceDbDataSource.BROADCAST_PLACES_RESTORED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(this, mPlaceBroadcastReceiver, new IntentFilter(PlaceDbDataSource.BROADCAST_PLACES_REWRITTEN), ContextCompat.RECEIVER_NOT_EXPORTED);
 
         mHideMapObjects = Configuration.getHideMapObjects();
         mBitmapMapTransparency = Configuration.getBitmapMapTransparency();
@@ -752,7 +752,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         });
         mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
         mViews.navigationSign.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getWaypoint();
+            MapObject mapObject = mNavigationService.getCurrentPoint();
             setMapLocation(mapObject.coordinates);
         });
 
@@ -1024,7 +1024,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (type >= 0 && mViews.highlightedType.getVisibility() != View.VISIBLE)
             setHighlightedType(type);
 
-        mViews.routeWaypointBarrier.addOnLayoutChangeListener(layoutChangeListener);
+        mViews.routePointBarrier.addOnLayoutChangeListener(layoutChangeListener);
         mViews.gaugesRightBarrier.addOnLayoutChangeListener(layoutChangeListener);
         mViews.gaugesBottomBarrier.addOnLayoutChangeListener(layoutChangeListener);
         mViews.contentBarrier.addOnLayoutChangeListener(layoutChangeListener);
@@ -1039,7 +1039,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mLocationState != LocationState.SEARCHING)
             mSavedLocationState = mLocationState;
 
-        mViews.routeWaypointBarrier.removeOnLayoutChangeListener(layoutChangeListener);
+        mViews.routePointBarrier.removeOnLayoutChangeListener(layoutChangeListener);
         mViews.gaugesRightBarrier.removeOnLayoutChangeListener(layoutChangeListener);
         mViews.gaugesBottomBarrier.removeOnLayoutChangeListener(layoutChangeListener);
         mViews.contentBarrier.removeOnLayoutChangeListener(layoutChangeListener);
@@ -1106,9 +1106,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         long runningTime = (SystemClock.uptimeMillis() - mStartTime) / 60000;
         Configuration.updateRunningTime(runningTime);
 
-        if (mDeletedWaypoints != null) {
-            deleteWaypoints(mDeletedWaypoints);
-            mDeletedWaypoints = null;
+        if (mDeletedPlaces != null) {
+            deletePlaces(mDeletedPlaces);
+            mDeletedPlaces = null;
         }
         if (mDeletedTracks != null) {
             deleteTracks(mDeletedTracks);
@@ -1122,9 +1122,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         for (FileDataSource source : dataSourceViewModel.fileDataSources)
             source.setVisible(false);
 
-        if (mWaypointBroadcastReceiver != null) {
-            unregisterReceiver(mWaypointBroadcastReceiver);
-            mWaypointBroadcastReceiver = null;
+        if (mPlaceBroadcastReceiver != null) {
+            unregisterReceiver(mPlaceBroadcastReceiver);
+            mPlaceBroadcastReceiver = null;
         }
 
         mDetailedMapDatabase = null;
@@ -1158,7 +1158,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         MapTrek application = MapTrek.getApplication();
-        application.setEditedWaypoint(mEditedWaypoint);
+        application.setEditedPlace(mEditedPlace);
         application.setBitmapLayerMaps(mBitmapLayerMaps);
 
         if (mLocationService != null)
@@ -1363,11 +1363,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             box.extendBy(0.05);
             mMap.animator().animateTo(box);
             return true;
-        } else if (action == R.id.actionNextRouteWaypoint) {
-            mNavigationService.nextRouteWaypoint();
+        } else if (action == R.id.actionNextRoutePoint) {
+            mNavigationService.nextRoutePoint();
             return true;
-        } else if (action == R.id.actionPrevRouteWaypoint) {
-            mNavigationService.prevRouteWaypoint();
+        } else if (action == R.id.actionPrevRoutePoint) {
+            mNavigationService.prevRoutePoint();
             return true;
         } else if (action == R.id.actionStopNavigation) {
             stopNavigation();
@@ -1442,10 +1442,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mapViewModel.removeMarker();
             shareLocation(mSelectedPoint, null);
             return true;
-        } else if (action == R.id.actionAddWaypointHere) {
+        } else if (action == R.id.actionAddPlaceHere) {
             mapViewModel.removeMarker();
             String name = getString(R.string.place_name, Configuration.getPointsCounter());
-            onWaypointCreate(mSelectedPoint, name, false, true);
+            onPlaceCreate(mSelectedPoint, name, false, true);
             return true;
         } else if (action == R.id.actionNavigateHere) {
             mapViewModel.removeMarker();
@@ -1673,7 +1673,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             Fragment fragment = factory.instantiate(getClassLoader(), DataSourceList.class.getName());
             showExtendPanel(PANEL_STATE.PLACES, "dataSourceList", fragment);
         } else {
-            dataSourceViewModel.selectDataSource(dataSourceViewModel.waypointDbDataSource, DataSourceViewModel.MODE_PANEL);
+            dataSourceViewModel.selectDataSource(dataSourceViewModel.placeDbDataSource, DataSourceViewModel.MODE_PANEL);
         }
     }
 
@@ -1686,7 +1686,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             geoPoint = mMap.getMapPosition().getGeoPoint();
         }
         String name = getString(R.string.place_name, Configuration.getPointsCounter());
-        onWaypointCreate(geoPoint, name, false, true);
+        onPlaceCreate(geoPoint, name, false, true);
     }
 
     private void onMapsClicked() {
@@ -1822,7 +1822,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         Object uid = item.getUid();
         if (uid != null)
-            onWaypointDetails((Waypoint) uid, false);
+            onPlaceDetails((Place) uid, false);
         return uid != null;
     }
 
@@ -1834,8 +1834,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return false;
         Object uid = item.getUid();
         if (uid != null) {
-            Waypoint waypoint = (Waypoint) uid;
-            if (waypoint.locked) {
+            Place place = (Place) uid;
+            if (place.locked) {
                 Toast.makeText(this, R.string.msgPlaceLocked, Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -2050,7 +2050,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return false;
         if (!mNavigationService.isNavigating())
             return false;
-        MapObject mapObject = mNavigationService.getWaypoint();
+        MapObject mapObject = mNavigationService.getCurrentPoint();
         return mapObject.coordinates.equals(coordinates);
     }
 
@@ -2111,10 +2111,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mActiveMarker == null)
             return;
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            // Update corresponding waypoint
-            Waypoint waypoint = (Waypoint) mActiveMarker.getUid();
-            waypoint.setCoordinates(mActiveMarker.getPoint());
-            onWaypointSave(waypoint);
+            // Update corresponding place
+            Place place = (Place) mActiveMarker.getUid();
+            place.setCoordinates(mActiveMarker.getPoint());
+            onPlaceSave(place);
             mActiveMarker = null;
             // Unshift map to its original position
             mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION / 2, mMap.viewport().fromScreenPoint(mMap.getWidth() / 2f, mMap.getHeight() / 2f - mFingerTipSize), 1, true);
@@ -2243,10 +2243,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         PopupMenu popup = new PopupMenu(this, mViews.mapButtonHolder);
         popup.inflate(R.menu.context_menu_navigation);
         Menu popupMenu = popup.getMenu();
-        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasNextRouteWaypoint())
-            popupMenu.removeItem(R.id.actionNextRouteWaypoint);
-        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasPrevRouteWaypoint())
-            popupMenu.removeItem(R.id.actionPrevRouteWaypoint);
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasNextRoutePoint())
+            popupMenu.removeItem(R.id.actionNextRoutePoint);
+        if (!mNavigationService.isNavigatingViaRoute() || !mNavigationService.hasPrevRoutePoint())
+            popupMenu.removeItem(R.id.actionPrevRoutePoint);
         popup.setOnMenuItemClickListener(this);
         popup.show();
     }
@@ -2394,32 +2394,32 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         if (mNavigationService.isNavigatingViaRoute()) {
             if (updateRoutePanels) {
-                mViews.routeWaypoint.setText(mNavigationService.getInstructionText());
+                mViews.routePoint.setText(mNavigationService.getInstructionText());
                 @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
                 Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
                 mViews.navigationSign.setImageDrawable(signDrawable);
                 int color = getResources().getColor(R.color.panelBackground, getTheme());
-                mViews.routeWaypoint.setBackgroundColor(color);
+                mViews.routePoint.setBackgroundColor(color);
                 mViews.routeSignBackground.setBackgroundColor(color);
                 mViews.navigationSign.setTag(false);
             }
-            mViews.routeWptDistance.setText(StringFormatter.distanceH(mNavigationService.getWptDistance()));
-            int ete = mNavigationService.getWptEte();
+            mViews.routePointDistance.setText(StringFormatter.distanceH(mNavigationService.getPointDistance()));
+            int ete = mNavigationService.getPointEte();
             if (ete == Integer.MAX_VALUE) {
-                mViews.routeWptEte.setVisibility(View.GONE);
+                mViews.routePointEte.setVisibility(View.GONE);
             } else {
-                mViews.routeWptEte.setVisibility(View.VISIBLE);
-                mViews.routeWptEte.setText(StringFormatter.timeH(ete));
+                mViews.routePointEte.setVisibility(View.VISIBLE);
+                mViews.routePointEte.setText(StringFormatter.timeH(ete));
                 if (ete <= 1) {
                     if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
                         int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
-                        mViews.routeWaypoint.setBackgroundColor(color);
+                        mViews.routePoint.setBackgroundColor(color);
                         mViews.routeSignBackground.setBackgroundColor(color);
                         mViews.navigationSign.setTag(true);
                     }
                 } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
                     int color = getResources().getColor(R.color.panelBackground, getTheme());
-                    mViews.routeWaypoint.setBackgroundColor(color);
+                    mViews.routePoint.setBackgroundColor(color);
                     mViews.routeSignBackground.setBackgroundColor(color);
                     mViews.navigationSign.setTag(false);
                 }
@@ -2447,7 +2447,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mViews.navigationArrow.setVisibility(View.VISIBLE);
                 mViews.navigationArrow.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
             }
-            GeoPoint destination = mNavigationService.getWaypoint().coordinates;
+            GeoPoint destination = mNavigationService.getCurrentPoint().coordinates;
             if (mNavigationLayer == null) {
                 mNavigationLayer = new NavigationLayer(mMap, 0x66ffff00, 8);
                 mNavigationLayer.setDestination(destination);
@@ -2491,58 +2491,58 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         ft.commit();
     }
 
-    private void onWaypointProperties(Waypoint waypoint) {
-        mEditedWaypoint = waypoint;
-        WaypointProperties dialogFragment = new WaypointProperties(waypoint);
-        dialogFragment.show(mFragmentManager, "waypointProperties");
+    private void onPlaceProperties(Place place) {
+        mEditedPlace = place;
+        PlaceProperties dialogFragment = new PlaceProperties(place);
+        dialogFragment.show(mFragmentManager, "placeProperties");
     }
 
     @Override
-    public void onWaypointCreate(GeoPoint point, String name, boolean locked, boolean customize) {
-        final Waypoint waypoint = new Waypoint(name, point.getLatitude(), point.getLongitude());
-        waypoint.date = new Date();
-        waypoint.locked = locked;
-        dataSourceViewModel.waypointDbDataSource.saveWaypoint(waypoint);
-        MarkerItem marker = new MarkerItem(waypoint, name, null, point, waypoint.style.color);
+    public void onPlaceCreate(GeoPoint point, String name, boolean locked, boolean customize) {
+        final Place place = new Place(name, point.getLatitude(), point.getLongitude());
+        place.date = new Date();
+        place.locked = locked;
+        dataSourceViewModel.placeDbDataSource.savePlace(place);
+        MarkerItem marker = new MarkerItem(place, name, null, point, place.style.color);
         mMarkerLayer.addItem(marker);
         mMap.updateMap(true);
         if (!customize)
             return;
         Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceSaved, Snackbar.LENGTH_LONG)
-                .setAction(R.string.actionCustomize, view -> onWaypointProperties(waypoint))
+                .setAction(R.string.actionCustomize, view -> onPlaceProperties(place))
                 .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
     @Override
-    public void onWaypointView(Waypoint waypoint) {
-        setMapLocation(waypoint.coordinates);
+    public void onPlaceView(Place place) {
+        setMapLocation(place.coordinates);
     }
 
     @Override
-    public void onWaypointFocus(Waypoint waypoint) {
-        if (waypoint != null)
-            mMarkerLayer.setFocus(mMarkerLayer.getByUid(waypoint), waypoint.style.color);
+    public void onPlaceFocus(Place place) {
+        if (place != null)
+            mMarkerLayer.setFocus(mMarkerLayer.getByUid(place), place.style.color);
         else
             mMarkerLayer.setFocus(null);
     }
 
     @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
-    public void onWaypointDetails(Waypoint waypoint, boolean fromList) {
+    public void onPlaceDetails(Place place, boolean fromList) {
         mViews.popupAnchor.setX(0);
         mViews.popupAnchor.setY(0);
         Bundle args = new Bundle(3);
-        args.putBoolean(WaypointInformation.ARG_DETAILS, fromList);
+        args.putBoolean(PlaceInformation.ARG_DETAILS, fromList);
         if (fromList || mLocationState != LocationState.DISABLED) {
             if (mLocationState != LocationState.DISABLED && mLocationService != null) {
                 Location location = mLocationService.getLocation();
-                args.putDouble(WaypointInformation.ARG_LATITUDE, location.getLatitude());
-                args.putDouble(WaypointInformation.ARG_LONGITUDE, location.getLongitude());
+                args.putDouble(PlaceInformation.ARG_LATITUDE, location.getLatitude());
+                args.putDouble(PlaceInformation.ARG_LONGITUDE, location.getLongitude());
             } else {
                 MapPosition position = mMap.getMapPosition();
-                args.putDouble(WaypointInformation.ARG_LATITUDE, position.getLatitude());
-                args.putDouble(WaypointInformation.ARG_LONGITUDE, position.getLongitude());
+                args.putDouble(PlaceInformation.ARG_LATITUDE, position.getLatitude());
+                args.putDouble(PlaceInformation.ARG_LONGITUDE, position.getLongitude());
             }
         }
 
@@ -2550,42 +2550,42 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (fragment != null) {
             mFragmentManager.popBackStack("amenityInformation", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
-        fragment = mFragmentManager.findFragmentByTag("waypointInformation");
+        fragment = mFragmentManager.findFragmentByTag("placeInformation");
         if (fragment == null) {
             FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            fragment = factory.instantiate(getClassLoader(), WaypointInformation.class.getName());
+            fragment = factory.instantiate(getClassLoader(), PlaceInformation.class.getName());
             fragment.setArguments(args);
             Slide slide = new Slide(Gravity.BOTTOM);
             slide.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             fragment.setEnterTransition(slide);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.bottomSheetPanel, fragment, "waypointInformation");
-            ft.addToBackStack("waypointInformation");
+            ft.replace(R.id.bottomSheetPanel, fragment, "placeInformation");
+            ft.addToBackStack("placeInformation");
             ft.commit();
         }
-        ((WaypointInformation) fragment).setWaypoint(waypoint);
+        ((PlaceInformation) fragment).setPlace(place);
         dimExtendPanel();
     }
 
     @Override
-    public void onWaypointNavigate(Waypoint waypoint) {
-        startNavigation(waypoint);
+    public void onPlaceNavigate(Place place) {
+        startNavigation(place);
     }
 
     @Override
-    public void onWaypointShare(Waypoint waypoint) {
-        shareLocation(waypoint.coordinates, waypoint.name);
+    public void onPlaceShare(Place place) {
+        shareLocation(place.coordinates, place.name);
     }
 
     @Override
-    public void onWaypointSave(final Waypoint waypoint) {
-        if (waypoint.source instanceof WaypointDbDataSource) {
-            dataSourceViewModel.waypointDbDataSource.saveWaypoint(waypoint);
+    public void onPlaceSave(final Place place) {
+        if (place.source instanceof PlaceDbDataSource) {
+            dataSourceViewModel.placeDbDataSource.savePlace(place);
         } else {
-            Manager.save((FileDataSource) waypoint.source, new Manager.OnSaveListener() {
+            Manager.save((FileDataSource) place.source, new Manager.OnSaveListener() {
                 @Override
                 public void onSaved(FileDataSource source) {
-                    mMainHandler.post(() -> waypoint.source.notifyListeners());
+                    mMainHandler.post(() -> place.source.notifyListeners());
                 }
 
                 @Override
@@ -2595,18 +2595,18 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             }, mProgressHandler);
         }
         // Markers are immutable so simply recreate it
-        removeWaypointMarker(waypoint);
-        addWaypointMarker(waypoint);
+        removePlaceMarker(place);
+        addPlaceMarker(place);
         mMap.updateMap(true);
     }
 
     @Override
-    public void onWaypointDelete(final Waypoint waypoint) {
+    public void onPlaceDelete(final Place place) {
         // Remove marker to indicate action to user
-        removeWaypointMarker(waypoint);
+        removePlaceMarker(place);
         mMap.updateMap(true);
-        mDeletedWaypoints = new HashSet<>();
-        mDeletedWaypoints.add(waypoint);
+        mDeletedPlaces = new HashSet<>();
+        mDeletedPlaces.add(place);
 
         // Show undo snackbar
         Snackbar.make(mViews.coordinatorLayout, R.string.msgPlaceDeleted, Snackbar.LENGTH_LONG)
@@ -2615,35 +2615,35 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
-                        if (mDeletedWaypoints == null) // removed on application exit
+                        if (mDeletedPlaces == null) // removed on application exit
                             return;
-                        // If dismissed, actually remove waypoint
-                        deleteWaypoints(mDeletedWaypoints);
-                        mDeletedWaypoints = null;
+                        // If dismissed, actually remove place
+                        deletePlaces(mDeletedPlaces);
+                        mDeletedPlaces = null;
 
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
                     // If undo pressed, restore the marker
-                    addWaypointMarker(waypoint);
+                    addPlaceMarker(place);
                     mMap.updateMap(true);
-                    mDeletedWaypoints = null;
+                    mDeletedPlaces = null;
                 })
                 .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
     @Override
-    public void onWaypointsDelete(final Set<Waypoint> waypoints) {
+    public void onPlacesDelete(final Set<Place> places) {
         // Remove markers to indicate action to user
-        for (Waypoint waypoint : waypoints) {
-            removeWaypointMarker(waypoint);
+        for (Place place : places) {
+            removePlaceMarker(place);
         }
         mMap.updateMap(true);
-        mDeletedWaypoints = waypoints;
+        mDeletedPlaces = places;
 
         // Show undo snackbar
-        int count = waypoints.size();
+        int count = places.size();
         String msg = getResources().getQuantityString(R.plurals.placesDeleted, count, count);
         Snackbar.make(mViews.coordinatorLayout, msg, Snackbar.LENGTH_LONG)
                 .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>(){
@@ -2652,31 +2652,31 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                         super.onDismissed(snackbar, event);
                         if (event == DISMISS_EVENT_ACTION)
                             return;
-                        if (mDeletedWaypoints == null) // removed on application exit
+                        if (mDeletedPlaces == null) // removed on application exit
                             return;
-                        // If dismissed, actually remove waypoints
-                        deleteWaypoints(mDeletedWaypoints);
-                        mDeletedWaypoints = null;
+                        // If dismissed, actually remove places
+                        deletePlaces(mDeletedPlaces);
+                        mDeletedPlaces = null;
                     }
                 })
                 .setAction(R.string.actionUndo, view -> {
                     // If undo pressed, restore the marker
-                    for (Waypoint waypoint : waypoints) {
-                        addWaypointMarker(waypoint);
+                    for (Place place : places) {
+                        addPlaceMarker(place);
                     }
                     mMap.updateMap(true);
-                    mDeletedWaypoints = null;
+                    mDeletedPlaces = null;
                 })
                 .setAnchorView(mViews.actionPanel)
                 .show();
     }
 
     @Override
-    public void onWaypointPropertiesChanged(String name, int color) {
-        boolean colorChanged = mEditedWaypoint.style.color != color;
-        mEditedWaypoint.name = name;
-        mEditedWaypoint.style.color = color;
-        MarkerItem item = mMarkerLayer.getByUid(mEditedWaypoint);
+    public void onPlacePropertiesChanged(String name, int color) {
+        boolean colorChanged = mEditedPlace.style.color != color;
+        mEditedPlace.name = name;
+        mEditedPlace.style.color = color;
+        MarkerItem item = mMarkerLayer.getByUid(mEditedPlace);
         item.title = name;
         if (colorChanged) {
             AndroidBitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, color));
@@ -2685,8 +2685,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mMarkerLayer.updateItems();
         mMap.updateMap(true);
         // This event is relevant only to internal data source
-        dataSourceViewModel.waypointDbDataSource.saveWaypoint(mEditedWaypoint);
-        mEditedWaypoint = null;
+        dataSourceViewModel.placeDbDataSource.savePlace(mEditedPlace);
+        mEditedPlace = null;
     }
 
     private void onTrackProperties(String path) {
@@ -2998,9 +2998,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Amenity amenity = MapTrekDatabaseHelper.getAmenityData(language, id, mDetailedMapDatabase);
         amenityViewModel.setAmenity(amenity);
 
-        Fragment fragment = mFragmentManager.findFragmentByTag("waypointInformation");
+        Fragment fragment = mFragmentManager.findFragmentByTag("placeInformation");
         if (fragment != null) {
-            mFragmentManager.popBackStack("waypointInformation", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            mFragmentManager.popBackStack("placeInformation", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
         fragment = mFragmentManager.findFragmentByTag("amenityInformation");
         if (fragment == null) {
@@ -3174,14 +3174,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mMap.updateMap(true);
     }
 
-    private void deleteWaypoints(@NonNull Set<Waypoint> waypoints) {
+    private void deletePlaces(@NonNull Set<Place> places) {
         HashSet<FileDataSource> sources = new HashSet<>();
-        for (Waypoint waypoint : waypoints) {
-            if (waypoint.source instanceof WaypointDbDataSource) {
-                dataSourceViewModel.waypointDbDataSource.deleteWaypoint(waypoint);
+        for (Place place : places) {
+            if (place.source instanceof PlaceDbDataSource) {
+                dataSourceViewModel.placeDbDataSource.deletePlace(place);
             } else {
-                ((FileDataSource) waypoint.source).waypoints.remove(waypoint);
-                sources.add((FileDataSource) waypoint.source);
+                ((FileDataSource) place.source).places.remove(place);
+                sources.add((FileDataSource) place.source);
             }
             mTotalDataItems--;
         }
@@ -3932,7 +3932,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         int mapWidth = area.width();
         int mapHeight = area.height();
 
-        area.top = mViews.constraintLayout.getTop() + mViews.routeWaypointBarrier.getBottom();
+        area.top = mViews.constraintLayout.getTop() + mViews.routePointBarrier.getBottom();
 
         int left = mViews.gaugesRightBarrier.getRight();
         if (left > 0) { // gauge panel is visible
@@ -4173,10 +4173,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                     if (mLocationState != LocationState.DISABLED)
                         askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
                 }
-                if (state == BaseNavigationService.STATE_NEXT_WPT) {
+                if (state == BaseNavigationService.STATE_NEXT_ROUTE_POINT) {
                     updateNavigationGauges(true);
                     if (mNavigationLayer != null && mNavigationService != null)
-                        mNavigationLayer.setDestination(mNavigationService.getWaypoint().coordinates);
+                        mNavigationLayer.setDestination(mNavigationService.getCurrentPoint().coordinates);
                 }
                 updatePanels();
             }
@@ -4185,40 +4185,40 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 if (mNavigationService != null) {
                     adjustNavigationArrow(mNavigationService.getTurn());
                     if (intent.getBooleanExtra("moving", false) && mNavigationLayer != null)
-                        mNavigationLayer.setDestination(mNavigationService.getWaypoint().coordinates);
+                        mNavigationLayer.setDestination(mNavigationService.getCurrentPoint().coordinates);
                 }
             }
         }
     };
 
-    class WaypointBroadcastReceiver extends BroadcastReceiver {
+    class PlaceBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             logger.debug("Broadcast: {}", action);
-            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED.equals(action)) {
-                ContextUtils.sendExplicitBroadcast(MainActivity.this, WaypointDbDataSource.BROADCAST_WAYPOINTS_MODIFIED);
+            if (PlaceDbDataSource.BROADCAST_PLACES_MODIFIED.equals(action)) {
+                ContextUtils.sendExplicitBroadcast(MainActivity.this, PlaceDbDataSource.BROADCAST_PLACES_MODIFIED);
             }
-            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_RESTORED.equals(action)) {
-                for (Waypoint waypoint : dataSourceViewModel.waypointDbDataSource.getWaypoints())
-                    removeWaypointMarker(waypoint);
-                dataSourceViewModel.waypointDbDataSource.close();
+            if (PlaceDbDataSource.BROADCAST_PLACES_RESTORED.equals(action)) {
+                for (Place place : dataSourceViewModel.placeDbDataSource.getPlaces())
+                    removePlaceMarker(place);
+                dataSourceViewModel.placeDbDataSource.close();
             }
-            if (WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN.equals(action)) {
-                dataSourceViewModel.waypointDbDataSource.open();
-                dataSourceViewModel.waypointDbDataSource.notifyListeners();
-                for (Waypoint waypoint : dataSourceViewModel.waypointDbDataSource.getWaypoints()) {
-                    if (mEditedWaypoint != null && mEditedWaypoint._id == waypoint._id)
-                        mEditedWaypoint = waypoint;
-                    addWaypointMarker(waypoint);
+            if (PlaceDbDataSource.BROADCAST_PLACES_REWRITTEN.equals(action)) {
+                dataSourceViewModel.placeDbDataSource.open();
+                dataSourceViewModel.placeDbDataSource.notifyListeners();
+                for (Place place : dataSourceViewModel.placeDbDataSource.getPlaces()) {
+                    if (mEditedPlace != null && mEditedPlace._id == place._id)
+                        mEditedPlace = place;
+                    addPlaceMarker(place);
                 }
             }
         }
     }
 
     private void addSourceToMap(FileDataSource source) {
-        for (Waypoint waypoint : source.waypoints) {
-            addWaypointMarker(waypoint);
+        for (Place place : source.places) {
+            addPlaceMarker(place);
             mTotalDataItems++;
         }
         for (Track track : source.tracks) {
@@ -4234,8 +4234,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void removeSourceFromMap(FileDataSource source) {
-        for (Waypoint waypoint : source.waypoints) {
-            removeWaypointMarker(waypoint);
+        for (Place place : source.places) {
+            removePlaceMarker(place);
             mTotalDataItems--;
         }
         for (Iterator<Layer> i = mMap.layers().iterator(); i.hasNext(); ) {
@@ -4256,17 +4256,17 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
     }
 
-    private void addWaypointMarker(Waypoint waypoint) {
-        MarkerItem marker = new MarkerItem(waypoint, waypoint.name, waypoint.description, waypoint.coordinates, waypoint.style.color);
-        if (waypoint.style.color != 0 && waypoint.style.color != MarkerStyle.DEFAULT_COLOR) {
-            Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, waypoint.style.color));
+    private void addPlaceMarker(Place place) {
+        MarkerItem marker = new MarkerItem(place, place.name, place.description, place.coordinates, place.style.color);
+        if (place.style.color != 0 && place.style.color != MarkerStyle.DEFAULT_COLOR) {
+            Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, place.style.color));
             marker.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
         }
         mMarkerLayer.addItem(marker);
     }
 
-    private void removeWaypointMarker(Waypoint waypoint) {
-        MarkerItem marker = mMarkerLayer.getByUid(waypoint);
+    private void removePlaceMarker(Place place) {
+        MarkerItem marker = mMarkerLayer.getByUid(place);
         mMarkerLayer.removeItem(marker);
     }
 
@@ -4356,9 +4356,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 Cursor cursor = dataSourceState.dataSource.getCursor();
                 cursor.moveToPosition(0);
                 int itemType = dataSourceState.dataSource.getDataType(0);
-                if (itemType == DataSource.TYPE_WAYPOINT) {
-                    Waypoint waypoint = ((WaypointDataSource) dataSourceState.dataSource).cursorToWaypoint(cursor);
-                    onWaypointDetails(waypoint, true);
+                if (itemType == DataSource.TYPE_PLACE) {
+                    Place place = ((PlaceDataSource) dataSourceState.dataSource).cursorToPlace(cursor);
+                    onPlaceDetails(place, true);
                 } else if (itemType == DataSource.TYPE_TRACK) {
                     Track track = ((TrackDataSource) dataSourceState.dataSource).cursorToTrack(cursor);
                     onTrackDetails(track);
@@ -4388,7 +4388,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     @Override
     public void onDataSourceShare(@NonNull final DataSource dataSource) {
-        final boolean askName = dataSource.name == null || dataSource instanceof WaypointDbDataSource;
+        final boolean askName = dataSource.name == null || dataSource instanceof PlaceDbDataSource;
         final AtomicInteger selected = new AtomicInteger(0);
         final EditText inputView = new EditText(this);
         final DialogInterface.OnClickListener exportAction = (dialog, which) -> {
@@ -4735,7 +4735,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     public String getStatsString() {
         return Configuration.getRunningTime() + "," +
                 Configuration.getTrackingTime() + "," +
-                dataSourceViewModel.waypointDbDataSource.getWaypointsCount() + "," +
+                dataSourceViewModel.placeDbDataSource.getPlacesCount() + "," +
                 dataSourceViewModel.fileDataSources.size() + "," +
                 mapIndexViewModel.nativeIndex.getMapsCount() + "," +
                 mMapIndex.getMaps().size() + "," +

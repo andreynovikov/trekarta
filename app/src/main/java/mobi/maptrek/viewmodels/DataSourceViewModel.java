@@ -28,11 +28,11 @@ import java.util.List;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.data.source.DataSource;
 import mobi.maptrek.data.source.FileDataSource;
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.util.SingleLiveEvent;
 
 public class DataSourceViewModel extends ViewModel {
-    public final WaypointDbDataSource waypointDbDataSource = MapTrek.getApplication().getWaypointDbDataSource();
+    public final PlaceDbDataSource placeDbDataSource = MapTrek.getApplication().getPlaceDbDataSource();
     public List<FileDataSource> fileDataSources = new ArrayList<>();
     private final MutableLiveData<List<DataSource>> currentDataSources = new MutableLiveData<>(new ArrayList<>());
 
@@ -55,7 +55,7 @@ public class DataSourceViewModel extends ViewModel {
         boolean nativeTracks = Boolean.TRUE.equals(nativeTracksState.getValue());
         List<DataSource> dataSources = new ArrayList<>();
         if (!nativeTracks)
-            dataSources.add(waypointDbDataSource);
+            dataSources.add(placeDbDataSource);
 
         // TODO: Preserve position after source is loaded and name changes
         Collections.sort(fileDataSources, (lhs, rhs) -> {

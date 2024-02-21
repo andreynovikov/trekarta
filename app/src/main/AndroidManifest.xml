@@ -226,10 +226,10 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".WaypointsRestoreReceiver"
+            android:name=".PlacesRestoreReceiver"
             android:exported="true">
             <intent-filter android:priority="-10">
-                <action android:name="mobi.maptrek.event.WaypointsRestored" />
+                <action android:name="mobi.maptrek.event.PlacesRestored" />
             </intent-filter>
         </receiver>
         <receiver

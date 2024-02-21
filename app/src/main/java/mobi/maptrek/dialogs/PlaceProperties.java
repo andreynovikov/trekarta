@@ -33,25 +33,25 @@ import androidx.fragment.app.DialogFragment;
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
 import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.R;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.style.MarkerStyle;
 
-public class WaypointProperties extends DialogFragment {
+public class PlaceProperties extends DialogFragment {
     private EditText mNameEdit;
     private ColorPickerSwatch mColorSwatch;
     private String mName;
     private int mColor;
 
-    private OnWaypointPropertiesChangedListener mListener;
+    private OnPlacePropertiesChangedListener mListener;
 
-    public WaypointProperties() {
+    public PlaceProperties() {
         super();
     }
 
-    public WaypointProperties(Waypoint waypoint) {
+    public PlaceProperties(Place place) {
         super();
-        mName = waypoint.name;
-        mColor = waypoint.style.color;
+        mName = place.name;
+        mColor = place.style.color;
     }
 
     @NonNull
@@ -107,9 +107,9 @@ public class WaypointProperties extends DialogFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnWaypointPropertiesChangedListener) context;
+            mListener = (OnPlacePropertiesChangedListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnWaypointPropertiesChangedListener");
+            throw new ClassCastException(context + " must implement OnPlacePropertiesChangedListener");
         }
     }
 
@@ -130,13 +130,13 @@ public class WaypointProperties extends DialogFragment {
         String name = mNameEdit.getText().toString();
         int color = mColorSwatch.getColor();
         if (!name.equals(mName) || color != mColor) {
-            mListener.onWaypointPropertiesChanged(name, color);
+            mListener.onPlacePropertiesChanged(name, color);
             mName = name;
             mColor = color;
         }
     }
 
-    public interface OnWaypointPropertiesChangedListener {
-        void onWaypointPropertiesChanged(String name, int color);
+    public interface OnPlacePropertiesChangedListener {
+        void onPlacePropertiesChanged(String name, int color);
     }
 }

@@ -76,35 +76,35 @@ import mobi.maptrek.LocationChangeListener;
 import mobi.maptrek.MapHolder;
 import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
-import mobi.maptrek.databinding.FragmentWaypointInformationBinding;
+import mobi.maptrek.databinding.FragmentPlaceInformationBinding;
 import mobi.maptrek.util.HelperUtils;
 import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.view.LimitedWebView;
 
-public class WaypointInformation extends Fragment implements LocationChangeListener {
-    private static final Logger logger = LoggerFactory.getLogger(WaypointInformation.class);
+public class PlaceInformation extends Fragment implements LocationChangeListener {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceInformation.class);
 
     public static final String ARG_LATITUDE = "lat";
     public static final String ARG_LONGITUDE = "lon";
     public static final String ARG_DETAILS = "details";
 
-    private Waypoint mWaypoint;
+    private Place mPlace;
     private double mLatitude;
     private double mLongitude;
 
     private BottomSheetBehavior<View> mBottomSheetBehavior;
-    private WaypointBottomSheetCallback mBottomSheetCallback;
+    private PlaceBottomSheetCallback mBottomSheetCallback;
     private FloatingActionButton mFloatingButton;
     private FragmentHolder mFragmentHolder;
     private MapHolder mMapHolder;
-    private OnWaypointActionListener mListener;
+    private OnPlaceActionListener mListener;
     private boolean mExpanded;
     private boolean mPopAll;
-    private WaypointInformationViewModel viewModel;
-    private FragmentWaypointInformationBinding viewBinding;
+    private PlaceInformationViewModel viewModel;
+    private FragmentPlaceInformationBinding viewBinding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,7 +113,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        viewBinding = FragmentWaypointInformationBinding.inflate(inflater, container, false);
+        viewBinding = FragmentPlaceInformationBinding.inflate(inflater, container, false);
         return viewBinding.getRoot();
     }
 
@@ -121,13 +121,13 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(WaypointInformationViewModel.class);
+        viewModel = new ViewModelProvider(this).get(PlaceInformationViewModel.class);
         viewModel.editorMode.observe(getViewLifecycleOwner(), editorModeObserver);
 
         viewBinding.editButton.setOnClickListener(v -> viewModel.editorMode.setValue(true));
         viewBinding.shareButton.setOnClickListener(v -> {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onWaypointShare(mWaypoint);
+            mListener.onPlaceShare(mPlace);
         });
         viewBinding.deleteButton.setOnClickListener(v -> {
             Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
@@ -135,7 +135,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         });
         viewBinding.deleteButton.setOnLongClickListener(v -> {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mListener.onWaypointDelete(mWaypoint);
+            mListener.onPlaceDelete(mPlace);
             return true;
         });
 
@@ -179,18 +179,18 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             if (!isVisible())
                 return;
             if (Boolean.TRUE.equals(viewModel.editorMode.getValue())) {
-                mWaypoint.name = viewBinding.nameEdit.getText().toString();
-                mWaypoint.description = viewBinding.descriptionEdit.getText().toString();
-                mWaypoint.style.color = viewBinding.colorSwatch.getColor();
+                mPlace.name = viewBinding.nameEdit.getText().toString();
+                mPlace.description = viewBinding.descriptionEdit.getText().toString();
+                mPlace.style.color = viewBinding.colorSwatch.getColor();
 
-                mListener.onWaypointSave(mWaypoint);
-                mListener.onWaypointFocus(mWaypoint);
+                mListener.onPlaceSave(mPlace);
+                mListener.onPlaceFocus(mPlace);
                 viewModel.editorMode.setValue(false);
             } else {
-                if (mMapHolder.isNavigatingTo(mWaypoint.coordinates))
+                if (mMapHolder.isNavigatingTo(mPlace.coordinates))
                     mMapHolder.stopNavigation();
                 else
-                    mListener.onWaypointNavigate(mWaypoint);
+                    mListener.onPlaceNavigate(mPlace);
                 mPopAll = true;
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             }
@@ -200,14 +200,14 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         p.setAnchorId(R.id.bottomSheetPanel);
         mFloatingButton.setLayoutParams(p);
 
-        updateWaypointInformation(latitude, longitude);
+        updatePlaceInformation(latitude, longitude);
 
         viewBinding.dragHandle.setAlpha(mExpanded ? 0f : 1f);
-        mBottomSheetCallback = new WaypointBottomSheetCallback();
+        mBottomSheetCallback = new PlaceBottomSheetCallback();
         mBottomSheetBehavior = BottomSheetBehavior.from((View) viewBinding.getRoot().getParent());
         mBottomSheetBehavior.addBottomSheetCallback(mBottomSheetCallback);
 
-        mListener.onWaypointFocus(mWaypoint);
+        mListener.onPlaceFocus(mPlace);
     }
 
     @Override
@@ -226,9 +226,9 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnWaypointActionListener) context;
+            mListener = (OnPlaceActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnPlaceActionListener");
         }
         try {
             mMapHolder = (MapHolder) context;
@@ -247,7 +247,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     public void onDetach() {
         super.onDetach();
         mBackPressedCallback.remove();
-        mListener.onWaypointFocus(null);
+        mListener.onPlaceFocus(null);
         mFragmentHolder = null;
         mListener = null;
         mMapHolder = null;
@@ -268,44 +268,44 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         outState.putInt("panelState", mBottomSheetBehavior.getState());
     }
 
-    public void setWaypoint(Waypoint waypoint) {
-        mWaypoint = waypoint;
+    public void setPlace(Place place) {
+        mPlace = place;
         if (isVisible()) {
             if (Boolean.TRUE.equals(viewModel.editorMode.getValue()))
                 viewModel.editorMode.setValue(false);
-            mListener.onWaypointFocus(mWaypoint);
-            updateWaypointInformation(mLatitude, mLongitude);
+            mListener.onPlaceFocus(mPlace);
+            updatePlaceInformation(mLatitude, mLongitude);
             viewBinding.getRoot().post(() -> updatePeekHeight(true));
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void updateWaypointInformation(double latitude, double longitude) {
+    private void updatePlaceInformation(double latitude, double longitude) {
         Activity activity = requireActivity();
 
-        viewBinding.name.setText(mWaypoint.name);
-        viewBinding.source.setText(mWaypoint.source.name);
+        viewBinding.name.setText(mPlace.name);
+        viewBinding.source.setText(mPlace.source.name);
 
         if (Double.isNaN(latitude) || Double.isNaN(longitude)) {
             viewBinding.destination.setVisibility(View.GONE);
         } else {
             GeoPoint point = new GeoPoint(latitude, longitude);
-            double dist = point.vincentyDistance(mWaypoint.coordinates);
-            double bearing = point.bearingTo(mWaypoint.coordinates);
+            double dist = point.vincentyDistance(mPlace.coordinates);
+            double bearing = point.bearingTo(mPlace.coordinates);
             String distance = StringFormatter.distanceH(dist) + " " + StringFormatter.angleH(bearing);
             viewBinding.destination.setVisibility(View.VISIBLE);
             viewBinding.destination.setText(distance);
         }
 
-        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+        viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mPlace.coordinates.getLatitude(), mPlace.coordinates.getLongitude()));
         setLockDrawable();
 
         viewBinding.coordinates.setOnTouchListener((v, event) -> {
             if (event.getX() >= viewBinding.coordinates.getRight() - viewBinding.coordinates.getTotalPaddingRight()) {
                 if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                    mWaypoint.locked = !mWaypoint.locked;
-                    mListener.onWaypointSave(mWaypoint);
-                    mListener.onWaypointFocus(mWaypoint);
+                    mPlace.locked = !mPlace.locked;
+                    mListener.onPlaceSave(mPlace);
+                    mListener.onPlaceFocus(mPlace);
                     setLockDrawable();
                 }
                 return true;
@@ -316,27 +316,27 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             StringFormatter.coordinateFormat++;
             if (StringFormatter.coordinateFormat == 5)
                 StringFormatter.coordinateFormat = 0;
-            viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mWaypoint.coordinates.getLatitude(), mWaypoint.coordinates.getLongitude()));
+            viewBinding.coordinates.setText(StringFormatter.coordinates(" ", mPlace.coordinates.getLatitude(), mPlace.coordinates.getLongitude()));
             Configuration.setCoordinatesFormat(StringFormatter.coordinateFormat);
         });
 
-        if (mWaypoint.altitude != Integer.MIN_VALUE) {
-            viewBinding.altitude.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mWaypoint.altitude)));
+        if (mPlace.altitude != Integer.MIN_VALUE) {
+            viewBinding.altitude.setText(getString(R.string.place_altitude, StringFormatter.elevationH(mPlace.altitude)));
             viewBinding.altitude.setVisibility(View.VISIBLE);
         } else {
             viewBinding.altitude.setVisibility(View.GONE);
         }
 
-        if (mWaypoint.proximity > 0) {
-            viewBinding.proximity.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mWaypoint.proximity)));
+        if (mPlace.proximity > 0) {
+            viewBinding.proximity.setText(getString(R.string.place_proximity, StringFormatter.distanceH(mPlace.proximity)));
             viewBinding.proximity.setVisibility(View.VISIBLE);
         } else {
             viewBinding.proximity.setVisibility(View.GONE);
         }
 
-        if (mWaypoint.date != null) {
-            String date = DateFormat.getDateFormat(activity).format(mWaypoint.date);
-            String time = DateFormat.getTimeFormat(activity).format(mWaypoint.date);
+        if (mPlace.date != null) {
+            String date = DateFormat.getDateFormat(activity).format(mPlace.date);
+            String time = DateFormat.getTimeFormat(activity).format(mPlace.date);
             viewBinding.date.setText(getString(R.string.datetime, date, time));
             viewBinding.dateRow.setVisibility(View.VISIBLE);
         } else {
@@ -357,9 +357,9 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
             int viewsState, editsState;
             if (enabled) {
                 mFloatingButton.setImageDrawable(AppCompatResources.getDrawable(activity, R.drawable.ic_done));
-                viewBinding.nameEdit.setText(mWaypoint.name);
-                viewBinding.descriptionEdit.setText(mWaypoint.description);
-                viewBinding.colorSwatch.setColor(mWaypoint.style.color);
+                viewBinding.nameEdit.setText(mPlace.name);
+                viewBinding.descriptionEdit.setText(mPlace.description);
+                viewBinding.colorSwatch.setColor(mPlace.style.color);
                 viewBinding.colorSwatch.setOnClickListener(v -> {
                     // TODO Implement class that hides this behaviour
                     ColorPickerDialog dialog = new ColorPickerDialog();
@@ -371,11 +371,11 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                 viewsState = View.GONE;
                 editsState = View.VISIBLE;
 
-                if (mWaypoint.source instanceof FileDataSource)
+                if (mPlace.source instanceof FileDataSource)
                     HelperUtils.showTargetedAdvice(activity, Configuration.ADVICE_UPDATE_EXTERNAL_SOURCE, R.string.advice_update_external_source, mFloatingButton, false);
             } else {
                 setFloatingPointDrawable();
-                viewBinding.name.setText(mWaypoint.name);
+                viewBinding.name.setText(mPlace.name);
                 setDescription();
                 viewsState = View.VISIBLE;
                 editsState = View.GONE;
@@ -389,18 +389,18 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                 TransitionManager.beginDelayedTransition(viewBinding.getRoot(), new Fade());
             viewBinding.name.setVisibility(viewsState);
             viewBinding.nameWrapper.setVisibility(editsState);
-            if (enabled || mWaypoint.description != null && !"".equals(mWaypoint.description))
+            if (enabled || mPlace.description != null && !"".equals(mPlace.description))
                 viewBinding.descriptionRow.setVisibility(View.VISIBLE);
             else
                 viewBinding.descriptionRow.setVisibility(View.GONE);
-            viewBinding.description.setVisibility(viewsState);
+            viewBinding.getRoot().findViewById(R.id.description).setVisibility(viewsState); // it can be substituted, we can not reference it directly
             viewBinding.descriptionWrapper.setVisibility(editsState);
             viewBinding.colorSwatch.setVisibility(editsState);
 
             if (!Double.isNaN(mLatitude) && !Double.isNaN(mLongitude)) {
                 viewBinding.destination.setVisibility(viewsState);
             }
-            if (mWaypoint.date != null) {
+            if (mPlace.date != null) {
                 viewBinding.dateRow.setVisibility(viewsState);
             }
             viewBinding.source.setVisibility(viewsState);
@@ -412,7 +412,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     };
 
     private void setFloatingPointDrawable() {
-        if (mMapHolder.isNavigatingTo(mWaypoint.coordinates)) {
+        if (mMapHolder.isNavigatingTo(mPlace.coordinates)) {
             mFloatingButton.setImageResource(R.drawable.ic_navigation_off);
         } else {
             mFloatingButton.setImageResource(R.drawable.ic_navigate);
@@ -420,13 +420,13 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     }
 
     private void setLockDrawable() {
-        int imageResource = mWaypoint.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
+        int imageResource = mPlace.locked ? R.drawable.ic_lock_outline : R.drawable.ic_lock_open;
         Drawable drawable = AppCompatResources.getDrawable(viewBinding.coordinates.getContext(), imageResource);
         if (drawable != null) {
             int drawableSize = (int) Math.round(viewBinding.coordinates.getLineHeight() * 0.7);
             int drawablePadding = (int) (MapTrek.density * 1.5f);
             drawable.setBounds(0, drawablePadding, drawableSize, drawableSize + drawablePadding);
-            int tintColor = mWaypoint.locked ? R.color.red : R.color.colorPrimaryDark;
+            int tintColor = mPlace.locked ? R.color.red : R.color.colorPrimaryDark;
             drawable.setTint(viewBinding.coordinates.getContext().getColor(tintColor));
             viewBinding.coordinates.setCompoundDrawables(null, null, drawable, null);
         }
@@ -434,38 +434,40 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
 
     // WebView is very heavy to initialize. That's why it is used only on demand.
     private void setDescription() {
-        if (mWaypoint.description == null || "".equals(mWaypoint.description)) {
+        if (mPlace.description == null || "".equals(mPlace.description)) {
             viewBinding.descriptionRow.setVisibility(View.GONE);
             return;
         }
         viewBinding.descriptionRow.setVisibility(View.VISIBLE);
 
-        String text = mWaypoint.description;
+        String text = mPlace.description;
         boolean hasHTML = false;
-        if (DetectHtml.isHtml(mWaypoint.description)) {
+        if (DetectHtml.isHtml(mPlace.description)) {
             hasHTML = true;
         } else {
-            StringBuilder sb = extractLinks(mWaypoint.description);
-            if (sb.length() > 0) { // links found
-                text = sb.toString();
+            String marked = extractLinks(mPlace.description);
+            if (marked != null) { // links found
+                text = marked;
                 hasHTML = true;
             }
         }
-        if (viewBinding.description instanceof LimitedWebView) {
-            setWebViewText((LimitedWebView) viewBinding.description, text);
+        View descriptionView = viewBinding.getRoot().findViewById(R.id.description); // it can be substituted, we can not reference it directly
+        if (descriptionView instanceof LimitedWebView) {
+            setWebViewText((LimitedWebView) descriptionView, text);
         } else if (hasHTML) {
             // Replace TextView with WebView
-            convertToWebView(viewBinding.description, text);
+            convertToWebView(descriptionView, text);
         } else {
-            ((TextView) viewBinding.description).setText(text);
-            ((TextView) viewBinding.description).setMovementMethod(new ScrollingMovementMethod());
+            ((TextView) descriptionView).setText(text);
+            ((TextView) descriptionView).setMovementMethod(new ScrollingMovementMethod());
         }
     }
 
-    private StringBuilder extractLinks(String input) {
+    private String extractLinks(String input) {
         LinkExtractor linkExtractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL, LinkType.WWW)).build();
         Iterable<Span> spans = linkExtractor.extractSpans(input);
 
+        boolean found = false;
         StringBuilder sb = new StringBuilder();
         for (Span span : spans) {
             String text = input.substring(span.getBeginIndex(), span.getEndIndex());
@@ -475,11 +477,12 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
                 sb.append("\">");
                 sb.append(TextUtilsCompat.htmlEncode(text));
                 sb.append("</a>");
+                found = true;
             } else {
                 sb.append(TextUtilsCompat.htmlEncode(text));
             }
         }
-        return sb;
+        return found ? sb.toString() : null;
     }
 
     private void convertToWebView(View description, String text) {
@@ -518,7 +521,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
     @Override
     public void onLocationChanged(Location location) {
         if (Boolean.FALSE.equals(viewModel.editorMode.getValue()))
-            updateWaypointInformation(location.getLatitude(), location.getLongitude());
+            updatePlaceInformation(location.getLatitude(), location.getLongitude());
     }
 
     OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(true) {
@@ -531,7 +534,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         }
     };
 
-    private class WaypointBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+    private class PlaceBottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
         @Override
         public void onStateChanged(@NonNull View bottomSheet, int newState) {
             if (newState == BottomSheetBehavior.STATE_HIDDEN) {
@@ -570,7 +573,7 @@ public class WaypointInformation extends Fragment implements LocationChangeListe
         }
     }
 
-    public static class WaypointInformationViewModel extends ViewModel {
+    public static class PlaceInformationViewModel extends ViewModel {
         private final MutableLiveData<Boolean> editorMode = new MutableLiveData<>(false);
     }
 }

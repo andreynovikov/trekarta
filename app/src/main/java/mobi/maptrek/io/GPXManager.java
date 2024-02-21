@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.io.gpx.GpxParser;
 import mobi.maptrek.io.gpx.GpxSerializer;
 import mobi.maptrek.util.ProgressListener;
@@ -40,11 +40,11 @@ public class GPXManager extends Manager {
         int hash = filePath.hashCode() * 31;
         int i = 1;
         int j = 1;
-        for (Waypoint waypoint : dataSource.waypoints) {
-            if (waypoint.name == null)
-                waypoint.name = "Waypoint " + j;
-            waypoint._id = 31L * (hash + waypoint.name.hashCode()) + i;
-            waypoint.source = dataSource;
+        for (Place place : dataSource.places) {
+            if (place.name == null)
+                place.name = "Place " + j;
+            place._id = 31L * (hash + place.name.hashCode()) + i;
+            place.source = dataSource;
             i++;
             j++;
         }

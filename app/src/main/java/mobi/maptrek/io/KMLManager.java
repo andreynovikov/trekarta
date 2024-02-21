@@ -25,8 +25,8 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.TrackStyle;
@@ -66,13 +66,13 @@ public class KMLManager extends Manager {
         int hash = filePath.hashCode() * 31;
         int i = 1;
         int j = 1;
-        for (Waypoint waypoint : dataSource.waypoints) {
-            if (waypoint.name == null)
-                waypoint.name = "Place " + j;
-            waypoint._id = 31L * (hash + waypoint.name.hashCode()) + i;
-            waypoint.source = dataSource;
-            if (waypoint.style.color == 0)
-                waypoint.style.color = MarkerStyle.DEFAULT_COLOR;
+        for (Place place : dataSource.places) {
+            if (place.name == null)
+                place.name = "Place " + j;
+            place._id = 31L * (hash + place.name.hashCode()) + i;
+            place.source = dataSource;
+            if (place.style.color == 0)
+                place.style.color = MarkerStyle.DEFAULT_COLOR;
             i++;
             j++;
         }

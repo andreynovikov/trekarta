@@ -38,7 +38,7 @@ import mobi.maptrek.util.StringFormatter;
 import mobi.maptrek.viewmodels.MapViewModel;
 
 public class MarkerInformation extends Fragment {
-    private OnWaypointActionListener mListener;
+    private OnPlaceActionListener mListener;
     private FragmentHolder mFragmentHolder;
     private MapViewModel mapViewModel;
     private FragmentMarkerInformationBinding viewBinding;
@@ -70,7 +70,7 @@ public class MarkerInformation extends Fragment {
             String name = markerState.getName();
             if (name == null || "".equals(name))
                 name = getString(R.string.place_name, Configuration.getPointsCounter());
-            mListener.onWaypointCreate(markerState.getCoordinates(), name, true, true);
+            mListener.onPlaceCreate(markerState.getCoordinates(), name, true, true);
             mFragmentHolder.disableActionButton();
             mFragmentHolder.popCurrent();
         });
@@ -80,9 +80,9 @@ public class MarkerInformation extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnWaypointActionListener) context;
+            mListener = (OnPlaceActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnWaypointActionListener");
+            throw new ClassCastException(context + " must implement OnPlaceActionListener");
         }
         try {
             mFragmentHolder = (FragmentHolder) context;

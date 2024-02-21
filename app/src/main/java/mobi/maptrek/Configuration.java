@@ -52,10 +52,10 @@ public class Configuration {
     private static final String PREF_PREVIOUS_LOCATION_STATE = "previous_location_state";
     public static final String PREF_TRACKING_STATE = "tracking_state";
     private static final String PREF_ACTION_PANEL_STATE = "action_panel_state";
-    private static final String PREF_NAVIGATION_WAYPOINT = "navigation_waypoint";
-    private static final String PREF_NAVIGATION_LATITUDE = "navigation_waypoint_latitude";
-    private static final String PREF_NAVIGATION_LONGITUDE = "navigation_waypoint_longitude";
-    private static final String PREF_NAVIGATION_PROXIMITY = "navigation_waypoint_proximity";
+    private static final String PREF_NAVIGATION_POINT = "navigation_point";
+    private static final String PREF_NAVIGATION_LATITUDE = "navigation_point_latitude";
+    private static final String PREF_NAVIGATION_LONGITUDE = "navigation_point_longitude";
+    private static final String PREF_NAVIGATION_PROXIMITY = "navigation_point_proximity";
     private static final String PREF_NAVIGATION_ROUTE = "navigation_route";
     private static final String PREF_NAVIGATION_ROUTE_POINT = "navigation_route_point";
     private static final String PREF_NAVIGATION_ROUTE_DIRECTION = "navigation_route_direction";
@@ -175,7 +175,7 @@ public class Configuration {
     }
 
     /**
-     * Returns saved navigation waypoint and removes it from memory.
+     * Returns saved navigation point and removes it from memory.
      */
     @Nullable
     public static MapObject getNavigationPoint() {
@@ -183,15 +183,15 @@ public class Configuration {
         float lon = mSharedPreferences.getFloat(PREF_NAVIGATION_LONGITUDE, Float.NaN);
         if (Float.isNaN(lat) || Float.isNaN(lon))
             return null;
-        MapObject waypoint = new MapObject(lat, lon);
-        waypoint.name = loadString(PREF_NAVIGATION_WAYPOINT, null);
-        waypoint.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
-        return waypoint;
+        MapObject point = new MapObject(lat, lon);
+        point.name = loadString(PREF_NAVIGATION_POINT, null);
+        point.proximity = loadInt(PREF_NAVIGATION_PROXIMITY, 0);
+        return point;
     }
 
     public static void setNavigationPoint(@Nullable MapObject mapObject) {
         if (mapObject != null) {
-            saveString(PREF_NAVIGATION_WAYPOINT, mapObject.name);
+            saveString(PREF_NAVIGATION_POINT, mapObject.name);
             saveFloat(PREF_NAVIGATION_LATITUDE, (float) mapObject.coordinates.getLatitude());
             saveFloat(PREF_NAVIGATION_LONGITUDE, (float) mapObject.coordinates.getLongitude());
             saveInt(PREF_NAVIGATION_PROXIMITY, mapObject.proximity);
@@ -530,7 +530,7 @@ public class Configuration {
         remove(PREF_PREVIOUS_LOCATION_STATE);
         remove(PREF_TRACKING_STATE);
         remove(PREF_ACTION_PANEL_STATE);
-        remove(PREF_NAVIGATION_WAYPOINT);
+        remove(PREF_NAVIGATION_POINT);
         remove(PREF_NAVIGATION_LATITUDE);
         remove(PREF_NAVIGATION_LONGITUDE);
         remove(PREF_NAVIGATION_PROXIMITY);

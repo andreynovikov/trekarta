@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 
 public class KmlFile {
     public static final String NS = "http://www.opengis.net/kml/2.2";
@@ -67,7 +67,7 @@ public class KmlFile {
     static public class Placemark {
         Style style;
         String styleUrl;
-        Waypoint point;
+        Place point;
         Track track;
     }
 

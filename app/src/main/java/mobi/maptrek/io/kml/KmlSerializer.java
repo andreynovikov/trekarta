@@ -29,10 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
 import mobi.maptrek.data.style.MarkerStyle;
 import mobi.maptrek.data.style.Style;
 import mobi.maptrek.data.style.TrackStyle;
@@ -46,7 +46,7 @@ public class KmlSerializer {
 
         int progress = 0;
         if (progressListener != null) {
-            int size = source.waypoints.size();
+            int size = source.places.size();
             for (Route route : source.routes)
                 size += route.size();
             for (Track track : source.tracks)
@@ -72,8 +72,8 @@ public class KmlSerializer {
             serializer.text("1");
             serializer.endTag(KmlFile.NS, KmlFile.TAG_OPEN);
         }
-        for (Waypoint waypoint : source.waypoints) {
-            progress = serializeWaypoint(serializer, waypoint, progressListener, progress);
+        for (Place place : source.places) {
+            progress = serializePlace(serializer, place, progressListener, progress);
         }
         if (source.tracks.size() > 0 || source.routes.size() > 0) {
             serializer.endTag(KmlFile.NS, KmlFile.TAG_FOLDER);
@@ -93,27 +93,27 @@ public class KmlSerializer {
             progressListener.onProgressFinished();
     }
 
-    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializePlace(XmlSerializer serializer, Place place, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(KmlFile.NS, KmlFile.TAG_PLACEMARK);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_NAME);
-        serializer.text(waypoint.name);
+        serializer.text(place.name);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_NAME);
-        if (waypoint.description != null && !waypoint.description.trim().isEmpty()) {
+        if (place.description != null && !place.description.trim().isEmpty()) {
             serializer.startTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
-            serializer.cdsect(waypoint.description.trim());
+            serializer.cdsect(place.description.trim());
             serializer.endTag(KmlFile.NS, KmlFile.TAG_DESCRIPTION);
         }
-        if (!waypoint.style.isDefault()) {
-            serializeStyle(serializer, waypoint.style);
+        if (!place.style.isDefault()) {
+            serializeStyle(serializer, place.style);
         }
         serializer.startTag(KmlFile.NS, KmlFile.TAG_POINT);
         serializer.startTag(KmlFile.NS, KmlFile.TAG_COORDINATES);
-        serializer.text(String.valueOf(waypoint.coordinates.getLongitude()));
+        serializer.text(String.valueOf(place.coordinates.getLongitude()));
         serializer.text(",");
-        serializer.text(String.valueOf(waypoint.coordinates.getLatitude()));
-        if (waypoint.altitude != Integer.MIN_VALUE) {
+        serializer.text(String.valueOf(place.coordinates.getLatitude()));
+        if (place.altitude != Integer.MIN_VALUE) {
             serializer.text(",");
-            serializer.text(String.valueOf(waypoint.altitude));
+            serializer.text(String.valueOf(place.altitude));
         }
         serializer.endTag(KmlFile.NS, KmlFile.TAG_COORDINATES);
         serializer.endTag(KmlFile.NS, KmlFile.TAG_POINT);

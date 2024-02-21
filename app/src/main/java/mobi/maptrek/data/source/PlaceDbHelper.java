@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.io.File;
 import java.io.IOException;
 
-class WaypointDbHelper extends SQLiteOpenHelper {
+class PlaceDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 2;
 
     static final String TABLE_NAME = "waypoint";
@@ -39,7 +39,7 @@ class WaypointDbHelper extends SQLiteOpenHelper {
     static final String COLUMN_ICON = "icon";
     static final String COLUMN_LOCKED = "locked";
 
-    private static final String SQL_CREATE_WAYPOINT_SCHEMA =
+    private static final String SQL_CREATE_PLACE_SCHEMA =
             "CREATE TABLE "
                     + TABLE_NAME + "("
                     + COLUMN_ID + " INTEGER PRIMARY KEY,"
@@ -55,10 +55,10 @@ class WaypointDbHelper extends SQLiteOpenHelper {
                     + COLUMN_LOCKED + " INTEGER"
                     + ");";
 
-    private static final String ALTER_WAYPOINTS_1 =
+    private static final String ALTER_PLACES_1 =
             "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COLUMN_LOCKED + " INTEGER;";
 
-    WaypointDbHelper(Context context, File file) {
+    PlaceDbHelper(Context context, File file) {
         super(context, file.getAbsolutePath(), null, DATABASE_VERSION);
         if (!file.exists())
             try {
@@ -71,13 +71,13 @@ class WaypointDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_WAYPOINT_SCHEMA);
+        db.execSQL(SQL_CREATE_PLACE_SCHEMA);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
-            db.execSQL(ALTER_WAYPOINTS_1);
+            db.execSQL(ALTER_PLACES_1);
         }
     }
 }

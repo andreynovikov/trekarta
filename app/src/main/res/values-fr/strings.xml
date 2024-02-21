@@ -72,8 +72,8 @@
     <string name="actionFindRouteHere">Trouver l\'itinéraire ici</string>
     <string name="actionRememberScale">Se souvenir du zoom</string>
     <string name="actionOverviewRoute">Vue d\'ensemble de l\'itinéraire</string>
-    <string name="actionNextRouteWaypoint">Point d\'itinéraire suivant</string>
-    <string name="actionPrevRouteWaypoint">Point d\'itinéraire précédent</string>
+    <string name="actionNextRoutePoint">Point d\'itinéraire suivant</string>
+    <string name="actionPrevRoutePoint">Point d\'itinéraire précédent</string>
     <string name="actionAutoTilt">Inclinaison de la piste vers le haut</string>
     <string name="actionRememberTilt">Se souvenir de l\'inclinaison</string>
     <string name="actionHideSystemUI">Plein écran</string>

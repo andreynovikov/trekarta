@@ -29,7 +29,7 @@ import java.util.Date;
 
 import mobi.maptrek.data.Route;
 import mobi.maptrek.data.Track;
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 import mobi.maptrek.data.source.FileDataSource;
 import mobi.maptrek.util.ProgressListener;
 
@@ -38,7 +38,7 @@ public class GpxSerializer {
 
         int progress = 0;
         if (progressListener != null) {
-            int size = source.waypoints.size();
+            int size = source.places.size();
             for (Route route : source.routes)
                 size += route.size();
             for (Track track : source.tracks)
@@ -60,8 +60,8 @@ public class GpxSerializer {
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_METADATA);
 
-        for (Waypoint waypoint : source.waypoints) {
-            progress = serializeWaypoint(serializer, waypoint, progressListener, progress);
+        for (Place place : source.places) {
+            progress = serializePlace(serializer, place, progressListener, progress);
         }
         for (Route route : source.routes) {
             progress = serializeRoute(serializer, route, progressListener, progress);
@@ -77,26 +77,26 @@ public class GpxSerializer {
             progressListener.onProgressFinished();
     }
 
-    private static int serializeWaypoint(XmlSerializer serializer, Waypoint waypoint, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
+    private static int serializePlace(XmlSerializer serializer, Place place, ProgressListener progressListener, int progress) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(GpxFile.NS, GpxFile.TAG_WPT);
-        serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(waypoint.coordinates.getLatitude()));
-        serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(waypoint.coordinates.getLongitude()));
+        serializer.attribute("", GpxFile.ATTRIBUTE_LAT, String.valueOf(place.coordinates.getLatitude()));
+        serializer.attribute("", GpxFile.ATTRIBUTE_LON, String.valueOf(place.coordinates.getLongitude()));
         serializer.startTag(GpxFile.NS, GpxFile.TAG_NAME);
-        serializer.text(waypoint.name);
+        serializer.text(place.name);
         serializer.endTag(GpxFile.NS, GpxFile.TAG_NAME);
-        if (waypoint.description != null && !waypoint.description.trim().isEmpty()) {
+        if (place.description != null && !place.description.trim().isEmpty()) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_DESC);
-            serializer.cdsect(waypoint.description.trim());
+            serializer.cdsect(place.description.trim());
             serializer.endTag(GpxFile.NS, GpxFile.TAG_DESC);
         }
-        if (waypoint.altitude != Integer.MIN_VALUE) {
+        if (place.altitude != Integer.MIN_VALUE) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_ELE);
-            serializer.text(String.valueOf(waypoint.altitude));
+            serializer.text(String.valueOf(place.altitude));
             serializer.endTag(GpxFile.NS, GpxFile.TAG_ELE);
         }
-        if (waypoint.date != null) {
+        if (place.date != null) {
             serializer.startTag(GpxFile.NS, GpxFile.TAG_TIME);
-            serializer.text(GpxFile.formatTime(waypoint.date));
+            serializer.text(GpxFile.formatTime(place.date));
             serializer.endTag(GpxFile.NS, GpxFile.TAG_TIME);
         }
         serializer.endTag(GpxFile.NS, GpxFile.TAG_WPT);

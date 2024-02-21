@@ -20,27 +20,27 @@ import org.oscim.core.GeoPoint;
 
 import java.util.Set;
 
-import mobi.maptrek.data.Waypoint;
+import mobi.maptrek.data.Place;
 
-public interface OnWaypointActionListener {
-    void onWaypointCreate(GeoPoint point, String name, boolean locked, boolean customize);
+public interface OnPlaceActionListener {
+    void onPlaceCreate(GeoPoint point, String name, boolean locked, boolean customize);
 
     /**
-     * Position map so that waypoint is visible
+     * Position map so that place is visible
      */
-    void onWaypointView(Waypoint waypoint);
+    void onPlaceView(Place place);
 
-    void onWaypointFocus(Waypoint waypoint);
+    void onPlaceFocus(Place place);
 
-    void onWaypointDetails(Waypoint waypoint, boolean full);
+    void onPlaceDetails(Place place, boolean full);
 
-    void onWaypointNavigate(Waypoint waypoint);
+    void onPlaceNavigate(Place place);
 
-    void onWaypointShare(Waypoint waypoint);
+    void onPlaceShare(Place place);
 
-    void onWaypointSave(Waypoint waypoint);
+    void onPlaceSave(Place place);
 
-    void onWaypointDelete(Waypoint waypoint);
+    void onPlaceDelete(Place place);
 
-    void onWaypointsDelete(Set<Waypoint> waypoints);
+    void onPlacesDelete(Set<Place> places);
 }

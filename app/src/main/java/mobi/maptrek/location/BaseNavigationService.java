@@ -90,7 +90,7 @@ public abstract class BaseNavigationService extends Service
 	 */
 	public static final String EXTRA_ROUTE_DIRECTION = "direction";
 	/**
-	 * Route start waypoint index. Zero based, optional. Type: int
+	 * Route start point index. Zero based, optional. Type: int
 	 */
 	public static final String EXTRA_ROUTE_START = "start";
 
@@ -98,7 +98,7 @@ public abstract class BaseNavigationService extends Service
 	public static final String BROADCAST_NAVIGATION_STATE = "mobi.maptrek.navigationStateChanged";
 
 	public static final int STATE_STARTED = 1;
-	public static final int STATE_NEXT_WPT = 2;
+	public static final int STATE_NEXT_ROUTE_POINT = 2;
 	public static final int STATE_REACHED = 3;
 	public static final int STATE_STOPPED = 4;
 

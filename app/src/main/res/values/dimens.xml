@@ -24,7 +24,7 @@
     <dimen name="offset_distance">8dp</dimen>
     <dimen name="gauge_padding">4dp</dimen>
     <dimen name="table_padding">8dp</dimen>
-    <dimen name="waypoint_table_padding">16dp</dimen>
+    <dimen name="place_table_padding">16dp</dimen>
     <dimen name="panelTopMargin">160dp</dimen>
     <dimen name="menuListWidth">240dp</dimen>
     <dimen name="mapListItemHeight">128dp</dimen>

@@ -4,11 +4,11 @@
         android:id="@+id/actionOverviewRoute"
         android:title="@string/actionOverviewRoute" />
     <item
-        android:id="@+id/actionNextRouteWaypoint"
-        android:title="@string/actionNextRouteWaypoint" />
+        android:id="@+id/actionNextRoutePoint"
+        android:title="@string/actionNextRoutePoint" />
     <item
-        android:id="@+id/actionPrevRouteWaypoint"
-        android:title="@string/actionPrevRouteWaypoint" />
+        android:id="@+id/actionPrevRoutePoint"
+        android:title="@string/actionPrevRoutePoint" />
     <item
         android:id="@+id/actionStopNavigation"
         android:title="@string/actionStopNavigation" />

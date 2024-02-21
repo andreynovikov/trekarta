@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import mobi.maptrek.data.source.WaypointDbDataSource;
+import mobi.maptrek.data.source.PlaceDbDataSource;
 
-public class WaypointsRestoreReceiver extends BroadcastReceiver {
-    private static final Logger logger = LoggerFactory.getLogger(WaypointsRestoreReceiver.class);
+public class PlacesRestoreReceiver extends BroadcastReceiver {
+    private static final Logger logger = LoggerFactory.getLogger(PlacesRestoreReceiver.class);
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -37,10 +37,10 @@ public class WaypointsRestoreReceiver extends BroadcastReceiver {
         File fromFile = new File(context.getExternalFilesDir("databases"), "waypoints.sqlitedb.restore");
         File toFile = new File(context.getExternalFilesDir("databases"), "waypoints.sqlitedb");
         if (fromFile.exists() && toFile.delete() && fromFile.renameTo(toFile)) {
-            logger.info("Waypoints restored");
+            logger.info("Places restored");
         } else {
             Toast.makeText(context, R.string.msgRestorePlacesFailed, Toast.LENGTH_LONG).show();
         }
-        context.sendBroadcast(new Intent(WaypointDbDataSource.BROADCAST_WAYPOINTS_REWRITTEN));
+        context.sendBroadcast(new Intent(PlaceDbDataSource.BROADCAST_PLACES_REWRITTEN));
     }
 }

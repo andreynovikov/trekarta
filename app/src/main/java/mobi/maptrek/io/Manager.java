@@ -102,7 +102,7 @@ public abstract class Manager {
 
     /**
      * Loads data from file (input stream). File name is used only for reference.
-     * @param inputStream <code>InputStream</code> with waypoints
+     * @param inputStream <code>InputStream</code> with places
      * @param filePath File path associated with that <code>InputStream</code>
      * @return <code>DataSource</code> filled with file data
      * @throws Exception if IO or parsing error occurred
