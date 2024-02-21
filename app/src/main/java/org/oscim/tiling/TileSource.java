@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Andrey Novikov
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -19,16 +19,26 @@
 package org.oscim.tiling;
 
 import org.oscim.layers.tile.bitmap.BitmapTileLayer.FadeStep;
+import org.oscim.layers.tile.buildings.BuildingLayer;
+import org.oscim.map.Viewport;
 
 import java.util.HashMap;
 
 public abstract class TileSource {
 
     public abstract static class Builder<T extends Builder<T>> {
-        protected int zoomMin, zoomMax;
+        protected float alpha = 1;
+        protected int zoomMin = Viewport.MIN_ZOOM_LEVEL;
+        protected int zoomMax = Viewport.MAX_ZOOM_LEVEL;
+        protected int overZoom = BuildingLayer.MIN_ZOOM;
         protected FadeStep[] fadeSteps;
         protected String name;
-        protected int tileSize;
+        protected int tileSize = 256;
+
+        public T alpha(float alpha) {
+            this.alpha = alpha;
+            return self();
+        }
 
         public T zoomMin(int zoom) {
             zoomMin = zoom;
@@ -37,6 +47,11 @@ public abstract class TileSource {
 
         public T zoomMax(int zoom) {
             zoomMax = zoom;
+            return self();
+        }
+
+        public T overZoom(int zoom) {
+            overZoom = zoom;
             return self();
         }
 
@@ -61,24 +76,41 @@ public abstract class TileSource {
         }
 
         public abstract TileSource build();
+
+        public String getName() {
+            return name;
+        }
     }
 
-    protected int mZoomMin = 0;
-    protected int mZoomMax = 20;
+    protected float mAlpha = 1;
+    protected int mZoomMin = Viewport.MIN_ZOOM_LEVEL;
+    protected int mZoomMax = Viewport.MAX_ZOOM_LEVEL;
+    protected int mOverZoom = BuildingLayer.MIN_ZOOM;
+    protected FadeStep[] mFadeSteps;
     protected String mName;
     protected int mTileSize = 256;
+
+    protected final Options options = new Options();
+    public ITileCache tileCache;
 
     protected TileSource() {
     }
 
     protected TileSource(int zoomMin, int zoomMax) {
+        this(zoomMin, zoomMax, zoomMax);
+    }
+
+    protected TileSource(int zoomMin, int zoomMax, int overZoom) {
         mZoomMin = zoomMin;
         mZoomMax = zoomMax;
+        mOverZoom = overZoom;
     }
 
     public TileSource(Builder<?> builder) {
+        mAlpha = builder.alpha;
         mZoomMin = builder.zoomMin;
         mZoomMax = builder.zoomMax;
+        mOverZoom = builder.overZoom;
         mFadeSteps = builder.fadeSteps;
         mName = builder.name;
         mTileSize = builder.tileSize;
@@ -90,11 +122,9 @@ public abstract class TileSource {
 
     public abstract void close();
 
-    protected final Options options = new Options();
-
-    public ITileCache tileCache;
-
-    private FadeStep[] mFadeSteps;
+    public float getAlpha() {
+        return mAlpha;
+    }
 
     /**
      * Cache MUST be set before TileSource is added to a TileLayer!
@@ -109,6 +139,10 @@ public abstract class TileSource {
 
     public int getZoomLevelMin() {
         return mZoomMin;
+    }
+
+    public int getOverZoom() {
+        return mOverZoom;
     }
 
     public void setFadeSteps(FadeStep[] fadeSteps) {

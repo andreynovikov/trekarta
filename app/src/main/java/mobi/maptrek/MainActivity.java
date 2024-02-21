@@ -3081,7 +3081,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mBitmapMapTransparency = transparency;
         for (MapFile bitmapLayerMap : mBitmapLayerMaps)
             if (bitmapLayerMap.tileLayer instanceof BitmapTileLayer)
-                ((BitmapTileLayer) bitmapLayerMap.tileLayer).setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f);
+                ((BitmapTileLayer) bitmapLayerMap.tileLayer).setBitmapAlpha(1 - mBitmapMapTransparency * 0.01f, true);
         Configuration.setBitmapMapTransparency(transparency);
     }
 
@@ -4532,7 +4532,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case Configuration.PREF_HILLSHADES_TRANSPARENCY: {
                 int transparency = Configuration.getHillshadesTransparency();
                 if (mHillshadeLayer != null)
-                    mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f);
+                    mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f, true);
                 break;
             }
             case Configuration.PREF_POINTER_TYPE: {
