@@ -343,6 +343,9 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
     private final Observer<Track> trackObserver = new Observer<Track>() {
         @Override
         public void onChanged(Track track) {
+            if (track == null)
+                return;
+
             viewBinding.name.setText(track.name);
             if (track.source == null || track.source.isNativeTrack()) {
                 viewBinding.sourceRow.setVisibility(View.GONE);

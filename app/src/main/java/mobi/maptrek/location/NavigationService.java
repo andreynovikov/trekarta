@@ -195,7 +195,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
             Configuration.setNavigationPoint(navPoint);
             stopSelf();
         }
-        if (action.equals(ENABLE_BACKGROUND_NAVIGATION)) {
+        if (action.equals(ENABLE_BACKGROUND_NAVIGATION) && navPoint != null) {
             mForeground = true;
             if (Build.VERSION.SDK_INT < 34)
                 startForeground(NOTIFICATION_ID, getNotification(true));
