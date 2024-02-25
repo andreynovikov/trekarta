@@ -3866,7 +3866,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         int tileY = (int) (mapPosition.y / tileScale);
         String tag = tileX + "/" + tileY + "/" + mapPosition.zoomLevel;
         if (!tag.equals(mViews.mapDownloadButton.getTag())) {
-            MapTile tile = mBaseLayer.getManager().getTile(tileX, tileY, mapPosition.zoomLevel);
+            MapTile tile = null;
+            try {
+                tile = mBaseLayer.getManager().getTile(tileX, tileY, mapPosition.zoomLevel);
+            } catch (IllegalArgumentException e) {
+                // ignore - position is invalid on overscroll
+            }
             if (tile != null) {
                 mViews.mapDownloadButton.setTag(tag);
                 int visibility = View.GONE;
