@@ -121,7 +121,7 @@
                 android:id="@+id/routeSignBackground"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:background="@color/panelBackground"
+                android:background="@color/activated_background_color_selector"
                 app:layout_constraintBottom_toBottomOf="@+id/route_navigation_barrier"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/route_sign_barrier"
@@ -135,7 +135,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/route_sign_barrier"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/textColorPrimary"
+                app:tint="@color/inverted_text_color_selector"
                 tools:ignore="ContentDescription"
                 tools:src="@drawable/instruction_turn_right" />
 
@@ -148,7 +148,7 @@
                 android:paddingBottom="@dimen/gauge_padding"
                 android:textAlignment="center"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/textColorPrimary"
+                android:textColor="@color/inverted_text_color_selector"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/route_sign_barrier"
@@ -164,6 +164,7 @@
                 android:paddingBottom="@dimen/gauge_padding"
                 android:textAlignment="center"
                 android:textAppearance="?android:attr/textAppearance"
+                android:textColor="@color/inverted_text_color_selector"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/route_sign_barrier"
                 app:layout_constraintTop_toBottomOf="@+id/routePointDistance"
@@ -173,10 +174,11 @@
                 android:id="@+id/routePoint"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@color/panelBackground"
+                android:background="@color/activated_background_color_selector"
                 android:padding="@dimen/gauge_padding"
                 android:textAlignment="center"
                 android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/inverted_text_color_selector"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/route_sign_barrier"
                 app:layout_constraintStart_toStartOf="parent"
@@ -421,8 +423,8 @@
             app:layout_constraintBottom_toTopOf="@+id/actionPanel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/guideline"
-            app:layout_constraintWidth="match_constraint"
             app:layout_constraintVertical_bias="1"
+            app:layout_constraintWidth="match_constraint"
             tools:ignore="KeyboardInaccessibleWidget" />
 
         <ProgressBar

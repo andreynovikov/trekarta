@@ -2376,9 +2376,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 @DrawableRes int sign = RouteInformation.getSignDrawable(mNavigationService.getSign());
                 Drawable signDrawable = AppCompatResources.getDrawable(MainActivity.this, sign);
                 mViews.navigationSign.setImageDrawable(signDrawable);
-                int color = getResources().getColor(R.color.panelBackground, getTheme());
-                mViews.routePoint.setBackgroundColor(color);
-                mViews.routeSignBackground.setBackgroundColor(color);
+                mViews.navigationPanel.setActivated(false);
                 mViews.navigationSign.setTag(false);
             }
             mViews.routePointDistance.setText(StringFormatter.distanceH(mNavigationService.getPointDistance()));
@@ -2390,15 +2388,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mViews.routePointEte.setText(StringFormatter.timeH(ete));
                 if (ete <= 1) {
                     if (!Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
-                        int color = getResources().getColor(R.color.panelAccentBackground, getTheme());
-                        mViews.routePoint.setBackgroundColor(color);
-                        mViews.routeSignBackground.setBackgroundColor(color);
+                        mViews.navigationPanel.setActivated(true);
                         mViews.navigationSign.setTag(true);
                     }
                 } else if (Boolean.TRUE.equals(mViews.navigationSign.getTag())) {
-                    int color = getResources().getColor(R.color.panelBackground, getTheme());
-                    mViews.routePoint.setBackgroundColor(color);
-                    mViews.routeSignBackground.setBackgroundColor(color);
+                    mViews.navigationPanel.setActivated(false);
                     mViews.navigationSign.setTag(false);
                 }
             }

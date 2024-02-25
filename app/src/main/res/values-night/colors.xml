@@ -30,13 +30,14 @@
     <color name="colorSplashBackground">#222222</color>
     <color name="textColorPrimary">#a1a1a1</color>
     <color name="textColorPrimaryDisabled">#80a1a1a1</color>
+    <color name="textColorPrimaryInverted">#212121</color>
     <color name="textColorSecondary">#525252</color>
     <color name="textColorSecondaryDisabled">#80525252</color>
     <color name="textColorTertiary">#626262</color>
     <color name="textColorTertiaryDisabled">#80626262</color>
     <color name="accentBackground">#33e96238</color>
     <color name="panelBackground">#99333333</color>
-    <color name="panelAccentBackground">#99e96238</color>
+    <color name="panelAccentBackground">#aae96238</color>
     <color name="panelSolidBackground">@color/colorBackground</color>
     <color name="panelExtendedBackground">#cc333333</color>
     <color name="colorNavigationBackground">#000000</color>
