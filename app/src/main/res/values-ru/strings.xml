@@ -227,6 +227,16 @@
     <string name="place_name">Точка &#8470;%d</string>
     <string name="remove_gauge">Удалить прибор «%s»</string>
     <string name="add_gauge">Добавить прибор «%s»</string>
+    <string name="gauge_speed_abbr">SPD</string>
+    <string name="gauge_bearing_abbr">BRG</string>
+    <string name="gauge_distance_abbr">DST</string>
+    <string name="gauge_track_abbr">TRK</string>
+    <string name="gauge_altitude_abbr">ALT</string>
+    <string name="gauge_turn_abbr">TRN</string>
+    <string name="gauge_vmg_abbr">VMG</string>
+    <string name="gauge_xtk_abbr">XTK</string>
+    <string name="gauge_ete_abbr">ETE</string>
+    <string name="gauge_elevation_abbr">ELE</string>
     <string name="gauge_speed">Скорость</string>
     <string name="gauge_bearing">Пеленг</string>
     <string name="gauge_distance">Расстояние</string>
