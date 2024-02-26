@@ -18,9 +18,9 @@ filters:
     file_format: TXT
     source_file_extension: txt
     source_language: en
-    source_file_dir: fastlane/metadata/android/en-US/
+    source_file_dir: fastlane/metadata/android/en/
     translation_files_expression: fastlane/metadata/android/<lang>/
     ignore_dirs:
-      - fastlane/metadata/android/en-US/changelogs/
+      - fastlane/metadata/android/en/changelogs/
     ignore_files:
-      - fastlane/metadata/android/en-US/video.txt
+      - fastlane/metadata/android/en/video.txt
