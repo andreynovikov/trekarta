@@ -16,9 +16,22 @@
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+
+  before_all do |lane, options|
+    move_files(source: "fastlane/metadata/android/en", destination: "fastlane/metadata/android/en-US")
+    move_files(source: "fastlane/metadata/android/ru", destination: "fastlane/metadata/android/ru-RU")
+  end
+
+  desc "Update metadata"
+  lane :meta do
+    upload_to_play_store(
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
   end
 
   desc "Deploy a new version to the Google Play for testing"
@@ -54,5 +67,10 @@ platform :android do
       skip_upload_screenshots: true,
       sync_image_upload: true
     )
+  end
+
+  after_all do |lane, options|
+    move_files(source: "fastlane/metadata/android/en-US", destination: "fastlane/metadata/android/en")
+    move_files(source: "fastlane/metadata/android/ru-RU", destination: "fastlane/metadata/android/ru")
   end
 end
