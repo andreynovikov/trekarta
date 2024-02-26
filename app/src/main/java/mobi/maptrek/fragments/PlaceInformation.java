@@ -170,7 +170,7 @@ public class PlaceInformation extends Fragment {
             if (Boolean.TRUE.equals(viewModel.editorMode.getValue())) {
                 Editable text = viewBinding.nameEdit.getText();
                 if (text != null)
-                    place.name = text.toString();
+                    place.name = text.toString().trim();
                 text = viewBinding.descriptionEdit.getText();
                 if (text != null)
                     place.description = text.toString();

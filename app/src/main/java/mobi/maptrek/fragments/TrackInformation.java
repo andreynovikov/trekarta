@@ -519,7 +519,7 @@ public class TrackInformation extends Fragment implements PopupMenu.OnMenuItemCl
                 mFragmentHolder.enableListActionButton(R.drawable.ic_done, v -> {
                     Editable text = viewBinding.nameEdit.getText();
                     if (text != null)
-                        track.name = text.toString();
+                        track.name = text.toString().trim();
                     track.style.color = viewBinding.colorSwatch.getColor();
                     mListener.onTrackSave(track);
                     viewModel.editorMode.setValue(false);
