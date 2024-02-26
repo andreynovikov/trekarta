@@ -21,58 +21,50 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
-import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
-
 import mobi.maptrek.R;
 import mobi.maptrek.data.Track;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.databinding.DialogTrackPropertiesBinding;
+import mobi.maptrek.fragments.OnTrackActionListener;
+import mobi.maptrek.viewmodels.TrackViewModel;
 
 public class TrackProperties extends DialogFragment {
-    private EditText mNameEdit;
-    private ColorPickerSwatch mColorSwatch;
-    private String mName;
-    private int mColor;
-
-    private OnTrackPropertiesChangedListener mListener;
-
-    public TrackProperties() {
-        super();
-    }
-
-    public TrackProperties(Track track) {
-        super();
-        mName = track.name;
-        mColor = track.style.color;
-    }
+    private OnTrackActionListener mListener;
+    private TrackViewModel trackViewModel;
+    private DialogTrackPropertiesBinding viewBinding;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_properties, null);
+        viewBinding = DialogTrackPropertiesBinding.inflate(getLayoutInflater());
 
-        mNameEdit = dialogView.findViewById(R.id.nameEdit);
-        mColorSwatch = dialogView.findViewById(R.id.colorSwatch);
+        trackViewModel = new ViewModelProvider(requireActivity()).get(TrackViewModel.class);
+        trackViewModel.selectedTrack.observe(this, track -> {
+            if (track == null)
+                return;
+            String name;
+            int color;
+            if (savedInstanceState != null) {
+                name = savedInstanceState.getString("name");
+                color = savedInstanceState.getInt("color");
+            } else {
+                name = track.name;
+                color = track.style.color;
+            }
+            viewBinding.nameEdit.setText(name);
+            viewBinding.colorSwatch.setColor(color);
+        });
 
-        String name = mName;
-        int color = mColor;
-
-        if (savedInstanceState != null) {
-            name = savedInstanceState.getString("name");
-            color = savedInstanceState.getInt("color");
-        }
-
-        mNameEdit.setText(name);
-        mNameEdit.setOnEditorActionListener((v, actionId, event) -> {
+        viewBinding.nameEdit.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 returnResult();
                 dismiss();
@@ -80,37 +72,35 @@ public class TrackProperties extends DialogFragment {
             return false;
         });
 
-        mColorSwatch.setColor(color);
-        mColorSwatch.setOnClickListener(v -> {
+        viewBinding.colorSwatch.setOnClickListener(v -> {
             ColorPickerDialog dialog = new ColorPickerDialog();
-            dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
+            dialog.setColors(MarkerStyle.DEFAULT_COLORS, viewBinding.colorSwatch.getColor());
             dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-            dialog.setOnColorSelectedListener(color1 -> mColorSwatch.setColor(color1));
+            dialog.setOnColorSelectedListener(color -> viewBinding.colorSwatch.setColor(color));
             dialog.show(getParentFragmentManager(), "ColorPickerDialog");
         });
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        dialogBuilder.setPositiveButton(R.string.actionSave, (dialog, which) -> returnResult());
-        dialogBuilder.setView(dialogView);
+        Dialog alertDialog = new AlertDialog.Builder(getContext())
+                .setPositiveButton(R.string.actionSave, (dialog, which) -> returnResult())
+                .setView(viewBinding.getRoot())
+                .create();
 
-        Dialog dialog = dialogBuilder.create();
-
-        Window window = dialog.getWindow();
+        Window window = alertDialog.getWindow();
         assert window != null;
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.gravity = Gravity.BOTTOM;
         window.setAttributes(lp);
 
-        return dialog;
+        return alertDialog;
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnTrackPropertiesChangedListener) context;
+            mListener = (OnTrackActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnTrackPropertiesChangedListener");
+            throw new ClassCastException(context + " must implement OnPlaceActionListener");
         }
     }
 
@@ -123,21 +113,21 @@ public class TrackProperties extends DialogFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("name", mNameEdit.getText().toString());
-        outState.putInt("color", mColorSwatch.getColor());
+        outState.putString("name", viewBinding.nameEdit.getText().toString());
+        outState.putInt("color", viewBinding.colorSwatch.getColor());
     }
 
     private void returnResult() {
-        String name = mNameEdit.getText().toString();
-        int color = mColorSwatch.getColor();
-        if (!name.equals(mName) || color != mColor) {
-            mListener.onTrackPropertiesChanged(name, color);
-            mName = name;
-            mColor = color;
+        Track track = trackViewModel.selectedTrack.getValue();
+        if (track == null)
+            return;
+        String name = viewBinding.nameEdit.getText().toString().trim();
+        int color = viewBinding.colorSwatch.getColor();
+        if (!name.equals(track.name) || color != track.style.color) {
+            if (!name.isEmpty())
+                track.name = name;
+            track.style.color = color;
+            mListener.onTrackSave(track);
         }
-    }
-
-    public interface OnTrackPropertiesChangedListener {
-        void onTrackPropertiesChanged(String name, int color);
     }
 }

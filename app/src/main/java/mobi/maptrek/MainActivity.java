@@ -286,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Map.UpdateListener,
         GestureListener,
         FragmentHolder,
-        TrackProperties.OnTrackPropertiesChangedListener,
         OnLocationListener,
         OnPlaceActionListener,
         OnTrackActionListener,
@@ -415,9 +414,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private MapIndex mMapIndex;
     private MapTrekTileSource mNativeTileSource;
     private List<MapFile> mBitmapLayerMaps;
-    private Place mEditedPlace;
     private Set<Place> mDeletedPlaces;
-    private Track mEditedTrack;
     private Set<Track> mDeletedTracks;
     private int mTotalDataItems = 0;
     private boolean mFirstMove = true;
@@ -534,8 +531,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 Configuration.setLanguage(language);
             }
         }
-
-        mEditedPlace = application.getEditedPlace();
 
         mBitmapLayerMaps = application.getBitmapLayerMaps();
         if (mBitmapLayerMaps == null)
@@ -705,8 +700,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         // Load places
         dataSourceViewModel.placeDbDataSource.open();
         for (Place place : dataSourceViewModel.placeDbDataSource.getPlaces()) {
-            if (mEditedPlace != null && mEditedPlace._id == place._id)
-                mEditedPlace = place;
             addPlaceMarker(place);
             mTotalDataItems++;
         }
@@ -1160,7 +1153,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         MapTrek application = MapTrek.getApplication();
-        application.setEditedPlace(mEditedPlace);
         application.setBitmapLayerMaps(mBitmapLayerMaps);
 
         if (mLocationService != null)
@@ -2464,7 +2456,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void onPlaceProperties(Place place) {
         placeViewModel.selectedPlace.setValue(place);
-        mEditedPlace = place;
         new PlaceProperties().show(mFragmentManager, "placeProperties");
     }
 
@@ -2632,26 +2623,19 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void onTrackProperties(String path) {
         logger.debug("onTrackProperties({})", path);
+        Track track = null;
         //TODO Think of better way to find appropriate track
         for (FileDataSource source : dataSourceViewModel.fileDataSources) {
             if (source.path.equals(path)) {
-                mEditedTrack = source.tracks.get(0);
+                track = source.tracks.get(0);
                 break;
             }
         }
-        if (mEditedTrack == null)
+        if (track == null)
             return;
 
-        TrackProperties dialogFragment = new TrackProperties(mEditedTrack);
-        dialogFragment.show(mFragmentManager, "trackProperties");
-    }
-
-    @Override
-    public void onTrackPropertiesChanged(String name, int color) {
-        mEditedTrack.name = name;
-        mEditedTrack.style.color = color;
-        onTrackSave(mEditedTrack);
-        mEditedTrack = null;
+        trackViewModel.selectedTrack.setValue(track);
+        new TrackProperties().show(mFragmentManager, "trackProperties");
     }
 
     @Override
@@ -4154,8 +4138,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 dataSourceViewModel.placeDbDataSource.open();
                 dataSourceViewModel.placeDbDataSource.notifyListeners();
                 for (Place place : dataSourceViewModel.placeDbDataSource.getPlaces()) {
-                    if (mEditedPlace != null && mEditedPlace._id == place._id)
-                        mEditedPlace = place;
                     addPlaceMarker(place);
                 }
             }

@@ -72,7 +72,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import mobi.maptrek.data.MapObject;
-import mobi.maptrek.data.Place;
 import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.maps.MapFile;
 import mobi.maptrek.maps.MapIndex;
@@ -116,7 +115,6 @@ public class MapTrek extends Application {
     private OsmcSymbolFactory mOsmcSymbolFactory;
     private String mUserNotification;
     private SafeResultReceiver mResultReceiver;
-    private Place mEditedPlace;
     private List<MapFile> mBitmapLayerMaps;
     private PluginRepository mPluginRepository;
 
@@ -413,15 +411,6 @@ public class MapTrek extends Application {
         mResultReceiver = resultReceiver;
     }
 
-    // TODO Introduce State subclass for state saving
-    public Place getEditedPlace() {
-        return mEditedPlace;
-    }
-
-    public void setEditedPlace(Place place) {
-        mEditedPlace = place;
-    }
-
     @Nullable
     public List<MapFile> getBitmapLayerMaps() {
         return mBitmapLayerMaps;
@@ -528,7 +517,6 @@ public class MapTrek extends Application {
             mExtraMapIndex.clear();
             mExtraMapIndex = null;
         }
-        mEditedPlace = null;
         mBitmapLayerMaps = null;
         mIndex = null;
     }
