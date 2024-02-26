@@ -286,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         Map.UpdateListener,
         GestureListener,
         FragmentHolder,
-        PlaceProperties.OnPlacePropertiesChangedListener,
         TrackProperties.OnTrackPropertiesChangedListener,
         OnLocationListener,
         OnPlaceActionListener,
@@ -2464,9 +2463,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     }
 
     private void onPlaceProperties(Place place) {
+        placeViewModel.selectedPlace.setValue(place);
         mEditedPlace = place;
-        PlaceProperties dialogFragment = new PlaceProperties(place);
-        dialogFragment.show(mFragmentManager, "placeProperties");
+        new PlaceProperties().show(mFragmentManager, "placeProperties");
     }
 
     @Override
@@ -2629,24 +2628,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 })
                 .setAnchorView(mViews.actionPanel)
                 .show();
-    }
-
-    @Override
-    public void onPlacePropertiesChanged(String name, int color) {
-        boolean colorChanged = mEditedPlace.style.color != color;
-        mEditedPlace.name = name;
-        mEditedPlace.style.color = color;
-        MarkerItem item = mMarkerLayer.getByUid(mEditedPlace);
-        item.title = name;
-        if (colorChanged) {
-            AndroidBitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, color));
-            item.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
-        }
-        mMarkerLayer.updateItems();
-        mMap.updateMap(true);
-        // This event is relevant only to internal data source
-        dataSourceViewModel.placeDbDataSource.savePlace(mEditedPlace);
-        mEditedPlace = null;
     }
 
     private void onTrackProperties(String path) {

@@ -21,57 +21,50 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import info.andreynovikov.androidcolorpicker.ColorPickerDialog;
-import info.andreynovikov.androidcolorpicker.ColorPickerSwatch;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Place;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.databinding.DialogTrackPropertiesBinding;
+import mobi.maptrek.fragments.OnPlaceActionListener;
+import mobi.maptrek.viewmodels.PlaceViewModel;
 
 public class PlaceProperties extends DialogFragment {
-    private EditText mNameEdit;
-    private ColorPickerSwatch mColorSwatch;
-    private String mName;
-    private int mColor;
-
-    private OnPlacePropertiesChangedListener mListener;
-
-    public PlaceProperties() {
-        super();
-    }
-
-    public PlaceProperties(Place place) {
-        super();
-        mName = place.name;
-        mColor = place.style.color;
-    }
+    private OnPlaceActionListener mListener;
+    private PlaceViewModel placeViewModel;
+    private DialogTrackPropertiesBinding viewBinding;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_properties, null);
+        viewBinding = DialogTrackPropertiesBinding.inflate(getLayoutInflater());
 
-        mNameEdit = dialogView.findViewById(R.id.nameEdit);
-        mColorSwatch = dialogView.findViewById(R.id.colorSwatch);
+        placeViewModel = new ViewModelProvider(requireActivity()).get(PlaceViewModel.class);
+        placeViewModel.selectedPlace.observe(this, place -> {
+            if (place == null)
+                return;
+            String name;
+            int color;
+            if (savedInstanceState != null) {
+                name = savedInstanceState.getString("name");
+                color = savedInstanceState.getInt("color");
+            } else {
+                name = place.name;
+                color = place.style.color;
+            }
+            viewBinding.nameEdit.setText(name);
+            viewBinding.colorSwatch.setColor(color);
+        });
 
-        String name = mName;
-        int color = mColor;
-
-        if (savedInstanceState != null) {
-            name = savedInstanceState.getString("name");
-            color = savedInstanceState.getInt("color");
-        }
-
-        mNameEdit.setText(name);
-        mNameEdit.setOnEditorActionListener((v, actionId, event) -> {
+        viewBinding.nameEdit.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 returnResult();
                 dismiss();
@@ -79,37 +72,35 @@ public class PlaceProperties extends DialogFragment {
             return false;
         });
 
-        mColorSwatch.setColor(color);
-        mColorSwatch.setOnClickListener(v -> {
+        viewBinding.colorSwatch.setOnClickListener(v -> {
             ColorPickerDialog dialog = new ColorPickerDialog();
-            dialog.setColors(MarkerStyle.DEFAULT_COLORS, mColor);
+            dialog.setColors(MarkerStyle.DEFAULT_COLORS, viewBinding.colorSwatch.getColor());
             dialog.setArguments(R.string.color_picker_default_title, 4, ColorPickerDialog.SIZE_SMALL);
-            dialog.setOnColorSelectedListener(color1 -> mColorSwatch.setColor(color1));
+            dialog.setOnColorSelectedListener(color -> viewBinding.colorSwatch.setColor(color));
             dialog.show(getParentFragmentManager(), "ColorPickerDialog");
         });
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        dialogBuilder.setPositiveButton(R.string.actionSave, (dialog, which) -> returnResult());
-        dialogBuilder.setView(dialogView);
+        Dialog alertDialog = new AlertDialog.Builder(getContext())
+                .setPositiveButton(R.string.actionSave, (dialog, which) -> returnResult())
+                .setView(viewBinding.getRoot())
+                .create();
 
-        Dialog dialog = dialogBuilder.create();
-
-        Window window = dialog.getWindow();
+        Window window = alertDialog.getWindow();
         assert window != null;
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.gravity = Gravity.BOTTOM;
         window.setAttributes(lp);
 
-        return dialog;
+        return alertDialog;
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnPlacePropertiesChangedListener) context;
+            mListener = (OnPlaceActionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context + " must implement OnPlacePropertiesChangedListener");
+            throw new ClassCastException(context + " must implement OnPlaceActionListener");
         }
     }
 
@@ -122,21 +113,21 @@ public class PlaceProperties extends DialogFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("name", mNameEdit.getText().toString());
-        outState.putInt("color", mColorSwatch.getColor());
+        outState.putString("name", viewBinding.nameEdit.getText().toString());
+        outState.putInt("color", viewBinding.colorSwatch.getColor());
     }
 
     private void returnResult() {
-        String name = mNameEdit.getText().toString();
-        int color = mColorSwatch.getColor();
-        if (!name.equals(mName) || color != mColor) {
-            mListener.onPlacePropertiesChanged(name, color);
-            mName = name;
-            mColor = color;
+        Place place = placeViewModel.selectedPlace.getValue();
+        if (place == null)
+            return;
+        String name = viewBinding.nameEdit.getText().toString().trim();
+        int color = viewBinding.colorSwatch.getColor();
+        if (!name.equals(place.name) || color != place.style.color) {
+            if (!name.isEmpty())
+                place.name = name;
+            place.style.color = color;
+            mListener.onPlaceSave(place);
         }
-    }
-
-    public interface OnPlacePropertiesChangedListener {
-        void onPlacePropertiesChanged(String name, int color);
     }
 }
