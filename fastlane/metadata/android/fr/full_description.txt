@@ -1,0 +1,52 @@
+<b>Trekarta</b> Trekarta est conçu pour la randonnée, le géocaching, le tout-terrain, le cyclisme, la navigation de plaisance et toutes les autres activités de plein air. Il utilise des cartes hors ligne, vous n'avez donc pas besoin d'une connexion internet. Vous pouvez facilement importer des lieux et des pistes à partir des formats de données GPX et KML ou créer des lieux dans l'application et les partager avec d'autres. L'application vous permet d'écrire l'itinéraire de votre voyage, même en arrière-plan, afin que vous ne vous perdiez jamais et que vous puissiez voir plus tard où vous êtes allé.
+
+
+<b>Cartes hors connexion</b>
+
+Trekarta utilise des cartes vectorielles basées sur OpenStreetMap qui sont légères, hors ligne et constamment améliorées par les contributeurs. Les cartes contiennent des données topologiques détaillées avec des courbes de niveau. Certains éléments de la carte peuvent être filtrés pour une meilleure présentation. Trekarta dispose d'un support intégré pour les ombrages. Vous pouvez ajouter des cartes personnalisées au format sqlite ou mbtiles pour couvrir votre zone d'intérêt. Les cartes personnalisées seront également ombrées. Ces cartes peuvent être créées par vous-même avec l'application SAS.Planet à partir de n'importe quelle source en ligne ou converties avec MapTiler et d'autres applications à partir d'autres formats de cartes.
+
+
+<b>Randonnée</b>
+
+Le mode spécial randonnée met l'accent sur les chemins et les pistes sur la carte. Il visualise la difficulté et la visibilité des chemins et affiche les itinéraires de randonnée. Il affiche également des symboles OSMC spéciaux qui vous aident à identifier l'itinéraire souhaité.
+
+
+<b>Cyclisme</b>
+
+Le mode d'activité cycliste révèle les infrastructures cyclables. Il montre les pistes cyclables et visualise la difficulté et la visibilité des pistes de VTT.
+
+
+<b>Ski et patinage</b>
+
+Le mode "activités de ski" affiche une carte hivernale claire avec la plupart des activités de ski : ski alpin, ski nordique, randonnée et tourisme. En prime, les zones de snow-board freestyle, de patinage et de luge sont affichées.
+
+
+<b>Tout-terrain</b>
+
+Les routes non pavées, les routes de terre, les routes d’hiver et les routes de glace sont spécialement visualisées. Les routes à 4 roues motrices ont un marquage spécifique. Des gués sont affichés sur toutes les routes, même primaires.
+
+
+<b>Lieux</b>
+
+Les lieux peuvent être facilement importés à partir de fichiers GPX et KML ou peuvent être créés dans l'application. Vous pouvez naviguer vers des lieux et les partager avec d'autres personnes.
+
+
+<b>Pistes</b>
+
+Trekarta est conçu pour enregistrer les pistes de votre voyage. Il vous suffit d'appuyer sur un bouton lorsque vous commencez et d'appuyer à nouveau sur ce bouton lorsque vous terminez. Vous pouvez quitter l'application si vous n'avez pas besoin de regarder la carte, la piste sera enregistrée en arrière-plan.
+
+
+<b>Extensions</b>
+
+Les fonctionnalités de Trekarta peuvent être étendues par des extensions. Les extensions suivantes sont actuellement disponibles :
+- Partage de lieux
+- Synchronisation Dropbox
+
+
+<b>Plus d'infos</b>
+
+Pour plus d’informations, consulter :
+<a href="https://github.com/andreynovikov/trekarta/">https://github.com/andreynovikov/trekarta/</a>
+
+Les questions peuvent être posées à :
+<a href="https://github.com/andreynovikov/trekarta/discussions">https://github.com/andreynovikov/trekarta/discussions</a>
