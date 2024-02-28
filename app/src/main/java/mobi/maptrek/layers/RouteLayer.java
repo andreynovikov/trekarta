@@ -30,11 +30,11 @@ public class RouteLayer extends PathLayer implements Route.UpdateListener {
     private Track mTrack;
 
     public RouteLayer(Map map, Route route) {
-        this(map, Color.fade(Color.DKGRAY, 0.5), 12f, route);
+        this(map, route.style.color, route.style.width, route);
     }
 
     public RouteLayer(Map map, int lineColor, float lineWidth, Route route) {
-        super(map, new LineStyle(lineColor, lineWidth, Paint.Cap.ROUND));
+        super(map, new LineStyle(Color.setA(lineColor, 0x80), lineWidth, Paint.Cap.ROUND));
         mRoute = route;
         mRoute.setUpdateListener(this);
         onRouteChanged();
@@ -44,6 +44,11 @@ public class RouteLayer extends PathLayer implements Route.UpdateListener {
         this(mMap, route);
         mTrack = track;
         setPoints(track.points);
+    }
+
+    public void setWidth(int width) {
+        mLineStyle = new LineStyle(mLineStyle.color, width, mLineStyle.cap);
+        update();
     }
 
     @Override

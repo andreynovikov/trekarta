@@ -16,9 +16,12 @@
 
 package mobi.maptrek.layers;
 
+import org.oscim.backend.canvas.Color;
+import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.core.GeoPoint;
 import org.oscim.layers.PathLayer;
 import org.oscim.map.Map;
+import org.oscim.theme.styles.LineStyle;
 
 /**
  * This class draws a great circle navigation line.
@@ -28,7 +31,11 @@ public class NavigationLayer extends PathLayer {
     private GeoPoint mPosition;
 
     public NavigationLayer(Map map, int lineColor, float lineWidth) {
-        super(map, lineColor, lineWidth);
+        super(map, Color.setA(lineColor, 0x66), lineWidth);
+    }
+
+    public void setLineStyle(int lineColor, float lineWidth) {
+        super.setStyle(new LineStyle(Color.setA(lineColor, 0x66), lineWidth, Cap.BUTT));
     }
 
     public void setDestination(GeoPoint destination) {

@@ -81,6 +81,11 @@ public class TrackLayer extends Layer {
         mWorker.submit(10);
     }
 
+    public void setWidth(int width) {
+        mLineStyle = new LineStyle(mLineStyle.color, width, mLineStyle.cap);
+        mWorker.submit(10);
+    }
+
     /***
      * everything below runs on GL- and Worker-Thread
      ***/

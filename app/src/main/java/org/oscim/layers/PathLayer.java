@@ -68,7 +68,7 @@ public class PathLayer extends Layer implements GestureListener {
     /**
      * Line style
      */
-    LineStyle mLineStyle;
+    protected LineStyle mLineStyle;
 
     final Worker mWorker;
 
@@ -218,6 +218,10 @@ public class PathLayer extends Layer implements GestureListener {
             double lonN = Math.atan2(y, x);
             addPoint((int) (latN / (Math.PI / 180) * 1E6), (int) (lonN / (Math.PI / 180) * 1E6));
         }
+    }
+
+    public void update() {
+        mWorker.submit(10);
     }
 
     /***

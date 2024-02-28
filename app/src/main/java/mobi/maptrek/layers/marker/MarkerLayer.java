@@ -111,4 +111,8 @@ public abstract class MarkerLayer<Item extends MarkerItem> extends Layer {
 	public void setTitlesEnabled(boolean titlesEnabled) {
 		mMarkerRenderer.setTitlesEnabled(titlesEnabled);
 	}
+
+	public void setDefaultMarker(MarkerSymbol symbol) {
+		mMarkerRenderer.setDefaultMarker(symbol);
+	}
 }

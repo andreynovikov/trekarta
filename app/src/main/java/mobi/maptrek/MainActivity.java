@@ -189,6 +189,7 @@ import mobi.maptrek.data.source.TrackDataSource;
 import mobi.maptrek.data.source.PlaceDataSource;
 import mobi.maptrek.data.source.PlaceDbDataSource;
 import mobi.maptrek.data.style.MarkerStyle;
+import mobi.maptrek.data.style.RouteStyle;
 import mobi.maptrek.data.style.TrackStyle;
 import mobi.maptrek.databinding.ActivityMainBinding;
 import mobi.maptrek.fragments.AmenityInformation;
@@ -511,8 +512,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mSunriseSunset = new SunriseSunset();
 
         // Apply default styles at start
-        TrackStyle.DEFAULT_COLOR = resources.getColor(R.color.trackColor, theme);
-        TrackStyle.DEFAULT_WIDTH = resources.getInteger(R.integer.trackWidth);
+        MarkerStyle.DEFAULT_COLOR = Configuration.loadInt(Configuration.PREF_PLACE_COLOR, getColor(R.color.placeColor01));
+        TrackStyle.DEFAULT_COLOR = Configuration.loadInt(Configuration.PREF_TRACK_COLOR, getColor(R.color.trackColor));
+        TrackStyle.DEFAULT_WIDTH = Configuration.loadInt(Configuration.PREF_TRACK_WIDTH, resources.getInteger(R.integer.default_track_width));
+        RouteStyle.DEFAULT_COLOR = Configuration.loadInt(Configuration.PREF_ROUTE_COLOR, getColor(R.color.routeColor));
+        RouteStyle.DEFAULT_WIDTH = Configuration.loadInt(Configuration.PREF_ROUTE_WIDTH, resources.getInteger(R.integer.default_route_width));
 
         // find the retained fragment on activity restarts
         mFragmentManager = getSupportFragmentManager();
@@ -2412,7 +2416,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             }
             GeoPoint destination = mNavigationService.getCurrentPoint().coordinates;
             if (mNavigationLayer == null) {
-                mNavigationLayer = new NavigationLayer(mMap, 0x66ffff00, 8);
+                int color = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_COLOR, getColor(R.color.activeRouteColor));
+                int width = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_WIDTH, getResources().getInteger(R.integer.default_route_width));
+                mNavigationLayer = new NavigationLayer(mMap, color, width);
                 mNavigationLayer.setDestination(destination);
                 Point point = mLocationOverlay.getPosition();
                 mNavigationLayer.setPosition(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
@@ -4510,6 +4516,48 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 int transparency = Configuration.getHillshadesTransparency();
                 if (mHillshadeLayer != null)
                     mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f);
+                break;
+            }
+            case Configuration.PREF_PLACE_COLOR: {
+                // Items with default color do not have markers
+                for (MarkerItem item : mMarkerLayer.getItems()) {
+                    if (item.getMarker() == null) {
+                        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, item.color));
+                        item.setMarker(new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER));
+                    }
+                }
+
+                MarkerStyle.DEFAULT_COLOR = Configuration.loadInt(Configuration.PREF_PLACE_COLOR, getColor(R.color.placeColor01));
+                Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this));
+                MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.BOTTOM_CENTER);
+                mMarkerLayer.setDefaultMarker(symbol);
+                break;
+            }
+            case Configuration.PREF_TRACK_WIDTH: {
+                int width = Configuration.loadInt(Configuration.PREF_TRACK_WIDTH, getResources().getInteger(R.integer.default_track_width));
+                for (Layer layer : mMap.layers()) {
+                    if (layer instanceof TrackLayer) {
+                        ((TrackLayer) layer).setWidth(width);
+                    }
+                }
+                break;
+            }
+            case Configuration.PREF_ROUTE_WIDTH: {
+                int width = Configuration.loadInt(Configuration.PREF_ROUTE_WIDTH, getResources().getInteger(R.integer.default_route_width));
+                for (Layer layer : mMap.layers()) {
+                    if (layer instanceof RouteLayer) {
+                        ((RouteLayer) layer).setWidth(width);
+                    }
+                }
+                break;
+            }
+            case Configuration.PREF_ACTIVE_ROUTE_COLOR:
+            case Configuration.PREF_ACTIVE_ROUTE_WIDTH: {
+                if (mNavigationLayer != null) {
+                    int color = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_COLOR, getColor(R.color.activeRouteColor));
+                    int width = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_WIDTH, getResources().getInteger(R.integer.default_route_width));
+                    mNavigationLayer.setLineStyle(color, width);
+                }
                 break;
             }
         }

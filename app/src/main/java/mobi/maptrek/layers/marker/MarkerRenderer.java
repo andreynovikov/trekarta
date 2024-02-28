@@ -46,7 +46,7 @@ import androidx.annotation.NonNull;
 class MarkerRenderer extends BucketRenderer {
     private static final float FOCUS_CIRCLE_SIZE = 8;
 
-    final MarkerSymbol mDefaultMarker;
+    MarkerSymbol mDefaultMarker;
 
     private final SymbolBucket mSymbolBucket;
     private final TextBucket mTextBucket;
@@ -112,6 +112,12 @@ class MarkerRenderer extends BucketRenderer {
         mOutlineColor = color;
         update();
     }
+
+    public void setDefaultMarker(MarkerSymbol symbol) {
+        mDefaultMarker = symbol;
+        update();
+    }
+
     @Override
     public synchronized void update(GLViewport v) {
         if (!mInitialized) {

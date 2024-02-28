@@ -105,6 +105,10 @@ public class ItemizedLayer<Item extends MarkerItem> extends MarkerLayer<Item>
         return result;
     }
 
+    public List<Item> getItems() {
+        return mItemList;
+    }
+
     public void updateItems() {
         populate();
     }
