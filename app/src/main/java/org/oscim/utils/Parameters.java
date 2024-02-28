@@ -42,6 +42,11 @@ public final class Parameters {
     public static boolean POLY_LABEL = false;
 
     /**
+     * Placement of symbols on polygons.
+     */
+    public static boolean POLY_SYMBOL = false;
+
+    /**
      * POT textures in themes.
      */
     public static boolean POT_TEXTURES = false;
