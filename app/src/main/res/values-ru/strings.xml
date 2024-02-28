@@ -314,9 +314,14 @@
     <string name="pref_unit_precision_title">Повышенная точность</string>
     <string name="pref_advanced">Дополнительно</string>
     <string name="pref_hillshades_transparency">Прозрачность затенения рельефа</string>
-    <string name="pref_place_titles_title">Названия точек</string>
+    <string name="pref_show_titles_title">Отображать названия</string>
     <string name="pref_accessibility_badges_title">Значки доступности</string>
     <string name="pref_confirm_exit_title">Подтверждение выхода</string>
+    <string name="pref_data">Точки, треки, маршруты</string>
+    <string name="pref_default_color_title">Цвет по-умолчанию</string>
+    <string name="pref_line_width_title">Ширина линии</string>
+    <string name="pref_active_route_color_title">Цвет активного маршрута</string>
+    <string name="pref_active_line_width_title">Ширина активной линии</string>
 
     <string name="kind_place">Населённые пункты</string>
     <string name="kind_road">Дороги</string>
