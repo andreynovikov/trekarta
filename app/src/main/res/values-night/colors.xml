@@ -42,7 +42,6 @@
     <color name="panelExtendedBackground">#cc333333</color>
     <color name="colorNavigationBackground">#000000</color>
     <color name="colorControlActivated">#222222</color>
-    <color name="trackColor">#e64a19</color>
     <color name="dim">#33000000</color>
     <color name="red">#f56262</color>
     <color name="darkBlue">#6262f5</color>

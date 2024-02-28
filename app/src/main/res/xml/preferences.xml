@@ -12,6 +12,11 @@
         android:title="@string/pref_units"
         app:iconSpaceReserved="false" />
     <Preference
+        android:fragment="mobi.maptrek.fragments.preferences.Data"
+        android:key="preferences_tracks_and_routes"
+        android:title="@string/pref_data"
+        app:iconSpaceReserved="false" />
+    <Preference
         android:fragment="mobi.maptrek.fragments.preferences.Advanced"
         android:key="preferences_advanced"
         android:title="@string/pref_advanced"

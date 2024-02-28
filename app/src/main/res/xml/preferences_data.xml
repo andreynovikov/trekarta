@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:title="@string/places"
+        app:iconSpaceReserved="false">
+        <info.andreynovikov.androidcolorpicker.ColorPreference
+            android:defaultValue="@color/placeColor01"
+            android:entryValues="@array/preferenceColors"
+            android:key="place_color"
+            android:title="@string/pref_default_color_title"
+            app:iconSpaceReserved="false" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/def_place_titles"
+            android:key="place_titles"
+            android:title="@string/pref_show_titles_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/tracks"
+        app:iconSpaceReserved="false">
+        <info.andreynovikov.androidcolorpicker.ColorPreference
+            android:defaultValue="@color/trackColor"
+            android:entryValues="@array/preferenceColors"
+            android:key="track_color"
+            android:title="@string/pref_default_color_title"
+            app:iconSpaceReserved="false" />
+        <SeekBarPreference
+            android:defaultValue="@integer/default_track_width"
+            android:key="track_width"
+            android:max="10"
+            android:title="@string/pref_line_width_title"
+            app:iconSpaceReserved="false"
+            app:min="2"
+            app:showSeekBarValue="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/routes"
+        app:iconSpaceReserved="false">
+        <info.andreynovikov.androidcolorpicker.ColorPreference
+            android:defaultValue="@color/routeColor"
+            android:entryValues="@array/preferenceColors"
+            android:key="route_color"
+            android:title="@string/pref_default_color_title"
+            app:iconSpaceReserved="false" />
+        <SeekBarPreference
+            android:defaultValue="@integer/default_route_width"
+            android:key="route_width"
+            android:max="16"
+            android:title="@string/pref_line_width_title"
+            app:iconSpaceReserved="false"
+            app:min="3"
+            app:showSeekBarValue="false" />
+        <info.andreynovikov.androidcolorpicker.ColorPreference
+            android:defaultValue="@color/activeRouteColor"
+            android:entryValues="@array/preferenceColors"
+            android:key="active_route_color"
+            android:title="@string/pref_active_route_color_title"
+            app:iconSpaceReserved="false" />
+        <SeekBarPreference
+            android:defaultValue="@integer/default_route_width"
+            android:key="active_route_width"
+            android:max="16"
+            android:title="@string/pref_active_line_width_title"
+            app:iconSpaceReserved="false"
+            app:min="3"
+            app:showSeekBarValue="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

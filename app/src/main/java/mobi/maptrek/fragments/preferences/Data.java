@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,24 +14,17 @@
  *
  */
 
-package mobi.maptrek.data.style;
+package mobi.maptrek.fragments.preferences;
 
-public class RouteStyle extends Style<RouteStyle> {
-    public static int DEFAULT_COLOR = android.graphics.Color.MAGENTA;
-    public static float DEFAULT_WIDTH = 8;
+import android.os.Bundle;
 
-    public int color = DEFAULT_COLOR;
-    public float width = DEFAULT_WIDTH;
+import androidx.annotation.Nullable;
 
+import mobi.maptrek.R;
 
+public class Data extends BasePreferences {
     @Override
-    public boolean isDefault() {
-        return color == DEFAULT_COLOR && width == DEFAULT_WIDTH;
-    }
-
-    @Override
-    public void copy(RouteStyle style) {
-        style.color = color;
-        style.width = width;
+    public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+        addPreferencesFromResource(R.xml.preferences_data);
     }
 }
