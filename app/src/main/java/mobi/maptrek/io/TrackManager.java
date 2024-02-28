@@ -96,7 +96,8 @@ public class TrackManager extends Manager {
                     break;
                 }
                 case FIELD_WIDTH: {
-                    track.style.width = input.readFloat();
+                    // track.style.width = ... TODO: let user edit width
+                    input.readFloat();
                     break;
                 }
             }
