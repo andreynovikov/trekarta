@@ -11,22 +11,17 @@
         app:min="30"
         app:seekBarIncrement="10"
         app:showSeekBarValue="true" />
-    <CheckBoxPreference
-        android:defaultValue="@bool/def_place_titles"
-        android:key="place_titles"
-        android:title="@string/pref_place_titles_title"
-        app:iconSpaceReserved="false" />
-    <CheckBoxPreference
+    <SwitchPreferenceCompat
         android:defaultValue="@bool/def_accessibility_badges"
         android:key="accessibility_badges"
         android:title="@string/pref_accessibility_badges_title"
         app:iconSpaceReserved="false" />
-    <CheckBoxPreference
+    <SwitchPreferenceCompat
         android:defaultValue="@bool/def_zoom_buttons_visible"
         android:key="zoom_buttons_visible"
         android:title="@string/pref_zoom_buttons_visible_title"
         app:iconSpaceReserved="false" />
-    <CheckBoxPreference
+    <SwitchPreferenceCompat
         android:defaultValue="@bool/def_confirm_exit"
         android:key="confirm_exit"
         android:title="@string/pref_confirm_exit_title"

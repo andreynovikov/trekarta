@@ -33,7 +33,7 @@
         android:key="angle_unit"
         android:title="@string/pref_unit_angle_title"
         app:iconSpaceReserved="false" />
-    <CheckBoxPreference
+    <SwitchPreferenceCompat
         android:defaultValue="@bool/def_unit_precision"
         android:key="unit_precision"
         android:title="@string/pref_unit_precision_title"
