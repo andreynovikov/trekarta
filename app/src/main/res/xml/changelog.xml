@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <change versioncode="102" priority="5">Added various color settings</change>
     <change versioncode="98" priority="3">Added simple route creation</change>
     <change versioncode="98" priority="7">Fixed GPX file reading error</change>
     <change versioncode="97" priority="5">Draw place titles</change>
