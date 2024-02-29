@@ -222,7 +222,6 @@
     <string name="advice_amenity_setup">Vous pouvez spécifier à quel niveau de détail de la carte un type d’équipement spécifique sera affiché ou vous pouvez le cacher complètement de la carte</string>
     <string name="advice_night_mode">Vous pouvez appuyer longuement sur le bouton des cartes pour désactiver le mode nuit</string>
     <string name="advice_select_multiple_maps">Utiliser le double tap pour afficher plusieurs cartes</string>
-
     <string name="place_name">Lieu #%d</string>
     <string name="remove_gauge">Supprimer %s</string>
     <string name="add_gauge">Ajouter %s</string>
@@ -313,9 +312,14 @@
     <string name="pref_unit_precision_title">Précision accrue</string>
     <string name="pref_advanced">Avancé</string>
     <string name="pref_hillshades_transparency">Transparence de l\'ombrage</string>
-    <string name="pref_place_titles_title">Intitulé des lieux</string>
+    <string name="pref_show_titles_title">Voir les titres</string>
     <string name="pref_accessibility_badges_title">Badges d’accessibilité</string>
     <string name="pref_confirm_exit_title">Confirmation de sortie</string>
+    <string name="pref_data">Lieux, pistes, itinéraires</string>
+    <string name="pref_default_color_title">Couleur par défaut</string>
+    <string name="pref_line_width_title">Largeur du trait</string>
+    <string name="pref_active_route_color_title">Couleur de l\'itinéraire actif</string>
+    <string name="pref_active_line_width_title">Largeur du trait actif</string>
 
     <string name="kind_place">Localités</string>
     <string name="kind_road">Routes</string>
