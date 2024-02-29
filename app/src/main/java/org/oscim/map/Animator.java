@@ -183,12 +183,13 @@ public class Animator {
         mMap.getMapPosition(mStartPos);
 
         pos.scale = mMap.viewport().limitScale(pos.scale);
+        pos.tilt = mMap.viewport().limitTilt(pos.tilt);
 
         mDeltaPos.set(pos.x - mStartPos.x,
                 pos.y - mStartPos.y,
                 pos.scale - mStartPos.scale,
                 pos.bearing - mStartPos.bearing,
-                mMap.viewport().limitTilt(pos.tilt) - mStartPos.tilt);
+                pos.tilt - mStartPos.tilt);
 
         animStart(duration, state, easingType);
     }
@@ -391,7 +392,7 @@ public class Animator {
                 mDeltaPos.y + mStartPos.y,
                 mDeltaPos.scale + mStartPos.scale,
                 mDeltaPos.bearing + mStartPos.bearing,
-                mDeltaPos.tilt - mStartPos.tilt);
+                mDeltaPos.tilt + mStartPos.tilt);
         return mapPosition;
     }
 }

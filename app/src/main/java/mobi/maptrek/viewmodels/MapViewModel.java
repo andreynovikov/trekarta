@@ -36,8 +36,11 @@ public class MapViewModel extends ViewModel {
 
     public final MutableLiveData<IRenderTheme> theme = new MutableLiveData<>();
 
+    public final MutableLiveData<Boolean> rotationLocked = new MutableLiveData<>(false);
+
     private static final Location unknownLocation = new Location("unknown");
     public final MutableLiveData<Location> currentLocation = new MutableLiveData<>(unknownLocation);
+
     public void clearCurrentLocation() {
         currentLocation.setValue(unknownLocation);
     }

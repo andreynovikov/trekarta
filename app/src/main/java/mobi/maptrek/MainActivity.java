@@ -670,6 +670,25 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         dataSourceViewModel.dataSourceCommand.observe(this, dataSourceCommandObserver);
 
+        mapViewModel.rotationLocked.observe(this, locked -> {
+            mMap.getEventLayer().enableRotation(!locked);
+            mMap.getEventLayer().enableTilt(!locked);
+            if (locked) {
+                mViews.compass.setVisibility(View.VISIBLE);
+                mViews.compassLock.setVisibility(View.VISIBLE);
+                if (mLocationState == LocationState.TRACK) {
+                    mLocationState = LocationState.NORTH;
+                    updateLocationDrawable();
+                }
+                mMap.getMapPosition(mMapPosition);
+                mMapPosition.setBearing(0f);
+                mMapPosition.setTilt(0f);
+                mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
+            } else {
+                mViews.compass.setVisibility(View.GONE);
+                mViews.compassLock.setVisibility(View.GONE);
+            }
+        });
         // Observe marker state
         mapViewModel.getMarkerState().observe(this, markerState -> {
             // There can be only one marker at a time
@@ -750,6 +769,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return true;
         });
         mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
+        mViews.compass.setOnLongClickListener(this::onCompassLongClicked);
         mViews.navigationSign.setOnClickListener(v -> {
             MapObject mapObject = mNavigationService.getCurrentPoint();
             setMapLocation(mapObject.coordinates);
@@ -1518,7 +1538,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
         updateGauges();
 
-        if (mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
+        if (!mPositionLocked && mLocationState == LocationState.NORTH || mLocationState == LocationState.TRACK) {
             long time = SystemClock.uptimeMillis();
             // Adjust map movement animation to location acquisition period to make movement smoother
             long locationDelay = time - mLastLocationMilliseconds;
@@ -1530,6 +1550,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             boolean rotate = mLocationState == LocationState.TRACK && mTrackingDelay < time;
             double offset;
             if (rotate) {
+                mMapPosition.setBearing(-mAveragedBearing);
                 offset = mTrackingOffset / mTrackingOffsetFactor;
                 if (mAutoTilt > 0f && !mAutoTiltSet && mAutoTiltShouldSet)
                     mMapPosition.setTilt(mAutoTilt);
@@ -1542,13 +1563,15 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             double dx = offset * Math.sin(rad);
             double dy = offset * Math.cos(rad);
 
-            if (!mPositionLocked) {
-                mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
-                mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
-                mMapPosition.setBearing(-mAveragedBearing);
-                //FIXME VTM
-                mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition, rotate);
+            mMapPosition.setX(MercatorProjection.longitudeToX(lon) + dx);
+            mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
+
+            if (mMap.animator().isActive()) {
+                mMapPosition.setTilt(mMap.animator().getEndPosition().tilt);
+                if (!rotate)
+                    mMapPosition.setBearing(mMap.animator().getEndPosition().bearing);
             }
+            mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition);
         }
 
         mLocationOverlay.setPosition(lat, lon, bearing);
@@ -1600,15 +1623,17 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mMap.animator().animateTo(MAP_POSITION_ANIMATION_DURATION, mMapPosition);
                 break;
             case NORTH:
-                mLocationState = LocationState.TRACK;
-                mMap.getEventLayer().enableRotation(false);
-                mMap.getEventLayer().setFixOnCenter(true);
-                mTrackingDelay = SystemClock.uptimeMillis() + TRACK_ROTATION_DELAY;
-                mAutoTiltShouldSet = mMapPosition.getTilt() == 0f;
-                break;
+                if (Boolean.FALSE.equals(mapViewModel.rotationLocked.getValue())) {
+                    mLocationState = LocationState.TRACK;
+                    mMap.getEventLayer().enableRotation(false);
+                    mMap.getEventLayer().setFixOnCenter(true);
+                    mTrackingDelay = SystemClock.uptimeMillis() + TRACK_ROTATION_DELAY;
+                    mAutoTiltShouldSet = mMapPosition.getTilt() == 0f;
+                    break;
+                } // else continue to set ENABLED
             case TRACK:
                 mLocationState = LocationState.ENABLED;
-                mMap.getEventLayer().enableRotation(true);
+                mMap.getEventLayer().enableRotation(Boolean.FALSE.equals(mapViewModel.rotationLocked.getValue()));
                 mMap.getEventLayer().setFixOnCenter(false);
                 mMap.getMapPosition(mMapPosition);
                 mMapPosition.setBearing(0);
@@ -1800,11 +1825,16 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mLocationState == LocationState.TRACK) {
             mLocationState = LocationState.NORTH;
             updateLocationDrawable();
-            mMap.getEventLayer().enableRotation(true);
+            mMap.getEventLayer().enableRotation(Boolean.FALSE.equals(mapViewModel.rotationLocked.getValue()));
         }
         mMap.getMapPosition(mMapPosition);
         mMapPosition.setBearing(0);
         mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mMapPosition);
+    }
+
+    public boolean onCompassLongClicked(View view) {
+        mapViewModel.rotationLocked.setValue(Boolean.FALSE.equals(mapViewModel.rotationLocked.getValue()));
+        return true;
     }
 
     @Override
@@ -2196,6 +2226,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (mViews.compass.getRotation() == bearing)
             return;
         mViews.compass.setRotation(bearing);
+        if (Boolean.TRUE.equals(mapViewModel.rotationLocked.getValue()))
+            return;
         if (bearing == 0f) {
             if (mViews.compass.getVisibility() != View.GONE)
                 mViews.compass.setVisibility(View.GONE);
@@ -2203,7 +2235,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mViews.compass.setVisibility(View.VISIBLE);
         }
         // +/-5 degrees
-        mViews.compass.setAlpha(FastMath.clamp(Math.abs(bearing) / 5f, 0f, 1f));
+        mViews.compass.setAlpha(FastMath.clamp(Math.abs(bearing) / 5f, 0.2f, 1f));
     }
 
     private void adjustNavigationArrow(float turn) {
@@ -4236,7 +4268,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (mObjectInteractionEnabled) {
                 AbstractMapEventLayer eventLayer = mMap.getEventLayer();
                 eventLayer.enableMove(true);
-                eventLayer.enableRotation(true);
+                eventLayer.enableRotation(Boolean.FALSE.equals(mapViewModel.rotationLocked.getValue()));
                 eventLayer.enableTilt(true);
                 eventLayer.enableZoom(true);
                 mCrosshairLayer.unlock();

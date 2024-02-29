@@ -210,19 +210,39 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <ImageButton
-                android:id="@+id/compass"
-                android:layout_width="@dimen/image_button_size"
-                android:layout_height="@dimen/image_button_size"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="@dimen/panel_elevation"
-                android:onClick="onCompassClicked"
-                android:padding="@dimen/gauge_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_compass"
-                android:visibility="gone"
-                tools:ignore="ContentDescription"
-                tools:visibility="visible" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/compass"
+                    android:layout_width="@dimen/image_button_size"
+                    android:layout_height="@dimen/image_button_size"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="@dimen/panel_elevation"
+                    android:onClick="onCompassClicked"
+                    android:padding="@dimen/gauge_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_compass"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/compass_lock"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="@dimen/gauge_padding"
+                    android:background="@drawable/circle_light"
+                    android:backgroundTint="@color/colorAccent"
+                    android:elevation="@dimen/panel_elevation"
+                    android:importantForAccessibility="no"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_lock_outline"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </FrameLayout>
 
             <ImageButton
                 android:id="@+id/navigationArrow"
