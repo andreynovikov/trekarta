@@ -225,6 +225,7 @@
     <string name="advice_amenity_setup">You can specify at which level of map detail specific amenity kind will be shown or you can completely hide it from map</string>
     <string name="advice_night_mode">You can long press maps button to disable night mode</string>
     <string name="advice_select_multiple_maps">Use double tap to show multiple maps</string>
+    <string name="advice_lock_rotation">You can long press compass to prohibit map rotation and tilt</string>
 
     <string name="datetime" translatable="false">%1$s %2$s</string>
     <string name="place_name">Place #%d</string>

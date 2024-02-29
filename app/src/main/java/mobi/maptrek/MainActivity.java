@@ -2139,12 +2139,14 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         }
         if (e == Map.FINISH_EVENT) {
             final Message m = Message.obtain(mMainHandler, () -> {
-                if (mViews.compass.getTag() == Map.ROTATE_EVENT &&
-                        mLocationState != LocationState.TRACK &&
-                        Math.abs(mapPosition.bearing) < 5f) {
-                    mMap.getMapPosition(true, mapPosition);
-                    mapPosition.setBearing(0f);
-                    mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mapPosition);
+                if (mViews.compass.getTag() == Map.ROTATE_EVENT && mLocationState != LocationState.TRACK) {
+                    if (Math.abs(mapPosition.bearing) < 5f) {
+                        mMap.getMapPosition(true, mapPosition);
+                        mapPosition.setBearing(0f);
+                        mMap.animator().animateTo(MAP_BEARING_ANIMATION_DURATION, mapPosition);
+                    } else {
+                        HelperUtils.showTargetedAdvice(this, Configuration.ADVICE_LOCK_ROTATION, R.string.advice_lock_rotation, mViews.compass, true);
+                    }
                 }
                 mViews.compass.setTag(null);
             });

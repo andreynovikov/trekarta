@@ -125,6 +125,7 @@ public class Configuration {
     public static final long ADVICE_MAP_LEGEND = 0x0000000000020000L;
     public static final long ADVICE_NIGHT_MODE = 0x0000000000040000L;
     public static final long ADVICE_SELECT_MULTIPLE_MAPS = 0x0000000000080000L;
+    public static final long ADVICE_LOCK_ROTATION = 0x0000000000100000L;
 
     private static long mAdviceMask;
     private static SharedPreferences mSharedPreferences;
