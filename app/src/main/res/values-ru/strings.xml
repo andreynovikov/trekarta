@@ -223,7 +223,7 @@
     <string name="advice_amenity_setup">Вы можете выбрать на каком уровне детализации карты показывать определённый тип объектов или можете полностью удалить его с карты</string>
     <string name="advice_night_mode">Вы можете отключить ночной режим с помощью долгого нажатия на кнопку Карты</string>
     <string name="advice_select_multiple_maps">Используйте двойное нажатие, чтобы отобразить несколько карт</string>
-    <string name="advice_lock_rotation">Вы можете заблокировать поворот и наклон карты с помощью долгого нажатия на компас</string>
+    <string name="advice_lock_rotation">Вы можете заблокировать вращение и наклон карты с помощью долгого нажатия на компас</string>
 
     <string name="place_name">Точка &#8470;%d</string>
     <string name="remove_gauge">Удалить прибор «%s»</string>

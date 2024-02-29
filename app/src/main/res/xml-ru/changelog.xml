@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <change versioncode="103" priority="5">Добавлена опция блокировки вращения карты</change>
     <change versioncode="102" priority="5">Добавлены различные настройки цветов</change>
     <change versioncode="98" priority="3">Добавлено создание простых маршрутов</change>
     <change versioncode="98" priority="7">Исправлена ошибка чтения GPX файлов</change>
