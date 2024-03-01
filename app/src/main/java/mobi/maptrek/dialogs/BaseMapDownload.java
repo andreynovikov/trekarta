@@ -21,34 +21,31 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import mobi.maptrek.R;
+import mobi.maptrek.databinding.DialogBasemapDownloadBinding;
 import mobi.maptrek.viewmodels.MapIndexViewModel;
 
 public class BaseMapDownload extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final View dialogView = getLayoutInflater().inflate(R.layout.fragment_basemap_download, null);
-
+        DialogBasemapDownloadBinding viewBinding = DialogBasemapDownloadBinding.inflate(getLayoutInflater());
         MapIndexViewModel mapIndexViewModel = new ViewModelProvider(requireActivity()).get(MapIndexViewModel.class);
 
-        TextView messageView = dialogView.findViewById(R.id.message);
         long size = mapIndexViewModel.nativeIndex.getBaseMapSize();
-        messageView.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
+        viewBinding.message.setText(getString(R.string.msgBaseMapDownload, Formatter.formatFileSize(getContext(), size)));
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
         dialogBuilder.setPositiveButton(R.string.actionDownload, (dialog, which) -> mapIndexViewModel.nativeIndex.downloadBaseMap());
         dialogBuilder.setNegativeButton(R.string.actionSkip, (dialog, which) -> {});
-        dialogBuilder.setView(dialogView);
+        dialogBuilder.setView(viewBinding.getRoot());
 
         Dialog dialog = dialogBuilder.create();
 
