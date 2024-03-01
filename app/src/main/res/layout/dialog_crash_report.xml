@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/dialogContentMargin"
+    android:paddingTop="@dimen/dialogContentMargin"
+    android:paddingEnd="@dimen/dialogContentMargin"
+    tools:context=".dialogs.CrashReport">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/message"
+        android:text="@string/msgCrashOccurred"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/textColorPrimary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/textPadding"
+        android:text="@string/msgDescribeCrash"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/textColorPrimary" />
+
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/text_border"
+        android:gravity="top"
+        android:padding="@dimen/textPadding"
+        android:importantForAutofill="no"
+        android:inputType="text|textCapSentences|textAutoCorrect|textMultiLine"
+        android:maxLines="8"
+        android:minLines="3" />
+
+</LinearLayout>

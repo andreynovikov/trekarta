@@ -101,6 +101,7 @@
     <string name="actionDownload">Download</string>
     <string name="actionSkip">Skip</string>
     <string name="actionCreateRoute">Create route</string>
+    <string name="actionSend">Send</string>
 
     <string name="share_location_intent_title">Share location via:</string>
     <string name="share_data_intent_title">Share data to:</string>
@@ -140,6 +141,7 @@
     <string name="msgFailedToGetFileName">Failed to get file name</string>
     <string name="msgCancelDownload">Cancel map download?</string>
     <string name="msgCrashOccurred">It looks like application has crashed during last run. You will greatly help by sending crash report to the developer.</string>
+    <string name="msgDescribeCrash">Please describe what you were doing when it happened:</string>
     <string name="msgIndexDownloadFailed">Download size not available</string>
     <string name="msgEstimateDownloadSize">Estimating download size</string>
     <string name="msgEstimateDownloadSizePlaceholder" translatable="false">%1$s (%2$d%%)</string>

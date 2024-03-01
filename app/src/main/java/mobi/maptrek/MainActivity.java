@@ -195,7 +195,7 @@ import mobi.maptrek.databinding.ActivityMainBinding;
 import mobi.maptrek.fragments.AmenityInformation;
 import mobi.maptrek.dialogs.AmenitySetup;
 import mobi.maptrek.dialogs.BaseMapDownload;
-import mobi.maptrek.fragments.CrashReport;
+import mobi.maptrek.dialogs.CrashReport;
 import mobi.maptrek.dialogs.DataExport;
 import mobi.maptrek.fragments.DataList;
 import mobi.maptrek.fragments.DataSourceList;
@@ -1020,13 +1020,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             HelperUtils.showError(userNotification, mViews.coordinatorLayout);
 
         if (MapTrek.getApplication().hasPreviousRunsExceptions()) {
-            FragmentFactory factory = mFragmentManager.getFragmentFactory();
-            Fragment fragment = factory.instantiate(getClassLoader(), CrashReport.class.getName());
-            fragment.setEnterTransition(new Slide());
-            FragmentTransaction ft = mFragmentManager.beginTransaction();
-            ft.replace(R.id.contentPanel, fragment, "crashReport");
-            ft.addToBackStack("crashReport");
-            ft.commit();
+            CrashReport dialogFragment = new CrashReport();
+            dialogFragment.show(mFragmentManager, "crashReport");
         } else if (!mBaseMapWarningShown && mapIndexViewModel.nativeIndex.getBaseMapVersion() == 0) {
             BaseMapDownload dialogFragment = new BaseMapDownload();
             dialogFragment.show(mFragmentManager, "baseMapDownload");
