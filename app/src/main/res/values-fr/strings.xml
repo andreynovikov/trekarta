@@ -222,6 +222,8 @@
     <string name="advice_amenity_setup">Vous pouvez spécifier à quel niveau de détail de la carte un type d’équipement spécifique sera affiché ou vous pouvez le cacher complètement de la carte</string>
     <string name="advice_night_mode">Vous pouvez appuyer longuement sur le bouton des cartes pour désactiver le mode nuit</string>
     <string name="advice_select_multiple_maps">Utiliser le double tap pour afficher plusieurs cartes</string>
+    <string name="advice_lock_rotation">Vous pouvez appuyer longuement sur la boussole pour interdire la rotation et l\'inclinaison de la carte.</string>
+
     <string name="place_name">Lieu #%d</string>
     <string name="remove_gauge">Supprimer %s</string>
     <string name="add_gauge">Ajouter %s</string>
