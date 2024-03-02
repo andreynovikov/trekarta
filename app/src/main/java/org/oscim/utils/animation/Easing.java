@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 Izumi Kawashima
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -14,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oscim.utils;
+package org.oscim.utils.animation;
 
 import static org.oscim.utils.FastMath.clamp;
 
@@ -22,6 +23,8 @@ public class Easing {
     public enum Type {
         LINEAR,
         SINE_INOUT,
+        SINE_IN,
+        SINE_OUT,
         EXPO_OUT,
         QUAD_INOUT,
         CUBIC_INOUT,
@@ -47,6 +50,12 @@ public class Easing {
                 break;
             case SINE_INOUT:
                 adv = sineInout(x, t, b, c, d);
+                break;
+            case SINE_IN:
+                adv = sineIn(x, t, b, c, d);
+                break;
+            case SINE_OUT:
+                adv = sineOut(x, t, b, c, d);
                 break;
             case EXPO_OUT:
                 adv = expoOut(x, t, b, c, d);
@@ -76,6 +85,14 @@ public class Easing {
 
     private static float sineInout(float x, float t, float b, float c, float d) {
         return -c / 2 * (float) (Math.cos(Math.PI * t / d) - 1) + b;
+    }
+
+    private static float sineIn(float x, float t, float b, float c, float d) {
+        return -c * (float) Math.cos(t / d * (Math.PI / 2)) + c + b;
+    }
+
+    private static float sineOut(float x, float t, float b, float c, float d) {
+        return c * (float) Math.sin(t / d * (Math.PI / 2)) + b;
     }
 
     private static float expoOut(float x, float t, float b, float c, float d) {
