@@ -1542,9 +1542,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mMapPosition.setY(MercatorProjection.latitudeToY(lat) - dy);
 
             if (mMap.animator().isActive()) {
-                mMapPosition.setTilt(mMap.animator().getEndPosition().tilt);
+                MapPosition endPosition = mMap.animator().getEndPosition();
+                mMapPosition.setTilt(endPosition.tilt);
                 if (!rotate)
-                    mMapPosition.setBearing(mMap.animator().getEndPosition().bearing);
+                    mMapPosition.setBearing(endPosition.bearing);
             }
             mMap.animator().animateTo(mMovementAnimationDuration, mMapPosition);
         }

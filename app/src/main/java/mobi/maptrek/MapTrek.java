@@ -46,6 +46,7 @@ import android.util.LongSparseArray;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.greenrobot.eventbus.EventBus;
+import org.oscim.map.Animator2;
 import org.oscim.theme.styles.TextStyle;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.sqlite.SQLiteTileSource;
@@ -124,9 +125,11 @@ public class MapTrek extends Application {
     static {
         Parameters.CUSTOM_TILE_SIZE = true;
         Parameters.MAP_EVENT_LAYER2 = true;
+        Parameters.ANIMATOR2 = true;
         //Parameters.TEXTURE_ATLAS = true;
         Parameters.POT_TEXTURES = true;
         Parameters.TRANSPARENT_LINES = false;
+        Animator2.FLING_FRICTION_SCALE = 1.8f;
     }
 
     @Override
