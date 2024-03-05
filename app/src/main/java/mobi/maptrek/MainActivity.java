@@ -4190,7 +4190,13 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mTotalDataItems++;
         }
         for (Route route : source.routes) {
-            RouteLayer routeLayer = new RouteLayer(mMap, route);
+            Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_start, route.style.color));
+            MarkerSymbol startSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
+            bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_point, route.style.color));
+            MarkerSymbol pointSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
+            bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_end, route.style.color));
+            MarkerSymbol endSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
+            RouteLayer routeLayer = new RouteLayer(mMap, route, pointSymbol, startSymbol, endSymbol);
             mMap.layers().add(routeLayer, MAP_DATA);
             mTotalDataItems++;
         }

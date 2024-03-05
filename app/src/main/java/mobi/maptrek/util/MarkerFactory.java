@@ -38,6 +38,7 @@ public class MarkerFactory {
     public static Bitmap getMarkerSymbol(Context context, @DrawableRes int drawableRes, int color) {
         VectorDrawable vectorDrawable = (VectorDrawable) context.getDrawable(drawableRes);
         assert vectorDrawable != null;
+        // TODO: use drawable size
         int size = (int) (25 * MapTrek.density);
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);

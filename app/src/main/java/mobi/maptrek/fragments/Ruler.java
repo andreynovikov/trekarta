@@ -33,11 +33,9 @@ import org.oscim.backend.canvas.Color;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 
-import java.util.ArrayList;
 import java.util.Stack;
 
 import mobi.maptrek.MapHolder;
-import mobi.maptrek.MapTrek;
 import mobi.maptrek.R;
 import mobi.maptrek.data.Route;
 import mobi.maptrek.databinding.FragmentRulerBinding;
@@ -53,7 +51,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
 
     private MapPosition mMapPosition;
     private RouteLayer mRouteLayer;
-    private ItemizedLayer<MarkerItem> mPointLayer;
     private RulerViewModel viewModel;
     private FragmentRulerBinding viewBinding;
 
@@ -78,8 +75,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
                 GeoPoint point = mMapPosition.getGeoPoint();
                 viewModel.route.addInstruction(point);
-                MarkerItem marker = new MarkerItem(point, null, null, point);
-                mPointLayer.addItem(marker);
                 viewModel.pointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
@@ -90,8 +85,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
             if (mMapHolder.getMap().getMapPosition(mMapPosition)) {
                 GeoPoint point = mMapPosition.getGeoPoint();
                 viewModel.route.insertInstruction(point);
-                MarkerItem marker = new MarkerItem(point, null, null, point);
-                mPointLayer.addItem(marker);
                 viewModel.pointHistory.push(point);
                 mMapHolder.getMap().updateMap(true);
                 updateTrackMeasurements();
@@ -103,8 +96,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                 mMapHolder.getMap().getMapPosition(mMapPosition);
                 Route.Instruction instruction = viewModel.route.getNearestInstruction(mMapPosition.getGeoPoint());
                 viewModel.route.removeInstruction(instruction);
-                MarkerItem marker = mPointLayer.getByUid(new GeoPoint(instruction.latitudeE6, instruction.longitudeE6));
-                mPointLayer.removeItem(marker);
                 viewModel.pointHistory.remove(instruction);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
@@ -121,8 +112,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
                     return;
                 }
                 viewModel.route.removeInstruction(instruction);
-                MarkerItem marker = mPointLayer.getByUid(new GeoPoint(instruction.latitudeE6, instruction.longitudeE6));
-                mPointLayer.removeItem(marker);
                 mMapHolder.getMap().updateMap(true);
                 mMapPosition = new MapPosition();
                 updateTrackMeasurements();
@@ -144,17 +133,10 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
     public void onStart() {
         super.onStart();
         Context context = requireContext();
-        mRouteLayer = new RouteLayer(mMapHolder.getMap(), Color.RED, 5, viewModel.route);
-        mMapHolder.getMap().layers().add(mRouteLayer);
-        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(context, R.drawable.dot_black, Color.RED));
+        Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(context, R.drawable.route_dot, Color.RED));
         MarkerSymbol symbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
-        ArrayList<MarkerItem> items = new ArrayList<>(viewModel.route.size());
-        for (GeoPoint point : viewModel.route.getCoordinates()) {
-            items.add(new MarkerItem(point, null, null, point));
-        }
-        int strokeColor = getResources().getColor(R.color.colorBackground, context.getTheme());
-        mPointLayer = new ItemizedLayer<>(mMapHolder.getMap(), items, symbol, MapTrek.density, strokeColor, this);
-        mMapHolder.getMap().layers().add(mPointLayer);
+        mRouteLayer = new RouteLayer(mMapHolder.getMap(), viewModel.route, Color.RED, 5, symbol);
+        mMapHolder.getMap().layers().add(mRouteLayer);
     }
 
     @Override
@@ -169,9 +151,6 @@ public class Ruler extends Fragment implements ItemizedLayer.OnItemGestureListen
         mMapHolder.getMap().layers().remove(mRouteLayer);
         mRouteLayer.onDetach();
         mRouteLayer = null;
-        mMapHolder.getMap().layers().remove(mPointLayer);
-        mPointLayer.onDetach();
-        mPointLayer = null;
         mMapHolder.getMap().updateMap(true);
     }
 
