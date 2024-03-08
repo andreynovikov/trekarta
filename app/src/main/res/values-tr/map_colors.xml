@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2024 Andrey Novikov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU Lesser General Public License as published by the Free Software
+  ~ Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License along with
+  ~ this program. If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<resources>
+    <!-- Place colors are copied from mobi.maptrek.data.style.MarkerStyle.DEFAULT_COLORS -->
+    <color name="placeColor01">#444444</color>
+    <color name="placeColor02">#2062af</color>
+    <color name="placeColor03">#58AEB7</color>
+    <color name="placeColor04">#F4B528</color>
+    <color name="placeColor05">#DD3E48</color>
+    <color name="placeColor06">#BF89AE</color>
+    <color name="placeColor07">#5C88BE</color>
+    <color name="placeColor08">#59BC10</color>
+    <color name="placeColor09">#E87034</color>
+    <color name="placeColor10">#f84c44</color>
+    <color name="placeColor11">#8c47fb</color>
+    <color name="placeColor12">#51C1EE</color>
+    <color name="placeColor13">#8cc453</color>
+    <color name="placeColor14">#C2987D</color>
+    <color name="placeColor15">#CE7777</color>
+    <color name="placeColor16">#9086BA</color>
+
+    <color name="trackColor">#e64a19</color>
+    <color name="routeColor">#b15eff</color>
+    <color name="activeRouteColor">#ffff00</color>
+
+    <integer-array name="preferenceColors">
+        <item>@color/placeColor01</item>
+        <item>@color/placeColor02</item>
+        <item>@color/placeColor03</item>
+        <item>@color/placeColor04</item>
+        <item>@color/placeColor05</item>
+        <item>@color/placeColor06</item>
+        <item>@color/placeColor07</item>
+        <item>@color/placeColor08</item>
+        <item>@color/placeColor09</item>
+        <item>@color/placeColor10</item>
+        <item>@color/placeColor11</item>
+        <item>@color/placeColor12</item>
+        <item>@color/placeColor13</item>
+        <item>@color/placeColor14</item>
+        <item>@color/placeColor15</item>
+        <item>@color/placeColor16</item>
+        <item>@color/trackColor</item>
+        <item>@color/routeColor</item>
+        <item>@color/activeRouteColor</item>
+    </integer-array>
+</resources>

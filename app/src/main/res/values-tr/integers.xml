@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="default_speed_unit">0</integer>
+    <integer name="default_distance_unit">0</integer>
+    <integer name="default_elevation_unit">0</integer>
+    <integer name="default_track_width">5</integer>
+    <integer name="default_route_width">8</integer>
+</resources>

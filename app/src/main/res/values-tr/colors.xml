@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 Andrey Novikov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU Lesser General Public License as published by the Free Software
+  ~ Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License along with
+  ~ this program. If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<resources>
+    <!-- http://www.materialui.co/colors -->
+    <color name="colorPrimary">#9e9e9e</color>
+    <color name="colorPrimaryDark">#616161</color>
+    <color name="colorPrimaryLighter">#ababab</color>
+    <color name="colorPrimaryLight">#f5f5f5</color>
+    <color name="colorAccentDarkest">#bf360c</color> <!-- 900 -->
+    <color name="colorAccentDark">#e64a19</color> <!-- 700 -->
+    <color name="colorAccent">#ff5722</color> <!-- 500 -->
+    <color name="colorAccentLight">#ff8a65</color> <!-- 300 -->
+    <color name="colorAccentLightest">#ffccbc</color> <!-- 100 -->
+    <color name="colorBackground">#f5f5f5</color>
+    <color name="colorSplashBackground">#eeeeee</color>
+    <color name="textColorPrimary">#212121</color>
+    <color name="textColorPrimaryDisabled">#80212121</color>
+    <color name="textColorPrimaryInverted">#f5f5f5</color>
+    <color name="textColorSecondary">#727272</color>
+    <color name="textColorSecondaryDisabled">#80727272</color>
+    <color name="textColorTertiary">#929292</color>
+    <color name="textColorTertiaryDisabled">#80929292</color>
+    <color name="accentBackground">#33ff5722</color>
+    <color name="panelBackground">#99ffffff</color>
+    <color name="panelAccentBackground">#aaff5722</color>
+    <color name="panelSolidBackground">@color/colorBackground</color>
+    <color name="panelExtendedBackground">#cc999999</color>
+    <color name="colorNavigationBackground">#000000</color>
+    <color name="colorControlActivated">#e0e0e0</color>
+    <color name="dim">#33000000</color>
+    <color name="red">#cc0000</color>
+    <color name="darkBlue">#000090</color>
+    <color name="explanationBackground">#2196F3</color> <!-- Blue 500 -->
+    <color name="dragHandle">@color/colorPrimaryLighter</color>
+    <color name="informationIconColor">@color/colorPrimaryLighter</color>
+    <color name="actionIconColor">@color/colorPrimaryDark</color>
+    <color name="zoomIconColor">@color/textColorPrimary</color>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="one">%d item selected</item>
+        <item quantity="other">%d items selected</item>
+    </plurals>
+    <plurals name="placesCount">
+        <item quantity="one">%d place</item>
+        <item quantity="other">%d places</item>
+    </plurals>
+    <plurals name="placesDeleted">
+        <item quantity="one">%d place deleted</item>
+        <item quantity="other">%d places deleted</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="one">%d track deleted</item>
+        <item quantity="other">%d tracks deleted</item>
+    </plurals>
+    <plurals name="routesCount">
+        <item quantity="one">%d route</item>
+        <item quantity="other">%d routes</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="one">%d route deleted</item>
+        <item quantity="other">%d routes deleted</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="one">%d point</item>
+        <item quantity="other">%d points</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="one">%d segment</item>
+        <item quantity="other">%d segments</item>
+    </plurals>
+    <plurals name="numberOfLegs">
+        <item quantity="one">%d leg</item>
+        <item quantity="other">%d legs</item>
+    </plurals>
+    <plurals name="loadedAreas">
+        <item quantity="one">%d area active</item>
+        <item quantity="other">%d areas active</item>
+    </plurals>
+    <plurals name="downloading">
+        <item quantity="one">%d downloading</item>
+        <item quantity="other">%d downloading</item>
+    </plurals>
+    <plurals name="remaining">
+        <item quantity="one">%d remaining</item>
+        <item quantity="other">%d remaining</item>
+    </plurals>
+</resources>
