@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -69,7 +69,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private ILocationService mLocationService = null;
     private Location mLastKnownLocation;
-    private boolean mForeground = false;
 
     private boolean mUseTraverse = true;
 
@@ -118,7 +117,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private static final String PREF_NAVIGATION_PROXIMITY = "navigation_proximity";
     private static final String PREF_NAVIGATION_TRAVERSE = "navigation_traverse";
-    public static final String PREF_NAVIGATION_BACKGROUND = "navigation_background";
 
     @Override
     public void onCreate() {
@@ -166,53 +164,40 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 setRoutePoint(start);
         }
         if (action.equals(RESUME_NAVIGATION)) {
+            if (navPoint != null) // we are already navigating
+                return START_NOT_STICKY;
             navCurrentRoutePoint = Configuration.getNavigationRoutePoint();
             navDirection = Configuration.getNavigationRouteDirection();
             navPoint = Configuration.getNavigationPoint();
-            if (navPoint == null)
+            if (navPoint == null) { // we do not know what to resume
+                logger.error("No destination to resume");
                 return START_NOT_STICKY;
+            }
             if (Configuration.getNavigationViaRoute()) {
                 loadRoute();
                 if (navRoute != null) {
                     resumeRoute();
                 } else {
                     logger.error("No route to resume");
-                    stopNavigation();
+                    stopNavigation(true);
                 }
             } else {
                 resumePoint();
             }
         }
         if (action.equals(STOP_NAVIGATION) || action.equals(PAUSE_NAVIGATION)) {
-            mForeground = false;
-            stopForeground(true);
-            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_LOCATIONS));
             if (action.equals(STOP_NAVIGATION))
-                stopNavigation();
+                stopNavigation(false);
+            else
+                updateNavigationState(STATE_PAUSED);
             Configuration.setNavigationViaRoute(navRoute != null);
             Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
             Configuration.setNavigationRouteDirection(navDirection);
             Configuration.setNavigationPoint(navPoint);
-            stopSelf();
-        }
-        if (action.equals(ENABLE_BACKGROUND_NAVIGATION) && navPoint != null) {
-            mForeground = true;
-            if (Build.VERSION.SDK_INT < 34)
-                startForeground(NOTIFICATION_ID, getNotification(true));
-            else
-                startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            editor.putBoolean(PREF_NAVIGATION_BACKGROUND, true);
-            editor.apply();
-            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_BACKGROUND_LOCATIONS));
-        }
-        if (action.equals(DISABLE_BACKGROUND_NAVIGATION)) {
-            mForeground = false;
+            navPoint = null;
             stopForeground(true);
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            editor.putBoolean(PREF_NAVIGATION_BACKGROUND, false);
-            editor.apply();
-            startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_LOCATIONS));
+            disconnect();
+            stopSelf();
         }
         updateNotification();
 
@@ -221,9 +206,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     @Override
     public void onDestroy() {
-        disconnect();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-        logger.debug("Service stopped");
+        logger.warn("Service stopped");
     }
 
     public class LocalBinder extends Binder implements INavigationService {
@@ -364,11 +348,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void connect() {
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
-        bindService(new Intent(this, LocationService.class), locationConnection, BIND_AUTO_CREATE);
+        startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.ENABLE_BACKGROUND_LOCATIONS));
+        if (mLocationService == null)
+            bindService(new Intent(this, LocationService.class), locationConnection, BIND_AUTO_CREATE);
     }
 
     private void disconnect() {
         EventBus.getDefault().unregister(this);
+        startService(new Intent(getApplicationContext(), LocationService.class).setAction(BaseLocationService.DISABLE_BACKGROUND_LOCATIONS));
         if (mLocationService != null) {
             mLocationService.unregisterLocationCallback(locationListener);
             unbindService(locationConnection);
@@ -439,7 +426,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void updateNotification() {
-        if (mForeground) {
+        if (navPoint != null) {
             Notification notification = getNotification(false);
             if (notification != null) {
                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -448,12 +435,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
     }
 
-    public void stopNavigation() {
+    public void stopNavigation(boolean disconnect) {
         logger.debug("Stop navigation");
         updateNavigationState(STATE_STOPPED);
         stopForeground(true);
         clearNavigation();
-        disconnect();
+        if (disconnect)
+            disconnect();
     }
 
     private void clearNavigation() {
@@ -484,24 +472,29 @@ public class NavigationService extends BaseNavigationService implements OnShared
 
     private void navigateTo(final MapObject point) {
         if (navPoint != null)
-            stopNavigation();
+            stopNavigation(false);
         navPoint = point;
 
         resumePoint();
     }
 
     private void resumePoint() {
-        connect();
-
         navProximity = navPoint.proximity > 0 ? navPoint.proximity : DEFAULT_POINT_PROXIMITY;
         updateNavigationState(STATE_STARTED);
         if (mLastKnownLocation != null)
             calculateNavigationStatus();
+
+        if (Build.VERSION.SDK_INT < 34)
+            startForeground(NOTIFICATION_ID, getNotification(true));
+        else
+            //noinspection DataFlowIssue - can not be null because of force = true
+            startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        connect();
     }
 
     private void navigateTo(final Route route, final int direction) {
         if (navPoint != null)
-            stopNavigation();
+            stopNavigation(false);
         navRoute = route;
         navDirection = direction;
         navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.size() - 2;
@@ -511,8 +504,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
     }
 
     private void resumeRoute() {
-        connect();
-
         navPoint = new MapObject(navRoute.get(navCurrentRoutePoint));
         prevPoint = new MapObject(navRoute.get(navCurrentRoutePoint - navDirection));
         navProximity = DEFAULT_ROUTE_PROXIMITY;
@@ -522,6 +513,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
         updateNavigationState(STATE_NEXT_ROUTE_POINT);
         if (mLastKnownLocation != null)
             calculateNavigationStatus();
+
+        if (Build.VERSION.SDK_INT < 34)
+            startForeground(NOTIFICATION_ID, getNotification(true));
+        else
+            //noinspection DataFlowIssue - can not be null because of force = true
+            startForeground(NOTIFICATION_ID, getNotification(true), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        connect();
     }
 
     public void setRoutePoint(int point) {
@@ -723,7 +721,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 nextRoutePoint();
             } else {
                 updateNavigationState(STATE_REACHED);
-                stopNavigation();
+                stopNavigation(true);
             }
             return;
         }

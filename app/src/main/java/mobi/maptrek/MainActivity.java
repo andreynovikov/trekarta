@@ -924,10 +924,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         resultReceiver.setCallback(this);
         mResultReceiver = new WeakReference<>(resultReceiver);
 
-        // Resume navigation
-        if (Configuration.getNavigationPoint() != null)
-            resumeNavigation();
-
         if (Configuration.getConfirmExitEnabled())
             getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
         mBackPressedCallback.setEnabled(mFragmentManager.getBackStackEntryCount() == 0);
@@ -998,11 +994,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 disableTracking();
         });
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(NavigationService.PREF_NAVIGATION_BACKGROUND, false)) {
-            startService(new Intent(getApplicationContext(), NavigationService.class).setAction(BaseNavigationService.DISABLE_BACKGROUND_NAVIGATION));
-            enableNavigation();
-        }
+        // Resume navigation
+        if (Configuration.getNavigationPoint() != null)
+            resumeNavigation();
 
         mMapEventLayer = new MapEventLayer(mMap, this);
         mMap.layers().add(mMapEventLayer, MAP_EVENTS);
@@ -1075,19 +1069,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             if (trackViewModel.trackingState.getValue() != TRACKING_STATE.TRACKING)
                 stopService(new Intent(getApplicationContext(), LocationService.class));
 
-            if (mNavigationService != null) {
-                Intent intent = new Intent(getApplicationContext(), NavigationService.class);
-                if (mNavigationService.isNavigating()) {
-                    if (Configuration.notificationsDenied()) {
-                        stopNavigation();
-                        stopService(intent);
-                    } else {
-                        startService(intent.setAction(BaseNavigationService.ENABLE_BACKGROUND_NAVIGATION));
-                    }
-                } else {
-                    stopService(intent);
-                }
-            }
+            if (mNavigationService != null && !mNavigationService.isNavigating())
+                stopService(new Intent(getApplicationContext(), NavigationService.class));
             disableNavigation();
             disableLocations();
         }
@@ -2312,7 +2295,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void updatePanels() {
         logger.info("updatePanels()");
-        boolean isRouting = mNavigationService != null && mNavigationService.isNavigatingViaRoute();
+        boolean isRouting = mNavigationService != null && mNavigationService.isNavigating() && mNavigationService.isNavigatingViaRoute();
 
         TransitionSet transitionSet = new TransitionSet();
         Transition transition = new Slide(Gravity.START);

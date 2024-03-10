@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -50,16 +50,6 @@ public abstract class BaseNavigationService extends Service
 	 * Service command to stop navigation.
 	 */
 	public static final String STOP_NAVIGATION = "mobi.maptrek.location.stopNavigation";
-	/**
-	 * Service command to start background mode. Service is switched to <em>Foreground</em>
-	 * state to ensure it will not be killed by OS.
-	 */
-	public static final String ENABLE_BACKGROUND_NAVIGATION = "mobi.maptrek.location.enableBackgroundNavigation";
-	/**
-	 * Service command to stop background mode. Service is switched back from <em>Foreground</em>
-	 * state. Navigation is continued.
-	 */
-	public static final String DISABLE_BACKGROUND_NAVIGATION = "mobi.maptrek.location.disableBackgroundNavigation";
 
 	/**
 	 * Map object id as returned by MapTrek. Used with NAVIGATE_TO_OBJECT action. Type: long
@@ -101,6 +91,7 @@ public abstract class BaseNavigationService extends Service
 	public static final int STATE_NEXT_ROUTE_POINT = 2;
 	public static final int STATE_REACHED = 3;
 	public static final int STATE_STOPPED = 4;
+	public static final int STATE_PAUSED = 5;
 
 	public static final int DIRECTION_FORWARD = 1;
 	public static final int DIRECTION_REVERSE = -1;
