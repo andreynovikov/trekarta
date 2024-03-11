@@ -1,0 +1,52 @@
+<b>Trekarta</b> wurde für Wandern, Geocaching, Off-Roading, Radfahren, Segeln und alle anderen Outdooraktivitäten designed. Es benutzt Offline Karten damit keine Internetverbindung nötig ist. Du kannst einfach Orte per GPX oder KML Datei importieren oder diese direkt auf der Karte erstellen und mit anderen teilen. Es zeichnet Deine Reise auf, auch im Hintergrund, damit Du nie verloren gehst und hinterher deinen Streckenverlauf begutachten kannst.
+
+
+Offline-Karten
+
+Trekarta benutzt vektorbasierende Karten von OpenStreetMap welche offline verfügbar sind und stetig von Mitwirkenden erweitert werden. Die Karten beinhalten detaillierte topologische Daten sowie Höhenlinien. Viele Kartenelemente können für eine bessere Übersicht ausgeblendet werden. Trekarta unterstützt auch die Beschattungsdarstellung von Höhenunterschieden. Du kannst eigene Karten im sqlite oder mbtiles format hinzufügen um eigene Bereiche abzudecken. Eigene Karten werden ebenfalls beschattet. Eigene Karten können z.B. mit SAS.Planet erzeugt oder mit MapTiler konvertiert werden.
+
+
+<b>Wandern</b>
+
+Der Wanderungsmodus hebt Pfade und Wege hervor. Er visualisiert den Schwierigkeitsgrad der Wege, Sicht und zeigt auch Wanderwege an. Zusätzlich werden spezielle OSMC Symbole angezeigt welche bei der Orientierung helfen.
+
+
+<b>Radfahren</b>
+
+Der Wanderungsmodus hebt Pfade und Wege hervor. Er visualisiert den Schwierigkeitsgrad der Wege, Sicht und zeigt auch Wanderwege an.
+
+
+<b>Skifahren und Eislaufen</b>
+
+Der Skimodus zeigt eine saubere Winterkarte mit Ski-Aktivitäten: Downhill, Noridsch, Wandern und Tourengehen. Zusätzlich sind Bereiche für Freestlye, Snowboarding, Eislaufen und Schlittenfahren ebenfalls zu sehen.
+
+
+<b>Off-road</b>
+
+Geländestraßen, Feldwege, Winter- und Eisstraßen sind speziell hervorgehoben. Allrad/4WD Straßen haben eine spezielle Markierung. Furten werden auf allen Straßen angezeigt, auch auf Hauptstraßen.
+
+
+<b>Orte</b>
+
+Orte können per GPX oder KML Datei importiert oder direkt auf der Karte erstellt werden. Diese kannst du zum Navigieren nutzen oder sie mit anderen teilen.
+
+
+<b>Pfade</b>
+
+Trekarta zeichnet den Pfad deiner Reise auf. Drücke einfach den Knopf wenn du beginnst und nochmal wenn du fertig bist. Du kannst die App schließen wenn du die Karte nicht benötigst. Die Aufzeichnung läuft im Hintergrund weiter.
+
+
+<b>Plugins</b>
+
+Trekarte kann mit Plugins erweitert werden. Aktuell stehen folgende Plugins zur Verfügung:
+• Standort teilen
+• Dropbox synchronisieren
+
+
+<b>Weitere Infos</b>
+
+Mehr Informationen unter:
+<a href="https://github.com/andreynovikov/trekarta/">https://github.com/andreynovikov/trekarta/</a>
+
+Fragen bitte hier stellen:
+<a href="https://github.com/andreynovikov/trekarta/discussions">https://github.com/andreynovikov/trekarta/discussions</a>
