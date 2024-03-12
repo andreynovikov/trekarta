@@ -20,6 +20,7 @@ platform :android do
   before_all do |lane, options|
     move_files(source: "fastlane/metadata/android/en", destination: "fastlane/metadata/android/en-US")
     move_files(source: "fastlane/metadata/android/ru", destination: "fastlane/metadata/android/ru-RU")
+    move_files(source: "fastlane/metadata/android/de", destination: "fastlane/metadata/android/de-DE")
     copy_files(source: "fastlane/metadata/android/fr", destination: "fastlane/metadata/android/fr-CA")
     move_files(source: "fastlane/metadata/android/fr", destination: "fastlane/metadata/android/fr-FR")
   end
@@ -75,6 +76,7 @@ platform :android do
   after_all do |lane, options|
     move_files(source: "fastlane/metadata/android/en-US", destination: "fastlane/metadata/android/en")
     move_files(source: "fastlane/metadata/android/ru-RU", destination: "fastlane/metadata/android/ru")
+    move_files(source: "fastlane/metadata/android/de-DE", destination: "fastlane/metadata/android/de")
     move_files(source: "fastlane/metadata/android/fr-FR", destination: "fastlane/metadata/android/fr")
     remove_files(path: "fastlane/metadata/android/fr-CA")
   end

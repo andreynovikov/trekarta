@@ -32,7 +32,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.res.ColorStateList;
@@ -88,7 +87,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.WorkManager;
 
@@ -310,9 +308,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
     private static final int MAP_3D = 5;
     private static final int MAP_LABELS = 6;
     private static final int MAP_DATA = 7;
-    private static final int MAP_3D_DATA = 8;
-    private static final int MAP_POSITIONAL = 9;
-    private static final int MAP_OVERLAYS = 10;
+    private static final int MAP_DYNAMIC_DATA = 8;
+    private static final int MAP_3D_DATA = 9;
+    private static final int MAP_POSITIONAL = 10;
+    private static final int MAP_OVERLAYS = 11;
 
     public static final int MAP_POSITION_ANIMATION_DURATION = 500;
     public static final int MAP_BEARING_ANIMATION_DURATION = 300;
@@ -619,6 +618,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         layers.addGroup(MAP_3D);
         layers.addGroup(MAP_LABELS);
         layers.addGroup(MAP_DATA);
+        layers.addGroup(MAP_DYNAMIC_DATA);
         layers.addGroup(MAP_3D_DATA);
         layers.addGroup(MAP_POSITIONAL);
         layers.addGroup(MAP_OVERLAYS);
@@ -953,7 +953,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
             if ((trackingState == TRACKING_STATE.TRACKING || trackingState == TRACKING_STATE.PAUSED) && mCurrentTrackLayer == null) {
                 mCurrentTrackLayer = new CurrentTrackLayer(mMap, getApplicationContext(), this);
-                mMap.layers().add(mCurrentTrackLayer, MAP_DATA);
+                mMap.layers().add(mCurrentTrackLayer, MAP_DYNAMIC_DATA);
                 mMap.updateMap(true);
                 if (trackingState == TRACKING_STATE.TRACKING) {
                     if (HelperUtils.needsTargetedAdvice(Configuration.ADVICE_RECORD_TRACK))
@@ -2434,7 +2434,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mNavigationLayer.setDestination(destination);
                 Point point = mLocationOverlay.getPosition();
                 mNavigationLayer.setPosition(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
-                mMap.layers().add(mNavigationLayer, MAP_POSITIONAL);
+                mMap.layers().add(mNavigationLayer, MAP_DYNAMIC_DATA);
             } else {
                 GeoPoint current = mNavigationLayer.getDestination();
                 if (!destination.equals(current)) {
