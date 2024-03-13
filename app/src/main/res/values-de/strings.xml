@@ -325,7 +325,6 @@
     <string name="pref_line_width_title">Linienstärke</string>
     <string name="pref_active_route_color_title">Farbe der aktiven Strecke</string>
     <string name="pref_active_line_width_title">Farbe der aktiven Linie</string>
-
     <string name="kind_place">Örtlichkeiten</string>
     <string name="kind_road">Straßen</string>
     <string name="kind_building">Gebäude</string>
