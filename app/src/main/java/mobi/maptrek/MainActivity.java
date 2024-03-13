@@ -138,7 +138,6 @@ import org.oscim.event.GestureListener;
 import org.oscim.event.MotionEvent;
 import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
-import org.oscim.layers.PathLayer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
@@ -545,18 +544,9 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.license.setClickable(true);
         mViews.license.setMovementMethod(LinkMovementMethod.getInstance());
 
-        mViews.navigationArrow.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getCurrentPoint();
-            setMapLocation(mapObject.coordinates);
-        });
-        mViews.navigationArrow.setOnLongClickListener(v -> {
-            showNavigationMenu();
-            return true;
-        });
-        mViews.navigationSign.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getCurrentPoint();
-            setMapLocation(mapObject.coordinates);
-        });
+        mViews.navigationArrow.setOnClickListener(v -> setMapLocation(mNavigationService.getCurrentPoint()));
+        mViews.navigationArrow.setOnLongClickListener(v -> showNavigationMenu());
+        mViews.navigationSign.setOnClickListener(v -> setMapLocation(mNavigationService.getCurrentPoint()));
 
         mViews.extendPanel.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
@@ -710,6 +700,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         placeViewModel = new ViewModelProvider(this).get(PlaceViewModel.class);
         trackViewModel = new ViewModelProvider(this).get(TrackViewModel.class);
         routeViewModel = new ViewModelProvider(this).get(RouteViewModel.class);
+        routeViewModel.isRouting.observe(this, routing -> {
+            for (Layer layer : mMap.layers())
+                if (layer instanceof RouteLayer && layer != mNavigationLayer)
+                    layer.setEnabled(!routing);
+        });
         amenityViewModel = new ViewModelProvider(this).get(AmenityViewModel.class);
         // Observe amenity state
         amenityViewModel.getAmenity().observe(this, amenity -> {
@@ -770,10 +765,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         });
         mViews.mapDownloadButton.setOnClickListener(v -> onMapDownloadClicked());
         mViews.compass.setOnLongClickListener(this::onCompassLongClicked);
-        mViews.navigationSign.setOnClickListener(v -> {
-            MapObject mapObject = mNavigationService.getCurrentPoint();
-            setMapLocation(mapObject.coordinates);
-        });
+        mViews.navigationSign.setOnClickListener(v -> setMapLocation(mNavigationService.getCurrentPoint()));
 
         // Resume state
         int state = Configuration.getLocationState();
@@ -1580,7 +1572,6 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 updateLocationDrawable();
             }
         }
-        updateNavigationUI();
     }
 
     private void onLocationClicked() {
@@ -1921,13 +1912,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             mLocationService = (ILocationService) binder;
             mLocationService.registerLocationCallback(MainActivity.this);
             mLocationService.setProgressListener(mProgressHandler);
-            updateNavigationUI();
         }
 
         public void onServiceDisconnected(ComponentName className) {
             logger.debug("onServiceDisconnected: LocationService");
             mLocationService = null;
-            updateNavigationUI();
         }
     };
 
@@ -1942,7 +1931,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             unbindService(mNavigationConnection);
             mIsNavigationBound = false;
         }
-        updateNavigationUI();
+        updateNavigationUI(true);
         updatePanels();
     }
 
@@ -1950,7 +1939,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         public void onServiceConnected(ComponentName className, IBinder binder) {
             logger.warn("onServiceConnected: NavigationService");
             mNavigationService = (INavigationService) binder;
-            updateNavigationUI();
+            updateNavigationUI(false);
             updatePanels();
             updateNavigationGauges(true);
         }
@@ -1958,7 +1947,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         public void onServiceDisconnected(ComponentName className) {
             logger.warn("onServiceDisconnected: NavigationService");
             mNavigationService = null;
-            updateNavigationUI();
+            updateNavigationUI(false);
             updatePanels();
         }
     };
@@ -2049,8 +2038,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             return false;
         if (!mNavigationService.isNavigating())
             return false;
-        MapObject mapObject = mNavigationService.getCurrentPoint();
-        return mapObject.coordinates.equals(coordinates);
+        return coordinates.equals(mNavigationService.getCurrentPoint());
     }
 
     public void navigateVia(@NonNull Route route) {
@@ -2224,7 +2212,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.navigationArrow.setRotation(turn);
     }
 
-    private void showNavigationMenu() {
+    private boolean showNavigationMenu() {
         PopupMenu popup = new PopupMenu(this, mViews.mapButtonHolder);
         popup.inflate(R.menu.context_menu_navigation);
         Menu popupMenu = popup.getMenu();
@@ -2234,6 +2222,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             popupMenu.removeItem(R.id.actionPrevRoutePoint);
         popup.setOnMenuItemClickListener(this);
         popup.show();
+        return true;
     }
 
     private void updateLocationDrawable() {
@@ -2295,13 +2284,11 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
 
     private void updatePanels() {
         logger.info("updatePanels()");
-        boolean isRouting = mNavigationService != null && mNavigationService.isNavigating() && mNavigationService.isNavigatingViaRoute();
-
         TransitionSet transitionSet = new TransitionSet();
         Transition transition = new Slide(Gravity.START);
         transition.addTarget(mViews.gaugePanel);
         transitionSet.addTransition(transition);
-        if (isRouting) {
+        if (Boolean.TRUE.equals(routeViewModel.isRouting.getValue())) {
             transition = new Slide(Gravity.TOP);
             transition.addTarget(mViews.navigationPanel);
             transitionSet.addTransition(transition);
@@ -2353,7 +2340,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 break;
             case NORTH:
             case TRACK:
-                if (isRouting) {
+                if (Boolean.TRUE.equals(routeViewModel.isRouting.getValue())) {
                     mViews.navigationPanel.setVisibility(View.VISIBLE);
                     getWindow().setStatusBarColor(getColor(R.color.colorNavigationBackground));
                 } else if (mViews.navigationPanel.getVisibility() == View.VISIBLE) {
@@ -2412,35 +2399,34 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         mViews.gaugePanel.setValue(Gauge.TYPE_ETE, mNavigationService.getEte());
     }
 
-    private void updateNavigationUI() {
-        logger.debug("updateNavigationUI()");
-        boolean enabled = mLocationService != null && mLocationService.getStatus() == BaseLocationService.GPS_OK &&
-                mNavigationService != null && mNavigationService.isNavigating();
-        if (mViews.gaugePanel.getNavigationMode() == enabled)
+    private void updateNavigationUI(boolean force) {
+        logger.debug("updateNavigationUI({})", force);
+        boolean isNavigating = mNavigationService != null && mNavigationService.isNavigating();
+
+        if (!force && mViews.gaugePanel.getNavigationMode() == isNavigating)
             return; // nothing changed
 
-        mViews.gaugePanel.setNavigationMode(enabled);
-        if (enabled) {
+        mViews.gaugePanel.setNavigationMode(isNavigating);
+        if (isNavigating) {
             if (mViews.navigationArrow.getVisibility() == View.GONE) {
                 mViews.navigationArrow.setAlpha(0f);
                 mViews.navigationArrow.setVisibility(View.VISIBLE);
                 mViews.navigationArrow.animate().alpha(1f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(null);
             }
-            GeoPoint destination = mNavigationService.getCurrentPoint().coordinates;
             if (mNavigationLayer == null) {
                 int color = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_COLOR, getColor(R.color.activeRouteColor));
                 int width = Configuration.loadInt(Configuration.PREF_ACTIVE_ROUTE_WIDTH, getResources().getInteger(R.integer.default_route_width));
-                mNavigationLayer = new NavigationLayer(mMap, color, width);
-                mNavigationLayer.setDestination(destination);
-                Point point = mLocationOverlay.getPosition();
-                mNavigationLayer.setPosition(MercatorProjection.toLatitude(point.y), MercatorProjection.toLongitude(point.x));
+                Bitmap bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_point, color));
+                MarkerSymbol pointSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
+                bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_end, color));
+                MarkerSymbol endSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
+                mNavigationLayer = new NavigationLayer(mMap, color, width, pointSymbol, null, endSymbol);
                 mMap.layers().add(mNavigationLayer, MAP_DYNAMIC_DATA);
-            } else {
-                GeoPoint current = mNavigationLayer.getDestination();
-                if (!destination.equals(current)) {
-                    mNavigationLayer.setDestination(destination);
-                }
             }
+            Location location = mapViewModel.currentLocation.getValue();
+            if (location != null && !"unknown".equals(location.getProvider()))
+                mNavigationLayer.setPosition(location.getLatitude(), location.getLongitude());
+            mNavigationLayer.setRemainingPoints(mNavigationService.getRemainingPoints(), mNavigationService.getPrevRoutePoint());
         } else {
             if (mViews.navigationArrow.getAlpha() == 1f) {
                 mViews.navigationArrow.animate().alpha(0f).setDuration(MAP_POSITION_ANIMATION_DURATION).setListener(new AnimatorListenerAdapter() {
@@ -2455,6 +2441,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 mNavigationLayer = null;
             }
         }
+        routeViewModel.isRouting.setValue(isNavigating && mNavigationService.isNavigatingViaRoute());
     }
 
     @Override
@@ -4114,17 +4101,21 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 }
             }
             if (BaseNavigationService.BROADCAST_NAVIGATION_STATE.equals(action)) {
-                int state = intent.getIntExtra("state", -1);
+                int state = intent.getIntExtra(BaseNavigationService.EXTRA_STATE, -1);
                 if (state == BaseNavigationService.STATE_STARTED) {
                     enableNavigation();
-                    updateNavigationUI();
+                    updateNavigationUI(true);
+                    updateNavigationGauges(true);
                     if (mLocationState != LocationState.DISABLED)
                         askForPermission(PERMISSIONS_REQUEST_NOTIFICATION);
                 }
                 if (state == BaseNavigationService.STATE_NEXT_ROUTE_POINT) {
                     updateNavigationGauges(true);
                     if (mNavigationLayer != null && mNavigationService != null)
-                        mNavigationLayer.setDestination(mNavigationService.getCurrentPoint().coordinates);
+                        mNavigationLayer.setRemainingPoints(mNavigationService.getRemainingPoints(), mNavigationService.getPrevRoutePoint());
+                }
+                if (state == BaseNavigationService.STATE_STOPPED) {
+                    disableNavigation();
                 }
                 updatePanels();
             }
@@ -4132,8 +4123,8 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 updateNavigationGauges(false);
                 if (mNavigationService != null) {
                     adjustNavigationArrow(mNavigationService.getTurn());
-                    if (intent.getBooleanExtra("moving", false) && mNavigationLayer != null)
-                        mNavigationLayer.setDestination(mNavigationService.getCurrentPoint().coordinates);
+                    if (intent.getBooleanExtra(BaseNavigationService.EXTRA_MOVING_TARGET, false) && mNavigationLayer != null)
+                        mNavigationLayer.setRemainingPoints(mNavigationService.getRemainingPoints(), null);
                 }
             }
         }
@@ -4180,6 +4171,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             bitmap = new AndroidBitmap(MarkerFactory.getMarkerSymbol(this, R.drawable.route_end, route.style.color));
             MarkerSymbol endSymbol = new MarkerSymbol(bitmap, MarkerItem.HotspotPlace.CENTER);
             RouteLayer routeLayer = new RouteLayer(mMap, route, pointSymbol, startSymbol, endSymbol);
+            routeLayer.setEnabled(Boolean.FALSE.equals(routeViewModel.isRouting.getValue()));
             mMap.layers().add(routeLayer, MAP_DATA);
             mTotalDataItems++;
         }
@@ -4239,7 +4231,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             for (Layer layer : mMap.layers()) {
                 if (layer instanceof TrackLayer || layer instanceof MapObjectLayer
-                        || layer instanceof MarkerLayer || layer instanceof PathLayer)
+                        || layer instanceof MarkerLayer || layer instanceof RouteLayer)
                     layer.setEnabled(false);
             }
             mMap.updateMap(true);
@@ -4265,8 +4257,10 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             for (Layer layer : mMap.layers()) {
                 if (layer instanceof TrackLayer || layer instanceof MapObjectLayer
-                        || layer instanceof MarkerLayer || layer instanceof PathLayer)
+                        || layer instanceof MarkerLayer)
                     layer.setEnabled(true);
+                if (layer instanceof RouteLayer)
+                    layer.setEnabled(layer == mNavigationLayer || Boolean.FALSE.equals(routeViewModel.isRouting.getValue()));
             }
             mMap.updateMap(true);
             return true;
@@ -4563,7 +4557,7 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
             case Configuration.PREF_ROUTE_WIDTH: {
                 int width = Configuration.loadInt(Configuration.PREF_ROUTE_WIDTH, getResources().getInteger(R.integer.default_route_width));
                 for (Layer layer : mMap.layers()) {
-                    if (layer instanceof RouteLayer) {
+                    if (layer instanceof RouteLayer && layer != mNavigationLayer) {
                         ((RouteLayer) layer).setWidth(width);
                     }
                 }

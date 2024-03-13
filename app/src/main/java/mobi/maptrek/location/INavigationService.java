@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,17 +17,20 @@
 package mobi.maptrek.location;
 
 import org.oscim.core.BoundingBox;
+import org.oscim.core.GeoPoint;
 
-import mobi.maptrek.data.MapObject;
+import java.util.List;
 
 public interface INavigationService {
     boolean isNavigating();
     boolean isNavigatingViaRoute();
-    MapObject getCurrentPoint();
+    GeoPoint getCurrentPoint();
+    List<GeoPoint> getRemainingPoints();
     boolean hasNextRoutePoint();
     boolean hasPrevRoutePoint();
     void nextRoutePoint();
     void prevRoutePoint();
+    GeoPoint getPrevRoutePoint();
     BoundingBox getRouteBoundingBox();
     String getInstructionText();
     int getSign();

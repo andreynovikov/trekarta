@@ -16,7 +16,6 @@
 
 package mobi.maptrek.viewmodels;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -24,4 +23,5 @@ import mobi.maptrek.data.Route;
 
 public class RouteViewModel extends ViewModel {
     public final MutableLiveData<Route> selectedRoute = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> isRouting = new MutableLiveData<>(false);
 }

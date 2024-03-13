@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import mobi.maptrek.Configuration;
 import mobi.maptrek.MainActivity;
@@ -190,10 +192,6 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 stopNavigation(false);
             else
                 updateNavigationState(STATE_PAUSED);
-            Configuration.setNavigationViaRoute(navRoute != null);
-            Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
-            Configuration.setNavigationRouteDirection(navDirection);
-            Configuration.setNavigationPoint(navPoint);
             navPoint = null;
             stopForeground(true);
             disconnect();
@@ -222,8 +220,22 @@ public class NavigationService extends BaseNavigationService implements OnShared
         }
 
         @Override
-        public MapObject getCurrentPoint() {
-            return navPoint;
+        public GeoPoint getCurrentPoint() {
+            return navPoint.coordinates;
+        }
+
+        @Override
+        public List<GeoPoint> getRemainingPoints() {
+            List<GeoPoint> points = new ArrayList<>(1);
+            if (isNavigatingViaRoute()) {
+                int first = navCurrentRoutePoint;
+                int last = navDirection == DIRECTION_REVERSE ? -1 : navRoute.size();
+                for (int i = first; i != last; i += navDirection)
+                    points.add(navRoute.get(i));
+            } else {
+                points.add(navPoint.coordinates);
+            }
+            return points;
         }
 
         @Override
@@ -250,6 +262,14 @@ public class NavigationService extends BaseNavigationService implements OnShared
                 return;
 
             NavigationService.this.prevRoutePoint();
+        }
+
+        @Override
+        public GeoPoint getPrevRoutePoint() {
+            if (prevPoint != null)
+               return prevPoint.coordinates;
+            else
+                return null;
         }
 
         @Override
@@ -468,6 +488,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
         avgVMG[2] = 0.0;
 
         Configuration.setNavigationPoint(null);
+        Configuration.setNavigationViaRoute(false);
     }
 
     private void navigateTo(final MapObject point) {
@@ -475,6 +496,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
             stopNavigation(false);
         navPoint = point;
 
+        Configuration.setNavigationPoint(navPoint);
+        Configuration.setNavigationViaRoute(false);
         resumePoint();
     }
 
@@ -499,6 +522,9 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navDirection = direction;
         navCurrentRoutePoint = navDirection == 1 ? 1 : navRoute.size() - 2;
 
+        Configuration.setNavigationViaRoute(true);
+        Configuration.setNavigationRouteDirection(navDirection);
+        Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
         saveRoute();
         resumeRoute();
     }
@@ -509,8 +535,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         navProximity = DEFAULT_ROUTE_PROXIMITY;
         navRouteDistance = -1;
         navCourse = prevPoint.coordinates.bearingTo(navPoint.coordinates);
+        Configuration.setNavigationPoint(navPoint);
         updateNavigationState(STATE_STARTED);
-        updateNavigationState(STATE_NEXT_ROUTE_POINT);
         if (mLastKnownLocation != null)
             calculateNavigationStatus();
 
@@ -525,6 +551,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
     public void setRoutePoint(int point) {
         navCurrentRoutePoint = point;
         navPoint = new MapObject(navRoute.get(navCurrentRoutePoint));
+        Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
+        Configuration.setNavigationPoint(navPoint);
         int prev = navCurrentRoutePoint - navDirection;
         if (prev >= 0 && prev < navRoute.size())
             prevPoint = new MapObject(navRoute.get(prev));
@@ -554,6 +582,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avgVMG[1] < 0) avgVMG[1] = 0.0;
         if (avgVMG[2] < 0) avgVMG[2] = 0.0;
         navETE = Integer.MAX_VALUE;
+        Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
+        Configuration.setNavigationPoint(navPoint);
         calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_ROUTE_POINT);
     }
@@ -572,6 +602,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
         if (avgVMG[1] < 0) avgVMG[1] = 0.0;
         if (avgVMG[2] < 0) avgVMG[2] = 0.0;
         navETE = Integer.MAX_VALUE;
+        Configuration.setNavigationRoutePoint(navCurrentRoutePoint);
+        Configuration.setNavigationPoint(navPoint);
         calculateNavigationStatus();
         updateNavigationState(STATE_NEXT_ROUTE_POINT);
     }
@@ -759,13 +791,13 @@ public class NavigationService extends BaseNavigationService implements OnShared
     private void updateNavigationState(final int state) {
         if (state != STATE_STOPPED && state != STATE_REACHED)
             updateNotification();
-        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATE).putExtra("state", state).setPackage(getPackageName()));
+        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATE).putExtra(EXTRA_STATE, state).setPackage(getPackageName()));
         logger.trace("State dispatched");
     }
 
     private void updateNavigationStatus() {
         updateNotification();
-        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS).putExtra("moving", navPoint.moving).setPackage(getPackageName()));
+        sendBroadcast(new Intent(BROADCAST_NAVIGATION_STATUS).putExtra(EXTRA_MOVING_TARGET, navPoint.moving).setPackage(getPackageName()));
         logger.trace("Status dispatched");
     }
 

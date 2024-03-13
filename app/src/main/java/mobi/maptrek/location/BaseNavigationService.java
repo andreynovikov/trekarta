@@ -83,6 +83,14 @@ public abstract class BaseNavigationService extends Service
 	 * Route start point index. Zero based, optional. Type: int
 	 */
 	public static final String EXTRA_ROUTE_START = "start";
+	/**
+	 * Navigation state. Type: int
+	 */
+	public static final String EXTRA_STATE = "state";
+	/**
+	 * Target moving state. Type: boolean
+	 */
+	public static final String EXTRA_MOVING_TARGET = "moving";
 
 	public static final String BROADCAST_NAVIGATION_STATUS = "mobi.maptrek.navigationStatusChanged";
 	public static final String BROADCAST_NAVIGATION_STATE = "mobi.maptrek.navigationStateChanged";

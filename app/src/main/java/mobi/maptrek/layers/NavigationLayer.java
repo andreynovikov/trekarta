@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,51 +16,43 @@
 
 package mobi.maptrek.layers;
 
-import org.oscim.backend.canvas.Color;
-import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.core.GeoPoint;
-import org.oscim.layers.PathLayer;
 import org.oscim.map.Map;
-import org.oscim.theme.styles.LineStyle;
 
-/**
- * This class draws a great circle navigation line.
- */
-public class NavigationLayer extends PathLayer {
-    private GeoPoint mDestination;
+import java.util.List;
+
+import mobi.maptrek.data.Route;
+import mobi.maptrek.layers.marker.MarkerSymbol;
+
+public class NavigationLayer extends RouteLayer {
     private GeoPoint mPosition;
 
-    public NavigationLayer(Map map, int lineColor, float lineWidth) {
-        super(map, Color.setA(lineColor, 0x66), lineWidth);
+    public NavigationLayer(Map map, int lineColor, float lineWidth, MarkerSymbol pointSymbol, MarkerSymbol startSymbol, MarkerSymbol endSymbol) {
+        super(map, new Route(), pointSymbol, startSymbol, endSymbol);
+        LINE_ALPHA = 0x66;
+        setLineStyle(lineColor, lineWidth);
     }
 
-    public void setLineStyle(int lineColor, float lineWidth) {
-        super.setStyle(new LineStyle(Color.setA(lineColor, 0x66), lineWidth, Cap.BUTT));
-    }
-
-    public void setDestination(GeoPoint destination) {
-        synchronized (mPoints) {
-            mDestination = destination;
-            clearPath();
-            if (mPosition != null) {
-                addPoint(mPosition);
-                addGreatCircle(mPosition, mDestination);
-                addPoint(mDestination);
-            }
-        }
-    }
-
-    public GeoPoint getDestination() {
-        return mDestination;
+    public void setRemainingPoints(List<GeoPoint> points, GeoPoint previous) {
+        //addGreatCircle(mPosition, mDestination);
+        if (mPosition != null)
+            points.add(0, mPosition);
+        else if (previous != null)
+            points.add(0, previous);
+        setPoints(points);
     }
 
     public void setPosition(double lat, double lon) {
+        boolean hadPosition = mPosition != null;
+        mPosition = new GeoPoint(lat, lon);
+        if (mPoints.isEmpty())
+            return;
         synchronized (mPoints) {
-            mPosition = new GeoPoint(lat, lon);
-            clearPath();
-            addPoint(mPosition);
-            addGreatCircle(mPosition, mDestination);
-            addPoint(mDestination);
+            if (hadPosition || mPoints.size() > 1)
+                mPoints.set(0, mPosition);
+            else
+                mPoints.add(0, mPosition);
+            updatePoints();
         }
     }
 }

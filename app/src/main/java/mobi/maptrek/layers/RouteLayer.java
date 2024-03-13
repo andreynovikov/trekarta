@@ -68,6 +68,7 @@ import mobi.maptrek.layers.marker.MarkerSymbol;
 
 public class RouteLayer extends Layer implements Route.UpdateListener {
     private static final int STROKE_MIN_ZOOM = 12;
+    protected int LINE_ALPHA = 0x80;
 
     private final Route mRoute;
     private Track mTrack;
@@ -78,7 +79,7 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
     private boolean mEnableSymbols = true;
 
     protected final ArrayList<GeoPoint> mPoints;
-    protected boolean mUpdatePoints;
+    private boolean mUpdatePoints;
 
     /**
      * Line style
@@ -108,7 +109,7 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
     public RouteLayer(Map map, Route route, int lineColor, float lineWidth, MarkerSymbol pointSymbol, MarkerSymbol startSymbol, MarkerSymbol endSymbol) {
         super(map);
 
-        mLineStyle = new LineStyle(Color.setA(lineColor, 0x80), lineWidth, Paint.Cap.ROUND);
+        mLineStyle = new LineStyle(Color.setA(lineColor, LINE_ALPHA), lineWidth, Paint.Cap.ROUND);
         mPointSymbol = pointSymbol;
         mStartSymbol = startSymbol;
         mEndSymbol = endSymbol;
@@ -123,7 +124,11 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
     }
 
     public void setWidth(int width) {
-        mLineStyle = new LineStyle(mLineStyle.color, width, mLineStyle.cap);
+        setLineStyle(mLineStyle.color, width);
+    }
+
+    public void setLineStyle(int lineColor, float lineWidth) {
+        mLineStyle = new LineStyle(Color.setA(lineColor, LINE_ALPHA), lineWidth, mLineStyle.cap);
         update();
     }
 
@@ -135,7 +140,7 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
         updatePoints();
     }
 
-    private void updatePoints() {
+    protected void updatePoints() {
         mWorker.submit(10);
         mUpdatePoints = true;
     }
@@ -300,8 +305,9 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
                 flip = 1;
             }
 
-            if (mEnableSymbols && GeometryUtils.pointInPoly(x, y, task.box, 8, 0))
-                addPointSymbol(task.symbolBucket, x, y, mStartSymbol);
+            MarkerSymbol symbol = size == 1 ? mEndSymbol : mStartSymbol;
+            if (mEnableSymbols && symbol != null && GeometryUtils.pointInPoly(x, y, task.box, 8, 0))
+                addPointSymbol(task.symbolBucket, x, y, symbol);
 
             mClipper.clipStart(x, y);
 
@@ -326,8 +332,9 @@ public class RouteLayer extends Layer implements Route.UpdateListener {
                     flipDirection = 1;
                 }
 
-                if (mEnableSymbols && GeometryUtils.pointInPoly(x, y, task.box, 8, 0))
-                    addPointSymbol(task.symbolBucket, x, y, j == size * 2 - 2 ? mEndSymbol : mPointSymbol);
+                symbol = j == size * 2 - 2 ? mEndSymbol : mPointSymbol;
+                if (mEnableSymbols && symbol != null && GeometryUtils.pointInPoly(x, y, task.box, 8, 0))
+                    addPointSymbol(task.symbolBucket, x, y, symbol);
 
                 if (flip != flipDirection) {
                     flip = flipDirection;
