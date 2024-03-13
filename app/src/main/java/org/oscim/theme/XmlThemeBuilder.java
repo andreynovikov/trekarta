@@ -962,7 +962,7 @@ public class XmlThemeBuilder extends DefaultHandler {
             else if ("map-background".equals(name)) {
                 mapBackground = parseColor(value);
                 if (mThemeCallback != null)
-                    mapBackground = mThemeCallback.getColor(mapBackground);
+                    mapBackground = mThemeCallback.getColor(null, mapBackground);
 
             } else if ("base-stroke-width".equals(name))
                 baseStrokeWidth = Float.parseFloat(value);
