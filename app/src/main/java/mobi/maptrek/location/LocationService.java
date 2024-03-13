@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -299,11 +299,17 @@ public class LocationService extends BaseLocationService implements LocationList
 
     private void connect() {
         logger.debug("connect()");
+        mLastLocationMillis = -SKIP_INITIAL_LOCATIONS;
+        mContinuous = false;
+        mJustStarted = true;
+        if (enableMockLocations && BuildConfig.DEBUG) {
+            mMockLocationTicker = 0;
+            mMockCallback.post(mSendMockLocation);
+            mLocationsEnabled = true;
+            return;
+        }
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationManager != null) {
-            mLastLocationMillis = -SKIP_INITIAL_LOCATIONS;
-            mContinuous = false;
-            mJustStarted = true;
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (Build.VERSION.SDK_INT >= 24) {
                     mLocationManager.registerGnssStatusCallback(mGnssStatusCallback);
@@ -321,11 +327,6 @@ public class LocationService extends BaseLocationService implements LocationList
             } else {
                 logger.error("Missing ACCESS_FINE_LOCATION permission");
             }
-        }
-        if (enableMockLocations && BuildConfig.DEBUG) {
-            mMockLocationTicker = 0;
-            mMockCallback.post(mSendMockLocation);
-            mLocationsEnabled = true;
         }
     }
 
