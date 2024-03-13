@@ -8,10 +8,10 @@
                     <m k="tunnel" v="~|no">
                         <!-- TODO Background line is put here because of line style ordering error in legend view -->
                         <m zoom-max="16">
-                            <line stroke="#ffffff" width="0.5" />
+                            <line stroke="#ffffff" width="0.3" />
                         </m>
                         <m zoom-min="17">
-                            <line fix="true" stroke="#ffffff" width="5.2" />
+                            <line fix="true" stroke="#ffffff" width="3" />
                         </m>
                     </m>
                 </m>
@@ -22,86 +22,86 @@
                         <m zoom-max="16">
                             <m k="trail_visibility" v="~|excellent|good">
                                 <m k="bicycle" v="designated">
-                                    <line stroke="color:cycleway" width="0.4" />
+                                    <line stroke="color:cycleway" width="0.2" />
                                 </m>
                                 <m k="bicycle" v="yes">
-                                    <line stroke="color:cycleway" stipple="10" stipple-stroke="#aab28f67" width="0.4" />
+                                    <line stroke="color:cycleway" stipple="5" stipple-stroke="#aab28f67" width="0.2" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line stroke="#aab28f67" width="0.4" />
+                                    <line stroke="#aab28f67" width="0.2" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="intermediate">
                                 <m k="bicycle" v="designated|yes">
-                                    <line stipple="16" stipple-ratio="0.6" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.6" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line stipple="16" stipple-ratio="0.6" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.6" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="bad|horrible">
                                 <m k="bicycle" v="designated|yes">
-                                    <line stipple="16" stipple-ratio="0.4" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.4" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line stipple="16" stipple-ratio="0.4" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.4" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="no">
                                 <m k="bicycle" v="designated|yes">
-                                    <line stipple="16" stipple-ratio="0.2" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.2" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line stipple="16" stipple-ratio="0.2" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="0.4" />
+                                    <line stipple="8" stipple-ratio="0.2" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="0.2" />
                                 </m>
                             </m>
                         </m>
                         <m zoom-min="17">
                             <m k="trail_visibility" v="~|excellent|good">
                                 <m k="bicycle" v="designated">
-                                    <line fix="true" stroke="color:cycleway" width="4" />
+                                    <line fix="true" stroke="color:cycleway" width="2.3" />
                                 </m>
                                 <m k="bicycle" v="yes">
-                                    <line fix="true" stroke="color:cycleway" stipple="10" stipple-stroke="#aab28f67" width="4" />
+                                    <line fix="true" stroke="color:cycleway" stipple="5" stipple-stroke="#aab28f67" width="2.3" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line fix="true" stroke="#aab28f67" width="4" />
+                                    <line fix="true" stroke="#aab28f67" width="2.3" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="intermediate">
                                 <m k="bicycle" v="designated|yes">
-                                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.6" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line fix="true" stipple="16" stipple-ratio="0.6" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.6" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="bad|horrible">
                                 <m k="bicycle" v="designated|yes">
-                                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.4" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line fix="true" stipple="16" stipple-ratio="0.4" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.4" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                             </m>
                             <m k="trail_visibility" v="no">
                                 <m k="bicycle" v="designated|yes">
-                                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="color:cycleway"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.2" stipple-stroke="color:cycleway"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                                 <m k="bicycle" v="~">
-                                    <line fix="true" stipple="16" stipple-ratio="0.2" stipple-stroke="#aab28f67"
-                                        stroke="#00000000" width="4" />
+                                    <line fix="true" stipple="8" stipple-ratio="0.2" stipple-stroke="#aab28f67"
+                                        stroke="#00000000" width="2.3" />
                                 </m>
                             </m>
                         </m>

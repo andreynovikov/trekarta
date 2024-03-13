@@ -158,7 +158,7 @@
 
     <xi:include href="inc_poi_colors.xml" />
 
-    <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-line cap="butt" fix="true" id="fix" width="0.6" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
 
@@ -171,14 +171,14 @@
     <style-line id="water" stroke="color:water" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-line fix="false" id="river" use="water" />
-    <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#587f9d"
-        stroke="#00ffffff" width="2.0" />
-    <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
+    <style-line cap="butt" fix="true" id="ferry" stipple="10" stipple-stroke="#587f9d"
+        stroke="#00ffffff" width="1.1" />
+    <style-line id="ferry-overview" stipple="5" stipple-width="0.5" use="ferry" width="0.3" />
     <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
     <style-text id="mountain" style="italic" fill="color:cliff-darker" size="16" stroke="#ffffff" stroke-width="1.6" />
-    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-line id="trees" stroke="color:trees" width="0.5" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#b3d095" id="wood" />
     <style-area fade="12" fill="#c9dc91" id="greens" /> <!-- meadow|garden -->
     <style-area fade="12" fill="#d3dcb9" id="grass" mesh="true" />
@@ -190,9 +190,9 @@
     <style-area fade="12" fill="#ab9d6f" id="mud" />
 
     <!-- Landuse -->
-    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="2.5" />
-    <style-line cap="butt" fix="true" id="marina" stroke="#60576ddf" width="2.5" />
-    <style-line cap="butt" fix="true" id="park" stroke="#d9e9c9" width="1.0" />
+    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="1.4" />
+    <style-line cap="butt" fix="true" id="marina" stroke="#60576ddf" width="1.4" />
+    <style-line cap="butt" fix="true" id="park" stroke="#d9e9c9" width="0.6" />
     <style-area fade="11" fill="#d9e9c9" id="park" mesh="true" />
     <style-area fade="12" fill="#c9dc91" id="garden" />
     <style-area fade="6" fill="#e8e7e3" id="residential" />
@@ -238,28 +238,28 @@
     <!-- Protected areas -->
     <style-area fade="6" fill="#200c8416" id="nature_reserve" />
     <style-area fill="#100c8416" id="nature_reserve_light" />
-    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#400c8416" width="2.5" />
+    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#400c8416" width="1.4" />
     <style-area fade="6" fill="#2082643a" id="aboriginal_lands" />
     <style-area fill="#1082643a" id="aboriginal_lands_light" />
-    <style-line cap="butt" fix="true" id="aboriginal_lands" stroke="#4082643a" width="2.5" />
+    <style-line cap="butt" fix="true" id="aboriginal_lands" stroke="#4082643a" width="1.4" />
     <style-area fill="#20ff2222" id="military" />
-    <style-line cap="butt" fix="true" id="military" stroke="#40ff2222" width="2.5" />
+    <style-line cap="butt" fix="true" id="military" stroke="#40ff2222" width="1.4" />
 
     <!-- Barriers -->
-    <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
+    <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="0.6" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="1.1" />
 
     <!-- Buildings -->
     <style-line id="building" stroke="#eeb2a9a3" use="fix" />
     <style-area fill="#d5d0cd" id="building" stroke="#b2a9a3" stroke-width="1.0" />
     <style-text caption="true" fill="#606060" id="house-number" k="addr:housenumber" priority="100"
         size="12" stroke="#ffffff" stroke-width="2.0" />
-    <style-line id="interpolation" stipple="8" stipple-stroke="#c3a889" stroke="color:transparent" use="fix" />
+    <style-line id="interpolation" stipple="4" stipple-stroke="#c3a889" stroke="color:transparent" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-text style="bold" fill="#383868" id="house-name" k="name" size="10" use="house-number" />
 
     <!-- Aeroways -->
-    <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
+    <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.0" />
     <style-area fill="#c8ccbe" id="aeroway:runway" mesh="true" />
 
     <!--
@@ -373,7 +373,7 @@
         </m>
         <m cat="urban" v="pitch">
             <area fill="#f4f4de" />
-            <line cap="butt" fix="true" stroke="#d9d9a3" width="1.0" />
+            <line cap="butt" fix="true" stroke="#d9d9a3" width="0.6" />
         </m>
         <m cat="nature" v="meadow">
             <area use="greens" />
@@ -488,7 +488,7 @@
             </m>
         </m>
         <m cat="aeroways" closed="no" v="taxiway">
-            <line use="aeroway:runway" width="-1.0" />
+            <line use="aeroway:runway" width="-0.6" />
             <m zoom-min="15">
                 <text fill="#444444" k="ref" size="10" stroke="#eeeeee" stroke-width="2.0" />
             </m>
@@ -634,54 +634,54 @@
     <m cat="topo" k="man_made">
         <m v="pipeline">
             <m zoom-min="14" zoom-max="16">
-                <line stroke="#909090" fix="true" width="1.5" />
-                <line stipple="25" fix="true" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="4.0" />
+                <line stroke="#909090" fix="true" width="0.9" />
+                <line stipple="13" fix="true" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="2.3" />
             </m>
             <m zoom-min="17" zoom-max="17">
                 <m><!-- Required for line style ordering error in legend view -->
-                    <line stipple="30" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.3" />
+                    <line stipple="15" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.17" />
                 </m>
                 <m select="first">
                     <m k="substance" v="water">
-                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.15" />
+                        <line stipple="15" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="oil">
-                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.15" />
+                        <line stipple="15" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="gas">
-                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.15" />
+                        <line stipple="15" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="hot_water">
-                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.15" />
+                        <line stipple="15" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="~">
-                        <line stipple="30" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.15" />
+                        <line stipple="15" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.09" />
                     </m>
                 </m>
                 <m><!-- Required for line style ordering error in legend view -->
-                    <line stipple="30" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.55" />
+                    <line stipple="15" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.31" />
                 </m>
             </m>
             <m zoom-min="18">
-                <line stipple="50" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.25" />
+                <line stipple="25" stipple-ratio="0.9" stipple-stroke="#909090" stroke="color:transparent" width="0.14" />
                 <m select="first">
                     <m k="substance" v="water">
-                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.15" />
+                        <line stipple="25" stipple-ratio="0.9" stipple-stroke="color:water" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="oil">
-                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.15" />
+                        <line stipple="25" stipple-ratio="0.9" stipple-stroke="#d7bd93" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="gas">
-                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.15" />
+                        <line stipple="25" stipple-ratio="0.9" stipple-stroke="#d1d1d1" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="hot_water">
-                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.15" />
+                        <line stipple="25" stipple-ratio="0.9" stipple-stroke="#ffffff" stroke="color:transparent" width="0.09" />
                     </m>
                     <m k="substance" v="~">
-                        <line stipple="50" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.15" />
+                        <line stipple="25" stipple-ratio="0.9" stipple-stroke="#aaaaaa" stroke="color:transparent" width="0.09" />
                     </m>
                 </m>
-                <line stipple="50" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.5" />
+                <line stipple="25" stipple-ratio="0.95" stipple-stroke="color:transparent" stroke="#909090" width="0.3" />
             </m>
         </m>
     </m>
@@ -715,7 +715,7 @@
     <!-- Topological (orientational) objects above ground -->
     <m k="power">
         <m cat="topo" e="way" v="line" zoom-min="14">
-            <line cap="butt" fix="true" stroke="#6e6e6e" width="1.5" />
+            <line cap="butt" fix="true" stroke="#6e6e6e" width="0.9" />
         </m>
         <m cat="topo" v="tower" zoom-min="16">
             <symbol src="assets:symbols/power/tower.svg" />

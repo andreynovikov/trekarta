@@ -2,7 +2,7 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme">
     <m cat="aerialways" k="aerialway">
         <m closed="no" e="way">
-            <line cap="butt" fix="true" stroke="#202020" width="1.8" />
+            <line cap="butt" fix="true" stroke="#202020" width="1.0" />
             <m v="cable_car|gondola">
                 <line fix="true" src="assets:symbols/dot.svg" repeat-start="10" repeat-gap="10"
                     symbol-color="#202020" symbol-height="12" />

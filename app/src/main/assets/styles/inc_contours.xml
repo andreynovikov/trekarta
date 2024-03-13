@@ -4,10 +4,10 @@
     <m cat="contours" k="contour">
         <m v="elevation_major">
             <m zoom-max="14">
-                <line fade="11" fix="true" stroke="#808E8072" width="0.3" />
+                <line fade="11" fix="true" stroke="#808E8072" width="0.2" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#808E8072" width="0.8" />
+                <line fix="true" stroke="#808E8072" width="0.5" />
             </m>
             <m zoom-min="14">
                 <text style="bold" fill="#6E5A46" k="ele" priority="-100" size="10" stroke="#E5FFFFFF"
@@ -16,10 +16,10 @@
         </m>
         <m v="elevation_medium">
             <m zoom-max="14">
-                <line fade="14" fix="true" stroke="#808E8072" width="0.15" />
+                <line fade="14" fix="true" stroke="#808E8072" width="0.1" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#8E8072" width="0.3" />
+                <line fix="true" stroke="#8E8072" width="0.2" />
             </m>
             <m zoom-min="16">
                 <text fill="#6E5A46" k="ele" priority="-200" size="9" stroke="#E5FFFFFF"
@@ -27,7 +27,7 @@
             </m>
         </m>
         <m v="elevation_minor" zoom-min="16">
-            <line fade="16" fix="true" stroke="#808E8072" width="0.15" />
+            <line fade="16" fix="true" stroke="#808E8072" width="0.1" />
         </m>
     </m>
 </rendertheme>

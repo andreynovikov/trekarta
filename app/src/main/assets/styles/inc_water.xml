@@ -20,7 +20,7 @@
         </m>
         <m cat="topo" v="dam">
             <area fade="12" fill="color:dam-fill" />
-            <line fade="12" stroke="color:dam-stroke" use="fix" width="0.5" />
+            <line fade="12" stroke="color:dam-stroke" use="fix" width="0.3" />
         </m>
     </m>
     <m closed="no" e="way">
@@ -34,29 +34,29 @@
                 <!-- match tunnel-tag that are not 'no' -->
                 <m k="tunnel" v="-|no">
                     <m cat="underground-water" v="river|canal">
-                        <line fade="10" stipple="8" stipple-ratio="0.4"
-                            stipple-stroke="color:land" use="river" width="0.3" />
-                        <line fade="10" stroke="color:land" use="river" width="0.2" />
+                        <line fade="10" stipple="3" stipple-ratio="0.4"
+                            stipple-stroke="color:land" use="river" width="0.17" />
+                        <line fade="10" stroke="color:land" use="river" width="0.11" />
                     </m>
                     <m cat="underground-water" v="stream">
-                        <line fade="13" stipple="8" stipple-ratio="0.4"
-                            stipple-stroke="color:land" use="river" width="-0.7" />
-                        <line fade="13" stroke="color:land" use="river" width="-0.8" />
+                        <line fade="13" stipple="3" stipple-ratio="0.4"
+                            stipple-stroke="color:land" use="river" width="-0.4" />
+                        <line fade="13" stroke="color:land" use="river" width="-0.5" />
                     </m>
                     <m cat="underground-water" v="ditch|drain">
-                        <line stipple="6" use="water" stipple-stroke="color:land" width="1.8" />
-                        <line use="water" stroke="color:land" width="1.2" />
+                        <line stipple="2" use="water" stipple-stroke="color:land" width="1.0" />
+                        <line use="water" stroke="color:land" width="0.7" />
                     </m>
                 </m>
             </m>
             <m k="tunnel" v="~|false">
                 <m cat="water" v="river|canal">
                     <m k="intermittent" v="yes">
-                        <line fade="10" stipple="15" stipple-ratio="0.3"
-                            stipple-stroke="color:transparent" use="river" width="0.3" />
+                        <line fade="10" stipple="5" stipple-ratio="0.3"
+                            stipple-stroke="color:transparent" use="river" width="0.17" />
                     </m>
                     <m k="intermittent" v="~|no">
-                        <line fade="10" use="river" width="0.3" />
+                        <line fade="10" use="river" width="0.17" />
                     </m>
                     <m zoom-min="15">
                         <symbol use="oneway-water" />
@@ -65,11 +65,11 @@
                 </m>
                 <m cat="insignificant-water" v="stream">
                     <m k="intermittent" v="yes">
-                        <line fade="13" stipple="10" stipple-ratio="0.3"
-                            stipple-stroke="color:transparent" use="river" width="-0.7" />
+                        <line fade="13" stipple="3" stipple-ratio="0.3"
+                            stipple-stroke="color:transparent" use="river" width="-0.4" />
                     </m>
                     <m k="intermittent" v="~|no">
-                        <line fade="13" use="river" width="-0.7" />
+                        <line fade="13" use="river" width="-0.4" />
                     </m>
                     <m zoom-min="17">
                         <symbol use="oneway-water" symbol-percent="40" />
@@ -78,22 +78,22 @@
                 </m>
                 <m cat="insignificant-water" v="ditch|drain">
                     <m k="intermittent" v="yes">
-                        <line fade="14" stipple="10" stipple-ratio="0.3"
-                            stipple-stroke="color:transparent" use="water" width="0.3" />
+                        <line fade="14" stipple="3" stipple-ratio="0.3"
+                            stipple-stroke="color:transparent" use="water" width="0.17" />
                     </m>
                     <m k="intermittent" v="~|no">
-                        <line fade="14" use="water" width="0.3" />
+                        <line fade="14" use="water" width="0.17" />
                     </m>
                 </m>
                 <m cat="topo" v="dam">
-                    <line fade="12" stroke="color:dam-stroke" use="fix" width="0.5" />
+                    <line fade="12" stroke="color:dam-stroke" use="fix" width="0.3" />
                 </m>
                 <m cat="topo" v="lock_gate">
-                    <line fade="12" stroke="#aaaaaa" use="fix" width="0.7" />
+                    <line fade="12" stroke="#aaaaaa" use="fix" width="0.4" />
                 </m>
                 <m cat="topo" v="weir">
-                    <line fade="13" stipple="3" stipple-stroke="color:transparent" stroke="#aaaaaa"
-                        use="fix" width="0.7" />
+                    <line fade="13" stipple="1" stipple-stroke="color:transparent" stroke="#aaaaaa"
+                        use="fix" width="0.4" />
                 </m>
             </m>
         </m>

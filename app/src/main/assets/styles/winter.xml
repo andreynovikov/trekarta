@@ -103,7 +103,7 @@
 
     <xi:include href="inc_poi_colors.xml" />
 
-    <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-line cap="butt" fix="true" id="fix" width="0.6" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" k="name" size="16" stroke="#aaffffff"
         stroke-width="2.5" />
 
@@ -122,11 +122,11 @@
     <style-area fade="-1" fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-line id="trees" stroke="color:trees" width="0.5" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#e4ecec" id="wood" />
 
     <!-- Landuse -->
-    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="2.5" />
+    <style-line cap="butt" fix="true" id="tourism" stroke="#60660033" width="1.4" />
 
     <style-area fade="6" fill="#efefef" id="residential" />
 
@@ -147,48 +147,48 @@
     <style-text id="place_capital" symbol="assets:symbols/star.svg" use="place" />
 
     <!-- Roads -->
-    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.7" />
-    <style-line cap="butt" id="4wd_only" stipple="15" stipple-stroke="#c3a889" stroke="#00ffffff"
-        width="0.7" />
+    <style-line cap="round" id="ford" stroke="#83a3ba" width="0.4" />
+    <style-line cap="butt" id="4wd_only" stipple="5" stipple-stroke="#c3a889" stroke="#00ffffff"
+        width="0.4" />
 
-    <style-line id="trunk" stroke="#ecda97" width="1.3" />
-    <style-line cap="butt" id="trunk-link" stroke="#ecda97" width="1.0" />
-    <style-line id="highway" stroke="#dacfa9" width="1.2" />
-    <style-line id="primary" stroke="#dacfa9" width="1.0" />
-    <style-line id="secondary" use="primary" width="-0.1" />
-    <style-line id="unclassified" stroke="#f0f0f0" width="0.8" />
-    <style-line id="tertiary" use="unclassified" width="0.1" />
-    <style-line id="road-construction" stipple="10" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
-        width="0.7" />
-    <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.1" />
-    <style-line id="highway-service" stroke="color:highway-service" width="0.4" />
-    <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.2" />
+    <style-line id="trunk" stroke="#ecda97" width="0.75" />
+    <style-line cap="butt" id="trunk-link" stroke="#ecda97" width="0.6" />
+    <style-line id="highway" stroke="#dacfa9" width="0.7" />
+    <style-line id="primary" stroke="#dacfa9" width="0.6" />
+    <style-line id="secondary" use="primary" width="-0.06" />
+    <style-line id="unclassified" stroke="#f0f0f0" width="0.5" />
+    <style-line id="tertiary" use="unclassified" width="0.06" />
+    <style-line id="road-construction" stipple="3" stipple-stroke="#e0e0e0" stroke="#f0f0f0"
+        width="0.4" />
+    <style-line id="residential" stroke="#f0f0f0" use="unclassified" width="-0.06" />
+    <style-line id="highway-service" stroke="color:highway-service" width="0.23" />
+    <style-line id="pedestrian" stroke="#e0e0e0" use="residential" width="-0.11" />
     <style-area fill="#d0d0d0" id="pedestrian" />
-    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="2.2" />
-    <style-line cap="butt" fix="true" id="highway:track:good" stipple="10" stipple-stroke="#8f8f8f"
-        stroke="#00ffffff" width="1.8" />
+    <style-line cap="butt" fix="true" id="highway:track:back" stroke="#88ffffff" width="1.3" />
+    <style-line cap="butt" fix="true" id="highway:track:good" stipple="3" stipple-stroke="#8f8f8f"
+        stroke="#00ffffff" width="1.0" />
     <style-line id="highway:track:very_bad" use="highway:track:good" />
     <style-line id="highway:track:horrible" use="highway:track:good" />
     <style-line id="highway:track:very_horrible" use="highway:track:good" />
     <style-line id="highway:track:impassable" use="highway:track:good" />
-    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="1.4" />
-    <style-line cap="butt" fix="true" id="footway" stipple="4" stipple-stroke="#999999"
-        stroke="#00ffffff" width="1.5" />
-    <style-line id="footway:z16" stipple="6" stipple-ratio="0.7" use="footway" />
+    <style-line cap="butt" fix="true" id="footway:back" stroke="#88ffffff" width="0.8" />
+    <style-line cap="butt" fix="true" id="footway" stipple="1" stipple-stroke="#999999"
+        stroke="#00ffffff" width="0.9" />
+    <style-line id="footway:z16" stipple="2" stipple-ratio="0.7" use="footway" />
 
-    <style-line id="path" stipple="4" use="footway" width="0.1" />
-    <style-line id="bridleway" use="footway" width="0.2" />
-    <style-line cap="butt" fix="true" id="steps" stipple="4" stipple-ratio="0.35"
-        stipple-stroke="#999999" stroke="#aaffffff" width="3.5" />
+    <style-line id="path" stipple="1" use="footway" width="0.06" />
+    <style-line id="bridleway" use="footway" width="0.11" />
+    <style-line cap="butt" fix="true" id="steps" stipple="1" stipple-ratio="0.35"
+        stipple-stroke="#999999" stroke="#aaffffff" width="2.0" />
 
-    <style-line id="trunk-tunnel" stroke="color:trunk-tunnel" use="trunk" width="0.1" />
-    <style-line id="trunk-link-tunnel" stroke="color:trunk-tunnel" use="trunk-link" width="0.1" />
-    <style-line id="highway-tunnel" stroke="color:highway-tunnel" use="highway" width="0.1" />
-    <style-line id="primary-tunnel" stroke="color:primary-tunnel" use="primary" width="0.1" />
-    <style-line id="secondary-tunnel" stroke="color:primary-tunnel" use="secondary" width="0.1" />
-    <style-line id="unclassified-tunnel" stroke="color:tunnel" use="unclassified" width="0.1" />
-    <style-line id="tertiary-tunnel" stroke="color:tunnel" use="tertiary" width="0.1" />
-    <style-line id="residential-tunnel" stroke="color:tunnel" use="residential" width="0.1" />
+    <style-line id="trunk-tunnel" stroke="color:trunk-tunnel" use="trunk" width="0.06" />
+    <style-line id="trunk-link-tunnel" stroke="color:trunk-tunnel" use="trunk-link" width="0.06" />
+    <style-line id="highway-tunnel" stroke="color:highway-tunnel" use="highway" width="0.06" />
+    <style-line id="primary-tunnel" stroke="color:primary-tunnel" use="primary" width="0.06" />
+    <style-line id="secondary-tunnel" stroke="color:primary-tunnel" use="secondary" width="0.06" />
+    <style-line id="unclassified-tunnel" stroke="color:tunnel" use="unclassified" width="0.06" />
+    <style-line id="tertiary-tunnel" stroke="color:tunnel" use="tertiary" width="0.06" />
+    <style-line id="residential-tunnel" stroke="color:tunnel" use="residential" width="0.06" />
     <style-line id="highway-service-tunnel" stroke="color:highway-service-tunnel" use="highway-service" />
     <style-line id="pedestrian-tunnel" stroke="color:pedestrian-tunnel" use="pedestrian" />
 
@@ -200,8 +200,8 @@
         rotate="true" src="assets:symbols/oneway.svg" symbol-percent="60" />
 
     <!-- Barriers -->
-    <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
+    <style-line cap="butt" fix="true" id="fence" stroke="#888888" width="0.6" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="1.1" />
 
     <!-- Buildings -->
     <style-line id="building" stroke="#aaaaaa" use="fix" />
@@ -210,7 +210,7 @@
         size="12" stroke="#ffffff" stroke-width="2.0" />
     <style-text style="bold" fill="#808080" id="house-name" k="name" size="10" use="house-number" />
 
-    <style-line id="interpolation" stipple="8" stipple-stroke="#aaaaaa" stroke="color:transparent" use="fix" />
+    <style-line id="interpolation" stipple="3" stipple-stroke="#aaaaaa" stroke="color:transparent" use="fix" />
 
     <!-- Pistes -->
     <style-text fill="#666666" id="piste-name" k="name" priority="30000" size="14" stroke="#eeeeee"
@@ -290,11 +290,11 @@
     <xi:include href="inc_railways.xml" />
 
     <m cat="skiing" k="piste:type">
-        <outline-layer fix="true" id="difficulty-novice" stroke="#99ff99" width="2.5" />
-        <outline-layer fix="true" id="difficulty-easy" stroke="#aaaaff" width="2.5" />
-        <outline-layer fix="true" id="difficulty-interm" stroke="#ffaaaa" width="2.5" />
-        <outline-layer fix="true" id="difficulty-advanced" stroke="#888888" width="2.5" />
-        <outline-layer fix="true" id="difficulty-expert" stroke="#f66f00" width="2.5" />
+        <outline-layer fix="true" id="difficulty-novice" stroke="#99ff99" width="1.4" />
+        <outline-layer fix="true" id="difficulty-easy" stroke="#aaaaff" width="1.4" />
+        <outline-layer fix="true" id="difficulty-interm" stroke="#ffaaaa" width="1.4" />
+        <outline-layer fix="true" id="difficulty-advanced" stroke="#888888" width="1.4" />
+        <outline-layer fix="true" id="difficulty-expert" stroke="#f66f00" width="1.4" />
 
         <m k="piste:type" v="downhill">
             <m closed="yes">
@@ -489,12 +489,12 @@
 
         <m k="piste:type" v="ski_jump">
             <m zoom-max="14">
-                <line fix="true" stroke="#ffffff" width="2.8" />
-                <line fix="true" stroke="#655abe" width="2" />
+                <line fix="true" stroke="#ffffff" width="1.6" />
+                <line fix="true" stroke="#655abe" width="1.1" />
             </m>
             <m zoom-min="15">
-                <line fix="true" stroke="#ffffff" width="4" />
-                <line fix="true" stroke="#655abe" width="3" />
+                <line fix="true" stroke="#ffffff" width="2.3" />
+                <line fix="true" stroke="#655abe" width="1.7" />
             </m>
 
             <m select="first" zoom-min="14">
@@ -530,12 +530,12 @@
             </m>
             <m closed="no">
                 <m zoom-max="14">
-                    <line fix="true" stroke="#ffffff" width="2.8" />
-                    <line fix="true" stroke="#655abe" width="2" />
+                    <line fix="true" stroke="#ffffff" width="1.6" />
+                    <line fix="true" stroke="#655abe" width="1.1" />
                 </m>
                 <m zoom-min="15">
-                    <line fix="true" stroke="#ffffff" width="4" />
-                    <line fix="true" stroke="#66655abe" width="3" />
+                    <line fix="true" stroke="#ffffff" width="2.3" />
+                    <line fix="true" stroke="#66655abe" width="1.7" />
                 </m>
                 <m select="first" zoom-min="14">
                     <m k="ref">
@@ -550,52 +550,52 @@
 
         <m k="piste:type" v="sled">
             <m zoom-max="14">
-                <line fix="true" stroke="#ffffff" width="2.8" />
-                <line fix="true" stroke="#a1e620" width="2" />
+                <line fix="true" stroke="#ffffff" width="1.6" />
+                <line fix="true" stroke="#a1e620" width="1.1" />
             </m>
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:difficulty" v="novice">
-                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="easy">
-                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="intermediate">
-                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
                         <line fix="true" outline="difficulty-advanced" stroke="#00ffffff"
-                            width="6" />
+                            width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="expert">
-                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="3.4" />
                     </m>
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#ffffff" width="4" />
+                        <line fix="true" stroke="#ffffff" width="2.3" />
                     </m>
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#a1e620"
-                            width="3" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#a1e620"
+                            width="1.7" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#a1e620"
-                            width="3" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#a1e620"
+                            width="1.7" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#a1e620" width="3" />
+                        <line fix="true" stroke="#a1e620" width="1.7" />
                     </m>
                 </m>
                 <text fill="#639010" use="piste-name" /> <!-- Darken 20% -->
@@ -623,52 +623,52 @@
         </m>
         <m k="piste:type" v="nordic">
             <m zoom-max="14">
-                <line fix="true" stroke="#ffffff" width="2.8" />
-                <line fix="true" stroke="#44b2a3" width="2" />
+                <line fix="true" stroke="#ffffff" width="1.6" />
+                <line fix="true" stroke="#44b2a3" width="1.1" />
             </m>
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:difficulty" v="novice">
-                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-novice" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="easy">
-                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-easy" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="intermediate">
-                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-interm" stroke="#00ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
                         <line fix="true" outline="difficulty-advanced" stroke="#00ffffff"
-                            width="6" />
+                            width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="expert">
-                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="6" />
+                        <line fix="true" outline="difficulty-expert" stroke="#00ffffff" width="3.4" />
                     </m>
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#ffffff" width="4" />
+                        <line fix="true" stroke="#ffffff" width="2.3" />
                     </m>
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#44b2a3"
-                            width="3" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#44b2a3"
+                            width="1.7" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#44b2a3"
-                            width="3" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#44b2a3"
+                            width="1.7" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#44b2a3" width="3" />
+                        <line fix="true" stroke="#44b2a3" width="1.7" />
                     </m>
                 </m>
                 <text fill="#28685f" use="piste-name" /> <!-- Darken 20% -->
@@ -712,31 +712,31 @@
             is absent). A piste:grooming=backcountry groomed piste requires snow shoes.
             -->
             <m zoom-max="14">
-                <line fix="true" stroke="#ffffff" width="2.8" />
-                <line fix="true" stroke="#ff9faf" width="2" />
+                <line fix="true" stroke="#ffffff" width="1.6" />
+                <line fix="true" stroke="#ff9faf" width="1.1" />
             </m>
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:difficulty" v="novice">
-                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-novice" stroke="#ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="easy">
-                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-easy" stroke="#ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="intermediate">
-                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-interm" stroke="#ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="advanced">
-                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-advanced" stroke="#ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="expert">
-                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="6" />
+                        <line fix="true" outline="difficulty-expert" stroke="#ffffff" width="3.4" />
                     </m>
                     <m k="piste:difficulty" v="~">
-                        <line fix="true" stroke="#ffffff" width="4" />
+                        <line fix="true" stroke="#ffffff" width="2.3" />
                     </m>
                 </m>
-                <line fix="true" stroke="#ff9faf" width="3" />
+                <line fix="true" stroke="#ff9faf" width="1.7" />
                 <line fix="true" src="assets:symbols/winter/hike_path.svg" symbol-height="12" />
                 <m k="piste:grooming" v="backcountry">
                     <line fix="true" src="assets:symbols/winter/hike_path_backcountry.svg"
@@ -766,34 +766,34 @@
         </m>
         <m k="piste:type" v="sleigh">
             <m zoom-max="14">
-                <line fix="true" stroke="#ffffff" width="2.8" />
-                <line fix="true" stroke="#8f54d8" width="2" />
+                <line fix="true" stroke="#ffffff" width="1.6" />
+                <line fix="true" stroke="#8f54d8" width="1.1" />
             </m>
             <m zoom-min="15">
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#ffffff"
-                            width="4" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#ffffff"
+                            width="2.3" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#ffffff" width="4" />
+                        <line fix="true" stroke="#ffffff" width="2.3" />
                     </m>
                 </m>
                 <m select="first">
                     <m k="piste:grooming" v="backcountry">
-                        <line fix="true" stipple="25" stipple-stroke="#00000000" stroke="#8f54d8"
-                            width="3" />
+                        <line fix="true" stipple="8" stipple-stroke="#00000000" stroke="#8f54d8"
+                            width="1.7" />
                     </m>
                     <m k="piste:grooming" v="scooter">
-                        <line fix="true" stipple="15" stipple-stroke="#00000000" stroke="#8f54d8"
-                            width="3" />
+                        <line fix="true" stipple="5" stipple-stroke="#00000000" stroke="#8f54d8"
+                            width="1.7" />
                     </m>
                     <m>
-                        <line fix="true" stroke="#8f54d8" width="3" />
+                        <line fix="true" stroke="#8f54d8" width="1.7" />
                     </m>
                 </m>
                 <text fill="#5c25a1" use="piste-name" /> <!-- Darken 20% -->
@@ -838,20 +838,20 @@
                     <area fill="#aae2f3f6" />
                 </m>
                 <m zoom-max="14">
-                    <line fix="true" stroke="#aa6fc4d0" width="2" />
+                    <line fix="true" stroke="#aa6fc4d0" width="1.1" />
                 </m>
                 <m zoom-min="15">
-                    <line fix="true" stroke="#aa6fc4d0" width="3" />
+                    <line fix="true" stroke="#aa6fc4d0" width="1.7" />
                 </m>
             </m>
             <m closed="no">
                 <m zoom-max="14">
-                    <line fix="true" stroke="#ffffff" width="2.8" />
-                    <line fix="true" stroke="#6fc4d0" width="2" />
+                    <line fix="true" stroke="#ffffff" width="1.6" />
+                    <line fix="true" stroke="#6fc4d0" width="1.1" />
                 </m>
                 <m zoom-min="15">
-                    <line fix="true" stroke="#ffffff" width="4" />
-                    <line fix="true" stroke="#6fc4d0" width="3" />
+                    <line fix="true" stroke="#ffffff" width="2.3" />
+                    <line fix="true" stroke="#6fc4d0" width="1.7" />
                 </m>
             </m>
             <m zoom-min="15">
@@ -866,73 +866,73 @@
     </m>
     <m cat="skiing" k="piste:border">
         <m v="snow_park">
-            <line fix="true" stroke="#2586f0" width="2.5" />
+            <line fix="true" stroke="#2586f0" width="1.4" />
         </m>
         <m v="playground">
-            <line fix="true" stroke="#a6e05b" width="2.5" />
+            <line fix="true" stroke="#a6e05b" width="1.4" />
         </m>
         <m v="downhill">
             <m k="piste:difficulty" select="first" v="novice">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#77e98d"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#77e98d"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#77e98d" width="2.5" />
+                    <line fix="true" stroke="#77e98d" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="easy">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#999afb"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#999afb"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#999afb" width="2.5" />
+                    <line fix="true" stroke="#999afb" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="intermediate">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fb9a99"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#fb9a99"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#fb9a99" width="2.5" />
+                    <line fix="true" stroke="#fb9a99" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="advanced">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#888888"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#888888"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#888888" width="2.5" />
+                    <line fix="true" stroke="#888888" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="expert">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fdbf6f"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#fdbf6f"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#fdbf6f" width="2.5" />
+                    <line fix="true" stroke="#fdbf6f" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="freeride">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#fbe704"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#fbe704"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#fbe704" width="2.5" />
+                    <line fix="true" stroke="#fbe704" width="1.4" />
                 </m>
             </m>
             <m k="piste:difficulty" select="first" v="~|unknown">
                 <m k="piste:grooming" v="backcountry">
-                    <line fix="true" stipple="10" stipple-stroke="#00000000" stroke="#aaaaaa"
-                        width="2.5" />
+                    <line fix="true" stipple="3" stipple-stroke="#00000000" stroke="#aaaaaa"
+                        width="1.4" />
                 </m>
                 <m>
-                    <line fix="true" stroke="#aaaaaa" width="2.5" />
+                    <line fix="true" stroke="#aaaaaa" width="1.4" />
                 </m>
             </m>
         </m>
@@ -953,34 +953,34 @@
             <m k="piste:type">
                 <m v="sled">
                     <m zoom-max="14">
-                        <line fix="true" stroke="#a1e620" width="2" />
+                        <line fix="true" stroke="#a1e620" width="1.1" />
                     </m>
                     <m zoom-min="15">
-                        <line fix="true" stroke="#a1e620" width="3" />
+                        <line fix="true" stroke="#a1e620" width="1.7" />
                     </m>
                 </m>
                 <m v="nordic">
                     <m zoom-max="14">
-                        <line fix="true" stroke="#44b2a3" width="2" />
+                        <line fix="true" stroke="#44b2a3" width="1.1" />
                     </m>
                     <m zoom-min="15">
-                        <line fix="true" stroke="#44b2a3" width="3" />
+                        <line fix="true" stroke="#44b2a3" width="1.7" />
                     </m>
                 </m>
                 <m v="hike">
                     <m zoom-max="14">
-                        <line fix="true" stroke="#ff9faf" width="2" />
+                        <line fix="true" stroke="#ff9faf" width="1.1" />
                     </m>
                     <m zoom-min="15">
-                        <line fix="true" stroke="#ff9faf" width="3" />
+                        <line fix="true" stroke="#ff9faf" width="1.7" />
                     </m>
                 </m>
                 <m v="sleigh">
                     <m zoom-max="14">
-                        <line fix="true" stroke="#8f54d8" width="2" />
+                        <line fix="true" stroke="#8f54d8" width="1.1" />
                     </m>
                     <m zoom-min="15">
-                        <line fix="true" stroke="#8f54d8" width="3" />
+                        <line fix="true" stroke="#8f54d8" width="1.7" />
                     </m>
                 </m>
             </m>

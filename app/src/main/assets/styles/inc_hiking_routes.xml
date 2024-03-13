@@ -4,44 +4,44 @@
     <m cat="hiking" e="way" k="route" v="hiking">
         <m zoom-max="13">
             <m k="network" v="lwn">
-                <line stroke="#ffff00" width="3" />
+                <line stroke="#ffff00" width="1.7" />
             </m>
             <m k="network" v="rwn">
-                <line stroke="#00ff00" width="3" />
+                <line stroke="#00ff00" width="1.7" />
             </m>
             <m k="network" v="nwn">
-                <line stroke="#ff0000" width="3" />
+                <line stroke="#ff0000" width="1.7" />
             </m>
             <m k="network" v="iwn">
-                <line stroke="#0000ff" width="3" />
+                <line stroke="#0000ff" width="1.7" />
             </m>
         </m>
         <m zoom-min="14" zoom-max="15">
             <m k="network" v="iwn">
-                <line stroke="#220000ff" width="2" />
+                <line stroke="#220000ff" width="1.1" />
             </m>
             <m k="network" v="nwn">
-                <line stroke="#22ff0000" width="2" />
+                <line stroke="#22ff0000" width="1.1" />
             </m>
             <m k="network" v="rwn">
-                <line stroke="#2200ff00" width="2" />
+                <line stroke="#2200ff00" width="1.1" />
             </m>
             <m k="network" v="lwn">
-                <line stroke="#22ffff00" width="2" />
+                <line stroke="#22ffff00" width="1.1" />
             </m>
         </m>
         <m zoom-min="16">
             <m k="network" v="iwn">
-                <line stroke="#110000ff" width="2" />
+                <line stroke="#110000ff" width="1.1" />
             </m>
             <m k="network" v="nwn">
-                <line stroke="#11ff0000" width="2" />
+                <line stroke="#11ff0000" width="1.1" />
             </m>
             <m k="network" v="rwn">
-                <line stroke="#1100ff00" width="2" />
+                <line stroke="#1100ff00" width="1.1" />
             </m>
             <m k="network" v="lwn">
-                <line stroke="#11ffff00" width="2" />
+                <line stroke="#11ffff00" width="1.1" />
             </m>
         </m>
     </m>

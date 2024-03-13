@@ -6,16 +6,16 @@
             <line use="hedge" />
         </m>
         <m cat="urban" v="retaining_wall" zoom-min="16">
-            <line use="fence" width="-0.3" />
+            <line use="fence" width="-0.2" />
         </m>
         <m cat="urban" v="fence" zoom-min="16">
             <line use="fence" />
         </m>
         <m cat="urban" v="wall" zoom-min="15">
-            <line use="fence" width="0.5" />
+            <line use="fence" width="0.3" />
         </m>
         <m cat="urban" v="city_wall" zoom-min="13">
-            <line use="fence" width="1.4" />
+            <line use="fence" width="0.8" />
         </m>
     </m>
 </rendertheme>

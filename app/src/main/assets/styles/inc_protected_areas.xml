@@ -12,7 +12,7 @@
                 <area mesh="true" use="nature_reserve_light" />
             </m>
             <m zoom-max="7">
-                <line fade="6" use="nature_reserve" width="-1.0" />
+                <line fade="6" use="nature_reserve" width="-0.6" />
             </m>
             <m zoom-min="8">
                 <line use="nature_reserve" />
@@ -30,7 +30,7 @@
                 <area mesh="true" use="aboriginal_lands_light" />
             </m>
             <m zoom-max="7">
-                <line fade="6" use="aboriginal_lands" width="-1.0" />
+                <line fade="6" use="aboriginal_lands" width="-0.6" />
             </m>
             <m zoom-min="8">
                 <line use="aboriginal_lands" />
@@ -43,7 +43,7 @@
         <m v="military">
             <area fade="7" mesh="true" use="military" />
             <m zoom-max="7">
-                <line fade="7" use="military" width="-1.0" />
+                <line fade="7" use="military" width="-0.6" />
             </m>
             <m zoom-min="8">
                 <line use="military" />

@@ -2,18 +2,18 @@
 <rendertheme xmlns="http://opensciencemap.org/rendertheme" version="1">
     <!-- Topological objects on ground -->
     <m cat="mountains" k="natural" v="cliff">
-        <line cap="butt" fix="true" stroke="color:cliff" width="2" />
+        <line cap="butt" fix="true" stroke="color:cliff" width="1.1" />
         <line src="assets:symbols/natural/cliff.svg" symbol-color="color:cliff" symbol-height="10" repeat-start="3" repeat-gap="3" />
     </m>
     <m k="man_made">
         <m cat="urban" v="embankment" zoom-min="15">
-            <line cap="butt" fix="true" stroke="color:cliff" width="1.5" />
+            <line cap="butt" fix="true" stroke="color:cliff" width="0.9" />
             <line repeat-gap="3" repeat-start="3" src="assets:symbols/natural/embankment.svg" symbol-color="color:cliff" symbol-height="6" />
         </m>
         <m cat="urban" v="pier" zoom-min="15">
             <m closed="no">
-                <line cap="butt" stroke="color:pier-stroke" width="0.4" />
-                <line cap="butt" stroke="color:pier-fill" width="0.3" />
+                <line cap="butt" stroke="color:pier-stroke" width="0.2" />
+                <line cap="butt" stroke="color:pier-fill" width="0.18" />
             </m>
             <m closed="yes">
                 <area fill="color:pier-fill" stroke="color:pier-stroke" stroke-width="1.05" />
@@ -26,8 +26,8 @@
     </m>
     <m cat="urban" k="railway|highway" v="platform">
         <m closed="no">
-            <line stroke="color:pier-stroke" width="0.3" />
-            <line stroke="color:pier-fill" width="0.2" />
+            <line stroke="color:pier-stroke" width="0.2" />
+            <line stroke="color:pier-fill" width="0.1" />
         </m>
         <m closed="yes">
             <area fill="color:pier-fill" />
