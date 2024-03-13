@@ -17,6 +17,7 @@
 package mobi.maptrek;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -94,6 +95,9 @@ public class Configuration {
     private static final String PREF_SKIING_TIMES = "skiing_times";
     private static final String PREF_HIGHLIGHTED_TYPE = "highlighted_type";
 
+    public static final String PREF_POINTER_TYPE = "pointer_type";
+    public static final String PREF_POINTER_SIZE = "pointer_size";
+    public static final String PREF_POINTER_COLOR = "pointer_color";
     public static final String PREF_PLACE_COLOR = "place_color";
     public static final String PREF_PLACE_TITLES = "place_titles";
     public static final String PREF_TRACK_COLOR = "track_color";
@@ -522,6 +526,18 @@ public class Configuration {
 
     public static void setHighlightedType(int type) {
         saveInt(PREF_HIGHLIGHTED_TYPE, type);
+    }
+
+    public static int getPointerType() {
+        return Integer.parseInt(loadString(PREF_POINTER_TYPE, "0"));
+    }
+
+    public static int getPointerSize() {
+        return loadInt(PREF_POINTER_SIZE, 25);
+    }
+
+    public static int getPointerColor() {
+        return loadInt(PREF_POINTER_COLOR, Color.RED);
     }
 
     public static void resetMapState() {

@@ -640,7 +640,12 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
         DefaultMapScaleBar mapScaleBar = new DefaultMapScaleBar(mMap, MapTrek.density * .75f, paintColor, strokeColor);
         mMapScaleBarLayer = new MapScaleBarLayer(mMap, mapScaleBar);
         mCrosshairLayer = new CrosshairLayer(mMap, MapTrek.density, paintColor, () -> Configuration.setPosition(mMap.getMapPosition()));
-        mLocationOverlay = new LocationOverlay(mMap, MapTrek.density);
+
+        int type = Configuration.getPointerType();
+        int size = Configuration.getPointerSize();
+        int color = Configuration.getPointerColor();
+        mLocationOverlay = new LocationOverlay(mMap, type, size, color, MapTrek.density);
+
         layers.add(mMapScaleBarLayer, MAP_OVERLAYS);
         layers.add(mCrosshairLayer, MAP_OVERLAYS);
         layers.add(mLocationOverlay, MAP_POSITIONAL);
@@ -4528,6 +4533,21 @@ public class MainActivity extends AppCompatActivity implements ILocationListener
                 int transparency = Configuration.getHillshadesTransparency();
                 if (mHillshadeLayer != null)
                     mHillshadeLayer.setBitmapAlpha(1 - transparency * 0.01f);
+                break;
+            }
+            case Configuration.PREF_POINTER_TYPE: {
+                int type = Configuration.getPointerType();
+                mLocationOverlay.setType(type);
+                break;
+            }
+            case Configuration.PREF_POINTER_SIZE: {
+                int size = Configuration.getPointerSize();
+                mLocationOverlay.setSize(size);
+                break;
+            }
+            case Configuration.PREF_POINTER_COLOR: {
+                int color = Configuration.getPointerColor();
+                mLocationOverlay.setColor(color);
                 break;
             }
             case Configuration.PREF_PLACE_COLOR: {

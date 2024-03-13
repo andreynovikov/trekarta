@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Ahmad Saleem
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,6 +20,7 @@ package mobi.maptrek.layers;
 import android.os.SystemClock;
 
 import org.oscim.backend.GL;
+import org.oscim.backend.canvas.Color;
 import org.oscim.core.Box;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Point;
@@ -28,6 +29,7 @@ import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.renderer.GLShader;
 import org.oscim.renderer.GLState;
+import org.oscim.renderer.GLUtils;
 import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.LayerRenderer;
 import org.oscim.renderer.MapRenderer;
@@ -40,10 +42,25 @@ public class LocationOverlay extends Layer {
     private final Point mLocation = new Point();
     private float mBearing;
 
-    public LocationOverlay(Map map, float scale) {
+    public LocationOverlay(Map map, int type, int size, int color, float scale) {
         super(map);
         mRenderer = new LocationIndicator(scale);
         setEnabled(false);
+        setType(type);
+        setSize(size);
+        setColor(color);
+    }
+
+    public void setType(int type) {
+        ((LocationIndicator) mRenderer).setType(type);
+    }
+
+    public void setSize(int size) {
+        ((LocationIndicator) mRenderer).setSize(size);
+    }
+
+    public void setColor(int color) {
+        ((LocationIndicator) mRenderer).setColor(color);
     }
 
     public void setPosition(double latitude, double longitude, float bearing) {
@@ -89,10 +106,15 @@ public class LocationOverlay extends Layer {
         private int hPhase;
         private int hDirection;
         private int hType;
+        private int hColor;
 
+        private static final int COLOR = 0xffff5722;
         private final static long ANIM_RATE = 50;
         private final static long INTERVAL = 8000;
 
+        private int mType = 0;
+        private int mSize = 20;
+        private final float[] mColors = new float[4];
         private final Point mIndicatorPosition = new Point();
 
         private final Box mBBox = new Box();
@@ -109,6 +131,23 @@ public class LocationOverlay extends Layer {
         LocationIndicator(float scale) {
             super();
             mScale = scale;
+            setColor(COLOR);
+        }
+
+        public void setType(int type) {
+            mType = type;
+        }
+
+        public void setSize(int size) {
+            mSize = size;
+        }
+
+        public void setColor(int color) {
+            float a = Color.aToFloat(color);
+            mColors[0] = a * Color.rToFloat(color);
+            mColors[1] = a * Color.gToFloat(color);
+            mColors[2] = a * Color.bToFloat(color);
+            mColors[3] = a;
         }
 
         public boolean isVisible() {
@@ -190,7 +229,7 @@ public class LocationOverlay extends Layer {
             v.mvp.multiplyMM(v.viewproj, v.mvp);
             v.mvp.setAsUniform(hMatrixPosition);
 
-            gl.uniform1f(hScale, mScale);
+            gl.uniform1f(hScale, mSize * mScale * (mType == 0 ? 1.5f : 1f));
 
             if (mLocationIsVisible) {
                 animate(false);
@@ -213,11 +252,15 @@ public class LocationOverlay extends Layer {
             }
 
             // Pointer type
-            gl.uniform1f(hType, 0);
+            gl.uniform1f(hType, mType);
+
+            // Pointer color
+            GLUtils.glUniform4fv(hColor, 1, mColors);
 
             gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
         }
 
+        /** @noinspection UnusedReturnValue*/
         private boolean init() {
             int shader = GLShader.loadShader("location_pointer");
             if (shader == 0)
@@ -230,6 +273,7 @@ public class LocationOverlay extends Layer {
             hScale = gl.getUniformLocation(shader, "u_scale");
             hDirection = gl.getUniformLocation(shader, "u_dir");
             hType = gl.getUniformLocation(shader, "u_type");
+            hColor = gl.getUniformLocation(shader, "u_color");
 
             return true;
         }

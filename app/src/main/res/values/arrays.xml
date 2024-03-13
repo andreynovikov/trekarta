@@ -102,4 +102,9 @@
         <item>Cycling</item>
         <item>Skiing</item>
     </string-array>
+    <string-array name="pointer_types">
+        <item>Arrow</item>
+        <item>Circle A</item>
+        <item>Circle B</item>
+    </string-array>
 </resources>
