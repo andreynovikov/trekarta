@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <change versioncode="106" priority="3">Добавлен перевод на немецкий</change>
+    <change versioncode="106" priority="5">Добавлена визуализация текущего маршрута</change>
+    <change versioncode="106" priority="5">Настраиваемые вид, размер и цвет указателя местоположения</change>
+    <change versioncode="106" priority="7">Исправлен сбой при навигации в фоновом режиме</change>
     <change versioncode="103" priority="5">Добавлена опция блокировки вращения карты</change>
     <change versioncode="102" priority="5">Добавлены различные настройки цветов</change>
     <change versioncode="98" priority="3">Добавлено создание простых маршрутов</change>

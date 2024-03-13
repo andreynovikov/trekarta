@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <change versioncode="106" priority="3">Added German translation</change>
+    <change versioncode="106" priority="5">Added current route visualization</change>
+    <change versioncode="106" priority="5">Configurable location pointer type, size and color</change>
+    <change versioncode="106" priority="7">Fixed crash when navigating in background</change>
     <change versioncode="103" priority="5">Added option to prohibit map rotation</change>
     <change versioncode="102" priority="5">Added various color settings</change>
     <change versioncode="98" priority="3">Added simple route creation</change>
