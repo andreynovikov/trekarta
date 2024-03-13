@@ -2,24 +2,24 @@
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme" xmlns:xi="http://www.w3.org/2001/XInclude">
     <!-- Roads -->
     <m e="way" k="highway">
-        <outline-layer fade="14" id="service-road" stroke="color:service-road-outline" width="0.05" />
-        <outline-layer id="road" stroke="color:road-outline" width="0.15" />
-        <outline-layer id="primary" stroke="color:primary-road-outline" width="0.15" />
-        <outline-layer id="motorway" stroke="color:motorway-road-outline" width="0.15" />
-        <outline-layer id="cycleway" stroke="color:cycleway" width="0.5" />
-        <outline-layer id="cycleway-right" stroke="color:cycleway" width="0.5" half="right" />
-        <outline-layer id="cycleway-left" stroke="color:cycleway" width="0.5" half="left" />
-        <outline-layer id="cycleway-ramp" stroke="color:cycleway" width="0.3" half="right" />
+        <outline-layer fade="14" id="service-road" stroke="color:service-road-outline" width="0.03" />
+        <outline-layer id="road" stroke="color:road-outline" width="0.09" />
+        <outline-layer id="primary" stroke="color:primary-road-outline" width="0.09" />
+        <outline-layer id="motorway" stroke="color:motorway-road-outline" width="0.09" />
+        <outline-layer id="cycleway" stroke="color:cycleway" width="0.3" />
+        <outline-layer id="cycleway-right" stroke="color:cycleway" width="0.3" half="right" />
+        <outline-layer id="cycleway-left" stroke="color:cycleway" width="0.3" half="left" />
+        <outline-layer id="cycleway-ramp" stroke="color:cycleway" width="0.17" half="right" />
 
         <m cat="roads" select="first" zoom-max="7">
             <m v="motorway">
-                <line fade="6" stroke="color:motorway-overview" use="fix" width="0.6" />
+                <line fade="6" stroke="color:motorway-overview" use="fix" width="0.35" />
             </m>
             <m v="trunk">
-                <line fade="6" stroke="color:trunk-overview" use="fix" width="0.5" />
+                <line fade="6" stroke="color:trunk-overview" use="fix" width="0.3" />
             </m>
             <m v="primary">
-                <line fade="7" stroke="color:primary-overview" use="fix" width="0.5" />
+                <line fade="7" stroke="color:primary-overview" use="fix" width="0.3" />
             </m>
         </m>
         <m zoom-min="8">
@@ -42,74 +42,74 @@
                             </m>
                             <m cat="pedestrian" v="steps" zoom-min="16" select="first">
                                 <m cat="hiking">
-                                    <line use="path" width="6.0" />
+                                    <line use="path" width="3.4" />
                                     <line fix="true" stroke="color:land" width="5.6" />
                                     <line use="steps" width="0.8" />
                                 </m>
                                 <m cat="cycling">
                                     <line use="path" width="6.0" />
-                                    <line fix="true" stroke="color:land" width="5.6" />
+                                    <line fix="true" stroke="color:land" width="3.2" />
                                     <m k="ramp:bicycle" v="yes">
-                                        <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="8" cap="butt" />
+                                        <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="4.6" cap="butt" />
                                     </m>
-                                    <line use="steps" width="0.8" />
+                                    <line use="steps" width="0.5" />
                                 </m>
                                 <m>
-                                    <line stipple="6" use="path" width="4.0" />
-                                    <line fix="true" stroke="color:land" width="3.6" />
-                                    <line use="steps" width="-0.8" />
+                                    <line stipple="2" use="path" width="2.3" />
+                                    <line fix="true" stroke="color:land" width="2.1" />
+                                    <line use="steps" width="-0.5" />
                                 </m>
                             </m>
                             <m cat="pedestrian" v="footway|path">
                                 <m select="first">
                                     <m cat="cycling" k="bicycle" v="designated|yes">
-                                        <line stipple="12" stipple-stroke="color:transparent" use="cycleway" />
-                                        <line stroke="color:land" width="0.2" />
+                                        <line stipple="4" stipple-stroke="color:transparent" use="cycleway" />
+                                        <line stroke="color:land" width="0.11" />
                                     </m>
                                     <m cat="hiking">
-                                        <line cat="hiking" use="path" width="6.0" />
-                                        <line fix="true" stroke="color:land" width="5.6" />
+                                        <line cat="hiking" use="path" width="3.4" />
+                                        <line fix="true" stroke="color:land" width="3.2" />
                                         <m k="sac_scale" v="~">
-                                            <line fix="true" stroke="#aab28f67" width="4" />
+                                            <line fix="true" stroke="#aab28f67" width="2.3" />
                                         </m>
                                         <m k="sac_scale" select="first">
                                             <m v="t1">
-                                                <line fix="true" stroke="#660040ff" width="4" />
+                                                <line fix="true" stroke="#660040ff" width="2.3" />
                                             </m>
                                             <m v="t2">
-                                                <line fix="true" stroke="#660000dd" width="4" />
+                                                <line fix="true" stroke="#660000dd" width="2.3" />
                                             </m>
                                             <m v="t3">
-                                                <line fix="true" stroke="#99e6ad00" width="4" />
+                                                <line fix="true" stroke="#99e6ad00" width="2.3" />
                                             </m>
                                             <m v="t4">
-                                                <line fix="true" stroke="#66ff0000" width="4" />
+                                                <line fix="true" stroke="#66ff0000" width="2.3" />
                                             </m>
                                             <m v="t5">
-                                                <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#66ff0000" stroke="#aa000000" width="4" />
+                                                <line fix="true" stipple="7" stipple-ratio="0.8" stipple-stroke="#66ff0000" stroke="#aa000000" width="2.3" />
                                             </m>
                                             <m v="t6">
-                                                <line fix="true" stipple="24" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="color:transparent" width="4" />
+                                                <line fix="true" stipple="7" stipple-ratio="0.8" stipple-stroke="#aa000000" stroke="color:transparent" width="2.3" />
                                             </m>
                                         </m>
                                     </m>
                                     <m>
-                                        <line stipple="6" use="path" width="2.0" />
-                                        <line fix="true" stroke="color:land" width="1.6" />
+                                        <line stipple="2" use="path" width="1.1" />
+                                        <line fix="true" stroke="color:land" width="0.9" />
                                     </m>
                                 </m>
                             </m>
                             <m v="bridleway">
-                                <line stipple="6" use="bridleway" width="2.0" />
-                                <line fix="true" stroke="color:land" width="1.6" />
+                                <line stipple="2" use="bridleway" width="1.1" />
+                                <line fix="true" stroke="color:land" width="0.9" />
                             </m>
                             <m cat="cycling" v="cycleway">
-                                <line stipple="12" stipple-stroke="color:transparent" use="cycleway" />
-                                <line stroke="color:land" width="0.2" />
+                                <line stipple="4" stipple-stroke="color:transparent" use="cycleway" />
+                                <line stroke="color:land" width="0.11" />
                             </m>
                             <m cat="tracks" v="track">
-                                <line stipple="6" stipple-stroke="color:land"
-                                    use="highway:track:good" width="0.8" />
+                                <line stipple="2" stipple-stroke="color:land"
+                                    use="highway:track:good" width="0.5" />
                                 <line stroke="color:land" use="highway:track:good" />
                                 <m cat="track-names">
                                     <text use="road-name" />
@@ -117,62 +117,62 @@
                             </m>
                             <m cat="roads" v="service">
                                 <m k="service" v="-|parking_aisle">
-                                    <line stipple="8" stipple-ratio="0.4"
+                                    <line stipple="3" stipple-ratio="0.4"
                                         stipple-stroke="color:service-road-outline"
                                         use="highway-service-tunnel" />
-                                    <line use="highway-service-tunnel" width="-0.1" />
+                                    <line use="highway-service-tunnel" width="-0.06" />
                                 </m>
                                 <m k="service" v="parking_aisle">
-                                    <line stipple="8" stipple-ratio="0.4"
+                                    <line stipple="3" stipple-ratio="0.4"
                                         stipple-stroke="color:service-road-outline"
-                                        use="highway-service-tunnel" width="-0.2" />
-                                    <line use="highway-service-tunnel" width="-0.3" />
+                                        use="highway-service-tunnel" width="-0.11" />
+                                    <line use="highway-service-tunnel" width="-0.17" />
                                 </m>
                             </m>
                             <m cat="roads" v="tertiary_link">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:road-outline"
                                     use="tertiary-tunnel" />
-                                <line use="tertiary-tunnel" width="-0.2" />
+                                <line use="tertiary-tunnel" width="-0.11" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="secondary_link">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:road-outline"
                                     use="secondary-tunnel" />
-                                <line use="secondary-tunnel" width="-0.2" />
+                                <line use="secondary-tunnel" width="-0.11" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="primary_link">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:primary-road-outline"
                                     use="primary-tunnel" />
-                                <line use="primary-tunnel" width="-0.2" />
+                                <line use="primary-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                             </m>
                             <m cat="roads" v="trunk_link|motorway_link">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:motorway-road-outline"
                                     use="trunk-link-tunnel" />
-                                <line use="trunk-link-tunnel" width="-0.2" />
+                                <line use="trunk-link-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                             </m>
                             <m cat="pedestrian" v="pedestrian">
-                                <line stipple="8" stipple-stroke="color:service-road-outline"
+                                <line stipple="3" stipple-stroke="color:service-road-outline"
                                     use="pedestrian-tunnel" />
-                                <line use="pedestrian-tunnel" width="-0.1" />
+                                <line use="pedestrian-tunnel" width="-0.06" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="road">
-                                <line stipple="8" stipple-stroke="color:service-road-outline"
+                                <line stipple="3" stipple-stroke="color:service-road-outline"
                                     use="pedestrian-tunnel" />
-                                <line use="pedestrian-tunnel" width="-0.1" />
+                                <line use="pedestrian-tunnel" width="-0.06" />
                                 <text use="road-name" />
                             </m>
                             <m cat="roads" v="residential|living_street">
-                                <line stipple="8" stipple-stroke="color:road-outline"
+                                <line stipple="3" stipple-stroke="color:road-outline"
                                     use="residential-tunnel" />
-                                <line use="residential-tunnel" width="-0.2" />
+                                <line use="residential-tunnel" width="-0.11" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -181,10 +181,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="unclassified">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:road-outline"
                                     use="unclassified-tunnel" />
-                                <line use="unclassified-tunnel" width="-0.2" />
+                                <line use="unclassified-tunnel" width="-0.11" />
                                 <text use="road-name" />
                                 <m k="toll" v="yes">
                                     <symbol merge-gap="100" merge-group="road-symbols" repeat="true"
@@ -193,10 +193,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="tertiary">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:road-outline"
                                     use="tertiary-tunnel" />
-                                <line use="tertiary-tunnel" width="-0.2" />
+                                <line use="tertiary-tunnel" width="-0.11" />
                                 <text use="road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="14">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -210,10 +210,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="secondary">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:primary-road-outline"
                                     use="secondary-tunnel" />
-                                <line use="secondary-tunnel" width="-0.2" />
+                                <line use="secondary-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="13">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -227,10 +227,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="primary">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:primary-road-outline"
                                     use="primary-tunnel" />
-                                <line use="primary-tunnel" width="-0.2" />
+                                <line use="primary-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="12">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -244,10 +244,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="trunk">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:motorway-road-outline"
                                     use="trunk-tunnel" />
-                                <line use="trunk-tunnel" width="-0.2" />
+                                <line use="trunk-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="11">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -261,10 +261,10 @@
                                 </m>
                             </m>
                             <m cat="roads" v="motorway">
-                                <line stipple="8" stipple-ratio="0.4"
+                                <line stipple="3" stipple-ratio="0.4"
                                     stipple-stroke="color:motorway-road-outline"
                                     use="highway-tunnel" />
-                                <line use="highway-tunnel" width="-0.2" />
+                                <line use="highway-tunnel" width="-0.11" />
                                 <text use="major-road-name" />
                                 <m cat="roads-shield" zoom-max="16" zoom-min="10">
                                     <symbol merge-gap="150" merge-group="road-symbols" repeat="true"
@@ -292,7 +292,7 @@
                     <!--
                     <m cat="roads" v="service|unclassified|residential|road|living_street">
                         <area fill="#ffffff" mesh="true" />
-                        <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
+                        <line cap="butt" fix="true" stroke="#d0d0d0" width="0.6" />
                     </m>
                     <m v="path" zoom-min="14">
                         <area fill="#d0d0d0" />
@@ -306,16 +306,16 @@
                             <!--suppress XmlDefaultAttributeValue -->
                             <line use="steps" stipple-stroke="#000000" />
                             <!--suppress XmlDefaultAttributeValue -->
-                            <line cat="hiking" use="steps" stipple-stroke="#000000" width="3.0" />
+                            <line cat="hiking" use="steps" stipple-stroke="#000000" width="1.7" />
                         </m>
                         <m cat="pedestrian" v="steps">
                             <m zoom-min="16">
                                 <m cat="cycling" k="ramp:bicycle" v="yes">
-                                    <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="8" cap="butt" />
+                                    <line outline="cycleway-ramp" fix="true" stroke="#ffffff" width="4.6" cap="butt" />
                                 </m>
                                 <line use="steps" />
-                                <line cat="hiking" use="steps" width="3.0" />
-                                <line cat="cycling" use="steps" width="3.0" />
+                                <line cat="hiking" use="steps" width="1.7" />
+                                <line cat="cycling" use="steps" width="1.7" />
                             </m>
                             <m zoom-max="15" zoom-min="14">
                                 <line use="path" />
@@ -331,9 +331,9 @@
                                 </m>
                             </m>
                             <m k="ford" v="yes">
-                                <line fix="true" use="ford" width="4.0" />
-                                <line cat="hiking" fix="true" use="ford" width="6.0" />
-                                <line cat="cycling" fix="true" use="ford" width="6.0" />
+                                <line fix="true" use="ford" width="2.3" />
+                                <line cat="hiking" fix="true" use="ford" width="3.4" />
+                                <line cat="cycling" fix="true" use="ford" width="3.4" />
                             </m>
                             <m zoom-max="14">
                                 <m select="first">
@@ -350,10 +350,10 @@
                                     <line use="path" stipple-stroke="color:path-access-no" />
                                 </m>
                                 <m k="trail_visibility" v="excellent|good">
-                                    <line stipple="8" stipple-ratio="0.7" use="path" />
+                                    <line stipple="3" stipple-ratio="0.7" use="path" />
                                 </m>
                                 <m k="trail_visibility" v="bad|horrible|no">
-                                    <line stipple="8" stipple-ratio="0.3" use="path" />
+                                    <line stipple="3" stipple-ratio="0.3" use="path" />
                                 </m>
                                 <m k="trail_visibility" v="~|intermediate">
                                     <line use="path" />
@@ -385,10 +385,10 @@
                                         <line use="path" stipple-stroke="color:path-access-no" />
                                     </m>
                                     <m k="trail_visibility" v="excellent|good">
-                                        <line stipple="8" stipple-ratio="0.7" use="path" />
+                                        <line stipple="3" stipple-ratio="0.7" use="path" />
                                     </m>
                                     <m k="trail_visibility" v="bad|horrible|no">
-                                        <line stipple="8" stipple-ratio="0.3" use="path" />
+                                        <line stipple="3" stipple-ratio="0.3" use="path" />
                                     </m>
                                     <m k="trail_visibility" v="~|intermediate">
                                         <line use="path" />
@@ -406,18 +406,18 @@
                         </m>
                         <m v="bridleway">
                             <m zoom-min="15">
-                                <line cat="tracks" use="path:back" width="0.3" />
-                                <line cat="hiking" stroke="#ffffffff" use="path:back" width="4.0" />
-                                <line cat="cycling" stroke="#ffffffff" use="path:back" width="4.0" />
+                                <line cat="tracks" use="path:back" width="0.17" />
+                                <line cat="hiking" stroke="#ffffffff" use="path:back" width="2.3" />
+                                <line cat="cycling" stroke="#ffffffff" use="path:back" width="2.3" />
                             </m>
                             <m k="ford" v="yes">
-                                <line cat="tracks" fix="true" use="ford" width="4.0" />
-                                <line cat="hiking" fix="true" use="ford" width="6.0" />
-                                <line cat="cycling" fix="true" use="ford" width="6.0" />
+                                <line cat="tracks" fix="true" use="ford" width="2.3" />
+                                <line cat="hiking" fix="true" use="ford" width="3.4" />
+                                <line cat="cycling" fix="true" use="ford" width="3.4" />
                             </m>
                             <line cat="tracks" use="bridleway" />
-                            <line cat="hiking" use="bridleway" width="2.2" />
-                            <line cat="cycling" use="bridleway" width="2.2" />
+                            <line cat="hiking" use="bridleway" width="1.3" />
+                            <line cat="cycling" use="bridleway" width="1.3" />
                         </m>
                         <m v="track">
                             <m cat="tracks" zoom-max="13" zoom-min="13">
@@ -430,73 +430,73 @@
                                     </m>
                                 </m>
                                 <m k="smoothness" v="excellent|good|intermediate|bad">
-                                    <line use="highway:track:good" width="-0.8" />
+                                    <line use="highway:track:good" width="-0.5" />
                                 </m>
                                 <m k="smoothness" v="~|very_bad|horrible">
-                                    <line use="highway:track:horrible" width="-0.8" />
+                                    <line use="highway:track:horrible" width="-0.5" />
                                 </m>
                                 <m k="smoothness" v="very_horrible">
-                                    <line use="highway:track:very_horrible" width="-0.8" />
+                                    <line use="highway:track:very_horrible" width="-0.5" />
                                 </m>
                                 <m k="smoothness" v="impassable">
-                                    <line use="highway:track:impassable" width="-0.8" />
+                                    <line use="highway:track:impassable" width="-0.5" />
                                 </m>
                             </m>
                             <m zoom-min="14">
                                 <m select="first">
                                     <m k="ford" v="yes">
-                                        <line cat="tracks" fix="true" use="ford" width="4.0" />
-                                        <line cat="hiking" fix="true" use="ford" width="6.0" />
-                                        <line cat="cycling" fix="true" use="ford" width="6.0" />
+                                        <line cat="tracks" fix="true" use="ford" width="2.3" />
+                                        <line cat="hiking" fix="true" use="ford" width="3.4" />
+                                        <line cat="cycling" fix="true" use="ford" width="3.4" />
                                     </m>
                                     <m k="ice_road" v="yes">
                                         <line cat="tracks" stroke="#9bc8c8" use="highway:track:back"
-                                            width="0.8" />
+                                            width="0.5" />
                                         <line cat="hiking" stroke="#9bc8c8" use="highway:track:back"
-                                            width="4.0" />
+                                            width="2.3" />
                                         <line cat="cycling" stroke="#9bc8c8" use="highway:track:back"
-                                            width="4.0" />
+                                            width="2.3" />
                                     </m>
                                     <m k="winter_road" v="yes">
                                         <line cat="tracks" stroke="#bed8d8" use="highway:track:back"
-                                            width="0.8" />
+                                            width="0.5" />
                                         <line cat="hiking" stroke="#bed8d8" use="highway:track:back"
-                                            width="4.0" />
+                                            width="2.3" />
                                         <line cat="cycling" stroke="#bed8d8" use="highway:track:back"
-                                            width="4.0" />
+                                            width="2.3" />
                                     </m>
                                     <m>
                                         <line cat="tracks" use="highway:track:back" />
                                         <line cap="butt" cat="hiking" fix="true" stroke="#ffffff"
-                                            width="5.2" />
+                                            width="3.0" />
                                         <line cap="butt" cat="cycling" fix="true" stroke="#ffffff"
-                                            width="5.2" />
+                                            width="3.0" />
                                     </m>
                                 </m>
                                 <m k="smoothness" v="excellent|good|intermediate|bad">
                                     <line cat="tracks" use="highway:track:good" />
-                                    <line cat="hiking" use="highway:track:good" width="2.2" />
-                                    <line cat="cycling" use="highway:track:good" width="2.2" />
+                                    <line cat="hiking" use="highway:track:good" width="1.3" />
+                                    <line cat="cycling" use="highway:track:good" width="1.3" />
                                 </m>
                                 <m k="smoothness" v="~|very_bad">
                                     <line cat="tracks" use="highway:track:very_bad" />
-                                    <line cat="hiking" use="highway:track:very_bad" width="2.2" />
-                                    <line cat="cycling" use="highway:track:very_bad" width="2.2" />
+                                    <line cat="hiking" use="highway:track:very_bad" width="1.3" />
+                                    <line cat="cycling" use="highway:track:very_bad" width="1.3" />
                                 </m>
                                 <m k="smoothness" v="horrible">
                                     <line cat="tracks" use="highway:track:horrible" />
-                                    <line cat="hiking" use="highway:track:horrible" width="2.2" />
-                                    <line cat="cycling" use="highway:track:horrible" width="2.2" />
+                                    <line cat="hiking" use="highway:track:horrible" width="1.3" />
+                                    <line cat="cycling" use="highway:track:horrible" width="1.3" />
                                 </m>
                                 <m k="smoothness" v="very_horrible">
                                     <line cat="tracks" use="highway:track:very_horrible" />
-                                    <line cat="hiking" use="highway:track:very_horrible" width="2.2" />
-                                    <line cat="cycling" use="highway:track:very_horrible" width="2.2" />
+                                    <line cat="hiking" use="highway:track:very_horrible" width="1.3" />
+                                    <line cat="cycling" use="highway:track:very_horrible" width="1.3" />
                                 </m>
                                 <m k="smoothness" v="impassable">
                                     <line cat="tracks" use="highway:track:impassable" />
-                                    <line cat="hiking" use="highway:track:very_horrible" width="2.2" />
-                                    <line cat="cycling" use="highway:track:very_horrible" width="2.2" />
+                                    <line cat="hiking" use="highway:track:very_horrible" width="1.3" />
+                                    <line cat="cycling" use="highway:track:very_horrible" width="1.3" />
                                 </m>
                             </m>
                             <m cat="track-names">
@@ -542,35 +542,35 @@
                                     </m>
                                     <m select="when-matched">
                                         <m k="ford" v="yes">
-                                            <line use="ford" width="-0.2" />
+                                            <line use="ford" width="-0.11" />
                                             <text style="bold" caption="true"
                                                 fill="color:amenity-water" k="depth" size="14"
-                                                stroke="color:text-outline" stroke-width="2.0" />
+                                                stroke="color:text-outline" stroke-width="1.1" />
                                         </m>
                                         <m k="4wd_only" v="yes">
-                                            <line use="4wd_only" width="-0.3" />
+                                            <line use="4wd_only" width="-0.17" />
                                         </m>
                                         <m k="access" v="private">
-                                            <line fade="14" stipple="15" stipple-stroke="color:service-access-private"
-                                                stroke="color:transparent" use="highway-service" width="-0.2" />
+                                            <line fade="14" stipple="5" stipple-stroke="color:service-access-private"
+                                                stroke="color:transparent" use="highway-service" width="-0.11" />
                                         </m>
                                         <m k="access" v="no">
-                                            <line fade="14" stipple="15" stipple-stroke="color:access-no"
-                                                stroke="color:transparent" use="highway-service" width="-0.2" />
+                                            <line fade="14" stipple="5" stipple-stroke="color:access-no"
+                                                stroke="color:transparent" use="highway-service" width="-0.11" />
                                         </m>
                                     </m>
                                 </m>
                                 <text use="road-name" />
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
-                                <line outline="service-road" use="highway-service" width="-0.2" />
+                                <line outline="service-road" use="highway-service" width="-0.11" />
                                 <m k="access" v="private">
-                                    <line stipple="15" stipple-stroke="color:service-access-private" stroke="color:transparent"
-                                        use="highway-service" width="-0.3" />
+                                    <line stipple="5" stipple-stroke="color:service-access-private" stroke="color:transparent"
+                                        use="highway-service" width="-0.17" />
                                 </m>
                                 <m k="access" v="no">
-                                    <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                        use="highway-service" width="-0.3" />
+                                    <line stipple="5" stipple-stroke="color:access-no" stroke="color:transparent"
+                                        use="highway-service" width="-0.17" />
                                 </m>
                             </m>
                         </m>
@@ -687,10 +687,10 @@
                         <m cat="roads" v="construction">
                             <line use="road-construction" />
                             <m k="ford" v="yes">
-                                <line use="ford" width="-0.2" />
+                                <line use="ford" width="-0.11" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -753,21 +753,21 @@
                                 </m>
                             </m>
                             <m k="ford" v="yes">
-                                <line use="ford" width="-0.2" />
+                                <line use="ford" width="-0.11" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" width="-0.3" />
+                                <line use="4wd_only" width="-0.17" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
-                                    use="residential" width="-0.2" />
+                                <line stipple="5" stipple-stroke="color:access-private" stroke="color:transparent"
+                                    use="residential" width="-0.11" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                    use="residential" width="-0.2" />
+                                <line stipple="5" stipple-stroke="color:access-no" stroke="color:transparent"
+                                    use="residential" width="-0.11" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -807,18 +807,18 @@
                                 <line use="ford" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <m k="4wd_only" v="yes">
-                                <line use="4wd_only" width="-0.1" />
+                                <line use="4wd_only" width="-0.06" />
                             </m>
                             <m k="access" v="private">
-                                <line stipple="15" stipple-stroke="color:access-private" stroke="color:transparent"
-                                    use="unclassified" width="-0.2" />
+                                <line stipple="5" stipple-stroke="color:access-private" stroke="color:transparent"
+                                    use="unclassified" width="-0.11" />
                             </m>
                             <m k="access" v="no">
-                                <line stipple="15" stipple-stroke="color:access-no" stroke="color:transparent"
-                                    use="unclassified" width="-0.2" />
+                                <line stipple="5" stipple-stroke="color:access-no" stroke="color:transparent"
+                                    use="unclassified" width="-0.11" />
                             </m>
                             <text use="road-name" />
                             <m k="toll" v="yes">
@@ -858,7 +858,7 @@
                                 <line use="ford" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
@@ -906,7 +906,7 @@
                                 <line use="ford" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />
@@ -954,7 +954,7 @@
                                 <line use="ford" />
                                 <text style="bold" caption="true"
                                     fill="color:amenity-water" k="depth" size="14"
-                                    stroke="color:text-outline" stroke-width="2.0" />
+                                    stroke="color:text-outline" stroke-width="1.1" />
                             </m>
                             <m k="4wd_only" v="yes">
                                 <line use="4wd_only" />

@@ -133,7 +133,7 @@
 
     <xi:include href="inc_poi_colors.xml" />
 
-    <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-line cap="butt" fix="true" id="fix" width="0.6" />
     <style-text caption="true" dy="20" fill="#555522" id="poi" size="16" stroke="#aa000000"
         stroke-width="2.5" />
 
@@ -159,13 +159,13 @@
     <style-line id="water" stroke="color:water" use="fix" />
     <!--suppress XmlDefaultAttributeValue -->
     <style-line fix="false" id="river" stroke="color:water" use="water" />
-    <style-line cap="butt" fix="true" id="ferry" stipple="20" stipple-stroke="#111115"
-        stroke="#00ffffff" width="3.0" />
-    <style-line id="ferry-overview" stipple="10" stipple-width="0.5" use="ferry" width="0.5" />
+    <style-line cap="butt" fix="true" id="ferry" stipple="6" stipple-stroke="#111115"
+        stroke="#00ffffff" width="1.7" />
+    <style-line id="ferry-overview" stipple="3" stipple-width="0.5" use="ferry" width="0.3" />
     <style-area fill="color:water" id="water" mesh="true" />
 
     <!-- Natural -->
-    <style-line id="trees" stroke="color:trees" width="0.8" fade="15" />
+    <style-line id="trees" stroke="color:trees" width="0.5" fade="15" />
     <style-area blend="11" blend-fill="color:trees" fade="8" fill="#101210" id="wood" />
 
     <!-- Landuse -->
@@ -181,13 +181,13 @@
     <!-- Protected areas -->
     <style-area fade="6" fill="#20004000" id="nature_reserve" />
     <style-area fill="#18004000" id="nature_reserve_light" />
-    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#40004000" width="2.5" />
+    <style-line cap="butt" fix="true" id="nature_reserve" stroke="#40004000" width="1.4" />
     <style-area fill="#20840000" id="military" />
-    <style-line cap="butt" fix="true" id="military" stroke="#40840000" width="2.5" />
+    <style-line cap="butt" fix="true" id="military" stroke="#40840000" width="1.4" />
 
     <!-- Barriers -->
-    <style-line cap="butt" fix="true" id="fence" stroke="#333333" width="1.1" />
-    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="2.0" />
+    <style-line cap="butt" fix="true" id="fence" stroke="#333333" width="0.6" />
+    <style-line cap="butt" fix="true" id="hedge" stroke="color:trees" width="1.1" />
 
 
 
@@ -296,7 +296,7 @@
     <!-- Topological (orientational) objects above ground -->
     <m k="power">
         <m cat="topo" e="way" v="line" zoom-min="14">
-            <line cap="butt" fix="true" stroke="#6e6e6e" width="1.5" />
+            <line cap="butt" fix="true" stroke="#6e6e6e" width="0.9" />
         </m>
         <m cat="topo" v="tower" zoom-min="16">
             <symbol src="assets:symbols/power/tower.svg" />

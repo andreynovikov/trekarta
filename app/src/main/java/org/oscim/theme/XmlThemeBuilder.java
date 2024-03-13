@@ -174,7 +174,7 @@ public class XmlThemeBuilder extends DefaultHandler {
     RenderTheme mRenderTheme;
 
     final boolean mMapsforgeTheme;
-    private final float mScale, mScale2;
+    private final float mScale;
 
     private Set<String> mCategories;
     private XmlRenderThemeStyleLayer mCurrentLayer;
@@ -192,7 +192,6 @@ public class XmlThemeBuilder extends DefaultHandler {
         mThemeCallback = themeCallback;
         mMapsforgeTheme = theme.isMapsforgeTheme();
         mScale = CanvasAdapter.getScale();
-        mScale2 = CanvasAdapter.getScale() * 0.5f;
     }
 
     @Override
@@ -563,7 +562,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.color(parseColor(value));
 
             else if ("width".equals(name) || "stroke-width".equals(name)) {
-                b.strokeWidth = parseFloat(value) * mScale2 * mStrokeScale;
+                b.strokeWidth = parseFloat(value) * mScale * mStrokeScale;
                 if (line == null) {
                     if (!isOutline)
                         validateNonNegative("width", b.strokeWidth);
@@ -583,7 +582,7 @@ public class XmlThemeBuilder extends DefaultHandler {
                 b.half = Half.valueOf(value.toUpperCase(Locale.ENGLISH));
 
             else if ("stipple".equals(name))
-                b.stipple = Math.round(parseInt(value) * mScale2 * mStrokeScale);
+                b.stipple = Math.round(parseInt(value) * mScale * mStrokeScale);
 
             else if ("stipple-stroke".equals(name))
                 b.stippleColor(parseColor(value));

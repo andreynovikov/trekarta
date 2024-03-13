@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rendertheme version="1" xmlns="http://opensciencemap.org/rendertheme" xmlns:xi="http://www.w3.org/2001/XInclude">
     <m e="way" k="highway">
-        <outline-layer id="bridge" stroke="#aa202020" width="0.3" />
-        <outline-layer id="service-bridge" stroke="#aa202020" width="0.15" />
-        <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.1" />
+        <outline-layer id="bridge" stroke="#aa202020" width="0.17" />
+        <outline-layer id="service-bridge" stroke="#aa202020" width="0.09" />
+        <outline-layer id="bridge:fixed" stroke="#aa202020" width="0.06" />
         <!-- must contain bridge -->
         <m k="bridge" v="yes">
             <m zoom-min="16">
                 <m cat="pedestrian" v="steps">
                     <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                        width="4.5" />
+                        width="2.6" />
                     <line use="steps" />
                     <m cat="hiking">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="8.5" />
-                        <line use="steps" width="3.0" />
+                            width="4.8" />
+                        <line use="steps" width="1.7" />
                     </m>
                     <m cat="cycling">
                         <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                            width="8.5" />
-                        <line use="steps" width="3.0" />
+                            width="4.8" />
+                        <line use="steps" width="1.7" />
                     </m>
                 </m>
             </m>
             <m cat="pedestrian" v="footway|path" select="first">
                 <m cat="hiking">
-                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="4" />
                     <m k="foot" v="-|no">
-                        <line fix="true" stroke="#aab28f67" width="4" />
+                        <line fix="true" stroke="#aab28f67" width="2.3" />
                     </m>
                     <m k="foot" v="no">
-                        <line use="path" stipple-stroke="color:pedestrian" width="1.5" />
+                        <line use="path" stipple-stroke="color:pedestrian" width="0.9" />
                     </m>
                 </m>
                 <m cat="cycling">
-                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="4" />
                     <m k="bicycle" v="designated">
-                        <line fix="true" stroke="color:cycleway" width="4" />
+                        <line fix="true" stroke="color:cycleway" width="2.3" />
                     </m>
                     <m k="bicycle" v="yes">
-                        <line fix="true" stipple="10" stipple-stroke="#aab28f67"
-                            stroke="color:cycleway" width="4" />
+                        <line fix="true" stipple="5" stipple-stroke="#aab28f67"
+                            stroke="color:cycleway" width="2.3" />
                     </m>
                     <m k="bicycle" v="~">
-                        <line fix="true" stroke="#aab28f67" width="4" />
+                        <line fix="true" stroke="#aab28f67" width="2.3" />
                     </m>
                 </m>
                 <m>
-                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.5" />
+                    <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="1.4" />
                     <m zoom-max="14">
                         <line use="path:z14" />
                     </m>
@@ -59,12 +59,12 @@
             </m>
             <m v="bridleway">
                 <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                    width="2.4" />
+                    width="1.4" />
                 <line use="bridleway" />
             </m>
             <m cat="tracks" v="track">
                 <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff"
-                    width="2.8" />
+                    width="1.6" />
                 <line cap="butt" use="highway:track:good" />
                 <m cat="track-names">
                     <text use="road-name" />
@@ -73,12 +73,12 @@
             <m v="cycleway">
                 <m select="first">
                     <m cat="cycling">
-                        <line cap="butt" outline="bridge" stroke="#ffffff" width="0.4" />
+                        <line cap="butt" outline="bridge" stroke="#ffffff" width="0.23" />
                         <line use="cycleway" />
                         <text use="road-name" />
                     </m>
                     <m cat="pedestrian" k="foot" v="designated|yes">
-                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.4" />
+                        <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="1.4" />
                         <m zoom-max="14">
                             <line use="path:z14" />
                         </m>
@@ -86,17 +86,17 @@
                             <line use="path" />
                         </m>
                         <m cat="hiking">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
-                            <line fix="true" stroke="#aab28f67" width="4" />
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="4" />
+                            <line fix="true" stroke="#aab28f67" width="2.3" />
                         </m>
                     </m>
                     <m cat="pedestrian" select="first">
                         <m cat="hiking">
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="7" />
-                            <line use="path" stipple-stroke="color:pedestrian" width="1.5" />
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="4" />
+                            <line use="path" stipple-stroke="color:pedestrian" width="0.9" />
                         </m>
                         <m>
-                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="2.5" />
+                            <line cap="butt" fix="true" outline="bridge:fixed" stroke="#ffffff" width="1.4" />
                             <m zoom-max="14">
                                 <line use="path:z14" stroke="color:transparent" />
                             </m>
@@ -131,23 +131,23 @@
                         <line cap="butt" fade="14" outline="cycleway" use="highway-service" />
                     </m>
                     <m k="access" v="private">
-                        <line fade="14" stipple="15" stipple-stroke="#eeeeee"
+                        <line fade="14" stipple="7" stipple-stroke="#eeeeee"
                             stroke="#00ffffff" use="highway-service" />
                     </m>
                     <m k="access" v="no">
-                        <line fade="14" stipple="15" stipple-stroke="#ffdddd"
+                        <line fade="14" stipple="7" stipple-stroke="#ffdddd"
                             stroke="#00ffffff" use="highway-service" />
                     </m>
                 </m>
                 <m k="service" v="parking_aisle" zoom-min="16">
-                    <line cap="butt" outline="service-bridge" use="highway-service" width="-0.2" />
+                    <line cap="butt" outline="service-bridge" use="highway-service" width="-0.11" />
                     <m k="access" v="private">
-                        <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
-                            use="highway-service" width="-0.2" />
+                        <line stipple="7" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                            use="highway-service" width="-0.11" />
                     </m>
                     <m k="access" v="no">
-                        <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
-                            use="highway-service" width="-0.2" />
+                        <line stipple="7" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                            use="highway-service" width="-0.11" />
                     </m>
                 </m>
             </m>
@@ -241,11 +241,11 @@
                     <line cap="butt" outline="cycleway" use="residential" />
                 </m>
                 <m k="access" v="private">
-                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                    <line stipple="7" stipple-stroke="#eeeeee" stroke="#00ffffff"
                         use="residential" />
                 </m>
                 <m k="access" v="no">
-                    <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                    <line stipple="7" stipple-stroke="#ffdddd" stroke="#00ffffff"
                         use="residential" />
                 </m>
                 <text use="road-name" />
@@ -267,11 +267,11 @@
                     <line cap="butt" outline="cycleway" use="unclassified" />
                 </m>
                 <m k="access" v="private">
-                    <line stipple="15" stipple-stroke="#eeeeee" stroke="#00ffffff"
+                    <line stipple="7" stipple-stroke="#eeeeee" stroke="#00ffffff"
                         use="unclassified" />
                 </m>
                 <m k="access" v="no">
-                    <line stipple="15" stipple-stroke="#ffdddd" stroke="#00ffffff"
+                    <line stipple="7" stipple-stroke="#ffdddd" stroke="#00ffffff"
                         use="unclassified" />
                 </m>
                 <text use="road-name" />
