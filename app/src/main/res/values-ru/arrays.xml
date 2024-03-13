@@ -102,4 +102,9 @@
         <item>Велосипеды</item>
         <item>Лыжи</item>
     </string-array>
+    <string-array name="pointer_types">
+        <item>Стрела</item>
+        <item>Круг А</item>
+        <item>Круг Б</item>
+    </string-array>
 </resources>
