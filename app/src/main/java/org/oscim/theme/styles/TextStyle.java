@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
  * Copyright 2016 Andrey Novikov
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -210,11 +210,11 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             this.areaSize = text.areaSize;
             this.bitmap = text.bitmap;
             this.texture = text.texture;
-            this.fillColor = themeCallback != null ? themeCallback.getColor(text.paint.getColor()) : text.paint.getColor();
+            this.fillColor = themeCallback != null ? themeCallback.getColor(text, text.paint.getColor()) : text.paint.getColor();
             this.fontFamily = text.fontFamily;
             this.fontStyle = text.fontStyle;
             if (text.stroke != null) {
-                this.strokeColor = themeCallback != null ? themeCallback.getColor(text.stroke.getColor()) : text.stroke.getColor();
+                this.strokeColor = themeCallback != null ? themeCallback.getColor(text, text.stroke.getColor()) : text.stroke.getColor();
                 this.strokeWidth = text.stroke.getStrokeWidth();
             }
             this.fontSize = text.fontSize;
@@ -245,7 +245,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(b.fontFamily, b.fontStyle);
 
-        paint.setColor(b.themeCallback != null ? b.themeCallback.getColor(b.fillColor) : b.fillColor);
+        paint.setColor(b.themeCallback != null ? b.themeCallback.getColor(this, b.fillColor) : b.fillColor);
         paint.setTextSize(b.fontSize);
 
         if (b.strokeWidth > 0) {
@@ -253,7 +253,7 @@ public final class TextStyle extends RenderStyle<TextStyle> {
             stroke.setStyle(Paint.Style.STROKE);
             stroke.setTextAlign(Paint.Align.CENTER);
             stroke.setTypeface(b.fontFamily, b.fontStyle);
-            stroke.setColor(b.themeCallback != null ? b.themeCallback.getColor(b.strokeColor) : b.strokeColor);
+            stroke.setColor(b.themeCallback != null ? b.themeCallback.getColor(this, b.strokeColor) : b.strokeColor);
             stroke.setStrokeWidth(b.strokeWidth);
             stroke.setTextSize(b.fontSize);
             strokeWidth = b.strokeWidth;
