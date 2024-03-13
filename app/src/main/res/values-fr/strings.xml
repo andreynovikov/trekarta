@@ -324,7 +324,6 @@
     <string name="pref_line_width_title">Largeur du trait</string>
     <string name="pref_active_route_color_title">Couleur de l\'itinéraire actif</string>
     <string name="pref_active_line_width_title">Largeur du trait actif</string>
-
     <string name="kind_place">Localités</string>
     <string name="kind_road">Routes</string>
     <string name="kind_building">Immeubles</string>
