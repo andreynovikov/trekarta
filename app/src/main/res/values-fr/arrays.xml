@@ -102,4 +102,9 @@
         <item>A vélo</item>
         <item>A ski</item>
     </string-array>
+    <string-array name="pointer_types">
+        <item>Flèche</item>
+        <item>Cercle A</item>
+        <item>Cercle B</item>
+    </string-array>
 </resources>
