@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Andrey Novikov
+ * Copyright 2024 Andrey Novikov
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -57,6 +57,8 @@ public class StringFormatter
 	public static String angleFormat = "%.0f";
 	public static double angleFactor = 1d;
 	public static String angleAbbr = "deg";
+	public static String angleLeft = "L";
+	public static String angleRight = "R";
 
 	//FIXME Should localize:
 	public static String secondAbbr = "sec";
@@ -164,6 +166,14 @@ public class StringFormatter
 		{
 			return angleC(angle) + " " + angleAbbr;
 		}
+	}
+
+	public static String angleT(final double angle)
+	{
+		String value = angleC(Math.abs(angle));
+		if ("0".equals(value))
+			return value;
+		return (angle < 0 ? angleLeft : angleRight) + value;
 	}
 
 	public static String angleC(final double angle)

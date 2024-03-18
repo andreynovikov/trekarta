@@ -253,6 +253,8 @@
     <string name="gauge_xtk">Cross track</string>
     <string name="gauge_ete">ETE</string>
     <string name="gauge_elevation">Elevation</string>
+    <string name="angle_left">L</string>
+    <string name="angle_right">R</string>
     <string name="place_altitude" translatable="false">&#9014; %s</string>
     <string name="place_proximity" translatable="false">~ %s</string>
     <string name="placeStoreName">My places</string>

@@ -198,6 +198,8 @@ public class MapTrek extends Application {
         unit = Configuration.getAngleUnit();
         StringFormatter.angleFactor = Double.parseDouble(resources.getStringArray(R.array.angle_factors)[unit]);
         StringFormatter.angleAbbr = resources.getStringArray(R.array.angle_abbreviations)[unit];
+        StringFormatter.angleLeft = resources.getString(R.string.angle_left);
+        StringFormatter.angleRight = resources.getString(R.string.angle_right);
         boolean precision = Configuration.getUnitPrecision();
         StringFormatter.precisionFormat = precision ? "%.1f" : "%.0f";
         StringFormatter.coordinateFormat = Configuration.getCoordinatesFormat();

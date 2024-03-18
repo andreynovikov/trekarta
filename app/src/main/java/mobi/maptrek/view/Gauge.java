@@ -98,9 +98,12 @@ public class Gauge extends ConstraintLayout {
                 break;
             }
             case Gauge.TYPE_TRACK:
-            case Gauge.TYPE_BEARING:
-            case Gauge.TYPE_TURN: {
+            case Gauge.TYPE_BEARING: {
                 indication = StringFormatter.angleC(value);
+                break;
+            }
+            case Gauge.TYPE_TURN: {
+                indication = StringFormatter.angleT(value);
                 break;
             }
             default:
