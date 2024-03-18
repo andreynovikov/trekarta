@@ -57,8 +57,8 @@ public class StringFormatter
 	public static String angleFormat = "%.0f";
 	public static double angleFactor = 1d;
 	public static String angleAbbr = "deg";
-	public static String angleLeft = "L";
-	public static String angleRight = "R";
+	public static String angleLeft = "↖";
+	public static String angleRight = "↗";
 
 	//FIXME Should localize:
 	public static String secondAbbr = "sec";
