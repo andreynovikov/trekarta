@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="itemsSelected">
+        <item quantity="other">%d 项已选择</item>
+    </plurals>
+    <plurals name="placesCount">
+        <item quantity="other">%d 个地点</item>
+    </plurals>
+    <plurals name="placesDeleted">
+        <item quantity="other">%d 个地点已删除</item>
+    </plurals>
+    <plurals name="tracksCount">
+        <item quantity="other">%d 条路径</item>
+    </plurals>
+    <plurals name="tracksDeleted">
+        <item quantity="other">%d 条路径已删除</item>
+    </plurals>
+    <plurals name="routesCount">
+        <item quantity="other">%d 条路线</item>
+    </plurals>
+    <plurals name="routesDeleted">
+        <item quantity="other">%d 条路线已删除</item>
+    </plurals>
+    <plurals name="numberOfPoints">
+        <item quantity="other">%d 点</item>
+    </plurals>
+    <plurals name="numberOfSegments">
+        <item quantity="other">%d 段</item>
+    </plurals>
+    <plurals name="numberOfLegs">
+        <item quantity="other">%d 线段</item>
+    </plurals>
+    <plurals name="loadedAreas">
+        <item quantity="other">%d 个区域已激活</item>
+    </plurals>
+    <plurals name="downloading">
+        <item quantity="other">%d 个正在下载</item>
+    </plurals>
+    <plurals name="remaining">
+        <item quantity="other">%d 个剩余</item>
+    </plurals>
+</resources>
