@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="data_format_array">
+        <item>GPX</item>
+        <item>KML</item>
+    </string-array>
+    <string-array name="track_format_array">
+        <item>本地</item>
+        <item>GPX</item>
+        <item>KML</item>
+    </string-array>
+    <string-array name="night_mode_array">
+        <item>跟随系统</item>
+        <item>自动（昼/夜）</item>
+        <item>关</item>
+        <item>开</item>
+    </string-array>
+    <string-array name="night_mode_array_short">
+        <item>系统</item>
+        <item>自动</item>
+        <item>关</item>
+        <item>开</item>
+    </string-array>
+    <string-array name="size_array">
+        <item>极小</item>
+        <item>小</item>
+        <item>正常</item>
+        <item>大</item>
+        <item>极大</item>
+    </string-array>
+    <string-array name="language_array">
+        <item>地图默认</item>
+        <item>英语</item>
+        <item>德语</item>
+        <item>俄语</item>
+    </string-array>
+    <string-array name="speed_units">
+        <item>公里每小时</item>
+        <item>英里每小时</item>
+        <item>节</item>
+        <item>米每小时</item>
+    </string-array>
+    <string-array name="speed_abbreviations">
+        <item>km/h</item>
+        <item>mph</item>
+        <item>kts</item>
+        <item>m/s</item>
+    </string-array>
+    <string-array name="distance_units">
+        <item>公里/米</item>
+        <item>英里/码</item>
+        <item>英里/英尺</item>
+        <item>海里</item>
+    </string-array>
+    <string-array name="distance_short">
+        <item>米</item>
+        <item>码</item>
+        <item>英尺</item>
+        <item>(海里)ˉ³</item>
+    </string-array>
+    <string-array name="distance_abbreviations">
+        <item>km</item>
+        <item>mi</item>
+        <item>mi</item>
+        <item>nm</item>
+    </string-array>
+    <string-array name="distance_abbreviations_short">
+        <item>m</item>
+        <item>yd</item>
+        <item>ft</item>
+        <item>nmˉ³</item>
+    </string-array>
+    <string-array name="elevation_units">
+        <item>米</item>
+        <item>英尺</item>
+    </string-array>
+    <string-array name="elevation_abbreviations">
+        <item>m</item>
+        <item>ft</item>
+    </string-array>
+    <string-array name="angle_units">
+        <item>角度</item>
+        <item>北约密位</item>
+        <item>苏联密位</item>
+        <item>百分度</item>
+    </string-array>
+    <string-array name="angle_abbreviations">
+        <item>deg</item>
+        <item>deg</item>
+        <item>mil</item>
+        <item>s.mil</item>
+        <item>gon</item>
+    </string-array>
+    <string-array name="mapStyles">
+        <item>道路</item>
+        <item>城市</item>
+        <item>地形</item>
+    </string-array>
+    <string-array name="activities">
+        <item>无</item>
+        <item>徒步</item>
+        <item>骑行</item>
+        <item>滑雪</item>
+    </string-array>
+    <string-array name="pointer_types">
+        <item>箭头</item>
+        <item>圆圈 A</item>
+        <item>圆圈 B</item>
+    </string-array>
+</resources>
