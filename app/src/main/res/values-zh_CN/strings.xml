@@ -5,17 +5,17 @@
     <string name="title_export_track">轨迹导出</string>
     <string name="title_map_import">地图导入</string>
     <string name="title_map_removal">正在移除地图</string>
-    <string name="title_input_name">姓名</string>
+    <string name="title_input_name">名称</string>
     <string name="titleCoordinatesInput">输入坐标</string>
     <string name="titleLocationPermissionRationale">Trekarta 需要位置权限</string>
     <string name="titleNotificationPermissionRationale">Trekarta 需要通知权限</string>
     <string name="whatsNewTitle">新内容</string>
 
-    <string name="ok">好的</string>
+    <string name="ok">OK</string>
     <string name="cancel">取消</string>
     <string name="close">关闭</string>
     <string name="error">错误</string>
-    <string name="name">姓名</string>
+    <string name="name">名称</string>
     <string name="degrees">度数</string>
     <string name="coordinate_utmups">UTM/UPS</string>
     <string name="coordinate_mgrs">MGRS</string>
@@ -31,7 +31,7 @@
     <string name="copyright">版权</string>
     <string name="yes">是</string>
     <string name="no">否</string>
-    <string name="credits">积分</string>
+    <string name="credits">致谢</string>
     <string name="failed">失败</string>
     <string name="complete">竞争</string>
     <string name="processed">%d%% 已处理</string>
@@ -186,7 +186,7 @@
     <string name="msgMultipleMapsMode">多地图模式已启用。使用双击显示和隐藏地图。</string>
     <string name="msgEnableGps">您应该在 Android 设置中启用精确位置（GPS），以便使用实时定位</string>
     <string name="msgMapDownloadFailed">%s 下载失败</string>
-    <string name="msgTooFewRouteLegs">路线应至少包含一个阶段</string>
+    <string name="msgTooFewRouteLegs">路线应至少包含一个线段</string>
 
     <string name="introOfflineMapsTitle">离线地图</string>
     <string name="introOfflineMaps">轻量级离线矢量地图包含详细的地形数据和高程轮廓，并支持阴影图。您可以添加自定义地图以覆盖您感兴趣的区域。自定义地图也将被阴影处理。</string>
@@ -194,10 +194,10 @@
     <string name="introPlaces">地点可以轻松从 GPX 和 KML 文件导入，或可以在应用程序内创建。您可以导航到这些点并与他人分享。</string>
     <string name="introTracksTitle">轨迹</string>
     <string name="introTracks">您可以记录旅程的轨迹。只需在开始时按下按钮，在结束时再次按下。您可以退出应用程序，如果您不需要查看地图，轨迹将在后台记录。</string>
-    <string name="introOffroadTitle">越野</string>
+    <string name="introOffroadTitle">越野驾驶</string>
     <string name="introOffroad">未铺砌的、泥土的、冬季和冰雪道路被特别可视化。仅限四轮驱动的道路有特定标记。所有道路上都显示渡口，即使是主要道路。</string>
-    <string name="introHikingTitle">徒步旅行</string>
-    <string name="introHiking">徒步旅行活动模式强调路径和轨迹。它可视化路径的难度和可见性，并显示徒步旅行路线。</string>
+    <string name="introHikingTitle">徒步</string>
+    <string name="introHiking">徒步活动模式突出显示路径和轨迹。它可视化路径的难度和可见性，并显示徒步旅行路线。</string>
     <string name="introCyclingTitle">骑行</string>
     <string name="introCycling">骑行活动模式揭示自行车基础设施。它显示骑行路线，并可视化山地骑行轨道的难度和可见性。</string>
     <string name="introSkiingTitle">滑雪和滑冰</string>
