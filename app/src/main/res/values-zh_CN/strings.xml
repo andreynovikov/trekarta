@@ -252,7 +252,7 @@
     <string name="gauge_elevation">海拔</string>
     <string name="placeStoreName">我的地点</string>
     <string name="version">版本：%s</string>
-    <string name="about">Trekarta 旨在用于徒步旅行、寻宝、越野、骑行、划船和所有其他户外活动。它使用离线地图，因此您不需要互联网连接。您可以轻松导入来自 GPX 和 KML 数据格式的地点和轨迹，或在应用程序中创建地点并与他人分享。它让您记录旅程的轨迹，甚至在后台运行，这样您就永远不会迷路，并且可以在之后查看您去过的地方。</string>
+    <string name="about">Trekarta 是一款专为徒步、地理藏宝、越野驾驶、骑行、划船等户外活动设计的应用程序。它采用离线地图，无需联网即可使用。你可以轻松导入 GPX 和 KML 格式的地点和轨迹，或在应用程序内创建地点并分享给他人。Trekarta 能够记录你的旅程轨迹，即使在后台运行，也不会让你迷路，并让你随后查看所去之处。</string>
     <string name="intentCopyMap">安装地图</string>
     <string name="intentImportData">Trekarta 导入</string>
     <string name="mapDownloadText">下载缺失的地图</string>
@@ -588,7 +588,7 @@
     <string name="legend_sledding">滑雪</string>
     <string name="legend_winter_hiking">冬季徒步</string>
     <string name="legend_sleighing">雪橇</string>
-    <string name="legend_other_activities">其他活动</string>
+    <string name="legend_other_activities">其它活动</string>
     <string name="legend_aerial_ways">空中索道</string>
     <string name="legend_terrain_features">地形特征</string>
     <string name="legend_manmade_features">人造特征</string>
