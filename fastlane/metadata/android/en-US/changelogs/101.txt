@@ -1,0 +1,4 @@
+• Added simple route creation
+• Draw place titles
+• Show selected online map license
+• Fixed GPX file reading error
