@@ -1,2 +1,0 @@
-• Fixed maps download on Android 12
-• Fixed custom maps processing on device rotation

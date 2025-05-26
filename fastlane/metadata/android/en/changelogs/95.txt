@@ -1,9 +1,0 @@
-• New map objects: town square, goods lift
-• New track recording interface
-• Added ability to pause track recording
-• Added troubleshooting options in settings
-• Added support for system controlled night theme
-• Added French translation
-• Fixed opening long tracks
-• Fixed map over-scale when viewing some tracks
-• Fixed showing trees on some ground surfaces

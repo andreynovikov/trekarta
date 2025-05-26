@@ -1,2 +1,0 @@
-• New map object: intermittent pond
-• Fix gone amenities were not removed from map database

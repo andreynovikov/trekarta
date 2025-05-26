@@ -1,6 +1,0 @@
-• Added route reverse navigation
-• Added route sharing
-• Added ability to keep data on app removal
-• Fixed plugin discovery
-• Fixed navigation in background
-• Fixed resuming navigation after pause

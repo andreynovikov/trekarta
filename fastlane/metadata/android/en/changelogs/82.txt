@@ -1,4 +1,0 @@
-• Fixed blank screen on newer devices
-• Fixed crash on start on newer devices
-• Removed option to store files on external storage
-• Removed fullscreen mode on older devices

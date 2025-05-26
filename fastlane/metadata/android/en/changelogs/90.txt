@@ -1,7 +1,0 @@
-• Revised file export
-• Revived location sharing plugin
-• New API for plugins
-• Added track elevation statistics
-• Added link detection in place description
-• Refreshed UI icons
-• Fixed coordinates search

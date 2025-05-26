@@ -1,4 +1,0 @@
-• Added German translation
-• Added current route visualization
-• Configurable location pointer type, size and color
-• Fixed crash when navigating in background
