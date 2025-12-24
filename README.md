@@ -1,17 +1,16 @@
-[![Android CI](https://github.com/andreynovikov/trekarta/actions/workflows/android.yml/badge.svg)](https://github.com/andreynovikov/trekarta/actions/workflows/android.yml)
-[![CodeQL](https://github.com/andreynovikov/trekarta/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/andreynovikov/trekarta/actions/workflows/codeql-analysis.yml)
 [![GitHub release](https://img.shields.io/github/release/andreynovikov/trekarta.svg)](https://github.com/andreynovikov/trekarta/releases/latest)
 [![F-Droid](https://img.shields.io/f-droid/v/mobi.maptrek)](https://f-droid.org/packages/mobi.maptrek/)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 
-__Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you've been.
+> [!IMPORTANT]
+> __Trekarta__ project is archived for two main reasons:
+> 
+> 1. Google has suspended (disabled) my developer account because of my nationality. It means I can not publish updates anymore.
+> 2. After almost ten years of development there were only 4000 (__four thousand!__) users of the app. It's rediculous! It means the concept of the app was bad, nobody is interested in it.
+>
+> Even with development being suspended app requires regular map updates and external storage, I do not have finantial resources to support it anymore.
 
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
-     alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=mobi.maptrek)
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/mobi.maptrek/)
+__Trekarta__ (former MapTrek) is designed for hiking, geocaching, off-roading, cycling, boating and all other outdoor activities. It uses offline maps so you do not need to have internet connection. You can easily import places and tracks from GPX and KML data formats or create places in application and share them to others. It lets you write the track of your journey, even in background, so you will never get lost and be able later see where you've been.
 
 __Offline maps__
 
